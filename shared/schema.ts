@@ -10,6 +10,47 @@ const geographyPoint = customType<{ data: { lat: number; lng: number } }>({
   },
 });
 
+// Educational Resources table for senior care guides and information
+export const educationalResources = pgTable("educational_resources", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").unique().notNull(),
+  category: text("category").notNull(), // 'Medicare', 'Long-Term Care', 'Legal', 'Financial', 'Health', 'Caregiving'
+  subcategory: text("subcategory"),
+  content_type: text("content_type").notNull(), // 'article', 'guide', 'checklist', 'video', 'infographic', 'ebook'
+  description: text("description").notNull(),
+  content: text("content"), // Full article content in markdown
+  summary: text("summary"), // Brief summary
+  author: text("author"),
+  source: text("source"), // Original source if external
+  source_url: text("source_url"),
+  difficulty_level: text("difficulty_level"), // 'beginner', 'intermediate', 'advanced'
+  reading_time: integer("reading_time"), // Estimated reading time in minutes
+  tags: text("tags").array().default([]),
+  featured_image: text("featured_image"),
+  related_resources: integer("related_resources").array().default([]), // IDs of related resources
+  external_links: jsonb("external_links").$type<{url: string; title: string; description: string}[]>().default([]),
+  is_featured: boolean("is_featured").default(false),
+  is_active: boolean("is_active").default(true),
+  view_count: integer("view_count").default(0),
+  helpful_count: integer("helpful_count").default(0),
+  share_count: integer("share_count").default(0),
+  meta_title: text("meta_title"),
+  meta_description: text("meta_description"),
+  published_at: timestamp("published_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+  created_at: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_educational_resources_category").on(table.category),
+  index("idx_educational_resources_slug").on(table.slug),
+  index("idx_educational_resources_featured").on(table.is_featured),
+]);
+
+export const insertEducationalResourceSchema = createInsertSchema(educationalResources)
+  .omit({ id: true, created_at: true, updated_at: true });
+export type InsertEducationalResource = z.infer<typeof insertEducationalResourceSchema>;
+export type SelectEducationalResource = typeof educationalResources.$inferSelect;
+
 // Session storage table for Replit Auth (MANDATORY)
 export const sessions = pgTable(
   "sessions",
@@ -1266,12 +1307,7 @@ export const communities = pgTable("communities", {
   monthlyMessages: integer("monthly_messages").default(0),
   lastReportingPeriod: timestamp("last_reporting_period"),
   
-  // On-Demand Enrichment & Verification Tracking
-  enrichmentStatus: text("enrichment_status", { 
-    enum: ["pending", "in_progress", "completed", "failed", "partial"] 
-  }).default("pending"),
-  lastEnrichmentAttempt: timestamp("last_enrichment_attempt"),
-  enrichmentAttempts: integer("enrichment_attempts").default(0),
+  // Successful enrichment tracking
   lastSuccessfulEnrichment: timestamp("last_successful_enrichment"),
   
   // Field Verification Counts - Protect after multiple confirmations
@@ -1296,13 +1332,6 @@ export const communities = pgTable("communities", {
   lastPromotionsUpdate: timestamp("last_promotions_update"),
   lastReviewsUpdate: timestamp("last_reviews_update"),
   
-  // Enrichment Source Tracking
-  enrichmentSources: json("enrichment_sources").$type<Array<{
-    source: string; // 'website_scraper', 'google_places', 'openai', 'manual'
-    date: string;
-    fieldsUpdated: string[];
-    confidence: number;
-  }>>().default([]),
   
   // View-triggered Enrichment Tracking
   viewCount: integer("view_count").default(0),

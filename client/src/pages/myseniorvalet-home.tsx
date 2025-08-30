@@ -612,32 +612,78 @@ function HeroSectionWithTransformingSearch() {
                                 }}
                               />
                             ) : searchCategory === 'healthcare' ? (
-                              // Healthcare Provider Card
+                              // Enhanced Healthcare Provider Card with Hospital Data
                               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-red-200 dark:border-red-800">
                                 <div className="flex items-start gap-4">
                                   <div className="p-3 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg">
-                                    <span className="text-2xl">🏥</span>
+                                    <span className="text-2xl">
+                                      {item.emergency_services ? '🚑' : item.hospital_type?.includes('Children') ? '👶' : '🏥'}
+                                    </span>
                                   </div>
                                   <div className="flex-1">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                      {item.name || item.business_name}
-                                    </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                      {item.city && item.state ? `${item.city}, ${item.state}` : 'Healthcare Facility'}
-                                    </p>
-                                    {item.care_types && (
-                                      <div className="flex flex-wrap gap-1 mt-2">
-                                        {item.care_types.slice(0, 3).map((type: string, idx: number) => (
-                                          <span key={idx} className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded">
-                                            {type}
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                                          {item.name}
+                                        </h3>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                          {item.city}, {item.state} {item.zip_code}
+                                        </p>
+                                      </div>
+                                      {item.cms_rating && (
+                                        <div className="flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded">
+                                          <span className="text-yellow-600 dark:text-yellow-400">⭐</span>
+                                          <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
+                                            {item.cms_rating}/5
                                           </span>
-                                        ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Hospital Type and Emergency Status */}
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                      {item.hospital_type && (
+                                        <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
+                                          {item.hospital_type}
+                                        </span>
+                                      )}
+                                      {item.emergency_services && (
+                                        <span className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded font-semibold">
+                                          24/7 Emergency
+                                        </span>
+                                      )}
+                                      {item.trauma_level && (
+                                        <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded">
+                                          {item.trauma_level}
+                                        </span>
+                                      )}
+                                      {item.bed_count && (
+                                        <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300 rounded">
+                                          {item.bed_count} beds
+                                        </span>
+                                      )}
+                                    </div>
+                                    
+                                    {/* Services/Specialties Preview */}
+                                    {item.specialties && item.specialties.length > 0 && (
+                                      <div className="mt-2">
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">
+                                          Specialties: {item.specialties.slice(0, 3).join(', ')}
+                                          {item.specialties.length > 3 && ` +${item.specialties.length - 3} more`}
+                                        </p>
                                       </div>
                                     )}
+                                    
+                                    {/* Contact Information */}
                                     <div className="flex items-center gap-4 mt-3">
                                       {item.phone && (
                                         <a href={`tel:${item.phone}`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
                                           📞 {item.phone}
+                                        </a>
+                                      )}
+                                      {item.emergency_phone && (
+                                        <a href={`tel:${item.emergency_phone}`} className="text-sm text-red-600 dark:text-red-400 hover:underline font-semibold">
+                                          🚨 Emergency: {item.emergency_phone}
                                         </a>
                                       )}
                                       {item.website && (

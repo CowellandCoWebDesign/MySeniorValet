@@ -10,7 +10,7 @@ import { sql, like, or, and, eq, desc } from 'drizzle-orm';
 
 const router = Router();
 
-// Vendor/Services search endpoint
+// Vendor/Services search endpoint - Using service_providers table (3,584 providers)
 router.post('/api/vendors/search', async (req, res) => {
   try {
     const { query = '', limit = 100, offset = 0 } = req.body;
@@ -18,42 +18,74 @@ router.post('/api/vendors/search', async (req, res) => {
     
     const startTime = Date.now();
     
-    // Search vendors
+    // First try vendors table for featured/verified vendors
     const vendorResults = await db.execute(sql`
       SELECT 
-        id, business_name, business_type, description, short_description,
-        primary_contact_email, primary_contact_phone, business_city, business_state,
+        'vendor' as source_type,
+        id, business_name as name, business_type, description, short_description,
+        primary_contact_email as email, primary_contact_phone as phone, 
+        business_city as city, business_state as state,
         website, logo_url, service_areas, subscription_tier, is_verified,
         average_rating, total_reviews, featured, status
       FROM vendors
       WHERE status = 'active'
         AND (
-          LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(business_city) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(business_state) LIKE ${'%' + searchTerm + '%'}
+          ${searchTerm ? sql`(
+            LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(business_city) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(business_state) LIKE ${'%' + searchTerm + '%'}
+          )` : sql`true`}
         )
-      ORDER BY 
-        featured DESC, 
-        average_rating DESC
-      LIMIT ${limit}
-      OFFSET ${offset}
     `);
     
-    const totalCount = await db.execute(sql`
-      SELECT COUNT(*) as count 
-      FROM vendors 
-      WHERE status = 'active'
+    // Then search service_providers table for comprehensive results
+    const serviceProviderResults = await db.execute(sql`
+      SELECT 
+        'provider' as source_type,
+        id, name, 'Service Provider' as business_type, description, 
+        description as short_description,
+        contact_email as email, contact_phone as phone, 
+        '' as city, '' as state,
+        website, logo as logo_url, null as service_areas, 
+        partnership_level as subscription_tier, is_partner as is_verified,
+        rating as average_rating, total_reviews, 
+        is_partner as featured, 'active' as status
+      FROM service_providers
+      WHERE is_active = true
         AND (
-          LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
+          ${searchTerm ? sql`(
+            LOWER(name) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+          )` : sql`true`}
         )
+      ORDER BY 
+        is_partner DESC, 
+        rating DESC NULLS LAST
+      LIMIT ${limit - vendorResults.rows.length}
+      OFFSET ${Math.max(0, offset - vendorResults.rows.length)}
+    `);
+    
+    // Combine results
+    const combinedResults = [...vendorResults.rows, ...serviceProviderResults.rows];
+    
+    const totalCount = await db.execute(sql`
+      SELECT 
+        (SELECT COUNT(*) FROM vendors WHERE status = 'active' 
+          AND (${searchTerm ? sql`(
+            LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+          )` : sql`true`})) +
+        (SELECT COUNT(*) FROM service_providers WHERE is_active = true
+          AND (${searchTerm ? sql`(
+            LOWER(name) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+          )` : sql`true`})) as count
     `);
     
     res.json({
-      communities: vendorResults.rows || [], // Using 'communities' key for consistency
+      communities: combinedResults || [], // Using 'communities' key for consistency
       totalResults: parseInt((totalCount.rows[0] as any)?.count || '0'),
       searchMetadata: {
         query,
@@ -88,7 +120,7 @@ router.post('/api/vendors/search', async (req, res) => {
   }
 });
 
-// Healthcare search endpoint
+// Healthcare search endpoint - Using real hospitals data
 router.post('/api/healthcare/search', async (req, res) => {
   try {
     const { query = '', limit = 100, offset = 0 } = req.body;
@@ -96,44 +128,75 @@ router.post('/api/healthcare/search', async (req, res) => {
     
     const startTime = Date.now();
     
-    // Search healthcare facilities in communities table
-    const healthcareResults = await db.execute(sql`
-      SELECT 
-        id, name, address, city, state, zip_code, 
-        phone, website, care_types, price_range,
-        photos, latitude, longitude, rating,
-        hud_property_id
-      FROM communities
-      WHERE 
-        (array_to_string(care_types, ' ') ILIKE '%hospital%' 
-         OR array_to_string(care_types, ' ') ILIKE '%medical%'
-         OR array_to_string(care_types, ' ') ILIKE '%clinic%'
-         OR array_to_string(care_types, ' ') ILIKE '%rehab%'
-         OR array_to_string(care_types, ' ') ILIKE '%health%')
-        AND (
-          LOWER(name) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(city) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(state) LIKE ${'%' + searchTerm + '%'}
-          OR array_to_string(care_types, ' ') ILIKE ${'%' + searchTerm + '%'}
-        )
-      ORDER BY 
-        rating DESC NULLS LAST
-      LIMIT ${limit}
-      OFFSET ${offset}
-    `);
+    // Search real hospitals from hospitals table
+    let healthcareResults;
+    let totalCount;
     
-    const totalCount = await db.execute(sql`
-      SELECT COUNT(*) as count 
-      FROM communities 
-      WHERE 
-        (array_to_string(care_types, ' ') ILIKE '%hospital%' 
-         OR array_to_string(care_types, ' ') ILIKE '%medical%'
-         OR array_to_string(care_types, ' ') ILIKE '%clinic%')
-        AND (
-          LOWER(name) LIKE ${'%' + searchTerm + '%'}
-          OR LOWER(city) LIKE ${'%' + searchTerm + '%'}
-        )
-    `);
+    if (searchTerm) {
+      healthcareResults = await db.execute(sql`
+        SELECT 
+          id, name, address, city, state, zip_code, 
+          phone, website, hospital_type, emergency_services,
+          bed_count, cms_rating, services, specialties,
+          latitude, longitude, ownership, trauma_level,
+          emergency_phone, insurance_accepted
+        FROM hospitals
+        WHERE 
+          is_active = true
+          AND (
+            LOWER(name) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(city) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(state) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(hospital_type) LIKE ${'%' + searchTerm + '%'}
+            OR array_to_string(services, ' ') ILIKE ${'%' + searchTerm + '%'}
+            OR array_to_string(specialties, ' ') ILIKE ${'%' + searchTerm + '%'}
+          )
+        ORDER BY 
+          CASE WHEN emergency_services = true THEN 0 ELSE 1 END,
+          cms_rating DESC NULLS LAST,
+          bed_count DESC NULLS LAST
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `);
+      
+      totalCount = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM hospitals 
+        WHERE 
+          is_active = true
+          AND (
+            LOWER(name) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(city) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(state) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(hospital_type) LIKE ${'%' + searchTerm + '%'}
+            OR array_to_string(services, ' ') ILIKE ${'%' + searchTerm + '%'}
+            OR array_to_string(specialties, ' ') ILIKE ${'%' + searchTerm + '%'}
+          )
+      `);
+    } else {
+      healthcareResults = await db.execute(sql`
+        SELECT 
+          id, name, address, city, state, zip_code, 
+          phone, website, hospital_type, emergency_services,
+          bed_count, cms_rating, services, specialties,
+          latitude, longitude, ownership, trauma_level,
+          emergency_phone, insurance_accepted
+        FROM hospitals
+        WHERE is_active = true
+        ORDER BY 
+          CASE WHEN emergency_services = true THEN 0 ELSE 1 END,
+          cms_rating DESC NULLS LAST,
+          bed_count DESC NULLS LAST
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `);
+      
+      totalCount = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM hospitals 
+        WHERE is_active = true
+      `);
+    }
     
     res.json({
       communities: healthcareResults.rows || [],
@@ -171,7 +234,7 @@ router.post('/api/healthcare/search', async (req, res) => {
   }
 });
 
-// Resources search endpoint
+// Resources search endpoint - Using real educational_resources table
 router.post('/api/resources/search', async (req, res) => {
   try {
     const { query = '', limit = 100, offset = 0 } = req.body;
@@ -179,63 +242,87 @@ router.post('/api/resources/search', async (req, res) => {
     
     const startTime = Date.now();
     
-    // For now, return educational resources from static data
-    // This could be expanded to search a resources table in the future
-    const mockResources = [
-      {
-        id: 1,
-        name: 'Understanding Medicare for Seniors',
-        type: 'Guide',
-        description: 'Complete guide to Medicare benefits and enrollment',
-        category: 'Healthcare',
-        url: '/resources/medicare-guide'
-      },
-      {
-        id: 2,
-        name: 'Choosing the Right Senior Living Community',
-        type: 'Article',
-        description: 'Key factors to consider when selecting senior care',
-        category: 'Senior Living',
-        url: '/resources/choosing-community'
-      },
-      {
-        id: 3,
-        name: 'Financial Planning for Long-Term Care',
-        type: 'Guide',
-        description: 'Understanding costs and payment options for senior care',
-        category: 'Financial',
-        url: '/resources/financial-planning'
-      },
-      {
-        id: 4,
-        name: 'Alzheimer\'s and Dementia Care Resources',
-        type: 'Resource Hub',
-        description: 'Support and information for memory care needs',
-        category: 'Memory Care',
-        url: '/resources/memory-care'
-      },
-      {
-        id: 5,
-        name: 'Veterans Benefits for Senior Care',
-        type: 'Guide',
-        description: 'VA benefits and resources for veteran seniors',
-        category: 'Veterans',
-        url: '/resources/va-benefits'
-      }
-    ];
+    // Search real educational resources from database
+    let resourceResults;
+    let totalCount;
     
-    // Filter resources based on search query
-    const filteredResources = searchTerm 
-      ? mockResources.filter(resource => 
-          resource.name.toLowerCase().includes(searchTerm) ||
-          resource.description.toLowerCase().includes(searchTerm) ||
-          resource.category.toLowerCase().includes(searchTerm)
-        )
-      : mockResources;
+    if (searchTerm) {
+      resourceResults = await db.execute(sql`
+        SELECT 
+          id, title as name, content_type as type, 
+          description, category,
+          slug as url,
+          author, source, source_url,
+          difficulty_level, reading_time,
+          tags, is_featured as featured,
+          view_count, helpful_count
+        FROM educational_resources
+        WHERE 
+          is_active = true
+          AND (
+            LOWER(title) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(category) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(subcategory) LIKE ${'%' + searchTerm + '%'}
+            OR array_to_string(tags, ' ') ILIKE ${'%' + searchTerm + '%'}
+          )
+        ORDER BY 
+          is_featured DESC,
+          view_count DESC,
+          helpful_count DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `);
+      
+      totalCount = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM educational_resources 
+        WHERE 
+          is_active = true
+          AND (
+            LOWER(title) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+            OR LOWER(category) LIKE ${'%' + searchTerm + '%'}
+            OR array_to_string(tags, ' ') ILIKE ${'%' + searchTerm + '%'}
+          )
+      `);
+    } else {
+      // Return featured resources when no search term
+      resourceResults = await db.execute(sql`
+        SELECT 
+          id, title as name, content_type as type, 
+          description, category,
+          slug as url,
+          author, source, source_url,
+          difficulty_level, reading_time,
+          tags, is_featured as featured,
+          view_count, helpful_count
+        FROM educational_resources
+        WHERE is_active = true
+        ORDER BY 
+          is_featured DESC,
+          view_count DESC,
+          created_at DESC
+        LIMIT ${limit}
+        OFFSET ${offset}
+      `);
+      
+      totalCount = await db.execute(sql`
+        SELECT COUNT(*) as count 
+        FROM educational_resources 
+        WHERE is_active = true
+      `);
+    }
+    
+    // Format resources with URL prefix
+    const formattedResources = (resourceResults.rows || []).map(resource => ({
+      ...resource,
+      url: `/resources/${resource.url}`
+    }));
     
     res.json({
-      communities: filteredResources.slice(offset, offset + limit),
-      totalResults: filteredResources.length,
+      communities: formattedResources,
+      totalResults: parseInt((totalCount.rows[0] as any)?.count || '0'),
       searchMetadata: {
         query,
         searchType: 'resources',
