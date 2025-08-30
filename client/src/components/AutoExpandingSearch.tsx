@@ -147,7 +147,7 @@ export function AutoExpandingSearch({
                 className="absolute -top-8 left-4 flex items-center space-x-2 text-xs"
               >
                 <div className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-full flex items-center space-x-1">
-                  <Brain className="w-3 h-3" />
+                  <span className="text-sm">🕵️</span>
                   <span>Learn Mode Active</span>
                   <Sparkles className="w-3 h-3 animate-pulse" />
                 </div>
@@ -158,7 +158,7 @@ export function AutoExpandingSearch({
           {/* Search Icon */}
           <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
             {isResearchMode ? (
-              <Brain className="h-5 w-5 text-purple-600" />
+              <span className="text-lg">🕵️</span>
             ) : (
               <Search className="h-5 w-5 text-gray-400" />
             )}
@@ -238,7 +238,7 @@ export function AutoExpandingSearch({
                     </span>
                     {isResearchMode && (
                       <span className="flex items-center space-x-1">
-                        <Brain className="w-3 h-3 text-purple-500" />
+                        <span className="text-sm">🕵️</span>
                         <span>Advanced AI analysis active</span>
                       </span>
                     )}

@@ -98,38 +98,43 @@ async function findRelevantResources(query: string) {
   try {
     const searchTerms = query.split(' ').filter(term => term.length > 3);
     if (searchTerms.length > 0) {
-      const communityResults = await db
-        .select({
-          id: communities.id,
-          name: communities.name,
-          city: communities.city,
-          state: communities.state_province
-        })
-        .from(communities)
-        .where(
-          or(
-            ...searchTerms.map(term => 
+      // Search for each term individually and combine results
+      for (const term of searchTerms.slice(0, 2)) { // Limit to first 2 terms for performance
+        try {
+          const communityResults = await db
+            .select({
+              id: communities.id,
+              name: communities.name,
+              city: communities.city,
+              state: communities.state
+            })
+            .from(communities)
+            .where(
               or(
                 like(communities.name, `%${term}%`),
                 like(communities.city, `%${term}%`)
               )
             )
-          )
-        )
-        .limit(3);
-      
-      if (communityResults.length > 0) {
-        communityResults.forEach(community => {
-          resources.push({
-            title: community.name,
-            url: `/community/${community.id}`,
-            description: `${community.city}, ${community.state} - View community details`
-          });
-        });
+            .limit(2);
+          
+          if (communityResults && communityResults.length > 0) {
+            communityResults.forEach(community => {
+              if (community && community.name) {
+                resources.push({
+                  title: community.name,
+                  url: `/community/${community.id}`,
+                  description: `${community.city || 'Unknown'}, ${community.state || ''} - View community details`
+                });
+              }
+            });
+          }
+        } catch (searchError) {
+          console.error(`Error searching for term "${term}":`, searchError);
+        }
       }
     }
   } catch (error) {
-    console.error('Error searching communities:', error);
+    console.error('Error in community search:', error);
   }
   
   // Remove duplicates
@@ -180,45 +185,54 @@ When answering:
 2. If the question is about senior care, provide practical guidance
 3. Reference specific features of MySeniorValet when relevant
 4. Keep responses concise but comprehensive
-5. Use the newest OpenAI model "gpt-5" which was released August 7, 2025
-
-You must respond in JSON format with the following structure:
-{
-  "answer": "Your helpful response here",
-  "suggestions": ["Optional array of related topics the user might want to explore"]
-}
-
-Current query: "${query}"`;
+5. Use the newest OpenAI model "gpt-5" which was released August 7, 2025`;
 
     // Call OpenAI API
-    const completion = await openai.chat.completions.create({
-      model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: query }
-      ],
-      max_completion_tokens: 800, // gpt-5 uses max_completion_tokens instead of max_tokens
-      // temperature: 1 is the default and only supported value for gpt-5
-      response_format: { type: "json_object" },
-    });
+    let completion;
+    try {
+      console.log('Calling OpenAI GPT-5 with query:', query);
+      completion = await openai.chat.completions.create({
+        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: query }
+        ],
+        max_completion_tokens: 500, // gpt-5 uses max_completion_tokens instead of max_tokens
+        // temperature: 1 is the default and only supported value for gpt-5
+      });
+      console.log('OpenAI response received:', completion.choices[0]);
+    } catch (openaiError: any) {
+      console.error('OpenAI API Error:', openaiError?.message || openaiError);
+      console.error('Error details:', openaiError?.response?.data || openaiError);
+      
+      // Provide a fallback response if OpenAI fails
+      const fallbackResponse = {
+        answer: "I'm here to help you navigate senior living options. While I'm experiencing a temporary connection issue, MySeniorValet has extensive resources including 32,970+ communities across the US and Canada. You can explore our pricing comparisons, map search, or browse by care type. What specific information are you looking for?",
+        suggestions: ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"]
+      };
+      
+      return res.json({
+        success: true,
+        query: query,
+        answer: fallbackResponse.answer,
+        platformResources: platformResources,
+        suggestions: fallbackResponse.suggestions,
+        timestamp: new Date().toISOString()
+      });
+    }
 
-    const aiResponse = completion.choices[0]?.message?.content;
+    const aiResponse = completion?.choices?.[0]?.message?.content;
     
     if (!aiResponse) {
+      console.error('Empty response from OpenAI:', completion);
       throw new Error('No response from AI');
     }
 
-    // Parse the AI response
-    let parsedResponse;
-    try {
-      parsedResponse = JSON.parse(aiResponse);
-    } catch {
-      // If JSON parsing fails, create a structured response
-      parsedResponse = {
-        answer: aiResponse,
-        suggestions: []
-      };
-    }
+    // Create a structured response from the plain text
+    const parsedResponse = {
+      answer: aiResponse,
+      suggestions: ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"]
+    };
 
     // Format the final response
     const response = {

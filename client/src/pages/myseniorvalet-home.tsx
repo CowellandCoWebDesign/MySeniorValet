@@ -552,7 +552,7 @@ function HeroSectionWithTransformingSearch() {
                   <h3 className="text-lg font-semibold text-white">
                     {searchResults?.metadata?.isResearchMode ? (
                       <span className="flex items-center space-x-2">
-                        <Brain className="w-5 h-5 text-purple-400" />
+                        <span className="text-lg">🕵️</span>
                         <span>Research Mode found {searchResults?.results?.length || 0} recommendations</span>
                       </span>
                     ) : (
