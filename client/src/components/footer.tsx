@@ -11,19 +11,14 @@ export function Footer() {
   });
 
   return (
-    <footer className="relative text-white border-t border-gray-800 overflow-hidden">
-      {/* Vaporwave Background */}
+    <footer className="relative text-white border-t-2 border-purple-600 overflow-hidden min-h-[600px]" 
+      style={{
+        background: `linear-gradient(to bottom, rgba(15, 15, 30, 0.7), rgba(30, 10, 40, 0.9)), url(${VaporwaveLogo}) center/contain no-repeat`,
+        backgroundColor: '#1a0a2e'
+      }}>
+      {/* Additional vaporwave overlay for depth */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src={VaporwaveLogo} 
-          alt="Retro Synthwave Background" 
-          className="w-full h-full object-cover opacity-40"
-          style={{
-            filter: 'brightness(0.8) contrast(1.3) saturate(1.8)',
-            objectPosition: 'center center'
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950/95 via-gray-900/85 to-purple-950/50"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-purple-900/20 to-gray-950/70"></div>
       </div>
       
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
