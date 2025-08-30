@@ -113,27 +113,21 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
         <div className="flex items-center justify-between h-20">
           {/* Left Section: Mobile Menu, Logo and Desktop Nav */}
           <div className="flex items-center space-x-4 lg:space-x-8">
-            {/* Mobile Menu Button - Far Left with Checklist Emoji */}
+            {/* Mobile Menu Button - Far Left with Compass Emoji */}
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild className="lg:hidden">
                 <button
                   className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
                   aria-label="Open menu"
                 >
-                  <span className="text-2xl">📋</span>
+                  <span className="text-2xl">🧭</span>
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900">
                 <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
-                      <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        {/* Magnifying glass */}
-                        <circle cx="10" cy="10" r="7" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M21 21l-5.5-5.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        {/* House inside magnifying glass */}
-                        <path d="M7 12v-2l3-3 3 3v5h-2v-3h-2v3h-2v-3z" fill="currentColor" stroke="none"/>
-                      </svg>
+                      <span className="text-xl">🏡</span>
                     </div>
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
@@ -206,13 +200,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             {/* Logo - Clean Professional Design */}
             <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
               <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
-                <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  {/* Magnifying glass */}
-                  <circle cx="10" cy="10" r="7" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M21 21l-5.5-5.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  {/* House inside magnifying glass */}
-                  <path d="M7 12v-2l3-3 3 3v5h-2v-3h-2v3h-2v-3z" fill="currentColor" stroke="none"/>
-                </svg>
+                <span className="text-xl">🏡</span>
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
