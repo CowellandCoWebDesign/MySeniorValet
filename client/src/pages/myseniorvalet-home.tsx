@@ -295,9 +295,8 @@ function HeroSectionWithTransformingSearch() {
         {/* Hero Title - Positioned at Very Top */}
         <div className="w-full text-center pt-[2vh] sm:pt-[2.5vh] md:pt-[3vh] lg:pt-[2.5vh]">
           <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-6 sm:px-8 py-4 sm:py-5">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
-              <span className="block">Everything You Need.</span>
-              <span className="block mt-1 sm:mt-2">Nothing You Pay.</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+              Everything You Need. Nothing You Pay.
             </h1>
           </div>
         </div>
