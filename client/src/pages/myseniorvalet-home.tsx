@@ -94,7 +94,6 @@ function HeroSectionWithTransformingSearch() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
-  const [isSearchExpanded, setIsSearchExpanded] = useState(false); // Track if search icon is expanded
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
 
@@ -313,18 +312,14 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('communities')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
                   ${searchCategory === 'communities' 
-                    ? isSearchActive 
-                      ? 'bg-[#F4E4BC] dark:bg-gray-800 text-purple-800 dark:text-purple-300 z-30 shadow-md transform translate-y-[-2px]'
-                      : 'bg-[#F4E4BC]/60 dark:bg-gray-800/60 text-purple-700 dark:text-purple-300 z-30'
-                    : isSearchActive
-                      ? 'bg-[#E8D5A3] dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-[#DCC799] dark:hover:bg-gray-600 hover:translate-y-[-1px]'
-                      : 'bg-[#E8D5A3]/40 dark:bg-gray-700/40 text-gray-500 dark:text-gray-500 hover:bg-[#DCC799]/50 dark:hover:bg-gray-600/50 hover:translate-y-[-1px]'
+                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
+                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
                   }`}
                 style={{
                   clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
                   marginRight: '-8px',
                   transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'communities' && isSearchActive ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
+                  boxShadow: searchCategory === 'communities' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
                 <span className="text-sm">🏘️</span>
@@ -339,18 +334,14 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('services')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
                   ${searchCategory === 'services' 
-                    ? isSearchActive 
-                      ? 'bg-[#F4E4BC] dark:bg-gray-800 text-purple-800 dark:text-purple-300 z-30 shadow-md transform translate-y-[-2px]'
-                      : 'bg-[#F4E4BC]/60 dark:bg-gray-800/60 text-purple-700 dark:text-purple-300 z-30'
-                    : isSearchActive
-                      ? 'bg-[#E8D5A3] dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-[#DCC799] dark:hover:bg-gray-600 hover:translate-y-[-1px]'
-                      : 'bg-[#E8D5A3]/40 dark:bg-gray-700/40 text-gray-500 dark:text-gray-500 hover:bg-[#DCC799]/50 dark:hover:bg-gray-600/50 hover:translate-y-[-1px]'
+                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
+                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
                   }`}
                 style={{
                   clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
                   marginRight: '-8px',
                   transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'services' && isSearchActive ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
+                  boxShadow: searchCategory === 'services' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
                 <span className="text-sm">🛍️</span>
@@ -364,18 +355,14 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('healthcare')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
                   ${searchCategory === 'healthcare' 
-                    ? isSearchActive 
-                      ? 'bg-[#F4E4BC] dark:bg-gray-800 text-purple-800 dark:text-purple-300 z-30 shadow-md transform translate-y-[-2px]'
-                      : 'bg-[#F4E4BC]/60 dark:bg-gray-800/60 text-purple-700 dark:text-purple-300 z-30'
-                    : isSearchActive
-                      ? 'bg-[#E8D5A3] dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-[#DCC799] dark:hover:bg-gray-600 hover:translate-y-[-1px]'
-                      : 'bg-[#E8D5A3]/40 dark:bg-gray-700/40 text-gray-500 dark:text-gray-500 hover:bg-[#DCC799]/50 dark:hover:bg-gray-600/50 hover:translate-y-[-1px]'
+                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
+                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
                   }`}
                 style={{
                   clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
                   marginRight: '-8px',
                   transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'healthcare' && isSearchActive ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
+                  boxShadow: searchCategory === 'healthcare' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
                 <span className="text-sm">🏥</span>
@@ -389,18 +376,14 @@ function HeroSectionWithTransformingSearch() {
                 onClick={() => setSearchCategory('resources')}
                 className={`relative px-3 sm:px-4 py-1.5 transition-all duration-200 text-[11px] sm:text-xs font-semibold flex items-center gap-1
                   ${searchCategory === 'resources' 
-                    ? isSearchActive 
-                      ? 'bg-[#F4E4BC] dark:bg-gray-800 text-purple-800 dark:text-purple-300 z-30 shadow-md transform translate-y-[-2px]'
-                      : 'bg-[#F4E4BC]/60 dark:bg-gray-800/60 text-purple-700 dark:text-purple-300 z-30'
-                    : isSearchActive
-                      ? 'bg-[#E8D5A3] dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-[#DCC799] dark:hover:bg-gray-600 hover:translate-y-[-1px]'
-                      : 'bg-[#E8D5A3]/40 dark:bg-gray-700/40 text-gray-500 dark:text-gray-500 hover:bg-[#DCC799]/50 dark:hover:bg-gray-600/50 hover:translate-y-[-1px]'
+                    ? 'bg-[#F4E4BC] text-purple-900 z-30 shadow-md transform translate-y-[-2px] border border-purple-300'
+                    : 'bg-[#E8D5A3] text-gray-700 hover:bg-[#DCC799] hover:translate-y-[-1px] border border-gray-300'
                   }`}
                 style={{
                   clipPath: 'polygon(0 30%, 15px 0, calc(100% - 15px) 0, 100% 30%, 100% 100%, 0 100%)',
                   marginRight: '-8px',
                   transition: 'all 0.2s ease-out',
-                  boxShadow: searchCategory === 'resources' && isSearchActive ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
+                  boxShadow: searchCategory === 'resources' ? '0 4px 12px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'
                 }}
               >
                 <span className="text-sm">📚</span>
@@ -412,64 +395,21 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - Morphing Search Icon with Progressive Disclosure */}
-          <div 
-            className={`relative z-10 transition-all duration-500 ease-out ${
-              isSearchExpanded 
-                ? 'w-full max-w-2xl' 
-                : 'w-12 sm:w-14 hover:scale-105'
-            }`}
-            onMouseEnter={() => !isSearchExpanded && setIsSearchExpanded(false)} 
-            onFocus={() => setIsSearchExpanded(true)}
-          >
-            {/* Expanding Search Container */}
-            <div className={`rounded-b-xl rounded-tr-xl transition-all duration-500 ${
-              isSearchExpanded && isSearchActive 
+          {/* Search Bar Container - Always Visible */}
+          <div className="w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300">
+            <div className={`rounded-b-xl rounded-tr-xl transition-all duration-300 ${
+              isSearchActive 
                 ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3 shadow-2xl' 
-                : isSearchExpanded
-                  ? 'bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm p-2'
-                  : ''
+                : 'bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm p-2 border border-t-0 border-white/30 dark:border-gray-600/30'
             }`}>
-              {/* Search Icon Button (shown when collapsed) */}
-              {!isSearchExpanded && (
-                <button
-                  onClick={() => setIsSearchExpanded(true)}
-                  className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white/40 dark:bg-gray-800/40 backdrop-blur-sm border border-white/50 dark:border-gray-600/50 flex items-center justify-center hover:bg-white/60 dark:hover:bg-gray-800/60 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 animate-pulse-slow"
-                  aria-label="Open search"
-                  title="Click to search communities"
-                >
-                  <svg className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </button>
-              )}
-              
-              {/* Expanded Search Content */}
-              {isSearchExpanded && (
-                <>
-                  <div className={`rounded-lg transition-all duration-300 ${
-                    isSearchActive 
-                      ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
-                      : ''
-                  }`}>
-                    {/* Close button */}
-                    <button
-                      onClick={() => {
-                        setIsSearchExpanded(false);
-                        setIsSearchActive(false);
-                        setSearchQuery('');
-                      }}
-                      className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors shadow-md z-50"
-                      aria-label="Close search"
-                    >
-                      <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                    
-                    {/* Wrapper to override search bar background when not active */}
-                    <div className={`${!isSearchActive ? '[&_input]:!bg-white/30 [&_input]:dark:!bg-gray-800/30 [&_input]:!backdrop-blur-sm [&_input]:!border-white/40 [&_input]:dark:!border-gray-600/40' : ''}`}>
-                    <ComprehensiveSearch 
+              <div className={`rounded-lg transition-all duration-300 ${
+                isSearchActive 
+                  ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
+                  : ''
+              }`}>
+                {/* Wrapper to override search bar background when not active */}
+                <div className={`${!isSearchActive ? '[&_input]:!bg-white/70 [&_input]:dark:!bg-gray-800/70 [&_input]:!backdrop-blur-sm [&_input]:!border-white/60 [&_input]:dark:!border-gray-600/60' : ''}`}>
+                <ComprehensiveSearch 
               searchCategory={searchCategory}
               onSearch={(results) => {
               // If map view is selected, redirect to map search page with category
@@ -512,17 +452,14 @@ function HeroSectionWithTransformingSearch() {
             className="w-full"
             showSuggestions={true}
             />
-                    </div>
-                  </div>
-                </>
-              )}
+                </div>
+              </div>
             </div>
           </div>
             
-          {/* View Mode Tabs - Only show when search is expanded */}
-          {isSearchExpanded && (
-            <div className="w-full max-w-2xl flex justify-center mt-3 pb-2">
-              <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
+          {/* View Mode Tabs - Always visible */}
+          <div className="w-full max-w-2xl flex justify-center mt-3 pb-2">
+            <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
                 isSearchActive 
                   ? 'bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm shadow-inner'
                   : 'bg-transparent'
@@ -577,7 +514,6 @@ function HeroSectionWithTransformingSearch() {
                 </button>
               </div>
             </div>
-          )}
             
             {/* Trust Indicators - Only show when not searching */}
             {!isSearchActive && (
