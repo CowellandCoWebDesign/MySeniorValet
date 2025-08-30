@@ -319,7 +319,7 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
                       ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
-                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
+                      : 'bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">🏘️</span>
@@ -339,7 +339,7 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
                       ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
-                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
+                      : 'bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">🛍️</span>
@@ -358,7 +358,7 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
                       ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
-                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
+                      : 'bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">🏥</span>
@@ -377,7 +377,7 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-r from-purple-400/80 to-blue-400/80 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-md'
                     : isSearchActive
                       ? 'bg-white/80 dark:bg-gray-800/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-800/90 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-sm'
-                      : 'bg-black/40 backdrop-blur-sm text-white hover:bg-black/50 border-t border-l border-r border-white/30 dark:border-gray-700/30 hover:text-purple-300 dark:hover:text-purple-300'
+                      : 'bg-black/60 backdrop-blur-sm text-white hover:bg-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300'
                   }`}
               >
                 <span className="text-sm">📚</span>
@@ -448,12 +448,12 @@ function HeroSectionWithTransformingSearch() {
             </div>
             </div>
             
-            {/* View Mode Tabs - NO background until searching */}
+            {/* View Mode Tabs - Black background for visibility */}
             <div className="flex justify-center mt-3 pb-2">
               <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
                 isSearchActive 
                   ? 'bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm shadow-inner'
-                  : 'bg-transparent'
+                  : 'bg-black/50 backdrop-blur-sm shadow-md'
               }`}>
                 <button
                   type="button"
@@ -461,11 +461,11 @@ function HeroSectionWithTransformingSearch() {
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'list' 
                       ? isSearchActive
-                        ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md'
-                        : 'bg-white/60 dark:bg-gray-700/60 text-purple-600 dark:text-purple-300 shadow-sm'
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md'
+                        : 'bg-gradient-to-r from-purple-400/90 to-blue-400/90 text-white shadow-sm'
                       : isSearchActive
-                        ? 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
-                        : 'text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
+                        ? 'bg-white/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-700/90'
+                        : 'bg-black/50 text-white hover:bg-black/60'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">📋</span>
@@ -477,11 +477,11 @@ function HeroSectionWithTransformingSearch() {
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'map' 
                       ? isSearchActive
-                        ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md'
-                        : 'bg-white/60 dark:bg-gray-700/60 text-purple-600 dark:text-purple-300 shadow-sm'
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md'
+                        : 'bg-gradient-to-r from-purple-400/90 to-blue-400/90 text-white shadow-sm'
                       : isSearchActive
-                        ? 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
-                        : 'text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
+                        ? 'bg-white/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-700/90'
+                        : 'bg-black/50 text-white hover:bg-black/60'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -493,11 +493,11 @@ function HeroSectionWithTransformingSearch() {
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 ${
                     viewMode === 'discover' 
                       ? isSearchActive
-                        ? 'bg-white dark:bg-gray-700 text-purple-700 dark:text-purple-300 shadow-md'
-                        : 'bg-white/60 dark:bg-gray-700/60 text-purple-600 dark:text-purple-300 shadow-sm'
+                        ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-md'
+                        : 'bg-gradient-to-r from-purple-400/90 to-blue-400/90 text-white shadow-sm'
                       : isSearchActive
-                        ? 'text-gray-600 dark:text-gray-400 hover:bg-white/50 dark:hover:bg-gray-700/50'
-                        : 'text-white/80 dark:text-gray-300 hover:bg-white/30 dark:hover:bg-gray-700/30'
+                        ? 'bg-white/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 hover:bg-white/90 dark:hover:bg-gray-700/90'
+                        : 'bg-black/50 text-white hover:bg-black/60'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">✨</span>
