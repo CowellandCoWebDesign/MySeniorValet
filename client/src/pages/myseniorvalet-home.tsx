@@ -294,32 +294,30 @@ function HeroSectionWithTransformingSearch() {
         <div className="relative z-10 flex flex-col justify-start min-h-screen px-2 sm:px-4 pt-24 pb-8">
         {/* Hero Content Container */}
         <div className="w-full flex-grow flex flex-col justify-start">
-        {/* Hero Text - Never Changes */}
-        <div className="w-full max-w-4xl mx-auto mb-6 text-center">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
+        {/* Hero Text - Clean and Centered */}
+        <div className="w-full max-w-4xl mx-auto mb-8 text-center">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] leading-tight">
             Everything You Need.<br className="sm:hidden" /> Nothing You Pay.
           </h1>
           
-          <div className="text-xs sm:text-sm md:text-base text-gray-100 max-w-3xl mx-auto px-2 mb-6">
+          <div className="text-sm sm:text-base md:text-lg text-gray-100 max-w-3xl mx-auto px-4">
             <div className="hidden sm:block">
-              <div className="flex flex-wrap justify-center gap-2 text-white">
-                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+              <div className="space-y-1">
+                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   • Search 35,000+ communities globally with real pricing & trusted reviews
-                </span>
-                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  • We NEVER sell your info
-                </span>
-                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
-                  • Access 1,000's of services & support resources
-                </span>
-                <span className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                </p>
+                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+                  • We NEVER sell your info • Access 1,000's of services & support resources
+                </p>
+                <p className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
                   • A platform built for families, not profits 💙
-                </span>
+                </p>
               </div>
             </div>
             <div className="sm:hidden">
               <p className="drop-shadow-[0_1px_2px_rgba(0,0,0,0.9)]">
-                Search 35,000+ communities with real pricing • No fees, no data selling 💙
+                Search 35,000+ communities with real pricing<br/>
+                No fees • No data selling • Built for families 💙
               </p>
             </div>
           </div>
@@ -469,6 +467,26 @@ function HeroSectionWithTransformingSearch() {
                 </button>
               </div>
             </div>
+            
+            {/* Trust Indicators - Right under view mode buttons */}
+            {!isSearchActive && (
+              <div className="flex justify-center items-center mt-2">
+                <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                  </span>
+                  <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
+                    <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           
           {/* Search Results - Premium Glass Design */}
@@ -599,26 +617,6 @@ function HeroSectionWithTransformingSearch() {
             </div>
           )}
         </div>
-
-        {/* Trust Indicators - Only show when not searching with proper spacing */}
-        {!isSearchActive && (
-          <div className="flex justify-center items-center px-2 mt-4 mb-8">
-            <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
-              </span>
-              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
-              </span>
-              <span className="inline-flex items-center space-x-1 bg-gray-800/90 backdrop-blur-md px-2 sm:px-3 py-1 rounded-full shadow-md">
-                <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
-              </span>
-            </div>
-          </div>
-        )}
 
         
         {/* Back to Top Button - appears when there are many results */}
