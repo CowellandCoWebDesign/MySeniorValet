@@ -445,7 +445,7 @@ function HeroSectionWithTransformingSearch() {
             }}
             initialQuery={searchQuery}
             placeholder={
-              viewMode === 'discover' ? "Discover senior living insights..." : 
+              viewMode === 'discover' ? "Research senior living insights..." : 
               viewMode === 'map' ? "Enter location to search on map..." : 
               searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
               searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
@@ -503,15 +503,15 @@ function HeroSectionWithTransformingSearch() {
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
                     viewMode === 'discover' 
                       ? isSearchActive
-                        ? 'bg-gradient-to-br from-amber-600 to-orange-600 text-white shadow-xl scale-105 border border-amber-400'
-                        : 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg border border-amber-300'
+                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400 animate-pulse'
+                        : 'bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 text-white shadow-lg border border-purple-300'
                       : isSearchActive
                         ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
                         : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">✨</span>
-                  <span>Discover</span>
+                  <span className="text-xs sm:text-sm">🧠</span>
+                  <span>Research</span>
                 </button>
               </div>
             </div>
@@ -548,7 +548,7 @@ function HeroSectionWithTransformingSearch() {
                     {searchResults?.metadata?.isResearchMode ? (
                       <span className="flex items-center space-x-2">
                         <Brain className="w-5 h-5 text-purple-400" />
-                        <span>Discover Mode found {searchResults?.results?.length || 0} recommendations</span>
+                        <span>Research Mode found {searchResults?.results?.length || 0} recommendations</span>
                       </span>
                     ) : (
                       <span>
@@ -805,7 +805,7 @@ function HeroSectionWithTransformingSearch() {
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
-      {/* Discover Mode Response Section - Moved outside hero but keeping special research display */}
+      {/* Research Mode Response Section - Moved outside hero but keeping special research display */}
       <AnimatePresence mode="wait">
         {isSearchActive && searchResults?.metadata?.isResearchMode && searchResults?.metadata?.researchResponse && (
           <motion.section
@@ -833,7 +833,7 @@ function HeroSectionWithTransformingSearch() {
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                          Discover Mode Response
+                          Research Mode Response
                         </h2>
                         <p className="text-sm text-gray-400 mt-1">
                           AI-powered analysis across 32,970+ communities
