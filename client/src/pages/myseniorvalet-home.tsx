@@ -387,16 +387,16 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - Minimal when not searching, full when active */}
-          <div className={`w-full max-w-2xl backdrop-blur-xl rounded-b-xl rounded-tr-xl shadow-2xl relative z-10 transition-all duration-300 ${
+          {/* Search Bar Container - NO background until searching */}
+          <div className={`w-full max-w-2xl rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 ${
             isSearchActive 
-              ? 'bg-white/95 dark:bg-gray-800/95 border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3' 
-              : 'bg-white/30 dark:bg-gray-800/30 border border-t-0 border-white/30 dark:border-gray-600/30 p-2'
+              ? 'bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 border-purple-400 dark:border-purple-600 p-3 shadow-2xl' 
+              : 'bg-transparent p-1'
           }`}>
-            <div className={`rounded-lg p-1 transition-all duration-300 ${
+            <div className={`rounded-lg transition-all duration-300 ${
               isSearchActive 
-                ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20'
-                : 'bg-white/20 dark:bg-gray-900/20'
+                ? 'bg-gradient-to-r from-purple-50/50 to-blue-50/50 dark:from-purple-900/20 dark:to-blue-900/20 p-1'
+                : 'bg-transparent'
             }`}>
               <ComprehensiveSearch 
               searchCategory={searchCategory}
@@ -443,12 +443,12 @@ function HeroSectionWithTransformingSearch() {
             />
             </div>
             
-            {/* View Mode Tabs - Minimal when not searching */}
+            {/* View Mode Tabs - NO background until searching */}
             <div className="flex justify-center mt-3 pb-2">
-              <div className={`inline-flex backdrop-blur-sm rounded-full p-1 transition-all duration-300 ${
+              <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
                 isSearchActive 
-                  ? 'bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 shadow-inner'
-                  : 'bg-white/20 dark:bg-gray-800/20 shadow-sm'
+                  ? 'bg-gradient-to-r from-purple-100/50 to-blue-100/50 dark:from-purple-900/30 dark:to-blue-900/30 backdrop-blur-sm shadow-inner'
+                  : 'bg-transparent'
               }`}>
                 <button
                   type="button"
@@ -501,21 +501,21 @@ function HeroSectionWithTransformingSearch() {
               </div>
             </div>
             
-            {/* Trust Indicators - Minimal styling when not searching */}
+            {/* Trust Indicators - Only show when not searching */}
             {!isSearchActive && (
               <div className="flex flex-col justify-center items-center mt-2 space-y-2">
                 <div className="flex flex-wrap justify-center items-center gap-1 sm:gap-2">
-                  <span className="inline-flex items-center space-x-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-sm">
+                  <span className="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
                     <DollarSign className="h-2 w-2 sm:h-3 sm:w-3 text-green-400 animate-pulse flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Pricing</span>
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Live Pricing</span>
                   </span>
-                  <span className="inline-flex items-center space-x-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-sm">
+                  <span className="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
                     <Users2 className="h-2 w-2 sm:h-3 sm:w-3 text-green-300 flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Family Reviews</span>
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Family Reviews</span>
                   </span>
-                  <span className="inline-flex items-center space-x-1 bg-white/20 dark:bg-gray-800/20 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full shadow-sm">
+                  <span className="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 sm:px-3 py-1 rounded-full">
                     <Brain className="h-2 w-2 sm:h-3 sm:w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">Live Availability</span>
+                    <span className="text-[9px] sm:text-[10px] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">Live Availability</span>
                   </span>
                 </div>
                 <div className="space-y-1 text-center">
