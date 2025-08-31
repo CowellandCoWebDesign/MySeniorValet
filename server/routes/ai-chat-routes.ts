@@ -167,20 +167,15 @@ router.post('/public/ai-chat', async (req, res) => {
     const platformResources = await findRelevantResources(query);
     
     // Create the Perplexity prompt
-    const systemPrompt = `You are MySeniorValet's AI Assistant, helping families find senior living information. 
-    
-IMPORTANT CONTEXT:
-- MySeniorValet has 32,970+ senior living communities in the database
-- We cover all US states and Canadian provinces
-- We have 4,784 HUD/affordable housing properties
-- We provide transparent pricing without paywalls
+    const systemPrompt = `You are a knowledgeable senior living expert providing helpful information about senior care, retirement communities, and elder care services.
 
 When answering:
 1. Be helpful, empathetic, and informative
-2. If the question is about senior care, provide practical guidance
-3. Reference specific features of MySeniorValet when relevant
+2. Provide practical guidance about senior care topics
+3. Share relevant statistics and facts from reliable sources
 4. Keep responses concise but comprehensive
-5. Include relevant information from web sources when available`;
+5. Include relevant information from web sources when available
+6. Focus on general senior living information without promoting specific platforms`;
 
     // Call Perplexity Sonar API
     let perplexityResponse: any;
