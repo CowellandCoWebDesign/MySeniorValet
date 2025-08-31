@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Search, Brain, Sparkles, MessageCircle, Loader2 } from 'lucide-react';
+import { Search, Brain, Sparkles, MessageCircle, Loader2, MapPin, Home, Building, Building2, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
 
 interface AutoExpandingSearchProps {
   onSearch: (query: string, isResearchMode?: boolean) => void;
@@ -24,6 +25,8 @@ export function AutoExpandingSearch({
   const [isExpanded, setIsExpanded] = useState(false);
   const [isResearchMode, setIsResearchMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -63,11 +66,27 @@ export function AutoExpandingSearch({
     return isQuestion || isLongQuery || hasMultipleSentences;
   }, []);
 
+  // Fetch suggestions
+  const { data: suggestions } = useQuery<string[]>({
+    queryKey: ['/api/search/suggestions', query],
+    queryFn: async () => {
+      if (!query || query.length < 2) return [];
+      const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data.suggestions || [];
+    },
+    enabled: query.length >= 2 && !isResearchMode,
+    staleTime: 60000, // Cache for 1 minute
+  });
+
   // Handle input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setQuery(value);
     onQueryChange?.(value);
+    setSelectedSuggestionIndex(-1);
+    setShowSuggestions(value.length >= 2);
     
     // Detect if we should enter Research mode
     const shouldUseResearch = detectResearchMode(value);
@@ -82,8 +101,37 @@ export function AutoExpandingSearch({
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSearch();
+      if (selectedSuggestionIndex >= 0 && suggestions) {
+        handleSuggestionClick(suggestions[selectedSuggestionIndex]);
+      } else {
+        handleSearch();
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (suggestions && suggestions.length > 0) {
+        setSelectedSuggestionIndex(prev => 
+          prev < suggestions.length - 1 ? prev + 1 : 0
+        );
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (suggestions && suggestions.length > 0) {
+        setSelectedSuggestionIndex(prev => 
+          prev > 0 ? prev - 1 : suggestions.length - 1
+        );
+      }
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
     }
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    setQuery(suggestion);
+    setShowSuggestions(false);
+    setSelectedSuggestionIndex(-1);
+    onSearch(suggestion, false);
   };
 
   // Handle search
@@ -105,10 +153,14 @@ export function AutoExpandingSearch({
   };
 
   const handleBlur = () => {
-    if (!query.trim()) {
-      setIsExpanded(false);
-    }
-    onFocusChange?.(false);
+    // Delay to allow clicking on suggestions
+    setTimeout(() => {
+      if (!query.trim()) {
+        setIsExpanded(false);
+      }
+      setShowSuggestions(false);
+      onFocusChange?.(false);
+    }, 200);
   };
 
   useEffect(() => {
@@ -253,16 +305,58 @@ export function AutoExpandingSearch({
         </AnimatePresence>
       </div>
 
-      {/* Search Suggestions - Could be added here */}
-      {query && query.length > 2 && !isLoading && (
-        <motion.div
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="absolute top-full left-0 right-0 mt-1 z-50"
-        >
-          {/* Suggestions could go here */}
-        </motion.div>
-      )}
+      {/* Search Suggestions */}
+      <AnimatePresence>
+        {showSuggestions && suggestions && suggestions.length > 0 && !isResearchMode && (
+          <motion.div
+            initial={{ opacity: 0, y: -5 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -5 }}
+            className="absolute top-full left-0 right-0 mt-2 z-50"
+          >
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div className="p-2">
+                <div className="text-xs text-gray-500 dark:text-gray-400 px-3 py-1 mb-1">Suggestions</div>
+                {suggestions.map((suggestion, index) => {
+                  // Determine icon based on suggestion content
+                  const Icon = suggestion.toLowerCase().includes('near') ? MapPin :
+                              suggestion.toLowerCase().includes('memory') ? Brain :
+                              suggestion.toLowerCase().includes('assisted') ? Building2 :
+                              suggestion.toLowerCase().includes('home') ? Home :
+                              suggestion.toLowerCase().includes('under') ? Building :
+                              Clock;
+                  
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className={`
+                        w-full text-left px-3 py-2.5 rounded-lg
+                        flex items-center space-x-3
+                        transition-colors duration-150
+                        ${
+                          selectedSuggestionIndex === index
+                            ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                        }
+                      `}
+                    >
+                      <Icon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      <span className="text-sm font-medium truncate">{suggestion}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="border-t border-gray-200 dark:border-gray-700 px-3 py-2 bg-gray-50 dark:bg-gray-900/50">
+                <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center justify-between">
+                  <span>Press ↑↓ to navigate</span>
+                  <span>Enter to select</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
