@@ -90,31 +90,44 @@ async function findRelevantResources(query: string) {
     }
   }
   
-  // Search for specific communities mentioned in the query
-  try {
-    const searchTerms = query.split(' ').filter(term => term.length > 3);
-    if (searchTerms.length > 0) {
-      // Search for each term individually and combine results
-      for (const term of searchTerms.slice(0, 2)) { // Limit to first 2 terms for performance
-        try {
-          const communityResults = await db
-            .select({
-              id: communities.id,
-              name: communities.name,
-              city: communities.city,
-              state: communities.state
-            })
-            .from(communities)
-            .where(
-              or(
-                like(communities.name, `%${term}%`),
-                like(communities.city, `%${term}%`)
+  // Only search for communities if the query specifically mentions a community name or location
+  // This prevents random unrelated communities from appearing
+  const lowerQueryForCommunity = lowerQuery;
+  const locationKeywords = ['in ', 'at ', 'near ', ' facility', ' community', ' residence', ' manor', ' center'];
+  const hasLocationContext = locationKeywords.some(keyword => lowerQueryForCommunity.includes(keyword));
+  
+  if (hasLocationContext) {
+    try {
+      // Extract potential community or location names (capitalize words that might be proper nouns)
+      const words = query.split(' ');
+      const potentialNames = words.filter(word => 
+        word.length > 4 && 
+        word[0] === word[0].toUpperCase() &&
+        !['What', 'Where', 'When', 'How', 'Why', 'The'].includes(word)
+      );
+      
+      if (potentialNames.length > 0) {
+        // Search only for capitalized proper nouns that might be community names
+        for (const name of potentialNames.slice(0, 1)) { // Only check the most likely name
+          try {
+            const communityResults = await db
+              .select({
+                id: communities.id,
+                name: communities.name,
+                city: communities.city,
+                state: communities.state
+              })
+              .from(communities)
+              .where(
+                or(
+                  like(communities.name, `%${name}%`),
+                  like(communities.city, `${name}%`) // City match should be from beginning
+                )
               )
-            )
-            .limit(2);
-          
-          if (communityResults && communityResults.length > 0) {
-            communityResults.forEach(community => {
+              .limit(1); // Only show 1 relevant community
+            
+            if (communityResults && communityResults.length > 0) {
+              const community = communityResults[0];
               if (community && community.name) {
                 resources.push({
                   title: community.name,
@@ -122,15 +135,15 @@ async function findRelevantResources(query: string) {
                   description: `${community.city || 'Unknown'}, ${community.state || ''} - View community details`
                 });
               }
-            });
+            }
+          } catch (searchError) {
+            console.error(`Error searching for community "${name}":`, searchError);
           }
-        } catch (searchError) {
-          console.error(`Error searching for term "${term}":`, searchError);
         }
       }
+    } catch (error) {
+      console.error('Error in community search:', error);
     }
-  } catch (error) {
-    console.error('Error in community search:', error);
   }
   
   // Remove duplicates
