@@ -40,6 +40,7 @@ import {
   Camera, Printer // Additional icons from various dashboards
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { format, subDays, startOfWeek, startOfMonth, differenceInDays } from "date-fns";
@@ -192,7 +193,7 @@ export default function AdminMegaDashboard() {
   
   // Geographic expansion states
   const [expansionProgress, setExpansionProgress] = useState(0);
-  const [selectedCounty, setSelectedCounty] = useState<string | null>(null)
+  const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
   
   // Check super admin access - allow development access for testing
   const userRole = (user as any)?.role || '';
@@ -2152,6 +2153,28 @@ export default function AdminMegaDashboard() {
       <NavigationHeader />
       
       <div className="container mx-auto px-4 py-8">
+        {/* Breadcrumb Navigation */}
+        <BreadcrumbNavigation 
+          items={[
+            { label: 'Home', href: '/' },
+            { label: 'Admin', href: '/admin-mega-dashboard' },
+            { label: activeTab === 'overview' ? 'Overview' :
+                     activeTab === 'users' ? 'Users' :
+                     activeTab === 'subscriptions' ? 'Subscriptions' :
+                     activeTab === 'ai' ? 'AI Analytics' :
+                     activeTab === 'performance' ? 'Performance' :
+                     activeTab === 'reports' ? 'Reports' :
+                     activeTab === 'heatmap' ? 'Heatmap' :
+                     activeTab === 'tools' ? 'Tools' :
+                     activeTab === 'communities' ? 'Communities' :
+                     activeTab === 'protection' ? 'Data Protection' :
+                     activeTab === 'competitors' ? 'Competitors' :
+                     activeTab === 'system' ? 'System' :
+                     activeTab === 'discovery' ? 'Discovery' :
+                     activeTab === 'activity' ? 'Live Activity' : 'Overview' 
+            }
+          ]}
+        />
         {/* Header with creative effects */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
