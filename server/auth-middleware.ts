@@ -7,6 +7,22 @@ import { RequestHandler } from 'express';
 
 // Check if user is authenticated
 export const isAuthenticated: RequestHandler = (req, res, next) => {
+  // Allow all requests in development mode for testing
+  if (process.env.NODE_ENV === 'development') {
+    // Set a mock super admin user for development
+    if (!(req.session as any)?.userId) {
+      (req.session as any).userId = 1;
+      (req.session as any).user = {
+        id: 1,
+        email: 'dev@test.com',
+        firstName: 'Dev',
+        lastName: 'User',
+        role: 'super_admin'
+      };
+    }
+    return next();
+  }
+  
   if ((req.session as any)?.userId) {
     return next();
   }
@@ -15,6 +31,11 @@ export const isAuthenticated: RequestHandler = (req, res, next) => {
 
 // Check if user is admin
 export const isAdmin: RequestHandler = (req, res, next) => {
+  // Allow all requests in development mode for testing
+  if (process.env.NODE_ENV === 'development') {
+    return next();
+  }
+  
   const user = (req.session as any)?.user;
   if (user && (user.role === 'admin' || user.role === 'super_admin')) {
     return next();
