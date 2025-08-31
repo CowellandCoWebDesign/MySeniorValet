@@ -13,21 +13,38 @@ if (!process.env.DATABASE_URL) {
 
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 60000, // 60 second connection timeout (increased)
-  idleTimeoutMillis: 300000, // 5 minute idle timeout (increased)
-  max: 10, // Reduced max connections for Neon serverless
-  min: 1, // Keep minimum connection open
-  maxUses: 7500, // Rotate connections to prevent stale connections
-  allowExitOnIdle: false // Don't exit on idle
+  connectionTimeoutMillis: 30000, // 30 second connection timeout (optimized for Neon)
+  idleTimeoutMillis: 10000, // 10 second idle timeout (reduced for serverless)
+  max: 5, // Further reduced for Neon serverless (recommended: 3-5)
+  min: 0, // Don't keep minimum connections (serverless best practice)
+  maxUses: 1000, // Rotate connections more frequently to prevent stale connections
+  allowExitOnIdle: true // Allow exit on idle for serverless
 });
-// Add error handling and reconnection logic
+
+// Improved error handling with connection type detection
 pool.on('error', (err) => {
-  console.error('Database pool error:', err.message);
-  // Don't crash the server on database errors
+  // Suppress common Neon connection cycling messages
+  if (err.message.includes('terminating connection due to administrator command') ||
+      err.message.includes('Connection terminated unexpectedly') ||
+      err.message.includes('idle timeout')) {
+    // These are normal for Neon serverless, don't log as errors
+    if (process.env.NODE_ENV === 'development') {
+      // Only log in development if DEBUG is enabled
+      if (process.env.DEBUG_DB === 'true') {
+        console.log('[DB] Connection recycled:', err.message);
+      }
+    }
+  } else {
+    // Log actual errors
+    console.error('Database pool error:', err.message);
+  }
 });
 
 pool.on('connect', (client) => {
-  console.log('Database connection established');
+  // Only log new connections in development
+  if (process.env.NODE_ENV === 'development' && process.env.DEBUG_DB === 'true') {
+    console.log('Database connection established');
+  }
 });
 
 export const db = drizzle({ client: pool, schema });

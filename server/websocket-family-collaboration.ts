@@ -91,6 +91,36 @@ export class WebSocketFamilyCollaboration {
       // Store user connection
       this.userConnections.set(userId, ws);
 
+      // Add heartbeat mechanism to detect disconnections
+      let isAlive = true;
+      const heartbeat = setInterval(() => {
+        if (!isAlive) {
+          clearInterval(heartbeat);
+          this.handleDisconnection(userId, roomId);
+          return;
+        }
+        isAlive = false;
+        ws.ping();
+      }, 30000); // Ping every 30 seconds
+
+      ws.on('pong', () => {
+        isAlive = true;
+      });
+
+      ws.on('error', (error) => {
+        // Only log non-routine errors
+        if (!error.message.includes('ECONNRESET') && 
+            !error.message.includes('EPIPE')) {
+          console.error('WebSocket error for user', userId, ':', error.message);
+        }
+        clearInterval(heartbeat);
+      });
+
+      ws.on('close', () => {
+        clearInterval(heartbeat);
+        this.handleDisconnection(userId, roomId);
+      });
+
       if (roomId && this.rooms.has(roomId)) {
         const room = this.rooms.get(roomId)!;
         room.activeConnections.set(userId, ws);

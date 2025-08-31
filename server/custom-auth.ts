@@ -232,8 +232,30 @@ export function setupCustomAuth(app: Express) {
         });
       }
       
-      // TODO: Implement email sending with reset token
-      // For now, just acknowledge the request
+      // Generate reset token
+      const resetToken = Math.random().toString(36).substring(2, 15) + 
+                        Math.random().toString(36).substring(2, 15);
+      const resetExpires = new Date(Date.now() + 3600000); // 1 hour expiry
+      
+      // Update user with reset token
+      await db
+        .update(users)
+        .set({
+          passwordResetToken: resetToken,
+          passwordResetExpires: resetExpires,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, user.id));
+      
+      // Send reset email using SendGrid
+      try {
+        const { sendPasswordResetEmail } = await import('./sendgrid-service');
+        await sendPasswordResetEmail(email, resetToken);
+      } catch (emailError) {
+        console.error('Failed to send password reset email:', emailError);
+        // Continue anyway - don't reveal email sending failure to user
+      }
+      
       res.json({ 
         success: true, 
         message: 'If the email exists, a reset link has been sent' 

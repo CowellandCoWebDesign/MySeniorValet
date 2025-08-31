@@ -1166,9 +1166,11 @@ export class DatabaseStorage implements IStorage {
       conditions.push(sql`${communities.photos} IS NOT NULL AND array_length(${communities.photos}, 1) > 0`);
     }
 
-    // Skip amenities filtering for now to avoid array search issues
+    // Amenities filtering using PostgreSQL array overlap operator
     if (params.amenities && params.amenities.length > 0) {
-      // TODO: Fix PostgreSQL array search for amenities
+      // Use array overlap operator to check if any requested amenities exist
+      const amenitiesArray = sql`ARRAY[${sql.join(params.amenities.map(a => sql`${a}`), sql`, `)}]::text[]`;
+      conditions.push(sql`${communities.amenities} && ${amenitiesArray}`);
     }
 
     if (conditions.length > 0) {
