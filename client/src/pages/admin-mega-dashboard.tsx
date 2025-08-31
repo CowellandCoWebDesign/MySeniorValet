@@ -161,6 +161,27 @@ export default function AdminMegaDashboard() {
   const [reportType, setReportType] = useState("all"); // From admin-reports
   const [exportFormat, setExportFormat] = useState("pdf"); // From admin-reports
   
+  // Community management states (from admin-communities)
+  const [stateFilter, setStateFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [verificationFilter, setVerificationFilter] = useState("all");
+  
+  // Audit log filters (from admin.tsx)
+  const [auditFilters, setAuditFilters] = useState({
+    action: 'all',
+    resourceType: 'all',
+    severity: 'all',
+    timeframe: '24h'
+  });
+  
+  // Data protection states (from admin.tsx)
+  const [dataProtectionEnabled, setDataProtectionEnabled] = useState(false);
+  const [systemHealthExpanded, setSystemHealthExpanded] = useState(false);
+  
+  // Competitor analysis states (from admin-availability-heatmap)
+  const [careTypeFilter, setCareTypeFilter] = useState('all');
+  const [showCompetitorAnalysis, setShowCompetitorAnalysis] = useState(false)
+  
   // Check super admin access
   const userRole = (user as any)?.role || '';
   const userEmail = (user as any)?.email || '';
@@ -277,6 +298,71 @@ export default function AdminMegaDashboard() {
   const { data: revenueAnalytics } = useQuery({
     queryKey: ['/api/admin/revenue/analytics', timeRange],
   });
+  
+  // Community management queries (from admin-communities)
+  const { data: communityStats } = useQuery({
+    queryKey: ['/api/admin/communities/stats'],
+  });
+  
+  const { data: filteredCommunities } = useQuery({
+    queryKey: ['/api/admin/communities', currentPage, searchQuery, stateFilter, typeFilter, verificationFilter],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+        search: searchQuery,
+        state: stateFilter,
+        type: typeFilter,
+        verification: verificationFilter
+      });
+      return await apiRequest('GET', `/api/admin/communities?${params}`);
+    },
+  });
+  
+  // Data protection queries (from admin.tsx)
+  const { data: dataProtectionStatus } = useQuery({
+    queryKey: ['/api/data-protection/status'],
+    enabled: dataProtectionEnabled,
+  });
+  
+  const { data: protectionLogs } = useQuery({
+    queryKey: ['/api/data-protection/logs'],
+    enabled: dataProtectionEnabled,
+  });
+  
+  const { data: protectionMetrics } = useQuery({
+    queryKey: ['/api/data-protection/metrics'],
+    enabled: dataProtectionEnabled,
+  });
+  
+  const { data: qualityMetrics } = useQuery({
+    queryKey: ['/api/admin/data/quality-metrics'],
+  });
+  
+  const { data: crmStatus } = useQuery({
+    queryKey: ['/api/admin/crm/status'],
+  });
+  
+  const { data: systemHealth } = useQuery({
+    queryKey: ['/api/admin/system/health'],
+    enabled: systemHealthExpanded,
+  });
+  
+  // Competitor analytics (from admin-availability-heatmap)
+  const { data: competitorData } = useQuery({
+    queryKey: ['/api/admin/heatmap/competitors', timeRange],
+    enabled: showCompetitorAnalysis,
+  });
+  
+  const { data: revenueByRegion } = useQuery({
+    queryKey: ['/api/admin/heatmap/revenue', timeRange],
+    enabled: showCompetitorAnalysis,
+  });
+  
+  const { data: occupancyByType } = useQuery({
+    queryKey: ['/api/admin/heatmap/occupancy', careTypeFilter],
+    enabled: showCompetitorAnalysis,
+  })
 
   // ========== MUTATIONS (from various dashboards) ==========
 
@@ -342,6 +428,157 @@ export default function AdminMegaDashboard() {
       });
     },
   });
+  
+  // Community management mutations (from admin-communities)
+  const updateCommunityMutation = useMutation({
+    mutationFn: async ({ id, updates }: any) => {
+      return await apiRequest('PUT', `/api/admin/communities/${id}`, updates);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Community Updated",
+        description: "The community has been updated successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+    },
+  });
+  
+  const deleteCommunityMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest('DELETE', `/api/admin/communities/${id}`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Community Deleted",
+        description: "The community has been deleted successfully.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+    },
+  });
+  
+  // Data protection mutations (from admin.tsx)
+  const emergencyFreezeMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/data-protection/emergency-freeze'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      toast({
+        title: "Emergency Freeze Activated",
+        description: "All data operations have been frozen.",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  const runProtectionCheckMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/data-protection/check'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      toast({
+        title: "Protection Check Complete",
+        description: "Data protection check has been completed.",
+      });
+    },
+  });
+  
+  const testDetectionMutation = useMutation({
+    mutationFn: () => apiRequest('POST', '/api/data-protection/test-detection'),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/data-protection'] });
+      toast({
+        title: "Detection Test Complete",
+        description: "Protection detection test has been completed.",
+      });
+    },
+  });
+  
+  // System management mutations (from admin-unified)
+  const backupMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/admin/system/backup');
+    },
+    onSuccess: () => {
+      toast({
+        title: "Backup Started",
+        description: "System backup has been initiated.",
+      });
+    },
+  });
+  
+  const clearCacheMutation = useMutation({
+    mutationFn: async (cacheType: string) => {
+      return await apiRequest('POST', '/api/admin/system/cache/clear', { type: cacheType });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Cache Cleared",
+        description: "Selected cache has been cleared successfully.",
+      });
+    },
+  });
+  
+  const updateRateLimitMutation = useMutation({
+    mutationFn: async (config: any) => {
+      return await apiRequest('PUT', '/api/admin/system/rate-limit', config);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Rate Limit Updated",
+        description: "Rate limiting configuration has been updated.",
+      });
+    },
+  });
+  
+  // Delete user mutation (from admin-unified)
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      return await apiRequest('DELETE', `/api/admin/users/${userId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
+      toast({
+        title: "User Deleted",
+        description: "User has been permanently deleted.",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Data enhancement mutations (from admin-clean-full)
+  const refreshCommunityMutation = useMutation({
+    mutationFn: async (communityId: number) => {
+      return await apiRequest('POST', `/api/admin/communities/${communityId}/refresh`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Data Refreshed",
+        description: "Community data has been refreshed.",
+      });
+    },
+  });
+  
+  const enrichCommunityMutation = useMutation({
+    mutationFn: async (communityId: number) => {
+      return await apiRequest('POST', `/api/admin/communities/${communityId}/enrich`);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Data Enriched",
+        description: "Community data has been enriched with AI.",
+      });
+    },
+  });
+  
+  const updateAllPricingMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest('POST', '/api/admin/communities/update-all-pricing');
+    },
+    onSuccess: () => {
+      toast({
+        title: "Pricing Update Started",
+        description: "Bulk pricing update has been initiated.",
+      });
+    },
+  })
 
   // ========== HANDLER FUNCTIONS ==========
 
@@ -948,6 +1185,435 @@ export default function AdminMegaDashboard() {
     </Card>
   );
 
+  // Community Management (from admin-communities)
+  const renderCommunityManagement = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Building2 className="h-5 w-5 text-blue-600" />
+          Community Management
+        </CardTitle>
+        <CardDescription>Manage and monitor all communities</CardDescription>
+      </CardHeader>
+      <CardContent>
+        {/* Filters */}
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <Select value={stateFilter} onValueChange={setStateFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="State" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All States</SelectItem>
+              <SelectItem value="CA">California</SelectItem>
+              <SelectItem value="FL">Florida</SelectItem>
+              <SelectItem value="TX">Texas</SelectItem>
+              <SelectItem value="NY">New York</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="assisted_living">Assisted Living</SelectItem>
+              <SelectItem value="memory_care">Memory Care</SelectItem>
+              <SelectItem value="independent_living">Independent Living</SelectItem>
+              <SelectItem value="skilled_nursing">Skilled Nursing</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Select value={verificationFilter} onValueChange={setVerificationFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Verification" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="verified">Verified</SelectItem>
+              <SelectItem value="unverified">Unverified</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Button onClick={() => updateAllPricingMutation.mutate()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Update All Pricing
+          </Button>
+        </div>
+        
+        {/* Community Stats */}
+        <div className="grid grid-cols-4 gap-4 mb-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Total Communities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{communityStats?.total || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Verified</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{communityStats?.verified || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">With Photos</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{communityStats?.withPhotos || 0}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">With Pricing</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{communityStats?.withPricing || 0}</div>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Communities Table */}
+        <ScrollArea className="h-[400px]">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Community</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Photos</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredCommunities?.communities?.slice(0, 10).map((community: any) => (
+                <TableRow key={community.id}>
+                  <TableCell>
+                    <div>
+                      <div className="font-medium">{community.name}</div>
+                      <div className="text-sm text-muted-foreground">{community.phone}</div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {community.city}, {community.state}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">{community.type}</Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={community.verified ? "success" : "secondary"}>
+                      {community.verified ? "Verified" : "Unverified"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-1">
+                      <Camera className="h-3 w-3" />
+                      {community.photos?.length || 0}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex gap-1">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => refreshCommunityMutation.mutate(community.id)}
+                      >
+                        <RefreshCw className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => enrichCommunityMutation.mutate(community.id)}
+                      >
+                        <Sparkles className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          if (confirm('Are you sure you want to delete this community?')) {
+                            deleteCommunityMutation.mutate(community.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </ScrollArea>
+      </CardContent>
+    </Card>
+  );
+  
+  // Data Protection System (from admin.tsx)
+  const renderDataProtection = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Shield className="h-5 w-5 text-red-600" />
+          Data Protection System
+        </CardTitle>
+        <CardDescription>Monitor and control data protection mechanisms</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Shield className={`h-4 w-4 ${dataProtectionStatus?.isActive ? 'text-green-500' : 'text-red-500'}`} />
+                Protection Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${dataProtectionStatus?.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                {dataProtectionStatus?.isActive ? 'Active' : 'Inactive'}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <AlertCircle className={`h-4 w-4 ${dataProtectionStatus?.isFrozen ? 'text-red-500' : 'text-blue-500'}`} />
+                System State
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${dataProtectionStatus?.isFrozen ? 'text-red-600' : 'text-blue-600'}`}>
+                {dataProtectionStatus?.isFrozen ? 'FROZEN' : 'Normal'}
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm">Quality Score</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{qualityMetrics?.score || 0}%</div>
+              <Progress value={qualityMetrics?.score || 0} className="mt-2" />
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (confirm('EMERGENCY FREEZE: This will stop all data operations. Continue?')) {
+                  emergencyFreezeMutation.mutate();
+                }
+              }}
+              disabled={emergencyFreezeMutation.isPending}
+            >
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Emergency Freeze
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => runProtectionCheckMutation.mutate()}
+              disabled={runProtectionCheckMutation.isPending}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Run Protection Check
+            </Button>
+            
+            <Button
+              variant="outline"
+              onClick={() => testDetectionMutation.mutate()}
+              disabled={testDetectionMutation.isPending}
+            >
+              <TestTube className="h-4 w-4 mr-2" />
+              Test Detection
+            </Button>
+          </div>
+          
+          {/* Protection Logs */}
+          {protectionLogs && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">Recent Protection Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[200px]">
+                  {protectionLogs?.logs?.map((log: any, idx: number) => (
+                    <div key={idx} className="flex justify-between items-center py-2 border-b">
+                      <div>
+                        <div className="font-medium">{log.action}</div>
+                        <div className="text-sm text-muted-foreground">{log.description}</div>
+                      </div>
+                      <Badge variant={log.severity === 'high' ? 'destructive' : 'secondary'}>
+                        {log.severity}
+                      </Badge>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+  
+  // Competitor Analytics (from admin-availability-heatmap)
+  const renderCompetitorAnalytics = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Target className="h-5 w-5 text-purple-600" />
+          Competitor Analytics
+        </CardTitle>
+        <CardDescription>Market share and competitive analysis</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="text-sm font-medium mb-2">Market Share Comparison</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={competitorData?.competitors || []}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="marketShare" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          
+          <div>
+            <div className="text-sm font-medium mb-2">Occupancy Rates</div>
+            <ResponsiveContainer width="100%" height={200}>
+              <LineChart data={competitorData?.competitors || []}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="occupancy" stroke="#10B981" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        
+        <div className="mt-4">
+          <div className="text-sm font-medium mb-2">Revenue by Region</div>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={revenueByRegion?.regions || []}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="region" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="revenue" fill="#8B5CF6" />
+              <Bar dataKey="communities" fill="#F59E0B" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </CardContent>
+    </Card>
+  );
+  
+  // System Management (from admin-unified)
+  const renderSystemManagement = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="h-5 w-5 text-gray-600" />
+          System Management
+        </CardTitle>
+        <CardDescription>System operations and maintenance</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            variant="outline"
+            className="h-24 flex-col"
+            onClick={() => backupMutation.mutate()}
+            disabled={backupMutation.isPending}
+          >
+            <Database className="h-6 w-6 mb-2" />
+            System Backup
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="h-24 flex-col"
+            onClick={() => clearCacheMutation.mutate('all')}
+            disabled={clearCacheMutation.isPending}
+          >
+            <RefreshCw className="h-6 w-6 mb-2" />
+            Clear All Cache
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="h-24 flex-col"
+            onClick={() => {
+              const newLimit = prompt('Enter new rate limit (requests per minute):');
+              if (newLimit) {
+                updateRateLimitMutation.mutate({ limit: parseInt(newLimit) });
+              }
+            }}
+          >
+            <Gauge className="h-6 w-6 mb-2" />
+            Update Rate Limits
+          </Button>
+          
+          <Button
+            variant="outline"
+            className="h-24 flex-col"
+            onClick={() => setSystemHealthExpanded(!systemHealthExpanded)}
+          >
+            <Activity className="h-6 w-6 mb-2" />
+            System Health
+          </Button>
+        </div>
+        
+        {systemHealth && systemHealthExpanded && (
+          <Card className="mt-4">
+            <CardHeader>
+              <CardTitle className="text-sm">System Health Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>CPU Usage</span>
+                  <span className="font-medium">{systemHealth.cpu}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Memory Usage</span>
+                  <span className="font-medium">{systemHealth.memory}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Disk Usage</span>
+                  <span className="font-medium">{systemHealth.disk}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Active Connections</span>
+                  <span className="font-medium">{systemHealth.connections}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </CardContent>
+    </Card>
+  );
+  
   // Reports and Export (from admin-reports)
   const renderReportsExport = () => (
     <Card>
@@ -1088,7 +1754,7 @@ export default function AdminMegaDashboard() {
         
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-8 w-full">
+          <TabsList className="grid grid-cols-12 w-full">
             <TabsTrigger value="overview">
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Overview
@@ -1120,6 +1786,22 @@ export default function AdminMegaDashboard() {
             <TabsTrigger value="tools">
               <Wrench className="h-4 w-4 mr-2" />
               Tools
+            </TabsTrigger>
+            <TabsTrigger value="communities">
+              <Building2 className="h-4 w-4 mr-2" />
+              Communities
+            </TabsTrigger>
+            <TabsTrigger value="protection">
+              <Shield className="h-4 w-4 mr-2" />
+              Protection
+            </TabsTrigger>
+            <TabsTrigger value="competitors">
+              <Target className="h-4 w-4 mr-2" />
+              Competitors
+            </TabsTrigger>
+            <TabsTrigger value="system">
+              <Settings className="h-4 w-4 mr-2" />
+              System
             </TabsTrigger>
           </TabsList>
           
@@ -1199,6 +1881,22 @@ export default function AdminMegaDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="communities" className="space-y-4">
+            {renderCommunityManagement()}
+          </TabsContent>
+          
+          <TabsContent value="protection" className="space-y-4">
+            {renderDataProtection()}
+          </TabsContent>
+          
+          <TabsContent value="competitors" className="space-y-4">
+            {renderCompetitorAnalytics()}
+          </TabsContent>
+          
+          <TabsContent value="system" className="space-y-4">
+            {renderSystemManagement()}
           </TabsContent>
         </Tabs>
       </div>
