@@ -108,6 +108,13 @@ function HeroSectionWithTransformingSearch() {
       return;
     }
 
+    // Handle map view redirect
+    if (viewMode === 'map' && query) {
+      const categoryParam = searchCategory !== 'communities' ? `&category=${searchCategory}` : '';
+      setLocation(`/map-search?q=${encodeURIComponent(query)}${categoryParam}`);
+      return;
+    }
+
     setIsSearchActive(true);
     setVisibleResults(10); // Reset to show first 10 results for new search
     setIsLoading(true);
@@ -418,50 +425,23 @@ function HeroSectionWithTransformingSearch() {
             }`}>
               {/* Search component wrapper */}
               <div>
-              <ComprehensiveSearch 
-              searchCategory={searchCategory}
-              isSearchActive={isSearchActive}
-              onSearch={(results) => {
-              // If map view is selected, redirect to map search page with category
-              if (viewMode === 'map' && results.searchMetadata.query) {
-                const categoryParam = searchCategory !== 'communities' ? `&category=${searchCategory}` : '';
-                setLocation(`/map-search?q=${encodeURIComponent(results.searchMetadata.query)}${categoryParam}`);
-                return;
+              <AutoExpandingSearch 
+              onSearch={(query, isResearchMode) => {
+                // Use the existing handleAutoExpandingSearch function
+                handleAutoExpandingSearch(query, isResearchMode || viewMode === 'discover');
+              }}
+              onFocusChange={(focused) => setIsSearchFocused(focused)}
+              initialQuery={searchQuery}
+              placeholder={
+                viewMode === 'discover' ? "Research senior living insights..." : 
+                viewMode === 'map' ? "Enter location to search on map..." : 
+                searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
+                searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
+                searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
+                "Search communities, cities, companies, or ask anything..."
               }
-              
-              // Process comprehensive search results for list view
-              const communities = results.communities || [];
-              setSearchResults({ 
-                results: communities, 
-                metadata: {
-                  searchType: results.searchMetadata.searchType,
-                  totalResults: results.totalResults,
-                  processingTime: results.searchMetadata.processingTime,
-                  suggestions: results.searchMetadata.suggestions,
-                  facets: results.facets,
-                  searchCategory: searchCategory
-                }
-              });
-              setSearchQuery(results.searchMetadata.query);
-              setIsSearchActive(communities.length > 0);
-              setVisibleResults(10);
-            }}
-            onQueryChange={(query) => {
-              setSearchQuery(query);
-              setIsSearchFocused(query.length > 0);
-            }}
-            initialQuery={searchQuery}
-            placeholder={
-              viewMode === 'discover' ? "Research senior living insights..." : 
-              viewMode === 'map' ? "Enter location to search on map..." : 
-              searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
-              searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
-              searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
-              "Search communities, cities, companies, or ask anything..."
-            }
-            className="w-full"
-            showSuggestions={true}
-            />
+              className="w-full"
+              />
             </div>
             </div>
             
