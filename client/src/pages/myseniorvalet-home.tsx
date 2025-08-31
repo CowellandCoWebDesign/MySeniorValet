@@ -61,25 +61,24 @@ import RetroGuestServices from '@assets/generated_images/Retro_guest_services_si
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
-// Preload critical images asynchronously to avoid blocking
+// Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
-  setTimeout(() => {
-    // Preload hero image
-    const link = document.createElement('link');
-    link.rel = 'preload';
-    link.as = 'image';
-    link.href = heroBackgroundImage;
-    link.type = 'image/png';
-    document.head.appendChild(link);
-    
-    // Preload Thinker image for loading screens
-    const thinkerLink = document.createElement('link');
-    thinkerLink.rel = 'preload';
-    thinkerLink.as = 'image';
-    thinkerLink.href = thinkerSpaceImage;
-    thinkerLink.type = 'image/png';
-    document.head.appendChild(thinkerLink);
-  }, 100); // Delay to not block initial render
+  // Preload hero background image with highest priority
+  const heroLink = document.createElement('link');
+  heroLink.rel = 'preload';
+  heroLink.as = 'image';
+  heroLink.href = RetroFamilyLivingRoom;
+  heroLink.type = 'image/png';
+  heroLink.fetchpriority = 'high';
+  document.head.appendChild(heroLink);
+  
+  // Preload Thinker image for loading screens
+  const thinkerLink = document.createElement('link');
+  thinkerLink.rel = 'preload';
+  thinkerLink.as = 'image';
+  thinkerLink.href = thinkerSpaceImage;
+  thinkerLink.type = 'image/png';
+  document.head.appendChild(thinkerLink);
 }
 
 
@@ -293,7 +292,8 @@ function HeroSectionWithTransformingSearch() {
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             loading="eager"
-            decoding="async"
+            fetchpriority="high"
+            decoding="sync"
             onLoad={() => setImageLoaded(true)}
             style={{ 
               willChange: imageLoaded ? 'auto' : 'opacity',

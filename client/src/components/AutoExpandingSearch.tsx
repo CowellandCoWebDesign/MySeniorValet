@@ -272,37 +272,7 @@ export function AutoExpandingSearch({
           </div>
         </div>
 
-        {/* Expanded Features */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-2 overflow-hidden"
-            >
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-3 text-xs text-gray-600 dark:text-gray-400">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <span className="flex items-center space-x-1">
-                      <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                      <span>Live search across 32,970+ communities</span>
-                    </span>
-                    {isResearchMode && (
-                      <span className="flex items-center space-x-1">
-                        <span className="text-sm">🕵️</span>
-                        <span>Advanced AI analysis active</span>
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Press Shift+Enter for new line
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Removed status line for cleaner interface */}
       </div>
 
       {/* Search Suggestions */}
