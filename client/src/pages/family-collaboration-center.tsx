@@ -75,104 +75,30 @@ export default function FamilyCollaborationCenter() {
     },
   });
 
-  // Example data for demonstration
-  const upcomingTours = [
-    {
-      id: 1,
-      community: 'Sunrise Senior Living',
-      date: '2025-08-26',
-      time: '10:00 AM',
-      address: '123 Main St, Springfield',
-      contact: 'Jane Smith',
-      phone: '(555) 123-4567',
-      notes: 'Ask about memory care unit'
-    },
-    {
-      id: 2,
-      community: 'Golden Years Residence',
-      date: '2025-08-27',
-      time: '2:00 PM',
-      address: '456 Oak Ave, Riverside',
-      contact: 'John Doe',
-      phone: '(555) 987-6543',
-      notes: 'Tour the rehabilitation center'
-    }
-  ];
+  // Fetch upcoming tours from the API
+  const { data: upcomingTours = [], isLoading: toursLoading } = useQuery({
+    queryKey: ['/api/tours'],
+  });
 
-  const visitHistory = [
-    {
-      id: 1,
-      community: 'Peaceful Gardens',
-      date: '2025-08-20',
-      rating: 4,
-      familyMember: 'Sarah Johnson',
-      notes: 'Beautiful facility, staff was very friendly. Activities program looks excellent.',
-      pros: ['Clean facilities', 'Friendly staff', 'Good food'],
-      cons: ['Limited parking', 'Older building'],
-      wouldRecommend: true
-    },
-    {
-      id: 2,
-      community: 'Harmony House',
-      date: '2025-08-18',
-      rating: 5,
-      familyMember: 'Michael Johnson',
-      notes: 'Exceeded expectations. Modern amenities and caring staff.',
-      pros: ['Modern facilities', 'Excellent care', 'Great location'],
-      cons: ['Higher cost'],
-      wouldRecommend: true
-    }
-  ];
+  // Fetch visit history from the API
+  const { data: visitHistory = [], isLoading: historyLoading } = useQuery({
+    queryKey: ['/api/family/visit-history'],
+  });
 
-  const familyMessages = [
-    {
-      id: 1,
-      sender: 'Sarah Johnson',
-      avatar: 'SJ',
-      message: 'I visited Peaceful Gardens today. Really impressed with their memory care program!',
-      timestamp: '2 hours ago',
-      isCurrentUser: false
-    },
-    {
-      id: 2,
-      sender: 'You',
-      avatar: 'ME',
-      message: 'That\'s great! What did you think about the pricing?',
-      timestamp: '1 hour ago',
-      isCurrentUser: true
-    },
-    {
-      id: 3,
-      sender: 'Michael Johnson',
-      avatar: 'MJ',
-      message: 'The pricing seems reasonable for the level of care. I can share the breakdown.',
-      timestamp: '30 minutes ago',
-      isCurrentUser: false
-    }
-  ];
+  // Format messages from API data
+  const familyMessages = messagesData?.messages?.map((msg: any) => ({
+    id: msg.id,
+    sender: msg.senderName || 'Unknown',
+    avatar: msg.senderName?.substring(0, 2).toUpperCase() || 'UN',
+    message: msg.content,
+    timestamp: new Date(msg.createdAt).toLocaleString(),
+    isCurrentUser: msg.senderId === messagesData?.currentUserId
+  })) || [];
 
-  const sharedFavorites = [
-    {
-      id: 1,
-      name: 'Sunrise Senior Living',
-      location: 'Springfield, IL',
-      price: '$4,500/month',
-      rating: 4.5,
-      familyRating: 4,
-      notes: 'Top choice - great memory care',
-      addedBy: 'Sarah'
-    },
-    {
-      id: 2,
-      name: 'Golden Years Residence',
-      location: 'Riverside, CA',
-      price: '$3,800/month',
-      rating: 4.2,
-      familyRating: 3.5,
-      notes: 'Good value, needs more activities',
-      addedBy: 'Michael'
-    }
-  ];
+  // Fetch shared favorites from the API
+  const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery({
+    queryKey: ['/api/family/shared-favorites'],
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
