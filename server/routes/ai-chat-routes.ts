@@ -194,7 +194,7 @@ When answering:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar', // Using basic sonar model for cost-effective search
+          model: 'sonar', // Back to basic sonar for comparison
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: query }
