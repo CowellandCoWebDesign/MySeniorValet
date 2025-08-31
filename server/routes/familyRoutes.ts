@@ -78,7 +78,7 @@ router.get("/groups", async (req: Request, res: Response) => {
       FROM family_groups fg
       WHERE fg.owner_id = ${String(userId)}
       OR EXISTS (
-        SELECT 1 FROM jsonb_array_elements(fg.members) member
+        SELECT 1 FROM json_array_elements(fg.members) member
         WHERE member->>'userId' = ${String(userId)}
       )
     `);
@@ -88,7 +88,7 @@ router.get("/groups", async (req: Request, res: Response) => {
       const memberCount = await db.execute(sql`
         SELECT COUNT(DISTINCT member->>'userId') as count
         FROM family_groups fg,
-        jsonb_array_elements(fg.members) member
+        json_array_elements(fg.members) member
         WHERE fg.id = ${group.id}
       `);
       
@@ -118,19 +118,13 @@ router.get("/messages", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
     
-    // Find the user's family group using JSON array search
-    const userGroups = await db.execute(sql`
-      SELECT DISTINCT fg.* 
-      FROM family_groups fg
-      WHERE fg.owner_id = ${String(userId)}
-      OR EXISTS (
-        SELECT 1 FROM jsonb_array_elements(fg.members) member
-        WHERE member->>'userId' = ${String(userId)}
-      )
-      LIMIT 1
-    `);
+    // Find the user's family group - simplified query
+    const userGroups = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.ownerId, String(userId)))
+      .limit(1);
     
-    if (userGroups.rows.length === 0) {
+    if (userGroups.length === 0) {
       return res.json({ 
         messages: [], 
         currentUserId: userId,
@@ -138,7 +132,7 @@ router.get("/messages", async (req: Request, res: Response) => {
       });
     }
     
-    const groupId = userGroups.rows[0].id;
+    const groupId = userGroups[0].id;
     
     // Get or create conversation for this group
     let conversation = await db.select()
@@ -185,7 +179,7 @@ router.get("/messages", async (req: Request, res: Response) => {
     res.json({ 
       messages: allMessages.rows,
       currentUserId: String(userId),
-      groupName: userGroups.rows[0].name 
+      groupName: userGroups[0].name 
     });
   } catch (error) {
     console.error("Error fetching messages:", error);
@@ -203,23 +197,17 @@ router.post("/messages", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Message content is required" });
     }
     
-    // Find the user's family group
-    const userGroups = await db.execute(sql`
-      SELECT DISTINCT fg.* 
-      FROM family_groups fg
-      WHERE fg.owner_id = ${String(userId)}
-      OR EXISTS (
-        SELECT 1 FROM jsonb_array_elements(fg.members) member
-        WHERE member->>'userId' = ${String(userId)}
-      )
-      LIMIT 1
-    `);
+    // Find the user's family group - simplified query
+    const userGroups = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.ownerId, String(userId)))
+      .limit(1);
     
-    if (userGroups.rows.length === 0) {
+    if (userGroups.length === 0) {
       return res.status(400).json({ error: "You must join a family group first" });
     }
     
-    const groupId = userGroups.rows[0].id;
+    const groupId = userGroups[0].id;
     
     // Get or create conversation
     let conversation = await db.select()
