@@ -21,6 +21,7 @@ import Claim from "@/pages/claim";
 // All admin functionality consolidated into SuperAdminAnalytics
 import SuperAdminAnalytics from "@/pages/super-admin-analytics";
 import AdminSubscriptionManagement from "@/pages/admin-subscription-management";
+import AdminMegaDashboard from "@/pages/admin-mega-dashboard";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -327,6 +328,7 @@ function Router() {
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
       <Route path="/weaviate-test" component={WeaviateTest} />
+      <Route path="/admin-mega-dashboard" component={AdminMegaDashboard} />
       <Route path="/data-quality" component={SuperAdminAnalytics} />
       <Route path="/database-test" component={DatabaseTest} />
       <Route path="/integrations" component={SuperAdminAnalytics} />
