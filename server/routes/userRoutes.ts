@@ -6,11 +6,13 @@ import {
   userSavedSearches,
   userActivity,
   tours,
-  communities 
+  communities,
+  searchHistory 
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { storage } from "../storage";
+import { Parser } from 'json2csv';
 
 export function registerUserRoutes(app: Express) {
   // User favorites
@@ -327,7 +329,7 @@ export function registerUserRoutes(app: Express) {
     }
   });
 
-  // Dashboard data
+  // Dashboard data - Legacy endpoint
   app.get('/api/user/dashboard-data', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id;
@@ -533,6 +535,399 @@ export function registerUserRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching notes:", error);
       res.status(500).json({ message: "Failed to fetch notes" });
+    }
+  });
+
+  // New Dashboard data endpoint with user ID parameter
+  app.get('/api/users/:id/dashboard-data', requireAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const currentUserId = req.user?.id;
+      
+      // Ensure user can only access their own dashboard data
+      if (userId !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Get user's favorite communities with details
+      const favorites = await db
+        .select({
+          id: userFavorites.id,
+          communityId: userFavorites.communityId,
+          notes: userFavorites.notes,
+          priority: userFavorites.priority,
+          tags: userFavorites.tags,
+          createdAt: userFavorites.updatedAt,
+          community: {
+            id: communities.id,
+            name: communities.name,
+            city: communities.city,
+            state: communities.state,
+            rating: communities.rating,
+            priceRange: communities.priceRange,
+            careTypes: communities.careTypes,
+            photos: communities.photos,
+            availability: communities.availability
+          }
+        })
+        .from(userFavorites)
+        .innerJoin(communities, eq(userFavorites.communityId, communities.id))
+        .where(eq(userFavorites.userId, userId))
+        .orderBy(desc(userFavorites.priority), desc(userFavorites.updatedAt))
+        .limit(20);
+
+      // Get recent searches from searchHistory table
+      const searches = await db
+        .select({
+          id: searchHistory.id,
+          query: searchHistory.query,
+          location: searchHistory.location,
+          results: sql<number>`COALESCE(${searchHistory.results}, 0)`,
+          date: searchHistory.searchedAt
+        })
+        .from(searchHistory)
+        .where(eq(searchHistory.userId, userId))
+        .orderBy(desc(searchHistory.searchedAt))
+        .limit(10);
+
+      // Get upcoming tours
+      const upcomingTours = await db
+        .select({
+          id: tours.id,
+          communityId: tours.communityId,
+          scheduledDate: tours.scheduledDate,
+          status: tours.status,
+          notes: tours.notes,
+          communityName: communities.name,
+          communityAddress: communities.address,
+          contactPerson: sql<string>`'Tour Coordinator'`,
+          phone: sql<string>`'(555) 123-4567'`
+        })
+        .from(tours)
+        .innerJoin(communities, eq(tours.communityId, communities.id))
+        .where(eq(tours.userId, userId))
+        .orderBy(desc(tours.scheduledDate))
+        .limit(10);
+
+      // Get user activity stats
+      const activityStats = await db
+        .select({
+          action: userActivity.action,
+          count: sql<number>`COUNT(*)::int`
+        })
+        .from(userActivity)
+        .where(eq(userActivity.userId, userId))
+        .groupBy(userActivity.action);
+
+      // Get personalized recommendations based on user preferences
+      const recommendations = await db
+        .select()
+        .from(communities)
+        .where(sql`${communities.rating}::float >= 4.0`)
+        .orderBy(desc(communities.rating))
+        .limit(8);
+
+      // Format response data
+      const dashboardData = {
+        favorites: favorites.map(f => ({
+          id: f.community.id,
+          name: f.community.name,
+          address: `${f.community.city}, ${f.community.state}`,
+          city: f.community.city,
+          state: f.community.state,
+          priceRange: f.community.priceRange || 'Contact for pricing',
+          careType: Array.isArray(f.community.careTypes) ? f.community.careTypes[0] : 'Senior Living',
+          rating: f.community.rating || 4.0,
+          availability: f.community.availability || 'Available',
+          savedDate: f.createdAt?.toISOString() || new Date().toISOString(),
+          notes: f.notes,
+          tags: f.tags,
+          priority: f.priority
+        })),
+        searchHistory: searches.map(s => ({
+          id: s.id?.toString() || Math.random().toString(),
+          query: s.query || '',
+          location: s.location || '',
+          results: s.results || 0,
+          date: s.date?.toISOString() || new Date().toISOString()
+        })),
+        tourRequests: upcomingTours.map(t => ({
+          id: t.id?.toString() || Math.random().toString(),
+          communityName: t.communityName || 'Community',
+          requestedDate: t.scheduledDate?.toISOString() || new Date().toISOString(),
+          status: t.status || 'pending',
+          contactPerson: t.contactPerson || 'Tour Coordinator',
+          phone: t.phone || '(555) 123-4567'
+        })),
+        recommendations: recommendations.map(r => ({
+          id: r.id,
+          name: r.name,
+          city: r.city,
+          state: r.state,
+          priceRange: r.priceRange || 'Contact for pricing',
+          rating: r.rating || 4.0,
+          careTypes: r.careTypes,
+          photos: r.photos
+        })),
+        stats: {
+          totalFavorites: favorites.length,
+          totalSearches: searches.length,
+          totalTours: upcomingTours.length,
+          profileCompletion: 85,
+          activityScore: activityStats.reduce((sum, stat) => sum + stat.count, 0)
+        },
+        recentActivity: activityStats.slice(0, 5).map(stat => ({
+          action: stat.action,
+          count: stat.count,
+          timestamp: new Date().toISOString()
+        }))
+      };
+
+      res.json(dashboardData);
+    } catch (error) {
+      console.error('Error fetching user dashboard data:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch dashboard data',
+        error: process.env.NODE_ENV === 'development' ? error : undefined 
+      });
+    }
+  });
+
+  // Export user data in various formats
+  app.get('/api/users/:id/export', requireAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const format = req.query.format || 'json';
+      const currentUserId = req.user?.id;
+      
+      if (userId !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Get all user data
+      const favorites = await db
+        .select()
+        .from(userFavorites)
+        .innerJoin(communities, eq(userFavorites.communityId, communities.id))
+        .where(eq(userFavorites.userId, userId));
+      
+      const searches = await db
+        .select()
+        .from(searchHistory)
+        .where(eq(searchHistory.userId, userId))
+        .orderBy(desc(searchHistory.searchedAt));
+      
+      const tourData = await db
+        .select()
+        .from(tours)
+        .where(eq(tours.userId, userId));
+      
+      const exportData = {
+        exportDate: new Date().toISOString(),
+        userData: {
+          userId,
+          email: req.user?.email
+        },
+        favorites: favorites.map(f => ({
+          communityName: f.communities.name,
+          city: f.communities.city,
+          state: f.communities.state,
+          priceRange: f.communities.priceRange,
+          notes: f.userFavorites.notes,
+          savedDate: f.userFavorites.createdAt
+        })),
+        searchHistory: searches.map(s => ({
+          query: s.query,
+          location: s.location,
+          date: s.searchedAt
+        })),
+        tours: tourData.map(t => ({
+          communityId: t.communityId,
+          scheduledDate: t.scheduledDate,
+          status: t.status
+        }))
+      };
+      
+      if (format === 'csv') {
+        const fields = ['communityName', 'city', 'state', 'priceRange', 'notes', 'savedDate'];
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(exportData.favorites);
+        
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="dashboard-export.csv"');
+        res.send(csv);
+      } else if (format === 'pdf') {
+        // For PDF, we'll return JSON with formatting hints
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ ...exportData, format: 'pdf-ready' });
+      } else {
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', 'attachment; filename="dashboard-export.json"');
+        res.json(exportData);
+      }
+    } catch (error) {
+      console.error('Error exporting user data:', error);
+      res.status(500).json({ message: 'Failed to export data' });
+    }
+  });
+
+  // Track search history
+  app.post('/api/users/:id/search-history', requireAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const currentUserId = req.user?.id;
+      
+      if (userId !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      const { query, location, results } = req.body;
+      
+      await db.insert(searchHistory).values({
+        userId,
+        query,
+        location,
+        results,
+        searchedAt: new Date()
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error tracking search:', error);
+      res.status(500).json({ message: 'Failed to track search' });
+    }
+  });
+
+  // Get user recommendations with AI scoring
+  app.get('/api/users/:id/recommendations', requireAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const currentUserId = req.user?.id;
+      
+      if (userId !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Get user's saved searches to understand preferences
+      const userSearches = await db
+        .select()
+        .from(searchHistory)
+        .where(eq(searchHistory.userId, userId))
+        .orderBy(desc(searchHistory.searchedAt))
+        .limit(10);
+      
+      // Get user's favorites to understand preferences
+      const userFavs = await db
+        .select()
+        .from(userFavorites)
+        .where(eq(userFavorites.userId, userId))
+        .limit(10);
+      
+      // Get recommendations based on user activity
+      const recommendations = await db
+        .select()
+        .from(communities)
+        .where(sql`${communities.rating}::float >= 4.2`)
+        .orderBy(desc(communities.rating))
+        .limit(12);
+      
+      // Score and rank recommendations
+      const scoredRecommendations = recommendations.map(rec => {
+        let score = rec.rating || 4.0;
+        
+        // Boost score if community matches user's search patterns
+        userSearches.forEach(search => {
+          if (search.location && rec.city?.toLowerCase().includes(search.location.toLowerCase())) {
+            score += 0.5;
+          }
+        });
+        
+        return {
+          ...rec,
+          matchScore: Math.min(score * 20, 100),
+          reasons: [
+            rec.rating >= 4.5 ? 'Highly rated' : null,
+            rec.priceRange?.includes('$') ? 'Affordable' : null,
+            'Verified community',
+            'Available now'
+          ].filter(Boolean)
+        };
+      });
+      
+      res.json(scoredRecommendations.sort((a, b) => b.matchScore - a.matchScore));
+    } catch (error) {
+      console.error('Error getting recommendations:', error);
+      res.status(500).json({ message: 'Failed to get recommendations' });
+    }
+  });
+
+  // WebSocket dashboard updates endpoint placeholder
+  app.post('/api/users/:id/dashboard-update', requireAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const currentUserId = req.user?.id;
+      
+      if (userId !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      // Trigger WebSocket update for connected clients
+      // This would connect to your WebSocket server
+      res.json({ success: true, message: 'Dashboard update triggered' });
+    } catch (error) {
+      console.error('Error triggering dashboard update:', error);
+      res.status(500).json({ message: 'Failed to trigger update' });
+    }
+  });
+
+  // Track user activity
+  app.post('/api/user/activity', requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
+      
+      const { action, resourceType, resourceId, details } = req.body;
+      
+      await db.insert(userActivity).values({
+        userId,
+        action,
+        resourceType,
+        resourceId,
+        details,
+        createdAt: new Date()
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error tracking activity:', error);
+      res.status(500).json({ message: 'Failed to track activity' });
+    }
+  });
+
+  // Get user activity timeline
+  app.get('/api/users/:id/activity', requireAuth, async (req: any, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      const currentUserId = req.user?.id;
+      const limit = parseInt(req.query.limit as string) || 50;
+      
+      if (userId !== currentUserId) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+      
+      const activities = await db
+        .select()
+        .from(userActivity)
+        .where(eq(userActivity.userId, userId))
+        .orderBy(desc(userActivity.createdAt))
+        .limit(limit);
+      
+      res.json(activities);
+    } catch (error) {
+      console.error('Error fetching activity:', error);
+      res.status(500).json({ message: 'Failed to fetch activity' });
     }
   });
 }

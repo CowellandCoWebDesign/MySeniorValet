@@ -29,6 +29,7 @@ import Accessibility from "@/pages/accessibility";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import Dashboard from "@/pages/dashboard";
+import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import PersonalizedDashboard from "@/pages/personalized-dashboard";
 import TourTracker from "@/pages/tour-tracker";
 import SupportResources from "@/pages/support-resources";
@@ -242,7 +243,8 @@ function Router() {
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={SuperAdminAnalytics} />
       <Route path="/api-costs" component={SuperAdminAnalytics} />
-      <Route path="/dashboard" component={Dashboard} />
+      <Route path="/dashboard" component={EnterpriseDashboard} />
+      <Route path="/dashboard-legacy" component={Dashboard} />
       <Route path="/personalized-dashboard" component={PersonalizedDashboard} />
       <Route path="/tour-tracker" component={TourTracker} />
       <Route path="/tour-tracker/:communityId" component={TourTracker} />
