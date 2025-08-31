@@ -942,13 +942,61 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { format = 'csv', dataType = 'communities' } = req.body;
       
-      if (dataType === 'communities') {
-        const communitiesData = await db.select().from(communities);
+      // Handle different report types
+      if (dataType === 'all') {
+        // Export all data (communities + users + stats)
+        const [communitiesData, usersData, stats] = await Promise.all([
+          db.select().from(communities).limit(1000),
+          db.select().from(users).limit(100),
+          communityStatsCache.getStats()
+        ]);
         
         if (format === 'csv') {
-          const csvContent = 'Name,Address,City,State,ZIP,Phone,Website\n' +
+          const csvContent = 'Report Type: Complete Platform Data\n\n' +
+            '=== COMMUNITIES ===\n' +
+            'Name,Address,City,State,ZIP,Phone,Website\n' +
+            communitiesData.slice(0, 100).map(c => 
+              `"${c.name || ''}","${c.address || ''}","${c.city || ''}","${c.state || ''}","${c.zipCode || ''}","${c.phone || ''}","${c.website || ''}"`
+            ).join('\n') +
+            '\n\n=== USERS ===\n' +
+            'Email,First Name,Last Name,Role,Created At\n' +
+            usersData.map(u => 
+              `"${u.email || ''}","${u.firstName || ''}","${u.lastName || ''}","${u.role || ''}","${u.createdAt || ''}"`
+            ).join('\n') +
+            '\n\n=== PLATFORM STATS ===\n' +
+            `Total Communities,${stats.totalCommunities}\n` +
+            `States Covered,${stats.statesCovered}\n` +
+            `With Pricing,${stats.withPricing}\n` +
+            `HUD Properties,${stats.hudProperties}\n`;
+          
+          res.setHeader('Content-Type', 'text/csv');
+          res.setHeader('Content-Disposition', 'attachment; filename=platform-report.csv');
+          res.send(csvContent);
+        } else if (format === 'pdf') {
+          // For PDF, return JSON and let frontend handle PDF generation
+          res.json({
+            type: 'all',
+            data: {
+              communities: communitiesData.slice(0, 100),
+              users: usersData,
+              stats,
+              generatedAt: new Date().toISOString()
+            }
+          });
+        } else {
+          res.json({
+            communities: communitiesData.slice(0, 100),
+            users: usersData,
+            stats
+          });
+        }
+      } else if (dataType === 'communities') {
+        const communitiesData = await db.select().from(communities).limit(1000);
+        
+        if (format === 'csv') {
+          const csvContent = 'Name,Address,City,State,ZIP,Phone,Website,Care Types,Monthly From,Monthly To\n' +
             communitiesData.map(c => 
-              `"${c.name}","${c.address}","${c.city}","${c.state}","${c.zipCode}","${c.phone}","${c.website}"`
+              `"${c.name || ''}","${c.address || ''}","${c.city || ''}","${c.state || ''}","${c.zipCode || ''}","${c.phone || ''}","${c.website || ''}","${c.careTypes || ''}","${c.monthlyRentFrom || ''}","${c.monthlyRentTo || ''}"`
             ).join('\n');
           
           res.setHeader('Content-Type', 'text/csv');
@@ -963,7 +1011,7 @@ export function registerAdminRoutes(app: Express) {
         if (format === 'csv') {
           const csvContent = 'Email,First Name,Last Name,Role,Created At\n' +
             usersData.map(u => 
-              `"${u.email}","${u.firstName}","${u.lastName}","${u.role}","${u.createdAt}"`
+              `"${u.email || ''}","${u.firstName || ''}","${u.lastName || ''}","${u.role || ''}","${u.createdAt || ''}"`
             ).join('\n');
           
           res.setHeader('Content-Type', 'text/csv');
@@ -972,8 +1020,37 @@ export function registerAdminRoutes(app: Express) {
         } else {
           res.json(usersData);
         }
+      } else if (dataType === 'financial' || dataType === 'ai' || dataType === 'performance') {
+        // For other report types, return appropriate data
+        const stats = await communityStatsCache.getStats();
+        
+        if (format === 'csv') {
+          const csvContent = `Report Type: ${dataType.toUpperCase()}\n\n` +
+            `Generated At,${new Date().toISOString()}\n` +
+            `Total Communities,${stats.totalCommunities}\n` +
+            `States Covered,${stats.statesCovered}\n` +
+            `Cities Covered,${stats.citiesCovered}\n` +
+            `With Pricing,${stats.withPricing}\n` +
+            `HUD Properties,${stats.hudProperties}\n`;
+          
+          res.setHeader('Content-Type', 'text/csv');
+          res.setHeader('Content-Disposition', `attachment; filename=${dataType}-report.csv`);
+          res.send(csvContent);
+        } else {
+          res.json({
+            type: dataType,
+            stats,
+            generatedAt: new Date().toISOString()
+          });
+        }
       } else {
-        res.status(400).json({ error: 'Invalid data type' });
+        // Default case - return basic stats
+        const stats = await communityStatsCache.getStats();
+        res.json({
+          type: dataType,
+          stats,
+          generatedAt: new Date().toISOString()
+        });
       }
     } catch (error) {
       console.error('Error exporting data:', error);
