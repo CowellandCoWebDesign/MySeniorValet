@@ -62,59 +62,66 @@ router.get('/tiers/comparison', async (req, res) => {
   try {
     const tiers = [
       {
-        id: 'free',
-        name: 'Free Listing',
+        id: 'verified',
+        name: 'Verified',
         price: 0,
         features: [
           'Basic listing visibility',
           'Contact information display',
           'Search accessibility',
-          'Verified badge'
+          'Verified badge',
+          '1 photo',
+          'Tour scheduling (if email verified)'
+        ]
+      },
+      {
+        id: 'standard',
+        name: 'Standard',
+        price: 149,
+        features: [
+          'Everything in Verified',
+          'Up to 10 photos',
+          '1 brochure/PDF',
+          'Respond to reviews',
+          'Basic analytics',
+          'Tour calendar link'
         ]
       },
       {
         id: 'featured',
-        name: 'Featured Spotlight',
-        price: 149,
-        features: [
-          'Everything in Free',
-          'Profile editing tools',
-          'Featured search placement',
-          'Red Tag special promotions',
-          'Photo gallery (5 photos)',
-          'Custom intake forms',
-          'Basic analytics dashboard'
-        ]
-      },
-      {
-        id: 'premium',
-        name: 'Premium Tools + Exposure',
+        name: 'Featured',
         price: 249,
         features: [
-          'Everything in Featured',
-          'Branded intake forms',
-          'Real-time availability management',
-          'Tour scheduling system',
-          'Unlimited photo storage',
-          'Advanced analytics & insights',
-          'Family messaging platform',
-          'Priority support'
+          'Everything in Standard',
+          'Up to 25 photos',
+          '1 video (max 2 mins)',
+          'Up to 3 PDFs',
+          'In-app messaging',
+          'AI response assist',
+          'Advanced analytics',
+          'Featured placement',
+          'Map priority',
+          'Search boost',
+          'Concierge preferred',
+          'Seasonal badges'
         ]
       },
       {
         id: 'platinum',
-        name: 'Platinum Marketing Partner',
-        price: 999,
+        name: 'Platinum',
+        price: 349,
         features: [
-          'Everything in Premium',
-          'Homepage featured placement',
-          'Dedicated concierge service',
-          'Sponsored content creation',
-          'AI-powered tools suite',
-          'API integration access',
-          'White label branding',
-          'Custom report builder',
-          'Dedicated success manager'
+          'Everything in Featured',
+          'Up to 50 photos',
+          'Up to 3 videos (max 5 mins each)',
+          'Unlimited PDFs',
+          'Monthly performance review call',
+          'Staff bios',
+          'Menus',
+          'Care philosophy',
+          'Job listings',
+          'Real-time availability syncing',
+          'Multi-property dashboard'
         ]
       }
     ];

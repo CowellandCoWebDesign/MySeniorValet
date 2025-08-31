@@ -11,7 +11,7 @@ export interface FeatureAccess {
   contactDisplay: boolean;
   searchVisibility: boolean;
   
-  // Featured Spotlight Features ($149/mo)
+  // Standard Features ($149/mo)
   profileEditing: boolean;
   featuredPlacement: boolean;
   redTagSpecials: boolean;
@@ -19,7 +19,7 @@ export interface FeatureAccess {
   customForms: boolean;
   basicAnalytics: boolean;
   
-  // Premium Tools Features ($249/mo)
+  // Featured Features ($249/mo)
   brandedIntake: boolean;
   availabilityManagement: boolean;
   tourScheduler: boolean;
@@ -28,7 +28,7 @@ export interface FeatureAccess {
   familyMessaging: boolean;
   prioritySupport: boolean;
   
-  // Platinum Partner Features ($399/mo)
+  // Platinum Features ($349/mo)
   homepageFeatured: boolean;
   conciergeService: boolean;
   sponsoredContent: boolean;
@@ -44,7 +44,7 @@ export interface FeatureAccess {
   billPayTools: boolean;
   
   // Meta information
-  currentTier: 'free' | 'featured' | 'premium' | 'platinum';
+  currentTier: 'verified' | 'standard' | 'featured' | 'platinum';
   tierName: string;
   monthlyPrice: number;
   upgradeAvailable: boolean;
@@ -53,21 +53,21 @@ export interface FeatureAccess {
 export class FeatureAccessControl {
   // Tier hierarchy for upgrade path
   private static readonly tierHierarchy = {
-    free: 0,
-    featured: 1,
-    premium: 2,
+    verified: 0,
+    standard: 1,
+    featured: 2,
     platinum: 3
   };
 
   // Feature mapping by tier
   private static readonly tierFeatures = {
-    free: [
+    verified: [
       'basicListing',
       'contactDisplay',
       'searchVisibility'
     ],
-    featured: [
-      // Includes all free features plus:
+    standard: [
+      // Includes all verified features plus:
       'profileEditing',
       'featuredPlacement',
       'redTagSpecials',
@@ -75,8 +75,8 @@ export class FeatureAccessControl {
       'customForms',
       'basicAnalytics'
     ],
-    premium: [
-      // Includes all featured features plus:
+    featured: [
+      // Includes all standard features plus:
       'brandedIntake',
       'availabilityManagement',
       'tourScheduler',
@@ -86,7 +86,7 @@ export class FeatureAccessControl {
       'prioritySupport'
     ],
     platinum: [
-      // Includes all premium features plus:
+      // Includes all featured features plus:
       'homepageFeatured',
       'conciergeService',
       'sponsoredContent',
@@ -115,9 +115,9 @@ export class FeatureAccessControl {
         .where(eq(communitySubscriptions.communityId, communityId))
         .limit(1);
 
-      // Default to free tier if no subscription
+      // Default to verified tier if no subscription
       if (!subscription.length || subscription[0].status !== 'active') {
-        return this.getFeatureAccessForTier('free');
+        return this.getFeatureAccessForTier('verified');
       }
 
       const { tierLevel, productName, price } = subscription[0];
@@ -131,12 +131,12 @@ export class FeatureAccessControl {
       };
     } catch (error) {
       console.error('Error checking community access:', error);
-      return this.getFeatureAccessForTier('free');
+      return this.getFeatureAccessForTier('verified');
     }
   }
 
   // Get feature access for a specific tier
-  private static getFeatureAccessForTier(tier: 'free' | 'featured' | 'premium' | 'platinum'): FeatureAccess {
+  private static getFeatureAccessForTier(tier: 'verified' | 'standard' | 'featured' | 'platinum'): FeatureAccess {
     const allFeatures: FeatureAccess = {
       // Initialize all features as false
       basicListing: false,
@@ -189,34 +189,38 @@ export class FeatureAccessControl {
   }
 
   // Map Stripe tier levels to internal tiers
-  private static mapTierLevel(tierLevel: string): 'free' | 'featured' | 'premium' | 'platinum' {
-    const mapping: Record<string, 'free' | 'featured' | 'premium' | 'platinum'> = {
-      'basic-listing': 'free',
-      'featured-spotlight': 'featured',
-      'premium-tools': 'premium',
-      'platinum-partner': 'platinum'
+  private static mapTierLevel(tierLevel: string): 'verified' | 'standard' | 'featured' | 'platinum' {
+    const mapping: Record<string, 'verified' | 'standard' | 'featured' | 'platinum'> = {
+      'basic-listing': 'verified',
+      'verified': 'verified',
+      'standard': 'standard',
+      'featured-spotlight': 'standard',
+      'featured': 'featured',
+      'premium-tools': 'featured',
+      'platinum-partner': 'platinum',
+      'platinum': 'platinum'
     };
-    return mapping[tierLevel] || 'free';
+    return mapping[tierLevel] || 'verified';
   }
 
   // Get display name for tier
-  private static getTierDisplayName(tier: 'free' | 'featured' | 'premium' | 'platinum'): string {
+  private static getTierDisplayName(tier: 'verified' | 'standard' | 'featured' | 'platinum'): string {
     const names = {
-      free: 'Free Listing',
-      featured: 'Featured Spotlight',
-      premium: 'Premium Tools + Exposure',
-      platinum: 'Platinum Marketing Partner'
+      verified: 'Verified',
+      standard: 'Standard',
+      featured: 'Featured',
+      platinum: 'Platinum'
     };
     return names[tier];
   }
 
   // Get monthly price for tier
-  private static getTierPrice(tier: 'free' | 'featured' | 'premium' | 'platinum'): number {
+  private static getTierPrice(tier: 'verified' | 'standard' | 'featured' | 'platinum'): number {
     const prices = {
-      free: 0,
-      featured: 149,
-      premium: 249,
-      platinum: 999
+      verified: 0,
+      standard: 149,
+      featured: 249,
+      platinum: 349
     };
     return prices[tier];
   }
@@ -240,7 +244,7 @@ export class FeatureAccessControl {
       return null;
     }
 
-    const tierOrder: Array<'free' | 'featured' | 'premium' | 'platinum'> = ['free', 'featured', 'premium', 'platinum'];
+    const tierOrder: Array<'verified' | 'standard' | 'featured' | 'platinum'> = ['verified', 'standard', 'featured', 'platinum'];
     const currentIndex = tierOrder.indexOf(access.currentTier);
     const nextTier = tierOrder[currentIndex + 1];
 
