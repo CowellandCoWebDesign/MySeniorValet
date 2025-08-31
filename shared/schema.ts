@@ -580,19 +580,6 @@ export const messages = pgTable("messages", {
     type: string;
     size: number;
   }[]>().default([]),
-  // References to related entities for system messages
-  tourId: integer("tour_id").references(() => tours.id),
-  communityId: integer("community_id").references(() => communities.id),
-  systemEventData: json("system_event_data").$type<{
-    eventType?: string;
-    amount?: number;
-    unitNumber?: string;
-    tourDate?: string;
-    moveInDate?: string;
-    depositAmount?: number;
-    applicationStatus?: string;
-    additionalInfo?: string;
-  }>().default({}),
   readBy: json("read_by").$type<{
     userId: string;
     readAt: string;

@@ -72,38 +72,27 @@ router.get("/groups", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
     
-    // Get groups created by user or where user is a member
-    const groups = await db.execute(sql`
-      SELECT DISTINCT fg.* 
-      FROM family_groups fg
-      WHERE fg.owner_id = ${String(userId)}
-      OR EXISTS (
-        SELECT 1 FROM json_array_elements(fg.members) member
-        WHERE member->>'userId' = ${String(userId)}
-      )
-    `);
+    // Get all groups first, then filter in JavaScript to avoid SQL JSON issues
+    const allGroups = await db.select()
+      .from(familyGroups);
     
-    // Add member count to each group
-    const groupsWithMembers = await Promise.all(groups.rows.map(async (group: any) => {
-      const memberCount = await db.execute(sql`
-        SELECT COUNT(DISTINCT member->>'userId') as count
-        FROM family_groups fg,
-        json_array_elements(fg.members) member
-        WHERE fg.id = ${group.id}
-      `);
+    // Filter groups where user is owner or member
+    const userGroups = allGroups.filter(group => {
+      // Check if user is owner (handle both string and number comparison)
+      if (group.ownerId == userId) return true;
       
-      return {
-        ...group,
-        members: [{
-          id: 1,
-          userId: group.owner_id,
-          name: "Group Owner",
-          email: "",
-          role: "owner",
-          joinedAt: group.created_at
-        }],
-        memberCount: memberCount.rows[0]?.count || 1
-      };
+      // Check if user is in members array
+      if (group.members && Array.isArray(group.members)) {
+        return group.members.some((m: any) => m.userId == userId || m.userId == String(userId));
+      }
+      
+      return false;
+    });
+    
+    // Format groups with member counts
+    const groupsWithMembers = userGroups.map(group => ({
+      ...group,
+      memberCount: group.members ? group.members.length : 1
     }));
     
     res.json(groupsWithMembers);
@@ -113,16 +102,53 @@ router.get("/groups", async (req: Request, res: Response) => {
   }
 });
 
+// Get details of a specific family group
+router.get("/groups/:groupId", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const userId = getUserId(req);
+    
+    // Get group details
+    const groups = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (groups.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    const group = groups[0];
+    
+    // Check if user is a member
+    const isMember = group.ownerId === String(userId) || 
+      (group.members && group.members.some((m: any) => m.userId === String(userId)));
+    
+    if (!isMember) {
+      return res.status(403).json({ error: "You are not a member of this group" });
+    }
+    
+    // Return group with formatted members
+    res.json({
+      ...group,
+      memberCount: group.members ? group.members.length : 1
+    });
+  } catch (error) {
+    console.error("Error fetching group details:", error);
+    res.status(500).json({ error: "Failed to fetch group details" });
+  }
+});
+
 // Get messages for current user's family group (simplified endpoint)
 router.get("/messages", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
     
-    // Find the user's family group - simplified query
-    const userGroups = await db.select()
-      .from(familyGroups)
-      .where(eq(familyGroups.ownerId, String(userId)))
-      .limit(1);
+    // Find the user's family group
+    const allGroups = await db.select()
+      .from(familyGroups);
+    
+    const userGroups = allGroups.filter(g => g.ownerId == userId);
     
     if (userGroups.length === 0) {
       return res.json({ 
@@ -144,7 +170,7 @@ router.get("/messages", async (req: Request, res: Response) => {
       .limit(1);
     
     if (conversation.length === 0) {
-      const [newConversation] = await db.insert(conversations).values({
+      const conversationData: any = {
         type: 'family_group' as const,
         familyGroupId: groupId,
         participants: [{
@@ -153,31 +179,49 @@ router.get("/messages", async (req: Request, res: Response) => {
           joinedAt: new Date().toISOString(),
           notifications: true
         }],
-        lastMessageAt: new Date()
-      }).returning();
+        lastMessageAt: new Date(),
+        unreadCounts: {},
+        settings: {},
+        metadata: {}
+      };
+      
+      const [newConversation] = await db.insert(conversations).values(conversationData).returning();
       conversation = [newConversation];
     }
     
-    // Get messages with sender info
-    const allMessages = await db.execute(sql`
-      SELECT 
-        m.id,
-        m.content,
-        m.sender_id as "senderId",
-        m.message_type as "messageType",
-        m.metadata,
-        m.created_at as "createdAt",
-        u.name as "senderName",
-        u.email as "senderEmail"
-      FROM messages m
-      LEFT JOIN users u ON m.sender_id = u.id::text
-      WHERE m.conversation_id = ${conversation[0].id}
-      ORDER BY m.created_at ASC
-      LIMIT 100
-    `);
+    // Get messages - simplified without JOIN to avoid type issues
+    const allMessages = await db.select()
+      .from(messages)
+      .where(eq(messages.conversationId, conversation[0].id))
+      .orderBy(asc(messages.createdAt))
+      .limit(100);
+    
+    // Get user info for senders
+    const messageWithSenders = await Promise.all(allMessages.map(async (msg) => {
+      let senderName = "Unknown User";
+      let senderEmail = "";
+      
+      if (msg.senderId) {
+        const sender = await db.select()
+          .from(users)
+          .where(eq(users.id, parseInt(msg.senderId)))
+          .limit(1);
+        
+        if (sender.length > 0) {
+          senderName = sender[0].username || sender[0].firstName || "User";
+          senderEmail = sender[0].email || "";
+        }
+      }
+      
+      return {
+        ...msg,
+        senderName,
+        senderEmail
+      };
+    }));
     
     res.json({ 
-      messages: allMessages.rows,
+      messages: messageWithSenders,
       currentUserId: String(userId),
       groupName: userGroups[0].name 
     });
@@ -219,7 +263,7 @@ router.post("/messages", async (req: Request, res: Response) => {
       .limit(1);
     
     if (conversation.length === 0) {
-      const [newConversation] = await db.insert(conversations).values({
+      const conversationData: any = {
         type: 'family_group' as const,
         familyGroupId: groupId,
         participants: [{
@@ -228,8 +272,13 @@ router.post("/messages", async (req: Request, res: Response) => {
           joinedAt: new Date().toISOString(),
           notifications: true
         }],
-        lastMessageAt: new Date()
-      }).returning();
+        lastMessageAt: new Date(),
+        unreadCounts: {},
+        settings: {},
+        metadata: {}
+      };
+      
+      const [newConversation] = await db.insert(conversations).values(conversationData).returning();
       conversation = [newConversation];
     }
     
@@ -279,7 +328,7 @@ router.get("/groups/:groupId/messages", async (req: Request, res: Response) => {
       .limit(1);
     
     if (conversation.length === 0) {
-      const [newConv] = await db.insert(conversations).values({
+      const conversationData: any = {
         type: 'family_group' as const,
         familyGroupId: parseInt(groupId),
         participants: [{
@@ -288,8 +337,13 @@ router.get("/groups/:groupId/messages", async (req: Request, res: Response) => {
           joinedAt: new Date().toISOString(),
           notifications: true
         }],
-        lastMessageAt: new Date()
-      }).returning();
+        lastMessageAt: new Date(),
+        unreadCounts: {},
+        settings: {},
+        metadata: {}
+      };
+      
+      const [newConv] = await db.insert(conversations).values(conversationData).returning();
       conversation = [newConv];
     }
     
@@ -343,7 +397,7 @@ router.post("/groups/:groupId/messages", async (req: Request, res: Response) => 
       .limit(1);
     
     if (conversation.length === 0) {
-      const [newConv] = await db.insert(conversations).values({
+      const conversationData: any = {
         type: 'family_group' as const,
         familyGroupId: parseInt(groupId),
         participants: [{
@@ -352,19 +406,29 @@ router.post("/groups/:groupId/messages", async (req: Request, res: Response) => 
           joinedAt: new Date().toISOString(),
           notifications: true
         }],
-        lastMessageAt: new Date()
-      }).returning();
+        lastMessageAt: new Date(),
+        unreadCounts: {},
+        settings: {},
+        metadata: {}
+      };
+      
+      const [newConv] = await db.insert(conversations).values(conversationData).returning();
       conversation = [newConv];
     }
     
-    // Insert message
-    const [newMessage] = await db.insert(messages).values({
+    // Insert message - only include fields that exist in database
+    const messageData: any = {
       conversationId: conversation[0].id,
       senderId: String(userId),
       senderType: 'user' as const,
       content: message,
-      messageType: 'text'
-    }).returning();
+      messageType: 'text',
+      attachments: [],
+      readBy: [],
+      metadata: {}
+    };
+    
+    const [newMessage] = await db.insert(messages).values(messageData).returning();
     
     // Update conversation last message time
     await db.update(conversations)
@@ -614,6 +678,32 @@ router.get("/groups/:groupId/tours", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching tours:", error);
     res.status(500).json({ error: "Failed to fetch tours" });
+  }
+});
+
+// Get notes for a family group
+router.get("/groups/:groupId/notes", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    
+    // For now, return empty array (notes feature to be implemented)
+    res.json([]);
+  } catch (error) {
+    console.error("Error fetching notes:", error);
+    res.status(500).json({ error: "Failed to fetch notes" });
+  }
+});
+
+// Get tasks for a family group
+router.get("/groups/:groupId/tasks", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    
+    // For now, return empty array (tasks feature to be implemented)
+    res.json([]);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Failed to fetch tasks" });
   }
 });
 
