@@ -135,8 +135,10 @@ function HeroSectionWithTransformingSearch() {
             aiResponse: aiChatResponse.answer,
             platformResources: aiChatResponse.platformResources || [],
             suggestions: aiChatResponse.suggestions || [],
+            citations: aiChatResponse.citations || [],
             isResearchMode: true,
-            timestamp: aiChatResponse.timestamp
+            timestamp: aiChatResponse.timestamp,
+            model: aiChatResponse.model
           }
         });
 
@@ -828,7 +830,9 @@ function HeroSectionWithTransformingSearch() {
                   aiResponse={searchResults.metadata.aiResponse}
                   platformResources={searchResults.metadata.platformResources}
                   suggestions={searchResults.metadata.suggestions}
+                  citations={searchResults.metadata.citations}
                   timestamp={searchResults.metadata.timestamp}
+                  model={searchResults.metadata.model}
                 />
               </div>
             )}

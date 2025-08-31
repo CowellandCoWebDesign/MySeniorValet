@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'wouter';
-import { Brain, Sparkles, ChevronRight, Globe, MapPin, Calendar, DollarSign, Shield, Users, MessageCircle } from 'lucide-react';
+import { Brain, Sparkles, ChevronRight, Globe, MapPin, Calendar, DollarSign, Shield, Users, MessageCircle, ExternalLink, BookOpen } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -15,10 +15,12 @@ interface AIChatResponseProps {
   aiResponse?: string;
   platformResources?: PlatformResource[];
   suggestions?: string[];
+  citations?: string[];
   timestamp?: string;
+  model?: string;
 }
 
-export function AIChatResponse({ aiResponse, platformResources = [], suggestions = [], timestamp }: AIChatResponseProps) {
+export function AIChatResponse({ aiResponse, platformResources = [], suggestions = [], citations = [], timestamp, model }: AIChatResponseProps) {
   if (!aiResponse) return null;
 
   // Icon mapping for different resource types
@@ -46,17 +48,54 @@ export function AIChatResponse({ aiResponse, platformResources = [], suggestions
         <CardContent className="pt-6">
           {/* AI Response Text */}
           <div className="prose dark:prose-invert max-w-none">
-            <div className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-              {aiResponse}
-            </div>
+            <div 
+              className="text-gray-700 dark:text-gray-300"
+              dangerouslySetInnerHTML={{ 
+                __html: aiResponse
+                  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold text
+                  .replace(/\n- /g, '<br/>• ') // Bullet points
+                  .replace(/\n\n/g, '<br/><br/>') // Paragraphs
+                  .replace(/\n/g, '<br/>') // Line breaks
+              }}
+            />
           </div>
 
-          {/* Timestamp */}
-          {timestamp && (
-            <div className="mt-4 text-xs text-gray-500 dark:text-gray-400">
-              Response generated at {new Date(timestamp).toLocaleTimeString()}
+          {/* Citations */}
+          {citations && citations.length > 0 && (
+            <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2 flex items-center">
+                <BookOpen className="w-4 h-4 mr-1" />
+                Sources
+              </h4>
+              <div className="space-y-1">
+                {citations.map((citation, index) => (
+                  <a
+                    key={index}
+                    href={citation}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center"
+                  >
+                    <span className="mr-1">[{index + 1}]</span>
+                    <span className="truncate flex-1">{citation}</span>
+                    <ExternalLink className="w-3 h-3 ml-1 flex-shrink-0" />
+                  </a>
+                ))}
+              </div>
             </div>
           )}
+
+          {/* Timestamp and Model */}
+          <div className="mt-4 flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+            {timestamp && (
+              <span>Response generated at {new Date(timestamp).toLocaleTimeString()}</span>
+            )}
+            {model && (
+              <Badge variant="outline" className="text-xs">
+                Powered by {model === 'perplexity-sonar' ? 'Perplexity Sonar' : model}
+              </Badge>
+            )}
+          </div>
         </CardContent>
       </Card>
 

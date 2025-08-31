@@ -183,7 +183,7 @@ When answering:
 5. Include relevant information from web sources when available`;
 
     // Call Perplexity Sonar API
-    let perplexityResponse;
+    let perplexityResponse: any;
     try {
       console.log('Calling Perplexity Sonar with query:', query);
       
