@@ -92,6 +92,21 @@ export default function Dashboard() {
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
+  
+  // Profile editing states
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [profileData, setProfileData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    preferredLocation: ''
+  });
+  const [originalProfileData, setOriginalProfileData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    preferredLocation: ''
+  });
 
   // Parse URL query parameters
   useEffect(() => {
@@ -105,6 +120,17 @@ export default function Dashboard() {
   // Load real data from API
   useEffect(() => {
     loadUserData();
+    if (user) {
+      // Load user profile data
+      const userData = {
+        fullName: user.name || user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : '',
+        email: user.email || '',
+        phone: user.phone || '',
+        preferredLocation: user.preferredLocation || ''
+      };
+      setProfileData(userData);
+      setOriginalProfileData(userData);
+    }
   }, [user?.id]);
 
   const handleRemoveCommunity = (id: number) => {
@@ -935,8 +961,11 @@ export default function Dashboard() {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${!isEditingProfile ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed' : ''}`}
                       placeholder="Enter your full name"
+                      value={profileData.fullName}
+                      onChange={(e) => setProfileData({...profileData, fullName: e.target.value})}
+                      disabled={!isEditingProfile}
                     />
                   </div>
                   <div className="space-y-2">
@@ -945,8 +974,11 @@ export default function Dashboard() {
                     </label>
                     <input
                       type="email"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${!isEditingProfile ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed' : ''}`}
                       placeholder="Enter your email"
+                      value={profileData.email}
+                      onChange={(e) => setProfileData({...profileData, email: e.target.value})}
+                      disabled={!isEditingProfile}
                     />
                   </div>
                   <div className="space-y-2">
@@ -955,8 +987,11 @@ export default function Dashboard() {
                     </label>
                     <input
                       type="tel"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${!isEditingProfile ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed' : ''}`}
                       placeholder="Enter your phone number"
+                      value={profileData.phone}
+                      onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                      disabled={!isEditingProfile}
                     />
                   </div>
                   <div className="space-y-2">
@@ -965,17 +1000,67 @@ export default function Dashboard() {
                     </label>
                     <input
                       type="text"
-                      className="w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                      className={`w-full px-4 py-3 border border-gray-200 rounded-2xl dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${!isEditingProfile ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed' : ''}`}
                       placeholder="Enter preferred location"
+                      value={profileData.preferredLocation}
+                      onChange={(e) => setProfileData({...profileData, preferredLocation: e.target.value})}
+                      disabled={!isEditingProfile}
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-wrap gap-4 pt-4">
-                  <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-8 py-3">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Save Changes
-                  </Button>
+                  {!isEditingProfile ? (
+                    <Button 
+                      className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-8 py-3"
+                      onClick={() => setIsEditingProfile(true)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Profile
+                    </Button>
+                  ) : (
+                    <>
+                      <Button 
+                        className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-8 py-3"
+                        onClick={async () => {
+                          try {
+                            const response = await fetch(`/api/users/${user?.id}/profile`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify(profileData)
+                            });
+                            if (response.ok) {
+                              toast({
+                                title: "Profile Updated",
+                                description: "Your profile has been updated successfully.",
+                              });
+                              setOriginalProfileData(profileData);
+                              setIsEditingProfile(false);
+                            }
+                          } catch (error) {
+                            toast({
+                              title: "Update Failed",
+                              description: "Failed to update profile. Please try again.",
+                              variant: "destructive"
+                            });
+                          }
+                        }}
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Save Changes
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        className="rounded-xl px-8 py-3"
+                        onClick={() => {
+                          setProfileData(originalProfileData);
+                          setIsEditingProfile(false);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </>
+                  )}
                   <Button variant="outline" className="rounded-xl border-gray-200 text-gray-600 hover:bg-gray-50 px-8 py-3">
                     <Bell className="h-4 w-4 mr-2" />
                     Notification Settings
