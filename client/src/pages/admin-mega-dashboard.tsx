@@ -703,7 +703,7 @@ export default function AdminMegaDashboard() {
       queryClient.invalidateQueries({ queryKey: [`/api/admin/${type}`] });
       toast({
         title: "Data Refreshed",
-        description: `${type} data has been refreshed successfully.",
+        description: `${type} data has been refreshed successfully.`,
       });
     },
     onSettled: (_, __, type) => {
@@ -729,7 +729,7 @@ export default function AdminMegaDashboard() {
     setActiveActions({ ...activeActions, export: true });
     
     try {
-      const response = await apiRequest("POST", `/api/admin/export`, {
+      const response = await apiRequest("POST", "/api/admin/export", {
         format,
         dataType,
         timeRange,
@@ -752,20 +752,21 @@ export default function AdminMegaDashboard() {
 
   // Calculate summary metrics
   const calculateMetrics = (): DashboardMetrics => {
-    const communities = Array.isArray(platformStats?.communities) ? platformStats.communities : [];
-    const subscriptions = activeSubscriptions || [];
+    const communities = Array.isArray((platformStats as any)?.communities) ? (platformStats as any).communities : [];
+    const subscriptions = Array.isArray(activeSubscriptions) ? activeSubscriptions : [];
+    const usersList = Array.isArray(users) ? users : [];
     
     return {
       platform: {
         totalCommunities: communities.length,
-        totalUsers: users?.length || 0,
-        totalVendors: users?.filter((u: any) => u.role === 'vendor').length || 0,
+        totalUsers: usersList.length,
+        totalVendors: usersList.filter((u: any) => u.role === 'vendor').length,
         activeSubscriptions: subscriptions.length,
-        monthlyRevenue: financialData?.revenue?.month || 0,
-        yearlyRevenue: financialData?.revenue?.year || 0,
-        growthRate: financialData?.growthRate || 0,
+        monthlyRevenue: (financialData as any)?.revenue?.month || 0,
+        yearlyRevenue: (financialData as any)?.revenue?.year || 0,
+        growthRate: (financialData as any)?.growthRate || 0,
       },
-      performance: performanceMetrics || {
+      performance: (performanceMetrics as any) || {
         responseTime: 0,
         uptime: 99.9,
         errorRate: 0,
@@ -773,7 +774,7 @@ export default function AdminMegaDashboard() {
         cacheHitRate: 0,
         dbQueries: 0,
       },
-      ai: aiMetrics || {
+      ai: (aiMetrics as any) || {
         totalRequests: 0,
         byProvider: {
           claude: 0,
@@ -793,7 +794,7 @@ export default function AdminMegaDashboard() {
         avgResponseTime: 0,
       },
       financial: {
-        revenue: financialData?.revenue || {
+        revenue: (financialData as any)?.revenue || {
           today: 0,
           week: 0,
           month: 0,
@@ -803,18 +804,18 @@ export default function AdminMegaDashboard() {
           community: { free: 0, standard: 0, featured: 0, platinum: 0 },
           vendor: { basic: 0, featured: 0, national: 0 },
         },
-        paymentSuccess: financialData?.paymentSuccess || 0,
-        churnRate: financialData?.churnRate || 0,
-        ltv: financialData?.ltv || 0,
-        arpu: financialData?.arpu || 0,
+        paymentSuccess: (financialData as any)?.paymentSuccess || 0,
+        churnRate: (financialData as any)?.churnRate || 0,
+        ltv: (financialData as any)?.ltv || 0,
+        arpu: (financialData as any)?.arpu || 0,
       },
-      geographic: geographicData || {
+      geographic: (geographicData as any) || {
         byState: {},
         byCountry: { usa: 0, canada: 0 },
         topCities: [],
         expansionProgress: 0,
       },
-      engagement: engagementMetrics || {
+      engagement: (engagementMetrics as any) || {
         dailyActiveUsers: 0,
         weeklyActiveUsers: 0,
         monthlyActiveUsers: 0,
@@ -937,7 +938,7 @@ export default function AdminMegaDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users?.slice(0, 10).map((user: any) => (
+              {Array.isArray(users) && users.slice(0, 10).map((user: any) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
@@ -962,7 +963,7 @@ export default function AdminMegaDashboard() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.banned ? "destructive" : "success"}>
+                    <Badge variant={user.banned ? "destructive" : "default"}>
                       {user.banned ? "Banned" : "Active"}
                     </Badge>
                   </TableCell>
@@ -1071,14 +1072,14 @@ export default function AdminMegaDashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {activeSubscriptions?.slice(0, 10).map((sub: any) => (
+                  {Array.isArray(activeSubscriptions) && activeSubscriptions.slice(0, 10).map((sub: any) => (
                     <TableRow key={sub.id}>
                       <TableCell>{sub.customerName}</TableCell>
                       <TableCell>
                         <Badge>{sub.planName}</Badge>
                       </TableCell>
                       <TableCell>
-                        <Badge variant="success">Active</Badge>
+                        <Badge variant="default">Active</Badge>
                       </TableCell>
                       <TableCell>{format(new Date(sub.nextBilling), 'MMM d, yyyy')}</TableCell>
                       <TableCell>
@@ -1127,7 +1128,7 @@ export default function AdminMegaDashboard() {
               </div>
               
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={revenueAnalytics?.monthly || []}>
+                <LineChart data={(revenueAnalytics as any)?.monthly || []}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -1380,7 +1381,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Total Communities</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{communityStats?.total || 0}</div>
+              <div className="text-2xl font-bold">{(communityStats as any)?.total || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -1388,7 +1389,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Verified</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">{communityStats?.verified || 0}</div>
+              <div className="text-2xl font-bold text-green-600">{(communityStats as any)?.verified || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -1396,7 +1397,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">With Photos</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{communityStats?.withPhotos || 0}</div>
+              <div className="text-2xl font-bold">{(communityStats as any)?.withPhotos || 0}</div>
             </CardContent>
           </Card>
           <Card>
@@ -1404,7 +1405,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">With Pricing</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{communityStats?.withPricing || 0}</div>
+              <div className="text-2xl font-bold">{(communityStats as any)?.withPricing || 0}</div>
             </CardContent>
           </Card>
         </div>
@@ -1423,7 +1424,7 @@ export default function AdminMegaDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCommunities?.communities?.slice(0, 10).map((community: any) => (
+              {Array.isArray((filteredCommunities as any)?.communities) && (filteredCommunities as any).communities.slice(0, 10).map((community: any) => (
                 <TableRow key={community.id}>
                   <TableCell>
                     <div>
@@ -1441,7 +1442,7 @@ export default function AdminMegaDashboard() {
                     <Badge variant="outline">{community.type}</Badge>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={community.verified ? "success" : "secondary"}>
+                    <Badge variant={community.verified ? "default" : "secondary"}>
                       {community.verified ? "Verified" : "Unverified"}
                     </Badge>
                   </TableCell>
@@ -1504,13 +1505,13 @@ export default function AdminMegaDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Shield className={`h-4 w-4 ${dataProtectionStatus?.isActive ? 'text-green-500' : 'text-red-500'}`} />
+                <Shield className={`h-4 w-4 ${(dataProtectionStatus as any)?.isActive ? 'text-green-500' : 'text-red-500'}`} />
                 Protection Status
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${dataProtectionStatus?.isActive ? 'text-green-600' : 'text-red-600'}`}>
-                {dataProtectionStatus?.isActive ? 'Active' : 'Inactive'}
+              <div className={`text-2xl font-bold ${(dataProtectionStatus as any)?.isActive ? 'text-green-600' : 'text-red-600'}`}>
+                {(dataProtectionStatus as any)?.isActive ? 'Active' : 'Inactive'}
               </div>
             </CardContent>
           </Card>
@@ -1518,13 +1519,13 @@ export default function AdminMegaDashboard() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm flex items-center gap-2">
-                <AlertCircle className={`h-4 w-4 ${dataProtectionStatus?.isFrozen ? 'text-red-500' : 'text-blue-500'}`} />
+                <AlertCircle className={`h-4 w-4 ${(dataProtectionStatus as any)?.isFrozen ? 'text-red-500' : 'text-blue-500'}`} />
                 System State
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${dataProtectionStatus?.isFrozen ? 'text-red-600' : 'text-blue-600'}`}>
-                {dataProtectionStatus?.isFrozen ? 'FROZEN' : 'Normal'}
+              <div className={`text-2xl font-bold ${(dataProtectionStatus as any)?.isFrozen ? 'text-red-600' : 'text-blue-600'}`}>
+                {(dataProtectionStatus as any)?.isFrozen ? 'FROZEN' : 'Normal'}
               </div>
             </CardContent>
           </Card>
@@ -1534,8 +1535,8 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Quality Score</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{qualityMetrics?.score || 0}%</div>
-              <Progress value={qualityMetrics?.score || 0} className="mt-2" />
+              <div className="text-2xl font-bold">{(qualityMetrics as any)?.score || 0}%</div>
+              <Progress value={(qualityMetrics as any)?.score || 0} className="mt-2" />
             </CardContent>
           </Card>
         </div>
@@ -1575,14 +1576,14 @@ export default function AdminMegaDashboard() {
           </div>
           
           {/* Protection Logs */}
-          {protectionLogs && (
+          {protectionLogs && (protectionLogs as any).logs && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Recent Protection Events</CardTitle>
               </CardHeader>
               <CardContent>
                 <ScrollArea className="h-[200px]">
-                  {protectionLogs?.logs?.map((log: any, idx: number) => (
+                  {Array.isArray((protectionLogs as any)?.logs) && (protectionLogs as any).logs.map((log: any, idx: number) => (
                     <div key={idx} className="flex justify-between items-center py-2 border-b">
                       <div>
                         <div className="font-medium">{log.action}</div>
@@ -1617,7 +1618,7 @@ export default function AdminMegaDashboard() {
           <div>
             <div className="text-sm font-medium mb-2">Market Share Comparison</div>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={competitorData?.competitors || []}>
+              <BarChart data={(competitorData as any)?.competitors || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -1630,7 +1631,7 @@ export default function AdminMegaDashboard() {
           <div>
             <div className="text-sm font-medium mb-2">Occupancy Rates</div>
             <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={competitorData?.competitors || []}>
+              <LineChart data={(competitorData as any)?.competitors || []}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="name" />
                 <YAxis />
@@ -1644,7 +1645,7 @@ export default function AdminMegaDashboard() {
         <div className="mt-4">
           <div className="text-sm font-medium mb-2">Revenue by Region</div>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={revenueByRegion?.regions || []}>
+            <BarChart data={(revenueByRegion as any)?.regions || []}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="region" />
               <YAxis />
@@ -1675,7 +1676,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Total Discovered</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{expansionData?.totals?.communities || 0}</div>
+              <div className="text-2xl font-bold">{(expansionData as any)?.totals?.communities || 0}</div>
               <Progress value={expansionProgress} className="mt-2" />
             </CardContent>
           </Card>
@@ -1685,7 +1686,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Counties Covered</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{expansionData?.totals?.counties || 0}</div>
+              <div className="text-2xl font-bold">{(expansionData as any)?.totals?.counties || 0}</div>
               <div className="text-sm text-muted-foreground">of 3,143 total</div>
             </CardContent>
           </Card>
@@ -1695,7 +1696,7 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Verification Rate</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{expansionData?.totals?.verificationRate || 0}%</div>
+              <div className="text-2xl font-bold">{(expansionData as any)?.totals?.verificationRate || 0}%</div>
               <div className="text-sm text-muted-foreground">Communities verified</div>
             </CardContent>
           </Card>
@@ -1705,8 +1706,8 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Google Places Enriched</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{enrichmentStats?.enriched || 0}</div>
-              <div className="text-sm text-muted-foreground">${enrichmentStats?.cost?.toFixed(2) || '0.00'} spent</div>
+              <div className="text-2xl font-bold">{(enrichmentStats as any)?.enriched || 0}</div>
+              <div className="text-sm text-muted-foreground">${(enrichmentStats as any)?.cost?.toFixed(2) || '0.00'} spent</div>
             </CardContent>
           </Card>
         </div>
@@ -1715,7 +1716,7 @@ export default function AdminMegaDashboard() {
         <div className="mb-4">
           <h4 className="text-sm font-medium mb-2">Top Counties by Discovery</h4>
           <ScrollArea className="h-[200px]">
-            {countyMetrics?.counties?.map((county: any, idx: number) => (
+            {Array.isArray((countyMetrics as any)?.counties) && (countyMetrics as any).counties.map((county: any, idx: number) => (
               <div key={idx} className="flex justify-between items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded">
                 <div>
                   <div className="font-medium">{county.name}</div>
@@ -1744,7 +1745,7 @@ export default function AdminMegaDashboard() {
           <Alert className="border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20">
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
             <AlertDescription>
-              Discovery operations consume API credits. Current rate: ${apiCosts?.perHour || '0.00'}/hour
+              Discovery operations consume API credits. Current rate: ${(apiCosts as any)?.perHour || '0.00'}/hour
             </AlertDescription>
           </Alert>
           
@@ -1781,13 +1782,13 @@ export default function AdminMegaDashboard() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Communities Found</span>
-                  <span className="font-medium">{discoveryProgress.found || 0}</span>
+                  <span className="font-medium">{(discoveryProgress as any)?.found || 0}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Verified</span>
-                  <span className="font-medium">{discoveryProgress.verified || 0}</span>
+                  <span className="font-medium">{(discoveryProgress as any)?.verified || 0}</span>
                 </div>
-                <Progress value={discoveryProgress.progress || 0} className="mt-2" />
+                <Progress value={(discoveryProgress as any)?.progress || 0} className="mt-2" />
               </div>
             </CardContent>
           </Card>
@@ -1819,7 +1820,7 @@ export default function AdminMegaDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{liveActivity?.activeUsers || 0}</div>
+              <div className="text-2xl font-bold">{(liveActivity as any)?.activeUsers || 0}</div>
               <div className="flex items-center gap-1 mt-1">
                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-xs text-muted-foreground">Live</span>
@@ -1832,8 +1833,8 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">Searches/Min</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{liveActivity?.searchesPerMinute || 0}</div>
-              <div className="text-xs text-muted-foreground">↑ {liveActivity?.searchTrend || 0}%</div>
+              <div className="text-2xl font-bold">{(liveActivity as any)?.searchesPerMinute || 0}</div>
+              <div className="text-xs text-muted-foreground">↑ {(liveActivity as any)?.searchTrend || 0}%</div>
             </CardContent>
           </Card>
           
@@ -1842,8 +1843,8 @@ export default function AdminMegaDashboard() {
               <CardTitle className="text-sm">API Calls/Min</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{liveActivity?.apiCallsPerMinute || 0}</div>
-              <div className="text-xs text-muted-foreground">${liveActivity?.costPerMinute?.toFixed(2) || '0.00'}/min</div>
+              <div className="text-2xl font-bold">{(liveActivity as any)?.apiCallsPerMinute || 0}</div>
+              <div className="text-xs text-muted-foreground">${(liveActivity as any)?.costPerMinute?.toFixed(2) || '0.00'}/min</div>
             </CardContent>
           </Card>
         </div>
@@ -1852,7 +1853,7 @@ export default function AdminMegaDashboard() {
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Recent Activity</h4>
           <ScrollArea className="h-[200px]">
-            {liveActivity?.recentActions?.map((action: any, idx: number) => (
+            {Array.isArray((liveActivity as any)?.recentActions) && (liveActivity as any).recentActions.map((action: any, idx: number) => (
               <div key={idx} className="flex items-start gap-2 py-2 border-b">
                 <div className={`h-2 w-2 rounded-full mt-1.5 ${
                   action.type === 'search' ? 'bg-blue-500' :
@@ -1954,7 +1955,7 @@ export default function AdminMegaDashboard() {
           </Button>
         </div>
         
-        {systemHealth && systemHealthExpanded && (
+        {systemHealth && systemHealthExpanded && (systemHealth as any).cpu && (
           <Card className="mt-4">
             <CardHeader>
               <CardTitle className="text-sm">System Health Details</CardTitle>
@@ -1963,19 +1964,19 @@ export default function AdminMegaDashboard() {
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>CPU Usage</span>
-                  <span className="font-medium">{systemHealth.cpu}%</span>
+                  <span className="font-medium">{(systemHealth as any).cpu}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Memory Usage</span>
-                  <span className="font-medium">{systemHealth.memory}%</span>
+                  <span className="font-medium">{(systemHealth as any).memory}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Disk Usage</span>
-                  <span className="font-medium">{systemHealth.disk}%</span>
+                  <span className="font-medium">{(systemHealth as any).disk}%</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Active Connections</span>
-                  <span className="font-medium">{systemHealth.connections}</span>
+                  <span className="font-medium">{(systemHealth as any).connections}</span>
                 </div>
               </div>
             </CardContent>
@@ -2221,7 +2222,7 @@ export default function AdminMegaDashboard() {
               </CardHeader>
               <CardContent>
                 <Suspense fallback={<div>Loading heatmap...</div>}>
-                  <EnhancedHeatmap adminView={true} />
+                  <EnhancedHeatmap />
                 </Suspense>
               </CardContent>
             </Card>
