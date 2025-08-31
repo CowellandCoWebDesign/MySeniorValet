@@ -94,42 +94,42 @@ export default function FamilyConnect() {
 
   // Fetch user's family groups
   const { data: groups = [], isLoading: groupsLoading } = useQuery<FamilyGroup[]>({
-    queryKey: ['/api/family-connect/groups'],
+    queryKey: ['/api/family/groups'],
     enabled: true,
   });
 
   // Fetch selected group details with members
   const { data: groupDetails } = useQuery<FamilyGroup>({
-    queryKey: ['/api/family-connect/groups', selectedGroup?.id],
+    queryKey: ['/api/family/groups', selectedGroup?.id],
     enabled: !!selectedGroup?.id,
   });
 
   // Fetch messages for selected group
   const { data: messages = [] } = useQuery<FamilyMessage[]>({
-    queryKey: ['/api/family-connect/groups', selectedGroup?.id, 'messages'],
+    queryKey: ['/api/family/groups', selectedGroup?.id, 'messages'],
     enabled: !!selectedGroup?.id,
     refetchInterval: 5000, // Refresh every 5 seconds
   });
 
   // Fetch notes for selected group
   const { data: notes = [] } = useQuery<FamilyNote[]>({
-    queryKey: ['/api/family-connect/groups', selectedGroup?.id, 'notes'],
+    queryKey: ['/api/family/groups', selectedGroup?.id, 'notes'],
     enabled: !!selectedGroup?.id,
   });
 
   // Fetch tasks for selected group
   const { data: tasks = [] } = useQuery<FamilyTask[]>({
-    queryKey: ['/api/family-connect/groups', selectedGroup?.id, 'tasks'],
+    queryKey: ['/api/family/groups', selectedGroup?.id, 'tasks'],
     enabled: !!selectedGroup?.id,
   });
 
   // Create family group mutation
   const createGroupMutation = useMutation({
     mutationFn: async (name: string) => {
-      return apiRequest('/api/family-connect/groups', 'POST', { name });
+      return apiRequest('/api/family/groups', 'POST', { name });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/family-connect/groups'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/family/groups'] });
       setShowCreateGroup(false);
       setNewGroupName('');
       toast({
@@ -142,10 +142,10 @@ export default function FamilyConnect() {
   // Join family group mutation
   const joinGroupMutation = useMutation({
     mutationFn: async (inviteCode: string) => {
-      return apiRequest('/api/family-connect/join', 'POST', { inviteCode });
+      return apiRequest('/api/family/groups/join', 'POST', { inviteCode });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/family-connect/groups'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/family/groups'] });
       setShowJoinGroup(false);
       setJoinCode('');
       toast({
@@ -165,11 +165,11 @@ export default function FamilyConnect() {
   // Send message mutation
   const sendMessageMutation = useMutation({
     mutationFn: async (message: string) => {
-      return apiRequest(`/api/family-connect/groups/${selectedGroup?.id}/messages`, 'POST', { message });
+      return apiRequest(`/api/family/groups/${selectedGroup?.id}/messages`, 'POST', { message });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ 
-        queryKey: ['/api/family-connect/groups', selectedGroup?.id, 'messages'] 
+        queryKey: ['/api/family/groups', selectedGroup?.id, 'messages'] 
       });
       setMessageText('');
     },
@@ -178,11 +178,11 @@ export default function FamilyConnect() {
   // Invite member mutation
   const inviteMemberMutation = useMutation({
     mutationFn: async ({ email, name }: { email: string; name: string }) => {
-      return apiRequest(`/api/family-connect/groups/${selectedGroup?.id}/invite`, 'POST', { email, name });
+      return apiRequest(`/api/family/groups/${selectedGroup?.id}/invite`, 'POST', { email, name });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ 
-        queryKey: ['/api/family-connect/groups', selectedGroup?.id] 
+        queryKey: ['/api/family/groups', selectedGroup?.id] 
       });
       setShowInviteMember(false);
       setInviteEmail('');
