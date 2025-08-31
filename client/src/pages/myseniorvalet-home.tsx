@@ -548,35 +548,45 @@ function HeroSectionWithTransformingSearch() {
           {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
             <div className="w-full max-w-2xl mt-4">
-              {/* Results Header - Glass Morphism */}
-              <div className="">
-                <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
-                  <h3 className="text-lg font-semibold text-white">
-                    {searchResults?.metadata?.isResearchMode ? (
-                      <span className="flex items-center space-x-2">
-                        <span className="text-lg">🕵️</span>
-                        <span>Research Mode found {searchResults?.results?.length || 0} recommendations</span>
-                      </span>
-                    ) : (
-                      <span>
-                        Found {searchResults?.results?.length || 0} 
-                        {searchCategory === 'services' ? ' services' : 
-                         searchCategory === 'healthcare' ? ' healthcare providers' : 
-                         searchCategory === 'resources' ? ' resources' : ' communities'}
-                      </span>
-                    )}
-                    {searchQuery && (
-                      <span className="ml-2 text-green-400">
-                        "{searchQuery}"
-                      </span>
-                    )}
-                  </h3>
+              {/* Show AI Response directly in results area for Research mode */}
+              {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
+                <div className="animate-fade-in">
+                  <AIChatResponse
+                    aiResponse={searchResults.metadata.aiResponse}
+                    platformResources={searchResults.metadata.platformResources}
+                    suggestions={searchResults.metadata.suggestions}
+                    citations={searchResults.metadata.citations}
+                    timestamp={searchResults.metadata.timestamp}
+                    model={searchResults.metadata.model}
+                  />
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Regular Results Header - Glass Morphism */}
+                  <div className="">
+                    <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
+                      <h3 className="text-lg font-semibold text-white">
+                        <span>
+                          Found {searchResults?.results?.length || 0} 
+                          {searchCategory === 'services' ? ' services' : 
+                           searchCategory === 'healthcare' ? ' healthcare providers' : 
+                           searchCategory === 'resources' ? ' resources' : ' communities'}
+                        </span>
+                        {searchQuery && (
+                          <span className="ml-2 text-green-400">
+                            "{searchQuery}"
+                          </span>
+                        )}
+                      </h3>
+                    </div>
+                  </div>
+                </>
+              )}
               
-              {/* Results Content with premium glass design */}
-              <div className="mt-3 max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
-                {isLoading ? (
+              {/* Results Content with premium glass design - Only show for non-Research mode */}
+              {!searchResults?.metadata?.isResearchMode && (
+                <div className="mt-3 max-h-[90vh] overflow-y-auto bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
+                  {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
                     <span className="ml-3 text-gray-300">Searching...</span>
@@ -784,6 +794,7 @@ function HeroSectionWithTransformingSearch() {
                   </div>
                 )}
               </div>
+              )}
             </div>
           )}
         </div>
@@ -812,37 +823,6 @@ function HeroSectionWithTransformingSearch() {
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
 
-      {/* Research Mode Response Section - Using New AI Chat Component */}
-      <AnimatePresence mode="wait">
-        {isSearchActive && searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse && (
-          <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="w-full bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800 relative"
-            id="discover-mode-results"
-            style={{ transform: 'translateZ(0)' }}
-          >
-            {(
-              <div className="max-w-4xl mx-auto p-4">
-                <AIChatResponse
-                  aiResponse={searchResults.metadata.aiResponse}
-                  platformResources={searchResults.metadata.platformResources}
-                  suggestions={searchResults.metadata.suggestions}
-                  citations={searchResults.metadata.citations}
-                  timestamp={searchResults.metadata.timestamp}
-                  model={searchResults.metadata.model}
-                />
-              </div>
-            )}
-
-
-            
-
-          </motion.section>
-        )}
-      </AnimatePresence>
     </>
   );
 }
