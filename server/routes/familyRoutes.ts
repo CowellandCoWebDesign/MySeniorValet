@@ -38,11 +38,24 @@ router.post("/groups", async (req: Request, res: Response) => {
     
     const [newGroup] = await db.insert(familyGroups).values({
       name,
-      createdBy: userId,
+      ownerId: String(userId),
       inviteCode,
+      members: [{
+        userId: String(userId),
+        role: "owner" as const,
+        relationship: "Owner",
+        permissions: {
+          canMessage: true,
+          canInvite: true,
+          canRemove: true,
+          canViewAll: true,
+          canEditNotes: true
+        },
+        joinedAt: new Date().toISOString()
+      }],
       settings: {
-        allowVoting: true,
-        requireConsensus: false,
+        allowJoinRequests: true,
+        requireApproval: false,
         notifyOnActivity: true
       }
     }).returning();
@@ -63,28 +76,27 @@ router.get("/groups", async (req: Request, res: Response) => {
     const groups = await db.execute(sql`
       SELECT DISTINCT fg.* 
       FROM family_groups fg
-      WHERE fg.created_by = ${userId}
+      WHERE fg.owner_id = ${String(userId)}
       OR EXISTS (
-        SELECT 1 FROM users u 
-        WHERE u.id = ${userId} 
-        AND u.metadata->>'familyGroupIds' LIKE '%' || fg.id || '%'
+        SELECT 1 FROM jsonb_array_elements(fg.members) member
+        WHERE member->>'userId' = ${String(userId)}
       )
     `);
     
     // Add member count to each group
     const groupsWithMembers = await Promise.all(groups.rows.map(async (group: any) => {
       const memberCount = await db.execute(sql`
-        SELECT COUNT(DISTINCT u.id) as count
-        FROM users u
-        WHERE u.id = ${group.created_by}
-        OR u.metadata->>'familyGroupIds' LIKE '%' || ${group.id} || '%'
+        SELECT COUNT(DISTINCT member->>'userId') as count
+        FROM family_groups fg,
+        jsonb_array_elements(fg.members) member
+        WHERE fg.id = ${group.id}
       `);
       
       return {
         ...group,
         members: [{
           id: 1,
-          userId: group.created_by,
+          userId: group.owner_id,
           name: "Group Owner",
           email: "",
           role: "owner",
@@ -101,6 +113,168 @@ router.get("/groups", async (req: Request, res: Response) => {
   }
 });
 
+// Get messages for current user's family group (simplified endpoint)
+router.get("/messages", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    
+    // Find the user's family group using JSON array search
+    const userGroups = await db.execute(sql`
+      SELECT DISTINCT fg.* 
+      FROM family_groups fg
+      WHERE fg.owner_id = ${String(userId)}
+      OR EXISTS (
+        SELECT 1 FROM jsonb_array_elements(fg.members) member
+        WHERE member->>'userId' = ${String(userId)}
+      )
+      LIMIT 1
+    `);
+    
+    if (userGroups.rows.length === 0) {
+      return res.json({ 
+        messages: [], 
+        currentUserId: userId,
+        groupName: null 
+      });
+    }
+    
+    const groupId = userGroups.rows[0].id;
+    
+    // Get or create conversation for this group
+    let conversation = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.type, 'family_group'),
+        eq(conversations.familyGroupId, groupId)
+      ))
+      .limit(1);
+    
+    if (conversation.length === 0) {
+      const [newConversation] = await db.insert(conversations).values({
+        type: 'family_group' as const,
+        familyGroupId: groupId,
+        participants: [{
+          userId: String(userId),
+          role: 'member' as const,
+          joinedAt: new Date().toISOString(),
+          notifications: true
+        }],
+        lastMessageAt: new Date()
+      }).returning();
+      conversation = [newConversation];
+    }
+    
+    // Get messages with sender info
+    const allMessages = await db.execute(sql`
+      SELECT 
+        m.id,
+        m.content,
+        m.sender_id as "senderId",
+        m.message_type as "messageType",
+        m.metadata,
+        m.created_at as "createdAt",
+        u.name as "senderName",
+        u.email as "senderEmail"
+      FROM messages m
+      LEFT JOIN users u ON m.sender_id = u.id::text
+      WHERE m.conversation_id = ${conversation[0].id}
+      ORDER BY m.created_at ASC
+      LIMIT 100
+    `);
+    
+    res.json({ 
+      messages: allMessages.rows,
+      currentUserId: String(userId),
+      groupName: userGroups.rows[0].name 
+    });
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
+});
+
+// Send a message to current user's family group (simplified endpoint)
+router.post("/messages", async (req: Request, res: Response) => {
+  try {
+    const { content } = req.body;
+    const userId = getUserId(req);
+    
+    if (!content) {
+      return res.status(400).json({ error: "Message content is required" });
+    }
+    
+    // Find the user's family group
+    const userGroups = await db.execute(sql`
+      SELECT DISTINCT fg.* 
+      FROM family_groups fg
+      WHERE fg.owner_id = ${String(userId)}
+      OR EXISTS (
+        SELECT 1 FROM jsonb_array_elements(fg.members) member
+        WHERE member->>'userId' = ${String(userId)}
+      )
+      LIMIT 1
+    `);
+    
+    if (userGroups.rows.length === 0) {
+      return res.status(400).json({ error: "You must join a family group first" });
+    }
+    
+    const groupId = userGroups.rows[0].id;
+    
+    // Get or create conversation
+    let conversation = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.type, 'family_group'),
+        eq(conversations.familyGroupId, groupId)
+      ))
+      .limit(1);
+    
+    if (conversation.length === 0) {
+      const [newConversation] = await db.insert(conversations).values({
+        type: 'family_group' as const,
+        familyGroupId: groupId,
+        participants: [{
+          userId: String(userId),
+          role: 'member' as const,
+          joinedAt: new Date().toISOString(),
+          notifications: true
+        }],
+        lastMessageAt: new Date()
+      }).returning();
+      conversation = [newConversation];
+    }
+    
+    // Create the message
+    const [newMessage] = await db.insert(messages).values({
+      conversationId: conversation[0].id,
+      senderId: String(userId),
+      senderType: 'user' as const,
+      content,
+      messageType: 'text'
+    }).returning();
+    
+    // Update conversation last message time
+    await db.update(conversations)
+      .set({ lastMessageAt: new Date() })
+      .where(eq(conversations.id, conversation[0].id));
+    
+    // Get sender info for response
+    const [sender] = await db.select()
+      .from(users)
+      .where(eq(users.id, userId));
+    
+    res.json({
+      ...newMessage,
+      senderName: sender?.name || 'Unknown',
+      senderEmail: sender?.email
+    });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ error: "Failed to send message" });
+  }
+});
+
 // Get messages for a family group
 router.get("/groups/:groupId/messages", async (req: Request, res: Response) => {
   try {
@@ -112,15 +286,20 @@ router.get("/groups/:groupId/messages", async (req: Request, res: Response) => {
       .from(conversations)
       .where(and(
         eq(conversations.type, 'family_group'),
-        eq(conversations.groupId, parseInt(groupId))
+        eq(conversations.familyGroupId, parseInt(groupId))
       ))
       .limit(1);
     
     if (conversation.length === 0) {
       const [newConv] = await db.insert(conversations).values({
-        type: 'family_group',
-        groupId: parseInt(groupId),
-        participants: [userId],
+        type: 'family_group' as const,
+        familyGroupId: parseInt(groupId),
+        participants: [{
+          userId: String(userId),
+          role: 'member' as const,
+          joinedAt: new Date().toISOString(),
+          notifications: true
+        }],
         lastMessageAt: new Date()
       }).returning();
       conversation = [newConv];
@@ -171,15 +350,20 @@ router.post("/groups/:groupId/messages", async (req: Request, res: Response) => 
       .from(conversations)
       .where(and(
         eq(conversations.type, 'family_group'),
-        eq(conversations.groupId, parseInt(groupId))
+        eq(conversations.familyGroupId, parseInt(groupId))
       ))
       .limit(1);
     
     if (conversation.length === 0) {
       const [newConv] = await db.insert(conversations).values({
-        type: 'family_group',
-        groupId: parseInt(groupId),
-        participants: [userId],
+        type: 'family_group' as const,
+        familyGroupId: parseInt(groupId),
+        participants: [{
+          userId: String(userId),
+          role: 'member' as const,
+          joinedAt: new Date().toISOString(),
+          notifications: true
+        }],
         lastMessageAt: new Date()
       }).returning();
       conversation = [newConv];
@@ -188,9 +372,10 @@ router.post("/groups/:groupId/messages", async (req: Request, res: Response) => 
     // Insert message
     const [newMessage] = await db.insert(messages).values({
       conversationId: conversation[0].id,
-      senderId: userId,
+      senderId: String(userId),
+      senderType: 'user' as const,
       content: message,
-      read: false
+      messageType: 'text'
     }).returning();
     
     // Update conversation last message time
@@ -232,11 +417,11 @@ router.get("/groups/:groupId/polls", async (req: Request, res: Response) => {
       // Get vote counts for each option
       const voteCounts = await db.execute(sql`
         SELECT 
-          json_array_elements(option_ids) as option_id,
+          json_array_elements(selected_options) as option_id,
           COUNT(*) as vote_count
         FROM family_poll_votes
         WHERE poll_id = ${poll.id}
-        GROUP BY json_array_elements(option_ids)
+        GROUP BY json_array_elements(selected_options)
       `);
       
       const optionsWithVotes = poll.options?.map((opt: any) => ({
@@ -328,7 +513,7 @@ router.post("/polls/:pollId/vote", async (req: Request, res: Response) => {
       // Update existing vote
       await db.update(familyPollVotes)
         .set({
-          optionIds,
+          selectedOptions: optionIds,
           votedAt: new Date()
         })
         .where(and(
@@ -340,7 +525,7 @@ router.post("/polls/:pollId/vote", async (req: Request, res: Response) => {
       await db.insert(familyPollVotes).values({
         pollId: parseInt(pollId),
         userId,
-        optionIds,
+        selectedOptions: optionIds,
         voteWeight: 1,
         votedAt: new Date()
       });
@@ -465,7 +650,7 @@ router.post("/groups/:groupId/invite", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Group not found" });
     }
     
-    if (group[0].createdBy !== userId) {
+    if (group[0].ownerId !== String(userId)) {
       return res.status(403).json({ error: "Only group owner can invite members" });
     }
     
@@ -502,26 +687,28 @@ router.post("/groups/join", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Invalid invite code" });
     }
     
-    // Update user metadata to include this group
-    const user = await db.select()
-      .from(users)
-      .where(eq(users.id, userId))
-      .limit(1);
+    // Update family group members list to include this user
+    const currentMembers = group[0].members || [];
+    const userAlreadyMember = currentMembers.some((m: any) => m.userId === String(userId));
     
-    if (user.length > 0) {
-      const currentGroups = user[0].metadata?.familyGroupIds || [];
-      if (!currentGroups.includes(group[0].id)) {
-        currentGroups.push(group[0].id);
-        
-        await db.update(users)
-          .set({
-            metadata: {
-              ...user[0].metadata,
-              familyGroupIds: currentGroups
-            }
-          })
-          .where(eq(users.id, userId));
-      }
+    if (!userAlreadyMember) {
+      currentMembers.push({
+        userId: String(userId),
+        role: 'member' as const,
+        relationship: 'Family Member',
+        permissions: {
+          canMessage: true,
+          canInvite: false,
+          canRemove: false,
+          canViewAll: true,
+          canEditNotes: false
+        },
+        joinedAt: new Date().toISOString()
+      });
+      
+      await db.update(familyGroups)
+        .set({ members: currentMembers })
+        .where(eq(familyGroups.id, group[0].id));
     }
     
     res.json({
@@ -620,14 +807,18 @@ router.post("/decisions", async (req: Request, res: Response) => {
     
     const [newDecision] = await db.insert(familyDecisions).values({
       familyGroupId,
-      communityId,
-      decisionType,
+      communityIds: communityId ? [communityId] : [],
+      decisionType: decisionType || 'other',
+      title: decisionType || 'Family Decision',
       decision,
-      reasoning,
-      consensusReached: consensusReached || false,
-      participantIds: [userId],
-      dissenting: dissenting || [],
-      decisionDate: new Date()
+      rationale: reasoning,
+      consensus: consensusReached || false,
+      participants: [{
+        userId: String(userId),
+        agreed: true,
+        notes: reasoning
+      }],
+      decisionMade: new Date()
     }).returning();
     
     res.json({
@@ -648,7 +839,7 @@ router.get("/decisions/:groupId", async (req: Request, res: Response) => {
     const decisions = await db.select()
       .from(familyDecisions)
       .where(eq(familyDecisions.familyGroupId, parseInt(groupId)))
-      .orderBy(desc(familyDecisions.decisionDate));
+      .orderBy(desc(familyDecisions.decisionMade));
     
     res.json(decisions);
   } catch (error) {

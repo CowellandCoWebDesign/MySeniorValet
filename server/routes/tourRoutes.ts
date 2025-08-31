@@ -1,11 +1,12 @@
 import { Router } from "express";
 import { db } from "../db";
-import { tours, tourAvailability, tourFeedback, communities, users } from "@shared/schema";
+import { tours, tourAvailability, tourFeedback, communities, users, familyGroups } from "@shared/schema";
 import { eq, and, gte, lte, or, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { isAuthenticated } from "../auth-middleware";
 import sgMail from "@sendgrid/mail";
 import { format, addDays, parseISO } from "date-fns";
+import { sendTourCompletedNotification } from "../utils/messageNotifications";
 
 // Initialize SendGrid
 if (process.env.SENDGRID_API_KEY) {
@@ -342,6 +343,31 @@ router.post("/:tourId/feedback", isAuthenticated, async (req, res) => {
         updatedAt: new Date(),
       })
       .where(eq(tours.id, tourId));
+    
+    // Send notification to family group if user belongs to one
+    try {
+      // Find user's family group
+      const userGroups = await db.select()
+        .from(familyGroups)
+        .where(sql`${userId} = ANY(
+          SELECT jsonb_array_elements_text(members->'userId')
+          FROM family_groups
+        )`);
+      
+      if (userGroups.length > 0) {
+        // Send notification to the first family group
+        await sendTourCompletedNotification(
+          userGroups[0].id,
+          tourId,
+          tour.communityId,
+          new Date(),
+          req.body.tourNotes
+        );
+      }
+    } catch (notificationError) {
+      console.error("Error sending tour notification:", notificationError);
+      // Don't fail the request if notification fails
+    }
     
     res.json({
       success: true,

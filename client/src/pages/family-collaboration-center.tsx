@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -49,6 +51,29 @@ export default function FamilyCollaborationCenter() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
+
+  // Fetch family messages
+  const { data: messagesData, isLoading: messagesLoading } = useQuery({
+    queryKey: ['/api/family/messages'],
+    refetchInterval: 5000, // Poll for updates every 5 seconds
+  });
+
+  // Send message mutation
+  const sendMessageMutation = useMutation({
+    mutationFn: async (message: string) => {
+      const response = await fetch('/api/family/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: message }),
+      });
+      if (!response.ok) throw new Error('Failed to send message');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/messages'] });
+      setNewMessage('');
+    },
+  });
 
   // Example data for demonstration
   const upcomingTours = [
@@ -710,50 +735,88 @@ export default function FamilyCollaborationCenter() {
                       Family Messages
                     </CardTitle>
                     <CardDescription>
-                      Private, secure chat for your family's care discussions
+                      Your unified family thread - all care journey conversations in one place
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+                  {messagesLoading && <Badge variant="outline">Loading...</Badge>}
                 </div>
               </CardHeader>
               <CardContent className="flex-1 flex flex-col">
                 <ScrollArea className="flex-1 pr-4">
                   <div className="space-y-4 mb-4">
-                    {familyMessages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={`flex gap-3 ${msg.isCurrentUser ? 'justify-end' : ''}`}
-                      >
-                        {!msg.isCurrentUser && (
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback>{msg.avatar}</AvatarFallback>
-                          </Avatar>
-                        )}
-                        <div
-                          className={`max-w-[70%] ${
-                            msg.isCurrentUser ? 'order-first' : ''
-                          }`}
-                        >
-                          <div
-                            className={`rounded-lg p-3 ${
-                              msg.isCurrentUser
-                                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                                : 'bg-muted'
-                            }`}
-                          >
-                            <p className="text-sm">{msg.message}</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {msg.sender} • {msg.timestamp}
-                          </p>
-                        </div>
-                        {msg.isCurrentUser && (
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback>{msg.avatar}</AvatarFallback>
-                          </Avatar>
-                        )}
+                    {messagesLoading ? (
+                      <div className="text-center text-muted-foreground py-8">
+                        Loading messages...
                       </div>
-                    ))}
+                    ) : messagesData?.messages?.length > 0 ? (
+                      messagesData.messages.map((msg: any) => {
+                        const isCurrentUser = msg.senderId === messagesData.currentUserId;
+                        const isSystemMessage = msg.messageType === 'system';
+                        
+                        return (
+                          <div
+                            key={msg.id}
+                            className={`flex gap-3 ${isCurrentUser && !isSystemMessage ? 'justify-end' : ''}`}
+                          >
+                            {!isCurrentUser && !isSystemMessage && (
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>
+                                  {msg.senderName?.split(' ').map((n: string) => n[0]).join('') || '??'}
+                                </AvatarFallback>
+                              </Avatar>
+                            )}
+                            <div
+                              className={`max-w-[70%] ${
+                                isCurrentUser && !isSystemMessage ? 'order-first' : ''
+                              }`}
+                            >
+                              {isSystemMessage ? (
+                                <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg p-3 border border-yellow-300 dark:border-yellow-700">
+                                  <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+                                    🎉 {msg.content}
+                                  </p>
+                                  {msg.metadata && (
+                                    <div className="mt-2 text-xs text-yellow-800 dark:text-yellow-200">
+                                      {msg.metadata.communityName && (
+                                        <span>Community: {msg.metadata.communityName}</span>
+                                      )}
+                                      {msg.metadata.notes && (
+                                        <p className="mt-1 italic">{msg.metadata.notes}</p>
+                                      )}
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                <>
+                                  <div
+                                    className={`rounded-lg p-3 ${
+                                      isCurrentUser
+                                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
+                                        : 'bg-muted'
+                                    }`}
+                                  >
+                                    <p className="text-sm">{msg.content}</p>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {msg.senderName || 'Unknown'} • {new Date(msg.createdAt).toLocaleString()}
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                            {isCurrentUser && !isSystemMessage && (
+                              <Avatar className="h-8 w-8">
+                                <AvatarFallback>ME</AvatarFallback>
+                              </Avatar>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center text-muted-foreground py-8">
+                        <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                        <p>No messages yet. Start your family conversation!</p>
+                      </div>
+                    )}
                   </div>
                 </ScrollArea>
                 <div className="flex gap-2 pt-4 border-t">
@@ -761,16 +824,23 @@ export default function FamilyCollaborationCenter() {
                     placeholder="Type your message..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
+                    disabled={sendMessageMutation.isPending}
                     onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        setNewMessage('');
+                      if (e.key === 'Enter' && !e.shiftKey && newMessage.trim()) {
+                        e.preventDefault();
+                        sendMessageMutation.mutate(newMessage.trim());
                       }
                     }}
                   />
                   <Button 
                     size="icon"
                     className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                    onClick={() => setNewMessage('')}
+                    onClick={() => {
+                      if (newMessage.trim()) {
+                        sendMessageMutation.mutate(newMessage.trim());
+                      }
+                    }}
+                    disabled={sendMessageMutation.isPending || !newMessage.trim()}
                   >
                     <Send className="w-4 h-4" />
                   </Button>

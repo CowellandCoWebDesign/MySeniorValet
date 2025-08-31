@@ -571,13 +571,28 @@ export const messages = pgTable("messages", {
   senderId: varchar("sender_id").references(() => users.id).notNull(),
   senderType: varchar("sender_type", { enum: ["user", "community"] }).notNull(),
   content: text("content").notNull(),
-  messageType: varchar("message_type", { enum: ["text", "image", "file", "system"] }).default("text"),
+  messageType: varchar("message_type", { 
+    enum: ["text", "image", "file", "system", "tour_completed", "deposit_made", "application_started", "unit_reserved", "move_in_completed", "tour_reference"] 
+  }).default("text"),
   attachments: json("attachments").$type<{
     url: string;
     name: string;
     type: string;
     size: number;
   }[]>().default([]),
+  // References to related entities for system messages
+  tourId: integer("tour_id").references(() => tours.id),
+  communityId: integer("community_id").references(() => communities.id),
+  systemEventData: json("system_event_data").$type<{
+    eventType?: string;
+    amount?: number;
+    unitNumber?: string;
+    tourDate?: string;
+    moveInDate?: string;
+    depositAmount?: number;
+    applicationStatus?: string;
+    additionalInfo?: string;
+  }>().default({}),
   readBy: json("read_by").$type<{
     userId: string;
     readAt: string;
