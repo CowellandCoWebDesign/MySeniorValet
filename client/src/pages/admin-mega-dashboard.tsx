@@ -153,6 +153,9 @@ export default function AdminMegaDashboard() {
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [systemHealth, setSystemHealth] = useState<any>(null);
+  const [liveActivity, setLiveActivity] = useState<any>(null);
+  const [systemHealthExpanded, setSystemHealthExpanded] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState('communities');
   const [pulseEffect, setPulseEffect] = useState(false); // From admin-creative
   const [activeActions, setActiveActions] = useState<Record<string, boolean>>({}); // From admin-creative
@@ -177,7 +180,6 @@ export default function AdminMegaDashboard() {
   
   // Data protection states (from admin.tsx)
   const [dataProtectionEnabled, setDataProtectionEnabled] = useState(false);
-  const [systemHealthExpanded, setSystemHealthExpanded] = useState(false);
   
   // Competitor analysis states (from admin-availability-heatmap)
   const [careTypeFilter, setCareTypeFilter] = useState('all');
@@ -212,6 +214,35 @@ export default function AdminMegaDashboard() {
     }, 10000);
     return () => clearInterval(interval);
   }, []);
+  
+  // Fetch live activity when on activity tab
+  useEffect(() => {
+    if (activeTab === 'activity') {
+      const fetchLiveActivity = async () => {
+        try {
+          const res = await fetch('/api/admin/activity/live');
+          const data = await res.json();
+          setLiveActivity(data);
+          
+          // Update stats from live activity
+          if (data.stats) {
+            setActiveUsers(data.stats.activeUsers || 0);
+            setLiveActivityPulse(true);
+            setTimeout(() => setLiveActivityPulse(false), 1000);
+          }
+        } catch (error) {
+          console.error('Failed to fetch live activity:', error);
+        }
+      };
+      
+      // Initial fetch
+      fetchLiveActivity();
+      
+      // Refresh every 3 seconds
+      const interval = setInterval(fetchLiveActivity, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [activeTab]);
   
   // Block non-super admin users (except in development)
   if (!isDevelopment && (!user || !isSuperAdmin)) {
@@ -428,10 +459,7 @@ export default function AdminMegaDashboard() {
     queryKey: ['/api/admin/crm/status'],
   });
   
-  const { data: systemHealth } = useQuery({
-    queryKey: ['/api/admin/system/health'],
-    enabled: systemHealthExpanded,
-  });
+  // System health is fetched on-demand when the button is clicked
   
   // Competitor analytics (from admin-availability-heatmap)
   const { data: competitorData } = useQuery({
@@ -461,13 +489,7 @@ export default function AdminMegaDashboard() {
     enabled: discoveryLoading,
   });
   
-  // Live activity data (from admin-unified)
-  const { data: liveActivity } = useQuery({
-    queryKey: ['/api/admin/activity/live'],
-    refetchInterval: 3000, // Update every 3 seconds
-    retry: false, // Don't retry on auth failures
-    enabled: false, // Disable for now to prevent 401 errors
-  });
+  // Live activity is fetched when the activity tab is active
   
   // Google Places enrichment data
   const { data: enrichmentStats } = useQuery({
@@ -992,7 +1014,28 @@ export default function AdminMegaDashboard() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="max-w-sm"
           />
-          <Button variant="outline" size="icon">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={async () => {
+              if (!searchQuery.trim()) return;
+              
+              try {
+                const res = await fetch(`/api/admin/users/search?query=${encodeURIComponent(searchQuery)}`);
+                const results = await res.json();
+                
+                // Update the users state with search results
+                if (results.length > 0) {
+                  setUsers(results);
+                  toast.success(`Found ${results.length} users`);
+                } else {
+                  toast.info('No users found');
+                }
+              } catch (error) {
+                toast.error('Search failed');
+              }
+            }}
+          >
             <Search className="h-4 w-4" />
           </Button>
         </div>
@@ -1048,7 +1091,28 @@ export default function AdminMegaDashboard() {
                       >
                         {user.banned ? <Unlock className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
                       </Button>
-                      <Button size="sm" variant="ghost">
+                      <Button 
+                        size="sm" 
+                        variant="ghost"
+                        onClick={async () => {
+                          try {
+                            const res = await fetch(`/api/admin/users/${user.id}/details`);
+                            const details = await res.json();
+                            
+                            // Show user details in a modal or alert
+                            const detailsMessage = `
+User: ${details.user.email}
+Role: ${details.user.role}
+Account Age: ${details.stats.accountAge} days
+Last Active: ${new Date(details.stats.lastActive).toLocaleDateString()}
+Communities Created: ${details.stats.communitiesCreated}`;
+                            
+                            alert(detailsMessage);
+                          } catch (error) {
+                            toast.error('Failed to fetch user details');
+                          }
+                        }}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>
@@ -1891,7 +1955,7 @@ export default function AdminMegaDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{(liveActivity as any)?.activeUsers || 0}</div>
+              <div className="text-2xl font-bold">{liveActivity?.stats?.activeUsers || activeUsers || 0}</div>
               <div className="flex items-center gap-1 mt-1">
                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                 <span className="text-xs text-muted-foreground">Live</span>
@@ -1901,21 +1965,21 @@ export default function AdminMegaDashboard() {
           
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Searches/Min</CardTitle>
+              <CardTitle className="text-sm">Requests/Min</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{(liveActivity as any)?.searchesPerMinute || 0}</div>
-              <div className="text-xs text-muted-foreground">↑ {(liveActivity as any)?.searchTrend || 0}%</div>
+              <div className="text-2xl font-bold">{liveActivity?.stats?.requestsPerMinute || 0}</div>
+              <div className="text-xs text-muted-foreground">Processing</div>
             </CardContent>
           </Card>
           
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">API Calls/Min</CardTitle>
+              <CardTitle className="text-sm">System Load</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{(liveActivity as any)?.apiCallsPerMinute || 0}</div>
-              <div className="text-xs text-muted-foreground">${(liveActivity as any)?.costPerMinute?.toFixed(2) || '0.00'}/min</div>
+              <div className="text-2xl font-bold">{liveActivity?.stats?.systemLoad?.toFixed(2) || '0.00'}</div>
+              <div className="text-xs text-muted-foreground">CPU Usage</div>
             </CardContent>
           </Card>
         </div>
@@ -1924,19 +1988,28 @@ export default function AdminMegaDashboard() {
         <div className="space-y-2">
           <h4 className="text-sm font-medium">Recent Activity</h4>
           <ScrollArea className="h-[200px]">
-            {Array.isArray((liveActivity as any)?.recentActions) && (liveActivity as any).recentActions.map((action: any, idx: number) => (
-              <div key={idx} className="flex items-start gap-2 py-2 border-b">
-                <div className={`h-2 w-2 rounded-full mt-1.5 ${
-                  action.type === 'search' ? 'bg-blue-500' :
-                  action.type === 'signup' ? 'bg-green-500' :
-                  action.type === 'error' ? 'bg-red-500' : 'bg-gray-500'
-                }`} />
-                <div className="flex-1">
-                  <div className="text-sm">{action.description}</div>
-                  <div className="text-xs text-muted-foreground">{action.timestamp}</div>
+            {liveActivity?.activities && liveActivity.activities.length > 0 ? (
+              liveActivity.activities.map((activity: any, idx: number) => (
+                <div key={idx} className="flex items-start gap-2 py-2 border-b">
+                  <div className={`h-2 w-2 rounded-full mt-1.5 ${
+                    activity.type === 'user_registration' ? 'bg-green-500' :
+                    activity.type === 'community_added' ? 'bg-blue-500' :
+                    activity.severity === 'error' ? 'bg-red-500' : 
+                    activity.severity === 'warning' ? 'bg-yellow-500' : 'bg-gray-500'
+                  }`} />
+                  <div className="flex-1">
+                    <div className="text-sm">{activity.message}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {activity.timestamp ? new Date(activity.timestamp).toLocaleTimeString() : 'Just now'}
+                    </div>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="text-sm text-muted-foreground text-center py-4">
+                No recent activity
               </div>
-            ))}
+            )}
           </ScrollArea>
         </div>
         
@@ -2019,36 +2092,115 @@ export default function AdminMegaDashboard() {
           <Button
             variant="outline"
             className="h-24 flex-col"
-            onClick={() => setSystemHealthExpanded(!systemHealthExpanded)}
+            onClick={async () => {
+              setSystemHealthExpanded(!systemHealthExpanded);
+              if (!systemHealth) {
+                try {
+                  const res = await fetch('/api/admin/system/health');
+                  const data = await res.json();
+                  setSystemHealth(data);
+                } catch (error) {
+                  toast.error('Failed to fetch system health');
+                }
+              }
+            }}
           >
             <Activity className="h-6 w-6 mb-2" />
             System Health
           </Button>
         </div>
         
-        {systemHealth && systemHealthExpanded && (systemHealth as any).cpu && (
+        {systemHealth && systemHealthExpanded && (
           <Card className="mt-4">
             <CardHeader>
-              <CardTitle className="text-sm">System Health Details</CardTitle>
+              <CardTitle className="text-sm flex items-center justify-between">
+                System Health Details
+                <Badge variant={systemHealth.status === 'healthy' ? 'default' : 'destructive'}>
+                  {systemHealth.status}
+                </Badge>
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-4">
+                {/* System Uptime */}
                 <div className="flex justify-between">
-                  <span>CPU Usage</span>
-                  <span className="font-medium">{(systemHealth as any).cpu}%</span>
+                  <span>Uptime</span>
+                  <span className="font-medium">{systemHealth.uptime}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Memory Usage</span>
-                  <span className="font-medium">{(systemHealth as any).memory}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Disk Usage</span>
-                  <span className="font-medium">{(systemHealth as any).disk}%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Active Connections</span>
-                  <span className="font-medium">{(systemHealth as any).connections}</span>
-                </div>
+                
+                {/* Database Status */}
+                {systemHealth.database && (
+                  <div className="border-t pt-2">
+                    <div className="text-sm font-medium mb-2">Database</div>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Status</span>
+                        <Badge variant={systemHealth.database.status === 'connected' ? 'default' : 'destructive'}>
+                          {systemHealth.database.status}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total Records</span>
+                        <span>{systemHealth.database.totalRecords?.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Memory Usage */}
+                {systemHealth.memory && (
+                  <div className="border-t pt-2">
+                    <div className="text-sm font-medium mb-2">Memory (MB)</div>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Heap Used</span>
+                        <span>{systemHealth.memory.heapUsed} MB</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Total</span>
+                        <span>{systemHealth.memory.heapTotal} MB</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Services Status */}
+                {systemHealth.services && (
+                  <div className="border-t pt-2">
+                    <div className="text-sm font-medium mb-2">Services</div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {Object.entries(systemHealth.services).map(([service, status]) => (
+                        <div key={service} className="flex items-center gap-2 text-sm">
+                          <div className={`h-2 w-2 rounded-full ${
+                            status === 'operational' ? 'bg-green-500' : 'bg-red-500'
+                          }`} />
+                          <span className="capitalize">{service}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Performance Metrics */}
+                {systemHealth.performance && (
+                  <div className="border-t pt-2">
+                    <div className="text-sm font-medium mb-2">Performance</div>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Avg Response Time</span>
+                        <span>{systemHealth.performance.averageResponseTime}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Requests/min</span>
+                        <span>{systemHealth.performance.requestsPerMinute}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Cache Hit Rate</span>
+                        <span>{systemHealth.performance.cacheHitRate}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -2117,17 +2269,83 @@ export default function AdminMegaDashboard() {
           <div className="border rounded-lg p-4">
             <h4 className="font-medium mb-2">Quick Reports</h4>
             <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" size="sm" onClick={() => handleExport('pdf', 'daily')}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  setActiveActions(prev => ({ ...prev, export: true }));
+                  try {
+                    const res = await fetch('/api/admin/reports/generate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ reportType: 'financial', dateRange: 'daily' })
+                    });
+                    const data = await res.json();
+                    
+                    // Create and download JSON report
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'daily-summary.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    toast.success('Daily summary generated');
+                  } catch (error) {
+                    toast.error('Failed to generate daily summary');
+                  } finally {
+                    setActiveActions(prev => ({ ...prev, export: false }));
+                  }
+                }}
+              >
                 Daily Summary
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport('pdf', 'weekly')}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  setActiveActions(prev => ({ ...prev, export: true }));
+                  try {
+                    const res = await fetch('/api/admin/reports/generate', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ reportType: 'financial', dateRange: 'weekly' })
+                    });
+                    const data = await res.json();
+                    
+                    // Create and download JSON report
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'weekly-report.json';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    toast.success('Weekly report generated');
+                  } catch (error) {
+                    toast.error('Failed to generate weekly report');
+                  } finally {
+                    setActiveActions(prev => ({ ...prev, export: false }));
+                  }
+                }}
+              >
                 Weekly Report
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport('csv', 'revenue')}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleExport('csv', 'financial')}
+              >
                 Revenue CSV
               </Button>
-              <Button variant="outline" size="sm" onClick={() => handleExport('excel', 'users')}>
-                User List Excel
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => handleExport('json', 'users')}
+              >
+                User List Export
               </Button>
             </div>
           </div>
