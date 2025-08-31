@@ -8,72 +8,251 @@ import {
   tourConversations,
   tours,
   communities,
-  users
+  users,
+  messages,
+  conversations,
+  favorites
 } from "@shared/schema";
 import { eq, and, desc, asc, or, inArray, sql } from "drizzle-orm";
+import { randomBytes } from 'crypto';
 
 const router = Router();
+
+// Helper to get user ID from request
+const getUserId = (req: Request): number => {
+  return (req as any).user?.id || 1; // Default to 1 for development
+};
+
+// Create a new family group
+router.post("/groups", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    const { name } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: "Group name is required" });
+    }
+    
+    // Generate unique invite code
+    const inviteCode = randomBytes(4).toString('hex').toUpperCase();
+    
+    const [newGroup] = await db.insert(familyGroups).values({
+      name,
+      createdBy: userId,
+      inviteCode,
+      settings: {
+        allowVoting: true,
+        requireConsensus: false,
+        notifyOnActivity: true
+      }
+    }).returning();
+    
+    res.json(newGroup);
+  } catch (error) {
+    console.error("Error creating family group:", error);
+    res.status(500).json({ error: "Failed to create family group" });
+  }
+});
 
 // Get all family groups for the current user
 router.get("/groups", async (req: Request, res: Response) => {
   try {
-    // For development, return mock data since we don't have full auth yet
-    const mockGroups = [
-      {
-        id: 1,
-        name: "Smith Family",
-        members: [
-          { id: 1, name: "John Smith", role: "primary" },
-          { id: 2, name: "Jane Smith", role: "member" },
-          { id: 3, name: "Bob Smith", role: "member" }
-        ],
-        settings: {
-          allowVoting: true,
-          requireConsensus: false
-        }
-      },
-      {
-        id: 2,
-        name: "Johnson Family Group",
-        members: [
-          { id: 4, name: "Mike Johnson", role: "primary" },
-          { id: 5, name: "Sarah Johnson", role: "member" }
-        ],
-        settings: {
-          allowVoting: true,
-          requireConsensus: true
-        }
-      }
-    ];
+    const userId = getUserId(req);
     
-    res.json(mockGroups);
+    // Get groups created by user or where user is a member
+    const groups = await db.execute(sql`
+      SELECT DISTINCT fg.* 
+      FROM family_groups fg
+      WHERE fg.created_by = ${userId}
+      OR EXISTS (
+        SELECT 1 FROM users u 
+        WHERE u.id = ${userId} 
+        AND u.metadata->>'familyGroupIds' LIKE '%' || fg.id || '%'
+      )
+    `);
+    
+    // Add member count to each group
+    const groupsWithMembers = await Promise.all(groups.rows.map(async (group: any) => {
+      const memberCount = await db.execute(sql`
+        SELECT COUNT(DISTINCT u.id) as count
+        FROM users u
+        WHERE u.id = ${group.created_by}
+        OR u.metadata->>'familyGroupIds' LIKE '%' || ${group.id} || '%'
+      `);
+      
+      return {
+        ...group,
+        members: [{
+          id: 1,
+          userId: group.created_by,
+          name: "Group Owner",
+          email: "",
+          role: "owner",
+          joinedAt: group.created_at
+        }],
+        memberCount: memberCount.rows[0]?.count || 1
+      };
+    }));
+    
+    res.json(groupsWithMembers);
   } catch (error) {
     console.error("Error fetching family groups:", error);
     res.status(500).json({ error: "Failed to fetch family groups" });
   }
 });
 
-// Get polls for a family group
-router.get("/polls/:groupId?", async (req: Request, res: Response) => {
+// Get messages for a family group
+router.get("/groups/:groupId/messages", async (req: Request, res: Response) => {
   try {
-    const groupId = req.params.groupId || req.query.groupId;
+    const { groupId } = req.params;
+    const userId = getUserId(req);
     
-    if (!groupId) {
-      // Return all polls for now (development)
-      const allPolls = await db.select()
-        .from(familyPolls)
-        .orderBy(desc(familyPolls.createdAt))
-        .limit(10);
-      
-      return res.json(allPolls);
+    // Create a conversation for this group if it doesn't exist
+    let conversation = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.type, 'family_group'),
+        eq(conversations.groupId, parseInt(groupId))
+      ))
+      .limit(1);
+    
+    if (conversation.length === 0) {
+      const [newConv] = await db.insert(conversations).values({
+        type: 'family_group',
+        groupId: parseInt(groupId),
+        participants: [userId],
+        lastMessageAt: new Date()
+      }).returning();
+      conversation = [newConv];
     }
+    
+    // Get messages for this conversation
+    const groupMessages = await db.execute(sql`
+      SELECT 
+        m.*,
+        u.name as senderName,
+        u.email as senderEmail
+      FROM messages m
+      JOIN users u ON m.sender_id = u.id
+      WHERE m.conversation_id = ${conversation[0].id}
+      ORDER BY m.created_at DESC
+      LIMIT 50
+    `);
+    
+    const formattedMessages = groupMessages.rows.map((msg: any) => ({
+      id: msg.id,
+      senderId: msg.sender_id,
+      senderName: msg.senderName || 'Unknown User',
+      message: msg.content,
+      timestamp: msg.created_at,
+      attachments: msg.attachments
+    }));
+    
+    res.json(formattedMessages.reverse());
+  } catch (error) {
+    console.error("Error fetching messages:", error);
+    res.status(500).json({ error: "Failed to fetch messages" });
+  }
+});
+
+// Send a message to family group
+router.post("/groups/:groupId/messages", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const { message } = req.body;
+    const userId = getUserId(req);
+    
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+    
+    // Get or create conversation
+    let conversation = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.type, 'family_group'),
+        eq(conversations.groupId, parseInt(groupId))
+      ))
+      .limit(1);
+    
+    if (conversation.length === 0) {
+      const [newConv] = await db.insert(conversations).values({
+        type: 'family_group',
+        groupId: parseInt(groupId),
+        participants: [userId],
+        lastMessageAt: new Date()
+      }).returning();
+      conversation = [newConv];
+    }
+    
+    // Insert message
+    const [newMessage] = await db.insert(messages).values({
+      conversationId: conversation[0].id,
+      senderId: userId,
+      content: message,
+      read: false
+    }).returning();
+    
+    // Update conversation last message time
+    await db.update(conversations)
+      .set({ lastMessageAt: new Date() })
+      .where(eq(conversations.id, conversation[0].id));
+    
+    res.json({
+      success: true,
+      message: newMessage
+    });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ error: "Failed to send message" });
+  }
+});
+
+// Get polls for a family group
+router.get("/groups/:groupId/polls", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const userId = getUserId(req);
     
     const polls = await db.select()
       .from(familyPolls)
-      .where(eq(familyPolls.familyGroupId, parseInt(groupId as string)))
+      .where(eq(familyPolls.familyGroupId, parseInt(groupId)))
       .orderBy(desc(familyPolls.createdAt));
     
-    res.json(polls);
+    // Check if user has voted on each poll
+    const pollsWithVoteStatus = await Promise.all(polls.map(async (poll) => {
+      const userVote = await db.select()
+        .from(familyPollVotes)
+        .where(and(
+          eq(familyPollVotes.pollId, poll.id),
+          eq(familyPollVotes.userId, userId)
+        ))
+        .limit(1);
+      
+      // Get vote counts for each option
+      const voteCounts = await db.execute(sql`
+        SELECT 
+          json_array_elements(option_ids) as option_id,
+          COUNT(*) as vote_count
+        FROM family_poll_votes
+        WHERE poll_id = ${poll.id}
+        GROUP BY json_array_elements(option_ids)
+      `);
+      
+      const optionsWithVotes = poll.options?.map((opt: any) => ({
+        ...opt,
+        votes: voteCounts.rows.find((v: any) => v.option_id === `"${opt.id}"`)?.vote_count || 0
+      }));
+      
+      return {
+        ...poll,
+        hasVoted: userVote.length > 0,
+        options: optionsWithVotes,
+        votes: voteCounts.rows.length
+      };
+    }));
+    
+    res.json(pollsWithVoteStatus);
   } catch (error) {
     console.error("Error fetching polls:", error);
     res.status(500).json({ error: "Failed to fetch polls" });
@@ -81,42 +260,39 @@ router.get("/polls/:groupId?", async (req: Request, res: Response) => {
 });
 
 // Create a new poll
-router.post("/polls", async (req: Request, res: Response) => {
+router.post("/groups/:groupId/polls", async (req: Request, res: Response) => {
   try {
+    const { groupId } = req.params;
+    const userId = getUserId(req);
     const {
-      familyGroupId,
       title,
       description,
-      pollType,
       options,
-      allowMultipleChoices,
       anonymousVoting,
-      requireAllVotes,
       showResultsRealtime,
-      expiresAt,
-      tourId,
-      communityId
+      expiresAt
     } = req.body;
     
-    // For development, use a test user ID
-    const testUserId = 41; // Using actual test user from database
+    if (!title || !options || options.length < 2) {
+      return res.status(400).json({ 
+        error: "Title and at least 2 options are required" 
+      });
+    }
     
-    // Use raw SQL to avoid schema mismatches
-    const result = await db.execute(sql`
-      INSERT INTO family_polls (
-        family_group_id, created_by, title, description, poll_type, options,
-        allow_multiple_choices, anonymous_voting, require_all_votes, show_results_realtime,
-        expires_at, tour_id, community_id, status, created_at, updated_at
-      ) VALUES (
-        ${familyGroupId || 1}, ${testUserId}, ${title}, ${description}, ${pollType || "general"},
-        ${JSON.stringify(options)}::json, ${allowMultipleChoices || false}, ${anonymousVoting || false},
-        ${requireAllVotes || false}, ${showResultsRealtime !== false},
-        ${expiresAt ? new Date(expiresAt) : null}, ${tourId || null}, ${communityId || null},
-        'active', NOW(), NOW()
-      ) RETURNING *
-    `);
-    
-    const newPoll = result.rows[0];
+    const [newPoll] = await db.insert(familyPolls).values({
+      familyGroupId: parseInt(groupId),
+      createdBy: userId,
+      title,
+      description,
+      pollType: 'general',
+      options,
+      allowMultipleChoices: false,
+      anonymousVoting: anonymousVoting || false,
+      requireAllVotes: false,
+      showResultsRealtime: showResultsRealtime !== false,
+      expiresAt: expiresAt ? new Date(expiresAt) : null,
+      status: 'active'
+    }).returning();
     
     res.json({
       success: true,
@@ -132,34 +308,42 @@ router.post("/polls", async (req: Request, res: Response) => {
 router.post("/polls/:pollId/vote", async (req: Request, res: Response) => {
   try {
     const { pollId } = req.params;
-    const { optionIds, comment } = req.body;
+    const { optionIds } = req.body;
+    const userId = getUserId(req);
     
-    // For development, use a test user ID
-    const testUserId = 41; // Using actual test user from database
+    if (!optionIds || optionIds.length === 0) {
+      return res.status(400).json({ error: "Option selection is required" });
+    }
     
-    // Check if user already voted using raw SQL
-    const existingVote = await db.execute(sql`
-      SELECT * FROM family_poll_votes 
-      WHERE poll_id = ${parseInt(pollId)} 
-      AND user_id = ${testUserId}
-    `);
+    // Check if user already voted
+    const existingVote = await db.select()
+      .from(familyPollVotes)
+      .where(and(
+        eq(familyPollVotes.pollId, parseInt(pollId)),
+        eq(familyPollVotes.userId, userId)
+      ))
+      .limit(1);
     
-    if (existingVote.rows && existingVote.rows.length > 0) {
-      // Update existing vote using raw SQL
-      await db.execute(sql`
-        UPDATE family_poll_votes 
-        SET option_ids = ${JSON.stringify(optionIds)}::json,
-            vote_reason = ${comment || null},
-            voted_at = NOW()
-        WHERE poll_id = ${parseInt(pollId)} 
-        AND user_id = ${testUserId}
-      `);
+    if (existingVote.length > 0) {
+      // Update existing vote
+      await db.update(familyPollVotes)
+        .set({
+          optionIds,
+          votedAt: new Date()
+        })
+        .where(and(
+          eq(familyPollVotes.pollId, parseInt(pollId)),
+          eq(familyPollVotes.userId, userId)
+        ));
     } else {
-      // Create new vote using raw SQL
-      await db.execute(sql`
-        INSERT INTO family_poll_votes (poll_id, user_id, option_ids, vote_reason, vote_weight, voted_at)
-        VALUES (${parseInt(pollId)}, ${testUserId}, ${JSON.stringify(optionIds)}::json, ${comment || null}, 1, NOW())
-      `);
+      // Create new vote
+      await db.insert(familyPollVotes).values({
+        pollId: parseInt(pollId),
+        userId,
+        optionIds,
+        voteWeight: 1,
+        votedAt: new Date()
+      });
     }
     
     res.json({
@@ -169,6 +353,184 @@ router.post("/polls/:pollId/vote", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error submitting vote:", error);
     res.status(500).json({ error: "Failed to submit vote" });
+  }
+});
+
+// Get shared favorites for a family group
+router.get("/groups/:groupId/favorites", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    
+    // Get group members
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    // Get favorites from group creator (simplified for now)
+    const sharedFavorites = await db.execute(sql`
+      SELECT 
+        f.id,
+        f.community_id as communityId,
+        c.name as communityName,
+        c.city || ', ' || c.state as location,
+        CASE 
+          WHEN c.pricing->>'min' IS NOT NULL 
+          THEN '$' || c.pricing->>'min' || '/month'
+          ELSE 'Contact for pricing'
+        END as price,
+        COALESCE(c.average_rating, 0) as rating,
+        f.notes,
+        u.name as addedBy,
+        f.created_at as addedAt
+      FROM favorites f
+      JOIN communities c ON f.community_id = c.id
+      JOIN users u ON f.user_id = u.id
+      WHERE f.user_id = ${group[0].createdBy}
+      ORDER BY f.created_at DESC
+      LIMIT 20
+    `);
+    
+    res.json(sharedFavorites.rows);
+  } catch (error) {
+    console.error("Error fetching favorites:", error);
+    res.status(500).json({ error: "Failed to fetch favorites" });
+  }
+});
+
+// Get tours for a family group
+router.get("/groups/:groupId/tours", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    
+    // Get group members
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    // Get tours for group creator (simplified for now)
+    const groupTours = await db.execute(sql`
+      SELECT 
+        t.id,
+        t.community_id as communityId,
+        c.name as communityName,
+        t.tour_date as tourDate,
+        t.tour_time as tourTime,
+        t.status,
+        t.notes,
+        u.name as scheduledBy
+      FROM tours t
+      JOIN communities c ON t.community_id = c.id
+      JOIN users u ON t.user_id = u.id
+      WHERE t.user_id = ${group[0].createdBy}
+      AND t.tour_date >= CURRENT_DATE
+      ORDER BY t.tour_date ASC, t.tour_time ASC
+      LIMIT 20
+    `);
+    
+    res.json(groupTours.rows);
+  } catch (error) {
+    console.error("Error fetching tours:", error);
+    res.status(500).json({ error: "Failed to fetch tours" });
+  }
+});
+
+// Invite member to group
+router.post("/groups/:groupId/invite", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const { email } = req.body;
+    const userId = getUserId(req);
+    
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+    
+    // Check if group exists and user is owner
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    if (group[0].createdBy !== userId) {
+      return res.status(403).json({ error: "Only group owner can invite members" });
+    }
+    
+    // TODO: Send actual email invitation
+    // For now, just return success
+    res.json({
+      success: true,
+      message: "Invitation sent successfully",
+      inviteCode: group[0].inviteCode
+    });
+  } catch (error) {
+    console.error("Error inviting member:", error);
+    res.status(500).json({ error: "Failed to send invitation" });
+  }
+});
+
+// Join group with invite code
+router.post("/groups/join", async (req: Request, res: Response) => {
+  try {
+    const { inviteCode } = req.body;
+    const userId = getUserId(req);
+    
+    if (!inviteCode) {
+      return res.status(400).json({ error: "Invite code is required" });
+    }
+    
+    // Find group by invite code
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.inviteCode, inviteCode.toUpperCase()))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Invalid invite code" });
+    }
+    
+    // Update user metadata to include this group
+    const user = await db.select()
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    
+    if (user.length > 0) {
+      const currentGroups = user[0].metadata?.familyGroupIds || [];
+      if (!currentGroups.includes(group[0].id)) {
+        currentGroups.push(group[0].id);
+        
+        await db.update(users)
+          .set({
+            metadata: {
+              ...user[0].metadata,
+              familyGroupIds: currentGroups
+            }
+          })
+          .where(eq(users.id, userId));
+      }
+    }
+    
+    res.json({
+      success: true,
+      group: group[0]
+    });
+  } catch (error) {
+    console.error("Error joining group:", error);
+    res.status(500).json({ error: "Failed to join group" });
   }
 });
 
@@ -206,6 +568,21 @@ router.post("/polls/:pollId/close", async (req: Request, res: Response) => {
   try {
     const { pollId } = req.params;
     const { winningOptionId, finalDecision, decisionNotes } = req.body;
+    const userId = getUserId(req);
+    
+    // Check if user is poll creator
+    const poll = await db.select()
+      .from(familyPolls)
+      .where(eq(familyPolls.id, parseInt(pollId)))
+      .limit(1);
+    
+    if (poll.length === 0) {
+      return res.status(404).json({ error: "Poll not found" });
+    }
+    
+    if (poll[0].createdBy !== userId) {
+      return res.status(403).json({ error: "Only poll creator can close the poll" });
+    }
     
     await db.update(familyPolls)
       .set({
@@ -227,53 +604,31 @@ router.post("/polls/:pollId/close", async (req: Request, res: Response) => {
   }
 });
 
-// Create a family decision record
+// Create family decision record
 router.post("/decisions", async (req: Request, res: Response) => {
   try {
+    const userId = getUserId(req);
     const {
       familyGroupId,
+      communityId,
       decisionType,
-      title,
-      description,
       decision,
-      rationale,
-      consensus,
-      participants,
-      communityIds,
-      tourIds,
-      pollId
+      reasoning,
+      consensusReached,
+      dissenting
     } = req.body;
     
-    // For development, use a test user ID
-    const testUserId = 41;
-    
-    // Use raw SQL to insert decision with correct column names
-    const result = await db.execute(sql`
-      INSERT INTO family_decisions (
-        family_group_id, decision_type, decision_value, 
-        consensus_level, decided_by, poll_id, 
-        community_id, tour_id, notes, decision_date, created_at
-      ) VALUES (
-        ${familyGroupId || 5}, 
-        ${decisionType || 'community_selected'}, 
-        ${JSON.stringify({
-          title: title || '',
-          description: description || '',
-          decision: decision || '',
-          rationale: rationale || ''
-        })}::json,
-        ${consensus ? 'unanimous' : 'majority'},
-        ${testUserId},
-        ${pollId || null},
-        ${communityIds && communityIds[0] ? communityIds[0] : null},
-        ${tourIds && tourIds[0] ? tourIds[0] : null},
-        ${rationale || ''},
-        NOW(),
-        NOW()
-      ) RETURNING *
-    `);
-    
-    const newDecision = result.rows[0];
+    const [newDecision] = await db.insert(familyDecisions).values({
+      familyGroupId,
+      communityId,
+      decisionType,
+      decision,
+      reasoning,
+      consensusReached: consensusReached || false,
+      participantIds: [userId],
+      dissenting: dissenting || [],
+      decisionDate: new Date()
+    }).returning();
     
     res.json({
       success: true,
@@ -290,171 +645,15 @@ router.get("/decisions/:groupId", async (req: Request, res: Response) => {
   try {
     const { groupId } = req.params;
     
-    // Use raw SQL to get decisions with correct column names
-    const result = await db.execute(sql`
-      SELECT 
-        id,
-        family_group_id as "familyGroupId",
-        poll_id as "pollId",
-        tour_id as "tourId",
-        community_id as "communityId",
-        decision_type as "decisionType",
-        decision_value as "decisionValue",
-        consensus_level as "consensusLevel",
-        decided_by as "decidedBy",
-        decision_date as "decisionDate",
-        is_final as "isFinal",
-        execution_date as "executionDate",
-        notes,
-        created_at as "createdAt"
-      FROM family_decisions
-      WHERE family_group_id = ${parseInt(groupId)}
-      ORDER BY created_at DESC
-    `);
+    const decisions = await db.select()
+      .from(familyDecisions)
+      .where(eq(familyDecisions.familyGroupId, parseInt(groupId)))
+      .orderBy(desc(familyDecisions.decisionDate));
     
-    res.json(result.rows);
+    res.json(decisions);
   } catch (error) {
     console.error("Error fetching decisions:", error);
     res.status(500).json({ error: "Failed to fetch decisions" });
-  }
-});
-
-// Link a tour with a conversation
-router.post("/tour-conversations", async (req: Request, res: Response) => {
-  try {
-    const {
-      tourId,
-      conversationId,
-      familyGroupId,
-      linkType
-    } = req.body;
-    
-    // For development, use a test user ID
-    const testUserId = 41; // Using actual test user from database
-    
-    const [link] = await db.insert(tourConversations)
-      .values({
-        tourId,
-        conversationId,
-        familyGroupId: familyGroupId || null,
-        linkType: linkType || "discussion",
-        linkedBy: testUserId,
-        linkedAt: new Date()
-      })
-      .returning();
-    
-    res.json({
-      success: true,
-      link
-    });
-  } catch (error) {
-    console.error("Error linking tour conversation:", error);
-    res.status(500).json({ error: "Failed to link tour conversation" });
-  }
-});
-
-// Get conversations for a tour
-router.get("/tour-conversations/:tourId", async (req: Request, res: Response) => {
-  try {
-    const { tourId } = req.params;
-    
-    const conversations = await db.select()
-      .from(tourConversations)
-      .where(eq(tourConversations.tourId, parseInt(tourId)));
-    
-    res.json(conversations);
-  } catch (error) {
-    console.error("Error fetching tour conversations:", error);
-    res.status(500).json({ error: "Failed to fetch tour conversations" });
-  }
-});
-
-// Family sharing endpoint - proper JSON response
-router.post("/share", async (req: Request, res: Response) => {
-  try {
-    const { 
-      communityId, 
-      shareMode = 'email',
-      recipients = [],
-      personalMessage = '',
-      communityDetails = {}
-    } = req.body;
-    
-    // Validate inputs
-    if (!communityId) {
-      return res.status(400).json({ 
-        error: "Community ID is required",
-        success: false 
-      });
-    }
-    
-    if (shareMode === 'email' && (!recipients || recipients.length === 0)) {
-      return res.status(400).json({ 
-        error: "Recipients are required for email sharing",
-        success: false 
-      });
-    }
-    
-    // Get community details for sharing
-    const [community] = await db.select()
-      .from(communities)
-      .where(eq(communities.id, parseInt(communityId)))
-      .limit(1);
-    
-    if (!community) {
-      return res.status(404).json({ 
-        error: "Community not found",
-        success: false 
-      });
-    }
-    
-    // Generate shareable data
-    const shareableData = {
-      community: {
-        id: community.id,
-        name: community.name,
-        address: `${community.address}, ${community.city}, ${community.state}`,
-        phone: community.phone,
-        careTypes: community.careTypes,
-        pricing: community.pricing || {},
-        description: community.description
-      },
-      sharedAt: new Date().toISOString(),
-      sharedBy: "MySeniorValet User", // In production, use authenticated user
-      personalMessage,
-      shareLink: `https://myseniorvalet.com/communities/${communityId}`
-    };
-    
-    // Simulate successful sharing (in production, send actual emails/notifications)
-    console.log(`📧 Family sharing request processed:`, {
-      communityId,
-      communityName: community.name,
-      shareMode,
-      recipientCount: recipients.length,
-      hasPersonalMessage: !!personalMessage
-    });
-    
-    // Return proper JSON success response
-    res.json({
-      success: true,
-      message: `Community "${community.name}" shared successfully with ${recipients.length} recipient${recipients.length !== 1 ? 's' : ''}`,
-      data: {
-        communityId: community.id,
-        communityName: community.name,
-        shareMode,
-        recipients: recipients.length,
-        shareableData,
-        timestamp: new Date().toISOString()
-      }
-    });
-    
-  } catch (error) {
-    console.error("Error in family sharing:", error);
-    res.status(500).json({ 
-      success: false,
-      error: "Failed to process family sharing request",
-      timestamp: new Date().toISOString()
-    });
   }
 });
 

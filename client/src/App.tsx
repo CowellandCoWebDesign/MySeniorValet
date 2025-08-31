@@ -36,6 +36,7 @@ import VeteransHousing from "@/pages/veterans-housing";
 import AffordableHousing from "@/pages/affordable-housing";
 import FamilyCollaboration from "@/pages/family-collaboration";
 import FamilyCollaborationCenter from "@/pages/family-collaboration-center";
+import FamilyDashboard from "@/pages/family-dashboard";
 import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
 import CommunityContribute from "@/pages/community-contribute";
@@ -255,6 +256,7 @@ function Router() {
       {/* HudVashMap route removed */}
       <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaborationCenter} />
+      <Route path="/family-dashboard" component={FamilyDashboard} />
       <Route path="/family-connect" component={FamilyConnect} />
       <Route path="/emergency-contacts" component={EmergencyContacts} />
       <Route path="/login" component={Login} />
