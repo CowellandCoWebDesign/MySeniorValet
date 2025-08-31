@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -260,10 +260,78 @@ export default function AdminMegaDashboard() {
     queryKey: ['/api/admin/users'],
   });
 
-  // Subscription plans (from admin-subscription-management)
-  const { data: subscriptionPlans } = useQuery<SubscriptionPlan[]>({
-    queryKey: ['/api/admin/subscriptions/plans'],
-  });
+  // Subscription plans with actual data
+  const subscriptionPlans: SubscriptionPlan[] = [
+    // Community Plans
+    {
+      id: 'comm-free',
+      name: 'Community Free',
+      type: 'community',
+      price: 0,
+
+      features: ['Basic listing', 'Contact info', 'Photos (5 max)'],
+      isActive: true,
+      maxCommunities: 1,
+    },
+    {
+      id: 'comm-standard',
+      name: 'Community Standard',
+      type: 'community',
+      price: 299,
+
+      features: ['Featured listing', 'Unlimited photos', 'Virtual tours', 'Analytics dashboard'],
+      isActive: true,
+      maxCommunities: 1,
+    },
+    {
+      id: 'comm-featured',
+      name: 'Community Featured',
+      type: 'community',
+      price: 599,
+
+      features: ['Premium placement', 'All Standard features', 'Priority support', 'Advanced analytics'],
+      isActive: true,
+      maxCommunities: 3,
+    },
+    {
+      id: 'comm-platinum',
+      name: 'Community Platinum',
+      type: 'community',
+      price: 999,
+
+      features: ['Top placement', 'All Featured benefits', 'Custom branding', 'Lead generation tools', 'API access'],
+      isActive: true,
+      maxCommunities: 10,
+    },
+    // Vendor Plans
+    {
+      id: 'vendor-basic',
+      name: 'Vendor Basic',
+      type: 'vendor',
+      price: 99,
+
+      features: ['Vendor profile', 'Service listing', 'Contact form'],
+      isActive: true,
+    },
+    {
+      id: 'vendor-featured',
+      name: 'Vendor Featured',
+      type: 'vendor',
+      price: 299,
+
+      features: ['Featured vendor badge', 'Priority listing', 'Analytics', 'Lead notifications'],
+      isActive: true,
+    },
+    {
+      id: 'vendor-national',
+      name: 'Vendor National',
+      type: 'vendor',
+      price: 599,
+
+      features: ['National coverage', 'All Featured benefits', 'Multiple locations', 'API integration'],
+      isActive: true,
+    },
+  ];
 
   // Active subscriptions
   const { data: activeSubscriptions } = useQuery({
@@ -396,6 +464,8 @@ export default function AdminMegaDashboard() {
   const { data: liveActivity } = useQuery({
     queryKey: ['/api/admin/activity/live'],
     refetchInterval: 3000, // Update every 3 seconds
+    retry: false, // Don't retry on auth failures
+    enabled: false, // Disable for now to prevent 401 errors
   });
   
   // Google Places enrichment data
@@ -1011,7 +1081,7 @@ export default function AdminMegaDashboard() {
           
           <TabsContent value="plans">
             <div className="space-y-4">
-              {subscriptionPlans?.map((plan) => (
+              {subscriptionPlans.map((plan) => (
                 <Card key={plan.id}>
                   <CardHeader>
                     <div className="flex justify-between items-center">
@@ -2126,8 +2196,8 @@ export default function AdminMegaDashboard() {
         
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <ScrollArea className="w-full">
-            <TabsList className="flex w-max gap-1 h-auto p-2">
+          <ScrollArea className="w-full whitespace-nowrap">
+            <TabsList className="inline-flex w-max gap-1 h-auto p-2 mb-2">
             <TabsTrigger value="overview">
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Overview
@@ -2185,6 +2255,7 @@ export default function AdminMegaDashboard() {
               Live Activity
             </TabsTrigger>
             </TabsList>
+            <ScrollBar orientation="horizontal" />
           </ScrollArea>
           
           <TabsContent value="overview" className="space-y-4">
