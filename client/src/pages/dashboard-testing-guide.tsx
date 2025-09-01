@@ -12,10 +12,10 @@ import {
   CheckCircle, XCircle, Clock, Play, ChevronRight, TestTube,
   Activity, Zap, Bell, Database, Settings, Monitor
 } from 'lucide-react';
-import { useNavigate } from 'wouter';
+import { useLocation } from 'wouter';
 
 export function DashboardTestingGuide() {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const [completedTests, setCompletedTests] = useState<string[]>([]);
   const [currentScenario, setCurrentScenario] = useState(0);
 
@@ -391,7 +391,7 @@ export function DashboardTestingGuide() {
           </p>
         </div>
         <Button 
-          onClick={() => navigate('/community/1/dashboard')}
+          onClick={() => setLocation('/community/1/dashboard')}
           className="bg-purple-600 hover:bg-purple-700"
         >
           <Monitor className="w-4 h-4 mr-2" />
@@ -489,7 +489,7 @@ export function DashboardTestingGuide() {
                         className="w-full"
                         variant={completedTests.includes(test.id) ? "outline" : "default"}
                         onClick={() => {
-                          navigate(test.scenario.testPath);
+                          setLocation(test.scenario.testPath);
                           setCurrentScenario(index);
                         }}
                       >
