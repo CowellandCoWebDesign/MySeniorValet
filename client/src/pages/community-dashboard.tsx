@@ -63,6 +63,13 @@ import { StaffManagement } from "@/components/enterprise/StaffManagement";
 import { MaintenanceSystem } from "@/components/enterprise/MaintenanceSystem";
 import { MarketingAnalytics } from "@/components/enterprise/MarketingAnalytics";
 import { FamilyPortal } from "@/components/enterprise/FamilyPortal";
+import { VendorManagement } from "@/components/enterprise/VendorManagement";
+import { QualityMetrics } from "@/components/enterprise/QualityMetrics";
+import { EmergencyResponse } from "@/components/enterprise/EmergencyResponse";
+import { DocumentManagement } from "@/components/enterprise/DocumentManagement";
+import { BusinessIntelligence } from "@/components/enterprise/BusinessIntelligence";
+import { ExternalIntegrations } from "@/components/enterprise/ExternalIntegrations";
+import { AuditTrail } from "@/components/enterprise/AuditTrail";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -554,6 +561,13 @@ export default function CommunityDashboard() {
                 <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
                 <TabsTrigger value="marketing">Marketing</TabsTrigger>
                 <TabsTrigger value="family">Family Portal</TabsTrigger>
+                <TabsTrigger value="vendors">Vendors</TabsTrigger>
+                <TabsTrigger value="quality">Quality</TabsTrigger>
+                <TabsTrigger value="emergency">Emergency</TabsTrigger>
+                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
+                <TabsTrigger value="integrations">Integrations</TabsTrigger>
+                <TabsTrigger value="audit">Audit Trail</TabsTrigger>
               </>
             )}
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -1284,6 +1298,41 @@ export default function CommunityDashboard() {
               {/* Family Portal Tab */}
               <TabsContent value="family" className="space-y-6">
                 <FamilyPortal communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Vendor Management Tab */}
+              <TabsContent value="vendors" className="space-y-6">
+                <VendorManagement communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Quality Metrics Tab */}
+              <TabsContent value="quality" className="space-y-6">
+                <QualityMetrics communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Emergency Response Tab */}
+              <TabsContent value="emergency" className="space-y-6">
+                <EmergencyResponse communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Document Management Tab */}
+              <TabsContent value="documents" className="space-y-6">
+                <DocumentManagement communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Business Intelligence Tab */}
+              <TabsContent value="intelligence" className="space-y-6">
+                <BusinessIntelligence communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* External Integrations Tab */}
+              <TabsContent value="integrations" className="space-y-6">
+                <ExternalIntegrations communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Audit Trail Tab */}
+              <TabsContent value="audit" className="space-y-6">
+                <AuditTrail communityId={parseInt(id || '0')} />
               </TabsContent>
             </>
           )}
