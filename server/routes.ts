@@ -727,5 +727,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const enterpriseTestRoutes = await import('./routes/enterprise-test');
   app.use(enterpriseTestRoutes.default);
 
+  // Note: Enterprise Monitoring routes already registered above (line 118)
+
+  // Register Phase 5: Executive Dashboard routes
+  const executiveDashboardRoutes = await import('./routes/executive-dashboard');
+  app.use('/api/executive', executiveDashboardRoutes.default);
+
   return httpServer;
 }

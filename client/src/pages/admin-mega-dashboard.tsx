@@ -57,6 +57,11 @@ const EnterpriseAlerts = lazy(() => import("@/components/enterprise/EnterpriseAl
   default: module.EnterpriseAlerts
 })));
 
+// Lazy load the executive dashboard component
+const ExecutiveDashboard = lazy(() => import("@/components/enterprise/ExecutiveDashboard").then(module => ({
+  default: module.ExecutiveDashboard
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2558,6 +2563,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                      activeTab === 'ai' ? 'AI Analytics' :
                      activeTab === 'performance' ? 'Performance' :
                      activeTab === 'monitoring' ? 'Monitoring & Alerts' :
+                     activeTab === 'executive' ? 'Executive' :
                      activeTab === 'reports' ? 'Reports' :
                      activeTab === 'heatmap' ? 'Heatmap' :
                      activeTab === 'tools' ? 'Tools' :
@@ -2640,6 +2646,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <AlertTriangle className="h-4 w-4 mr-2" />
               Monitoring
             </TabsTrigger>
+            <TabsTrigger value="executive">
+              <Target className="h-4 w-4 mr-2" />
+              Executive
+            </TabsTrigger>
             <TabsTrigger value="health">
               <Shield className="h-4 w-4 mr-2" />
               Platform Health
@@ -2715,6 +2725,17 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </div>
             }>
               <EnterpriseAlerts />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="executive" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading executive dashboard...</span>
+              </div>
+            }>
+              <ExecutiveDashboard />
             </Suspense>
           </TabsContent>
           
