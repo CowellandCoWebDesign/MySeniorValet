@@ -230,12 +230,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', careServicesRoutes);
   
   // Register Phase 5b Operational Excellence routes
-  const { registerBillingRoutes } = await import('./billing-api');
-  const { registerResidentFamilyRoutes } = await import('./resident-family-api');
+  const billingRouter = await import('./billing-api');
+  const residentFamilyRouter = await import('./resident-family-api');
   const { registerOperationsManagementRoutes } = await import('./operations-management-api');
   
-  registerBillingRoutes(app);
-  registerResidentFamilyRoutes(app);
+  app.use('/api', billingRouter.default);
+  app.use('/api', residentFamilyRouter.default);
   registerOperationsManagementRoutes(app);
   
   // Register Community Features routes (Phase 5 - tier-based features)

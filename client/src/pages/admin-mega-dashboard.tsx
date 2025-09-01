@@ -84,6 +84,9 @@ const BillingDashboard = lazy(() => import("@/components/phase5b/BillingDashboar
   default: module.BillingDashboard
 })));
 
+// Lazy load Master Validation System
+const MasterValidationSystem = lazy(() => import("@/components/admin/MasterValidationSystem"));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2790,6 +2793,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <Wrench className="h-4 w-4 mr-2" />
               Operations
             </TabsTrigger>
+            <TabsTrigger value="validation">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Validation
+            </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -3127,6 +3134,17 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </div>
             }>
               <OperationsTab />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="validation" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading master validation system...</span>
+              </div>
+            }>
+              <MasterValidationSystem />
             </Suspense>
           </TabsContent>
         </Tabs>
