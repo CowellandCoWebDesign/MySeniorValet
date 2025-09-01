@@ -188,7 +188,22 @@ export class EnterpriseAlertService extends EventEmitter {
 
     // Check recent high-value metrics from real database
     const recentMetrics = await db
-      .select()
+      .select({
+        id: enterpriseMetrics.id,
+        communityId: enterpriseMetrics.communityId,
+        period: enterpriseMetrics.period,
+        date: enterpriseMetrics.date,
+        occupancyRate: enterpriseMetrics.occupancyRate,
+        averageRevenue: enterpriseMetrics.averageRevenue,
+        totalRevenue: enterpriseMetrics.totalRevenue,
+        newAdmissions: enterpriseMetrics.newAdmissions,
+        discharges: enterpriseMetrics.discharges,
+        totalResidents: enterpriseMetrics.totalResidents,
+        staffingRatio: enterpriseMetrics.staffingRatio,
+        qualityScore: enterpriseMetrics.qualityScore,
+        createdAt: enterpriseMetrics.createdAt,
+        updatedAt: enterpriseMetrics.updatedAt
+      })
       .from(enterpriseMetrics)
       .where(
         and(
@@ -231,7 +246,22 @@ export class EnterpriseAlertService extends EventEmitter {
 
     // Check communities with low occupancy from real metrics
     const lowOccupancyMetrics = await db
-      .select()
+      .select({
+        id: enterpriseMetrics.id,
+        communityId: enterpriseMetrics.communityId,
+        period: enterpriseMetrics.period,
+        date: enterpriseMetrics.date,
+        occupancyRate: enterpriseMetrics.occupancyRate,
+        averageRevenue: enterpriseMetrics.averageRevenue,
+        totalRevenue: enterpriseMetrics.totalRevenue,
+        newAdmissions: enterpriseMetrics.newAdmissions,
+        discharges: enterpriseMetrics.discharges,
+        totalResidents: enterpriseMetrics.totalResidents,
+        staffingRatio: enterpriseMetrics.staffingRatio,
+        qualityScore: enterpriseMetrics.qualityScore,
+        createdAt: enterpriseMetrics.createdAt,
+        updatedAt: enterpriseMetrics.updatedAt
+      })
       .from(enterpriseMetrics)
       .where(
         and(
@@ -274,7 +304,13 @@ export class EnterpriseAlertService extends EventEmitter {
 
     // Check communities without websites (potential compliance issue)
     const communitiesWithoutWebsites = await db
-      .select()
+      .select({
+        id: communities.id,
+        name: communities.name,
+        website: communities.website,
+        city: communities.city,
+        state: communities.state
+      })
       .from(communities)
       .where(
         or(
@@ -314,45 +350,62 @@ export class EnterpriseAlertService extends EventEmitter {
     const rule = this.alertRules.get('high-traffic');
     if (!rule?.enabled) return;
 
-    // Check high traffic patterns from real analytics
-    const highTrafficEvents = await db
-      .select({
-        pageViews: sql<number>`COUNT(*)`,
-        path: analyticsEvents.path
-      })
-      .from(analyticsEvents)
-      .where(
-        and(
-          eq(analyticsEvents.eventType, 'page_view'),
-          gte(analyticsEvents.timestamp, new Date(Date.now() - 60 * 60 * 1000))
+    try {
+      // Simplified query to avoid Drizzle aggregation issues
+      const recentPageViews = await db
+        .select({
+          id: analyticsEvents.id,
+          path: analyticsEvents.path,
+          eventType: analyticsEvents.eventType,
+          timestamp: analyticsEvents.timestamp
+        })
+        .from(analyticsEvents)
+        .where(
+          and(
+            eq(analyticsEvents.eventType, 'page_view'),
+            gte(analyticsEvents.timestamp, new Date(Date.now() - 60 * 60 * 1000))
+          )
         )
-      )
-      .groupBy(analyticsEvents.path)
-      .having(sql`COUNT(*) > ${rule.thresholds[0].value}`)
-      .limit(5);
+        .limit(1000);
 
-    for (const traffic of highTrafficEvents) {
-      const alertKey = `high-traffic-${traffic.path}`;
-      if (!this.shouldTriggerAlert(alertKey, rule.cooldownMinutes)) continue;
+      // Group and count in JavaScript instead
+      const pathCounts = new Map<string, number>();
+      for (const event of recentPageViews) {
+        if (event.path) {
+          pathCounts.set(event.path, (pathCounts.get(event.path) || 0) + 1);
+        }
+      }
 
-      await this.createAlert({
-        communityId: null,
-        type: 'system',
-        severity: rule.thresholds[0].severity,
-        title: 'High Traffic Detected',
-        message: `Page ${traffic.path} received ${traffic.pageViews} views in the last hour`,
-        metadata: {
-          path: traffic.path,
-          pageViews: traffic.pageViews
-        },
-        status: 'active',
-        acknowledgedAt: null,
-        acknowledgedBy: null,
-        resolvedAt: null,
-        resolvedBy: null
-      });
+      // Filter for high traffic paths
+      const highTrafficPaths = Array.from(pathCounts.entries())
+        .filter(([_, count]) => count > rule.thresholds[0].value)
+        .slice(0, 5);
 
-      this.lastAlertTime.set(alertKey, new Date());
+      for (const [path, pageViews] of highTrafficPaths) {
+        const alertKey = `high-traffic-${path}`;
+        if (!this.shouldTriggerAlert(alertKey, rule.cooldownMinutes)) continue;
+
+        await this.createAlert({
+          communityId: null,
+          type: 'system',
+          severity: rule.thresholds[0].severity,
+          title: 'High Traffic Detected',
+          message: `Page ${path} received ${pageViews} views in the last hour`,
+          metadata: {
+            path: path,
+            pageViews: pageViews
+          },
+          status: 'active',
+          acknowledgedAt: null,
+          acknowledgedBy: null,
+          resolvedAt: null,
+          resolvedBy: null
+        });
+
+        this.lastAlertTime.set(alertKey, new Date());
+      }
+    } catch (error) {
+      console.error('Error checking traffic alerts:', error);
     }
   }
 
@@ -362,7 +415,22 @@ export class EnterpriseAlertService extends EventEmitter {
 
     // Check performance metrics from real data
     const performanceIssues = await db
-      .select()
+      .select({
+        id: enterpriseMetrics.id,
+        communityId: enterpriseMetrics.communityId,
+        period: enterpriseMetrics.period,
+        date: enterpriseMetrics.date,
+        occupancyRate: enterpriseMetrics.occupancyRate,
+        averageRevenue: enterpriseMetrics.averageRevenue,
+        totalRevenue: enterpriseMetrics.totalRevenue,
+        newAdmissions: enterpriseMetrics.newAdmissions,
+        discharges: enterpriseMetrics.discharges,
+        totalResidents: enterpriseMetrics.totalResidents,
+        staffingRatio: enterpriseMetrics.staffingRatio,
+        qualityScore: enterpriseMetrics.qualityScore,
+        createdAt: enterpriseMetrics.createdAt,
+        updatedAt: enterpriseMetrics.updatedAt
+      })
       .from(enterpriseMetrics)
       .where(
         and(
@@ -534,7 +602,23 @@ export class EnterpriseAlertService extends EventEmitter {
       }
 
       const activeAlerts = await db
-        .select()
+        .select({
+          id: alerts.id,
+          communityId: alerts.communityId,
+          type: alerts.type,
+          severity: alerts.severity,
+          status: alerts.status,
+          title: alerts.title,
+          message: alerts.message,
+          metadata: alerts.metadata,
+          acknowledgedAt: alerts.acknowledgedAt,
+          acknowledgedBy: alerts.acknowledgedBy,
+          resolvedAt: alerts.resolvedAt,
+          resolvedBy: alerts.resolvedBy,
+          createdAt: alerts.createdAt,
+          updatedAt: alerts.updatedAt,
+          expiresAt: alerts.expiresAt
+        })
         .from(alerts)
         .where(and(...conditions))
         .orderBy(desc(alerts.createdAt))
@@ -549,20 +633,30 @@ export class EnterpriseAlertService extends EventEmitter {
 
   async getAlertStats() {
     try {
-      const stats = await db
+      // Simplified query to avoid Drizzle aggregation issues
+      const recentAlerts = await db
         .select({
-          total: sql<number>`COUNT(*)`,
-          active: sql<number>`COUNT(*) FILTER (WHERE status = 'active')`,
-          acknowledged: sql<number>`COUNT(*) FILTER (WHERE status = 'acknowledged')`,
-          resolved: sql<number>`COUNT(*) FILTER (WHERE status = 'resolved')`,
-          critical: sql<number>`COUNT(*) FILTER (WHERE severity = 'critical')`,
-          warning: sql<number>`COUNT(*) FILTER (WHERE severity = 'warning')`,
-          info: sql<number>`COUNT(*) FILTER (WHERE severity = 'info')`
+          id: alerts.id,
+          status: alerts.status,
+          severity: alerts.severity,
+          createdAt: alerts.createdAt
         })
         .from(alerts)
-        .where(gte(alerts.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
+        .where(gte(alerts.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)))
+        .limit(1000);
 
-      return stats[0];
+      // Calculate stats in JavaScript
+      const stats = {
+        total: recentAlerts.length,
+        active: recentAlerts.filter(a => a.status === 'active').length,
+        acknowledged: recentAlerts.filter(a => a.status === 'acknowledged').length,
+        resolved: recentAlerts.filter(a => a.status === 'resolved').length,
+        critical: recentAlerts.filter(a => a.severity === 'critical').length,
+        warning: recentAlerts.filter(a => a.severity === 'warning').length,
+        info: recentAlerts.filter(a => a.severity === 'info').length
+      };
+
+      return stats;
     } catch (error) {
       console.error('Error fetching alert stats:', error);
       throw error;

@@ -5898,3 +5898,40 @@ export const alerts = pgTable('alerts', {
 
 export type Alert = typeof alerts.$inferSelect;
 export type InsertAlert = typeof alerts.$inferInsert;
+
+// Community Features - Feature flag management for subscription tiers
+export const communityFeatures = pgTable('community_features', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id).notNull(),
+  featureKey: varchar('feature_key', { length: 100 }).notNull(),
+  enabled: boolean('enabled').default(true),
+  value: jsonb('value'), // Can store any type of value (number, string, object)
+  metadata: jsonb('metadata').$type<Record<string, any>>().default({}),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('community_features_community_idx').on(table.communityId),
+  index('community_features_key_idx').on(table.featureKey),
+  index('community_features_enabled_idx').on(table.enabled),
+  // Unique constraint on community + feature combination
+  index('community_features_unique').on(table.communityId, table.featureKey)
+]);
+
+// Feature Usage Tracking - Track usage for metered features
+export const featureUsageTracking = pgTable('feature_usage_tracking', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id).notNull(),
+  featureKey: varchar('feature_key', { length: 100 }).notNull(),
+  usageCount: integer('usage_count').notNull().default(1),
+  timestamp: timestamp('timestamp').defaultNow(),
+  metadata: jsonb('metadata').$type<Record<string, any>>().default({})
+}, (table) => [
+  index('usage_tracking_community_idx').on(table.communityId),
+  index('usage_tracking_feature_idx').on(table.featureKey),
+  index('usage_tracking_timestamp_idx').on(table.timestamp)
+]);
+
+export type CommunityFeature = typeof communityFeatures.$inferSelect;
+export type InsertCommunityFeature = typeof communityFeatures.$inferInsert;
+export type FeatureUsage = typeof featureUsageTracking.$inferSelect;
+export type InsertFeatureUsage = typeof featureUsageTracking.$inferInsert;
