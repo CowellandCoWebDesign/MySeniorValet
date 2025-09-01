@@ -81,6 +81,7 @@ import emailCampaignRoutes from "./email-campaign-api";
 import { atriaRoutes } from "./atria-routes";
 import healthcareServicesRoutes from "./healthcareServicesRoutes";
 import careServicesRoutes from "./careServicesRoutes";
+import communityFeaturesRoutes from "./community-features";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Replit Auth is already initialized in server/routes.ts
@@ -227,6 +228,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Care Services routes (existing functionality)
   app.use('/api', careServicesRoutes);
+  
+  // Register Community Features routes (Phase 5 - tier-based features)
+  app.use('/api/community-features', communityFeaturesRoutes);
 
   return httpServer;
 }
