@@ -317,9 +317,9 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
-        <div className="flex-grow flex flex-col justify-end pb-12 sm:pb-16 md:pb-20">
+        <div className="flex-grow flex flex-col justify-end pb-16 sm:pb-20 md:pb-24">
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-4">
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
           {/* Category Tabs - File Folder Style - Simplified */}
           <div className="flex justify-start">
             <div className="inline-flex gap-0.5">
