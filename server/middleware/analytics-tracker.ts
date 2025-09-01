@@ -15,11 +15,11 @@ export async function trackAnalytics(req: Request, res: Response, next: NextFunc
     }
 
     // Get or create session ID
-    let sessionId = req.session?.analyticsSessionId;
+    let sessionId = (req.session as any)?.analyticsSessionId;
     if (!sessionId) {
       sessionId = analyticsService.generateSessionId();
       if (req.session) {
-        req.session.analyticsSessionId = sessionId;
+        (req.session as any).analyticsSessionId = sessionId;
       }
     }
 
@@ -177,7 +177,7 @@ export async function trackAnalytics(req: Request, res: Response, next: NextFunc
 // Specific middleware for tracking page views on the frontend
 export async function trackPageView(req: Request, res: Response, next: NextFunction) {
   try {
-    const sessionId = req.session?.analyticsSessionId || analyticsService.generateSessionId();
+    const sessionId = (req.session as any)?.analyticsSessionId || analyticsService.generateSessionId();
     const userId = (req as any).user?.id;
     
     // Extract page info from headers or query
@@ -208,7 +208,7 @@ export async function trackPageView(req: Request, res: Response, next: NextFunct
 // Endpoint to track custom events from the frontend
 export async function trackCustomEvent(req: Request, res: Response) {
   try {
-    const sessionId = req.session?.analyticsSessionId || analyticsService.generateSessionId();
+    const sessionId = (req.session as any)?.analyticsSessionId || analyticsService.generateSessionId();
     const userId = (req as any).user?.id;
     
     const {

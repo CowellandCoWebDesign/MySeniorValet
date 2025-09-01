@@ -141,17 +141,27 @@ router.get('/api/enterprise/analytics/:communityId/realtime', isAuthenticated, a
   try {
     const { communityId } = req.params;
     
+    // Get real-time data from analytics service
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    
+    const todayAnalytics = await analyticsService.getCommunityAnalytics(
+      parseInt(communityId),
+      startOfDay,
+      now
+    );
+
     const realtimeData = {
-      activeVisitors: Math.floor(Math.random() * 20) + 1,
-      todayViews: Math.floor(Math.random() * 100) + 50,
-      todayInquiries: Math.floor(Math.random() * 10) + 2,
+      activeVisitors: 0, // Would come from active sessions tracking
+      todayViews: todayAnalytics.summary.totalViews,
+      todayInquiries: 0, // Would come from messages/tours today
       responseTime: '< 5 min',
       lastActivity: new Date().toISOString(),
-      activePages: [
-        { page: 'Main Profile', visitors: 3 },
-        { page: 'Photos', visitors: 2 },
-        { page: 'Pricing', visitors: 1 }
-      ]
+      activePages: todayAnalytics.traffic.topPages.slice(0, 3).map((page, index) => ({
+        page: page.page,
+        visitors: page.views
+      }))
     };
 
     res.json(realtimeData);

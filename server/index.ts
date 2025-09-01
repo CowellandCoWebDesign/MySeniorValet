@@ -125,6 +125,10 @@ if (process.env.NODE_ENV === 'development') {
 app.use(sanitizeInput);
 app.use(sqlInjectionProtection);
 
+// Analytics tracking middleware - track all API interactions
+import { trackAnalytics } from './middleware/analytics-tracker';
+app.use(trackAnalytics);
+
 // Development mode - disable caching for immediate visibility
 if (process.env.NODE_ENV === 'development') {
   app.use((req, res, next) => {
