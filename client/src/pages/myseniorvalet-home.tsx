@@ -317,9 +317,9 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
-        <div className="flex-grow flex flex-col justify-end pb-2 sm:pb-3 md:pb-4">
+        <div className="flex-grow flex flex-col justify-end pb-12 sm:pb-16 md:pb-20">
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-2 sm:mb-3">
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-4">
           {/* Category Tabs - File Folder Style - Simplified */}
           <div className="flex justify-start">
             <div className="inline-flex gap-0.5">
@@ -404,7 +404,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Bar Container - Always visible with tab-specific styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 pb-8 pt-3 px-3 shadow-2xl ${
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 pb-6 pt-3 px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
