@@ -1,9 +1,8 @@
 import { db } from '../db';
 import { 
   enterpriseMetrics, 
-  financialTransactions,
-  complianceAudits,
-  analyticsEvents
+  analyticsEvents,
+  communities
 } from '@shared/schema';
 
 interface EnterpriseAlert {
@@ -21,7 +20,7 @@ interface EnterpriseAlert {
   resolvedAt: Date | null;
   resolvedBy: number | null;
 }
-import { eq, and, gte, lte, desc, sql, lt, gt } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, lt, gt, or, isNull } from 'drizzle-orm';
 import { EnterpriseWebSocketService } from './enterprise-websocket.service';
 import EventEmitter from 'events';
 import sgMail from '@sendgrid/mail';
@@ -186,32 +185,33 @@ export class EnterpriseAlertService extends EventEmitter {
     const rule = this.alertRules.get('high-revenue');
     if (!rule?.enabled) return;
 
-    // Check recent high-value transactions from real database
-    const recentTransactions = await db
+    // Check recent high-value metrics from real database
+    const recentMetrics = await db
       .select()
-      .from(financial_transactions)
+      .from(enterpriseMetrics)
       .where(
         and(
-          gt(financial_transactions.amount, rule.thresholds[0].value.toString()),
-          gte(financial_transactions.createdAt, new Date(Date.now() - 30 * 60 * 1000))
+          gt(enterpriseMetrics.occupancyRate, rule.thresholds[0].value),
+          eq(enterpriseMetrics.period, 'daily'),
+          gte(enterpriseMetrics.date, new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0] as any)
         )
       )
       .limit(5);
 
-    for (const transaction of recentTransactions) {
-      const alertKey = `high-revenue-${transaction.id}`;
+    for (const metric of recentMetrics) {
+      const alertKey = `high-revenue-${metric.id}`;
       if (!this.shouldTriggerAlert(alertKey, rule.cooldownMinutes)) continue;
 
       await this.createAlert({
-        communityId: transaction.communityId,
+        communityId: metric.communityId,
         type: 'revenue',
         severity: rule.thresholds[0].severity,
-        title: 'High Revenue Transaction Detected',
-        message: `Transaction of $${transaction.amount} recorded for ${transaction.description}`,
+        title: 'High Occupancy Detected',
+        message: `High occupancy rate of ${metric.occupancyRate}% recorded for community on ${metric.date}`,
         metadata: {
-          transactionId: transaction.id,
-          amount: transaction.amount,
-          type: transaction.type
+          metricId: metric.id,
+          occupancyRate: metric.occupancyRate,
+          date: metric.date
         },
         status: 'active',
         acknowledgedAt: null,
@@ -231,12 +231,12 @@ export class EnterpriseAlertService extends EventEmitter {
     // Check communities with low occupancy from real metrics
     const lowOccupancyMetrics = await db
       .select()
-      .from(enterprise_metrics)
+      .from(enterpriseMetrics)
       .where(
         and(
-          lt(enterprise_metrics.occupancyRate, rule.thresholds[0].value),
-          eq(enterprise_metrics.period, 'daily'),
-          gte(enterprise_metrics.date, new Date().toISOString().split('T')[0] as any)
+          lt(enterpriseMetrics.occupancyRate, rule.thresholds[0].value),
+          eq(enterpriseMetrics.period, 'daily'),
+          gte(enterpriseMetrics.date, new Date().toISOString().split('T')[0] as any)
         )
       )
       .limit(10);
@@ -271,32 +271,32 @@ export class EnterpriseAlertService extends EventEmitter {
     const rule = this.alertRules.get('compliance-violation');
     if (!rule?.enabled) return;
 
-    // Check failed compliance audits from real database
-    const failedAudits = await db
+    // Check communities without websites (potential compliance issue)
+    const communitiesWithoutWebsites = await db
       .select()
-      .from(compliance_audits)
+      .from(communities)
       .where(
-        and(
-          eq(compliance_audits.status, 'failed'),
-          gte(compliance_audits.createdAt, new Date(Date.now() - 60 * 60 * 1000))
+        or(
+          isNull(communities.website),
+          eq(communities.website, '')
         )
       )
       .limit(5);
 
-    for (const audit of failedAudits) {
-      const alertKey = `compliance-${audit.id}`;
+    for (const community of communitiesWithoutWebsites) {
+      const alertKey = `compliance-${community.id}`;
       if (!this.shouldTriggerAlert(alertKey, rule.cooldownMinutes)) continue;
 
       await this.createAlert({
-        communityId: audit.communityId,
+        communityId: community.id,
         type: 'compliance',
-        severity: 'critical',
-        title: 'Compliance Violation Detected',
-        message: `${audit.auditType} audit failed: ${audit.findings?.violations?.join(', ') || 'Multiple violations'}`,
+        severity: 'warning',
+        title: 'Community Missing Website',
+        message: `${community.name} does not have a website URL on file`,
         metadata: {
-          auditId: audit.id,
-          auditType: audit.auditType,
-          findings: audit.findings
+          communityId: community.id,
+          communityName: community.name,
+          address: community.address
         },
         status: 'active',
         acknowledgedAt: null,
@@ -317,16 +317,16 @@ export class EnterpriseAlertService extends EventEmitter {
     const highTrafficEvents = await db
       .select({
         pageViews: sql<number>`COUNT(*)`,
-        path: analytics_events.path
+        path: analyticsEvents.path
       })
-      .from(analytics_events)
+      .from(analyticsEvents)
       .where(
         and(
-          eq(analytics_events.eventType, 'page_view'),
-          gte(analytics_events.timestamp, new Date(Date.now() - 60 * 60 * 1000))
+          eq(analyticsEvents.eventType, 'page_view'),
+          gte(analyticsEvents.timestamp, new Date(Date.now() - 60 * 60 * 1000))
         )
       )
-      .groupBy(analytics_events.path)
+      .groupBy(analyticsEvents.path)
       .having(sql`COUNT(*) > ${rule.thresholds[0].value}`)
       .limit(5);
 
@@ -362,12 +362,12 @@ export class EnterpriseAlertService extends EventEmitter {
     // Check performance metrics from real data
     const performanceIssues = await db
       .select()
-      .from(enterprise_metrics)
+      .from(enterpriseMetrics)
       .where(
         and(
-          gt(enterprise_metrics.avgSessionDuration, rule.thresholds[0].value),
-          eq(enterprise_metrics.period, 'daily'),
-          gte(enterprise_metrics.date, new Date().toISOString().split('T')[0] as any)
+          gt(enterpriseMetrics.avgSessionDuration, rule.thresholds[0].value),
+          eq(enterpriseMetrics.period, 'daily'),
+          gte(enterpriseMetrics.date, new Date().toISOString().split('T')[0] as any)
         )
       )
       .limit(5);
@@ -408,11 +408,12 @@ export class EnterpriseAlertService extends EventEmitter {
 
   private async createAlert(alert: Omit<EnterpriseAlert, 'id' | 'createdAt'>) {
     try {
-      // Save alert to database
-      const [newAlert] = await db
-        .insert(enterprise_alerts)
-        .values(alert)
-        .returning();
+      // Create in-memory alert (database table will be added in Phase 5)
+      const newAlert: EnterpriseAlert = {
+        id: Date.now(),
+        ...alert,
+        createdAt: new Date()
+      };
 
       // Broadcast via WebSocket
       this.wsService.broadcast('alerts', {

@@ -259,7 +259,7 @@ export class CacheOptimizerService extends EventEmitter {
       .select({
         count: sql<number>`COUNT(*)`,
         type: analyticsEvents.eventType,
-        avgValue: sql<number>`AVG(CAST(metadata->>'value' AS FLOAT))`
+        avgValue: sql<number>`AVG(${analyticsEvents.eventValue})`
       })
       .from(analyticsEvents)
       .where(gte(analyticsEvents.timestamp, since))
@@ -324,7 +324,7 @@ export class CacheOptimizerService extends EventEmitter {
       const popularCommunities = await db
         .select({
           id: communities.id,
-          views: sql<number>`COUNT(ae.id)`
+          views: sql<number>`COUNT(${analyticsEvents.id})`
         })
         .from(communities)
         .leftJoin(
@@ -332,7 +332,7 @@ export class CacheOptimizerService extends EventEmitter {
           eq(analyticsEvents.communityId, communities.id)
         )
         .groupBy(communities.id)
-        .orderBy(desc(sql`COUNT(ae.id)`))
+        .orderBy(desc(sql`COUNT(${analyticsEvents.id})`))
         .limit(50);
 
       for (const community of popularCommunities) {

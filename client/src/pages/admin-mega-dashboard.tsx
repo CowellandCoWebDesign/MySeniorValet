@@ -52,6 +52,11 @@ const EnhancedHeatmap = lazy(() => import("@/components/AvailabilityHeatmap").th
   default: module.AvailabilityHeatmap
 })));
 
+// Lazy load the enterprise monitoring components
+const EnterpriseAlerts = lazy(() => import("@/components/enterprise/EnterpriseAlerts").then(module => ({
+  default: module.EnterpriseAlerts
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2552,6 +2557,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                      activeTab === 'subscriptions' ? 'Subscriptions' :
                      activeTab === 'ai' ? 'AI Analytics' :
                      activeTab === 'performance' ? 'Performance' :
+                     activeTab === 'monitoring' ? 'Monitoring & Alerts' :
                      activeTab === 'reports' ? 'Reports' :
                      activeTab === 'heatmap' ? 'Heatmap' :
                      activeTab === 'tools' ? 'Tools' :
@@ -2630,6 +2636,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <Gauge className="h-4 w-4 mr-2" />
               Performance
             </TabsTrigger>
+            <TabsTrigger value="monitoring">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              Monitoring
+            </TabsTrigger>
             <TabsTrigger value="health">
               <Shield className="h-4 w-4 mr-2" />
               Platform Health
@@ -2695,6 +2705,17 @@ Communities Created: ${details.stats.communitiesCreated}`;
           
           <TabsContent value="performance" className="space-y-4">
             {renderPerformanceMonitoring()}
+          </TabsContent>
+          
+          <TabsContent value="monitoring" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading monitoring system...</span>
+              </div>
+            }>
+              <EnterpriseAlerts />
+            </Suspense>
           </TabsContent>
           
           <TabsContent value="reports" className="space-y-4">
