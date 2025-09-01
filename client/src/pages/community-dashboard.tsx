@@ -55,24 +55,25 @@ import { EnterpriseMarketAnalysis } from "@/components/EnterpriseMarketAnalysis"
 import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
 import { RMSIntegrationPanel } from "@/components/RMSIntegrationPanel";
 import { TourManagement } from "@/components/TourManagement";
-import { EnterpriseAnalytics } from "@/components/enterprise/EnterpriseAnalytics";
-import { FinancialManagement } from "@/components/enterprise/FinancialManagement";
-import { ComplianceMonitoring } from "@/components/enterprise/ComplianceMonitoring";
-import { ResidentManagement } from "@/components/enterprise/ResidentManagement";
-import { StaffManagement } from "@/components/enterprise/StaffManagement";
-import { MaintenanceSystem } from "@/components/enterprise/MaintenanceSystem";
-import { MarketingAnalytics } from "@/components/enterprise/MarketingAnalytics";
-import { FamilyPortal } from "@/components/enterprise/FamilyPortal";
-import { VendorManagement } from "@/components/enterprise/VendorManagement";
-import { QualityMetrics } from "@/components/enterprise/QualityMetrics";
-import { EmergencyResponse } from "@/components/enterprise/EmergencyResponse";
-import { DocumentManagement } from "@/components/enterprise/DocumentManagement";
-import { BusinessIntelligence } from "@/components/enterprise/BusinessIntelligence";
-import { ExternalIntegrations } from "@/components/enterprise/ExternalIntegrations";
-import { AuditTrail } from "@/components/enterprise/AuditTrail";
-import { CustomReporting } from "@/components/enterprise/CustomReporting";
-import { RoleBasedAccess } from "@/components/enterprise/RoleBasedAccess";
-import { RealTimeNotifications } from "@/components/enterprise/RealTimeNotifications";
+// Temporarily disabled - enterprise components need real data implementation
+// import { EnterpriseAnalytics } from "@/components/enterprise/EnterpriseAnalytics";
+// import { FinancialManagement } from "@/components/enterprise/FinancialManagement";
+// import { ComplianceMonitoring } from "@/components/enterprise/ComplianceMonitoring";
+// import { ResidentManagement } from "@/components/enterprise/ResidentManagement";
+// import { StaffManagement } from "@/components/enterprise/StaffManagement";
+// import { MaintenanceSystem } from "@/components/enterprise/MaintenanceSystem";
+// import { MarketingAnalytics } from "@/components/enterprise/MarketingAnalytics";
+// import { FamilyPortal } from "@/components/enterprise/FamilyPortal";
+// import { VendorManagement } from "@/components/enterprise/VendorManagement";
+// import { QualityMetrics } from "@/components/enterprise/QualityMetrics";
+// import { EmergencyResponse } from "@/components/enterprise/EmergencyResponse";
+// import { DocumentManagement } from "@/components/enterprise/DocumentManagement";
+// import { BusinessIntelligence } from "@/components/enterprise/BusinessIntelligence";
+// import { ExternalIntegrations } from "@/components/enterprise/ExternalIntegrations";
+// import { AuditTrail } from "@/components/enterprise/AuditTrail";
+// import { CustomReporting } from "@/components/enterprise/CustomReporting";
+// import { RoleBasedAccess } from "@/components/enterprise/RoleBasedAccess";
+// import { RealTimeNotifications } from "@/components/enterprise/RealTimeNotifications";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -1263,100 +1264,79 @@ export default function CommunityDashboard() {
             </Card>
           </TabsContent>
 
-          {/* Enterprise Features Tabs - Available for Featured/Platinum Tiers */}
+          {/* Enterprise Features Tabs - Temporarily Disabled (Need Real Data Implementation) */}
           {hasEnterpriseAccess && (
             <>
-              {/* Enterprise Analytics Tab */}
+              <TabsContent value="enterprise-analytics" className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Enterprise Analytics</CardTitle>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Fortune 500-level analytics coming soon - implementing real data connections</p>
+                  </CardHeader>
+                </Card>
+              </TabsContent>
+            </>
+          )}
+
+          {/* Original enterprise components temporarily disabled - violated Golden Data Rule
+          {hasEnterpriseAccess && (
+            <>
               <TabsContent value="enterprise-analytics" className="space-y-6">
                 <EnterpriseAnalytics communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Financial Management Tab */}
               <TabsContent value="financial" className="space-y-6">
                 <FinancialManagement communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Compliance Monitoring Tab */}
               <TabsContent value="compliance" className="space-y-6">
                 <ComplianceMonitoring communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Resident Management Tab */}
               <TabsContent value="residents" className="space-y-6">
                 <ResidentManagement communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Staff Management Tab */}
               <TabsContent value="staff" className="space-y-6">
                 <StaffManagement communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Maintenance System Tab */}
               <TabsContent value="maintenance" className="space-y-6">
                 <MaintenanceSystem communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Marketing Analytics Tab */}
               <TabsContent value="marketing" className="space-y-6">
                 <MarketingAnalytics communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Family Portal Tab */}
               <TabsContent value="family" className="space-y-6">
                 <FamilyPortal communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Vendor Management Tab */}
               <TabsContent value="vendors" className="space-y-6">
                 <VendorManagement communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Quality Metrics Tab */}
               <TabsContent value="quality" className="space-y-6">
                 <QualityMetrics communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Emergency Response Tab */}
               <TabsContent value="emergency" className="space-y-6">
                 <EmergencyResponse communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Document Management Tab */}
               <TabsContent value="documents" className="space-y-6">
                 <DocumentManagement communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Business Intelligence Tab */}
               <TabsContent value="intelligence" className="space-y-6">
                 <BusinessIntelligence communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* External Integrations Tab */}
               <TabsContent value="integrations" className="space-y-6">
                 <ExternalIntegrations communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Audit Trail Tab */}
               <TabsContent value="audit" className="space-y-6">
                 <AuditTrail communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Custom Reporting Tab */}
               <TabsContent value="reports" className="space-y-6">
                 <CustomReporting communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Role-Based Access Control Tab */}
               <TabsContent value="rbac" className="space-y-6">
                 <RoleBasedAccess communityId={parseInt(id || '0')} />
               </TabsContent>
-
-              {/* Real-Time Notifications Tab */}
               <TabsContent value="notifications" className="space-y-6">
                 <RealTimeNotifications communityId={parseInt(id || '0')} />
               </TabsContent>
             </>
-          )}
+          )} */}
         </Tabs>
       </div>
     </div>

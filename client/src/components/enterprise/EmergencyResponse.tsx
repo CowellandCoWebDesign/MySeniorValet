@@ -13,7 +13,7 @@ import {
   AlertTriangle, Phone, Siren, Activity, Users, Clock, MapPin,
   Shield, AlertCircle, CheckCircle, XCircle, User, Calendar,
   FileText, BarChart3, TrendingUp, TrendingDown, PhoneCall,
-  MessageSquare, Bell, Zap, Heart, Ambulance, Fire, Stethoscope,
+  MessageSquare, Bell, Zap, Heart, Flame,
   Radio, Timer, ChevronRight, Download, Upload, Plus, Search,
   Filter, Eye, Send, RefreshCw, Settings, Info, Target
 } from 'lucide-react';
@@ -254,7 +254,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
         return <Heart className="w-5 h-5 text-red-500" />;
       case 'fire_alarm':
       case 'fire':
-        return <Fire className="w-5 h-5 text-orange-500" />;
+        return <Flame className="w-5 h-5 text-orange-500" />;
       case 'security':
         return <Shield className="w-5 h-5 text-blue-500" />;
       case 'facility':
@@ -439,7 +439,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
                     {/* Responders */}
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
-                        <Ambulance className="w-4 h-4 text-gray-500" />
+                        <Phone className="w-4 h-4 text-gray-500" />
                         <span className="text-sm font-medium">Responders:</span>
                         {incident.responders.map((responder, idx) => (
                           <Badge key={idx} variant="outline">{responder}</Badge>
