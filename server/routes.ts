@@ -815,5 +815,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const operationsRoutes = await import('./routes/operations-api');
   app.use('/api/operations', operationsRoutes.default);
 
+  // Register Phase 5b: Billing & Financial Management routes
+  const billingRoutes = await import('./routes/billing-api');
+  app.use('/api/billing', billingRoutes.default);
+
   return httpServer;
 }

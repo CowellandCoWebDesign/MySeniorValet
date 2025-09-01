@@ -79,6 +79,11 @@ const OperationsTab = lazy(() => import("@/components/phase5/Phase5Tabs").then(m
   default: module.OperationsTab
 })));
 
+// Lazy load Phase 5b Billing Component
+const BillingDashboard = lazy(() => import("@/components/phase5b/BillingDashboard").then(module => ({
+  default: module.BillingDashboard
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2765,6 +2770,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <DollarSign className="h-4 w-4 mr-2" />
               Financial
             </TabsTrigger>
+            <TabsTrigger value="billing">
+              <Receipt className="h-4 w-4 mr-2" />
+              Billing
+            </TabsTrigger>
             <TabsTrigger value="compliance">
               <Shield className="h-4 w-4 mr-2" />
               Compliance
@@ -3063,6 +3072,17 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </div>
             }>
               <FinancialAnalyticsTab />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="billing" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading billing dashboard...</span>
+              </div>
+            }>
+              <BillingDashboard communityId={1} />
             </Suspense>
           </TabsContent>
           

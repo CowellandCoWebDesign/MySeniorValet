@@ -5899,6 +5899,222 @@ export const alerts = pgTable('alerts', {
 export type Alert = typeof alerts.$inferSelect;
 export type InsertAlert = typeof alerts.$inferInsert;
 
+// ===================== PHASE 5B: BILLING & INVOICING TABLES =====================
+
+// Invoices table for billing management
+export const invoices = pgTable('invoices', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  userId: integer('user_id').references(() => users.id), // For user-based billing
+  
+  // Invoice Details
+  invoiceNumber: varchar('invoice_number', { length: 50 }).notNull().unique(),
+  status: varchar('status', { length: 20 }).notNull().default('draft'), // 'draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled'
+  type: varchar('type', { length: 30 }).notNull().default('monthly'), // 'monthly', 'one-time', 'deposit', 'adjustment'
+  
+  // Dates
+  issueDate: date('issue_date').notNull(),
+  dueDate: date('due_date').notNull(),
+  paidDate: date('paid_date'),
+  
+  // Financial Details
+  subtotal: numeric('subtotal', { precision: 12, scale: 2 }).notNull().default('0'),
+  taxAmount: numeric('tax_amount', { precision: 10, scale: 2 }).default('0'),
+  discountAmount: numeric('discount_amount', { precision: 10, scale: 2 }).default('0'),
+  totalAmount: numeric('total_amount', { precision: 12, scale: 2 }).notNull().default('0'),
+  paidAmount: numeric('paid_amount', { precision: 12, scale: 2 }).default('0'),
+  balanceDue: numeric('balance_due', { precision: 12, scale: 2 }).default('0'),
+  
+  // Billing Information
+  billingName: varchar('billing_name', { length: 255 }),
+  billingEmail: varchar('billing_email', { length: 255 }),
+  billingPhone: varchar('billing_phone', { length: 50 }),
+  billingAddress: jsonb('billing_address').$type<{
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    country?: string;
+  }>(),
+  
+  // Payment Information
+  paymentMethod: varchar('payment_method', { length: 50 }), // 'credit_card', 'ach', 'check', 'cash', 'wire'
+  paymentReference: varchar('payment_reference', { length: 255 }), // Transaction ID, check number, etc.
+  stripeInvoiceId: varchar('stripe_invoice_id', { length: 255 }),
+  
+  // Notes and Metadata
+  notes: text('notes'),
+  internalNotes: text('internal_notes'),
+  terms: text('terms'),
+  
+  // Automated Billing
+  recurringScheduleId: integer('recurring_schedule_id'),
+  
+  // Timestamps
+  sentAt: timestamp('sent_at'),
+  reminderSentAt: timestamp('reminder_sent_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('invoices_community_id_idx').on(table.communityId),
+  index('invoices_user_id_idx').on(table.userId),
+  index('invoices_status_idx').on(table.status),
+  index('invoices_due_date_idx').on(table.dueDate),
+  index('invoices_invoice_number_idx').on(table.invoiceNumber)
+]);
+
+export const insertInvoiceSchema = createInsertSchema(invoices)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertInvoice = z.infer<typeof insertInvoiceSchema>;
+export type Invoice = typeof invoices.$inferSelect;
+
+// Invoice Items table for line items
+export const invoiceItems = pgTable('invoice_items', {
+  id: serial('id').primaryKey(),
+  invoiceId: integer('invoice_id').notNull().references(() => invoices.id, { onDelete: 'cascade' }),
+  
+  // Item Details
+  itemType: varchar('item_type', { length: 50 }).notNull(), // 'room_rent', 'care_services', 'meals', 'medication', 'supplies', 'other'
+  description: text('description').notNull(),
+  
+  // Pricing
+  quantity: numeric('quantity', { precision: 10, scale: 2 }).notNull().default('1'),
+  unitPrice: numeric('unit_price', { precision: 10, scale: 2 }).notNull(),
+  amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+  
+  // Tax and Discounts
+  taxRate: numeric('tax_rate', { precision: 5, scale: 2 }).default('0'),
+  taxAmount: numeric('tax_amount', { precision: 10, scale: 2 }).default('0'),
+  discountPercent: numeric('discount_percent', { precision: 5, scale: 2 }).default('0'),
+  discountAmount: numeric('discount_amount', { precision: 10, scale: 2 }).default('0'),
+  
+  // Service Period
+  serviceStartDate: date('service_start_date'),
+  serviceEndDate: date('service_end_date'),
+  
+  // Metadata
+  metadata: jsonb('metadata').$type<Record<string, any>>().default({}),
+  
+  createdAt: timestamp('created_at').defaultNow()
+}, (table) => [
+  index('invoice_items_invoice_id_idx').on(table.invoiceId),
+  index('invoice_items_item_type_idx').on(table.itemType)
+]);
+
+export const insertInvoiceItemSchema = createInsertSchema(invoiceItems)
+  .omit({ id: true, createdAt: true });
+export type InsertInvoiceItem = z.infer<typeof insertInvoiceItemSchema>;
+export type InvoiceItem = typeof invoiceItems.$inferSelect;
+
+// Billing Schedules for automated recurring billing
+export const billingSchedules = pgTable('billing_schedules', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  userId: integer('user_id').references(() => users.id), // For user-based billing
+  
+  // Schedule Details
+  name: varchar('name', { length: 255 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // 'active', 'paused', 'cancelled', 'completed'
+  frequency: varchar('frequency', { length: 20 }).notNull(), // 'monthly', 'quarterly', 'semi-annual', 'annual'
+  
+  // Billing Details
+  billingDay: integer('billing_day'), // Day of month (1-31)
+  nextBillingDate: date('next_billing_date').notNull(),
+  lastBillingDate: date('last_billing_date'),
+  
+  // Amounts
+  baseAmount: numeric('base_amount', { precision: 10, scale: 2 }).notNull(),
+  
+  // Schedule Period
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date'),
+  
+  // Items Template (what to include in each invoice)
+  itemsTemplate: jsonb('items_template').$type<Array<{
+    itemType: string;
+    description: string;
+    amount: number;
+    quantity?: number;
+  }>>().default([]),
+  
+  // Auto-send Settings
+  autoSend: boolean('auto_send').default(true),
+  sendDaysBefore: integer('send_days_before').default(5), // Send invoice X days before due
+  
+  // Payment Settings
+  autoCharge: boolean('auto_charge').default(false),
+  paymentMethodId: varchar('payment_method_id', { length: 255 }), // Stripe payment method
+  
+  // Metadata
+  notes: text('notes'),
+  metadata: jsonb('metadata').$type<Record<string, any>>().default({}),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('billing_schedules_community_id_idx').on(table.communityId),
+  index('billing_schedules_user_id_idx').on(table.userId),
+  index('billing_schedules_status_idx').on(table.status),
+  index('billing_schedules_next_billing_date_idx').on(table.nextBillingDate)
+]);
+
+export const insertBillingScheduleSchema = createInsertSchema(billingSchedules)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertBillingSchedule = z.infer<typeof insertBillingScheduleSchema>;
+export type BillingSchedule = typeof billingSchedules.$inferSelect;
+
+// Accounts Receivable for tracking outstanding balances
+export const accountsReceivable = pgTable('accounts_receivable', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  userId: integer('user_id').references(() => users.id), // For user-based billing
+  
+  // Account Details
+  accountNumber: varchar('account_number', { length: 50 }).notNull().unique(),
+  status: varchar('status', { length: 20 }).notNull().default('current'), // 'current', '30_days', '60_days', '90_days', '120_plus', 'collections'
+  
+  // Balances
+  currentBalance: numeric('current_balance', { precision: 12, scale: 2 }).notNull().default('0'),
+  pastDue30: numeric('past_due_30', { precision: 12, scale: 2 }).default('0'),
+  pastDue60: numeric('past_due_60', { precision: 12, scale: 2 }).default('0'),
+  pastDue90: numeric('past_due_90', { precision: 12, scale: 2 }).default('0'),
+  pastDue120Plus: numeric('past_due_120_plus', { precision: 12, scale: 2 }).default('0'),
+  totalOutstanding: numeric('total_outstanding', { precision: 12, scale: 2 }).notNull().default('0'),
+  
+  // Credit Information
+  creditLimit: numeric('credit_limit', { precision: 12, scale: 2 }),
+  availableCredit: numeric('available_credit', { precision: 12, scale: 2 }),
+  
+  // Last Activity
+  lastPaymentDate: date('last_payment_date'),
+  lastPaymentAmount: numeric('last_payment_amount', { precision: 10, scale: 2 }),
+  lastInvoiceDate: date('last_invoice_date'),
+  
+  // Collections
+  inCollections: boolean('in_collections').default(false),
+  collectionAgency: varchar('collection_agency', { length: 255 }),
+  collectionStartDate: date('collection_start_date'),
+  
+  // Notes
+  notes: text('notes'),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('accounts_receivable_community_id_idx').on(table.communityId),
+  index('accounts_receivable_user_id_idx').on(table.userId),
+  index('accounts_receivable_status_idx').on(table.status),
+  index('accounts_receivable_account_number_idx').on(table.accountNumber)
+]);
+
+export const insertAccountsReceivableSchema = createInsertSchema(accountsReceivable)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAccountsReceivable = z.infer<typeof insertAccountsReceivableSchema>;
+export type AccountsReceivable = typeof accountsReceivable.$inferSelect;
+
 // Community Features - Feature flag management for subscription tiers
 export const communityFeatures = pgTable('community_features', {
   id: serial('id').primaryKey(),
