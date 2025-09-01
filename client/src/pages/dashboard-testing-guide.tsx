@@ -7,7 +7,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { 
-  Shield, AlertTriangle, Users, DollarSign, Calendar, Heart, Tool,
+  Shield, AlertTriangle, Users, DollarSign, Calendar, Heart, Wrench,
   TrendingUp, MessageSquare, FileText, UserCheck, BarChart3, Link,
   CheckCircle, XCircle, Clock, Play, ChevronRight, TestTube,
   Activity, Zap, Bell, Database, Settings, Monitor
@@ -164,7 +164,7 @@ export function DashboardTestingGuide() {
       id: 'maintenance',
       category: 'Facilities',
       title: 'Maintenance Request Test',
-      icon: <Tool className="w-5 h-5 text-orange-500" />,
+      icon: <Wrench className="w-5 h-5 text-orange-500" />,
       priority: 'high',
       duration: '6 minutes',
       description: 'Handle HVAC failure and coordinate vendor response',

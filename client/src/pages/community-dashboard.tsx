@@ -43,8 +43,7 @@ import {
   ChevronDown,
   AlertCircle,
   CheckCircle,
-  Building,
-  TestTube
+  Building
 } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -83,10 +82,6 @@ export default function CommunityDashboard() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
   const [showEnterpriseFeatures, setShowEnterpriseFeatures] = useState(false);
-  
-  // Check if community has enterprise access (featured or platinum tier)
-  const hasEnterpriseAccess = community?.subscriptionTier && 
-    ['featured', 'platinum'].includes(community.subscriptionTier);
   const [selectedDateRange, setSelectedDateRange] = useState("30");
   const [isEditing, setIsEditing] = useState(false);
   
@@ -108,6 +103,10 @@ export default function CommunityDashboard() {
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && !!user,
   });
+
+  // Check if community has enterprise access (featured or platinum tier)
+  const hasEnterpriseAccess = community?.subscriptionTier && 
+    ['featured', 'platinum'].includes(community.subscriptionTier);
 
   // Update form when community data loads
   useEffect(() => {
@@ -288,14 +287,6 @@ export default function CommunityDashboard() {
               </p>
             </div>
             <div className="flex items-center space-x-3">
-              <Button
-                onClick={() => setLocation('/dashboard-testing')}
-                variant="outline"
-                className="flex items-center gap-2 border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
-              >
-                <TestTube className="w-4 h-4" />
-                Test Dashboard
-              </Button>
               <Button
                 onClick={handleViewPublicProfile}
                 variant="outline"
@@ -1212,7 +1203,7 @@ export default function CommunityDashboard() {
               <EnterpriseMarketAnalysis 
                 communityId={parseInt(id || '0')} 
                 communityName={community?.name || ''} 
-                currentLocation={{ lat: community?.latitude || 0, lng: community?.longitude || 0 }}
+                currentLocation={`${community?.latitude || 0},${community?.longitude || 0}`}
               />
             </TabsContent>
           )}
