@@ -10,83 +10,103 @@ import { apiRequest } from '@/lib/queryClient';
 import { NavigationHeader } from '@/components/NavigationHeader';
 
 const SUBSCRIPTION_TIERS = {
-  verified: {
-    key: 'verified',
-    displayName: 'Verified Listing',
-    price: 0,
+  starter: {
+    key: 'starter',
+    displayName: 'Community Starter',
+    price: 99,
     color: 'bg-gray-100 text-gray-800',
     icon: CheckCircle2,
     features: [
-      'Claim your listing for free',
-      'Edit contact info (phone, website, email, address)',
-      'Upload 1 photo',
-      'Tour Scheduler enabled if email is present',
-      'Appears in basic search results'
+      'Basic listing with verified badge',
+      '5 photos + description',
+      '10 leads/month with contact info',
+      'Basic analytics dashboard',
+      'Standard search ranking',
+      'Basic messaging with families'
     ],
     limitations: [
-      'Cannot respond to reviews',
-      'No PDF uploads',
-      'No analytics',
-      'No visibility boost'
+      'No 3D tour embed',
+      'No reservation system',
+      'Limited CRM integration'
     ],
-    note: ''
+    note: 'Perfect for testing the platform'
   },
-  standard: {
-    key: 'standard',
-    displayName: 'Standard',
-    price: 149,
+  growth: {
+    key: 'growth',
+    displayName: 'Community Growth',
+    price: 299,
     color: 'bg-blue-100 text-blue-800',
     icon: Star,
     features: [
-      'All Verified features, plus:',
-      'Upload up to 10 photos',
-      'Upload 1 brochure PDF',
-      'Add external calendar link',
-      'Access basic analytics',
-      'Can respond to reviews',
-      '"Standard Verified" badge'
+      'All Starter features, plus:',
+      '3D tour embed capability',
+      '25 photos + videos',
+      '50 leads/month with scoring',
+      'Unit reservation system',
+      'Enhanced search (3x visibility)',
+      'CRM integration (Yardi, Aline)',
+      'Tour scheduler integration'
     ],
     limitations: [],
-    note: ''
+    note: 'Most popular choice for active communities'
   },
-  featured: {
-    key: 'featured',
-    displayName: 'Featured',
-    price: 249,
+  professional: {
+    key: 'professional',
+    displayName: 'Community Professional',
+    price: 999,
     color: 'bg-purple-100 text-purple-800',
     icon: Shield,
     features: [
-      'All Standard features, plus:',
-      'Upload up to 25 photos',
-      '1 video (max 2 mins)',
-      'Upload up to 3 PDFs',
-      'Featured placement in search & maps',
-      'In-app messaging + AI assist',
-      'Promo badge support',
-      'Concierge "Preferred" tag'
+      'All Growth features, plus:',
+      'AI lease management system',
+      'Multiple 3D tour embeds',
+      'Unlimited leads with AI scoring',
+      'Featured search (5x visibility)',
+      'Insurance tracking & compliance',
+      'Advanced reservation management',
+      'DocuSign integration for leases'
     ],
     limitations: [],
-    note: ''
+    note: 'Includes AI-powered lease automation'
   },
-  platinum: {
-    key: 'platinum',
-    displayName: 'Platinum',
-    price: 349,
+  premium: {
+    key: 'premium',
+    displayName: 'Community Premium',
+    price: 1999,
     color: 'bg-yellow-100 text-yellow-800',
     icon: Crown,
     features: [
-      'All Featured features, plus:',
-      'Upload up to 50 photos',
-      'Up to 3 videos (5 mins each)',
-      'Unlimited PDFs',
-      'Staff bios, care philosophy, menus',
-      'Availability sync (form, spreadsheet, or API)',
-      'Admin dashboard (multi-property view if licensed)',
-      'Top Concierge Priority',
-      'Monthly performance review call'
+      'All Professional features, plus:',
+      'Payment processing (2.9% + $0.30)',
+      'Move-in cost calculator',
+      'Accept deposits & monthly rent',
+      'Unlimited 3D embeds',
+      'Platinum search (10x visibility)',
+      'Multi-property dashboard',
+      'Revenue optimization AI',
+      'Priority support'
     ],
     limitations: [],
-    note: 'Portfolio operators must subscribe per community'
+    note: 'Complete payment processing included'
+  },
+  enterprise: {
+    key: 'enterprise',
+    displayName: 'Community Enterprise',
+    price: 3999,
+    color: 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800',
+    icon: Sparkles,
+    features: [
+      'Everything in Premium, plus:',
+      'White-label platform',
+      'API access (100k calls/month)',
+      'Custom integrations',
+      'Dedicated success manager',
+      'Quarterly business reviews',
+      'On-site training',
+      'Custom reporting'
+    ],
+    limitations: [],
+    note: 'Fortune 500-level infrastructure'
   }
 };
 
@@ -94,7 +114,7 @@ export default function CommunitySubscriptionCheckout() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   const communityId = searchParams.get('communityId');
-  const selectedTier = searchParams.get('tier') || 'standard';
+  const selectedTier = searchParams.get('tier') || 'starter';
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Fetch community details

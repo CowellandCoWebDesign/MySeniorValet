@@ -97,7 +97,7 @@ export default function PricingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                        <span>Neural network semantic understanding</span>
+                        <span>Family Collaboration Center with all features</span>
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -109,7 +109,7 @@ export default function PricingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                        <span>Trilingual support (English, French, Spanish)</span>
+                        <span>Submit unit reservation requests</span>
                       </li>
                     </ul>
                   </div>
@@ -134,7 +134,7 @@ export default function PricingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                        <span>Map visualization & filters</span>
+                        <span>Trilingual support (English, French, Spanish)</span>
                       </li>
                     </ul>
                   </div>
@@ -268,11 +268,11 @@ export default function PricingPage() {
 
           {/* Community Tiers */}
           <TabsContent value="community">
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Essential */}
+            <div className="grid md:grid-cols-4 gap-6">
+              {/* Starter */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Community Essential</CardTitle>
+                  <CardTitle>Community Starter</CardTitle>
                   <CardDescription>
                     <span className="text-3xl font-bold">$99</span>/month
                   </CardDescription>
@@ -281,19 +281,19 @@ export default function PricingPage() {
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Enhanced listing</span>
+                      <span>Basic listing with verified badge</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>10 photo gallery</span>
+                      <span>5 photos + description</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Pricing & availability display</span>
+                      <span>10 leads/month</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>View analytics</span>
+                      <span>Basic analytics</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
@@ -303,13 +303,13 @@ export default function PricingPage() {
                 </CardContent>
               </Card>
 
-              {/* Premium */}
-              <Card className="border-2 border-purple-500 relative">
+              {/* Growth */}
+              <Card className="border-2 border-blue-500 relative">
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-purple-500 text-white">INCLUDES 3D TOUR</Badge>
+                  <Badge className="bg-blue-500 text-white">3D TOUR EMBED</Badge>
                 </div>
                 <CardHeader>
-                  <CardTitle>Community Premium</CardTitle>
+                  <CardTitle>Community Growth</CardTitle>
                   <CardDescription>
                     <span className="text-3xl font-bold">$299</span>/month
                   </CardDescription>
@@ -317,68 +317,158 @@ export default function PricingPage() {
                 <CardContent>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <Sparkles className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="font-semibold">1 Matterport 3D tour included</span>
+                      <Sparkles className="w-5 h-5 text-blue-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="font-semibold">3D tour embed capability</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Unlimited photos & videos</span>
+                      <span>25 photos</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Featured search ranking</span>
+                      <span>50 leads/month</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Tour scheduler & messaging</span>
+                      <span>Unit reservation system</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>CRM integration (Aline, Yardi)</span>
+                      <span>Enhanced search (3x visibility)</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Advanced analytics & insights</span>
+                      <span>CRM integration</span>
                     </li>
                   </ul>
                 </CardContent>
               </Card>
 
-              {/* Enterprise */}
-              <Card>
+              {/* Professional */}
+              <Card className="border-2 border-purple-500 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-purple-500 text-white">AI LEASE SYSTEM</Badge>
+                </div>
                 <CardHeader>
-                  <CardTitle>Community Enterprise</CardTitle>
+                  <CardTitle>Community Professional</CardTitle>
                   <CardDescription>
-                    <span className="text-3xl font-bold">$599</span>/month
+                    <span className="text-3xl font-bold">$999</span>/month
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
                     <li className="flex items-start">
                       <Sparkles className="w-5 h-5 text-purple-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="font-semibold">5 Matterport 3D tours included</span>
+                      <span className="font-semibold">AI lease management</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Platinum search ranking</span>
+                      <span>Multiple 3D tour embeds</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>All 6 RMS integrations</span>
+                      <span>Unlimited leads</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Revenue optimization AI</span>
+                      <span>Featured search (5x visibility)</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Multi-property management</span>
+                      <span>Insurance tracking</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                      <span>Dedicated success manager</span>
+                      <span>Advanced reservation management</span>
                     </li>
                   </ul>
+                </CardContent>
+              </Card>
+
+              {/* Premium */}
+              <Card className="border-2 border-yellow-500 relative">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <Badge className="bg-yellow-500 text-black">PAYMENT PROCESSING</Badge>
+                </div>
+                <CardHeader>
+                  <CardTitle>Community Premium</CardTitle>
+                  <CardDescription>
+                    <span className="text-3xl font-bold">$1,999</span>/month
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2">
+                    <li className="flex items-start">
+                      <Sparkles className="w-5 h-5 text-yellow-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span className="font-semibold">Payment processing (2.9% + $0.30)</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span>Move-in cost calculator</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span>Accept deposits & rent</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span>Unlimited 3D embeds</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span>Platinum search (10x visibility)</span>
+                    </li>
+                    <li className="flex items-start">
+                      <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                      <span>Multi-property dashboard</span>
+                    </li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Enterprise Tier - Full Width */}
+            <div className="mt-6">
+              <Card className="border-2 border-gradient-to-r from-purple-500 to-blue-500">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl">Community Enterprise</CardTitle>
+                  <CardDescription>
+                    <span className="text-4xl font-bold">$3,999</span>/month
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>Everything in Premium</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>White-label platform</span>
+                      </li>
+                    </ul>
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>API access (100k calls/month)</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>Custom integrations</span>
+                      </li>
+                    </ul>
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>Dedicated success manager</span>
+                      </li>
+                      <li className="flex items-start">
+                        <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
+                        <span>Quarterly business reviews</span>
+                      </li>
+                    </ul>
+                  </div>
                 </CardContent>
               </Card>
             </div>

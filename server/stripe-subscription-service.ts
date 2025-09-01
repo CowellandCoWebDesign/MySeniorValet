@@ -6,7 +6,7 @@ import { eq, and } from 'drizzle-orm';
 
 const stripe = process.env.STRIPE_SECRET_KEY 
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: '2025-07-30.basil'
+      apiVersion: '2025-08-27.basil'
     })
   : null;
 
@@ -23,66 +23,82 @@ export interface SubscriptionProduct {
 // MySeniorValet subscription products (synced with Stripe)
 export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
   {
-    id: 'basic-listing',
-    name: 'Basic Listing',
-    description: 'Verified listing with basic visibility and search access. No tools.',
-    price: 0,
-    interval: null,
-    type: 'product',
-    features: [
-      'Basic listing visibility',
-      'Search access',
-      'Verified status',
-      'Contact information display'
-    ]
-  },
-  {
-    id: 'featured-spotlight',
-    name: 'Featured Spotlight',
-    description: 'Profile editing, featured placement, Red Tag specials, photo/form tools.',
-    price: 14900, // $149.00/month
+    id: 'community-starter',
+    name: 'Community Starter',
+    description: 'Basic listing with verified badge and lead generation.',
+    price: 9900, // $99.00/month
     interval: 'month',
     type: 'product',
     features: [
-      'Profile editing tools',
-      'Featured placement',
-      'Red Tag specials',
-      'Photo upload tools',
-      'Custom forms',
-      'Enhanced visibility'
+      'Basic listing with verified badge',
+      '5 photos + description',
+      '10 leads/month',
+      'Basic analytics',
+      'Standard search ranking'
     ]
   },
   {
-    id: 'premium-tools',
-    name: 'Premium Tools + Exposure',
-    description: 'Branded intake, availability tools, tour scheduler, reservability (Coming Soon).',
-    price: 24900, // $249.00/month
+    id: 'community-growth',
+    name: 'Community Growth',
+    description: '3D tour embed, unit reservations, and enhanced visibility.',
+    price: 29900, // $299.00/month
     interval: 'month',
     type: 'product',
     features: [
-      'All Featured Spotlight features',
-      'Branded intake forms',
-      'Availability management',
-      'Tour scheduler',
-      'Reservability system (Coming Soon)',
-      'Premium support'
+      '3D tour embed capability',
+      '25 photos',
+      '50 leads/month',
+      'Unit reservation system',
+      'Enhanced search (3x visibility)',
+      'CRM integration'
     ]
   },
   {
-    id: 'platinum-partner',
-    name: 'Platinum Marketing Partner',
-    description: 'Full suite + homepage, concierge, sponsored content, AI access.',
-    price: 39900, // $399.00/month
+    id: 'community-professional',
+    name: 'Community Professional',
+    description: 'AI lease management and advanced features.',
+    price: 99900, // $999.00/month
     interval: 'month',
     type: 'product',
     features: [
-      'All Premium Tools features',
-      'Homepage placement',
-      'Concierge service access',
-      'Sponsored content',
-      'AI-powered features',
-      'Priority support',
-      'Custom branding'
+      'AI lease management system',
+      'Multiple 3D tour embeds',
+      'Unlimited leads',
+      'Featured search (5x visibility)',
+      'Insurance tracking',
+      'Advanced reservation management'
+    ]
+  },
+  {
+    id: 'community-premium',
+    name: 'Community Premium',
+    description: 'Payment processing and multi-property management.',
+    price: 199900, // $1,999.00/month
+    interval: 'month',
+    type: 'product',
+    features: [
+      'Payment processing (2.9% + $0.30)',
+      'Move-in cost calculator',
+      'Accept deposits & rent',
+      'Unlimited 3D embeds',
+      'Platinum search (10x visibility)',
+      'Multi-property dashboard'
+    ]
+  },
+  {
+    id: 'community-enterprise',
+    name: 'Community Enterprise',
+    description: 'White-label platform with API access and dedicated support.',
+    price: 399900, // $3,999.00/month
+    interval: 'month',
+    type: 'product',
+    features: [
+      'Everything in Premium',
+      'White-label platform',
+      'API access (100k calls/month)',
+      'Custom integrations',
+      'Dedicated success manager',
+      'Quarterly business reviews'
     ]
   }
 ];

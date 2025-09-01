@@ -103,14 +103,60 @@ export default function CommunityCustomerDashboard() {
     );
   }
 
-  const subscriptionTier = communityData?.subscriptionTier || 'free';
+  const subscriptionTier = communityData?.subscriptionTier || 'starter';
   const tierColors = {
-    free: 'bg-gray-600',
-    verified: 'bg-blue-600',
-    standard: 'bg-purple-600',
-    featured: 'bg-orange-600',
-    platinum: 'bg-gradient-to-r from-purple-600 to-pink-600'
+    starter: 'bg-gray-600',
+    growth: 'bg-blue-600',
+    professional: 'bg-purple-600',
+    premium: 'bg-yellow-600',
+    enterprise: 'bg-gradient-to-r from-purple-600 to-blue-600'
   };
+
+  // Check feature availability based on tier
+  const tierFeatures = {
+    starter: {
+      maxPhotos: 5,
+      maxLeads: 10,
+      hasReservations: false,
+      has3DTour: false,
+      hasLeaseAI: false,
+      hasPayments: false
+    },
+    growth: {
+      maxPhotos: 25,
+      maxLeads: 50,
+      hasReservations: true,
+      has3DTour: true,
+      hasLeaseAI: false,
+      hasPayments: false
+    },
+    professional: {
+      maxPhotos: 999,
+      maxLeads: 999,
+      hasReservations: true,
+      has3DTour: true,
+      hasLeaseAI: true,
+      hasPayments: false
+    },
+    premium: {
+      maxPhotos: 999,
+      maxLeads: 999,
+      hasReservations: true,
+      has3DTour: true,
+      hasLeaseAI: true,
+      hasPayments: true
+    },
+    enterprise: {
+      maxPhotos: 999,
+      maxLeads: 999,
+      hasReservations: true,
+      has3DTour: true,
+      hasLeaseAI: true,
+      hasPayments: true
+    }
+  };
+
+  const currentTierFeatures = tierFeatures[subscriptionTier] || tierFeatures.starter;
 
   return (
     <div className="min-h-screen bg-background">
@@ -346,96 +392,124 @@ export default function CommunityCustomerDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Award className="w-5 h-5" />
-                  Your {subscriptionTier === 'platinum' ? 'Platinum' : subscriptionTier === 'featured' ? 'Featured' : subscriptionTier === 'standard' ? 'Standard' : 'Verified'} Tier Benefits
+                  Your {subscriptionTier.charAt(0).toUpperCase() + subscriptionTier.slice(1)} Tier Benefits
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {subscriptionTier === 'platinum' && (
+                  {subscriptionTier === 'enterprise' && (
                     <>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Priority placement in all searches</span>
+                        <span className="text-sm">White-label platform</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Advanced AI marketing tools</span>
+                        <span className="text-sm">API access (100k calls/month)</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Dedicated account manager</span>
+                        <span className="text-sm">Dedicated success manager</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Unlimited lead management</span>
+                        <span className="text-sm">Custom integrations</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Custom reporting & analytics</span>
+                        <span className="text-sm">Quarterly business reviews</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">White-glove onboarding</span>
+                        <span className="text-sm">On-site training</span>
                       </div>
                     </>
                   )}
-                  {subscriptionTier === 'featured' && (
+                  {subscriptionTier === 'premium' && (
                     <>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Featured badge & top placement</span>
+                        <span className="text-sm">Payment processing (2.9% + $0.30)</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Enhanced marketing tools</span>
+                        <span className="text-sm">Accept deposits & rent</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Priority support</span>
+                        <span className="text-sm">Unlimited 3D embeds</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Advanced analytics</span>
+                        <span className="text-sm">Platinum search (10x visibility)</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">100 leads per month</span>
+                        <span className="text-sm">Multi-property dashboard</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Monthly performance reviews</span>
+                        <span className="text-sm">Revenue optimization AI</span>
                       </div>
                     </>
                   )}
-                  {subscriptionTier === 'standard' && (
+                  {subscriptionTier === 'professional' && (
                     <>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Standard listing placement</span>
+                        <span className="text-sm">AI lease management</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Basic marketing tools</span>
+                        <span className="text-sm">DocuSign integration</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Email support</span>
+                        <span className="text-sm">Multiple 3D tour embeds</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Basic analytics</span>
+                        <span className="text-sm">Unlimited leads</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">50 leads per month</span>
+                        <span className="text-sm">Featured search (5x visibility)</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Quarterly reviews</span>
+                        <span className="text-sm">Insurance tracking</span>
                       </div>
                     </>
                   )}
-                  {subscriptionTier === 'verified' && (
+                  {subscriptionTier === 'growth' && (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">3D tour embed</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">Unit reservation system</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">50 leads/month</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">Enhanced search (3x visibility)</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">CRM integration</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">25 photos</span>
+                      </div>
+                    </>
+                  )}
+                  {subscriptionTier === 'starter' && (
                     <>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
@@ -443,11 +517,23 @@ export default function CommunityCustomerDashboard() {
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">Basic listing</span>
+                        <span className="text-sm">5 photos</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="w-4 h-4 text-green-600" />
-                        <span className="text-sm">25 leads per month</span>
+                        <span className="text-sm">10 leads/month</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">Basic analytics</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        <span className="text-sm">Standard search ranking</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-yellow-600" />
+                        <span className="text-sm">Upgrade for 3D tours & reservations</span>
                       </div>
                     </>
                   )}
