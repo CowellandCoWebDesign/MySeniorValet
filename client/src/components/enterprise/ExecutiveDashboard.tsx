@@ -158,13 +158,17 @@ export const ExecutiveDashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Executive Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg">
         <div>
-          <h2 className="text-3xl font-bold">Executive Dashboard</h2>
-          <p className="text-muted-foreground">Fortune 500-level strategic intelligence</p>
+          <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Executive Dashboard
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Fortune 500-level strategic intelligence • Real-time monitoring
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => window.print()}>
+          <Button variant="outline" size="sm" onClick={() => window.print()}>
             <FileText className="h-4 w-4 mr-2" />
             Export Report
           </Button>
@@ -172,21 +176,23 @@ export const ExecutiveDashboard: React.FC = () => {
       </div>
 
       {/* Critical KPIs Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {kpis?.slice(0, 8).map((kpi, index) => (
           <Card key={index} className={cn(
-            "relative overflow-hidden",
-            kpi.priority === 'critical' && "border-red-500 dark:border-red-700"
+            "relative overflow-hidden transition-all hover:shadow-lg",
+            kpi.priority === 'critical' && "border-red-500 dark:border-red-700 shadow-red-100 dark:shadow-red-900/20"
           )}>
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
-                  {getCategoryIcon(kpi.category)}
-                  <CardTitle className="text-sm font-medium">
+            <CardHeader className="pb-3">
+              <div className="flex justify-between items-start gap-2">
+                <div className="flex items-start gap-2 flex-1">
+                  <div className="mt-0.5">
+                    {getCategoryIcon(kpi.category)}
+                  </div>
+                  <CardTitle className="text-sm font-medium line-clamp-2">
                     {kpi.metric}
                   </CardTitle>
                 </div>
-                <Badge className={cn("text-xs", getPriorityColor(kpi.priority))}>
+                <Badge className={cn("text-xs shrink-0", getPriorityColor(kpi.priority))}>
                   {kpi.priority}
                 </Badge>
               </div>
@@ -219,35 +225,52 @@ export const ExecutiveDashboard: React.FC = () => {
 
       {/* Strategic Intelligence Tabs */}
       <Tabs defaultValue="market" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="market">Market Intelligence</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue Analytics</TabsTrigger>
-          <TabsTrigger value="strategic">Strategic Metrics</TabsTrigger>
-          <TabsTrigger value="competitive">Competitive Analysis</TabsTrigger>
-          <TabsTrigger value="risk">Risk Assessment</TabsTrigger>
+        <TabsList className="grid grid-cols-5 w-full bg-muted/50">
+          <TabsTrigger value="market" className="data-[state=active]:bg-background">
+            <span className="hidden sm:inline">Market Intel</span>
+            <span className="sm:hidden">Market</span>
+          </TabsTrigger>
+          <TabsTrigger value="revenue" className="data-[state=active]:bg-background">
+            Revenue
+          </TabsTrigger>
+          <TabsTrigger value="strategic" className="data-[state=active]:bg-background">
+            Strategic
+          </TabsTrigger>
+          <TabsTrigger value="competitive" className="data-[state=active]:bg-background">
+            <span className="hidden sm:inline">Competitive</span>
+            <span className="sm:hidden">Compete</span>
+          </TabsTrigger>
+          <TabsTrigger value="risk" className="data-[state=active]:bg-background">
+            Risk
+          </TabsTrigger>
         </TabsList>
 
         {/* Market Intelligence Tab */}
-        <TabsContent value="market" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Markets by Opportunity</CardTitle>
-              <CardDescription>Geographic expansion insights</CardDescription>
+        <TabsContent value="market" className="space-y-4 mt-4">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+              <CardTitle className="flex items-center gap-2">
+                <Globe className="h-5 w-5" />
+                Top Markets by Opportunity
+              </CardTitle>
+              <CardDescription>Geographic expansion insights with real-time data</CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
+            <CardContent className="p-6">
+              <div className="space-y-3">
                 {marketIntel?.slice(0, 5).map((market, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <MapPin className="h-5 w-5 text-muted-foreground" />
+                  <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors">
+                    <div className="flex items-center gap-4 mb-3 sm:mb-0">
+                      <div className="p-2 bg-primary/10 rounded-lg">
+                        <MapPin className="h-5 w-5 text-primary" />
+                      </div>
                       <div>
-                        <p className="font-semibold">{market.region}</p>
+                        <p className="font-semibold text-base">{market.region}</p>
                         <p className="text-sm text-muted-foreground">
                           {market.communities.toLocaleString()} communities
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6 text-sm">
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm">
                       <div>
                         <p className="text-muted-foreground">Avg Price</p>
                         <p className="font-semibold">{formatCurrency(market.averagePrice)}</p>
@@ -276,11 +299,14 @@ export const ExecutiveDashboard: React.FC = () => {
         </TabsContent>
 
         {/* Revenue Analytics Tab */}
-        <TabsContent value="revenue" className="space-y-4">
+        <TabsContent value="revenue" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Revenue</CardTitle>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5 text-green-600" />
+                  Monthly Revenue
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -296,9 +322,12 @@ export const ExecutiveDashboard: React.FC = () => {
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Quarterly Revenue</CardTitle>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5 text-blue-600" />
+                  Quarterly Revenue
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -314,9 +343,12 @@ export const ExecutiveDashboard: React.FC = () => {
               </CardContent>
             </Card>
             
-            <Card>
-              <CardHeader>
-                <CardTitle>Annual Run Rate</CardTitle>
+            <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-purple-600" />
+                  Annual Run Rate
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
@@ -335,12 +367,15 @@ export const ExecutiveDashboard: React.FC = () => {
         </TabsContent>
 
         {/* Strategic Metrics Tab */}
-        <TabsContent value="strategic" className="space-y-4">
+        <TabsContent value="strategic" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {strategicMetrics?.map((category: any, index: number) => (
-              <Card key={index}>
-                <CardHeader>
-                  <CardTitle>{category.category}</CardTitle>
+              <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20">
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-orange-600" />
+                    {category.category}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {category.metrics.map((metric: any, idx: number) => (
@@ -369,15 +404,18 @@ export const ExecutiveDashboard: React.FC = () => {
         </TabsContent>
 
         {/* Competitive Analysis Tab */}
-        <TabsContent value="competitive" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Market Position</CardTitle>
-              <CardDescription>Competitive landscape analysis</CardDescription>
+        <TabsContent value="competitive" className="space-y-4 mt-4">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+              <CardTitle className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-indigo-600" />
+                Market Position
+              </CardTitle>
+              <CardDescription>Competitive landscape analysis with real market data</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-primary/10 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
                   <div>
                     <p className="font-semibold">Market Leadership Position</p>
                     <p className="text-sm text-muted-foreground">
@@ -407,13 +445,16 @@ export const ExecutiveDashboard: React.FC = () => {
         </TabsContent>
 
         {/* Risk Assessment Tab */}
-        <TabsContent value="risk" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Enterprise Risk Dashboard</CardTitle>
-              <CardDescription>
-                Overall Risk Score: {riskMetrics?.overall_risk_score}/10 
-                <Badge className="ml-2" variant={riskMetrics?.trend === 'Decreasing' ? 'default' : 'destructive'}>
+        <TabsContent value="risk" className="space-y-4 mt-4">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-red-50 to-rose-50 dark:from-red-950/20 dark:to-rose-950/20">
+              <CardTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+                Enterprise Risk Dashboard
+              </CardTitle>
+              <CardDescription className="flex items-center gap-2">
+                <span>Overall Risk Score: {riskMetrics?.overall_risk_score}/10</span>
+                <Badge variant={riskMetrics?.trend === 'Decreasing' ? 'default' : 'destructive'}>
                   {riskMetrics?.trend}
                 </Badge>
               </CardDescription>
@@ -427,7 +468,7 @@ export const ExecutiveDashboard: React.FC = () => {
                     </h4>
                     <div className="space-y-2">
                       {riskMetrics?.[riskType]?.map((risk: any, idx: number) => (
-                        <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors">
                           <div className="flex items-center gap-2">
                             <Shield className={cn(
                               "h-4 w-4",

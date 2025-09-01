@@ -2,7 +2,8 @@ import { db } from '../db';
 import { 
   enterpriseMetrics, 
   analyticsEvents,
-  communities
+  communities,
+  alerts
 } from '@shared/schema';
 
 interface EnterpriseAlert {
@@ -408,12 +409,23 @@ export class EnterpriseAlertService extends EventEmitter {
 
   private async createAlert(alert: Omit<EnterpriseAlert, 'id' | 'createdAt'>) {
     try {
-      // Create in-memory alert (database table will be added in Phase 5)
-      const newAlert: EnterpriseAlert = {
-        id: Date.now(),
-        ...alert,
-        createdAt: new Date()
-      };
+      // Save alert to database
+      const [newAlert] = await db
+        .insert(alerts)
+        .values({
+          communityId: alert.communityId,
+          type: alert.type,
+          severity: alert.severity,
+          title: alert.title,
+          message: alert.message,
+          status: alert.status,
+          metadata: alert.metadata || {},
+          acknowledgedAt: alert.acknowledgedAt,
+          acknowledgedBy: alert.acknowledgedBy,
+          resolvedAt: alert.resolvedAt,
+          resolvedBy: alert.resolvedBy
+        })
+        .returning();
 
       // Broadcast via WebSocket
       this.wsService.broadcast('alerts', {
@@ -423,7 +435,7 @@ export class EnterpriseAlertService extends EventEmitter {
 
       // Send email notification for critical alerts
       if (alert.severity === 'critical' && process.env.SENDGRID_API_KEY) {
-        await this.sendEmailAlert(newAlert);
+        await this.sendEmailAlert(newAlert as EnterpriseAlert);
       }
 
       // Emit event for other services
@@ -467,13 +479,13 @@ export class EnterpriseAlertService extends EventEmitter {
   async acknowledgeAlert(alertId: number, userId: number) {
     try {
       const [updated] = await db
-        .update(enterprise_alerts)
+        .update(alerts)
         .set({
           status: 'acknowledged',
           acknowledgedAt: new Date(),
           acknowledgedBy: userId
         })
-        .where(eq(enterprise_alerts.id, alertId))
+        .where(eq(alerts.id, alertId))
         .returning();
 
       this.wsService.broadcast('alerts', {
@@ -492,13 +504,13 @@ export class EnterpriseAlertService extends EventEmitter {
   async resolveAlert(alertId: number, userId: number) {
     try {
       const [updated] = await db
-        .update(enterprise_alerts)
+        .update(alerts)
         .set({
           status: 'resolved',
           resolvedAt: new Date(),
           resolvedBy: userId
         })
-        .where(eq(enterprise_alerts.id, alertId))
+        .where(eq(alerts.id, alertId))
         .returning();
 
       this.wsService.broadcast('alerts', {
@@ -516,19 +528,19 @@ export class EnterpriseAlertService extends EventEmitter {
 
   async getActiveAlerts(communityId?: number) {
     try {
-      const conditions = [eq(enterprise_alerts.status, 'active')];
+      const conditions = [eq(alerts.status, 'active')];
       if (communityId) {
-        conditions.push(eq(enterprise_alerts.communityId, communityId));
+        conditions.push(eq(alerts.communityId, communityId));
       }
 
-      const alerts = await db
+      const activeAlerts = await db
         .select()
-        .from(enterprise_alerts)
+        .from(alerts)
         .where(and(...conditions))
-        .orderBy(desc(enterprise_alerts.createdAt))
+        .orderBy(desc(alerts.createdAt))
         .limit(50);
 
-      return alerts;
+      return activeAlerts;
     } catch (error) {
       console.error('Error fetching active alerts:', error);
       throw error;
@@ -547,8 +559,8 @@ export class EnterpriseAlertService extends EventEmitter {
           warning: sql<number>`COUNT(*) FILTER (WHERE severity = 'warning')`,
           info: sql<number>`COUNT(*) FILTER (WHERE severity = 'info')`
         })
-        .from(enterprise_alerts)
-        .where(gte(enterprise_alerts.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
+        .from(alerts)
+        .where(gte(alerts.createdAt, new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)));
 
       return stats[0];
     } catch (error) {

@@ -5862,3 +5862,39 @@ export const enterpriseMetrics = pgTable('enterprise_metrics', {
 
 export type EnterpriseMetric = typeof enterpriseMetrics.$inferSelect;
 export type InsertEnterpriseMetric = typeof enterpriseMetrics.$inferInsert;
+
+// Enterprise Alerts Table
+export const alerts = pgTable('alerts', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id),
+  
+  // Alert Details
+  type: varchar('type', { length: 50 }).notNull(), // 'revenue', 'occupancy', 'compliance', 'performance', 'security'
+  severity: varchar('severity', { length: 20 }).notNull(), // 'critical', 'warning', 'info'
+  status: varchar('status', { length: 20 }).notNull().default('active'), // 'active', 'acknowledged', 'resolved', 'expired'
+  
+  // Content
+  title: varchar('title', { length: 200 }).notNull(),
+  message: text('message').notNull(),
+  metadata: jsonb('metadata').$type<Record<string, any>>().default({}),
+  
+  // Tracking
+  acknowledgedAt: timestamp('acknowledged_at'),
+  acknowledgedBy: integer('acknowledged_by').references(() => users.id),
+  resolvedAt: timestamp('resolved_at'),
+  resolvedBy: integer('resolved_by').references(() => users.id),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  expiresAt: timestamp('expires_at')
+}, (table) => [
+  index('alerts_community_id_idx').on(table.communityId),
+  index('alerts_type_idx').on(table.type),
+  index('alerts_severity_idx').on(table.severity),
+  index('alerts_status_idx').on(table.status),
+  index('alerts_created_at_idx').on(table.createdAt)
+]);
+
+export type Alert = typeof alerts.$inferSelect;
+export type InsertAlert = typeof alerts.$inferInsert;
