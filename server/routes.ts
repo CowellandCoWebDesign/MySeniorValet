@@ -357,6 +357,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const communitySubscriptionRoutes = await import('./routes/community-subscription');
   app.use(communitySubscriptionRoutes.default);
   
+  // Register enterprise routes (Wave 4: Core Enterprise Systems)
+  const enterpriseAnalyticsRoutes = await import('./routes/enterprise-analytics');
+  const enterpriseFinancialRoutes = await import('./routes/enterprise-financial');
+  const enterpriseComplianceRoutes = await import('./routes/enterprise-compliance');
+  app.use(enterpriseAnalyticsRoutes.default);
+  app.use(enterpriseFinancialRoutes.default);
+  app.use(enterpriseComplianceRoutes.default);
+  
   // Register community claim routes
   const communityClaimRoutes = await import('./routes/community-claim-routes');
   app.use('/api/community-claims', communityClaimRoutes.default);

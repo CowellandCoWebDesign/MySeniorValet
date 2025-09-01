@@ -43,6 +43,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Header } from "@/components/header";
+import { EnterpriseDashboard } from "@/components/community/EnterpriseDashboard";
 
 export default function CommunityCustomerDashboard() {
   const { user, isLoading: authLoading } = useAuth();
@@ -263,13 +264,14 @@ export default function CommunityCustomerDashboard() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-7 w-full">
+          <TabsList className="grid grid-cols-8 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="leads">Leads</TabsTrigger>
             <TabsTrigger value="tours">Tours</TabsTrigger>
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="marketing">Marketing</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="enterprise">Enterprise</TabsTrigger>
             <TabsTrigger value="billing">Billing</TabsTrigger>
           </TabsList>
 
@@ -763,6 +765,60 @@ export default function CommunityCustomerDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Enterprise Tab */}
+          <TabsContent value="enterprise" className="space-y-4">
+            {['professional', 'premium', 'enterprise'].includes(subscriptionTier.toLowerCase()) ? (
+              <EnterpriseDashboard 
+                communityId={communityData?.id || 0} 
+                subscriptionTier={subscriptionTier}
+              />
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Enterprise Features
+                  </CardTitle>
+                  <CardDescription>
+                    Advanced analytics, financial management, and compliance monitoring
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-12">
+                    <div className="mb-6">
+                      <Shield className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">Unlock Enterprise Features</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Get comprehensive analytics, financial tracking, and compliance monitoring with Professional tier and above
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="border rounded-lg p-4">
+                        <BarChart3 className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                        <h4 className="font-medium">Advanced Analytics</h4>
+                        <p className="text-sm text-muted-foreground">Real-time metrics & ROI tracking</p>
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <DollarSign className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                        <h4 className="font-medium">Financial Management</h4>
+                        <p className="text-sm text-muted-foreground">Revenue & expense monitoring</p>
+                      </div>
+                      <div className="border rounded-lg p-4">
+                        <Shield className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                        <h4 className="font-medium">Compliance Tracking</h4>
+                        <p className="text-sm text-muted-foreground">Regulatory & audit management</p>
+                      </div>
+                    </div>
+                    <Button size="lg" onClick={() => setLocation('/community-portal')}>
+                      <Zap className="w-4 h-4 mr-2" />
+                      Upgrade to Professional
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Billing Tab */}
