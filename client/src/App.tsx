@@ -55,8 +55,6 @@ import Help from "@/pages/help";
 import CareGuide from "@/pages/care-guide";
 import CommunityPortal from "@/pages/community-portal";
 import CommunityDashboard from "@/pages/community-dashboard-enhanced";
-import { DashboardTestingGuide } from "@/pages/dashboard-testing-guide";
-const EnterpriseCommunityDashboard = lazy(() => import('@/pages/community-dashboard'));
 import CommunityLeasing from "@/pages/community-leasing";
 import TenantPortal from "@/pages/tenant-portal";
 import MyCommunities from "@/pages/my-communities";
@@ -283,14 +281,6 @@ function Router() {
       <Route path="/community-portal" component={CommunityPortal} />
       <Route path="/my-communities" component={MyCommunities} />
       <Route path="/community-dashboard/:id" component={CommunityDashboard} />
-      <Route path="/dashboard-testing" component={DashboardTestingGuide} />
-      <Route path="/community/:id/dashboard">
-        {() => (
-          <Suspense fallback={<div>Loading...</div>}>
-            <EnterpriseCommunityDashboard />
-          </Suspense>
-        )}
-      </Route>
       <Route path="/community-portal/:id/leasing" component={CommunityLeasing} />
       <Route path="/tenant-portal" component={TenantPortal} />
       <Route path="/support" component={AISupport} />
