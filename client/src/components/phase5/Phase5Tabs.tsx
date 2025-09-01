@@ -18,16 +18,27 @@ export { FinancialAnalyticsTab } from './FinancialAnalyticsTab';
 
 // Compliance Management Tab
 export function ComplianceTab() {
-  const { data: complianceData } = useQuery({
-    queryKey: ['/api/operations/compliance'],
-    initialData: {
-      overallScore: 94,
-      certifications: 12,
-      audits: { upcoming: 3, completed: 28 },
-      violations: 0,
-      stateRegulations: 48
-    }
+  const { data: complianceData, isLoading } = useQuery({
+    queryKey: ['/api/operations/compliance']
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!complianceData) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No Data Available</AlertTitle>
+        <AlertDescription>Compliance data is currently unavailable.</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -86,15 +97,27 @@ export function ComplianceTab() {
 
 // Marketing Automation Tab
 export function MarketingTab() {
-  const { data: marketingData } = useQuery({
-    queryKey: ['/api/operations/marketing'],
-    initialData: {
-      campaigns: { active: 5, completed: 23, scheduled: 8 },
-      leads: { total: 1842, qualified: 467, converted: 123 },
-      emailStats: { sent: 45280, opened: 18562, clicked: 3847 },
-      conversionRate: 26.4
-    }
+  const { data: marketingData, isLoading } = useQuery({
+    queryKey: ['/api/operations/marketing']
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!marketingData) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No Data Available</AlertTitle>
+        <AlertDescription>Marketing data is currently unavailable.</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -172,17 +195,27 @@ export function MarketingTab() {
 
 // Resident Portal Tab
 export function ResidentPortalTab() {
-  const { data: residentData } = useQuery({
-    queryKey: ['/api/operations/residents'],
-    initialData: {
-      totalResidents: 141,
-      familyAccounts: 423,
-      activePortalUsers: 298,
-      healthRecords: 141,
-      messagesThisWeek: 847,
-      carePlansUpdated: 38
-    }
+  const { data: residentData, isLoading } = useQuery({
+    queryKey: ['/api/operations/residents']
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!residentData) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No Data Available</AlertTitle>
+        <AlertDescription>Resident data is currently unavailable.</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -261,16 +294,27 @@ export function ResidentPortalTab() {
 
 // Operations Management Tab
 export function OperationsTab() {
-  const { data: operationsData } = useQuery({
-    queryKey: ['/api/operations/dashboard'],
-    initialData: {
-      staff: { onDuty: 47, scheduled: 52, callOffs: 5 },
-      maintenance: { pending: 12, inProgress: 5, completed: 38 },
-      meals: { served: 380, special: 42 },
-      transport: { scheduled: 8, completed: 3 },
-      inventory: { lowStock: 3, optimal: 45, overStock: 2 }
-    }
+  const { data: operationsData, isLoading } = useQuery({
+    queryKey: ['/api/operations/dashboard']
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-48">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!operationsData) {
+    return (
+      <Alert>
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>No Data Available</AlertTitle>
+        <AlertDescription>Operations data is currently unavailable.</AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">

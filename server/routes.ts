@@ -811,5 +811,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const executiveDashboardRoutes = await import('./routes/executive-dashboard');
   app.use('/api/executive', executiveDashboardRoutes.default);
 
+  // Register Phase 5: Operations Management routes
+  const operationsRoutes = await import('./routes/operations-api');
+  app.use('/api/operations', operationsRoutes.default);
+
   return httpServer;
 }
