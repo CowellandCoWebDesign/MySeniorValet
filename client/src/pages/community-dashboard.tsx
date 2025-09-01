@@ -70,6 +70,9 @@ import { DocumentManagement } from "@/components/enterprise/DocumentManagement";
 import { BusinessIntelligence } from "@/components/enterprise/BusinessIntelligence";
 import { ExternalIntegrations } from "@/components/enterprise/ExternalIntegrations";
 import { AuditTrail } from "@/components/enterprise/AuditTrail";
+import { CustomReporting } from "@/components/enterprise/CustomReporting";
+import { RoleBasedAccess } from "@/components/enterprise/RoleBasedAccess";
+import { RealTimeNotifications } from "@/components/enterprise/RealTimeNotifications";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -568,6 +571,9 @@ export default function CommunityDashboard() {
                 <TabsTrigger value="intelligence">Intelligence</TabsTrigger>
                 <TabsTrigger value="integrations">Integrations</TabsTrigger>
                 <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+                <TabsTrigger value="reports">Reports</TabsTrigger>
+                <TabsTrigger value="rbac">Access Control</TabsTrigger>
+                <TabsTrigger value="notifications">Notifications</TabsTrigger>
               </>
             )}
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -1333,6 +1339,21 @@ export default function CommunityDashboard() {
               {/* Audit Trail Tab */}
               <TabsContent value="audit" className="space-y-6">
                 <AuditTrail communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Custom Reporting Tab */}
+              <TabsContent value="reports" className="space-y-6">
+                <CustomReporting communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Role-Based Access Control Tab */}
+              <TabsContent value="rbac" className="space-y-6">
+                <RoleBasedAccess communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Real-Time Notifications Tab */}
+              <TabsContent value="notifications" className="space-y-6">
+                <RealTimeNotifications communityId={parseInt(id || '0')} />
               </TabsContent>
             </>
           )}
