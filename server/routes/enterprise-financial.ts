@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, sql, desc, and, gte, lte } from 'drizzle-orm';
 import { isAuthenticated } from '../auth-middleware';
+import { financialService } from '../services/financial.service';
 
 const router = Router();
 
@@ -27,69 +28,54 @@ router.get('/api/enterprise/financials/:communityId', isAuthenticated, async (re
       return res.status(404).json({ error: 'Community not found' });
     }
 
-    // Financial Data
+    // Get real financial data from service
+    const realFinancials = await financialService.getCommunityFinancials(
+      parseInt(communityId),
+      start,
+      end
+    );
+
+    // Get budget performance
+    const budgetPerformance = await financialService.getBudgetPerformance(
+      parseInt(communityId),
+      now.getFullYear(),
+      now.getMonth() + 1
+    );
+
+    // Financial Data with real values
     const financialData = {
       summary: {
-        totalRevenue: 487650,
-        totalExpenses: 312450,
-        netIncome: 175200,
-        profitMargin: '35.9%',
-        cashFlow: 182500,
-        occupancyRate: '92%',
-        avgRentPerUnit: 4850,
-        totalUnits: community.totalUnits || 100
+        totalRevenue: realFinancials.summary.totalRevenue,
+        totalExpenses: realFinancials.summary.totalExpenses,
+        netIncome: realFinancials.summary.netIncome,
+        profitMargin: realFinancials.summary.profitMargin,
+        cashFlow: realFinancials.summary.netIncome, // Simplified for now
+        occupancyRate: '92%', // Would come from occupancy service
+        avgRentPerUnit: community.totalUnits > 0 ? Math.round(realFinancials.summary.totalRevenue / community.totalUnits) : 0,
+        totalUnits: community.totalUnits || 100,
+        outstandingBalance: realFinancials.summary.outstandingBalance
       },
       revenue: {
         monthly: {
-          rent: 445000,
-          careServices: 28500,
-          meals: 8750,
-          activities: 2400,
-          laundry: 1850,
-          parking: 1150,
-          total: 487650
+          total: realFinancials.summary.totalRevenue
         },
-        breakdown: [
-          { category: 'Base Rent', amount: 445000, percentage: 91.3 },
-          { category: 'Care Services', amount: 28500, percentage: 5.8 },
-          { category: 'Meals', amount: 8750, percentage: 1.8 },
-          { category: 'Other Services', amount: 5400, percentage: 1.1 }
-        ],
-        trends: [
-          { month: 'Jan', revenue: 465000, occupancy: 90 },
-          { month: 'Feb', revenue: 472000, occupancy: 91 },
-          { month: 'Mar', revenue: 478000, occupancy: 91 },
-          { month: 'Apr', revenue: 482000, occupancy: 92 },
-          { month: 'May', revenue: 485000, occupancy: 92 },
-          { month: 'Jun', revenue: 487650, occupancy: 92 }
-        ]
+        breakdown: realFinancials.revenue.breakdown,
+        trends: realFinancials.trends.monthly.map(m => ({
+          month: m.month.split('-')[1],
+          revenue: m.revenue,
+          occupancy: 92 // Would come from occupancy service
+        }))
       },
       expenses: {
         monthly: {
-          staffing: 156225, // 50% of expenses
-          utilities: 31245,
-          maintenance: 28120,
-          food: 21871,
-          insurance: 18747,
-          marketing: 12498,
-          administration: 15622,
-          supplies: 9373,
-          activities: 6249,
-          other: 12500,
-          total: 312450
+          total: realFinancials.summary.totalExpenses
         },
-        breakdown: [
-          { category: 'Staffing', amount: 156225, percentage: 50 },
-          { category: 'Utilities', amount: 31245, percentage: 10 },
-          { category: 'Maintenance', amount: 28120, percentage: 9 },
-          { category: 'Food Service', amount: 21871, percentage: 7 },
-          { category: 'Insurance', amount: 18747, percentage: 6 },
-          { category: 'Other', amount: 56242, percentage: 18 }
-        ],
+        breakdown: realFinancials.expenses.breakdown,
         comparison: {
-          vsBudget: '-3.2%',
-          vsLastMonth: '+1.8%',
-          vsLastYear: '-2.5%'
+          vsBudget: budgetPerformance.expenses.percentageOfBudget ? 
+            `${budgetPerformance.expenses.percentageOfBudget - 100}%` : '0%',
+          vsLastMonth: '+1.8%', // Would need month-over-month calculation
+          vsLastYear: '-2.5%' // Would need year-over-year calculation
         }
       },
       residents: {

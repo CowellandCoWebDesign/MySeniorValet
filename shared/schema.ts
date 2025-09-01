@@ -5557,3 +5557,308 @@ export const staffSchedules = pgTable('staff_schedules', {
 
 export type StaffSchedule = typeof staffSchedules.$inferSelect;
 export type InsertStaffSchedule = typeof staffSchedules.$inferInsert;
+
+// ==========================================
+// PRODUCTION ANALYTICS INFRASTRUCTURE
+// ==========================================
+
+// Real-time Analytics Events for tracking all user interactions
+export const analyticsEvents = pgTable('analytics_events', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id),
+  userId: integer('user_id').references(() => users.id),
+  sessionId: varchar('session_id', { length: 100 }).notNull(),
+  
+  // Event Details
+  eventType: varchar('event_type', { length: 50 }).notNull(), // 'page_view', 'click', 'form_submit', 'conversion', 'search'
+  eventCategory: varchar('event_category', { length: 50 }), // 'navigation', 'engagement', 'transaction'
+  eventAction: varchar('event_action', { length: 100 }), // Specific action like 'view_pricing', 'schedule_tour'
+  eventLabel: varchar('event_label', { length: 255 }), // Additional context
+  eventValue: real('event_value'), // Numeric value if applicable
+  
+  // Page & Interaction Data
+  pageUrl: text('page_url'),
+  pageTitle: varchar('page_title', { length: 255 }),
+  referrerUrl: text('referrer_url'),
+  elementId: varchar('element_id', { length: 100 }), // DOM element ID if click event
+  elementClass: varchar('element_class', { length: 255 }), // DOM element class
+  
+  // User Context
+  userAgent: text('user_agent'),
+  ipAddress: varchar('ip_address', { length: 45 }), // Support IPv6
+  country: varchar('country', { length: 2 }),
+  region: varchar('region', { length: 100 }),
+  city: varchar('city', { length: 100 }),
+  
+  // Device Information
+  deviceType: varchar('device_type', { length: 20 }), // 'desktop', 'mobile', 'tablet'
+  browserName: varchar('browser_name', { length: 50 }),
+  browserVersion: varchar('browser_version', { length: 20 }),
+  operatingSystem: varchar('operating_system', { length: 50 }),
+  screenResolution: varchar('screen_resolution', { length: 20 }),
+  
+  // Performance Metrics
+  pageLoadTime: integer('page_load_time'), // milliseconds
+  domReadyTime: integer('dom_ready_time'), // milliseconds
+  timeOnPage: integer('time_on_page'), // seconds
+  
+  // Custom Properties
+  customData: jsonb('custom_data').$type<Record<string, any>>().default({}),
+  
+  timestamp: timestamp('timestamp').defaultNow().notNull()
+}, (table) => [
+  index('analytics_events_community_id_idx').on(table.communityId),
+  index('analytics_events_user_id_idx').on(table.userId),
+  index('analytics_events_session_id_idx').on(table.sessionId),
+  index('analytics_events_timestamp_idx').on(table.timestamp),
+  index('analytics_events_event_type_idx').on(table.eventType)
+]);
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+// Analytics Sessions for tracking user behavior patterns
+export const analyticsSessions = pgTable('analytics_sessions', {
+  id: serial('id').primaryKey(),
+  sessionId: varchar('session_id', { length: 100 }).unique().notNull(),
+  userId: integer('user_id').references(() => users.id),
+  communityId: integer('community_id').references(() => communities.id),
+  
+  // Session Details
+  startTime: timestamp('start_time').notNull(),
+  endTime: timestamp('end_time'),
+  duration: integer('duration'), // seconds
+  pageViews: integer('page_views').default(0),
+  events: integer('events').default(0),
+  bounced: boolean('bounced').default(false),
+  
+  // Entry & Exit
+  entryPage: text('entry_page'),
+  exitPage: text('exit_page'),
+  entrySource: varchar('entry_source', { length: 50 }), // 'direct', 'organic', 'paid', 'social', 'referral'
+  
+  // Campaign Attribution
+  utmSource: varchar('utm_source', { length: 100 }),
+  utmMedium: varchar('utm_medium', { length: 100 }),
+  utmCampaign: varchar('utm_campaign', { length: 100 }),
+  utmTerm: varchar('utm_term', { length: 100 }),
+  utmContent: varchar('utm_content', { length: 100 }),
+  
+  // Conversion Tracking
+  goalCompleted: boolean('goal_completed').default(false),
+  goalType: varchar('goal_type', { length: 50 }), // 'tour_scheduled', 'contact_form', 'brochure_download'
+  goalValue: real('goal_value'),
+  
+  createdAt: timestamp('created_at').defaultNow()
+}, (table) => [
+  index('analytics_sessions_user_id_idx').on(table.userId),
+  index('analytics_sessions_community_id_idx').on(table.communityId),
+  index('analytics_sessions_start_time_idx').on(table.startTime)
+]);
+
+export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
+export type InsertAnalyticsSession = typeof analyticsSessions.$inferInsert;
+
+// Detailed Financial Transactions for real money tracking
+export const financialTransactions = pgTable('financial_transactions', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  
+  // Transaction Details
+  transactionId: varchar('transaction_id', { length: 100 }).unique().notNull(),
+  type: varchar('type', { length: 20 }).notNull(), // 'revenue', 'expense', 'refund', 'adjustment'
+  category: varchar('category', { length: 50 }).notNull(), // 'subscription', 'addon', 'service', 'maintenance'
+  subcategory: varchar('subcategory', { length: 50 }),
+  
+  // Financial Data
+  amount: numeric('amount', { precision: 12, scale: 2 }).notNull(),
+  currency: varchar('currency', { length: 3 }).default('USD'),
+  taxAmount: numeric('tax_amount', { precision: 10, scale: 2 }),
+  feeAmount: numeric('fee_amount', { precision: 10, scale: 2 }),
+  netAmount: numeric('net_amount', { precision: 12, scale: 2 }),
+  
+  // Payment Information
+  paymentMethod: varchar('payment_method', { length: 30 }), // 'credit_card', 'ach', 'check', 'wire'
+  paymentProcessor: varchar('payment_processor', { length: 30 }), // 'stripe', 'square', 'manual'
+  processorTransactionId: varchar('processor_transaction_id', { length: 255 }),
+  processorFee: numeric('processor_fee', { precision: 10, scale: 2 }),
+  
+  // Status & Reconciliation
+  status: varchar('status', { length: 20 }).notNull(), // 'pending', 'completed', 'failed', 'cancelled'
+  reconciled: boolean('reconciled').default(false),
+  reconciledDate: date('reconciled_date'),
+  reconciledBy: integer('reconciled_by').references(() => users.id),
+  
+  // Related Entities
+  relatedResidentId: integer('related_resident_id').references(() => enterpriseResidents.id),
+  relatedInvoiceId: integer('related_invoice_id'),
+  relatedUserId: integer('related_user_id').references(() => users.id),
+  
+  // Metadata
+  description: text('description'),
+  notes: text('notes'),
+  attachments: text('attachments').array().default([]),
+  metadata: jsonb('metadata').$type<Record<string, any>>().default({}),
+  
+  // Dates
+  transactionDate: timestamp('transaction_date').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('financial_transactions_community_id_idx').on(table.communityId),
+  index('financial_transactions_date_idx').on(table.transactionDate),
+  index('financial_transactions_type_idx').on(table.type),
+  index('financial_transactions_status_idx').on(table.status)
+]);
+
+export type FinancialTransaction = typeof financialTransactions.$inferSelect;
+export type InsertFinancialTransaction = typeof financialTransactions.$inferInsert;
+
+// Compliance Audit Trail for detailed regulatory tracking
+export const complianceAudits = pgTable('compliance_audits', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  
+  // Audit Information
+  auditType: varchar('audit_type', { length: 50 }).notNull(), // 'state_inspection', 'federal_review', 'internal_audit'
+  auditCategory: varchar('audit_category', { length: 100 }).notNull(), // 'HIPAA', 'ADA', 'fire_safety', 'infection_control'
+  auditScope: text('audit_scope'),
+  
+  // Regulatory Details
+  regulatoryBody: varchar('regulatory_body', { length: 100 }), // 'CMS', 'State Health Dept', 'OSHA'
+  regulationCode: varchar('regulation_code', { length: 50 }), // Specific regulation reference
+  complianceStandard: varchar('compliance_standard', { length: 100 }),
+  
+  // Audit Results
+  status: varchar('status', { length: 20 }).notNull(), // 'scheduled', 'in_progress', 'completed', 'cancelled'
+  result: varchar('result', { length: 20 }), // 'passed', 'failed', 'conditional', 'pending'
+  score: integer('score'), // Numerical score if applicable
+  maxScore: integer('max_score'),
+  
+  // Findings
+  findingsCount: integer('findings_count').default(0),
+  criticalFindings: integer('critical_findings').default(0),
+  majorFindings: integer('major_findings').default(0),
+  minorFindings: integer('minor_findings').default(0),
+  
+  // Detailed Findings
+  findings: jsonb('findings').$type<Array<{
+    id: string;
+    category: string;
+    severity: 'critical' | 'major' | 'minor';
+    description: string;
+    location: string;
+    recommendation: string;
+    deadline: string;
+    status: 'open' | 'resolved' | 'in_progress';
+  }>>().default([]),
+  
+  // Corrective Actions
+  correctiveActions: jsonb('corrective_actions').$type<Array<{
+    id: string;
+    findingId: string;
+    action: string;
+    responsibleParty: string;
+    dueDate: string;
+    completedDate?: string;
+    status: 'pending' | 'in_progress' | 'completed';
+    evidence?: string;
+  }>>().default([]),
+  
+  // Documentation
+  reportUrl: text('report_url'),
+  certificateUrl: text('certificate_url'),
+  evidenceUrls: text('evidence_urls').array().default([]),
+  
+  // People Involved
+  leadAuditor: varchar('lead_auditor', { length: 100 }),
+  auditTeam: text('audit_team').array().default([]),
+  responsibleManager: integer('responsible_manager').references(() => users.id),
+  
+  // Dates
+  scheduledDate: date('scheduled_date'),
+  startDate: date('start_date'),
+  completionDate: date('completion_date'),
+  nextAuditDate: date('next_audit_date'),
+  certificateExpiryDate: date('certificate_expiry_date'),
+  
+  // Metadata
+  notes: text('notes'),
+  tags: text('tags').array().default([]),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('compliance_audits_community_id_idx').on(table.communityId),
+  index('compliance_audits_status_idx').on(table.status),
+  index('compliance_audits_scheduled_date_idx').on(table.scheduledDate),
+  index('compliance_audits_audit_type_idx').on(table.auditType)
+]);
+
+export type ComplianceAudit = typeof complianceAudits.$inferSelect;
+export type InsertComplianceAudit = typeof complianceAudits.$inferInsert;
+
+// Aggregated Metrics for dashboard performance
+export const enterpriseMetrics = pgTable('enterprise_metrics', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  
+  // Time Period
+  date: date('date').notNull(),
+  period: varchar('period', { length: 20 }).notNull(), // 'daily', 'weekly', 'monthly', 'quarterly'
+  
+  // Analytics Metrics
+  uniqueVisitors: integer('unique_visitors').default(0),
+  totalPageViews: integer('total_page_views').default(0),
+  avgSessionDuration: integer('avg_session_duration'), // seconds
+  bounceRate: real('bounce_rate'),
+  conversionRate: real('conversion_rate'),
+  
+  // Financial Metrics
+  totalRevenue: numeric('total_revenue', { precision: 12, scale: 2 }).default('0'),
+  totalExpenses: numeric('total_expenses', { precision: 12, scale: 2 }).default('0'),
+  netIncome: numeric('net_income', { precision: 12, scale: 2 }).default('0'),
+  avgRevenuePerResident: numeric('avg_revenue_per_resident', { precision: 10, scale: 2 }),
+  outstandingBalance: numeric('outstanding_balance', { precision: 12, scale: 2 }).default('0'),
+  
+  // Operational Metrics
+  occupancyRate: real('occupancy_rate'),
+  avgLengthOfStay: real('avg_length_of_stay'), // days
+  residentTurnover: real('resident_turnover'),
+  staffTurnover: real('staff_turnover'),
+  staffToResidentRatio: real('staff_to_resident_ratio'),
+  
+  // Compliance Metrics
+  complianceScore: integer('compliance_score'),
+  openFindings: integer('open_findings').default(0),
+  overdueActions: integer('overdue_actions').default(0),
+  incidentCount: integer('incident_count').default(0),
+  
+  // Quality Metrics
+  residentSatisfaction: real('resident_satisfaction'),
+  familySatisfaction: real('family_satisfaction'),
+  staffSatisfaction: real('staff_satisfaction'),
+  qualityScore: real('quality_score'),
+  
+  // Marketing Metrics
+  leadCount: integer('lead_count').default(0),
+  tourScheduled: integer('tours_scheduled').default(0),
+  toursCompleted: integer('tours_completed').default(0),
+  tourConversionRate: real('tour_conversion_rate'),
+  
+  // Calculated Fields
+  calculations: jsonb('calculations').$type<Record<string, any>>().default({}),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('enterprise_metrics_community_id_idx').on(table.communityId),
+  index('enterprise_metrics_date_idx').on(table.date),
+  index('enterprise_metrics_period_idx').on(table.period),
+  unique('enterprise_metrics_unique').on(table.communityId, table.date, table.period)
+]);
+
+export type EnterpriseMetric = typeof enterpriseMetrics.$inferSelect;
+export type InsertEnterpriseMetric = typeof enterpriseMetrics.$inferInsert;

@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities, users, tours, messages } from '@shared/schema';
 import { eq, sql, desc, and, gte, lte } from 'drizzle-orm';
 import { isAuthenticated } from '../auth-middleware';
+import { analyticsService } from '../services/analytics.service';
 
 const router = Router();
 
@@ -26,15 +27,16 @@ router.get('/api/enterprise/analytics/:communityId', isAuthenticated, async (req
       return res.status(404).json({ error: 'Community not found' });
     }
 
-    // Analytics Summary
+    // Get real analytics from service
+    const realAnalytics = await analyticsService.getCommunityAnalytics(
+      parseInt(communityId),
+      start,
+      end
+    );
+
+    // Analytics Summary with real data
     const analyticsData = {
-      summary: {
-        totalViews: Math.floor(Math.random() * 5000) + 1000, // Will integrate with real tracking
-        uniqueVisitors: Math.floor(Math.random() * 2000) + 500,
-        avgTimeOnPage: '3m 45s',
-        bounceRate: '32%',
-        conversionRate: '4.8%'
-      },
+      summary: realAnalytics.summary,
       engagement: {
         tourRequests: await db
           .select({ count: sql<number>`count(*)` })
@@ -46,9 +48,9 @@ router.get('/api/enterprise/analytics/:communityId', isAuthenticated, async (req
           .from(messages)
           .where(eq(messages.recipientId, parseInt(communityId)))
           .then(r => r[0]?.count || 0),
-        phoneClicks: Math.floor(Math.random() * 100) + 20,
-        websiteClicks: Math.floor(Math.random() * 150) + 30,
-        directionsRequests: Math.floor(Math.random() * 80) + 15
+        phoneClicks: realAnalytics.engagement.phoneClicks,
+        websiteClicks: realAnalytics.engagement.websiteClicks,
+        directionsRequests: realAnalytics.engagement.directionsRequests
       },
       conversion: {
         viewsToInquiry: '12%',
@@ -57,28 +59,7 @@ router.get('/api/enterprise/analytics/:communityId', isAuthenticated, async (req
         avgDaysToConvert: 21,
         lostOpportunities: 8
       },
-      traffic: {
-        sources: [
-          { source: 'Organic Search', visits: 45, percentage: 35 },
-          { source: 'Direct', visits: 30, percentage: 23 },
-          { source: 'MySeniorValet Search', visits: 25, percentage: 20 },
-          { source: 'Social Media', visits: 15, percentage: 12 },
-          { source: 'Referral', visits: 10, percentage: 8 },
-          { source: 'Email', visits: 5, percentage: 2 }
-        ],
-        topPages: [
-          { page: 'Main Profile', views: 1234 },
-          { page: 'Photos Gallery', views: 890 },
-          { page: 'Pricing & Availability', views: 678 },
-          { page: 'Reviews', views: 456 },
-          { page: 'Virtual Tour', views: 234 }
-        ],
-        devices: {
-          desktop: 45,
-          mobile: 40,
-          tablet: 15
-        }
-      },
+      traffic: realAnalytics.traffic,
       demographics: {
         ageGroups: [
           { range: '45-54', percentage: 15 },

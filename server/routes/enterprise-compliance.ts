@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, sql } from 'drizzle-orm';
 import { isAuthenticated } from '../auth-middleware';
+import { complianceService } from '../services/compliance.service';
 
 const router = Router();
 
@@ -21,17 +22,35 @@ router.get('/api/enterprise/compliance/:communityId', isAuthenticated, async (re
       return res.status(404).json({ error: 'Community not found' });
     }
 
-    // Compliance Data
+    // Get real compliance data from service
+    const endDate = new Date();
+    const startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
+    
+    const realCompliance = await complianceService.getCommunityCompliance(
+      parseInt(communityId),
+      startDate,
+      endDate
+    );
+
+    // Get upcoming deadlines
+    const upcomingDeadlines = await complianceService.checkUpcomingDeadlines(
+      parseInt(communityId)
+    );
+
+    // Compliance Data with real values
     const complianceData = {
       summary: {
-        overallScore: 94,
-        status: 'Compliant',
-        lastAudit: '2025-07-15',
-        nextAudit: '2025-10-15',
-        openIssues: 3,
-        resolvedThisMonth: 8,
-        certificationsActive: 12,
-        certificationsExpiring: 2
+        overallScore: realCompliance.summary.overallScore,
+        status: realCompliance.summary.overallScore >= 80 ? 'Compliant' : 'Non-Compliant',
+        lastAudit: realCompliance.recentAudits[0]?.completionDate || '2025-07-15',
+        nextAudit: realCompliance.upcomingAudits[0]?.scheduledDate || '2025-10-15',
+        openIssues: realCompliance.summary.openFindings,
+        resolvedThisMonth: realCompliance.summary.passedChecks,
+        certificationsActive: 12, // Would come from certifications service
+        certificationsExpiring: upcomingDeadlines.length,
+        criticalIssues: realCompliance.summary.criticalIssues,
+        totalChecks: realCompliance.summary.totalChecks,
+        failedChecks: realCompliance.summary.failedChecks
       },
       regulatory: {
         federal: {
