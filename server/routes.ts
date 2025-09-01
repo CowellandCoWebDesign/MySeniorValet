@@ -144,6 +144,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const whiteLabelRoutes = await import('./routes/white-label');
   app.use('/api/white-label', whiteLabelRoutes.default);
   
+  // Register Enterprise Validation Testing routes
+  const validationRoutes = await import('./routes/enterprise-validation');
+  app.use('/api/validation', validationRoutes.default);
+  
   // Register Family Collaboration routes
   const familyRoutes = await import('./routes/familyRoutes');
   app.use('/api/family', familyRoutes.default);
