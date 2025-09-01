@@ -128,6 +128,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const tourRoutes = await import('./routes/tourRoutes');
   app.use('/api/tours', tourRoutes.default);
   
+  // Register 3D Tour Embed routes (Growth tier $299+)
+  const tourEmbedRoutes = await import('./routes/tour-embed');
+  app.use('/api/tour-embed', tourEmbedRoutes.default);
+  
+  // Register Payment Processing routes (All tiers)
+  const paymentRoutes = await import('./routes/payment');
+  app.use('/api/payment', paymentRoutes.default);
+  
+  // Register Multi-Property Dashboard routes (Professional tier $999+)
+  const multiPropertyRoutes = await import('./routes/multi-property');
+  app.use('/api/multi-property', multiPropertyRoutes.default);
+  
+  // Register White-Label Platform routes (Enterprise tier $3,999)
+  const whiteLabelRoutes = await import('./routes/white-label');
+  app.use('/api/white-label', whiteLabelRoutes.default);
+  
   // Register Family Collaboration routes
   const familyRoutes = await import('./routes/familyRoutes');
   app.use('/api/family', familyRoutes.default);
