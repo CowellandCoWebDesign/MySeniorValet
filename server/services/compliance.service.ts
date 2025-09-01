@@ -7,8 +7,9 @@ import {
   InsertComplianceRecord
 } from '@shared/schema';
 import { eq, and, gte, lte, sql, desc, count } from 'drizzle-orm';
+import { EventEmitter } from 'events';
 
-export class ComplianceService {
+export class ComplianceService extends EventEmitter {
   // Create a new compliance audit
   async createAudit(data: {
     communityId: number;
@@ -42,6 +43,9 @@ export class ComplianceService {
       };
 
       await db.insert(complianceAudits).values(audit);
+      
+      // Emit event for real-time updates
+      this.emit('audit', audit);
     } catch (error) {
       console.error('Error creating compliance audit:', error);
       throw error;

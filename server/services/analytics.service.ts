@@ -10,8 +10,9 @@ import {
 import { eq, and, gte, lte, sql, desc, count } from 'drizzle-orm';
 import { Request } from 'express';
 import crypto from 'crypto';
+import { EventEmitter } from 'events';
 
-export class AnalyticsService {
+export class AnalyticsService extends EventEmitter {
   // Track a real user event
   async trackEvent(data: {
     communityId?: number;
@@ -55,6 +56,9 @@ export class AnalyticsService {
       }
 
       await db.insert(analyticsEvents).values(event);
+      
+      // Emit event for real-time updates
+      this.emit('event', event);
       
       // Update session activity
       await this.updateSessionActivity(data.sessionId, data.eventType);

@@ -9,8 +9,9 @@ import {
 } from '@shared/schema';
 import { eq, and, gte, lte, sql, desc, sum, count } from 'drizzle-orm';
 import crypto from 'crypto';
+import { EventEmitter } from 'events';
 
-export class FinancialService {
+export class FinancialService extends EventEmitter {
   // Record a real financial transaction
   async recordTransaction(data: {
     communityId: number;
@@ -55,6 +56,9 @@ export class FinancialService {
       };
 
       await db.insert(financialTransactions).values(transaction);
+      
+      // Emit event for real-time updates
+      this.emit('transaction', transaction);
       
       // Also record in simplified financial records for compatibility
       await this.recordFinancialRecord({

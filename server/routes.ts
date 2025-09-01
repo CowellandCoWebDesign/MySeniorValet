@@ -711,5 +711,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Don't throw - let the server continue without WebSocket
   }
 
+  // Initialize Enterprise WebSocket service for real-time updates
+  try {
+    const { enterpriseWebSocketService } = await import('./services/enterprise-websocket.service');
+    enterpriseWebSocketService.initialize(httpServer);
+  } catch (error) {
+    console.error('❌ Failed to initialize enterprise WebSocket service:', error);
+  }
+
+  // Register enterprise test routes (Phase 3 validation)
+  const enterpriseTestRoutes = await import('./routes/enterprise-test');
+  app.use(enterpriseTestRoutes.default);
+
   return httpServer;
 }
