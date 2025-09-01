@@ -206,7 +206,6 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   MySeniorValet
                 </span>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium -mt-1">Clarity in Senior Living</span>
               </div>
             </Link>
 
