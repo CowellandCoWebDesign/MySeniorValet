@@ -2,7 +2,7 @@
 // Enforces feature restrictions based on subscription tiers
 
 export interface SubscriptionTier {
-  name: 'verified' | 'standard' | 'featured' | 'platinum';
+  name: 'starter' | 'growth' | 'professional' | 'premium' | 'enterprise';
   price: number;
   displayName: string;
   badge?: string;
@@ -53,10 +53,10 @@ export interface TierFeatures {
 
 // Tier Definitions
 export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
-  verified: {
-    name: 'verified',
-    price: 0,
-    displayName: 'Verified Listing',
+  starter: {
+    name: 'starter',
+    price: 99,
+    displayName: 'Community Starter',
     features: {
       // Basic
       editContactInfo: true,
@@ -100,11 +100,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  standard: {
-    name: 'standard',
-    price: 149,
-    displayName: 'Standard',
-    badge: 'Standard Verified',
+  growth: {
+    name: 'growth',
+    price: 299,
+    displayName: 'Community Growth',
+    badge: 'Growth Partner',
     features: {
       // Basic
       editContactInfo: true,
@@ -148,11 +148,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  featured: {
-    name: 'featured',
-    price: 249,
-    displayName: 'Featured',
-    badge: 'Featured Community',
+  professional: {
+    name: 'professional',
+    price: 999,
+    displayName: 'Community Professional',
+    badge: 'Professional Partner',
     features: {
       // Basic
       editContactInfo: true,
@@ -196,11 +196,11 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  platinum: {
-    name: 'platinum',
-    price: 349,
-    displayName: 'Platinum',
-    badge: 'Platinum Partner',
+  premium: {
+    name: 'premium',
+    price: 1999,
+    displayName: 'Community Premium',
+    badge: 'Premium Partner',
     features: {
       // Basic
       editContactInfo: true,
@@ -242,12 +242,60 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       realTimeAvailability: true, // Real-time availability syncing
       multiPropertyDashboard: true, // Multi-property admin dashboard
     }
+  },
+  
+  enterprise: {
+    name: 'enterprise',
+    price: 3999,
+    displayName: 'Community Enterprise',
+    badge: 'Enterprise Partner',
+    features: {
+      // Basic
+      editContactInfo: true,
+      claimListing: true,
+      displayReviews: true,
+      tourScheduling: true,
+      
+      // Media
+      maxPhotos: 999, // Unlimited photos
+      maxVideos: 999, // Unlimited videos
+      maxVideoLength: 999, // Unlimited length
+      
+      // Documents
+      maxPdfs: 999, // Unlimited PDFs
+      
+      // Engagement
+      respondToReviews: true,
+      inAppMessaging: true,
+      aiResponseAssist: true,
+      
+      // Analytics
+      basicAnalytics: true,
+      advancedAnalytics: true,
+      monthlyPerformanceCall: true, // Quarterly business reviews
+      
+      // Visibility
+      featuredPlacement: true,
+      mapPriority: true,
+      searchBoost: true,
+      conciergePreferred: true,
+      seasonalBadges: true,
+      
+      // Advanced
+      tourCalendarLink: true,
+      staffBios: true,
+      menus: true,
+      carePhilosophy: true,
+      jobListings: true,
+      realTimeAvailability: true,
+      multiPropertyDashboard: true, // White-label platform
+    }
   }
 };
 
 // Helper Functions
 export function getTierFeatures(tier: string): TierFeatures {
-  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.verified;
+  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.starter;
   return subscription.features;
 }
 
@@ -285,13 +333,13 @@ export function getTierBadge(tier: string): string | undefined {
 
 // Get tier display name
 export function getTierDisplayName(tier: string): string {
-  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.verified;
+  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.starter;
   return subscription.displayName;
 }
 
 // Get tier price
 export function getTierPrice(tier: string): number {
-  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.verified;
+  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.starter;
   return subscription.price;
 }
 
@@ -316,7 +364,7 @@ export function canUseFeature(communityTier: string, feature: keyof TierFeatures
 // Get upgrade suggestions based on requested feature
 export function getUpgradeOptionsForFeature(currentTier: string, requestedFeature: keyof TierFeatures): SubscriptionTier[] {
   const upgradeTiers: SubscriptionTier[] = [];
-  const tierOrder = ['verified', 'standard', 'featured', 'platinum'];
+  const tierOrder = ['starter', 'growth', 'professional', 'premium', 'enterprise'];
   const currentIndex = tierOrder.indexOf(currentTier);
   
   for (let i = currentIndex + 1; i < tierOrder.length; i++) {

@@ -33,7 +33,7 @@ router.get('/api/subscription/tiers', (req, res) => {
     price: tier.price,
     badge: tier.badge,
     features: tier.features,
-    popular: tier.name === 'featured' // Mark Featured as popular
+    popular: tier.name === 'growth' // Mark Growth as popular
   }));
 
   res.json({
@@ -171,7 +171,7 @@ router.get('/api/subscription/check-feature/:communityId/:feature',
         return res.status(404).json({ error: 'Community not found' });
       }
 
-      const tier = community.subscriptionTier || 'verified';
+      const tier = community.subscriptionTier || 'starter';
       const tierData = SUBSCRIPTION_TIERS[tier];
       const hasAccess = tierData.features[feature as keyof typeof tierData.features];
 
