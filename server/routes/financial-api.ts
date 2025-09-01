@@ -8,9 +8,10 @@ import {
   vendorAnalytics,
   users,
   communities,
-  vendors
+  vendors,
+  financialTransactions
 } from '@shared/schema';
-import { eq, gte, lte, and, sql, desc, asc } from 'drizzle-orm';
+import { eq, gte, lte, and, sql, desc, asc, ne } from 'drizzle-orm';
 import { isAuthenticated } from '../auth-middleware';
 import { checkRole } from '../auth-middleware';
 import Stripe from 'stripe';
@@ -23,7 +24,126 @@ const router = Router();
 
 // Add comprehensive financial analytics endpoints
 
-// Revenue Metrics API
+// Main financial metrics endpoint
+router.get('/metrics', async (req, res) => {
+  try {
+    const period = req.query.period as string || '30d';
+    
+    // Calculate date ranges
+    const now = new Date();
+    let startDate: Date;
+    let previousStartDate: Date;
+    
+    switch (period) {
+      case '7d':
+        startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+        previousStartDate = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+        break;
+      case '30d':
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        previousStartDate = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+        break;
+      case '90d':
+        startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+        previousStartDate = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
+        break;
+      default:
+        startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+        previousStartDate = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000);
+    }
+
+    // Get current period revenue from actual payment transactions
+    const [currentRevenue] = await db
+      .select({
+        total: sql<number>`COALESCE(SUM(amount), 0)::numeric`,
+        count: sql<number>`COUNT(*)::int`
+      })
+      .from(paymentTransactions)
+      .where(
+        and(
+          gte(paymentTransactions.createdAt, startDate),
+          eq(paymentTransactions.status, 'completed')
+        )
+      );
+
+    // Get previous period revenue
+    const [previousRevenue] = await db
+      .select({
+        total: sql<number>`COALESCE(SUM(amount), 0)::numeric`
+      })
+      .from(paymentTransactions)
+      .where(
+        and(
+          gte(paymentTransactions.createdAt, previousStartDate),
+          lte(paymentTransactions.createdAt, startDate),
+          eq(paymentTransactions.status, 'completed')
+        )
+      );
+
+    // Get subscription metrics
+    const [subscriptionMetrics] = await db
+      .select({
+        activeCount: sql<number>`COUNT(CASE WHEN status = 'active' THEN 1 END)::int`,
+        totalCount: sql<number>`COUNT(*)::int`,
+        canceledCount: sql<number>`COUNT(CASE WHEN status = 'canceled' THEN 1 END)::int`
+      })
+      .from(communitySubscriptions);
+
+    // Get payment success metrics
+    const [paymentMetrics] = await db
+      .select({
+        successCount: sql<number>`COUNT(CASE WHEN status = 'completed' THEN 1 END)::int`,
+        failedCount: sql<number>`COUNT(CASE WHEN status = 'failed' THEN 1 END)::int`,
+        pendingAmount: sql<number>`COALESCE(SUM(CASE WHEN status = 'pending' THEN amount END), 0)::numeric`,
+        totalCount: sql<number>`COUNT(*)::int`,
+        avgTransaction: sql<number>`COALESCE(AVG(amount), 0)::numeric`
+      })
+      .from(paymentTransactions)
+      .where(gte(paymentTransactions.createdAt, startDate));
+
+    const current = Number(currentRevenue.total) / 100; // Convert cents to dollars
+    const previous = Number(previousRevenue.total) / 100;
+    const growth = previous > 0 ? ((current - previous) / previous) * 100 : 0;
+    
+    // Calculate MRR from active subscriptions
+    const mrr = subscriptionMetrics.activeCount * 149; // Base subscription price
+    const arr = mrr * 12;
+    const churn = subscriptionMetrics.totalCount > 0 
+      ? (subscriptionMetrics.canceledCount / subscriptionMetrics.totalCount) * 100 
+      : 0;
+    const ltv = churn > 0 ? mrr / (churn / 100) : mrr * 24; // 24 month default if no churn
+
+    const successRate = paymentMetrics.totalCount > 0 
+      ? (paymentMetrics.successCount / paymentMetrics.totalCount) * 100 
+      : 0;
+
+    res.json({
+      revenue: {
+        current: Math.round(current),
+        previous: Math.round(previous),
+        growth: Math.round(growth * 10) / 10,
+        forecast: Math.round(current * 1.1) // 10% growth forecast
+      },
+      subscriptions: {
+        mrr,
+        arr,
+        churn: Math.round(churn * 10) / 10,
+        ltv: Math.round(ltv)
+      },
+      paymentMetrics: {
+        successRate: Math.round(successRate * 10) / 10,
+        failedPayments: paymentMetrics.failedCount,
+        pendingAmount: Math.round(Number(paymentMetrics.pendingAmount) / 100),
+        averageTransaction: Math.round(Number(paymentMetrics.avgTransaction) / 100)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching financial metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch financial metrics' });
+  }
+});
+
+// Revenue Metrics API (legacy endpoint for compatibility)
 router.get('/revenue/metrics', async (req, res) => {
   try {
     const period = req.query.period as string || '12m';
@@ -181,11 +301,39 @@ router.get('/revenue/trends', async (req, res) => {
           )
         );
 
+      // Get actual subscription counts for this month
+      const [monthSubscriptions] = await db
+        .select({
+          count: sql<number>`COUNT(*)::int`
+        })
+        .from(communitySubscriptions)
+        .where(
+          and(
+            gte(communitySubscriptions.createdAt, month),
+            lte(communitySubscriptions.createdAt, monthEnd)
+          )
+        );
+
+      // Get actual customer counts for this month  
+      const [monthCustomers] = await db
+        .select({
+          count: sql<number>`COUNT(DISTINCT user_id)::int`
+        })
+        .from(paymentTransactions)
+        .where(
+          and(
+            gte(paymentTransactions.createdAt, month),
+            lte(paymentTransactions.createdAt, monthEnd)
+          )
+        );
+
       trends.push({
         period: month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        actual: (vendorRevenue.revenue || 0) + (communityRevenue.revenue || 0),
+        forecast: Math.round(((vendorRevenue.revenue || 0) + (communityRevenue.revenue || 0)) * 1.05), // 5% growth forecast
         revenue: (vendorRevenue.revenue || 0) + (communityRevenue.revenue || 0),
-        subscriptions: Math.floor(Math.random() * 50) + 10, // Based on actual subscription data
-        customers: Math.floor(Math.random() * 30) + 5
+        subscriptions: monthSubscriptions.count || 0,
+        customers: monthCustomers.count || 0
       });
     }
 
@@ -193,6 +341,83 @@ router.get('/revenue/trends', async (req, res) => {
   } catch (error) {
     console.error('Error fetching revenue trends:', error);
     res.status(500).json({ error: 'Failed to fetch revenue trends' });
+  }
+});
+
+// Subscription distribution endpoint
+router.get('/subscriptions/distribution', async (req, res) => {
+  try {
+    // Get subscription tier distribution from communities
+    const communityTiers = await db
+      .select({
+        tier: communities.subscriptionTier,
+        count: sql<number>`COUNT(*)::int`
+      })
+      .from(communities)
+      .where(communities.subscriptionTier !== null)
+      .groupBy(communities.subscriptionTier);
+
+    // Map to pricing tiers with real data
+    const tierPricing: Record<string, number> = {
+      'verified': 0,
+      'standard': 149,
+      'featured': 249,
+      'platinum': 349
+    };
+
+    const tiers = communityTiers.map(tier => ({
+      name: `${tier.tier?.charAt(0).toUpperCase()}${tier.tier?.slice(1)} ($${tierPricing[tier.tier || 'verified']})`,
+      value: tier.count,
+      revenue: tier.count * tierPricing[tier.tier || 'verified']
+    }));
+
+    res.json({ tiers });
+  } catch (error) {
+    console.error('Error fetching subscription distribution:', error);
+    res.status(500).json({ error: 'Failed to fetch subscription distribution' });
+  }
+});
+
+// Payment sources endpoint
+router.get('/payment-sources', async (req, res) => {
+  try {
+    // Get payment method distribution from actual transactions
+    const [paymentMethods] = await db
+      .select({
+        stripeTotal: sql<number>`COALESCE(SUM(CASE WHEN stripe_payment_intent_id IS NOT NULL THEN amount END), 0)::numeric`,
+        directTotal: sql<number>`COALESCE(SUM(CASE WHEN payment_type = 'deposit' THEN amount END), 0)::numeric`,
+        otherTotal: sql<number>`COALESCE(SUM(CASE WHEN payment_type NOT IN ('deposit') AND stripe_payment_intent_id IS NULL THEN amount END), 0)::numeric`
+      })
+      .from(paymentTransactions)
+      .where(eq(paymentTransactions.status, 'completed'));
+
+    const stripeAmount = Number(paymentMethods.stripeTotal) / 100;
+    const directAmount = Number(paymentMethods.directTotal) / 100;
+    const otherAmount = Number(paymentMethods.otherTotal) / 100;
+    const total = stripeAmount + directAmount + otherAmount;
+
+    const sources = [
+      { 
+        source: 'Stripe', 
+        amount: Math.round(stripeAmount), 
+        percentage: total > 0 ? Math.round((stripeAmount / total) * 100) : 0 
+      },
+      { 
+        source: 'Direct Bank', 
+        amount: Math.round(directAmount), 
+        percentage: total > 0 ? Math.round((directAmount / total) * 100) : 0 
+      },
+      { 
+        source: 'Other', 
+        amount: Math.round(otherAmount), 
+        percentage: total > 0 ? Math.round((otherAmount / total) * 100) : 0 
+      }
+    ].filter(s => s.amount > 0); // Only show sources with actual transactions
+
+    res.json({ sources });
+  } catch (error) {
+    console.error('Error fetching payment sources:', error);
+    res.status(500).json({ error: 'Failed to fetch payment sources' });
   }
 });
 
@@ -217,11 +442,7 @@ router.get('/commissions/summary', async (req, res) => {
       conversions: commissionData.conversions || 0,
       conversionRate: commissionData.totalLeads > 0 ? ((commissionData.conversions || 0) / commissionData.totalLeads) * 100 : 0,
       averageCommission: commissionData.averageCommission || 0,
-      topPerformers: [
-        { vendor: 'AmazonFresh Groceries', commissions: 1247, conversions: 12 },
-        { vendor: 'Senior Moving Services', commissions: 987, conversions: 8 },
-        { vendor: 'Healthcare Supplies Plus', commissions: 654, conversions: 6 }
-      ],
+      topPerformers: [], // Will be populated from actual vendor lead data
       period
     };
 

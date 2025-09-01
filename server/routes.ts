@@ -800,6 +800,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register enterprise test routes (Phase 3 validation)
   const enterpriseTestRoutes = await import('./routes/enterprise-test');
   app.use(enterpriseTestRoutes.default);
+  
+  // Register resident portal routes
+  const residentRoutes = await import('./routes/resident-api');
+  app.use('/api/resident', residentRoutes.default);
 
   // Note: Enterprise Monitoring routes already registered above (line 118)
 

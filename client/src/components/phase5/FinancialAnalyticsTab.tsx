@@ -20,55 +20,49 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 export function FinancialAnalyticsTab() {
   const [timeRange, setTimeRange] = useState('30d');
   
-  // Fetch financial data
-  const { data: financialMetrics } = useQuery({
-    queryKey: ['/api/operations/financial', timeRange],
-    initialData: {
-      revenue: {
-        current: 285420,
-        previous: 267350,
-        growth: 6.7,
-        forecast: 305000
-      },
-      subscriptions: {
-        mrr: 142500,
-        arr: 1710000,
-        churn: 2.3,
-        ltv: 48500
-      },
-      paymentMetrics: {
-        successRate: 97.2,
-        failedPayments: 12,
-        pendingAmount: 8420,
-        averageTransaction: 890
-      }
-    }
+  // Fetch REAL financial data from database
+  const { data: financialMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/financial/metrics', timeRange]
+  });
+  
+  // Fetch revenue trends from database
+  const { data: revenueTrends } = useQuery({
+    queryKey: ['/api/financial/revenue/trends', timeRange]
+  });
+  
+  // Fetch subscription distribution from database
+  const { data: subscriptionData } = useQuery({
+    queryKey: ['/api/financial/subscriptions/distribution']
+  });
+  
+  // Fetch payment sources from database
+  const { data: paymentSourceData } = useQuery({
+    queryKey: ['/api/financial/payment-sources']
   });
 
-  const revenueData = [
-    { month: 'Jan', actual: 245000, forecast: 240000 },
-    { month: 'Feb', actual: 252000, forecast: 248000 },
-    { month: 'Mar', actual: 268000, forecast: 262000 },
-    { month: 'Apr', actual: 275000, forecast: 273000 },
-    { month: 'May', actual: 282000, forecast: 280000 },
-    { month: 'Jun', actual: 285420, forecast: 287000 },
-    { month: 'Jul', actual: null, forecast: 295000 },
-    { month: 'Aug', actual: null, forecast: 305000 }
-  ];
-
-  const tierDistribution = [
-    { name: 'Starter ($99)', value: 125, revenue: 12375 },
-    { name: 'Growth ($299)', value: 89, revenue: 26611 },
-    { name: 'Professional ($999)', value: 45, revenue: 44955 },
-    { name: 'Premium ($1,999)', value: 28, revenue: 55972 },
-    { name: 'Enterprise ($3,999)', value: 8, revenue: 31992 }
-  ];
-
-  const paymentSources = [
-    { source: 'Stripe', amount: 165420, percentage: 58 },
-    { source: 'Direct Bank', amount: 85600, percentage: 30 },
-    { source: 'Wire Transfer', amount: 34400, percentage: 12 }
-  ];
+  // Use REAL data from database queries
+  const revenueData = revenueTrends?.trends || [];
+  const tierDistribution = subscriptionData?.tiers || [];
+  const paymentSources = paymentSourceData?.sources || [];
+  
+  // Loading state
+  if (metricsLoading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading real financial data...</p>
+        </div>
+      </div>
+    );
+  }
+  
+  // Default values from REAL data or zeros (NO MOCK DATA)
+  const metrics = financialMetrics || {
+    revenue: { current: 0, previous: 0, growth: 0, forecast: 0 },
+    subscriptions: { mrr: 0, arr: 0, churn: 0, ltv: 0 },
+    paymentMetrics: { successRate: 0, failedPayments: 0, pendingAmount: 0, averageTransaction: 0 }
+  };
 
   return (
     <div className="space-y-6">
@@ -101,10 +95,10 @@ export function FinancialAnalyticsTab() {
             <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${financialMetrics.revenue.current.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${metrics.revenue.current.toLocaleString()}</div>
             <div className="flex items-center text-xs text-green-600 mt-1">
               <TrendingUp className="h-3 w-3 mr-1" />
-              +{financialMetrics.revenue.growth}% from last month
+              +{metrics.revenue.growth}% from last month
             </div>
           </CardContent>
         </Card>
@@ -114,9 +108,9 @@ export function FinancialAnalyticsTab() {
             <CardTitle className="text-sm font-medium">MRR</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${financialMetrics.subscriptions.mrr.toLocaleString()}</div>
+            <div className="text-2xl font-bold">${metrics.subscriptions.mrr.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              ARR: ${(financialMetrics.subscriptions.mrr * 12).toLocaleString()}
+              ARR: ${(metrics.subscriptions.mrr * 12).toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -126,8 +120,8 @@ export function FinancialAnalyticsTab() {
             <CardTitle className="text-sm font-medium">Payment Success</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{financialMetrics.paymentMetrics.successRate}%</div>
-            <Progress value={financialMetrics.paymentMetrics.successRate} className="mt-2 h-2" />
+            <div className="text-2xl font-bold">{metrics.paymentMetrics.successRate}%</div>
+            <Progress value={metrics.paymentMetrics.successRate} className="mt-2 h-2" />
           </CardContent>
         </Card>
 
@@ -136,9 +130,9 @@ export function FinancialAnalyticsTab() {
             <CardTitle className="text-sm font-medium">Churn Rate</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{financialMetrics.subscriptions.churn}%</div>
+            <div className="text-2xl font-bold">{metrics.subscriptions.churn}%</div>
             <p className="text-xs text-muted-foreground mt-1">
-              LTV: ${financialMetrics.subscriptions.ltv.toLocaleString()}
+              LTV: ${metrics.subscriptions.ltv.toLocaleString()}
             </p>
           </CardContent>
         </Card>
@@ -245,10 +239,10 @@ export function FinancialAnalyticsTab() {
                 <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
                 <div className="text-sm">
                   <p className="font-medium text-yellow-900 dark:text-yellow-400">
-                    {financialMetrics.paymentMetrics.failedPayments} failed payments
+                    {metrics.paymentMetrics.failedPayments} failed payments
                   </p>
                   <p className="text-yellow-700 dark:text-yellow-500">
-                    ${financialMetrics.paymentMetrics.pendingAmount.toLocaleString()} pending recovery
+                    ${metrics.paymentMetrics.pendingAmount.toLocaleString()} pending recovery
                   </p>
                 </div>
               </div>
