@@ -110,6 +110,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const performanceRoutes = await import('./routes/performanceRoutes');
   app.use(performanceRoutes.default);
   
+  // Register enterprise feature routes
+  const enterpriseRoutes = await import('./routes/enterprise');
+  app.use(enterpriseRoutes.default);
+  
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);

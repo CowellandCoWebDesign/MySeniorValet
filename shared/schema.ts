@@ -5233,3 +5233,65 @@ export const insertRmsRevenueDataSchema = createInsertSchema(rmsRevenueData).omi
 });
 export type InsertRmsRevenueData = z.infer<typeof insertRmsRevenueDataSchema>;
 export type RmsRevenueData = typeof rmsRevenueData.$inferSelect;
+
+// ==========================================
+// ENTERPRISE FEATURE SCHEMAS
+// ==========================================
+
+// Community Analytics tracking
+export const communityAnalytics = pgTable('community_analytics', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  date: date('date').notNull(),
+  occupancyRate: real('occupancy_rate'),
+  revenue: real('revenue'),
+  expenses: real('expenses'),
+  residentCount: integer('resident_count'),
+  staffCount: integer('staff_count'),
+  incidentCount: integer('incident_count'),
+  satisfactionScore: real('satisfaction_score'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+export type CommunityAnalytics = typeof communityAnalytics.$inferSelect;
+export type InsertCommunityAnalytics = typeof communityAnalytics.$inferInsert;
+
+// Financial Records
+export const financialRecords = pgTable('financial_records', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  type: varchar('type', { length: 20 }).notNull(), // 'revenue' or 'expense'
+  category: varchar('category', { length: 100 }).notNull(),
+  amount: real('amount').notNull(),
+  description: text('description'),
+  date: date('date').notNull(),
+  paymentMethod: varchar('payment_method', { length: 50 }),
+  referenceNumber: varchar('reference_number', { length: 100 }),
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+export type FinancialRecord = typeof financialRecords.$inferSelect;
+export type InsertFinancialRecord = typeof financialRecords.$inferInsert;
+
+// Compliance Records
+export const complianceRecords = pgTable('compliance_records', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  regulationType: varchar('regulation_type', { length: 100 }).notNull(), // 'State', 'Federal', 'HIPAA', etc
+  checkType: varchar('check_type', { length: 100 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull(), // 'passed', 'failed', 'pending'
+  severity: varchar('severity', { length: 20 }), // 'critical', 'high', 'medium', 'low'
+  checkDate: date('check_date').notNull(),
+  dueDate: date('due_date'),
+  notes: text('notes'),
+  inspector: varchar('inspector', { length: 100 }),
+  documentUrl: text('document_url'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+export type ComplianceRecord = typeof complianceRecords.$inferSelect;
+export type InsertComplianceRecord = typeof complianceRecords.$inferInsert;

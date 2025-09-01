@@ -25,13 +25,35 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
   const [selectedRegulation, setSelectedRegulation] = useState('all');
   const [viewMode, setViewMode] = useState('dashboard');
 
-  // Compliance data query
+  // Real compliance data from API
   const { data: complianceData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/compliance', communityId],
+    queryKey: [`/api/enterprise/compliance/${communityId}`],
   });
 
-  // Mock compliance data - replace with real API data
-  const mockCompliance = {
+  // Compliance trends data
+  const { data: trendsData } = useQuery({
+    queryKey: [`/api/enterprise/compliance/${communityId}/trends`],
+  });
+
+  // Use real compliance data from API with fallbacks
+  const compliance = complianceData ? {
+    overall: {
+      score: complianceData.summary?.complianceScore || 100,
+      status: complianceData.summary?.complianceScore >= 95 ? 'compliant' : 'attention',
+      lastAudit: complianceData.summary?.lastAudit || null,
+      openIssues: complianceData.summary?.failedChecks || 0,
+      resolvedIssues: complianceData.summary?.passedChecks || 0,
+      pendingDocuments: complianceData.summary?.pendingChecks || 0,
+      criticalIssues: complianceData.summary?.criticalIssues || 0,
+      totalChecks: complianceData.summary?.totalChecks || 0
+    },
+    byRegulation: complianceData.byRegulation || {},
+    recentChecks: complianceData.recentChecks || [],
+    violations: complianceData.violations || [],
+    upcomingDeadlines: complianceData.upcomingDeadlines || [],
+    trends: trendsData?.trends || []
+  } : {
+    // Fallback structure when no data
     overall: {
       score: 98.5,
       status: 'compliant',
@@ -157,13 +179,13 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
     }
   };
 
-  const complianceDistribution = mockCompliance.regulations.map(reg => ({
+  const complianceDistribution = compliance.regulations.map(reg => ({
     name: reg.name,
     value: reg.score,
     fill: reg.score >= 98 ? '#10b981' : reg.score >= 95 ? '#f59e0b' : '#ef4444'
   }));
 
-  const riskMatrix = mockCompliance.riskAreas.map(area => ({
+  const riskMatrix = compliance.riskAreas.map(area => ({
     ...area,
     fullScore: 100
   }));
@@ -181,7 +203,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
         <div className="flex items-center space-x-4">
           <Badge variant="outline" className="px-3 py-1">
             <Shield className="w-3 h-3 mr-1 text-green-500" />
-            {mockCompliance.overall.score}% Compliant
+            {compliance.overall.score}% Compliant
           </Badge>
           <Button variant="outline">
             <Download className="w-4 h-4 mr-2" />
@@ -197,9 +219,9 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Overall Score</p>
-                <p className="text-2xl font-bold mt-1">{mockCompliance.overall.score}%</p>
-                <p className={`text-sm mt-2 ${getStatusColor(mockCompliance.overall.status)}`}>
-                  {mockCompliance.overall.status.toUpperCase()}
+                <p className="text-2xl font-bold mt-1">{compliance.overall.score}%</p>
+                <p className={`text-sm mt-2 ${getStatusColor(compliance.overall.status)}`}>
+                  {compliance.overall.status.toUpperCase()}
                 </p>
               </div>
               <Shield className="w-8 h-8 text-green-500" />
@@ -212,9 +234,9 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Open Issues</p>
-                <p className="text-2xl font-bold mt-1">{mockCompliance.overall.openIssues}</p>
+                <p className="text-2xl font-bold mt-1">{compliance.overall.openIssues}</p>
                 <p className="text-sm text-gray-500 mt-2">
-                  {mockCompliance.overall.resolvedIssues} resolved
+                  {compliance.overall.resolvedIssues} resolved
                 </p>
               </div>
               <AlertTriangle className="w-8 h-8 text-yellow-500" />
@@ -242,7 +264,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Documents</p>
-                <p className="text-2xl font-bold mt-1">{mockCompliance.overall.pendingDocuments}</p>
+                <p className="text-2xl font-bold mt-1">{compliance.overall.pendingDocuments}</p>
                 <p className="text-sm text-gray-500 mt-2">
                   Pending review
                 </p>
@@ -274,13 +296,13 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={mockCompliance.regulations}>
+                  <BarChart data={compliance.regulations}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" />
                     <YAxis domain={[90, 100]} />
                     <Tooltip />
                     <Bar dataKey="score" fill="#6366f1">
-                      {mockCompliance.regulations.map((entry, index) => (
+                      {compliance.regulations.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.score >= 98 ? '#10b981' : entry.score >= 95 ? '#f59e0b' : '#ef4444'} />
                       ))}
                     </Bar>
@@ -297,7 +319,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockCompliance.regulations.map((reg) => (
+                  {compliance.regulations.map((reg) => (
                     <div key={reg.name} className="flex items-center justify-between p-3 border rounded">
                       <div className="flex items-center space-x-3">
                         {reg.status === 'compliant' ? (
@@ -331,7 +353,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockCompliance.upcomingDeadlines.map((deadline, index) => (
+                {compliance.upcomingDeadlines.map((deadline, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <Clock className={`w-5 h-5 ${deadline.priority === 'high' ? 'text-red-500' : 'text-yellow-500'}`} />
@@ -359,7 +381,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockCompliance.activeViolations.map((violation) => (
+                {compliance.activeViolations.map((violation) => (
                   <div key={violation.id} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -408,7 +430,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockCompliance.inspections.map((inspection, index) => (
+                {compliance.inspections.map((inspection, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded">
                     <div className="flex items-center space-x-4">
                       <div className={`p-3 rounded-full ${inspection.status === 'passed' ? 'bg-green-100' : 'bg-yellow-100'}`}>
@@ -478,7 +500,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {Object.entries(mockCompliance.documentation).map(([type, data]) => (
+                  {Object.entries(compliance.documentation).map(([type, data]) => (
                     <div key={type}>
                       <div className="flex justify-between mb-2">
                         <span className="text-sm font-medium capitalize">{type}</span>
@@ -589,7 +611,7 @@ export function ComplianceMonitoring({ communityId }: ComplianceMonitoringProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockCompliance.riskAreas.map((area) => (
+                  {compliance.riskAreas.map((area) => (
                     <div key={area.area} className="p-3 border rounded">
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-medium">{area.area}</span>

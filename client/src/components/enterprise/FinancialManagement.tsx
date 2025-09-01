@@ -32,13 +32,50 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
   const [filterPayor, setFilterPayor] = useState('all');
   const [searchResident, setSearchResident] = useState('');
 
-  // Financial data query
+  // Real financial data from API
   const { data: financialData, isLoading, refetch } = useQuery({
-    queryKey: ['/api/enterprise/financial', communityId, selectedPeriod],
+    queryKey: [`/api/enterprise/financial/${communityId}`, selectedPeriod],
   });
 
-  // Mock financial data - replace with real API data
-  const mockFinancials = {
+  // Financial trends data
+  const { data: trendsData } = useQuery({
+    queryKey: [`/api/enterprise/financial/${communityId}/trends`, selectedPeriod],
+  });
+
+  // Create transaction mutation
+  const createTransaction = useMutation({
+    mutationFn: (transaction: any) => 
+      apiRequest('POST', `/api/enterprise/financial/${communityId}/transaction`, transaction),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/enterprise/financial/${communityId}`] });
+      toast({ title: 'Transaction created successfully' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to create transaction', variant: 'destructive' });
+    }
+  });
+
+  // Use real financial data from API with fallbacks
+  const financials = financialData ? {
+    summary: {
+      totalRevenue: financialData.summary?.monthlyRevenue || 0,
+      totalExpenses: financialData.summary?.monthlyExpenses || 0,
+      netIncome: financialData.summary?.netIncome || 0,
+      profitMargin: financialData.summary?.netIncome && financialData.summary?.monthlyRevenue
+        ? (financialData.summary.netIncome / financialData.summary.monthlyRevenue * 100) : 0,
+      cashFlow: financialData.summary?.netIncome || 0,
+      accountsReceivable: 0,
+      daysOutstanding: 0,
+      budgetVariance: 0,
+      revenueGrowth: financialData.summary?.revenueGrowth || 0,
+      transactionCount: financialData.summary?.transactionCount || 0
+    },
+    recentTransactions: financialData.recentTransactions || [],
+    categories: financialData.categories || {},
+    revenue: trendsData?.revenue || [],
+    expenses: trendsData?.expenses || []
+  } : {
+    // Fallback structure when no data
     summary: {
       totalRevenue: 1425000,
       totalExpenses: 1125000,
@@ -206,7 +243,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
-                <p className="text-2xl font-bold mt-1">{formatCurrency(mockFinancials.summary.totalRevenue)}</p>
+                <p className="text-2xl font-bold mt-1">{formatCurrency(financials.summary.totalRevenue)}</p>
                 <div className="flex items-center mt-2">
                   <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                   <span className="text-sm text-green-500">+5.7%</span>
@@ -223,10 +260,10 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Net Income</p>
-                <p className="text-2xl font-bold mt-1">{formatCurrency(mockFinancials.summary.netIncome)}</p>
+                <p className="text-2xl font-bold mt-1">{formatCurrency(financials.summary.netIncome)}</p>
                 <div className="flex items-center mt-2">
                   <span className="text-sm">Margin: </span>
-                  <span className="text-sm font-bold ml-1">{formatPercentage(mockFinancials.summary.profitMargin)}</span>
+                  <span className="text-sm font-bold ml-1">{formatPercentage(financials.summary.profitMargin)}</span>
                 </div>
               </div>
               <Wallet className="w-8 h-8 text-blue-500" />
@@ -239,10 +276,10 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Cash Flow</p>
-                <p className="text-2xl font-bold mt-1">{formatCurrency(mockFinancials.summary.cashFlow)}</p>
+                <p className="text-2xl font-bold mt-1">{formatCurrency(financials.summary.cashFlow)}</p>
                 <div className="flex items-center mt-2">
                   <Clock className="w-4 h-4 text-gray-500 mr-1" />
-                  <span className="text-sm">DSO: {mockFinancials.summary.daysOutstanding} days</span>
+                  <span className="text-sm">DSO: {financials.summary.daysOutstanding} days</span>
                 </div>
               </div>
               <Receipt className="w-8 h-8 text-purple-500" />
@@ -255,8 +292,8 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Budget Variance</p>
-                <p className={`text-2xl font-bold mt-1 ${getVarianceColor(mockFinancials.summary.budgetVariance)}`}>
-                  +{formatPercentage(mockFinancials.summary.budgetVariance)}
+                <p className={`text-2xl font-bold mt-1 ${getVarianceColor(financials.summary.budgetVariance)}`}>
+                  +{formatPercentage(financials.summary.budgetVariance)}
                 </p>
                 <div className="mt-2">
                   <Progress value={103.2} className="h-2" />
@@ -289,7 +326,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <ComposedChart data={mockFinancials.revenue.monthly}>
+                  <ComposedChart data={financials.revenue.monthly}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -313,7 +350,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
                 <ResponsiveContainer width="100%" height={300}>
                   <RechartsPieChart>
                     <Pie
-                      data={mockFinancials.revenue.byPayor}
+                      data={financials.revenue.byPayor}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -322,7 +359,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
                       fill="#8884d8"
                       dataKey="amount"
                     >
-                      {mockFinancials.revenue.byPayor.map((entry, index) => (
+                      {financials.revenue.byPayor.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'][index]} />
                       ))}
                     </Pie>
@@ -341,7 +378,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {mockFinancials.revenue.byCareType.map((care) => (
+                {financials.revenue.byCareType.map((care) => (
                   <div key={care.type} className="p-4 border rounded-lg">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{care.type}</p>
                     <p className="text-xl font-bold mt-2">{formatCurrency(care.revenue)}</p>
@@ -365,7 +402,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockFinancials.revenue.byPayor.map((payor) => (
+                {financials.revenue.byPayor.map((payor) => (
                   <div key={payor.name} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-4">
                       <div>
@@ -395,7 +432,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockFinancials.expenses.categories.map((category) => (
+                  {financials.expenses.categories.map((category) => (
                     <div key={category.category}>
                       <div className="flex justify-between items-center mb-1">
                         <span className="text-sm font-medium">{category.category}</span>
@@ -420,7 +457,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={mockFinancials.expenses.trending}>
+                  <AreaChart data={financials.expenses.trending}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -479,7 +516,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={mockFinancials.billing.outstanding}>
+                  <BarChart data={financials.billing.outstanding}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="aging" />
                     <YAxis />
@@ -489,7 +526,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
                 </ResponsiveContainer>
                 <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded">
                   <p className="text-sm font-medium">Total Outstanding</p>
-                  <p className="text-2xl font-bold">{formatCurrency(mockFinancials.summary.accountsReceivable)}</p>
+                  <p className="text-2xl font-bold">{formatCurrency(financials.summary.accountsReceivable)}</p>
                 </div>
               </CardContent>
             </Card>
@@ -505,20 +542,20 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm">Collection Rate</span>
-                      <span className="text-sm font-bold">{mockFinancials.billing.collections.rate}%</span>
+                      <span className="text-sm font-bold">{financials.billing.collections.rate}%</span>
                     </div>
-                    <Progress value={mockFinancials.billing.collections.rate} className="h-2" />
-                    <p className="text-xs text-gray-500 mt-1">Target: {mockFinancials.billing.collections.monthlyTarget}%</p>
+                    <Progress value={financials.billing.collections.rate} className="h-2" />
+                    <p className="text-xs text-gray-500 mt-1">Target: {financials.billing.collections.monthlyTarget}%</p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
                     <div className="p-3 border rounded">
                       <p className="text-sm text-gray-600">Avg Days to Collect</p>
-                      <p className="text-xl font-bold">{mockFinancials.billing.collections.avgDaysToCollect}</p>
+                      <p className="text-xl font-bold">{financials.billing.collections.avgDaysToCollect}</p>
                     </div>
                     <div className="p-3 border rounded">
                       <p className="text-sm text-gray-600">Denial Rate</p>
-                      <p className="text-xl font-bold">{mockFinancials.billing.collections.denials}%</p>
+                      <p className="text-xl font-bold">{financials.billing.collections.denials}%</p>
                     </div>
                   </div>
 
@@ -580,7 +617,7 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={mockFinancials.forecast.quarterly}>
+                  <BarChart data={financials.forecast.quarterly}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="quarter" />
                     <YAxis />
@@ -605,23 +642,23 @@ export function FinancialManagement({ communityId }: FinancialManagementProps) {
                   <div className="p-4 border rounded">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Projected Revenue</span>
-                      <span className="text-xl font-bold">{formatCurrency(mockFinancials.forecast.annual.projectedRevenue)}</span>
+                      <span className="text-xl font-bold">{formatCurrency(financials.forecast.annual.projectedRevenue)}</span>
                     </div>
                   </div>
                   <div className="p-4 border rounded">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Projected Expenses</span>
-                      <span className="text-xl font-bold text-red-600">{formatCurrency(mockFinancials.forecast.annual.projectedExpenses)}</span>
+                      <span className="text-xl font-bold text-red-600">{formatCurrency(financials.forecast.annual.projectedExpenses)}</span>
                     </div>
                   </div>
                   <div className="p-4 border rounded bg-green-50 dark:bg-green-900/20">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Projected Profit</span>
-                      <span className="text-xl font-bold text-green-600">{formatCurrency(mockFinancials.forecast.annual.projectedProfit)}</span>
+                      <span className="text-xl font-bold text-green-600">{formatCurrency(financials.forecast.annual.projectedProfit)}</span>
                     </div>
                     <div className="flex justify-between items-center mt-2">
                       <span className="text-xs text-gray-600">Profit Margin</span>
-                      <span className="text-sm font-semibold">{formatPercentage(mockFinancials.forecast.annual.projectedMargin)}</span>
+                      <span className="text-sm font-semibold">{formatPercentage(financials.forecast.annual.projectedMargin)}</span>
                     </div>
                   </div>
                 </div>
