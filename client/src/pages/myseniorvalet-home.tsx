@@ -311,7 +311,7 @@ function HeroSectionWithTransformingSearch() {
               Everything You Need. Nothing You Pay.
             </h1>
             <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-1">
-              Search thousands of senior communities with real pricing, verified data, and instant comparisons - completely free.
+              The Google of Senior Care - AI-powered search, real pricing, instant comparisons, and expert guidance all in one free platform.
             </p>
           </div>
         </div>
