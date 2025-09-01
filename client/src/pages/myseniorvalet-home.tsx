@@ -292,7 +292,6 @@ function HeroSectionWithTransformingSearch() {
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
             loading="eager"
-            fetchPriority="high"
             decoding="sync"
             onLoad={() => setImageLoaded(true)}
             style={{ 
@@ -445,19 +444,8 @@ function HeroSectionWithTransformingSearch() {
             </div>
             </div>
             
-            {/* View Mode Tabs and Trust Indicators - Integrated Design */}
-            <div className="flex justify-center items-center mt-3 pb-2 gap-3">
-              {/* Trust Indicators - Left Side */}
-              {!isSearchActive && (
-                <div className="hidden sm:flex items-center gap-2">
-                  <span className="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <DollarSign className="h-3 w-3 text-green-400 animate-pulse flex-shrink-0" />
-                    <span className="text-[10px] font-semibold text-white drop-shadow">Live Pricing</span>
-                  </span>
-                </div>
-              )}
-              
-              {/* View Mode Buttons - Center */}
+            {/* View Mode Tabs - Clean and Simple */}
+            <div className="flex justify-center mt-3 pb-2">
               <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
                 isSearchActive 
                   ? 'bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 shadow-xl border border-gray-200 dark:border-gray-600'
@@ -512,41 +500,7 @@ function HeroSectionWithTransformingSearch() {
                   <span>Research</span>
                 </button>
               </div>
-              
-              {/* Trust Indicators - Right Side */}
-              {!isSearchActive && (
-                <div className="hidden sm:flex items-center gap-2">
-                  <span className="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <Users2 className="h-3 w-3 text-green-300 flex-shrink-0" />
-                    <span className="text-[10px] font-semibold text-white drop-shadow">Reviews</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-1 bg-black/30 backdrop-blur-sm px-2 py-1 rounded-full">
-                    <Brain className="h-3 w-3 text-purple-300 animate-pulse flex-shrink-0" />
-                    <span className="text-[10px] font-semibold text-white drop-shadow">Live Status</span>
-                  </span>
-                </div>
-              )}
             </div>
-            
-            {/* Mobile Trust Indicators - Show only on mobile below buttons */}
-            {!isSearchActive && (
-              <div className="flex sm:hidden justify-center items-center mt-1">
-                <div className="flex items-center gap-1">
-                  <span className="inline-flex items-center space-x-0.5 bg-black/30 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
-                    <DollarSign className="h-2.5 w-2.5 text-green-400 animate-pulse" />
-                    <span className="text-[8px] font-semibold text-white">Pricing</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-0.5 bg-black/30 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
-                    <Users2 className="h-2.5 w-2.5 text-green-300" />
-                    <span className="text-[8px] font-semibold text-white">Reviews</span>
-                  </span>
-                  <span className="inline-flex items-center space-x-0.5 bg-black/30 backdrop-blur-sm px-1.5 py-0.5 rounded-full">
-                    <Brain className="h-2.5 w-2.5 text-purple-300 animate-pulse" />
-                    <span className="text-[8px] font-semibold text-white">Live</span>
-                  </span>
-                </div>
-              </div>
-            )}
           </div>
         </div>
           
