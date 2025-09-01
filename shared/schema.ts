@@ -6151,3 +6151,334 @@ export type CommunityFeature = typeof communityFeatures.$inferSelect;
 export type InsertCommunityFeature = typeof communityFeatures.$inferInsert;
 export type FeatureUsage = typeof featureUsageTracking.$inferSelect;
 export type InsertFeatureUsage = typeof featureUsageTracking.$inferInsert;
+
+// ============================================
+// PHASE 5B WEEK 2: RESIDENT & FAMILY FEATURES
+// ============================================
+
+// Resident Mobile App - User profiles for mobile app
+export const residentProfiles = pgTable('resident_profiles', {
+  id: serial('id').primaryKey(),
+  userId: varchar('user_id').references(() => users.id).notNull(),
+  communityId: integer('community_id').references(() => communities.id).notNull(),
+  
+  // Personal Information
+  roomNumber: varchar('room_number', { length: 50 }),
+  careLevel: varchar('care_level', { length: 50 }), // 'independent', 'assisted', 'memory_care', 'skilled_nursing'
+  admissionDate: date('admission_date'),
+  
+  // Emergency Contacts
+  emergencyContacts: jsonb('emergency_contacts').$type<Array<{
+    name: string;
+    relationship: string;
+    phone: string;
+    email?: string;
+    isPrimary: boolean;
+  }>>().default([]),
+  
+  // Medical Information
+  allergies: text('allergies').array().default([]),
+  medications: jsonb('medications').$type<Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    prescribedBy: string;
+  }>>().default([]),
+  dietaryRestrictions: text('dietary_restrictions').array().default([]),
+  mobilityStatus: varchar('mobility_status', { length: 50 }), // 'independent', 'walker', 'wheelchair', 'bedridden'
+  
+  // Preferences
+  preferredActivities: text('preferred_activities').array().default([]),
+  communicationPreferences: jsonb('communication_preferences').$type<{
+    preferredLanguage?: string;
+    hearingImpaired?: boolean;
+    visualImpaired?: boolean;
+    preferredContactMethod?: string;
+  }>().default({}),
+  
+  // Mobile App Settings
+  deviceTokens: jsonb('device_tokens').$type<Array<{
+    platform: 'ios' | 'android';
+    token: string;
+    lastActive: Date;
+  }>>().default([]),
+  appSettings: jsonb('app_settings').$type<{
+    notificationsEnabled: boolean;
+    locationSharingEnabled: boolean;
+    emergencyAlertEnabled: boolean;
+    activityReminders: boolean;
+    medicationReminders: boolean;
+    mealReminders: boolean;
+    fontSize: 'small' | 'medium' | 'large' | 'xlarge';
+    highContrast: boolean;
+  }>().default({
+    notificationsEnabled: true,
+    locationSharingEnabled: false,
+    emergencyAlertEnabled: true,
+    activityReminders: true,
+    medicationReminders: true,
+    mealReminders: true,
+    fontSize: 'medium',
+    highContrast: false
+  }),
+  
+  // Status
+  status: varchar('status', { length: 20 }).notNull().default('active'), // 'active', 'inactive', 'transferred', 'discharged'
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('resident_profiles_user_idx').on(table.userId),
+  index('resident_profiles_community_idx').on(table.communityId),
+  index('resident_profiles_status_idx').on(table.status)
+]);
+
+export const insertResidentProfileSchema = createInsertSchema(residentProfiles)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertResidentProfile = z.infer<typeof insertResidentProfileSchema>;
+export type ResidentProfile = typeof residentProfiles.$inferSelect;
+
+// Family Communication Portal - Messages between families and residents
+export const familyMessages = pgTable('family_messages', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id).notNull(),
+  
+  // Participants
+  senderId: varchar('sender_id').references(() => users.id).notNull(),
+  recipientId: varchar('recipient_id').references(() => users.id),
+  recipientGroupId: integer('recipient_group_id'), // For group messages
+  
+  // Message Content
+  subject: varchar('subject', { length: 255 }),
+  content: text('content').notNull(),
+  messageType: varchar('message_type', { length: 50 }).notNull().default('text'), // 'text', 'photo', 'video', 'voice', 'document'
+  attachments: jsonb('attachments').$type<Array<{
+    type: string;
+    url: string;
+    thumbnail?: string;
+    size: number;
+    filename: string;
+  }>>().default([]),
+  
+  // Status
+  status: varchar('status', { length: 20 }).notNull().default('sent'), // 'draft', 'sent', 'delivered', 'read'
+  readAt: timestamp('read_at'),
+  
+  // Threading
+  threadId: varchar('thread_id', { length: 100 }),
+  replyToId: integer('reply_to_id'),
+  
+  // Priority & Tags
+  priority: varchar('priority', { length: 20 }).default('normal'), // 'low', 'normal', 'high', 'urgent'
+  tags: text('tags').array().default([]),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('family_messages_community_idx').on(table.communityId),
+  index('family_messages_sender_idx').on(table.senderId),
+  index('family_messages_recipient_idx').on(table.recipientId),
+  index('family_messages_thread_idx').on(table.threadId),
+  index('family_messages_status_idx').on(table.status)
+]);
+
+export const insertFamilyMessageSchema = createInsertSchema(familyMessages)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertFamilyMessage = z.infer<typeof insertFamilyMessageSchema>;
+export type FamilyMessage = typeof familyMessages.$inferSelect;
+
+// Video Calling Sessions
+export const videoCallSessions = pgTable('video_call_sessions', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id).notNull(),
+  
+  // Session Details
+  sessionId: varchar('session_id', { length: 100 }).notNull().unique(),
+  roomName: varchar('room_name', { length: 255 }).notNull(),
+  provider: varchar('provider', { length: 50 }).notNull().default('jitsi'), // 'jitsi', 'zoom', 'teams', 'webrtc'
+  
+  // Participants
+  hostId: varchar('host_id').references(() => users.id).notNull(),
+  participants: jsonb('participants').$type<Array<{
+    userId: string;
+    userName: string;
+    joinedAt: Date;
+    leftAt?: Date;
+    deviceType: string;
+  }>>().default([]),
+  maxParticipants: integer('max_participants').default(10),
+  
+  // Scheduling
+  scheduledAt: timestamp('scheduled_at'),
+  startedAt: timestamp('started_at'),
+  endedAt: timestamp('ended_at'),
+  duration: integer('duration'), // in seconds
+  
+  // Status & Settings
+  status: varchar('status', { length: 20 }).notNull().default('scheduled'), // 'scheduled', 'active', 'completed', 'cancelled'
+  isRecorded: boolean('is_recorded').default(false),
+  recordingUrl: varchar('recording_url', { length: 500 }),
+  
+  // Access Control
+  accessCode: varchar('access_code', { length: 20 }),
+  requiresApproval: boolean('requires_approval').default(false),
+  
+  // Metadata
+  purpose: varchar('purpose', { length: 100 }), // 'family_visit', 'medical_consultation', 'activity', 'celebration'
+  notes: text('notes'),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('video_sessions_community_idx').on(table.communityId),
+  index('video_sessions_host_idx').on(table.hostId),
+  index('video_sessions_status_idx').on(table.status),
+  index('video_sessions_scheduled_idx').on(table.scheduledAt),
+  index('video_sessions_session_id_idx').on(table.sessionId)
+]);
+
+export const insertVideoCallSessionSchema = createInsertSchema(videoCallSessions)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertVideoCallSession = z.infer<typeof insertVideoCallSessionSchema>;
+export type VideoCallSession = typeof videoCallSessions.$inferSelect;
+
+// Budget Planning & Variance Tracking
+export const budgetPlans = pgTable('budget_plans', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').references(() => communities.id).notNull(),
+  
+  // Budget Information
+  budgetName: varchar('budget_name', { length: 255 }).notNull(),
+  fiscalYear: integer('fiscal_year').notNull(),
+  quarter: integer('quarter'), // 1-4
+  month: integer('month'), // 1-12
+  
+  // Budget Categories
+  categories: jsonb('categories').$type<Array<{
+    categoryId: string;
+    categoryName: string;
+    parentCategory?: string;
+    budgetedAmount: number;
+    actualAmount: number;
+    variance: number;
+    variancePercentage: number;
+    notes?: string;
+  }>>().default([]),
+  
+  // Revenue Budget
+  revenueItems: jsonb('revenue_items').$type<Array<{
+    itemId: string;
+    itemName: string;
+    source: string;
+    budgetedAmount: number;
+    actualAmount: number;
+    variance: number;
+    recurringType?: 'one-time' | 'monthly' | 'quarterly' | 'annual';
+  }>>().default([]),
+  
+  // Expense Budget
+  expenseItems: jsonb('expense_items').$type<Array<{
+    itemId: string;
+    itemName: string;
+    category: string;
+    vendor?: string;
+    budgetedAmount: number;
+    actualAmount: number;
+    variance: number;
+    isFixed: boolean;
+    recurringType?: 'one-time' | 'monthly' | 'quarterly' | 'annual';
+  }>>().default([]),
+  
+  // Totals
+  totalBudgetedRevenue: numeric('total_budgeted_revenue', { precision: 12, scale: 2 }).notNull().default('0'),
+  totalActualRevenue: numeric('total_actual_revenue', { precision: 12, scale: 2 }).notNull().default('0'),
+  totalBudgetedExpenses: numeric('total_budgeted_expenses', { precision: 12, scale: 2 }).notNull().default('0'),
+  totalActualExpenses: numeric('total_actual_expenses', { precision: 12, scale: 2 }).notNull().default('0'),
+  
+  // Variance Analysis
+  revenueVariance: numeric('revenue_variance', { precision: 12, scale: 2 }).notNull().default('0'),
+  expenseVariance: numeric('expense_variance', { precision: 12, scale: 2 }).notNull().default('0'),
+  netIncomeVariance: numeric('net_income_variance', { precision: 12, scale: 2 }).notNull().default('0'),
+  
+  // Forecasting
+  forecastedRevenue: numeric('forecasted_revenue', { precision: 12, scale: 2 }),
+  forecastedExpenses: numeric('forecasted_expenses', { precision: 12, scale: 2 }),
+  forecastConfidence: numeric('forecast_confidence', { precision: 5, scale: 2 }), // 0-100%
+  
+  // Status & Approval
+  status: varchar('status', { length: 20 }).notNull().default('draft'), // 'draft', 'pending_approval', 'approved', 'active', 'closed'
+  approvedBy: varchar('approved_by').references(() => users.id),
+  approvedAt: timestamp('approved_at'),
+  
+  // Notes & Attachments
+  notes: text('notes'),
+  attachments: jsonb('attachments').$type<Array<{
+    filename: string;
+    url: string;
+    uploadedAt: Date;
+  }>>().default([]),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('budget_plans_community_idx').on(table.communityId),
+  index('budget_plans_fiscal_year_idx').on(table.fiscalYear),
+  index('budget_plans_status_idx').on(table.status),
+  index('budget_plans_quarter_idx').on(table.quarter),
+  index('budget_plans_month_idx').on(table.month)
+]);
+
+export const insertBudgetPlanSchema = createInsertSchema(budgetPlans)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertBudgetPlan = z.infer<typeof insertBudgetPlanSchema>;
+export type BudgetPlan = typeof budgetPlans.$inferSelect;
+
+// Activity Participation Tracking (for mobile app)
+export const activityParticipation = pgTable('activity_participation', {
+  id: serial('id').primaryKey(),
+  residentId: integer('resident_id').references(() => residentProfiles.id).notNull(),
+  activityId: integer('activity_id').references(() => activities.id).notNull(),
+  
+  // Participation Details
+  participationStatus: varchar('participation_status', { length: 20 }).notNull().default('registered'), // 'registered', 'attended', 'missed', 'cancelled'
+  checkInTime: timestamp('check_in_time'),
+  checkOutTime: timestamp('check_out_time'),
+  
+  // Feedback
+  enjoymentRating: integer('enjoyment_rating'), // 1-5
+  feedback: text('feedback'),
+  
+  // Health Monitoring
+  vitalsBefore: jsonb('vitals_before').$type<{
+    bloodPressure?: string;
+    heartRate?: number;
+    temperature?: number;
+    oxygenLevel?: number;
+  }>(),
+  vitalsAfter: jsonb('vitals_after').$type<{
+    bloodPressure?: string;
+    heartRate?: number;
+    temperature?: number;
+    oxygenLevel?: number;
+  }>(),
+  
+  // Notes
+  staffNotes: text('staff_notes'),
+  
+  // Timestamps
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('activity_participation_resident_idx').on(table.residentId),
+  index('activity_participation_activity_idx').on(table.activityId),
+  index('activity_participation_status_idx').on(table.participationStatus)
+]);
+
+export const insertActivityParticipationSchema = createInsertSchema(activityParticipation)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertActivityParticipation = z.infer<typeof insertActivityParticipationSchema>;
+export type ActivityParticipation = typeof activityParticipation.$inferSelect;

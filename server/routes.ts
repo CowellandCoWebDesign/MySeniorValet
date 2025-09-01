@@ -16,6 +16,7 @@ import reservationRoutes from "./routes/reservations";
 import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
+import residentFamilyRoutes from "./routes/resident-family-api";
 import { db } from "./db";
 import { eq, or, like, desc, and } from "drizzle-orm";
 import cookieParser from "cookie-parser";
@@ -818,6 +819,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Phase 5b: Billing & Financial Management routes
   const billingRoutes = await import('./routes/billing-api');
   app.use('/api/billing', billingRoutes.default);
+
+  app.use('/api/resident-family', residentFamilyRoutes);
 
   return httpServer;
 }
