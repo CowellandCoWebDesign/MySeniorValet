@@ -6,12 +6,12 @@ import {
   familyMessages, 
   videoCallSessions, 
   budgetPlans,
-  activityParticipation,
+  // activityParticipation, // Commented out until activities table is created
   type ResidentProfile,
   type FamilyMessage,
   type VideoCallSession,
   type BudgetPlan,
-  type ActivityParticipation
+  // type ActivityParticipation // Commented out until activities table is created
 } from '@shared/schema';
 import { eq, and, desc, sql, gte, lte, or } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
@@ -540,7 +540,9 @@ router.get('/budgets/:id/variance-report', async (req: Request, res: Response) =
 // =====================================
 // ACTIVITY PARTICIPATION API
 // =====================================
+// NOTE: Commented out until activities table is created
 
+/*
 // Record activity participation
 router.post('/activity-participation', async (req: Request, res: Response) => {
   try {
@@ -556,6 +558,7 @@ router.post('/activity-participation', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to record activity participation' });
   }
 });
+*/
 
 // Get resident's activity history
 router.get('/residents/:residentId/activities', async (req: Request, res: Response) => {

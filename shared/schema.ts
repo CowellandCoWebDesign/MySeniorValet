@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType, unique, time } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -6438,10 +6438,12 @@ export type InsertBudgetPlan = z.infer<typeof insertBudgetPlanSchema>;
 export type BudgetPlan = typeof budgetPlans.$inferSelect;
 
 // Activity Participation Tracking (for mobile app)
+// NOTE: Commented out until activities table is created
+/*
 export const activityParticipation = pgTable('activity_participation', {
   id: serial('id').primaryKey(),
   residentId: integer('resident_id').references(() => residentProfiles.id).notNull(),
-  activityId: integer('activity_id').references(() => activities.id).notNull(),
+  activityId: integer('activity_id').references(() => activitiesEvents.id).notNull(),
   
   // Participation Details
   participationStatus: varchar('participation_status', { length: 20 }).notNull().default('registered'), // 'registered', 'attended', 'missed', 'cancelled'
@@ -6478,7 +6480,245 @@ export const activityParticipation = pgTable('activity_participation', {
   index('activity_participation_status_idx').on(table.participationStatus)
 ]);
 
+*/
+
+// NOTE: Commented out until activities table is created
+/*
 export const insertActivityParticipationSchema = createInsertSchema(activityParticipation)
   .omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertActivityParticipation = z.infer<typeof insertActivityParticipationSchema>;
 export type ActivityParticipation = typeof activityParticipation.$inferSelect;
+*/
+
+// Week 3: Operational Excellence Tables
+
+// Supply Chain Management
+export const communityVendors = pgTable("community_vendors", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  vendorName: varchar("vendor_name", { length: 255 }).notNull(),
+  vendorType: varchar("vendor_type", { length: 100 }),
+  contactName: varchar("contact_name", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 50 }),
+  address: text("address"),
+  paymentTerms: varchar("payment_terms", { length: 100 }),
+  rating: integer("rating"),
+  status: varchar("status", { length: 50 }).default("active"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const purchaseOrders = pgTable("purchase_orders", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  vendorId: integer("vendor_id").references(() => communityVendors.id),
+  orderNumber: varchar("order_number", { length: 100 }).notNull().unique(),
+  orderDate: timestamp("order_date").notNull(),
+  expectedDelivery: timestamp("expected_delivery"),
+  totalAmount: decimal("total_amount", { precision: 12, scale: 2 }),
+  status: varchar("status", { length: 50 }).default("pending"),
+  approvedBy: varchar("approved_by", { length: 255 }),
+  receivedDate: timestamp("received_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const inventory = pgTable("inventory", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  itemName: varchar("item_name", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }),
+  sku: varchar("sku", { length: 100 }),
+  quantityOnHand: integer("quantity_on_hand").default(0),
+  reorderPoint: integer("reorder_point"),
+  reorderQuantity: integer("reorder_quantity"),
+  unitCost: decimal("unit_cost", { precision: 10, scale: 2 }),
+  location: varchar("location", { length: 255 }),
+  vendorId: integer("vendor_id").references(() => communityVendors.id),
+  lastOrderDate: timestamp("last_order_date"),
+  expirationDate: timestamp("expiration_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Food Service Management
+export const menus = pgTable("menus", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  menuName: varchar("menu_name", { length: 255 }).notNull(),
+  mealType: varchar("meal_type", { length: 50 }), // breakfast, lunch, dinner, snack
+  menuDate: date("menu_date"),
+  weekNumber: integer("week_number"),
+  cycleNumber: integer("cycle_number"),
+  status: varchar("status", { length: 50 }).default("draft"),
+  approvedBy: varchar("approved_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const menuItems = pgTable("menu_items", {
+  id: serial("id").primaryKey(),
+  menuId: integer("menu_id").references(() => menus.id).notNull(),
+  itemName: varchar("item_name", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }), // entree, side, dessert, beverage
+  allergens: text("allergens").array(),
+  nutritionInfo: jsonb("nutrition_info"),
+  cost: decimal("cost", { precision: 8, scale: 2 }),
+  preparationTime: integer("preparation_time"), // in minutes
+  servingSize: varchar("serving_size", { length: 100 }),
+  dietaryFlags: text("dietary_flags").array(), // vegetarian, vegan, gluten-free, etc.
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const mealOrders = pgTable("meal_orders", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  residentId: integer("resident_id").references(() => residentProfiles.id),
+  menuItemId: integer("menu_item_id").references(() => menuItems.id),
+  mealDate: date("meal_date").notNull(),
+  mealType: varchar("meal_type", { length: 50 }),
+  specialRequests: text("special_requests"),
+  deliveryLocation: varchar("delivery_location", { length: 255 }),
+  status: varchar("status", { length: 50 }).default("pending"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Energy & Utility Tracking
+export const utilityMeters = pgTable("utility_meters", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  meterType: varchar("meter_type", { length: 50 }).notNull(), // electric, gas, water, sewer
+  meterNumber: varchar("meter_number", { length: 100 }),
+  location: varchar("location", { length: 255 }),
+  provider: varchar("provider", { length: 255 }),
+  accountNumber: varchar("account_number", { length: 100 }),
+  installDate: date("install_date"),
+  status: varchar("status", { length: 50 }).default("active"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const utilityReadings = pgTable("utility_readings", {
+  id: serial("id").primaryKey(),
+  meterId: integer("meter_id").references(() => utilityMeters.id).notNull(),
+  readingDate: timestamp("reading_date").notNull(),
+  readingValue: decimal("reading_value", { precision: 15, scale: 3 }),
+  usage: decimal("usage", { precision: 15, scale: 3 }),
+  cost: decimal("cost", { precision: 10, scale: 2 }),
+  billingPeriodStart: date("billing_period_start"),
+  billingPeriodEnd: date("billing_period_end"),
+  peakDemand: decimal("peak_demand", { precision: 10, scale: 3 }),
+  powerFactor: decimal("power_factor", { precision: 5, scale: 3 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+export const energyTargets = pgTable("energy_targets", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  targetYear: integer("target_year").notNull(),
+  targetMonth: integer("target_month"),
+  utilityType: varchar("utility_type", { length: 50 }),
+  targetUsage: decimal("target_usage", { precision: 15, scale: 3 }),
+  targetCost: decimal("target_cost", { precision: 10, scale: 2 }),
+  reductionPercentage: decimal("reduction_percentage", { precision: 5, scale: 2 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow()
+});
+
+// Predictive Maintenance
+export const maintenanceAssets = pgTable("maintenance_assets", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  assetName: varchar("asset_name", { length: 255 }).notNull(),
+  assetType: varchar("asset_type", { length: 100 }),
+  manufacturer: varchar("manufacturer", { length: 255 }),
+  model: varchar("model", { length: 255 }),
+  serialNumber: varchar("serial_number", { length: 255 }),
+  installDate: date("install_date"),
+  warrantyExpiry: date("warranty_expiry"),
+  location: varchar("location", { length: 255 }),
+  criticality: varchar("criticality", { length: 50 }), // critical, high, medium, low
+  maintenanceFrequency: integer("maintenance_frequency"), // days between maintenance
+  lastMaintenanceDate: timestamp("last_maintenance_date"),
+  nextMaintenanceDate: timestamp("next_maintenance_date"),
+  status: varchar("status", { length: 50 }).default("operational"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const maintenanceWorkOrders = pgTable("maintenance_work_orders", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  assetId: integer("asset_id").references(() => maintenanceAssets.id),
+  workOrderNumber: varchar("work_order_number", { length: 100 }).notNull().unique(),
+  workType: varchar("work_type", { length: 50 }), // preventive, corrective, emergency
+  priority: varchar("priority", { length: 50 }),
+  description: text("description"),
+  assignedTo: varchar("assigned_to", { length: 255 }),
+  scheduledDate: timestamp("scheduled_date"),
+  completedDate: timestamp("completed_date"),
+  laborHours: decimal("labor_hours", { precision: 6, scale: 2 }),
+  partsCost: decimal("parts_cost", { precision: 10, scale: 2 }),
+  totalCost: decimal("total_cost", { precision: 10, scale: 2 }),
+  status: varchar("status", { length: 50 }).default("pending"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+// Transportation Management
+export const vehicles = pgTable("vehicles", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  vehicleNumber: varchar("vehicle_number", { length: 100 }).notNull(),
+  make: varchar("make", { length: 100 }),
+  model: varchar("model", { length: 100 }),
+  year: integer("year"),
+  licensePlate: varchar("license_plate", { length: 50 }),
+  vin: varchar("vin", { length: 50 }),
+  capacity: integer("capacity"),
+  wheelchairAccessible: boolean("wheelchair_accessible").default(false),
+  mileage: integer("mileage"),
+  lastServiceDate: date("last_service_date"),
+  nextServiceDue: date("next_service_due"),
+  insuranceExpiry: date("insurance_expiry"),
+  registrationExpiry: date("registration_expiry"),
+  status: varchar("status", { length: 50 }).default("available"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const transportationTrips = pgTable("transportation_trips", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  vehicleId: integer("vehicle_id").references(() => vehicles.id),
+  driverId: varchar("driver_id", { length: 255 }),
+  tripDate: timestamp("trip_date").notNull(),
+  departureTime: time("departure_time"),
+  returnTime: time("return_time"),
+  destination: varchar("destination", { length: 500 }),
+  purpose: varchar("purpose", { length: 255 }),
+  passengerCount: integer("passenger_count"),
+  mileage: decimal("mileage", { precision: 8, scale: 2 }),
+  fuelCost: decimal("fuel_cost", { precision: 8, scale: 2 }),
+  notes: text("notes"),
+  status: varchar("status", { length: 50 }).default("scheduled"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+});
+
+export const tripPassengers = pgTable("trip_passengers", {
+  id: serial("id").primaryKey(),
+  tripId: integer("trip_id").references(() => transportationTrips.id).notNull(),
+  residentId: integer("resident_id").references(() => residentProfiles.id),
+  pickupLocation: varchar("pickup_location", { length: 255 }),
+  dropoffLocation: varchar("dropoff_location", { length: 255 }),
+  specialNeeds: text("special_needs"),
+  status: varchar("status", { length: 50 }).default("confirmed"),
+  createdAt: timestamp("created_at").defaultNow()
+});
