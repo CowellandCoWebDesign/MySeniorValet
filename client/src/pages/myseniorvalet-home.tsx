@@ -264,7 +264,7 @@ function HeroSectionWithTransformingSearch() {
   return (
     <>
       <ProfessionalNavbar transparent />
-      <section className="relative min-h-screen mt-16"
+      <section className="relative h-screen overflow-hidden mt-16"
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
@@ -303,9 +303,9 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col min-h-screen px-2 sm:px-4">
+        <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
         {/* Hero Title - Positioned at Very Top */}
-        <div className="w-full text-center pt-[2vh] sm:pt-[2.5vh] md:pt-[3vh] lg:pt-[2.5vh]">
+        <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
           <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-4 md:px-5 py-2 sm:py-2.5">
             <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white whitespace-nowrap leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
               Everything You Need. Nothing You Pay.
@@ -317,7 +317,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
-        <div className="flex-grow flex flex-col justify-end pb-6 sm:pb-8 md:pb-10">
+        <div className="flex-grow flex flex-col justify-end pb-2 sm:pb-3 md:pb-4">
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-2 sm:mb-3">
           {/* Category Tabs - File Folder Style - Simplified */}
