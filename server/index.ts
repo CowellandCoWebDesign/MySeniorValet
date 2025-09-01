@@ -226,6 +226,28 @@ if (process.env.NODE_ENV === 'development') {
     });
   });
 
+  // Initialize Phase 4: Advanced Monitoring Services
+  import('./services/alert.service').then(({ EnterpriseAlertService }) => {
+    const alertService = EnterpriseAlertService.getInstance();
+    console.log('🚨 Enterprise Alert Service initialized');
+  }).catch(error => {
+    console.error('Failed to initialize alert service:', error);
+  });
+
+  import('./services/performance.service').then(({ PerformanceMonitorService }) => {
+    const performanceService = PerformanceMonitorService.getInstance();
+    console.log('📈 Performance Monitor Service initialized');
+  }).catch(error => {
+    console.error('Failed to initialize performance service:', error);
+  });
+
+  import('./services/cache-optimizer.service').then(({ CacheOptimizerService }) => {
+    const cacheService = CacheOptimizerService.getInstance();
+    console.log('🗄️ Cache Optimizer Service initialized');
+  }).catch(error => {
+    console.error('Failed to initialize cache service:', error);
+  });
+
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

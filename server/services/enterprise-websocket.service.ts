@@ -24,15 +24,23 @@ interface RealtimeEvent {
   communityId?: number;
 }
 
-class EnterpriseWebSocketService extends EventEmitter {
+export class EnterpriseWebSocketService extends EventEmitter {
+  private static instance: EnterpriseWebSocketService;
   private wss: WebSocketServer | null = null;
   private clients: Map<string, WebSocketClient> = new Map();
   private metricsInterval: NodeJS.Timeout | null = null;
   private eventInterval: NodeJS.Timeout | null = null;
 
-  constructor() {
+  private constructor() {
     super();
     this.setupEventListeners();
+  }
+
+  static getInstance(): EnterpriseWebSocketService {
+    if (!EnterpriseWebSocketService.instance) {
+      EnterpriseWebSocketService.instance = new EnterpriseWebSocketService();
+    }
+    return EnterpriseWebSocketService.instance;
   }
 
   initialize(server: Server) {
