@@ -13,7 +13,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { 
   Wrench, AlertTriangle, CheckCircle, Clock, Calendar as CalendarIcon,
   Package, Truck, DollarSign, TrendingUp, TrendingDown, AlertCircle,
-  Home, Filter, Search, Plus, Download, Upload, Settings, Tool,
+  Home, Filter, Search, Plus, Download, Upload, Settings,
   Building, FileText, User, MapPin, Phone, Mail, Activity,
   ThermometerSun, Zap, Droplets, Wind, Shield, Timer
 } from 'lucide-react';
@@ -194,7 +194,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
       case 'Safety':
         return <Shield className="w-4 h-4" />;
       default:
-        return <Tool className="w-4 h-4" />;
+        return <Wrench className="w-4 h-4" />;
     }
   };
 
