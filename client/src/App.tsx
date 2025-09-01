@@ -115,6 +115,11 @@ import AmazonProductAdmin from "@/pages/AmazonProductAdmin";
 import PerplexityTest from "@/pages/perplexity-test";
 import MultiAITest from "@/pages/MultiAITest";
 import AISearchComparison from "@/pages/AISearchComparison";
+// Phase 5 Enterprise Dashboards
+import FinancialAnalyticsDashboard from "@/pages/financial-analytics-dashboard";
+import ComplianceDashboard from "@/pages/compliance-dashboard";
+import CommunityDashboardPhase5A from "@/pages/community-dashboard-phase5a";
+import { MultiPropertyDashboard } from "@/pages/multi-property-dashboard";
 // ONE consolidated admin dashboard - removed all duplicates
 import { useAuth } from "@/hooks/useAuth";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
@@ -380,6 +385,13 @@ function Router() {
       <Route path="/test-community-cards" component={TestCommunityCards} />
       <Route path="/enhanced-card-test" component={EnhancedCardTest} />
       <Route path="/perplexity-test" component={PerplexityTest} />
+      
+      {/* Phase 5 Enterprise Features */}
+      <Route path="/financial-analytics" component={FinancialAnalyticsDashboard} />
+      <Route path="/compliance-management" component={ComplianceDashboard} />
+      <Route path="/community-dashboard-phase5a" component={CommunityDashboardPhase5A} />
+      <Route path="/multi-property-dashboard" component={MultiPropertyDashboard} />
+      
       <Route component={NotFound} />
     </Switch>
   );
