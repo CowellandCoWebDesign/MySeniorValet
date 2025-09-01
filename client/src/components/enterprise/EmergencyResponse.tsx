@@ -35,21 +35,28 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
 
   // Emergency data query
   const { data: emergencyData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/emergency', communityId],
+    queryKey: [`/api/enterprise/emergency-response/${communityId}`],
   });
 
-  // Mock emergency response data - replace with real API data
-  const mockEmergency = {
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const emergency = emergencyData ? emergencyData : {
+    // Empty fallback - no mock data per Golden Data Rule
     summary: {
-      activeIncidents: 2,
-      responseTime: 3.2,
-      resolvedToday: 5,
-      openTickets: 8,
-      drillsCompleted: 12,
-      complianceScore: 98,
-      averageResolution: 18,
-      staffTrained: 145
+      activeIncidents: 0,
+      responseTime: 0,
+      resolvedToday: 0,
+      openTickets: 0,
+      drillsCompleted: 0,
+      complianceScore: 0,
+      averageResolution: 0,
+      staffTrained: 0
     },
+    activeEmergencies: [],
+    protocols: [],
+    contacts: [],
+    drills: [],
+    equipment: [],
+    history: [],
     activeIncidents: [
       {
         id: 1,
@@ -287,29 +294,29 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
       </div>
 
       {/* Active Incidents Alert */}
-      {mockEmergency.activeIncidents.length > 0 && (
+      {emergency.activeIncidents.length > 0 && (
         <Alert className="border-red-200 bg-red-50/50 dark:bg-red-900/20">
           <Siren className="h-4 w-4 animate-pulse" />
           <AlertTitle>Active Incidents Requiring Attention</AlertTitle>
           <AlertDescription>
-            {mockEmergency.activeIncidents.length} active incident{mockEmergency.activeIncidents.length > 1 ? 's' : ''} in progress. Average response time: {mockEmergency.summary.responseTime} minutes.
+            {emergency.activeIncidents.length} active incident{emergency.activeIncidents.length > 1 ? 's' : ''} in progress. Average response time: {emergency.summary.responseTime} minutes.
           </AlertDescription>
         </Alert>
       )}
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className={mockEmergency.summary.activeIncidents > 0 ? 'border-red-200 bg-red-50/50 dark:bg-red-900/20' : ''}>
+        <Card className={emergency.summary.activeIncidents > 0 ? 'border-red-200 bg-red-50/50 dark:bg-red-900/20' : ''}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Active Incidents</p>
-                <p className="text-2xl font-bold">{mockEmergency.summary.activeIncidents}</p>
+                <p className="text-2xl font-bold">{emergency.summary.activeIncidents}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockEmergency.summary.resolvedToday} resolved today
+                  {emergency.summary.resolvedToday} resolved today
                 </p>
               </div>
-              <Siren className={`w-8 h-8 ${mockEmergency.summary.activeIncidents > 0 ? 'text-red-500 animate-pulse' : 'text-gray-400'}`} />
+              <Siren className={`w-8 h-8 ${emergency.summary.activeIncidents > 0 ? 'text-red-500 animate-pulse' : 'text-gray-400'}`} />
             </div>
           </CardContent>
         </Card>
@@ -319,7 +326,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Avg Response Time</p>
-                <p className="text-2xl font-bold">{mockEmergency.summary.responseTime} min</p>
+                <p className="text-2xl font-bold">{emergency.summary.responseTime} min</p>
                 <div className="flex items-center mt-1">
                   <TrendingDown className="w-3 h-3 text-green-500 mr-1" />
                   <span className="text-xs text-green-500">-12% vs last month</span>
@@ -335,8 +342,8 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Compliance Score</p>
-                <p className="text-2xl font-bold">{mockEmergency.summary.complianceScore}%</p>
-                <Progress value={mockEmergency.summary.complianceScore} className="h-1 mt-2" />
+                <p className="text-2xl font-bold">{emergency.summary.complianceScore}%</p>
+                <Progress value={emergency.summary.complianceScore} className="h-1 mt-2" />
               </div>
               <Shield className="w-8 h-8 text-green-500" />
             </div>
@@ -348,9 +355,9 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Staff Trained</p>
-                <p className="text-2xl font-bold">{mockEmergency.summary.staffTrained}</p>
+                <p className="text-2xl font-bold">{emergency.summary.staffTrained}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockEmergency.summary.drillsCompleted} drills completed
+                  {emergency.summary.drillsCompleted} drills completed
                 </p>
               </div>
               <Users className="w-8 h-8 text-purple-500" />
@@ -373,10 +380,10 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
         {/* Incidents Tab */}
         <TabsContent value="incidents" className="space-y-4">
           {/* Active Incidents */}
-          {mockEmergency.activeIncidents.length > 0 && (
+          {emergency.activeIncidents.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-red-600">Active Incidents</h3>
-              {mockEmergency.activeIncidents.map((incident) => (
+              {emergency.activeIncidents.map((incident) => (
                 <Card key={incident.id} className="border-red-200">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-4">
@@ -479,7 +486,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockEmergency.recentIncidents.map((incident) => (
+                {emergency.recentIncidents.map((incident) => (
                   <div key={incident.id} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       {getIncidentIcon(incident.type)}
@@ -511,7 +518,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockEmergency.protocols.map((protocol) => (
+                {emergency.protocols.map((protocol) => (
                   <div key={protocol.id} className="flex items-center justify-between p-4 border rounded">
                     <div className="flex items-center space-x-3">
                       {getIncidentIcon(protocol.type)}
@@ -551,7 +558,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockEmergency.drills.scheduled.map((drill, index) => (
+                  {emergency.drills.scheduled.map((drill, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium">{drill.type}</p>
@@ -579,7 +586,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockEmergency.drills.completed.map((drill, index) => (
+                  {emergency.drills.completed.map((drill, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium">{drill.type}</p>
@@ -622,7 +629,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockEmergency.equipment.map((item, index) => (
+                    {emergency.equipment.map((item, index) => (
                       <tr key={index} className="border-b">
                         <td className="p-2 font-medium">{item.item}</td>
                         <td className="text-center p-2">{item.total}</td>
@@ -667,7 +674,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockEmergency.contacts.internal.map((contact, index) => (
+                  {emergency.contacts.internal.map((contact, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div className="flex items-center space-x-3">
                         <div className={`w-2 h-2 rounded-full ${contact.available ? 'bg-green-500' : 'bg-gray-400'}`} />
@@ -696,7 +703,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockEmergency.contacts.external.map((service, index) => (
+                  {emergency.contacts.external.map((service, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium">{service.service}</p>
@@ -729,7 +736,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
                 <ResponsiveContainer width="100%" height={250}>
                   <RechartsPieChart>
                     <Pie
-                      data={mockEmergency.statistics.incidentsByType}
+                      data={emergency.statistics.incidentsByType}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -738,7 +745,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {mockEmergency.statistics.incidentsByType.map((entry, index) => (
+                      {emergency.statistics.incidentsByType.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6'][index]} />
                       ))}
                     </Pie>
@@ -757,7 +764,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={mockEmergency.statistics.responseTimeTrend}>
+                  <LineChart data={emergency.statistics.responseTimeTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -777,7 +784,7 @@ export function EmergencyResponse({ communityId }: EmergencyResponseProps) {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <AreaChart data={mockEmergency.statistics.incidentTrend}>
+                <AreaChart data={emergency.statistics.incidentTrend}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />

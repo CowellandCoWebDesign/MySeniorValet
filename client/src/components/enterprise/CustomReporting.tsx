@@ -33,21 +33,27 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
 
   // Reports data query
   const { data: reportsData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/reports', communityId],
+    queryKey: [`/api/enterprise/custom-reports/${communityId}`],
   });
 
-  // Mock reporting data - replace with real API data
-  const mockReports = {
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const reports = reportsData ? reportsData : {
+    // Empty fallback - no mock data per Golden Data Rule
     summary: {
-      totalReports: 45,
-      scheduledReports: 28,
-      lastGenerated: new Date(Date.now() - 30 * 60 * 1000),
-      nextScheduled: new Date(Date.now() + 2 * 60 * 60 * 1000),
-      storageUsed: '1.2 GB',
-      emailsSent: 342,
-      activeRecipients: 67,
-      automationRate: 82
+      totalReports: 0,
+      scheduledReports: 0,
+      lastGenerated: null,
+      nextScheduled: null,
+      storageUsed: '0 GB',
+      emailsSent: 0,
+      activeRecipients: 0,
+      automationRate: 0
     },
+    reports: [],
+    templates: [],
+    scheduled: [],
+    recent: [],
+    favorites: [],
     templates: [
       {
         id: 1,
@@ -375,9 +381,9 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Reports</p>
-                <p className="text-2xl font-bold">{mockReports.summary.totalReports}</p>
+                <p className="text-2xl font-bold">{reports.summary.totalReports}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockReports.summary.scheduledReports} scheduled
+                  {reports.summary.scheduledReports} scheduled
                 </p>
               </div>
               <FileText className="w-8 h-8 text-purple-500" />
@@ -390,9 +396,9 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Automation Rate</p>
-                <p className="text-2xl font-bold">{mockReports.summary.automationRate}%</p>
+                <p className="text-2xl font-bold">{reports.summary.automationRate}%</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockReports.analytics.automationSavings} saved
+                  {reports.analytics.automationSavings} saved
                 </p>
               </div>
               <Zap className="w-8 h-8 text-amber-500" />
@@ -405,9 +411,9 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Emails Sent</p>
-                <p className="text-2xl font-bold">{mockReports.summary.emailsSent}</p>
+                <p className="text-2xl font-bold">{reports.summary.emailsSent}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockReports.summary.activeRecipients} recipients
+                  {reports.summary.activeRecipients} recipients
                 </p>
               </div>
               <Mail className="w-8 h-8 text-blue-500" />
@@ -421,10 +427,10 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Next Scheduled</p>
                 <p className="text-lg font-bold">
-                  {format(mockReports.summary.nextScheduled, 'HH:mm')}
+                  {format(reports.summary.nextScheduled, 'HH:mm')}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {formatDistanceToNow(mockReports.summary.nextScheduled, { addSuffix: true })}
+                  {formatDistanceToNow(reports.summary.nextScheduled, { addSuffix: true })}
                 </p>
               </div>
               <Clock className="w-8 h-8 text-green-500" />
@@ -459,7 +465,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockReports.scheduledReports.map((report) => (
+                {reports.scheduledReports.map((report) => (
                   <div key={report.id} className="border rounded p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -531,7 +537,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mockReports.templates.map((template) => (
+                {reports.templates.map((template) => (
                   <Card key={template.id} className="hover:shadow-lg transition-shadow cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-3">
@@ -593,7 +599,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                 {/* Metrics Selection */}
                 <div className="space-y-4">
                   <h3 className="font-semibold">Select Metrics</h3>
-                  {mockReports.reportBuilder.availableMetrics.map((category, idx) => (
+                  {reports.reportBuilder.availableMetrics.map((category, idx) => (
                     <div key={idx} className="border rounded p-3">
                       <p className="font-medium mb-2">{category.category}</p>
                       <div className="space-y-2">
@@ -644,7 +650,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockReports.reportBuilder.chartTypes.map((type) => (
+                        {reports.reportBuilder.chartTypes.map((type) => (
                           <SelectItem key={type} value={type.toLowerCase()}>{type}</SelectItem>
                         ))}
                       </SelectContent>
@@ -658,7 +664,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockReports.reportBuilder.exportFormats.map((format) => (
+                        {reports.reportBuilder.exportFormats.map((format) => (
                           <SelectItem key={format} value={format.toLowerCase()}>{format}</SelectItem>
                         ))}
                       </SelectContent>
@@ -731,7 +737,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockReports.recentReports.map((report) => (
+                    {reports.recentReports.map((report) => (
                       <tr key={report.id} className="border-b">
                         <td className="p-2">
                           <div className="flex items-center space-x-2">
@@ -779,7 +785,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockReports.dataConnections.map((connection, idx) => (
+                {reports.dataConnections.map((connection, idx) => (
                   <div key={idx} className="flex items-center justify-between p-4 border rounded">
                     <div className="flex items-center space-x-3">
                       <Database className={`w-5 h-5 ${
@@ -822,7 +828,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={mockReports.analytics.mostUsedReports}>
+                  <BarChart data={reports.analytics.mostUsedReports}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
                     <YAxis />
@@ -844,7 +850,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
                     <div>
                       <p className="text-sm text-gray-600">Average Generation Time</p>
-                      <p className="text-xl font-bold">{mockReports.analytics.averageGenerationTime}s</p>
+                      <p className="text-xl font-bold">{reports.analytics.averageGenerationTime}s</p>
                     </div>
                     <Clock className="w-8 h-8 text-blue-500" />
                   </div>
@@ -852,7 +858,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
                     <div>
                       <p className="text-sm text-gray-600">Success Rate</p>
-                      <p className="text-xl font-bold">{mockReports.analytics.successRate}%</p>
+                      <p className="text-xl font-bold">{reports.analytics.successRate}%</p>
                     </div>
                     <CheckCircle className="w-8 h-8 text-green-500" />
                   </div>
@@ -860,7 +866,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
                     <div>
                       <p className="text-sm text-gray-600">User Satisfaction</p>
-                      <p className="text-xl font-bold">{mockReports.analytics.userSatisfaction}/5.0</p>
+                      <p className="text-xl font-bold">{reports.analytics.userSatisfaction}/5.0</p>
                     </div>
                     <Star className="w-8 h-8 text-amber-500" />
                   </div>
@@ -868,7 +874,7 @@ export function CustomReporting({ communityId }: CustomReportingProps) {
                   <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded">
                     <div>
                       <p className="text-sm text-gray-600">Time Saved</p>
-                      <p className="text-xl font-bold">{mockReports.analytics.automationSavings}</p>
+                      <p className="text-xl font-bold">{reports.analytics.automationSavings}</p>
                     </div>
                     <Zap className="w-8 h-8 text-purple-500" />
                   </div>

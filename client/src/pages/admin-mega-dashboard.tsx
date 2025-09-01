@@ -197,6 +197,65 @@ export default function AdminMegaDashboard() {
   const [expansionProgress, setExpansionProgress] = useState(0);
   const [selectedCounty, setSelectedCounty] = useState<string | null>(null);
   
+  // Platform Health Verification states
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationResults, setVerificationResults] = useState<any[]>([]);
+  const communityId = 1; // Default community ID for verification
+  
+  // Platform Health Verification Queries
+  const analyticsQuery = useQuery({
+    queryKey: [`/api/enterprise/analytics/${communityId}`],
+    enabled: false,
+  });
+  const financialQuery = useQuery({
+    queryKey: [`/api/enterprise/financial/${communityId}`],
+    enabled: false,
+  });
+  const complianceQuery = useQuery({
+    queryKey: [`/api/enterprise/compliance/${communityId}`],
+    enabled: false,
+  });
+  const residentsQuery = useQuery({
+    queryKey: [`/api/enterprise/residents/${communityId}`],
+    enabled: false,
+  });
+  const staffQuery = useQuery({
+    queryKey: [`/api/enterprise/staff/${communityId}`],
+    enabled: false,
+  });
+  const schedulesQuery = useQuery({
+    queryKey: [`/api/enterprise/schedules/${communityId}`],
+    enabled: false,
+  });
+  const familiesQuery = useQuery({
+    queryKey: [`/api/enterprise/families/${communityId}`],
+    enabled: false,
+  });
+  const maintenanceQuery = useQuery({
+    queryKey: [`/api/enterprise/maintenance/${communityId}`],
+    enabled: false,
+  });
+  const vendorsQuery = useQuery({
+    queryKey: [`/api/enterprise/vendors/${communityId}`],
+    enabled: false,
+  });
+  const qualityQuery = useQuery({
+    queryKey: [`/api/enterprise/quality-metrics/${communityId}`],
+    enabled: false,
+  });
+  const marketingQuery = useQuery({
+    queryKey: [`/api/enterprise/marketing/${communityId}`],
+    enabled: false,
+  });
+  const communicationsQuery = useQuery({
+    queryKey: [`/api/enterprise/communications/${communityId}`],
+    enabled: false,
+  });
+  const documentsQuery = useQuery({
+    queryKey: [`/api/enterprise/documents/${communityId}`],
+    enabled: false,
+  });
+  
   // Check super admin access - allow development access for testing
   const userRole = (user as any)?.role || '';
   const userEmail = (user as any)?.email || '';
@@ -205,6 +264,118 @@ export default function AdminMegaDashboard() {
                        userEmail === 'william.cowell01@gmail.com' || 
                        userEmail === 'admin@myseniorvalet.com' ||
                        isDevelopment; // Allow access in development for testing
+                       
+  // Platform Health Verification Functions
+  const runPlatformHealthVerification = async () => {
+    setIsVerifying(true);
+    const results: any[] = [];
+    
+    // Phase 1: Core Enterprise Systems
+    const phase1Components = [
+      { name: 'EnterpriseAnalytics', query: analyticsQuery },
+      { name: 'FinancialManagement', query: financialQuery },
+      { name: 'ComplianceMonitoring', query: complianceQuery },
+    ];
+    
+    // Phase 2: People Systems
+    const phase2Components = [
+      { name: 'ResidentManagement', query: residentsQuery },
+      { name: 'StaffManagement', query: staffQuery },
+      { name: 'StaffScheduling', query: schedulesQuery },
+      { name: 'FamilyPortal', query: familiesQuery },
+    ];
+    
+    // Phase 3: Operations Systems
+    const phase3Components = [
+      { name: 'MaintenanceSystem', query: maintenanceQuery },
+      { name: 'VendorManagement', query: vendorsQuery },
+      { name: 'QualityMetrics', query: qualityQuery },
+    ];
+    
+    // Phase 4: Business Intelligence Systems
+    const phase4Components = [
+      { name: 'MarketingAnalytics', query: marketingQuery },
+      { name: 'RealTimeNotifications', query: communicationsQuery },
+      { name: 'DocumentManagement', query: documentsQuery },
+    ];
+    
+    const allComponents = [...phase1Components, ...phase2Components, ...phase3Components, ...phase4Components];
+    
+    for (const component of allComponents) {
+      try {
+        const data = await component.query.refetch();
+        if (data.data) {
+          const hasData = Object.keys(data.data).some(key => {
+            const value = (data.data as any)[key];
+            return Array.isArray(value) ? value.length > 0 : value && typeof value === 'object' && Object.keys(value).length > 0;
+          });
+          results.push({
+            component: component.name,
+            status: hasData ? 'success' : 'no-data',
+            message: hasData ? 'Connected to real API - Data retrieved successfully' : 'API connected but no data available yet',
+            dataCount: Array.isArray(data.data) ? data.data.length : undefined
+          });
+        } else {
+          results.push({
+            component: component.name,
+            status: 'no-data',
+            message: 'API connected but no data available yet'
+          });
+        }
+      } catch (error: any) {
+        results.push({
+          component: component.name,
+          status: 'error',
+          message: `API Error: ${error?.message || 'Unknown error'}`
+        });
+      }
+    }
+    
+    setVerificationResults(results);
+    setIsVerifying(false);
+    
+    // Show toast with summary
+    const successCount = results.filter(r => r.status === 'success').length;
+    const errorCount = results.filter(r => r.status === 'error').length;
+    
+    if (errorCount === 0) {
+      toast({
+        title: "Health Check Complete",
+        description: `All ${results.length} components verified. ${successCount} with data, ${results.length - successCount} awaiting data.`,
+      });
+    } else {
+      toast({
+        title: "Health Check Complete with Issues",
+        description: `${errorCount} component(s) have errors. Please check the details.`,
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const getPhaseHealthStatus = (phase: string) => {
+    const phaseComponents = 
+      phase === 'Phase 1' ? ['EnterpriseAnalytics', 'FinancialManagement', 'ComplianceMonitoring'] :
+      phase === 'Phase 2' ? ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'] :
+      phase === 'Phase 3' ? ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'] :
+      ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'];
+    
+    const phaseResults = verificationResults.filter(r => phaseComponents.includes(r.component));
+    
+    if (phaseResults.length === 0) return 'unknown';
+    if (phaseResults.every(r => r.status === 'success')) return 'success';
+    if (phaseResults.every(r => r.status === 'error')) return 'error';
+    return 'partial';
+  };
+  
+  const getPhaseComponentCount = (phase: string) => {
+    const phaseComponents = 
+      phase === 'Phase 1' ? ['EnterpriseAnalytics', 'FinancialManagement', 'ComplianceMonitoring'] :
+      phase === 'Phase 2' ? ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'] :
+      phase === 'Phase 3' ? ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'] :
+      ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'];
+    
+    return phaseComponents.length;
+  };
   
   // Pulse effect for live updates (from admin-creative)
   useEffect(() => {
@@ -2459,6 +2630,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <Gauge className="h-4 w-4 mr-2" />
               Performance
             </TabsTrigger>
+            <TabsTrigger value="health">
+              <Shield className="h-4 w-4 mr-2" />
+              Platform Health
+            </TabsTrigger>
             <TabsTrigger value="reports">
               <FileText className="h-4 w-4 mr-2" />
               Reports
@@ -2599,6 +2774,142 @@ Communities Created: ${details.stats.communitiesCreated}`;
           
           <TabsContent value="activity" className="space-y-4">
             {renderLiveActivity()}
+          </TabsContent>
+          
+          {/* Platform Health Monitoring Tab */}
+          <TabsContent value="health" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Shield className="w-5 h-5" />
+                    Enterprise Platform Health Monitor
+                  </span>
+                  <Button
+                    onClick={runPlatformHealthVerification}
+                    disabled={isVerifying}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    {isVerifying ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Verifying...
+                      </>
+                    ) : (
+                      <>
+                        <TestTube className="w-4 h-4 mr-2" />
+                        Run Health Check
+                      </>
+                    )}
+                  </Button>
+                </CardTitle>
+                <CardDescription>
+                  Monitor all enterprise components for Golden Data Rule compliance and API connectivity
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {verificationResults.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Shield className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Click "Run Health Check" to verify platform components
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Phase Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {['Phase 1', 'Phase 2', 'Phase 3', 'Phase 4'].map((phase) => {
+                        const status = getPhaseHealthStatus(phase);
+                        return (
+                          <Card key={phase} className="border-l-4" style={{
+                            borderLeftColor: status === 'success' ? '#10b981' : 
+                                           status === 'partial' ? '#f59e0b' : '#ef4444'
+                          }}>
+                            <CardContent className="py-4">
+                              <div className="flex items-center justify-between">
+                                <span className="font-medium">{phase}</span>
+                                {status === 'success' ? (
+                                  <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                ) : status === 'partial' ? (
+                                  <AlertCircle className="w-5 h-5 text-yellow-500" />
+                                ) : (
+                                  <XCircle className="w-5 h-5 text-red-500" />
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                {getPhaseComponentCount(phase)} components
+                              </p>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* Detailed Results */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold">Component Status</h3>
+                      {verificationResults.map((result, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            {result.status === 'success' ? (
+                              <CheckCircle2 className="w-5 h-5 text-green-500" />
+                            ) : result.status === 'no-data' ? (
+                              <AlertCircle className="w-5 h-5 text-yellow-500" />
+                            ) : (
+                              <XCircle className="w-5 h-5 text-red-500" />
+                            )}
+                            <div>
+                              <p className="font-medium">{result.component}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{result.message}</p>
+                              {result.dataCount !== undefined && result.dataCount > 0 && (
+                                <p className="text-xs text-gray-500 mt-1">Records: {result.dataCount}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Summary Statistics */}
+                    <Card className="bg-gray-50 dark:bg-gray-800">
+                      <CardContent className="py-4">
+                        <h4 className="font-semibold mb-3">Health Check Summary</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400">Total Components</p>
+                            <p className="font-semibold text-lg">{verificationResults.length}</p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400">Connected</p>
+                            <p className="font-semibold text-lg text-green-600">
+                              {verificationResults.filter(r => r.status === 'success').length}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400">No Data</p>
+                            <p className="font-semibold text-lg text-yellow-600">
+                              {verificationResults.filter(r => r.status === 'no-data').length}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-gray-600 dark:text-gray-400">Errors</p>
+                            <p className="font-semibold text-lg text-red-600">
+                              {verificationResults.filter(r => r.status === 'error').length}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
+                          <p className="font-semibold text-blue-700 dark:text-blue-400">
+                            Golden Data Rule Compliance: {verificationResults.every(r => r.status !== 'error') ? '✅ 100%' : '⚠️ Check Errors'}
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

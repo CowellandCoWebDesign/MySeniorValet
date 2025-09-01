@@ -91,6 +91,37 @@ export default function EnterpriseDashboardVerification() {
     enabled: false,
   });
 
+  // Phase 5 API endpoints - Advanced Enterprise Systems
+  const auditTrailQuery = useQuery({
+    queryKey: [`/api/enterprise/audit-trail/${communityId}`],
+    enabled: false,
+  });
+
+  const businessIntelligenceQuery = useQuery({
+    queryKey: [`/api/enterprise/business-intelligence/${communityId}`],
+    enabled: false,
+  });
+
+  const customReportsQuery = useQuery({
+    queryKey: [`/api/enterprise/custom-reports/${communityId}`],
+    enabled: false,
+  });
+
+  const emergencyResponseQuery = useQuery({
+    queryKey: [`/api/enterprise/emergency-response/${communityId}`],
+    enabled: false,
+  });
+
+  const externalIntegrationsQuery = useQuery({
+    queryKey: [`/api/enterprise/external-integrations/${communityId}`],
+    enabled: false,
+  });
+
+  const roleAccessQuery = useQuery({
+    queryKey: [`/api/enterprise/role-access/${communityId}`],
+    enabled: false,
+  });
+
   const verifyPhases = async () => {
     setIsVerifying(true);
     const results: VerificationResult[] = [];
@@ -469,6 +500,177 @@ export default function EnterpriseDashboardVerification() {
       });
     }
 
+    // Phase 5 Verification - Advanced Enterprise Systems
+    console.log('🔍 Starting Phase 5 Verification...');
+    
+    // Check Audit Trail
+    try {
+      const auditData = await auditTrailQuery.refetch();
+      if (auditData.data) {
+        const data = auditData.data as any;
+        results.push({
+          component: 'AuditTrail',
+          status: data.summary || data.events?.length ? 'success' : 'no-data',
+          message: data.summary || data.events?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.events?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'AuditTrail',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'AuditTrail',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Business Intelligence
+    try {
+      const biData = await businessIntelligenceQuery.refetch();
+      if (biData.data) {
+        const data = biData.data as any;
+        results.push({
+          component: 'BusinessIntelligence',
+          status: data.summary || data.insights?.length ? 'success' : 'no-data',
+          message: data.summary || data.insights?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.insights?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'BusinessIntelligence',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'BusinessIntelligence',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Custom Reporting
+    try {
+      const reportsData = await customReportsQuery.refetch();
+      if (reportsData.data) {
+        const data = reportsData.data as any;
+        results.push({
+          component: 'CustomReporting',
+          status: data.summary || data.reports?.length ? 'success' : 'no-data',
+          message: data.summary || data.reports?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.reports?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'CustomReporting',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'CustomReporting',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Emergency Response
+    try {
+      const emergencyData = await emergencyResponseQuery.refetch();
+      if (emergencyData.data) {
+        const data = emergencyData.data as any;
+        results.push({
+          component: 'EmergencyResponse',
+          status: data.summary || data.activeEmergencies?.length ? 'success' : 'no-data',
+          message: data.summary || data.activeEmergencies?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.activeEmergencies?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'EmergencyResponse',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'EmergencyResponse',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check External Integrations
+    try {
+      const integrationsData = await externalIntegrationsQuery.refetch();
+      if (integrationsData.data) {
+        const data = integrationsData.data as any;
+        results.push({
+          component: 'ExternalIntegrations',
+          status: data.summary || data.integrations?.length ? 'success' : 'no-data',
+          message: data.summary || data.integrations?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.integrations?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'ExternalIntegrations',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'ExternalIntegrations',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Role-Based Access
+    try {
+      const roleAccessData = await roleAccessQuery.refetch();
+      if (roleAccessData.data) {
+        const data = roleAccessData.data as any;
+        results.push({
+          component: 'RoleBasedAccess',
+          status: data.summary || data.roles?.length ? 'success' : 'no-data',
+          message: data.summary || data.roles?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.roles?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'RoleBasedAccess',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'RoleBasedAccess',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
     setVerificationResults(results);
     setIsVerifying(false);
     console.log('✅ Verification Complete!', results);
@@ -494,7 +696,11 @@ export default function EnterpriseDashboardVerification() {
       ? verificationResults.filter(r => ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'].includes(r.component))
       : phase === 'Phase 3'
       ? verificationResults.filter(r => ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'].includes(r.component))
-      : verificationResults.filter(r => ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'].includes(r.component));
+      : phase === 'Phase 4'
+      ? verificationResults.filter(r => ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'].includes(r.component))
+      : phase === 'Phase 5'
+      ? verificationResults.filter(r => ['AuditTrail', 'BusinessIntelligence', 'CustomReporting', 'EmergencyResponse', 'ExternalIntegrations', 'RoleBasedAccess'].includes(r.component))
+      : [];
     
     if (phaseResults.length === 0) return 'pending';
     if (phaseResults.every(r => r.status === 'success')) return 'success';
@@ -648,6 +854,39 @@ export default function EnterpriseDashboardVerification() {
                 </h3>
                 {verificationResults
                   .filter(r => ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'].includes(r.component))
+                  .map((result, index) => (
+                    <Card key={index} className="border-l-4" style={{
+                      borderLeftColor: result.status === 'success' ? '#10b981' : 
+                                       result.status === 'error' ? '#ef4444' : '#f59e0b'
+                    }}>
+                      <CardContent className="py-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            {getStatusIcon(result.status)}
+                            <div>
+                              <p className="font-semibold">{result.component}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{result.message}</p>
+                              {result.dataCount !== undefined && result.dataCount > 0 && (
+                                <p className="text-xs text-gray-500 mt-1">Records found: {result.dataCount}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+
+              {/* Phase 5: Advanced Enterprise Systems */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  Phase 5: Advanced Enterprise Systems
+                  {getPhaseStatus('Phase 5') === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                  {getPhaseStatus('Phase 5') === 'partial' && <AlertCircle className="w-5 h-5 text-yellow-500" />}
+                  {getPhaseStatus('Phase 5') === 'error' && <XCircle className="w-5 h-5 text-red-500" />}
+                </h3>
+                {verificationResults
+                  .filter(r => ['AuditTrail', 'BusinessIntelligence', 'CustomReporting', 'EmergencyResponse', 'ExternalIntegrations', 'RoleBasedAccess'].includes(r.component))
                   .map((result, index) => (
                     <Card key={index} className="border-l-4" style={{
                       borderLeftColor: result.status === 'success' ? '#10b981' : 

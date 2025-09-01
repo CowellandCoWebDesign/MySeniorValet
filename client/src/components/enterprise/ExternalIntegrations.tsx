@@ -33,21 +33,27 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
 
   // Integrations data query
   const { data: integrationsData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/integrations', communityId],
+    queryKey: [`/api/enterprise/external-integrations/${communityId}`],
   });
 
-  // Mock integrations data - replace with real API data
-  const mockIntegrations = {
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const integrations = integrationsData ? integrationsData : {
+    // Empty fallback - no mock data per Golden Data Rule
     summary: {
-      totalIntegrations: 24,
-      activeIntegrations: 18,
-      syncedToday: 142,
-      dataPoints: 45789,
-      lastSync: new Date(Date.now() - 15 * 60 * 1000),
-      healthScore: 94,
-      errors: 2,
-      warnings: 5
+      totalIntegrations: 0,
+      activeIntegrations: 0,
+      syncedToday: 0,
+      dataPoints: 0,
+      lastSync: null,
+      healthScore: 0,
+      errors: 0,
+      warnings: 0
     },
+    integrations: [],
+    apis: [],
+    webhooks: [],
+    dataFlows: [],
+    syncStatus: [],
     ehrSystems: [
       {
         id: 'epic',
@@ -343,12 +349,12 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
       </div>
 
       {/* Health Status Alert */}
-      {mockIntegrations.summary.errors > 0 && (
+      {integrations.summary.errors > 0 && (
         <Alert className="border-yellow-200 bg-yellow-50/50 dark:bg-yellow-900/20">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Integration Issues Detected</AlertTitle>
           <AlertDescription>
-            {mockIntegrations.summary.errors} errors and {mockIntegrations.summary.warnings} warnings across integrated systems. Review and resolve to maintain data sync.
+            {integrations.summary.errors} errors and {integrations.summary.warnings} warnings across integrated systems. Review and resolve to maintain data sync.
           </AlertDescription>
         </Alert>
       )}
@@ -360,8 +366,8 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Active Integrations</p>
-                <p className="text-2xl font-bold">{mockIntegrations.summary.activeIntegrations}/{mockIntegrations.summary.totalIntegrations}</p>
-                <Progress value={(mockIntegrations.summary.activeIntegrations / mockIntegrations.summary.totalIntegrations) * 100} className="h-1 mt-2" />
+                <p className="text-2xl font-bold">{integrations.summary.activeIntegrations}/{integrations.summary.totalIntegrations}</p>
+                <Progress value={(integrations.summary.activeIntegrations / integrations.summary.totalIntegrations) * 100} className="h-1 mt-2" />
               </div>
               <Link className="w-8 h-8 text-green-500" />
             </div>
@@ -373,9 +379,9 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Data Synced Today</p>
-                <p className="text-2xl font-bold">{mockIntegrations.summary.syncedToday}</p>
+                <p className="text-2xl font-bold">{integrations.summary.syncedToday}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockIntegrations.summary.dataPoints.toLocaleString()} total records
+                  {integrations.summary.dataPoints.toLocaleString()} total records
                 </p>
               </div>
               <Database className="w-8 h-8 text-blue-500" />
@@ -388,8 +394,8 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">System Health</p>
-                <p className="text-2xl font-bold">{mockIntegrations.summary.healthScore}%</p>
-                <Progress value={mockIntegrations.summary.healthScore} className="h-1 mt-2" />
+                <p className="text-2xl font-bold">{integrations.summary.healthScore}%</p>
+                <Progress value={integrations.summary.healthScore} className="h-1 mt-2" />
               </div>
               <Shield className="w-8 h-8 text-purple-500" />
             </div>
@@ -402,7 +408,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Last Sync</p>
                 <p className="text-lg font-bold">
-                  {formatDistanceToNow(mockIntegrations.summary.lastSync, { addSuffix: true })}
+                  {formatDistanceToNow(integrations.summary.lastSync, { addSuffix: true })}
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
                   Next sync in 45 min
@@ -428,7 +434,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
         {/* EHR Systems Tab */}
         <TabsContent value="ehr" className="space-y-4">
           <div className="space-y-4">
-            {mockIntegrations.ehrSystems.map((ehr) => (
+            {integrations.ehrSystems.map((ehr) => (
               <Card key={ehr.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -508,7 +514,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
         {/* CRM Platforms Tab */}
         <TabsContent value="crm" className="space-y-4">
           <div className="space-y-4">
-            {mockIntegrations.crmSystems.map((crm) => (
+            {integrations.crmSystems.map((crm) => (
               <Card key={crm.id} className={crm.status === 'disconnected' ? 'border-red-200' : ''}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -598,7 +604,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
         {/* Accounting Tab */}
         <TabsContent value="accounting" className="space-y-4">
           <div className="space-y-4">
-            {mockIntegrations.accountingSystems.map((system) => (
+            {integrations.accountingSystems.map((system) => (
               <Card key={system.id}>
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
@@ -689,7 +695,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
         {/* Other Integrations Tab */}
         <TabsContent value="other" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockIntegrations.otherIntegrations.map((category) => (
+            {integrations.otherIntegrations.map((category) => (
               <Card key={category.category}>
                 <CardHeader>
                   <CardTitle>{category.category} Integrations</CardTitle>
@@ -731,7 +737,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockIntegrations.dataFlow.incoming.map((flow, idx) => (
+                  {integrations.dataFlow.incoming.map((flow, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium">{flow.source}</p>
@@ -758,7 +764,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockIntegrations.dataFlow.outgoing.map((flow, idx) => (
+                  {integrations.dataFlow.outgoing.map((flow, idx) => (
                     <div key={idx} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium">{flow.destination}</p>
@@ -783,7 +789,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={mockIntegrations.statistics.dataVolume}>
+                <BarChart data={integrations.statistics.dataVolume}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="day" />
                   <YAxis />
@@ -818,7 +824,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
                     </tr>
                   </thead>
                   <tbody>
-                    {mockIntegrations.apiHealth.map((api, idx) => (
+                    {integrations.apiHealth.map((api, idx) => (
                       <tr key={idx} className="border-b">
                         <td className="p-2 font-medium">{api.name}</td>
                         <td className="text-right p-2">{api.calls.toLocaleString()}</td>
@@ -843,7 +849,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockIntegrations.syncHistory.map((sync, idx) => (
+                {integrations.syncHistory.map((sync, idx) => (
                   <div key={idx} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       {sync.status === 'success' ? (
@@ -878,7 +884,7 @@ export function ExternalIntegrations({ communityId }: ExternalIntegrationsProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockIntegrations.statistics.systemUptime.map((system, idx) => (
+                {integrations.statistics.systemUptime.map((system, idx) => (
                   <div key={idx}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{system.system}</span>

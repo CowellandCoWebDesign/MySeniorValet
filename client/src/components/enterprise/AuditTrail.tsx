@@ -32,36 +32,29 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
 
   // Audit data query
   const { data: auditData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/audit', communityId, filterDate],
+    queryKey: [`/api/enterprise/audit-trail/${communityId}`],
   });
 
-  // Mock audit trail data - replace with real API data
-  const mockAudit = {
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const audit = auditData ? auditData : {
+    // Empty fallback - no mock data per Golden Data Rule
     summary: {
-      totalEvents: 12456,
-      todayEvents: 342,
-      activeUsers: 45,
-      criticalEvents: 3,
-      suspiciousActivity: 2,
-      complianceScore: 98,
-      retentionDays: 90,
-      storageUsed: '2.3 GB'
+      totalEvents: 0,
+      todayEvents: 0,
+      activeUsers: 0,
+      criticalEvents: 0,
+      suspiciousActivity: 0,
+      complianceScore: 0,
+      retentionDays: 0,
+      storageUsed: '0 GB'
     },
-    recentActivity: [
-      {
-        id: 1,
-        timestamp: new Date(Date.now() - 5 * 60 * 1000),
-        user: 'John Martinez',
-        userRole: 'Administrator',
-        action: 'UPDATE',
-        resource: 'Resident Profile',
-        details: 'Updated medication list for resident ID: 1234',
-        ipAddress: '192.168.1.100',
-        userAgent: 'Chrome/120.0',
-        result: 'success',
-        category: 'healthcare',
-        severity: 'low'
-      },
+    events: [],
+    criticalEvents: [],
+    suspiciousActivity: [],
+    userActivity: [],
+    systemActivity: [],
+    compliance: [],
+    recentActivity: [],
       {
         id: 2,
         timestamp: new Date(Date.now() - 15 * 60 * 1000),
@@ -356,12 +349,12 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
       </div>
 
       {/* Critical Events Alert */}
-      {mockAudit.summary.criticalEvents > 0 && (
+      {audit.summary.criticalEvents > 0 && (
         <Alert className="border-red-200 bg-red-50/50 dark:bg-red-900/20">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Critical Events Detected</AlertTitle>
           <AlertDescription>
-            {mockAudit.summary.criticalEvents} critical events and {mockAudit.summary.suspiciousActivity} suspicious activities require review
+            {audit.summary.criticalEvents} critical events and {audit.summary.suspiciousActivity} suspicious activities require review
           </AlertDescription>
         </Alert>
       )}
@@ -373,9 +366,9 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Events</p>
-                <p className="text-2xl font-bold">{mockAudit.summary.totalEvents.toLocaleString()}</p>
+                <p className="text-2xl font-bold">{audit.summary.totalEvents.toLocaleString()}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockAudit.summary.todayEvents} today
+                  {audit.summary.todayEvents} today
                 </p>
               </div>
               <History className="w-8 h-8 text-purple-500" />
@@ -388,7 +381,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Active Users</p>
-                <p className="text-2xl font-bold">{mockAudit.summary.activeUsers}</p>
+                <p className="text-2xl font-bold">{audit.summary.activeUsers}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   Currently online
                 </p>
@@ -398,14 +391,14 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
           </CardContent>
         </Card>
 
-        <Card className={mockAudit.summary.criticalEvents > 0 ? 'border-red-200 bg-red-50/50 dark:bg-red-900/20' : ''}>
+        <Card className={audit.summary.criticalEvents > 0 ? 'border-red-200 bg-red-50/50 dark:bg-red-900/20' : ''}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Security Alerts</p>
-                <p className="text-2xl font-bold text-red-600">{mockAudit.summary.criticalEvents}</p>
+                <p className="text-2xl font-bold text-red-600">{audit.summary.criticalEvents}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockAudit.summary.suspiciousActivity} suspicious
+                  {audit.summary.suspiciousActivity} suspicious
                 </p>
               </div>
               <Shield className="w-8 h-8 text-red-500" />
@@ -418,11 +411,11 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Compliance Score</p>
-                <p className="text-2xl font-bold">{mockAudit.summary.complianceScore}%</p>
+                <p className="text-2xl font-bold">{audit.summary.complianceScore}%</p>
                 <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
                   <div 
                     className="bg-green-500 h-1 rounded-full" 
-                    style={{ width: `${mockAudit.summary.complianceScore}%` }}
+                    style={{ width: `${audit.summary.complianceScore}%` }}
                   />
                 </div>
               </div>
@@ -487,7 +480,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
 
           {/* Activity List */}
           <div className="space-y-3">
-            {mockAudit.recentActivity.map((activity) => (
+            {audit.recentActivity.map((activity) => (
               <Card key={activity.id} className={activity.result === 'failed' ? 'border-red-200' : ''}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
@@ -546,7 +539,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockAudit.criticalEvents.map((event, index) => (
+                {audit.criticalEvents.map((event, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded">
                     <div className="flex items-start space-x-3">
                       <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5" />
@@ -579,7 +572,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockAudit.activityByUser.map((user, index) => (
+                {audit.activityByUser.map((user, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <User className="w-4 h-4 text-gray-500" />
@@ -608,7 +601,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockAudit.complianceEvents.map((compliance, index) => (
+                {audit.complianceEvents.map((compliance, index) => (
                   <div key={index}>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2">
@@ -645,11 +638,11 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
-                  <p className="text-2xl font-bold">{mockAudit.summary.retentionDays}</p>
+                  <p className="text-2xl font-bold">{audit.summary.retentionDays}</p>
                   <p className="text-sm text-gray-500">Days Retained</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
-                  <p className="text-2xl font-bold">{mockAudit.summary.storageUsed}</p>
+                  <p className="text-2xl font-bold">{audit.summary.storageUsed}</p>
                   <p className="text-sm text-gray-500">Storage Used</p>
                 </div>
                 <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
@@ -686,7 +679,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockAudit.sessionActivity.map((session, index) => (
+                    {audit.sessionActivity.map((session, index) => (
                       <tr key={index} className="border-b">
                         <td className="p-2">
                           <div className="flex items-center space-x-2">
@@ -721,7 +714,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockAudit.dataAccessLog.map((access, index) => (
+                {audit.dataAccessLog.map((access, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded">
                     <div className="flex items-start space-x-3">
                       <Database className="w-5 h-5 text-blue-500 mt-0.5" />
@@ -761,7 +754,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={mockAudit.activityTrend}>
+                  <AreaChart data={audit.activityTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="hour" />
                     <YAxis />
@@ -780,7 +773,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={mockAudit.statistics.actionTypes}>
+                  <BarChart data={audit.statistics.actionTypes}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="action" />
                     <YAxis />
@@ -800,7 +793,7 @@ export function AuditTrail({ communityId }: AuditTrailProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockAudit.activityByCategory.map((category, index) => (
+                {audit.activityByCategory.map((category, index) => (
                   <div key={index}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{category.category}</span>

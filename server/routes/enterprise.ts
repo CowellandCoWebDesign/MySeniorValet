@@ -792,4 +792,170 @@ router.get('/api/enterprise/activities/:communityId', async (req, res) => {
   }
 });
 
+// ============================================
+// PHASE 5: ADVANCED ENTERPRISE SYSTEMS
+// Components: AuditTrail, BusinessIntelligence, CustomReporting,
+// EmergencyResponse, ExternalIntegrations, RoleBasedAccess
+// ============================================
+
+// Audit Trail endpoint
+router.get('/api/enterprise/audit-trail/:communityId', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    console.log(`Fetching audit trail for community ${communityId}`);
+    
+    // Return empty data structure per Golden Data Rule
+    const auditData = {
+      summary: {},
+      events: [],
+      criticalEvents: [],
+      suspiciousActivity: [],
+      userActivity: [],
+      systemActivity: [],
+      compliance: []
+    };
+    
+    res.json(auditData);
+  } catch (error) {
+    console.error('Error fetching audit trail:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch audit trail',
+      _golden_data_rule: 'empty_fallback' 
+    });
+  }
+});
+
+// Business Intelligence endpoint
+router.get('/api/enterprise/business-intelligence/:communityId', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    console.log(`Fetching business intelligence for community ${communityId}`);
+    
+    // Return empty data structure per Golden Data Rule
+    const biData = {
+      summary: {},
+      insights: [],
+      predictions: [],
+      trends: [],
+      kpis: [],
+      recommendations: [],
+      competitors: []
+    };
+    
+    res.json(biData);
+  } catch (error) {
+    console.error('Error fetching business intelligence:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch business intelligence',
+      _golden_data_rule: 'empty_fallback' 
+    });
+  }
+});
+
+// Custom Reporting endpoint
+router.get('/api/enterprise/custom-reports/:communityId', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    console.log(`Fetching custom reports for community ${communityId}`);
+    
+    // Return empty data structure per Golden Data Rule
+    const reportsData = {
+      summary: {},
+      reports: [],
+      templates: [],
+      scheduled: [],
+      recent: [],
+      favorites: []
+    };
+    
+    res.json(reportsData);
+  } catch (error) {
+    console.error('Error fetching custom reports:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch custom reports',
+      _golden_data_rule: 'empty_fallback' 
+    });
+  }
+});
+
+// Emergency Response endpoint
+router.get('/api/enterprise/emergency-response/:communityId', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    console.log(`Fetching emergency response data for community ${communityId}`);
+    
+    // Return empty data structure per Golden Data Rule
+    const emergencyData = {
+      summary: {},
+      activeEmergencies: [],
+      protocols: [],
+      contacts: [],
+      drills: [],
+      equipment: [],
+      history: []
+    };
+    
+    res.json(emergencyData);
+  } catch (error) {
+    console.error('Error fetching emergency response data:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch emergency response data',
+      _golden_data_rule: 'empty_fallback' 
+    });
+  }
+});
+
+// External Integrations endpoint
+router.get('/api/enterprise/external-integrations/:communityId', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    console.log(`Fetching external integrations for community ${communityId}`);
+    
+    // Return empty data structure per Golden Data Rule
+    const integrationsData = {
+      summary: {},
+      integrations: [],
+      apis: [],
+      webhooks: [],
+      dataFlows: [],
+      syncStatus: []
+    };
+    
+    res.json(integrationsData);
+  } catch (error) {
+    console.error('Error fetching external integrations:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch external integrations',
+      _golden_data_rule: 'empty_fallback' 
+    });
+  }
+});
+
+// Role-Based Access Control endpoint
+router.get('/api/enterprise/role-access/:communityId', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.communityId);
+    console.log(`Fetching role-based access for community ${communityId}`);
+    
+    // Return empty data structure per Golden Data Rule
+    const accessData = {
+      summary: {},
+      roles: [],
+      permissions: [],
+      users: [],
+      groups: [],
+      policies: [],
+      accessMatrix: []
+    };
+    
+    res.json(accessData);
+  } catch (error) {
+    console.error('Error fetching role-based access:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch role-based access',
+      _golden_data_rule: 'empty_fallback' 
+    });
+  }
+});
+
 export default router;

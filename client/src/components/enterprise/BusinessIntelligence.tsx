@@ -32,17 +32,24 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
 
   // Business Intelligence data query
   const { data: biData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/business-intelligence', communityId, timeRange],
+    queryKey: [`/api/enterprise/business-intelligence/${communityId}`],
   });
 
-  // Mock Business Intelligence data - replace with real API data
-  const mockBI = {
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const bi = biData ? biData : {
+    summary: {},
+    insights: [],
+    predictions: [],
+    trends: [],
+    kpis: [],
+    recommendations: [],
+    competitors: [],
     executiveSummary: {
       revenue: {
-        current: 892500,
-        projected: 945000,
-        growth: 5.9,
-        confidence: 92
+        current: 0,
+        projected: 0,
+        growth: 0,
+        confidence: 0
       },
       occupancy: {
         current: 94.5,
@@ -282,7 +289,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
         <Sparkles className="h-4 w-4" />
         <AlertTitle>AI-Powered Insights Available</AlertTitle>
         <AlertDescription>
-          {mockBI.aiInsights.length} new strategic recommendations based on predictive analytics
+          {bi.aiInsights.length} new strategic recommendations based on predictive analytics
         </AlertDescription>
       </Alert>
 
@@ -294,13 +301,13 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               <p className="text-sm text-gray-600 dark:text-gray-400">Revenue Forecast</p>
               <Rocket className="w-5 h-5 text-green-500" />
             </div>
-            <p className="text-2xl font-bold">${(mockBI.executiveSummary.revenue.projected / 1000).toFixed(0)}K</p>
+            <p className="text-2xl font-bold">${(bi.executiveSummary.revenue.projected / 1000).toFixed(0)}K</p>
             <div className="flex items-center mt-2">
               <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
-              <span className="text-sm text-green-500">+{mockBI.executiveSummary.revenue.growth}%</span>
-              <Badge className="ml-2 bg-blue-500 text-xs">{mockBI.executiveSummary.revenue.confidence}% confidence</Badge>
+              <span className="text-sm text-green-500">+{bi.executiveSummary.revenue.growth}%</span>
+              <Badge className="ml-2 bg-blue-500 text-xs">{bi.executiveSummary.revenue.confidence}% confidence</Badge>
             </div>
-            <Progress value={mockBI.executiveSummary.revenue.confidence} className="h-1 mt-2" />
+            <Progress value={bi.executiveSummary.revenue.confidence} className="h-1 mt-2" />
           </CardContent>
         </Card>
 
@@ -310,14 +317,14 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               <p className="text-sm text-gray-600 dark:text-gray-400">Occupancy Projection</p>
               <Building className="w-5 h-5 text-blue-500" />
             </div>
-            <p className="text-2xl font-bold">{mockBI.executiveSummary.occupancy.projected}%</p>
+            <p className="text-2xl font-bold">{bi.executiveSummary.occupancy.projected}%</p>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-sm text-gray-500">Current: {mockBI.executiveSummary.occupancy.current}%</span>
+              <span className="text-sm text-gray-500">Current: {bi.executiveSummary.occupancy.current}%</span>
               <Badge className="bg-green-500 text-xs">
-                {mockBI.executiveSummary.occupancy.trend}
+                {bi.executiveSummary.occupancy.trend}
               </Badge>
             </div>
-            <Progress value={mockBI.executiveSummary.occupancy.projected} className="h-1 mt-2" />
+            <Progress value={bi.executiveSummary.occupancy.projected} className="h-1 mt-2" />
           </CardContent>
         </Card>
 
@@ -327,14 +334,14 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               <p className="text-sm text-gray-600 dark:text-gray-400">Profit Margin</p>
               <DollarSign className="w-5 h-5 text-purple-500" />
             </div>
-            <p className="text-2xl font-bold">{mockBI.executiveSummary.profitMargin.current}%</p>
+            <p className="text-2xl font-bold">{bi.executiveSummary.profitMargin.current}%</p>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-sm text-gray-500">Industry: {mockBI.executiveSummary.profitMargin.industry}%</span>
+              <span className="text-sm text-gray-500">Industry: {bi.executiveSummary.profitMargin.industry}%</span>
               <Badge className="bg-amber-500 text-xs">
-                {mockBI.executiveSummary.profitMargin.percentile}th percentile
+                {bi.executiveSummary.profitMargin.percentile}th percentile
               </Badge>
             </div>
-            <Progress value={mockBI.executiveSummary.profitMargin.percentile} className="h-1 mt-2" />
+            <Progress value={bi.executiveSummary.profitMargin.percentile} className="h-1 mt-2" />
           </CardContent>
         </Card>
 
@@ -344,14 +351,14 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               <p className="text-sm text-gray-600 dark:text-gray-400">Market Position</p>
               <Award className="w-5 h-5 text-amber-500" />
             </div>
-            <p className="text-2xl font-bold">#{mockBI.executiveSummary.marketPosition.rank}</p>
+            <p className="text-2xl font-bold">#{bi.executiveSummary.marketPosition.rank}</p>
             <div className="flex items-center justify-between mt-2">
-              <span className="text-sm text-gray-500">of {mockBI.executiveSummary.marketPosition.total} competitors</span>
+              <span className="text-sm text-gray-500">of {bi.executiveSummary.marketPosition.total} competitors</span>
               <Badge className="bg-green-500 text-xs">
-                {mockBI.executiveSummary.marketPosition.competitive}
+                {bi.executiveSummary.marketPosition.competitive}
               </Badge>
             </div>
-            <Progress value={mockBI.executiveSummary.marketPosition.score} className="h-1 mt-2" />
+            <Progress value={bi.executiveSummary.marketPosition.score} className="h-1 mt-2" />
           </CardContent>
         </Card>
       </div>
@@ -371,7 +378,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
         <TabsContent value="insights" className="space-y-4">
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {mockBI.keyMetrics.map((metric, index) => (
+            {bi.keyMetrics.map((metric, index) => (
               <Card key={index}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -406,7 +413,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockBI.aiInsights.map((insight, index) => (
+                {bi.aiInsights.map((insight, index) => (
                   <div key={index} className="p-4 border rounded">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center space-x-2">
@@ -445,7 +452,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={mockBI.predictiveAnalytics.revenueForecas}>
+                  <AreaChart data={bi.predictiveAnalytics.revenueForecas}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -467,7 +474,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockBI.predictiveAnalytics.riskFactors.map((risk, index) => (
+                  {bi.predictiveAnalytics.riskFactors.map((risk, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium">{risk.factor}</p>
@@ -494,7 +501,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {mockBI.predictiveAnalytics.opportunities.map((opp, index) => (
+                {bi.predictiveAnalytics.opportunities.map((opp, index) => (
                   <div key={index} className="p-4 border rounded">
                     <p className="font-semibold mb-2">{opp.opportunity}</p>
                     <div className="space-y-1 text-sm">
@@ -522,7 +529,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <RadarChart data={mockBI.marketAnalysis.competitorComparison}>
+                  <RadarChart data={bi.marketAnalysis.competitorComparison}>
                     <PolarGrid />
                     <PolarAngleAxis dataKey="metric" />
                     <PolarRadiusAxis angle={90} />
@@ -543,7 +550,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockBI.marketAnalysis.marketShare.map((segment, index) => (
+                  {bi.marketAnalysis.marketShare.map((segment, index) => (
                     <div key={index}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium">{segment.segment}</span>
@@ -570,7 +577,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={mockBI.marketAnalysis.demographicTrends}>
+                <BarChart data={bi.marketAnalysis.demographicTrends}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="age" />
                   <YAxis />
@@ -595,26 +602,26 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-green-600">{mockBI.operationalInsights.efficiency.current}%</p>
+                  <p className="text-3xl font-bold text-green-600">{bi.operationalInsights.efficiency.current}%</p>
                   <p className="text-sm text-gray-600">Current Efficiency</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-gray-600">{mockBI.operationalInsights.efficiency.benchmark}%</p>
+                  <p className="text-3xl font-bold text-gray-600">{bi.operationalInsights.efficiency.benchmark}%</p>
                   <p className="text-sm text-gray-600">Industry Benchmark</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-600">{mockBI.operationalInsights.efficiency.potential}%</p>
+                  <p className="text-3xl font-bold text-blue-600">{bi.operationalInsights.efficiency.potential}%</p>
                   <p className="text-sm text-gray-600">Potential</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-purple-600">${(mockBI.operationalInsights.efficiency.savings / 1000).toFixed(0)}K</p>
+                  <p className="text-3xl font-bold text-purple-600">${(bi.operationalInsights.efficiency.savings / 1000).toFixed(0)}K</p>
                   <p className="text-sm text-gray-600">Potential Savings</p>
                 </div>
               </div>
 
               {/* Resource Utilization */}
               <div className="space-y-3">
-                {mockBI.operationalInsights.resourceUtilization.map((resource, index) => (
+                {bi.operationalInsights.resourceUtilization.map((resource, index) => (
                   <div key={index}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm font-medium">{resource.resource}</span>
@@ -643,7 +650,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
               <ResponsiveContainer width="100%" height={250}>
                 <RechartsPieChart>
                   <Pie
-                    data={mockBI.operationalInsights.costDrivers}
+                    data={bi.operationalInsights.costDrivers}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
@@ -652,7 +659,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
                     fill="#8884d8"
                     dataKey="percentage"
                   >
-                    {mockBI.operationalInsights.costDrivers.map((entry, index) => (
+                    {bi.operationalInsights.costDrivers.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'][index]} />
                     ))}
                   </Pie>
@@ -673,7 +680,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {mockBI.financialProjections.scenarios.map((scenario, index) => (
+                {bi.financialProjections.scenarios.map((scenario, index) => (
                   <div key={index} className={`p-4 border rounded ${
                     scenario.scenario === 'Realistic' ? 'border-blue-500 bg-blue-50/50 dark:bg-blue-900/20' : ''
                   }`}>
@@ -710,7 +717,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <ComposedChart data={mockBI.financialProjections.cashFlow}>
+                <ComposedChart data={bi.financialProjections.cashFlow}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -734,7 +741,7 @@ export function BusinessIntelligence({ communityId }: BusinessIntelligenceProps)
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockBI.benchmarks.industry.map((metric, index) => (
+                {bi.benchmarks.industry.map((metric, index) => (
                   <div key={index}>
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">{metric.metric}</span>

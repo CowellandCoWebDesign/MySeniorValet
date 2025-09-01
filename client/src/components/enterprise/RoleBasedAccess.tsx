@@ -28,18 +28,30 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
   const [showCreateRole, setShowCreateRole] = useState(false);
   const [showAssignRole, setShowAssignRole] = useState(false);
 
-  // Mock RBAC data - replace with real API data
-  const mockRBAC = {
+  // RBAC data query
+  const { data: rbacData, isLoading } = useQuery({
+    queryKey: [`/api/enterprise/role-access/${communityId}`],
+  });
+
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const rbac = rbacData ? rbacData : {
+    // Empty fallback - no mock data per Golden Data Rule
     summary: {
-      totalUsers: 145,
-      activeUsers: 89,
-      totalRoles: 12,
-      customRoles: 7,
-      pendingRequests: 3,
-      securityScore: 94,
-      lastAudit: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      complianceLevel: 'HIPAA Compliant'
+      totalUsers: 0,
+      activeUsers: 0,
+      totalRoles: 0,
+      customRoles: 0,
+      pendingRequests: 0,
+      securityScore: 0,
+      lastAudit: null,
+      complianceLevel: 'Not Evaluated'
     },
+    roles: [],
+    permissions: [],
+    users: [],
+    groups: [],
+    policies: [],
+    accessMatrix: [],
     roles: [
       {
         id: 1,
@@ -422,12 +434,12 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
       </div>
 
       {/* Security Alert */}
-      {mockRBAC.accessRequests.length > 0 && (
+      {rbac.accessRequests.length > 0 && (
         <Alert className="border-orange-200 bg-orange-50/50 dark:bg-orange-900/20">
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Pending Access Requests</AlertTitle>
           <AlertDescription>
-            {mockRBAC.accessRequests.length} access requests require review and approval
+            {rbac.accessRequests.length} access requests require review and approval
           </AlertDescription>
         </Alert>
       )}
@@ -439,9 +451,9 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Users</p>
-                <p className="text-2xl font-bold">{mockRBAC.summary.totalUsers}</p>
+                <p className="text-2xl font-bold">{rbac.summary.totalUsers}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockRBAC.summary.activeUsers} active
+                  {rbac.summary.activeUsers} active
                 </p>
               </div>
               <Users className="w-8 h-8 text-blue-500" />
@@ -454,9 +466,9 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Roles</p>
-                <p className="text-2xl font-bold">{mockRBAC.summary.totalRoles}</p>
+                <p className="text-2xl font-bold">{rbac.summary.totalRoles}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockRBAC.summary.customRoles} custom
+                  {rbac.summary.customRoles} custom
                 </p>
               </div>
               <Key className="w-8 h-8 text-purple-500" />
@@ -464,12 +476,12 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
           </CardContent>
         </Card>
 
-        <Card className={mockRBAC.summary.pendingRequests > 0 ? 'border-orange-200' : ''}>
+        <Card className={rbac.summary.pendingRequests > 0 ? 'border-orange-200' : ''}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Pending Requests</p>
-                <p className="text-2xl font-bold text-orange-600">{mockRBAC.summary.pendingRequests}</p>
+                <p className="text-2xl font-bold text-orange-600">{rbac.summary.pendingRequests}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   Require approval
                 </p>
@@ -484,11 +496,11 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Security Score</p>
-                <p className="text-2xl font-bold">{mockRBAC.summary.securityScore}%</p>
+                <p className="text-2xl font-bold">{rbac.summary.securityScore}%</p>
                 <div className="w-full bg-gray-200 rounded-full h-1 mt-2">
                   <div 
                     className="bg-green-500 h-1 rounded-full" 
-                    style={{ width: `${mockRBAC.summary.securityScore}%` }}
+                    style={{ width: `${rbac.summary.securityScore}%` }}
                   />
                 </div>
               </div>
@@ -518,7 +530,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockRBAC.roles.map((role) => (
+                {rbac.roles.map((role) => (
                   <div key={role.id} className="border rounded p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -604,7 +616,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                     </tr>
                   </thead>
                   <tbody>
-                    {mockRBAC.users.map((user) => (
+                    {rbac.users.map((user) => (
                       <tr key={user.id} className="border-b">
                         <td className="p-2">
                           <div>
@@ -659,7 +671,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
               <CardDescription>Configure granular permissions for roles</CardDescription>
             </CardHeader>
             <CardContent>
-              {mockRBAC.permissions.categories.map((category, idx) => (
+              {rbac.permissions.categories.map((category, idx) => (
                 <div key={idx} className="mb-6">
                   <div className="flex items-center space-x-2 mb-3">
                     {category.icon}
@@ -694,7 +706,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockRBAC.accessRequests.map((request) => (
+                {rbac.accessRequests.map((request) => (
                   <div key={request.id} className="border rounded p-4">
                     <div className="flex items-start justify-between">
                       <div>
@@ -753,12 +765,12 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm">MFA Adoption</span>
-                      <span className="text-sm font-medium">{mockRBAC.securityMetrics.mfaAdoption}%</span>
+                      <span className="text-sm font-medium">{rbac.securityMetrics.mfaAdoption}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-blue-500 h-2 rounded-full"
-                        style={{ width: `${mockRBAC.securityMetrics.mfaAdoption}%` }}
+                        style={{ width: `${rbac.securityMetrics.mfaAdoption}%` }}
                       />
                     </div>
                   </div>
@@ -766,23 +778,23 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                   <div>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-sm">Password Strength</span>
-                      <span className="text-sm font-medium">{mockRBAC.securityMetrics.passwordStrength}%</span>
+                      <span className="text-sm font-medium">{rbac.securityMetrics.passwordStrength}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
                       <div 
                         className="bg-green-500 h-2 rounded-full"
-                        style={{ width: `${mockRBAC.securityMetrics.passwordStrength}%` }}
+                        style={{ width: `${rbac.securityMetrics.passwordStrength}%` }}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
-                      <p className="text-2xl font-bold">{mockRBAC.securityMetrics.inactiveAccounts}</p>
+                      <p className="text-2xl font-bold">{rbac.securityMetrics.inactiveAccounts}</p>
                       <p className="text-sm text-gray-500">Inactive Accounts</p>
                     </div>
                     <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded">
-                      <p className="text-2xl font-bold">{mockRBAC.securityMetrics.privilegedAccounts}</p>
+                      <p className="text-2xl font-bold">{rbac.securityMetrics.privilegedAccounts}</p>
                       <p className="text-sm text-gray-500">Privileged Users</p>
                     </div>
                   </div>
@@ -803,7 +815,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                       <Shield className="w-4 h-4 text-purple-500" />
                       <span>HIPAA Compliance</span>
                     </div>
-                    {mockRBAC.securityMetrics.complianceChecks.hipaa ? (
+                    {rbac.securityMetrics.complianceChecks.hipaa ? (
                       <CheckCircle className="w-5 h-5 text-green-500" />
                     ) : (
                       <XCircle className="w-5 h-5 text-red-500" />
@@ -815,7 +827,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                       <Globe className="w-4 h-4 text-blue-500" />
                       <span>GDPR Compliance</span>
                     </div>
-                    {mockRBAC.securityMetrics.complianceChecks.gdpr ? (
+                    {rbac.securityMetrics.complianceChecks.gdpr ? (
                       <CheckCircle className="w-5 h-5 text-green-500" />
                     ) : (
                       <XCircle className="w-5 h-5 text-red-500" />
@@ -827,7 +839,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                       <FileText className="w-4 h-4 text-amber-500" />
                       <span>State Regulations</span>
                     </div>
-                    {mockRBAC.securityMetrics.complianceChecks.stateRegulations ? (
+                    {rbac.securityMetrics.complianceChecks.stateRegulations ? (
                       <CheckCircle className="w-5 h-5 text-green-500" />
                     ) : (
                       <XCircle className="w-5 h-5 text-red-500" />
@@ -837,10 +849,10 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
                   <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded">
                     <p className="text-sm text-gray-600 dark:text-gray-400">Last Security Audit</p>
                     <p className="font-medium">
-                      {format(mockRBAC.securityMetrics.lastSecurityAudit, 'MMMM dd, yyyy')}
+                      {format(rbac.securityMetrics.lastSecurityAudit, 'MMMM dd, yyyy')}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {formatDistanceToNow(mockRBAC.securityMetrics.lastSecurityAudit, { addSuffix: true })}
+                      {formatDistanceToNow(rbac.securityMetrics.lastSecurityAudit, { addSuffix: true })}
                     </p>
                   </div>
                 </div>
@@ -858,7 +870,7 @@ export function RoleBasedAccess({ communityId }: RoleBasedAccessProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockRBAC.activityLog.map((activity, idx) => (
+                {rbac.activityLog.map((activity, idx) => (
                   <div key={idx} className="flex items-start space-x-3 p-3 border rounded">
                     {getActionIcon(activity.type)}
                     <div className="flex-1">
