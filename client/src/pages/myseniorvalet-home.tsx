@@ -311,7 +311,7 @@ function HeroSectionWithTransformingSearch() {
               Everything You Need. Nothing You Pay.
             </h1>
             <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-1">
-              Search 32,970+ senior communities with real pricing, verified data, and instant comparisons - completely free.
+              Search thousands of senior communities with real pricing, verified data, and instant comparisons - completely free.
             </p>
           </div>
         </div>
