@@ -2411,40 +2411,47 @@ export default function MySeniorValetHome() {
                     {/* Right side - Pricing Tiers Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>💰</span> 4 Tier Options
+                        <span>💰</span> 5 Tier Options
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Verified (Free)</p>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$0/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
+                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$99/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic listing, 1 photo, contact info</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic profile, photos, analytics dashboard</p>
                         </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Standard</p>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$149/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Growth</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$299/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">10 photos, analytics, respond to reviews</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3D tour embed, reservation system, priority support</p>
                         </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border border-purple-300 dark:border-purple-700">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Featured</p>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$249/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional ⭐</p>
+                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$999/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">25 photos, featured placement, messaging</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Multi-property (25), lead tracking, CRM integration</p>
                         </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Platinum</p>
-                            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">$349/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
+                            <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$1,999/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">50 photos, videos, concierge priority</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Payment processing, AI insights, 100 properties</p>
+                        </div>
+                        <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Enterprise</p>
+                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$3,999/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">White-label, API access, unlimited properties</p>
                         </div>
                         <div className="mt-3 p-2 bg-gradient-to-r from-green-500/20 to-emerald-600/20 dark:from-green-500/10 dark:to-emerald-600/10 rounded border border-green-300 dark:border-green-700">
-                          <p className="text-xs font-semibold text-green-700 dark:text-green-300 text-center">🎉 INTRODUCTORY PRICING</p>
-                          <p className="text-xs text-green-600 dark:text-green-400 text-center mt-1">Lock in rates now!</p>
+                          <p className="text-xs font-semibold text-green-700 dark:text-green-300 text-center">🚀 PHASE 5A COMPLETE</p>
+                          <p className="text-xs text-green-600 dark:text-green-400 text-center mt-1">All features operational!</p>
                         </div>
                       </div>
                     </div>

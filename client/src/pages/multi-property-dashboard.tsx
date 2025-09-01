@@ -56,6 +56,44 @@ interface PortfolioMetrics {
   avgRating: number;
 }
 
+interface AccessInfo {
+  hasAccess: boolean;
+  tier: string;
+  propertyLimit: number;
+  features: {
+    analytics: boolean;
+    financials: boolean;
+    operations: boolean;
+    whiteLabel: boolean;
+    apiAccess: boolean;
+    customIntegrations: boolean;
+  };
+}
+
+interface AnalyticsData {
+  occupancyTrends?: any[];
+  revenueByProperty?: any[];
+  conversionFunnel?: any[];
+  revenueBreakdown?: any[];
+  financials?: {
+    totalRevenue: number;
+    recurringRevenue: number;
+    oneTimeCharges: number;
+    operatingExpenses: number;
+    netIncome: number;
+    ebitda: number;
+    grossRevenue?: number;
+    maintenanceCosts?: number;
+    marketingSpend?: number;
+  };
+  maintenance?: {
+    upcoming?: any[];
+    history?: any[];
+  };
+  staffPerformance?: any[];
+  compliance?: any[];
+}
+
 export function MultiPropertyDashboard() {
   const { toast } = useToast();
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
@@ -64,25 +102,25 @@ export function MultiPropertyDashboard() {
   const [selectedForComparison, setSelectedForComparison] = useState<number[]>([]);
 
   // Check access tier
-  const { data: accessInfo } = useQuery({
+  const { data: accessInfo } = useQuery<AccessInfo>({
     queryKey: ['/api/multi-property/access'],
     enabled: true
   });
 
   // Fetch portfolio overview
-  const { data: portfolio, isLoading: portfolioLoading } = useQuery({
+  const { data: portfolio, isLoading: portfolioLoading } = useQuery<PortfolioMetrics>({
     queryKey: ['/api/multi-property/portfolio'],
     enabled: !!accessInfo?.hasAccess
   });
 
   // Fetch properties
-  const { data: properties, isLoading: propertiesLoading } = useQuery({
+  const { data: properties, isLoading: propertiesLoading } = useQuery<PropertyOverview[]>({
     queryKey: ['/api/multi-property/properties'],
     enabled: !!accessInfo?.hasAccess
   });
 
   // Fetch analytics
-  const { data: analytics } = useQuery({
+  const { data: analytics } = useQuery<AnalyticsData>({
     queryKey: ['/api/multi-property/analytics', selectedTimeRange],
     enabled: !!accessInfo?.hasAccess
   });
@@ -658,7 +696,7 @@ export function MultiPropertyDashboard() {
                     <div key={index} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium">{item.category}</span>
-                        <Badge variant={item.status === 'compliant' ? 'success' : 'warning'}>
+                        <Badge variant={item.status === 'compliant' ? 'secondary' : 'destructive'}>
                           {item.status}
                         </Badge>
                       </div>
