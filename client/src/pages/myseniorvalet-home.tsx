@@ -404,7 +404,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Bar Container - Always visible with tab-specific styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 p-3 shadow-2xl ${
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 pb-8 pt-3 px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
@@ -444,8 +444,8 @@ function HeroSectionWithTransformingSearch() {
             </div>
             </div>
             
-            {/* View Mode Tabs - Clean and Simple */}
-            <div className="flex justify-center mt-3">
+            {/* View Mode Tabs - Overlapping Bottom Border */}
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
               <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
                 isSearchActive 
                   ? 'bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 shadow-xl border border-gray-200 dark:border-gray-600'
