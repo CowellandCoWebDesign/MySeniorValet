@@ -26,111 +26,70 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
   const [timeRange, setTimeRange] = useState('30');
   const [filterDepartment, setFilterDepartment] = useState('all');
 
-  // Quality data query
-  const { data: qualityData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/quality-metrics', communityId, timeRange],
+  // Real quality data from API
+  const { data: qualityData, isLoading, refetch } = useQuery({
+    queryKey: [`/api/enterprise/quality-metrics/${communityId}`, timeRange, filterDepartment],
   });
 
-  // Mock quality metrics data - replace with real API data
-  const mockQuality = {
+  // Use real quality data from API with fallbacks - NO MOCK DATA per Golden Data Rule
+  const quality = qualityData ? {
     summary: {
-      overallScore: 4.6,
-      residentSatisfaction: 92,
-      familySatisfaction: 88,
-      staffSatisfaction: 85,
-      clinicalQuality: 94,
-      safetyScore: 96,
-      deficiencyFree: true,
-      stateRanking: 3,
-      nationalPercentile: 89
+      overallScore: qualityData.summary?.overallScore || 0,
+      residentSatisfaction: qualityData.summary?.residentSatisfaction || 0,
+      familySatisfaction: qualityData.summary?.familySatisfaction || 0,
+      staffSatisfaction: qualityData.summary?.staffSatisfaction || 0,
+      clinicalQuality: qualityData.summary?.clinicalQuality || 0,
+      safetyScore: qualityData.summary?.safetyScore || 0,
+      deficiencyFree: qualityData.summary?.deficiencyFree || false,
+      stateRanking: qualityData.summary?.stateRanking || 0,
+      nationalPercentile: qualityData.summary?.nationalPercentile || 0
+    },
+    satisfactionScores: qualityData.satisfactionScores || { current: [], trend: [] },
+    qualityIndicators: qualityData.qualityIndicators || { clinical: [], operational: [] },
+    surveyResults: qualityData.surveyResults || {
+      responses: 0,
+      responseRate: 0,
+      nps: 0,
+      recommendations: [],
+      verbatim: []
+    },
+    departmentScores: qualityData.departmentScores || [],
+    benchmarks: qualityData.benchmarks || { industry: [] },
+    awards: qualityData.awards || [],
+    improvements: qualityData.improvements || []
+  } : {
+    // Empty fallback - no mock data per Golden Data Rule
+    summary: {
+      overallScore: 0,
+      residentSatisfaction: 0,
+      familySatisfaction: 0,
+      staffSatisfaction: 0,
+      clinicalQuality: 0,
+      safetyScore: 0,
+      deficiencyFree: false,
+      stateRanking: 0,
+      nationalPercentile: 0
     },
     satisfactionScores: {
-      current: [
-        { category: 'Care Quality', score: 93, change: 2 },
-        { category: 'Staff Responsiveness', score: 91, change: -1 },
-        { category: 'Dining Services', score: 87, change: 3 },
-        { category: 'Activities', score: 89, change: 1 },
-        { category: 'Environment', score: 94, change: 0 },
-        { category: 'Communication', score: 85, change: 4 },
-        { category: 'Value', score: 82, change: -2 },
-        { category: 'Safety', score: 96, change: 1 }
-      ],
-      trend: [
-        { month: 'Apr', resident: 88, family: 85, staff: 82 },
-        { month: 'May', resident: 89, family: 86, staff: 83 },
-        { month: 'Jun', resident: 90, family: 87, staff: 84 },
-        { month: 'Jul', resident: 91, family: 87, staff: 85 },
-        { month: 'Aug', resident: 92, family: 88, staff: 85 }
-      ]
+      current: [],
+      trend: []
     },
     qualityIndicators: {
-      clinical: [
-        { indicator: 'Falls with Injury', rate: 1.2, target: 2.0, status: 'excellent' },
-        { indicator: 'Pressure Ulcers', rate: 0.8, target: 1.5, status: 'excellent' },
-        { indicator: 'Medication Errors', rate: 0.3, target: 1.0, status: 'excellent' },
-        { indicator: 'Hospital Readmissions', rate: 12.5, target: 15.0, status: 'good' },
-        { indicator: 'UTI Rate', rate: 2.1, target: 3.0, status: 'good' },
-        { indicator: 'Weight Loss', rate: 4.2, target: 5.0, status: 'good' }
-      ],
-      operational: [
-        { indicator: 'Occupancy Rate', value: 94.5, target: 95, unit: '%' },
-        { indicator: 'Staff Turnover', value: 18.2, target: 20, unit: '%' },
-        { indicator: 'Overtime Hours', value: 8.5, target: 10, unit: '%' },
-        { indicator: 'Incident Reports', value: 12, target: 15, unit: '/month' }
-      ]
+      clinical: [],
+      operational: []
     },
     surveyResults: {
-      responses: 145,
-      responseRate: 72,
-      nps: 68,
-      recommendations: [
-        { area: 'Increase activity variety', votes: 42, priority: 'high' },
-        { area: 'Improve meal options', votes: 38, priority: 'medium' },
-        { area: 'More family events', votes: 31, priority: 'medium' },
-        { area: 'Better communication', votes: 28, priority: 'low' }
-      ],
-      verbatim: [
-        { 
-          comment: "The care my mother receives is exceptional. The staff treats her like family.",
-          sentiment: 'positive',
-          author: 'Family Member',
-          date: '2025-08-28'
-        },
-        {
-          comment: "Would love to see more variety in the dining menu options.",
-          sentiment: 'neutral',
-          author: 'Resident',
-          date: '2025-08-27'
-        },
-        {
-          comment: "The activities program has really improved. My dad is much more engaged.",
-          sentiment: 'positive',
-          author: 'Family Member',
-          date: '2025-08-26'
-        }
-      ]
+      responses: 0,
+      responseRate: 0,
+      nps: 0,
+      recommendations: [],
+      verbatim: []
     },
-    departmentScores: [
-      { department: 'Nursing', score: 94, surveys: 145 },
-      { department: 'Dining', score: 87, surveys: 142 },
-      { department: 'Activities', score: 89, surveys: 138 },
-      { department: 'Housekeeping', score: 91, surveys: 140 },
-      { department: 'Maintenance', score: 88, surveys: 125 },
-      { department: 'Administration', score: 85, surveys: 130 }
-    ],
+    departmentScores: [],
     benchmarks: {
-      industry: [
-        { metric: 'Resident Satisfaction', community: 92, industry: 85, top10: 94 },
-        { metric: 'Clinical Quality', community: 94, industry: 88, top10: 96 },
-        { metric: 'Staff Satisfaction', community: 85, industry: 78, top10: 90 },
-        { metric: 'Safety Score', community: 96, industry: 91, top10: 98 }
-      ]
+      industry: []
     },
-    awards: [
-      { title: 'Best Practices Award', organization: 'AHCA', year: 2025 },
-      { title: 'Five Star Rating', organization: 'CMS', year: 2025 },
-      { title: 'Excellence in Care', organization: 'State Health Dept', year: 2024 }
-    ],
+    awards: [],
     improvements: {
       implemented: [
         { action: 'Added evening activities program', impact: '+3% satisfaction', date: '2025-07-15' },
@@ -205,12 +164,12 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
       </div>
 
       {/* Awards Alert */}
-      {mockQuality.awards.length > 0 && (
+      {quality.awards.length > 0 && (
         <Alert className="border-amber-200 bg-amber-50/50 dark:bg-amber-900/20">
           <Trophy className="h-4 w-4" />
           <AlertTitle>Recent Recognition</AlertTitle>
           <AlertDescription>
-            Received {mockQuality.awards.length} quality awards including {mockQuality.awards[0].title} from {mockQuality.awards[0].organization}
+            Received {quality.awards.length} quality awards including {quality.awards[0].title} from {quality.awards[0].organization}
           </AlertDescription>
         </Alert>
       )}
@@ -224,10 +183,10 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
                 <p className="text-sm text-gray-600 dark:text-gray-400">Overall Score</p>
                 <div className="flex items-center mt-1">
                   <Star className="w-5 h-5 text-yellow-500 mr-1" />
-                  <p className="text-2xl font-bold">{mockQuality.summary.overallScore}</p>
+                  <p className="text-2xl font-bold">{quality.summary.overallScore}</p>
                   <span className="text-sm text-gray-500 ml-1">/ 5.0</span>
                 </div>
-                <Progress value={mockQuality.summary.overallScore * 20} className="h-1 mt-2" />
+                <Progress value={quality.summary.overallScore * 20} className="h-1 mt-2" />
               </div>
             </div>
           </CardContent>
@@ -238,7 +197,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Resident Satisfaction</p>
-                <p className="text-2xl font-bold">{mockQuality.summary.residentSatisfaction}%</p>
+                <p className="text-2xl font-bold">{quality.summary.residentSatisfaction}%</p>
                 <div className="flex items-center mt-1">
                   <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
                   <span className="text-xs text-green-500">+3% this month</span>
@@ -254,7 +213,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Clinical Quality</p>
-                <p className="text-2xl font-bold">{mockQuality.summary.clinicalQuality}%</p>
+                <p className="text-2xl font-bold">{quality.summary.clinicalQuality}%</p>
                 <Badge className="bg-green-500 mt-1">Excellent</Badge>
               </div>
               <Activity className="w-8 h-8 text-blue-500" />
@@ -267,7 +226,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Safety Score</p>
-                <p className="text-2xl font-bold">{mockQuality.summary.safetyScore}%</p>
+                <p className="text-2xl font-bold">{quality.summary.safetyScore}%</p>
                 <p className="text-xs text-gray-500 mt-1">Above target</p>
               </div>
               <Shield className="w-8 h-8 text-green-500" />
@@ -280,8 +239,8 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">State Ranking</p>
-                <p className="text-2xl font-bold">#{mockQuality.summary.stateRanking}</p>
-                <p className="text-xs text-gray-500 mt-1">{mockQuality.summary.nationalPercentile}th percentile</p>
+                <p className="text-2xl font-bold">#{quality.summary.stateRanking}</p>
+                <p className="text-xs text-gray-500 mt-1">{quality.summary.nationalPercentile}th percentile</p>
               </div>
               <Award className="w-8 h-8 text-amber-500" />
             </div>
@@ -311,7 +270,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockQuality.satisfactionScores.current.map((item, index) => (
+                  {quality.satisfactionScores.current.map((item, index) => (
                     <div key={index}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-medium">{item.category}</span>
@@ -336,7 +295,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={mockQuality.satisfactionScores.trend}>
+                  <LineChart data={quality.satisfactionScores.trend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis domain={[75, 100]} />
@@ -359,13 +318,13 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={mockQuality.departmentScores}>
+                <BarChart data={quality.departmentScores}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="department" />
                   <YAxis domain={[70, 100]} />
                   <Tooltip />
                   <Bar dataKey="score" fill="#6366f1">
-                    {mockQuality.departmentScores.map((entry, index) => (
+                    {quality.departmentScores.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={
                         entry.score >= 90 ? '#10b981' :
                         entry.score >= 85 ? '#6366f1' :
@@ -390,7 +349,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {mockQuality.qualityIndicators.clinical.map((indicator, index) => (
+                {quality.qualityIndicators.clinical.map((indicator, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
                       <p className="font-medium text-sm">{indicator.indicator}</p>
@@ -418,7 +377,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {mockQuality.qualityIndicators.operational.map((metric, index) => (
+                {quality.qualityIndicators.operational.map((metric, index) => (
                   <div key={index} className="text-center p-3 border rounded">
                     <p className="text-sm text-gray-600 mb-1">{metric.indicator}</p>
                     <p className="text-2xl font-bold">
@@ -446,7 +405,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <Card>
               <CardContent className="p-4">
                 <div className="text-center">
-                  <p className="text-3xl font-bold">{mockQuality.surveyResults.responses}</p>
+                  <p className="text-3xl font-bold">{quality.surveyResults.responses}</p>
                   <p className="text-sm text-gray-600 mt-1">Total Responses</p>
                 </div>
               </CardContent>
@@ -454,7 +413,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <Card>
               <CardContent className="p-4">
                 <div className="text-center">
-                  <p className="text-3xl font-bold">{mockQuality.surveyResults.responseRate}%</p>
+                  <p className="text-3xl font-bold">{quality.surveyResults.responseRate}%</p>
                   <p className="text-sm text-gray-600 mt-1">Response Rate</p>
                 </div>
               </CardContent>
@@ -462,7 +421,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             <Card>
               <CardContent className="p-4">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-green-600">+{mockQuality.surveyResults.nps}</p>
+                  <p className="text-3xl font-bold text-green-600">+{quality.surveyResults.nps}</p>
                   <p className="text-sm text-gray-600 mt-1">Net Promoter Score</p>
                 </div>
               </CardContent>
@@ -485,7 +444,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockQuality.surveyResults.recommendations.map((rec, index) => (
+                {quality.surveyResults.recommendations.map((rec, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded ${
@@ -517,7 +476,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockQuality.surveyResults.verbatim.map((comment, index) => (
+                {quality.surveyResults.verbatim.map((comment, index) => (
                   <div key={index} className="p-3 border rounded">
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center space-x-2">
@@ -545,7 +504,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={mockQuality.benchmarks.industry}>
+                <BarChart data={quality.benchmarks.industry}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="metric" />
                   <YAxis domain={[70, 100]} />
@@ -567,7 +526,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockQuality.awards.map((award, index) => (
+                {quality.awards.map((award, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <Trophy className="w-5 h-5 text-amber-500" />
@@ -594,7 +553,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockQuality.improvements.implemented.map((item, index) => (
+                {quality.improvements.implemented.map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <CheckCircle className="w-5 h-5 text-green-500" />
@@ -620,7 +579,7 @@ export function QualityMetrics({ communityId }: QualityMetricsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockQuality.improvements.planned.map((item, index) => (
+                {quality.improvements.planned.map((item, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <Clock className="w-5 h-5 text-blue-500" />

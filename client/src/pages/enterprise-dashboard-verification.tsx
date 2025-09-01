@@ -54,6 +54,22 @@ export default function EnterpriseDashboardVerification() {
     enabled: false,
   });
 
+  // Phase 3 API endpoints - Operations Systems
+  const maintenanceQuery = useQuery({
+    queryKey: [`/api/enterprise/maintenance/${communityId}`],
+    enabled: false,
+  });
+
+  const vendorsQuery = useQuery({
+    queryKey: [`/api/enterprise/vendors/${communityId}`],
+    enabled: false,
+  });
+
+  const qualityQuery = useQuery({
+    queryKey: [`/api/enterprise/quality-metrics/${communityId}`],
+    enabled: false,
+  });
+
   const verifyPhases = async () => {
     setIsVerifying(true);
     const results: VerificationResult[] = [];
@@ -258,6 +274,93 @@ export default function EnterpriseDashboardVerification() {
       });
     }
 
+    // Phase 3 Verification - Operations Systems
+    console.log('🔍 Starting Phase 3 Verification...');
+    
+    // Check Maintenance System
+    try {
+      const maintenanceData = await maintenanceQuery.refetch();
+      if (maintenanceData.data) {
+        const data = maintenanceData.data as any;
+        results.push({
+          component: 'MaintenanceSystem',
+          status: data.summary || data.workOrders?.length ? 'success' : 'no-data',
+          message: data.summary || data.workOrders?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.workOrders?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'MaintenanceSystem',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'MaintenanceSystem',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Vendor Management
+    try {
+      const vendorsData = await vendorsQuery.refetch();
+      if (vendorsData.data) {
+        const data = vendorsData.data as any;
+        results.push({
+          component: 'VendorManagement',
+          status: data.summary || data.vendors?.length ? 'success' : 'no-data',
+          message: data.summary || data.vendors?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.vendors?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'VendorManagement',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'VendorManagement',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Quality Metrics
+    try {
+      const qualityData = await qualityQuery.refetch();
+      if (qualityData.data) {
+        const data = qualityData.data as any;
+        results.push({
+          component: 'QualityMetrics',
+          status: data.summary || data.qualityIndicators ? 'success' : 'no-data',
+          message: data.summary || data.qualityIndicators 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.departmentScores?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'QualityMetrics',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'QualityMetrics',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
     setVerificationResults(results);
     setIsVerifying(false);
     console.log('✅ Verification Complete!', results);
@@ -279,7 +382,9 @@ export default function EnterpriseDashboardVerification() {
   const getPhaseStatus = (phase: string) => {
     const phaseResults = phase === 'Phase 1' 
       ? verificationResults.filter(r => ['EnterpriseAnalytics', 'FinancialManagement', 'ComplianceMonitoring'].includes(r.component))
-      : verificationResults.filter(r => ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'].includes(r.component));
+      : phase === 'Phase 2'
+      ? verificationResults.filter(r => ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'].includes(r.component))
+      : verificationResults.filter(r => ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'].includes(r.component));
     
     if (phaseResults.length === 0) return 'pending';
     if (phaseResults.every(r => r.status === 'success')) return 'success';
@@ -367,6 +472,39 @@ export default function EnterpriseDashboardVerification() {
                 </h3>
                 {verificationResults
                   .filter(r => ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'].includes(r.component))
+                  .map((result, index) => (
+                    <Card key={index} className="border-l-4" style={{
+                      borderLeftColor: result.status === 'success' ? '#10b981' : 
+                                       result.status === 'error' ? '#ef4444' : '#f59e0b'
+                    }}>
+                      <CardContent className="py-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            {getStatusIcon(result.status)}
+                            <div>
+                              <p className="font-semibold">{result.component}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{result.message}</p>
+                              {result.dataCount !== undefined && result.dataCount > 0 && (
+                                <p className="text-xs text-gray-500 mt-1">Records found: {result.dataCount}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+
+              {/* Phase 3 Results */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  Phase 3: Operations Systems
+                  {getPhaseStatus('Phase 3') === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                  {getPhaseStatus('Phase 3') === 'partial' && <AlertCircle className="w-5 h-5 text-yellow-500" />}
+                  {getPhaseStatus('Phase 3') === 'error' && <XCircle className="w-5 h-5 text-red-500" />}
+                </h3>
+                {verificationResults
+                  .filter(r => ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'].includes(r.component))
                   .map((result, index) => (
                     <Card key={index} className="border-l-4" style={{
                       borderLeftColor: result.status === 'success' ? '#10b981' : 

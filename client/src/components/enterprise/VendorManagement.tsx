@@ -30,181 +30,49 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
 
-  // Vendor data query
-  const { data: vendorData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/vendors', communityId],
+  // Real vendor data from API
+  const { data: vendorData, isLoading, refetch } = useQuery({
+    queryKey: [`/api/enterprise/vendors/${communityId}`, filterCategory, filterStatus],
   });
 
-  // Mock vendor data - replace with real API data
-  const mockVendors = {
+  // Use real vendor data from API with fallbacks - NO MOCK DATA per Golden Data Rule
+  const vendors = vendorData ? {
     summary: {
-      totalVendors: 47,
-      activeContracts: 38,
-      pendingRenewals: 5,
-      expiringSoon: 3,
-      totalSpend: 892500,
-      avgRating: 4.6,
-      complianceRate: 94.2,
-      costSavings: 125000
+      totalVendors: vendorData.summary?.totalVendors || 0,
+      activeContracts: vendorData.summary?.activeContracts || 0,
+      pendingRenewals: vendorData.summary?.pendingRenewals || 0,
+      expiringSoon: vendorData.summary?.expiringSoon || 0,
+      totalSpend: vendorData.summary?.totalSpend || 0,
+      avgRating: vendorData.summary?.avgRating || 0,
+      complianceRate: vendorData.summary?.complianceRate || 0,
+      costSavings: vendorData.summary?.costSavings || 0
     },
-    vendors: [
-      {
-        id: 'V001',
-        name: 'MediSupply Pro',
-        category: 'Medical Supplies',
-        status: 'active',
-        contractValue: 125000,
-        contractStart: '2024-01-01',
-        contractEnd: '2025-12-31',
-        rating: 4.8,
-        compliance: 98,
-        contact: {
-          name: 'Sarah Johnson',
-          phone: '555-0123',
-          email: 'sarah@medisupply.com'
-        },
-        performance: {
-          onTimeDelivery: 96,
-          qualityScore: 95,
-          responseTime: 2.4,
-          issuesResolved: 42
-        },
-        insurance: {
-          liability: true,
-          workersComp: true,
-          expires: '2026-01-15'
-        },
-        lastOrder: '2025-08-25',
-        totalOrders: 156,
-        spend: 89500
-      },
-      {
-        id: 'V002',
-        name: 'CleanCare Services',
-        category: 'Housekeeping',
-        status: 'active',
-        contractValue: 85000,
-        contractStart: '2024-06-01',
-        contractEnd: '2025-05-31',
-        rating: 4.5,
-        compliance: 92,
-        contact: {
-          name: 'Mike Wilson',
-          phone: '555-0124',
-          email: 'mike@cleancare.com'
-        },
-        performance: {
-          onTimeDelivery: 94,
-          qualityScore: 90,
-          responseTime: 1.8,
-          issuesResolved: 28
-        },
-        insurance: {
-          liability: true,
-          workersComp: true,
-          expires: '2025-11-30'
-        },
-        lastOrder: '2025-08-28',
-        totalOrders: 365,
-        spend: 72000
-      },
-      {
-        id: 'V003',
-        name: 'FoodService Plus',
-        category: 'Food & Beverage',
-        status: 'renewal_pending',
-        contractValue: 220000,
-        contractStart: '2023-09-01',
-        contractEnd: '2025-08-31',
-        rating: 4.7,
-        compliance: 96,
-        contact: {
-          name: 'Lisa Chen',
-          phone: '555-0125',
-          email: 'lisa@foodserviceplus.com'
-        },
-        performance: {
-          onTimeDelivery: 98,
-          qualityScore: 94,
-          responseTime: 1.2,
-          issuesResolved: 15
-        },
-        insurance: {
-          liability: true,
-          workersComp: true,
-          expires: '2025-09-15'
-        },
-        lastOrder: '2025-08-29',
-        totalOrders: 730,
-        spend: 195000
-      },
-      {
-        id: 'V004',
-        name: 'TechCare Solutions',
-        category: 'IT Services',
-        status: 'active',
-        contractValue: 65000,
-        contractStart: '2025-01-01',
-        contractEnd: '2025-12-31',
-        rating: 4.9,
-        compliance: 100,
-        contact: {
-          name: 'David Park',
-          phone: '555-0126',
-          email: 'david@techcare.com'
-        },
-        performance: {
-          onTimeDelivery: 99,
-          qualityScore: 98,
-          responseTime: 0.5,
-          issuesResolved: 89
-        },
-        insurance: {
-          liability: true,
-          workersComp: true,
-          expires: '2026-02-28'
-        },
-        lastOrder: '2025-08-27',
-        totalOrders: 48,
-        spend: 42000
-      }
-    ],
-    categories: [
-      { name: 'Medical Supplies', vendors: 8, spend: 245000, percentage: 27 },
-      { name: 'Food & Beverage', vendors: 5, spend: 220000, percentage: 25 },
-      { name: 'Housekeeping', vendors: 6, spend: 142000, percentage: 16 },
-      { name: 'Maintenance', vendors: 7, spend: 98000, percentage: 11 },
-      { name: 'IT Services', vendors: 4, spend: 87000, percentage: 10 },
-      { name: 'Professional Services', vendors: 9, spend: 65000, percentage: 7 },
-      { name: 'Other', vendors: 8, spend: 35500, percentage: 4 }
-    ],
-    spendTrend: [
-      { month: 'Apr', actual: 142000, budget: 150000 },
-      { month: 'May', actual: 138000, budget: 150000 },
-      { month: 'Jun', actual: 145000, budget: 150000 },
-      { month: 'Jul', actual: 152000, budget: 150000 },
-      { month: 'Aug', actual: 148000, budget: 150000 }
-    ],
-    performanceMetrics: [
-      { metric: 'On-Time Delivery', score: 95 },
-      { metric: 'Quality', score: 92 },
-      { metric: 'Communication', score: 88 },
-      { metric: 'Compliance', score: 94 },
-      { metric: 'Value', score: 86 },
-      { metric: 'Innovation', score: 78 }
-    ],
-    upcomingRenewals: [
-      { vendor: 'FoodService Plus', endDate: '2025-08-31', value: 220000, daysLeft: 2 },
-      { vendor: 'Security Systems Inc', endDate: '2025-09-15', value: 45000, daysLeft: 15 },
-      { vendor: 'Landscaping Pro', endDate: '2025-09-30', value: 35000, daysLeft: 30 },
-      { vendor: 'Pharmacy Direct', endDate: '2025-10-15', value: 155000, daysLeft: 45 },
-      { vendor: 'Laundry Services', endDate: '2025-10-31', value: 68000, daysLeft: 61 }
-    ],
-    complianceIssues: [
-      { vendor: 'Transport Services', issue: 'Insurance expiring', severity: 'high', dueDate: '2025-09-05' },
-      { vendor: 'Equipment Rental', issue: 'Missing W-9 form', severity: 'medium', dueDate: '2025-09-10' },
-      { vendor: 'Consulting Group', issue: 'Contract review needed', severity: 'low', dueDate: '2025-09-20' }
-    ]
+    vendors: vendorData.vendors || [],
+    categories: vendorData.categories || [],
+    spendByCategory: vendorData.spendByCategory || [],
+    contractSchedule: vendorData.contractSchedule || [],
+    performanceTrends: vendorData.performanceTrends || [],
+    complianceMetrics: vendorData.complianceMetrics || [],
+    complianceIssues: vendorData.complianceIssues || []
+  } : {
+    // Empty fallback - no mock data per Golden Data Rule
+    summary: {
+      totalVendors: 0,
+      activeContracts: 0,
+      pendingRenewals: 0,
+      expiringSoon: 0,
+      totalSpend: 0,
+      avgRating: 0,
+      complianceRate: 0,
+      costSavings: 0
+    },
+    vendors: [],
+    categories: [],
+    spendByCategory: [],
+    contractSchedule: [],
+    performanceTrends: [],
+    complianceMetrics: [],
+    complianceIssues: []
   };
 
   const getStatusBadge = (status: string) => {
@@ -241,13 +109,27 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
     return 'text-red-600';
   };
 
-  const filteredVendors = mockVendors.vendors.filter(vendor => {
+  const filteredVendors = vendors.vendors.filter(vendor => {
     const matchesSearch = vendor.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          vendor.category.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = filterCategory === 'all' || vendor.category === filterCategory;
     const matchesStatus = filterStatus === 'all' || vendor.status === filterStatus;
     return matchesSearch && matchesCategory && matchesStatus;
   });
+
+  const COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#FFD93D'];
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-8">
+          <div className="flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -256,46 +138,49 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
         <div>
           <h2 className="text-2xl font-bold">Vendor Management</h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-            Contracts, performance tracking, and supplier relationships
+            Supplier relationships, contracts, and performance tracking
           </p>
         </div>
         <div className="flex items-center space-x-4">
+          <Button onClick={() => refetch()}>
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Refresh
+          </Button>
           <Button>
             <Plus className="w-4 h-4 mr-2" />
             Add Vendor
           </Button>
           <Button variant="outline">
             <Download className="w-4 h-4 mr-2" />
-            Export Report
+            Export
           </Button>
         </div>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-900/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Active Vendors</p>
-                <p className="text-2xl font-bold">{mockVendors.summary.activeContracts}</p>
-                <p className="text-xs text-gray-500 mt-1">of {mockVendors.summary.totalVendors} total</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Vendors</p>
+                <p className="text-2xl font-bold text-blue-600">{vendors.summary.totalVendors}</p>
+                <p className="text-xs text-gray-500 mt-1">{vendors.summary.activeContracts} active</p>
               </div>
               <Building className="w-8 h-8 text-blue-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Spend</p>
-                <p className="text-2xl font-bold">${(mockVendors.summary.totalSpend / 12).toLocaleString()}</p>
-                <div className="flex items-center mt-1">
-                  <TrendingDown className="w-3 h-3 text-green-500 mr-1" />
-                  <span className="text-xs text-green-500">-5% vs last month</span>
-                </div>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Total Spend</p>
+                <p className="text-2xl font-bold text-green-600">
+                  ${vendors.summary.totalSpend.toLocaleString()}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">This year</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-500" />
             </div>
@@ -306,22 +191,22 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pending Renewals</p>
-                <p className="text-2xl font-bold text-yellow-600">{mockVendors.summary.pendingRenewals}</p>
-                <p className="text-xs text-gray-500 mt-1">{mockVendors.summary.expiringSoon} expiring soon</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Renewals Pending</p>
+                <p className="text-2xl font-bold text-yellow-600">{vendors.summary.pendingRenewals}</p>
+                <p className="text-xs text-gray-500 mt-1">{vendors.summary.expiringSoon} expiring soon</p>
               </div>
-              <Clock className="w-8 h-8 text-yellow-500" />
+              <Calendar className="w-8 h-8 text-yellow-500" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-purple-200 bg-purple-50/50 dark:bg-purple-900/20">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Compliance Rate</p>
-                <p className="text-2xl font-bold">{mockVendors.summary.complianceRate}%</p>
-                <Progress value={mockVendors.summary.complianceRate} className="h-1 mt-2" />
+                <p className="text-2xl font-bold text-purple-600">{vendors.summary.complianceRate}%</p>
+                <p className="text-xs text-gray-500 mt-1">Avg rating: {vendors.summary.avgRating}/5</p>
               </div>
               <Shield className="w-8 h-8 text-purple-500" />
             </div>
@@ -329,14 +214,14 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
         </Card>
       </div>
 
-      {/* Vendor Management Tabs */}
+      {/* Main Content Tabs */}
       <Tabs defaultValue="vendors" className="space-y-4">
         <TabsList className="grid grid-cols-6 w-full">
           <TabsTrigger value="vendors">Vendors</TabsTrigger>
           <TabsTrigger value="contracts">Contracts</TabsTrigger>
           <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="spend">Spend Analysis</TabsTrigger>
           <TabsTrigger value="compliance">Compliance</TabsTrigger>
-          <TabsTrigger value="spending">Spending</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -357,26 +242,27 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
                 </div>
                 <Select value={filterCategory} onValueChange={setFilterCategory}>
                   <SelectTrigger className="w-48">
-                    <SelectValue />
+                    <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Categories</SelectItem>
                     <SelectItem value="Medical Supplies">Medical Supplies</SelectItem>
                     <SelectItem value="Food & Beverage">Food & Beverage</SelectItem>
                     <SelectItem value="Housekeeping">Housekeeping</SelectItem>
-                    <SelectItem value="IT Services">IT Services</SelectItem>
                     <SelectItem value="Maintenance">Maintenance</SelectItem>
+                    <SelectItem value="IT Services">IT Services</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="All Status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="renewal_pending">Renewal Pending</SelectItem>
                     <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -384,513 +270,330 @@ export function VendorManagement({ communityId }: VendorManagementProps) {
           </Card>
 
           {/* Vendor List */}
-          <div className="space-y-4">
-            {filteredVendors.map((vendor) => (
-              <Card key={vendor.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start space-x-4">
-                      <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                        <Truck className="w-5 h-5 text-gray-600" />
-                      </div>
+          <div className="grid gap-4">
+            {filteredVendors.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-gray-500">No vendors found. Add vendors to start tracking.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredVendors.map((vendor) => (
+                <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <p className="font-semibold text-lg">{vendor.name}</p>
+                        <div className="flex items-center space-x-3">
+                          <h3 className="text-lg font-semibold">{vendor.name}</h3>
                           {getStatusBadge(vendor.status)}
                           <Badge variant="outline">{vendor.category}</Badge>
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-3 text-sm">
+                        <div className="grid grid-cols-3 gap-4 mt-4">
                           <div>
-                            <p className="text-gray-500">Contract Value</p>
-                            <p className="font-semibold">${vendor.contractValue.toLocaleString()}/year</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Contract Value</p>
+                            <p className="font-semibold">${vendor.contractValue?.toLocaleString()}</p>
                           </div>
                           <div>
-                            <p className="text-gray-500">Rating</p>
-                            <div className="flex items-center">
-                              <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                              <span className="font-semibold">{vendor.rating}</span>
-                            </div>
-                          </div>
-                          <div>
-                            <p className="text-gray-500">Compliance</p>
-                            <p className={`font-semibold ${getComplianceColor(vendor.compliance)}`}>
-                              {vendor.compliance}%
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Contract Period</p>
+                            <p className="text-sm">
+                              {vendor.contractStart ? format(new Date(vendor.contractStart), 'MMM dd, yyyy') : 'N/A'} - 
+                              {vendor.contractEnd ? format(new Date(vendor.contractEnd), 'MMM dd, yyyy') : 'N/A'}
                             </p>
                           </div>
                           <div>
-                            <p className="text-gray-500">Last Order</p>
-                            <p className="font-semibold">{format(new Date(vendor.lastOrder), 'MMM d, yyyy')}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Performance</p>
+                            <div className="flex items-center space-x-2">
+                              <div className="flex items-center">
+                                <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                                <span className="ml-1">{vendor.rating || 0}</span>
+                              </div>
+                              <span className={getComplianceColor(vendor.compliance || 0)}>
+                                {vendor.compliance || 0}% compliant
+                              </span>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-4 mt-3 text-sm text-gray-500">
-                          <span className="flex items-center">
-                            <User className="w-3 h-3 mr-1" />
-                            {vendor.contact.name}
-                          </span>
-                          <span className="flex items-center">
-                            <Phone className="w-3 h-3 mr-1" />
-                            {vendor.contact.phone}
-                          </span>
-                          <span className="flex items-center">
-                            <Mail className="w-3 h-3 mr-1" />
-                            {vendor.contact.email}
-                          </span>
-                        </div>
+                        {vendor.contact && (
+                          <div className="flex items-center space-x-4 mt-3 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center">
+                              <User className="w-3 h-3 mr-1" />
+                              {vendor.contact.name}
+                            </div>
+                            <div className="flex items-center">
+                              <Phone className="w-3 h-3 mr-1" />
+                              {vendor.contact.phone}
+                            </div>
+                            <div className="flex items-center">
+                              <Mail className="w-3 h-3 mr-1" />
+                              {vendor.contact.email}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Button variant="outline" size="sm">
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button variant="outline" size="sm">
+                          <ExternalLink className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex flex-col space-y-2">
-                      <Button size="sm">View Details</Button>
-                      <Button size="sm" variant="outline">
-                        <Edit className="w-4 h-4 mr-1" />
-                        Edit
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </TabsContent>
 
         {/* Contracts Tab */}
         <TabsContent value="contracts" className="space-y-4">
-          {/* Contract Renewals Alert */}
-          <Alert className="border-yellow-200 bg-yellow-50/50 dark:bg-yellow-900/20">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Contract Renewals Required</AlertTitle>
-            <AlertDescription>
-              {mockVendors.summary.pendingRenewals} contracts need renewal within the next 60 days
-            </AlertDescription>
-          </Alert>
-
-          {/* Upcoming Renewals */}
           <Card>
             <CardHeader>
-              <CardTitle>Upcoming Contract Renewals</CardTitle>
-              <CardDescription>Contracts expiring in the next 90 days</CardDescription>
+              <CardTitle>Contract Schedule</CardTitle>
+              <CardDescription>Upcoming contract renewals and expirations</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {mockVendors.upcomingRenewals.map((renewal, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center space-x-4">
-                      <div className={`p-2 rounded-lg ${
-                        renewal.daysLeft <= 7 ? 'bg-red-100 dark:bg-red-900/30' :
-                        renewal.daysLeft <= 30 ? 'bg-yellow-100 dark:bg-yellow-900/30' :
-                        'bg-blue-100 dark:bg-blue-900/30'
-                      }`}>
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{renewal.vendor}</p>
-                        <p className="text-sm text-gray-500">
-                          Expires: {format(new Date(renewal.endDate), 'MMM d, yyyy')}
+              {vendors.contractSchedule.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No contract schedules available</p>
+              ) : (
+                <div className="space-y-4">
+                  {vendors.contractSchedule.map((contract, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex-1">
+                        <h4 className="font-semibold">{contract.vendor}</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Expires: {contract.endDate ? format(new Date(contract.endDate), 'MMM dd, yyyy') : 'N/A'}
                         </p>
                       </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
                       <div className="text-right">
-                        <p className="font-semibold">${renewal.value.toLocaleString()}</p>
-                        <Badge variant={renewal.daysLeft <= 7 ? 'destructive' : 'outline'}>
-                          {renewal.daysLeft} days left
+                        <p className="font-semibold">${contract.value?.toLocaleString()}</p>
+                        <Badge className={contract.daysLeft <= 30 ? 'bg-red-500' : 'bg-green-500'}>
+                          {contract.daysLeft} days left
                         </Badge>
                       </div>
-                      <Button size="sm">Renew</Button>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Contract Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Performance Tab */}
+        <TabsContent value="performance" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
-                <CardTitle>Contract Status</CardTitle>
+                <CardTitle>Performance Trends</CardTitle>
+                <CardDescription>Vendor performance over time</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span>Active</span>
-                    <span className="font-bold">{mockVendors.summary.activeContracts}</span>
+                {vendors.performanceTrends?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={vendors.performanceTrends}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="month" />
+                      <YAxis />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="onTime" stroke="#10b981" name="On-Time Delivery" />
+                      <Line type="monotone" dataKey="quality" stroke="#3b82f6" name="Quality Score" />
+                      <Line type="monotone" dataKey="compliance" stroke="#a855f7" name="Compliance" />
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                    No performance data available
                   </div>
-                  <div className="flex justify-between">
-                    <span>Pending Renewal</span>
-                    <span className="font-bold text-yellow-600">{mockVendors.summary.pendingRenewals}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Expiring Soon</span>
-                    <span className="font-bold text-red-600">{mockVendors.summary.expiringSoon}</span>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Total Contract Value</CardTitle>
+                <CardTitle>Top Performers</CardTitle>
+                <CardDescription>Best performing vendors this month</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold">${mockVendors.summary.totalSpend.toLocaleString()}</p>
-                <p className="text-sm text-gray-500 mt-2">Annual contracted spend</p>
+                {vendors.vendors.length === 0 ? (
+                  <p className="text-gray-500 text-center py-8">No vendor data available</p>
+                ) : (
+                  <div className="space-y-3">
+                    {vendors.vendors
+                      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+                      .slice(0, 5)
+                      .map((vendor) => (
+                        <div key={vendor.id} className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">{vendor.name}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">{vendor.category}</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                            <span>{vendor.rating || 0}</span>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Spend Analysis Tab */}
+        <TabsContent value="spend" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Spend by Category</CardTitle>
+                <CardDescription>Distribution of vendor spending</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {vendors.spendByCategory.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RechartsPieChart>
+                      <Pie
+                        data={vendors.spendByCategory}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ category, amount }) => `${category}: $${(amount / 1000).toFixed(0)}k`}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="amount"
+                      >
+                        {vendors.spendByCategory.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                    No spending data available
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <CardTitle>Cost Savings</CardTitle>
+                <CardDescription>Negotiated savings and optimization</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-green-600">
-                  ${mockVendors.summary.costSavings.toLocaleString()}
-                </p>
-                <p className="text-sm text-gray-500 mt-2">Negotiated savings this year</p>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Performance Tab */}
-        <TabsContent value="performance" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Performance Radar Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Vendor Performance Overview</CardTitle>
-                <CardDescription>Average scores across all vendors</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <RadarChart data={mockVendors.performanceMetrics}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey="metric" />
-                    <PolarRadiusAxis angle={90} domain={[0, 100]} />
-                    <Radar name="Score" dataKey="score" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} />
-                  </RadarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Top Performers */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Top Performing Vendors</CardTitle>
-                <CardDescription>Based on overall performance metrics</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {mockVendors.vendors
-                    .sort((a, b) => b.rating - a.rating)
-                    .slice(0, 5)
-                    .map((vendor, index) => (
-                      <div key={vendor.id} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-800 text-sm font-bold">
-                            {index + 1}
-                          </div>
-                          <div>
-                            <p className="font-medium">{vendor.name}</p>
-                            <p className="text-sm text-gray-500">{vendor.category}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Star className="w-4 h-4 text-yellow-500" />
-                          <span className="font-bold">{vendor.rating}</span>
-                        </div>
-                      </div>
-                    ))}
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                    <div>
+                      <p className="font-semibold">Total Savings This Year</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Through negotiations and optimization</p>
+                    </div>
+                    <p className="text-2xl font-bold text-green-600">
+                      ${vendors.summary.costSavings.toLocaleString()}
+                    </p>
+                  </div>
+                  <Progress value={75} className="h-2" />
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    75% of annual savings target achieved
+                  </p>
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Performance Metrics by Vendor */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Detailed Performance Metrics</CardTitle>
-              <CardDescription>Individual vendor performance breakdown</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left p-2">Vendor</th>
-                      <th className="text-center p-2">On-Time Delivery</th>
-                      <th className="text-center p-2">Quality Score</th>
-                      <th className="text-center p-2">Response Time</th>
-                      <th className="text-center p-2">Issues Resolved</th>
-                      <th className="text-center p-2">Overall</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {mockVendors.vendors.map((vendor) => (
-                      <tr key={vendor.id} className="border-b">
-                        <td className="p-2">
-                          <p className="font-medium">{vendor.name}</p>
-                          <p className="text-sm text-gray-500">{vendor.category}</p>
-                        </td>
-                        <td className="text-center p-2">
-                          <Badge className={vendor.performance.onTimeDelivery >= 95 ? 'bg-green-500' : 'bg-yellow-500'}>
-                            {vendor.performance.onTimeDelivery}%
-                          </Badge>
-                        </td>
-                        <td className="text-center p-2">
-                          <Badge className={vendor.performance.qualityScore >= 90 ? 'bg-green-500' : 'bg-yellow-500'}>
-                            {vendor.performance.qualityScore}%
-                          </Badge>
-                        </td>
-                        <td className="text-center p-2">{vendor.performance.responseTime}h</td>
-                        <td className="text-center p-2">{vendor.performance.issuesResolved}</td>
-                        <td className="text-center p-2">
-                          <div className="flex items-center justify-center">
-                            <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                            <span className="font-bold">{vendor.rating}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
 
         {/* Compliance Tab */}
         <TabsContent value="compliance" className="space-y-4">
-          {/* Compliance Issues */}
-          {mockVendors.complianceIssues.length > 0 && (
-            <Alert className="border-red-200 bg-red-50/50 dark:bg-red-900/20">
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Compliance Issues Require Attention</AlertTitle>
-              <AlertDescription>
-                {mockVendors.complianceIssues.length} vendors have pending compliance issues
-              </AlertDescription>
-            </Alert>
-          )}
-
           <Card>
             <CardHeader>
               <CardTitle>Compliance Issues</CardTitle>
-              <CardDescription>Outstanding compliance requirements</CardDescription>
+              <CardDescription>Outstanding compliance and documentation issues</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {mockVendors.complianceIssues.map((issue, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 border rounded">
-                    <div className="flex items-center space-x-3">
-                      <AlertTriangle className={`w-5 h-5 ${
-                        issue.severity === 'high' ? 'text-red-500' :
-                        issue.severity === 'medium' ? 'text-yellow-500' :
-                        'text-blue-500'
-                      }`} />
-                      <div>
-                        <p className="font-semibold">{issue.vendor}</p>
-                        <p className="text-sm text-gray-500">{issue.issue}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      {getSeverityBadge(issue.severity)}
-                      <span className="text-sm text-gray-500">
-                        Due: {format(new Date(issue.dueDate), 'MMM d')}
-                      </span>
-                      <Button size="sm">Resolve</Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Insurance Status */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Insurance & Certifications</CardTitle>
-              <CardDescription>Vendor insurance and certification status</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockVendors.vendors.map((vendor) => (
-                  <div key={vendor.id} className="flex items-center justify-between p-3 border rounded">
-                    <div>
-                      <p className="font-semibold">{vendor.name}</p>
-                      <div className="flex items-center space-x-4 mt-1 text-sm">
-                        <span className="flex items-center">
-                          {vendor.insurance.liability ? (
-                            <CheckCircle className="w-3 h-3 text-green-500 mr-1" />
-                          ) : (
-                            <AlertCircle className="w-3 h-3 text-red-500 mr-1" />
-                          )}
-                          General Liability
-                        </span>
-                        <span className="flex items-center">
-                          {vendor.insurance.workersComp ? (
-                            <CheckCircle className="w-3 h-3 text-green-500 mr-1" />
-                          ) : (
-                            <AlertCircle className="w-3 h-3 text-red-500 mr-1" />
-                          )}
-                          Workers Comp
-                        </span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">Expires</p>
-                      <p className="font-semibold">{format(new Date(vendor.insurance.expires), 'MMM d, yyyy')}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Spending Tab */}
-        <TabsContent value="spending" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {/* Spend by Category */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Spend by Category</CardTitle>
-                <CardDescription>Annual vendor spend distribution</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <RechartsPieChart>
-                    <Pie
-                      data={mockVendors.categories}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }) => `${percentage}%`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="spend"
-                    >
-                      {mockVendors.categories.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#94a3b8'][index]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            {/* Spend Trend */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Spend Trend</CardTitle>
-                <CardDescription>Actual vs budgeted vendor spend</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={mockVendors.spendTrend}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Area type="monotone" dataKey="budget" stackId="1" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                    <Area type="monotone" dataKey="actual" stackId="2" stroke="#6366f1" fill="#6366f1" fillOpacity={0.6} />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Top Spend Vendors */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Top Vendors by Spend</CardTitle>
-              <CardDescription>Highest spending vendor relationships</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {mockVendors.vendors
-                  .sort((a, b) => b.spend - a.spend)
-                  .map((vendor) => (
-                    <div key={vendor.id} className="flex items-center justify-between">
+              {vendors.complianceIssues?.length === 0 ? (
+                <Alert className="border-green-200 bg-green-50/50 dark:bg-green-900/20">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  <AlertTitle className="text-green-800 dark:text-green-200">All Clear</AlertTitle>
+                  <AlertDescription className="text-green-600 dark:text-green-300">
+                    No compliance issues to report. All vendors are meeting requirements.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-3">
+                  {vendors.complianceIssues?.map((issue, index) => (
+                    <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <Package className="w-4 h-4 text-gray-500" />
+                        <AlertTriangle className="w-5 h-5 text-yellow-500" />
                         <div>
-                          <p className="font-medium">{vendor.name}</p>
-                          <p className="text-sm text-gray-500">{vendor.category}</p>
+                          <p className="font-medium">{issue.vendor}</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">{issue.issue}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">${vendor.spend.toLocaleString()}</p>
-                        <p className="text-sm text-gray-500">{vendor.totalOrders} orders</p>
+                      <div className="flex items-center space-x-3">
+                        {getSeverityBadge(issue.severity)}
+                        <p className="text-sm">Due: {issue.dueDate ? format(new Date(issue.dueDate), 'MMM dd') : 'N/A'}</p>
                       </div>
                     </div>
                   ))}
-              </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
 
         {/* Analytics Tab */}
         <TabsContent value="analytics" className="space-y-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-green-600">{mockVendors.summary.avgRating}</p>
-                  <p className="text-sm text-gray-600 mt-1">Avg Vendor Rating</p>
-                </div>
+              <CardHeader>
+                <CardTitle>Vendor Distribution</CardTitle>
+                <CardDescription>Number of vendors by category</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {vendors.categories.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={vendors.categories}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                      <YAxis />
+                      <Tooltip />
+                      <Bar dataKey="vendors" fill="#3b82f6" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                    No category data available
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-blue-600">94%</p>
-                  <p className="text-sm text-gray-600 mt-1">On-Time Delivery</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-purple-600">2.1h</p>
-                  <p className="text-sm text-gray-600 mt-1">Avg Response Time</p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-amber-600">14%</p>
-                  <p className="text-sm text-gray-600 mt-1">Cost Reduction YoY</p>
-                </div>
+              <CardHeader>
+                <CardTitle>Compliance Metrics</CardTitle>
+                <CardDescription>Overall vendor compliance scores</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {vendors.complianceMetrics?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={300}>
+                    <RadarChart data={vendors.complianceMetrics}>
+                      <PolarGrid />
+                      <PolarAngleAxis dataKey="metric" />
+                      <PolarRadiusAxis />
+                      <Radar name="Score" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                    </RadarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[300px] flex items-center justify-center text-gray-500">
+                    No compliance metrics available
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
-
-          {/* Vendor Comparison */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Vendor Category Comparison</CardTitle>
-              <CardDescription>Performance metrics by vendor category</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={mockVendors.categories}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="vendors" fill="#6366f1" name="Number of Vendors" />
-                  <Bar dataKey="percentage" fill="#8b5cf6" name="Spend %" />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

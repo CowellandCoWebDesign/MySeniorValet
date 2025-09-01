@@ -33,94 +33,57 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
   const [filterPriority, setFilterPriority] = useState('all');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
-  // Maintenance data query
-  const { data: maintenanceData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/maintenance', communityId],
+  // Real maintenance data from API
+  const { data: maintenanceData, isLoading, refetch } = useQuery({
+    queryKey: [`/api/enterprise/maintenance/${communityId}`, filterStatus, filterPriority],
   });
 
-  // Mock maintenance data - replace with real API data
-  const mockMaintenance = {
+  // Use real maintenance data from API with fallbacks
+  const maintenance = maintenanceData ? {
     summary: {
-      openRequests: 47,
-      inProgress: 18,
-      completedThisWeek: 32,
-      avgResolutionTime: 4.2,
-      emergencyRequests: 3,
-      preventiveTasks: 12,
-      overdueRequests: 5,
-      complianceRate: 96.5
+      openRequests: maintenanceData.summary?.openRequests || 0,
+      inProgress: maintenanceData.summary?.inProgress || 0,
+      completedThisWeek: maintenanceData.summary?.completedThisWeek || 0,
+      avgResolutionTime: maintenanceData.summary?.avgResolutionTime || 0,
+      emergencyRequests: maintenanceData.summary?.emergencyRequests || 0,
+      preventiveTasks: maintenanceData.summary?.preventiveTasks || 0,
+      overdueRequests: maintenanceData.summary?.overdueRequests || 0,
+      complianceRate: maintenanceData.summary?.complianceRate || 0
     },
-    requestsByCategory: [
-      { category: 'HVAC', count: 18, percentage: 25 },
-      { category: 'Plumbing', count: 15, percentage: 21 },
-      { category: 'Electrical', count: 12, percentage: 17 },
-      { category: 'General Repairs', count: 10, percentage: 14 },
-      { category: 'Grounds', count: 8, percentage: 11 },
-      { category: 'Safety', count: 5, percentage: 7 },
-      { category: 'Other', count: 4, percentage: 5 }
-    ],
-    workOrders: [
-      {
-        id: 'WO-001',
-        title: 'AC Unit Not Cooling - Room 204',
-        category: 'HVAC',
-        priority: 'high',
-        status: 'in_progress',
-        requestedBy: 'Margaret Thompson',
-        assignedTo: 'John Martinez',
-        location: 'Room 204A',
-        createdAt: '2025-08-28T10:00:00',
-        expectedCompletion: '2025-09-01T16:00:00',
-        description: 'Resident reports AC unit running but not cooling properly',
-        cost: 0
-      },
-      {
-        id: 'WO-002',
-        title: 'Leaking Faucet - Kitchen',
-        category: 'Plumbing',
-        priority: 'medium',
-        status: 'open',
-        requestedBy: 'Dining Staff',
-        assignedTo: null,
-        location: 'Main Kitchen',
-        createdAt: '2025-08-29T08:30:00',
-        expectedCompletion: null,
-        description: 'Kitchen sink faucet dripping continuously',
-        cost: 0
-      },
-      {
-        id: 'WO-003',
-        title: 'Emergency Exit Light Out',
-        category: 'Safety',
-        priority: 'emergency',
-        status: 'in_progress',
-        requestedBy: 'Security',
-        assignedTo: 'Mike Wilson',
-        location: 'Building B - 2nd Floor',
-        createdAt: '2025-08-29T14:00:00',
-        expectedCompletion: '2025-08-29T18:00:00',
-        description: 'Emergency exit sign not illuminated - safety violation',
-        cost: 85
-      },
-      {
-        id: 'WO-004',
-        title: 'Elevator Preventive Maintenance',
-        category: 'Safety',
-        priority: 'low',
-        status: 'scheduled',
-        requestedBy: 'System',
-        assignedTo: 'External Vendor',
-        location: 'Main Building',
-        createdAt: '2025-08-25T00:00:00',
-        expectedCompletion: '2025-09-05T09:00:00',
-        description: 'Quarterly elevator inspection and maintenance',
-        cost: 1200
-      }
-    ],
+    requestsByCategory: maintenanceData.requestsByCategory || [],
+    workOrders: maintenanceData.workOrders?.map(order => ({
+      id: order.id,
+      title: order.title,
+      category: order.category,
+      priority: order.priority,
+      status: order.status,
+      requestedBy: order.requestedBy,
+      assignedTo: order.assignedTo,
+      location: order.location,
+      createdAt: order.createdAt,
+      expectedCompletion: order.expectedCompletion,
+      description: order.description,
+      cost: order.cost || 0
+    })) || [],
+    assets: maintenanceData.assets || [],
+    vendors: maintenanceData.vendors || [],
+    costTrends: maintenanceData.costTrends || [],
+    preventiveSchedule: maintenanceData.preventiveSchedule || []
+  } : {
+    // Empty fallback - no mock data per Golden Data Rule
+    summary: {
+      openRequests: 0,
+      inProgress: 0,
+      completedThisWeek: 0,
+      avgResolutionTime: 0,
+      emergencyRequests: 0,
+      preventiveTasks: 0,
+      overdueRequests: 0,
+      complianceRate: 0
+    },
+    requestsByCategory: [],
+    workOrders: [],
     assets: [
-      { name: 'HVAC System', status: 'operational', lastService: '2025-07-15', nextService: '2025-10-15', age: 5 },
-      { name: 'Generator', status: 'operational', lastService: '2025-08-01', nextService: '2025-09-01', age: 3 },
-      { name: 'Elevators (2)', status: 'needs_service', lastService: '2025-06-01', nextService: '2025-09-05', age: 12 },
       { name: 'Fire System', status: 'operational', lastService: '2025-08-20', nextService: '2025-09-20', age: 8 },
       { name: 'Kitchen Equipment', status: 'operational', lastService: '2025-07-25', nextService: '2025-10-25', age: 6 }
     ],
@@ -198,7 +161,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
     }
   };
 
-  const filteredWorkOrders = mockMaintenance.workOrders.filter(order => {
+  const filteredWorkOrders = maintenance.workOrders.filter(order => {
     const matchesSearch = order.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          order.location.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = filterStatus === 'all' || order.status === filterStatus;
@@ -235,7 +198,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Emergency</p>
-                <p className="text-2xl font-bold text-red-600">{mockMaintenance.summary.emergencyRequests}</p>
+                <p className="text-2xl font-bold text-red-600">{maintenance.summary.emergencyRequests}</p>
                 <p className="text-xs text-gray-500 mt-1">Requires immediate action</p>
               </div>
               <AlertTriangle className="w-8 h-8 text-red-500" />
@@ -248,8 +211,8 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Open Requests</p>
-                <p className="text-2xl font-bold text-orange-600">{mockMaintenance.summary.openRequests}</p>
-                <p className="text-xs text-gray-500 mt-1">{mockMaintenance.summary.overdueRequests} overdue</p>
+                <p className="text-2xl font-bold text-orange-600">{maintenance.summary.openRequests}</p>
+                <p className="text-xs text-gray-500 mt-1">{maintenance.summary.overdueRequests} overdue</p>
               </div>
               <Clock className="w-8 h-8 text-orange-500" />
             </div>
@@ -261,7 +224,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">In Progress</p>
-                <p className="text-2xl font-bold text-blue-600">{mockMaintenance.summary.inProgress}</p>
+                <p className="text-2xl font-bold text-blue-600">{maintenance.summary.inProgress}</p>
                 <p className="text-xs text-gray-500 mt-1">Actively being worked on</p>
               </div>
               <Wrench className="w-8 h-8 text-blue-500" />
@@ -274,7 +237,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Completed</p>
-                <p className="text-2xl font-bold text-green-600">{mockMaintenance.summary.completedThisWeek}</p>
+                <p className="text-2xl font-bold text-green-600">{maintenance.summary.completedThisWeek}</p>
                 <p className="text-xs text-gray-500 mt-1">This week</p>
               </div>
               <CheckCircle className="w-8 h-8 text-green-500" />
@@ -413,19 +376,19 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span>Scheduled</span>
-                    <span className="font-bold">{mockMaintenance.preventiveMaintenance.scheduled}</span>
+                    <span className="font-bold">{maintenance.preventiveMaintenance.scheduled}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Completed</span>
-                    <span className="font-bold text-green-600">{mockMaintenance.preventiveMaintenance.completed}</span>
+                    <span className="font-bold text-green-600">{maintenance.preventiveMaintenance.completed}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Overdue</span>
-                    <span className="font-bold text-red-600">{mockMaintenance.preventiveMaintenance.overdue}</span>
+                    <span className="font-bold text-red-600">{maintenance.preventiveMaintenance.overdue}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Upcoming</span>
-                    <span className="font-bold text-blue-600">{mockMaintenance.preventiveMaintenance.upcoming}</span>
+                    <span className="font-bold text-blue-600">{maintenance.preventiveMaintenance.upcoming}</span>
                   </div>
                 </div>
                 <Progress value={85.7} className="mt-4" />
@@ -484,7 +447,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
         <TabsContent value="assets" className="space-y-4">
           {/* Asset Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {mockMaintenance.assets.map((asset, index) => (
+            {maintenance.assets.map((asset, index) => (
               <Card key={index}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between mb-2">
@@ -549,7 +512,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockMaintenance.vendors.map((vendor, index) => (
+                {maintenance.vendors.map((vendor, index) => (
                   <div key={index} className="flex items-center justify-between p-4 border rounded">
                     <div className="flex items-center space-x-4">
                       <div className="p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
@@ -619,7 +582,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <AreaChart data={mockMaintenance.costTrend}>
+                  <AreaChart data={maintenance.costTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -640,7 +603,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={mockMaintenance.responseTime}>
+                  <BarChart data={maintenance.responseTime}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="priority" />
                     <YAxis />
@@ -665,7 +628,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
                 <ResponsiveContainer width="100%" height={250}>
                   <RechartsPieChart>
                     <Pie
-                      data={mockMaintenance.requestsByCategory}
+                      data={maintenance.requestsByCategory}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -674,7 +637,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {mockMaintenance.requestsByCategory.map((entry, index) => (
+                      {maintenance.requestsByCategory.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444', '#94a3b8'][index]} />
                       ))}
                     </Pie>
@@ -683,7 +646,7 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
                   </RechartsPieChart>
                 </ResponsiveContainer>
                 <div className="space-y-2">
-                  {mockMaintenance.requestsByCategory.map((category, index) => (
+                  {maintenance.requestsByCategory.map((category, index) => (
                     <div key={index} className="flex items-center justify-between p-2 border rounded">
                       <div className="flex items-center space-x-2">
                         <div className={`w-3 h-3 rounded-full`} style={{
@@ -708,11 +671,11 @@ export function MaintenanceSystem({ communityId }: MaintenanceSystemProps) {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 border rounded">
-                  <p className="text-3xl font-bold text-green-600">{mockMaintenance.summary.avgResolutionTime}h</p>
+                  <p className="text-3xl font-bold text-green-600">{maintenance.summary.avgResolutionTime}h</p>
                   <p className="text-sm text-gray-600 mt-1">Avg Resolution Time</p>
                 </div>
                 <div className="text-center p-3 border rounded">
-                  <p className="text-3xl font-bold text-blue-600">{mockMaintenance.summary.complianceRate}%</p>
+                  <p className="text-3xl font-bold text-blue-600">{maintenance.summary.complianceRate}%</p>
                   <p className="text-sm text-gray-600 mt-1">Compliance Rate</p>
                 </div>
                 <div className="text-center p-3 border rounded">
