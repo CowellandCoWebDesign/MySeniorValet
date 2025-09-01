@@ -55,6 +55,14 @@ import { EnterpriseMarketAnalysis } from "@/components/EnterpriseMarketAnalysis"
 import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
 import { RMSIntegrationPanel } from "@/components/RMSIntegrationPanel";
 import { TourManagement } from "@/components/TourManagement";
+import { EnterpriseAnalytics } from "@/components/enterprise/EnterpriseAnalytics";
+import { FinancialManagement } from "@/components/enterprise/FinancialManagement";
+import { ComplianceMonitoring } from "@/components/enterprise/ComplianceMonitoring";
+import { ResidentManagement } from "@/components/enterprise/ResidentManagement";
+import { StaffManagement } from "@/components/enterprise/StaffManagement";
+import { MaintenanceSystem } from "@/components/enterprise/MaintenanceSystem";
+import { MarketingAnalytics } from "@/components/enterprise/MarketingAnalytics";
+import { FamilyPortal } from "@/components/enterprise/FamilyPortal";
 
 export default function CommunityDashboard() {
   const { id } = useParams();
@@ -63,6 +71,11 @@ export default function CommunityDashboard() {
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showEnterpriseFeatures, setShowEnterpriseFeatures] = useState(false);
+  
+  // Check if community has enterprise access (featured or platinum tier)
+  const hasEnterpriseAccess = community?.subscriptionTier && 
+    ['featured', 'platinum'].includes(community.subscriptionTier);
   const [selectedDateRange, setSelectedDateRange] = useState("30");
   const [isEditing, setIsEditing] = useState(false);
   
@@ -528,6 +541,19 @@ export default function CommunityDashboard() {
                 <TabsTrigger value="crm">CRM Integration</TabsTrigger>
                 <TabsTrigger value="rms">Revenue Management</TabsTrigger>
                 <TabsTrigger value="market-analysis">Market Analysis</TabsTrigger>
+              </>
+            )}
+            {/* Enterprise Features for Featured/Platinum Tiers */}
+            {hasEnterpriseAccess && (
+              <>
+                <TabsTrigger value="enterprise-analytics">Enterprise Analytics</TabsTrigger>
+                <TabsTrigger value="financial">Financial</TabsTrigger>
+                <TabsTrigger value="compliance">Compliance</TabsTrigger>
+                <TabsTrigger value="residents">Residents</TabsTrigger>
+                <TabsTrigger value="staff">Staff</TabsTrigger>
+                <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
+                <TabsTrigger value="marketing">Marketing</TabsTrigger>
+                <TabsTrigger value="family">Family Portal</TabsTrigger>
               </>
             )}
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -1142,7 +1168,7 @@ export default function CommunityDashboard() {
           {community?.subscriptionTier === 'platinum' && (
             <>
               <TabsContent value="crm" className="space-y-6">
-                <CRMIntegrationPanel />
+                <CRMIntegrationPanel communityId={parseInt(id || '0')} />
               </TabsContent>
               
               <TabsContent value="rms" className="space-y-6">
@@ -1154,7 +1180,11 @@ export default function CommunityDashboard() {
           {/* Enterprise Market Analysis Tab - Platinum Only */}
           {community?.subscriptionTier === 'platinum' && (
             <TabsContent value="market-analysis" className="space-y-6">
-              <EnterpriseMarketAnalysis />
+              <EnterpriseMarketAnalysis 
+                communityId={parseInt(id || '0')} 
+                communityName={community?.name || ''} 
+                currentLocation={{ lat: community?.latitude || 0, lng: community?.longitude || 0 }}
+              />
             </TabsContent>
           )}
 
@@ -1212,6 +1242,51 @@ export default function CommunityDashboard() {
               </CardContent>
             </Card>
           </TabsContent>
+
+          {/* Enterprise Features Tabs - Available for Featured/Platinum Tiers */}
+          {hasEnterpriseAccess && (
+            <>
+              {/* Enterprise Analytics Tab */}
+              <TabsContent value="enterprise-analytics" className="space-y-6">
+                <EnterpriseAnalytics communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Financial Management Tab */}
+              <TabsContent value="financial" className="space-y-6">
+                <FinancialManagement communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Compliance Monitoring Tab */}
+              <TabsContent value="compliance" className="space-y-6">
+                <ComplianceMonitoring communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Resident Management Tab */}
+              <TabsContent value="residents" className="space-y-6">
+                <ResidentManagement communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Staff Management Tab */}
+              <TabsContent value="staff" className="space-y-6">
+                <StaffManagement communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Maintenance System Tab */}
+              <TabsContent value="maintenance" className="space-y-6">
+                <MaintenanceSystem communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Marketing Analytics Tab */}
+              <TabsContent value="marketing" className="space-y-6">
+                <MarketingAnalytics communityId={parseInt(id || '0')} />
+              </TabsContent>
+
+              {/* Family Portal Tab */}
+              <TabsContent value="family" className="space-y-6">
+                <FamilyPortal communityId={parseInt(id || '0')} />
+              </TabsContent>
+            </>
+          )}
         </Tabs>
       </div>
     </div>
