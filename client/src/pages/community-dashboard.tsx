@@ -43,7 +43,8 @@ import {
   ChevronDown,
   AlertCircle,
   CheckCircle,
-  Building
+  Building,
+  TestTube
 } from "lucide-react";
 import { format } from "date-fns";
 import { useAuth } from "@/hooks/useAuth";
@@ -287,6 +288,14 @@ export default function CommunityDashboard() {
               </p>
             </div>
             <div className="flex items-center space-x-3">
+              <Button
+                onClick={() => setLocation('/dashboard-testing')}
+                variant="outline"
+                className="flex items-center gap-2 border-green-500 hover:bg-green-50 dark:hover:bg-green-900/20"
+              >
+                <TestTube className="w-4 h-4" />
+                Test Dashboard
+              </Button>
               <Button
                 onClick={handleViewPublicProfile}
                 variant="outline"
