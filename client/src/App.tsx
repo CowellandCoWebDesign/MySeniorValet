@@ -35,6 +35,7 @@ import TourTracker from "@/pages/tour-tracker";
 import SupportResources from "@/pages/support-resources";
 import VeteransHousing from "@/pages/veterans-housing";
 import EnterpriseDashboardVerification from "@/pages/enterprise-dashboard-verification";
+import Phase5bValidation from "@/pages/phase5b-validation";
 import AffordableHousing from "@/pages/affordable-housing";
 import FamilyCollaboration from "@/pages/family-collaboration";
 import FamilyCollaborationCenter from "@/pages/family-collaboration-center";
@@ -256,6 +257,7 @@ function Router() {
       <Route path="/dashboard" component={EnterpriseDashboard} />
       <Route path="/dashboard-legacy" component={Dashboard} />
       <Route path="/enterprise-verification" component={EnterpriseDashboardVerification} />
+      <Route path="/phase5b-validation" component={Phase5bValidation} />
       <Route path="/personalized-dashboard" component={PersonalizedDashboard} />
       <Route path="/tour-tracker" component={TourTracker} />
       <Route path="/tour-tracker/:communityId" component={TourTracker} />
