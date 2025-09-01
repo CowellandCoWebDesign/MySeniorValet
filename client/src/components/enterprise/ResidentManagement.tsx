@@ -29,132 +29,114 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
   const [filterCareType, setFilterCareType] = useState('all');
   const [selectedResident, setSelectedResident] = useState<any>(null);
 
-  // Residents data query
-  const { data: residentsData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/residents', communityId],
+  // Real residents data from API
+  const { data: residentsData, isLoading, refetch } = useQuery({
+    queryKey: [`/api/enterprise/residents/${communityId}`, filterCareType],
   });
 
-  // Mock resident data - replace with real API data
-  const mockResidents = {
+  // Use real resident data from API with fallbacks
+  const residents = residentsData ? {
     summary: {
-      total: 175,
-      newThisMonth: 8,
-      dischargedThisMonth: 3,
-      averageAge: 78,
-      averageStayMonths: 33.6,
-      occupancyRate: 87.5
+      total: residentsData.summary?.totalResidents || 0,
+      newThisMonth: 0, // Will be calculated from admission dates
+      dischargedThisMonth: residentsData.summary?.byStatus?.discharged || 0,
+      averageAge: residentsData.summary?.avgAge || 0,
+      averageStayMonths: 0, // Will be calculated from admission dates
+      occupancyRate: residentsData.summary?.occupancyRate || 0,
+      byStatus: residentsData.summary?.byStatus || {},
+      byCareLevel: residentsData.summary?.byCareLevel || {}
     },
     careTypeDistribution: [
-      { type: 'Independent Living', count: 45, percentage: 26 },
-      { type: 'Assisted Living', count: 85, percentage: 49 },
-      { type: 'Memory Care', count: 30, percentage: 17 },
-      { type: 'Skilled Nursing', count: 15, percentage: 8 }
-    ],
-    healthStatus: {
-      stable: 142,
-      monitoring: 28,
-      critical: 5
-    },
-    residents: [
-      {
-        id: 'R001',
-        name: 'Margaret Thompson',
-        age: 82,
-        room: '204A',
-        careType: 'Assisted Living',
-        admissionDate: '2023-03-15',
-        status: 'stable',
-        avatar: null,
-        primaryContact: 'John Thompson (Son)',
-        contactPhone: '555-0101',
-        medications: 5,
-        allergies: ['Penicillin'],
-        mobility: 'Walker',
-        dietRestrictions: ['Low sodium'],
-        lastAssessment: '2025-08-15',
-        nextAssessment: '2025-09-15',
-        alerts: []
+      { 
+        type: 'Independent Living', 
+        count: residentsData.summary?.byCareLevel?.independent || 0, 
+        percentage: residentsData.summary?.totalResidents > 0 
+          ? Math.round((residentsData.summary.byCareLevel.independent / residentsData.summary.totalResidents) * 100) 
+          : 0 
       },
-      {
-        id: 'R002',
-        name: 'Robert Wilson',
-        age: 75,
-        room: '102B',
-        careType: 'Independent Living',
-        admissionDate: '2024-01-20',
-        status: 'stable',
-        avatar: null,
-        primaryContact: 'Susan Wilson (Wife)',
-        contactPhone: '555-0102',
-        medications: 3,
-        allergies: [],
-        mobility: 'Independent',
-        dietRestrictions: ['Diabetic'],
-        lastAssessment: '2025-07-20',
-        nextAssessment: '2025-10-20',
-        alerts: []
+      { 
+        type: 'Assisted Living', 
+        count: residentsData.summary?.byCareLevel?.assisted || 0, 
+        percentage: residentsData.summary?.totalResidents > 0 
+          ? Math.round((residentsData.summary.byCareLevel.assisted / residentsData.summary.totalResidents) * 100) 
+          : 0 
       },
-      {
-        id: 'R003',
-        name: 'Dorothy Chen',
-        age: 88,
-        room: '305',
-        careType: 'Memory Care',
-        admissionDate: '2022-11-08',
-        status: 'monitoring',
-        avatar: null,
-        primaryContact: 'Linda Chen (Daughter)',
-        contactPhone: '555-0103',
-        medications: 8,
-        allergies: ['Latex', 'Sulfa'],
-        mobility: 'Wheelchair',
-        dietRestrictions: ['Pureed'],
-        lastAssessment: '2025-08-01',
-        nextAssessment: '2025-09-01',
-        alerts: ['Fall risk', 'Wandering risk']
+      { 
+        type: 'Memory Care', 
+        count: residentsData.summary?.byCareLevel?.memoryCare || 0, 
+        percentage: residentsData.summary?.totalResidents > 0 
+          ? Math.round((residentsData.summary.byCareLevel.memoryCare / residentsData.summary.totalResidents) * 100) 
+          : 0 
       },
-      {
-        id: 'R004',
-        name: 'James Martinez',
-        age: 71,
-        room: '408',
-        careType: 'Skilled Nursing',
-        admissionDate: '2025-06-10',
-        status: 'critical',
-        avatar: null,
-        primaryContact: 'Maria Martinez (Wife)',
-        contactPhone: '555-0104',
-        medications: 12,
-        allergies: ['Aspirin'],
-        mobility: 'Bedbound',
-        dietRestrictions: ['NPO'],
-        lastAssessment: '2025-08-28',
-        nextAssessment: '2025-09-04',
-        alerts: ['Critical care', 'Hospice evaluation']
+      { 
+        type: 'Skilled Nursing', 
+        count: residentsData.summary?.byCareLevel?.skilled || 0, 
+        percentage: residentsData.summary?.totalResidents > 0 
+          ? Math.round((residentsData.summary.byCareLevel.skilled / residentsData.summary.totalResidents) * 100) 
+          : 0 
       }
     ],
+    healthStatus: {
+      stable: residentsData.summary?.byStatus?.active || 0,
+      monitoring: 0, // Will be calculated from health data
+      critical: 0 // Will be calculated from health data
+    },
+    residents: residentsData.residents?.map(r => ({
+      id: r.id,
+      name: `${r.firstName} ${r.lastName}`,
+      age: r.dateOfBirth ? new Date().getFullYear() - new Date(r.dateOfBirth).getFullYear() : 0,
+      room: r.roomNumber || 'N/A',
+      careType: r.careLevel,
+      admissionDate: r.admissionDate,
+      status: r.status === 'active' ? 'stable' : r.status,
+      avatar: r.photoUrl,
+      primaryContact: r.emergencyContact || 'N/A',
+      contactPhone: r.emergencyPhone || 'N/A',
+      medications: r.medications?.length || 0,
+      allergies: r.allergies || [],
+      mobility: r.mobilityLevel || 'Unknown',
+      dietRestrictions: r.dietaryRestrictions || [],
+      lastAssessment: null,
+      nextAssessment: null,
+      alerts: [],
+      paymentSource: r.paymentSource,
+      monthlyRate: r.monthlyRate,
+      specialNeeds: r.specialNeeds
+    })) || []
+  } : {
+    // Fallback structure when no data
+    summary: {
+      total: 0,
+      newThisMonth: 0,
+      dischargedThisMonth: 0,
+      averageAge: 0,
+      averageStayMonths: 0,
+      occupancyRate: 0
+    },
+    careTypeDistribution: [
+      { type: 'Independent Living', count: 0, percentage: 0 },
+      { type: 'Assisted Living', count: 0, percentage: 0 },
+      { type: 'Memory Care', count: 0, percentage: 0 },
+      { type: 'Skilled Nursing', count: 0, percentage: 0 }
+    ],
+    healthStatus: {
+      stable: 0,
+      monitoring: 0,
+      critical: 0
+    },
+    residents: [],
     carePlans: {
-      upToDate: 162,
-      needsReview: 10,
-      overdue: 3
+      upToDate: 0,
+      needsReview: 0,
+      overdue: 0
     },
     assessments: {
-      completed: 165,
-      scheduled: 8,
-      overdue: 2
+      completed: 0,
+      scheduled: 0,
+      overdue: 0
     },
-    incidents: [
-      { date: '2025-08-28', type: 'Fall', resident: 'Dorothy Chen', severity: 'minor' },
-      { date: '2025-08-25', type: 'Medication Error', resident: 'Robert Wilson', severity: 'minor' },
-      { date: '2025-08-20', type: 'Behavioral', resident: 'Dorothy Chen', severity: 'moderate' }
-    ],
-    acuityTrend: [
-      { month: 'Apr', low: 95, medium: 65, high: 15 },
-      { month: 'May', low: 92, medium: 68, high: 15 },
-      { month: 'Jun', low: 90, medium: 70, high: 15 },
-      { month: 'Jul', low: 88, medium: 72, high: 15 },
-      { month: 'Aug', low: 85, medium: 75, high: 15 }
-    ]
+    incidents: [],
+    acuityTrend: []
   };
 
   const getStatusBadge = (status: string) => {
@@ -185,7 +167,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
     }
   };
 
-  const filteredResidents = mockResidents.residents.filter(resident => {
+  const filteredResidents = residents.residents.filter(resident => {
     const matchesSearch = resident.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          resident.room.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterCareType === 'all' || resident.careType === filterCareType;
@@ -221,7 +203,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Residents</p>
-                <p className="text-2xl font-bold">{mockResidents.summary.total}</p>
+                <p className="text-2xl font-bold">{residents.summary.total}</p>
               </div>
               <Users className="w-6 h-6 text-blue-500" />
             </div>
@@ -233,7 +215,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">New Admits</p>
-                <p className="text-2xl font-bold">+{mockResidents.summary.newThisMonth}</p>
+                <p className="text-2xl font-bold">+{residents.summary.newThisMonth}</p>
               </div>
               <TrendingUp className="w-6 h-6 text-green-500" />
             </div>
@@ -245,7 +227,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Avg Age</p>
-                <p className="text-2xl font-bold">{mockResidents.summary.averageAge}</p>
+                <p className="text-2xl font-bold">{residents.summary.averageAge}</p>
               </div>
               <Calendar className="w-6 h-6 text-purple-500" />
             </div>
@@ -257,7 +239,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Stable</p>
-                <p className="text-2xl font-bold">{mockResidents.healthStatus.stable}</p>
+                <p className="text-2xl font-bold">{residents.healthStatus.stable}</p>
               </div>
               <Heart className="w-6 h-6 text-green-500" />
             </div>
@@ -269,7 +251,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Monitoring</p>
-                <p className="text-2xl font-bold">{mockResidents.healthStatus.monitoring}</p>
+                <p className="text-2xl font-bold">{residents.healthStatus.monitoring}</p>
               </div>
               <Activity className="w-6 h-6 text-yellow-500" />
             </div>
@@ -281,7 +263,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Critical</p>
-                <p className="text-2xl font-bold">{mockResidents.healthStatus.critical}</p>
+                <p className="text-2xl font-bold">{residents.healthStatus.critical}</p>
               </div>
               <AlertCircle className="w-6 h-6 text-red-500" />
             </div>
@@ -425,21 +407,21 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
                       <CheckCircle className="w-5 h-5 text-green-500" />
                       <span>Up to Date</span>
                     </div>
-                    <span className="text-2xl font-bold">{mockResidents.carePlans.upToDate}</span>
+                    <span className="text-2xl font-bold">{residents.carePlans.upToDate}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-2">
                       <Clock className="w-5 h-5 text-yellow-500" />
                       <span>Needs Review</span>
                     </div>
-                    <span className="text-2xl font-bold">{mockResidents.carePlans.needsReview}</span>
+                    <span className="text-2xl font-bold">{residents.carePlans.needsReview}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-2">
                       <AlertCircle className="w-5 h-5 text-red-500" />
                       <span>Overdue</span>
                     </div>
-                    <span className="text-2xl font-bold">{mockResidents.carePlans.overdue}</span>
+                    <span className="text-2xl font-bold">{residents.carePlans.overdue}</span>
                   </div>
                 </div>
                 <Progress value={92.6} className="mt-4" />
@@ -457,7 +439,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
                 <ResponsiveContainer width="100%" height={250}>
                   <RechartsPieChart>
                     <Pie
-                      data={mockResidents.careTypeDistribution}
+                      data={residents.careTypeDistribution}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -466,7 +448,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {mockResidents.careTypeDistribution.map((entry, index) => (
+                      {residents.careTypeDistribution.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'][index]} />
                       ))}
                     </Pie>
@@ -577,7 +559,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={mockResidents.acuityTrend}>
+                  <BarChart data={residents.acuityTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -600,7 +582,7 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockResidents.incidents.map((incident, index) => (
+                {residents.incidents.map((incident, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <div className={`p-2 rounded-full ${
@@ -644,15 +626,15 @@ export function ResidentManagement({ communityId }: ResidentManagementProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span>Completed</span>
-                    <span className="font-bold text-green-600">{mockResidents.assessments.completed}</span>
+                    <span className="font-bold text-green-600">{residents.assessments.completed}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Scheduled</span>
-                    <span className="font-bold text-blue-600">{mockResidents.assessments.scheduled}</span>
+                    <span className="font-bold text-blue-600">{residents.assessments.scheduled}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span>Overdue</span>
-                    <span className="font-bold text-red-600">{mockResidents.assessments.overdue}</span>
+                    <span className="font-bold text-red-600">{residents.assessments.overdue}</span>
                   </div>
                 </div>
                 <Progress value={98.8} className="mt-4" />

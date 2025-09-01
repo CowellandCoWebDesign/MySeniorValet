@@ -26,137 +26,57 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
   const [messageContent, setMessageContent] = useState('');
   const [activeConversation, setActiveConversation] = useState<string | null>(null);
 
-  // Family data query
-  const { data: familyData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/family-portal', communityId],
+  // Real families data from API
+  const { data: familyData, isLoading, refetch } = useQuery({
+    queryKey: [`/api/enterprise/families/${communityId}`],
   });
 
-  // Mock family portal data - replace with real API data
-  const mockPortal = {
-    connectedFamilies: 142,
-    activeUsers: 78,
-    messagesThisWeek: 324,
-    photosShared: 89,
-    residents: [
-      {
-        id: 'R001',
-        name: 'Margaret Thompson',
-        room: '204A',
-        status: 'stable',
-        lastUpdate: '2 hours ago',
-        avatar: null,
-        careTeam: ['Dr. Sarah Johnson', 'Nurse Mike Chen'],
-        familyMembers: [
-          { name: 'John Thompson', relation: 'Son', lastActive: '1 hour ago' },
-          { name: 'Emily Thompson', relation: 'Daughter', lastActive: '3 days ago' }
-        ]
-      },
-      {
-        id: 'R002',
-        name: 'Robert Anderson',
-        room: '312B',
-        status: 'improving',
-        lastUpdate: '4 hours ago',
-        avatar: null,
-        careTeam: ['Dr. Lisa Brown', 'Nurse Jane Wilson'],
-        familyMembers: [
-          { name: 'Susan Anderson', relation: 'Wife', lastActive: '30 min ago' },
-          { name: 'Mark Anderson', relation: 'Son', lastActive: '2 days ago' }
-        ]
-      }
-    ],
-    recentUpdates: [
-      {
-        id: 1,
-        type: 'health',
-        title: 'Health Update',
-        content: 'Margaret had a good day today. She participated in morning exercises and enjoyed lunch with friends.',
-        resident: 'Margaret Thompson',
-        timestamp: '2 hours ago',
-        author: 'Nurse Sarah'
-      },
-      {
-        id: 2,
-        type: 'activity',
-        title: 'Activity Participation',
-        content: 'Robert joined the music therapy session this afternoon and really enjoyed it!',
-        resident: 'Robert Anderson',
-        timestamp: '4 hours ago',
-        author: 'Activities Director'
-      },
-      {
-        id: 3,
-        type: 'photo',
-        title: 'New Photos',
-        content: '3 new photos from today\'s garden party have been shared.',
-        resident: 'Community Event',
-        timestamp: '6 hours ago',
-        author: 'Staff'
-      }
-    ],
-    messages: [
-      {
-        id: 1,
-        sender: 'John Thompson',
-        role: 'Family',
-        content: 'Thank you for the update on mom. Can we schedule a video call tomorrow?',
+  // Use real family data from API with fallbacks
+  const portal = familyData ? {
+    connectedFamilies: familyData.summary?.totalFamilies || 0,
+    activeUsers: familyData.summary?.withPortalAccess || 0,
+    messagesThisWeek: 0, // Will be calculated from messaging data
+    photosShared: 0, // Will be calculated from media data
+    residents: familyData.families?.reduce((acc, family) => {
+      const residentId = family.resident?.id;
+      if (!residentId || acc.some(r => r.id === residentId)) return acc;
+      
+      const resident = family.resident;
+      const familyMembers = familyData.families
+        .filter(f => f.resident?.id === residentId)
+        .map(f => ({
+          name: `${f.family.firstName} ${f.family.lastName}`,
+          relation: f.family.relationship,
+          lastActive: f.family.lastPortalAccess || 'Never'
+        }));
+      
+      return [...acc, {
+        id: residentId,
+        name: resident ? `${resident.firstName} ${resident.lastName}` : 'Unknown',
+        room: resident?.roomNumber || 'N/A',
+        status: resident?.status || 'unknown',
+        lastUpdate: 'N/A',
+        avatar: resident?.photoUrl || null,
+        careTeam: [],
+        familyMembers
+      }];
+    }, []) || [],
+    primaryContacts: familyData.summary?.primaryContacts || 0,
+    emergencyContacts: familyData.summary?.emergencyContacts || 0
+  } : {
+    // Fallback structure when no data
+    connectedFamilies: 0,
+    activeUsers: 0,
+    messagesThisWeek: 0,
+    photosShared: 0,
+    residents: [],
+    recentUpdates: [],
+    messages: [],
         timestamp: '1 hour ago',
         read: false
-      },
-      {
-        id: 2,
-        sender: 'Nurse Sarah',
-        role: 'Staff',
-        content: 'Of course! I can arrange a video call at 2 PM tomorrow. Does that work?',
-        timestamp: '45 min ago',
-        read: true
-      },
-      {
-        id: 3,
-        sender: 'Susan Anderson',
-        role: 'Family',
-        content: 'Robert looks so happy in the photos! Thank you for sharing.',
-        timestamp: '3 hours ago',
-        read: true
-      }
-    ],
-    events: [
-      {
-        id: 1,
-        title: 'Family Council Meeting',
-        date: '2025-09-05',
-        time: '6:00 PM',
-        type: 'meeting',
-        description: 'Monthly family council meeting to discuss community updates'
-      },
-      {
-        id: 2,
-        title: 'Grandparents Day Celebration',
-        date: '2025-09-08',
-        time: '2:00 PM',
-        type: 'event',
-        description: 'Special celebration with activities and refreshments'
-      },
-      {
-        id: 3,
-        title: 'Care Plan Review - Margaret T.',
-        date: '2025-09-10',
-        time: '10:00 AM',
-        type: 'care',
-        description: 'Quarterly care plan review meeting'
-      }
-    ],
-    documents: [
-      { name: 'August Newsletter', type: 'newsletter', date: '2025-08-01', size: '2.4 MB' },
-      { name: 'Care Plan - Margaret T.', type: 'care_plan', date: '2025-07-15', size: '856 KB' },
-      { name: 'Activity Calendar - September', type: 'calendar', date: '2025-08-28', size: '1.2 MB' },
-      { name: 'Billing Statement - August', type: 'billing', date: '2025-08-31', size: '342 KB' }
-    ],
-    photoAlbums: [
-      { name: 'Garden Party', photos: 24, date: '2025-08-28', cover: null },
-      { name: 'Music Therapy Session', photos: 12, date: '2025-08-27', cover: null },
-      { name: 'Birthday Celebrations', photos: 18, date: '2025-08-25', cover: null }
-    ]
+    events: [],
+    documents: [],
+    photoAlbums: []
   };
 
   const getStatusBadge = (status: string) => {
@@ -227,8 +147,8 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Connected Families</p>
-                <p className="text-2xl font-bold">{mockPortal.connectedFamilies}</p>
-                <p className="text-xs text-gray-500 mt-1">{mockPortal.activeUsers} active today</p>
+                <p className="text-2xl font-bold">{portal.connectedFamilies}</p>
+                <p className="text-xs text-gray-500 mt-1">{portal.activeUsers} active today</p>
               </div>
               <Users className="w-8 h-8 text-blue-500" />
             </div>
@@ -240,7 +160,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Messages</p>
-                <p className="text-2xl font-bold">{mockPortal.messagesThisWeek}</p>
+                <p className="text-2xl font-bold">{portal.messagesThisWeek}</p>
                 <p className="text-xs text-gray-500 mt-1">This week</p>
               </div>
               <MessageSquare className="w-8 h-8 text-purple-500" />
@@ -253,7 +173,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Photos Shared</p>
-                <p className="text-2xl font-bold">{mockPortal.photosShared}</p>
+                <p className="text-2xl font-bold">{portal.photosShared}</p>
                 <p className="text-xs text-gray-500 mt-1">This month</p>
               </div>
               <Image className="w-8 h-8 text-green-500" />
@@ -266,7 +186,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Upcoming Events</p>
-                <p className="text-2xl font-bold">{mockPortal.events.length}</p>
+                <p className="text-2xl font-bold">{portal.events.length}</p>
                 <p className="text-xs text-gray-500 mt-1">Next 2 weeks</p>
               </div>
               <Calendar className="w-8 h-8 text-amber-500" />
@@ -289,7 +209,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
         {/* Residents Tab */}
         <TabsContent value="residents" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {mockPortal.residents.map((resident) => (
+            {portal.residents.map((resident) => (
               <Card key={resident.id}>
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -363,7 +283,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {mockPortal.recentUpdates.map((update) => (
+                {portal.recentUpdates.map((update) => (
                   <div key={update.id} className="flex items-start space-x-3 p-3 border rounded">
                     <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded">
                       {getUpdateIcon(update.type)}
@@ -398,7 +318,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
               <CardContent>
                 <ScrollArea className="h-[400px]">
                   <div className="space-y-2">
-                    {mockPortal.messages.map((message) => (
+                    {portal.messages.map((message) => (
                       <div
                         key={message.id}
                         className={`p-3 border rounded cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 ${
@@ -430,7 +350,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
                 <ScrollArea className="h-[320px] mb-4">
                   {activeConversation ? (
                     <div className="space-y-3">
-                      {mockPortal.messages
+                      {portal.messages
                         .filter(m => m.id.toString() === activeConversation)
                         .map((message) => (
                           <div key={message.id} className="flex items-start space-x-3">
@@ -482,7 +402,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockPortal.events.map((event) => (
+                {portal.events.map((event) => (
                   <div key={event.id} className="flex items-start space-x-3 p-3 border rounded">
                     <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded">
                       {getEventIcon(event.type)}
@@ -520,7 +440,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {mockPortal.photoAlbums.map((album, index) => (
+                {portal.photoAlbums.map((album, index) => (
                   <div key={index} className="border rounded-lg overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
                     <div className="h-32 bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                       <Camera className="w-12 h-12 text-gray-400" />
@@ -548,7 +468,7 @@ export function FamilyPortal({ communityId }: FamilyPortalProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {mockPortal.documents.map((doc, index) => (
+                {portal.documents.map((doc, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-3">
                       <FileText className="w-5 h-5 text-gray-500" />

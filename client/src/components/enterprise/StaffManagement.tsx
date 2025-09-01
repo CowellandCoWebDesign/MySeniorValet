@@ -33,106 +33,137 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
   const [selectedShift, setSelectedShift] = useState('all');
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
-  // Staff data query
-  const { data: staffData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/staff', communityId],
+  // Real staff and schedules data from API
+  const { data: staffData, isLoading: staffLoading, refetch: refetchStaff } = useQuery({
+    queryKey: [`/api/enterprise/staff/${communityId}`, filterDepartment, selectedShift],
+  });
+  
+  // Real schedules data from API
+  const { data: schedulesData, isLoading: schedulesLoading } = useQuery({
+    queryKey: [`/api/enterprise/schedules/${communityId}`, selectedDate],
   });
 
-  // Mock staff data - replace with real API data
-  const mockStaff = {
+  // Use real staff data from API with fallbacks
+  const staff = staffData ? {
     summary: {
-      totalStaff: 124,
-      activeToday: 42,
-      onLeave: 3,
-      openPositions: 5,
-      avgTenure: 3.2,
-      turnoverRate: 12.5,
-      overtimeHours: 156,
-      trainingCompliance: 94.5
+      totalStaff: staffData.summary?.totalStaff || 0,
+      activeToday: staffData.summary?.byStatus?.active || 0,
+      onLeave: staffData.summary?.byStatus?.onLeave || 0,
+      openPositions: 0, // Will be calculated from job postings
+      avgTenure: staffData.summary?.avgTenure || 0,
+      turnoverRate: 0, // Will be calculated from terminations
+      overtimeHours: schedulesData?.summary?.overtimeHours || 0,
+      trainingCompliance: 0 // Will be calculated from certifications
     },
     departments: [
-      { name: 'Nursing', count: 45, percentage: 36 },
-      { name: 'Care Staff', count: 38, percentage: 31 },
-      { name: 'Dining', count: 15, percentage: 12 },
-      { name: 'Housekeeping', count: 12, percentage: 10 },
-      { name: 'Administration', count: 8, percentage: 6 },
-      { name: 'Maintenance', count: 6, percentage: 5 }
-    ],
-    shifts: {
-      day: { scheduled: 45, actual: 43, callouts: 2 },
-      evening: { scheduled: 35, actual: 34, callouts: 1 },
-      night: { scheduled: 20, actual: 20, callouts: 0 }
-    },
-    employees: [
-      {
-        id: 'E001',
-        name: 'Sarah Johnson',
-        role: 'Registered Nurse',
-        department: 'Nursing',
-        shift: 'Day',
-        status: 'active',
-        avatar: null,
-        email: 'sarah.j@community.com',
-        phone: '555-0201',
-        hireDate: '2022-03-15',
-        certifications: ['RN', 'CPR', 'Med Admin'],
-        nextReview: '2025-09-15',
-        performanceScore: 92,
-        attendance: 98.5,
-        overtimeHours: 12
+      { 
+        name: 'Nursing', 
+        count: staffData.summary?.byDepartment?.nursing || 0, 
+        percentage: staffData.summary?.totalStaff > 0 
+          ? Math.round((staffData.summary.byDepartment.nursing / staffData.summary.totalStaff) * 100) 
+          : 0 
       },
-      {
-        id: 'E002',
-        name: 'Michael Chen',
-        role: 'Care Coordinator',
-        department: 'Care Staff',
-        shift: 'Day',
-        status: 'active',
-        avatar: null,
-        email: 'michael.c@community.com',
-        phone: '555-0202',
-        hireDate: '2023-06-20',
-        certifications: ['CNA', 'CPR', 'Dementia Care'],
-        nextReview: '2025-10-20',
-        performanceScore: 88,
-        attendance: 96.2,
-        overtimeHours: 8
+      { 
+        name: 'Administration', 
+        count: staffData.summary?.byDepartment?.administration || 0, 
+        percentage: staffData.summary?.totalStaff > 0 
+          ? Math.round((staffData.summary.byDepartment.administration / staffData.summary.totalStaff) * 100) 
+          : 0 
       },
-      {
-        id: 'E003',
-        name: 'Lisa Brown',
-        role: 'Dining Services Manager',
-        department: 'Dining',
-        shift: 'Day',
-        status: 'active',
-        avatar: null,
-        email: 'lisa.b@community.com',
-        phone: '555-0203',
-        hireDate: '2021-11-08',
-        certifications: ['ServSafe', 'Nutrition'],
-        nextReview: '2025-11-08',
-        performanceScore: 94,
-        attendance: 99.1,
-        overtimeHours: 4
+      { 
+        name: 'Maintenance', 
+        count: staffData.summary?.byDepartment?.maintenance || 0, 
+        percentage: staffData.summary?.totalStaff > 0 
+          ? Math.round((staffData.summary.byDepartment.maintenance / staffData.summary.totalStaff) * 100) 
+          : 0 
       },
-      {
-        id: 'E004',
-        name: 'James Wilson',
-        role: 'Maintenance Supervisor',
-        department: 'Maintenance',
-        shift: 'Day',
-        status: 'on_leave',
-        avatar: null,
-        email: 'james.w@community.com',
-        phone: '555-0204',
-        hireDate: '2020-05-10',
-        certifications: ['HVAC', 'Electrical', 'Plumbing'],
-        nextReview: '2025-12-10',
-        performanceScore: 90,
-        attendance: 97.5,
-        overtimeHours: 18
+      { 
+        name: 'Dietary', 
+        count: staffData.summary?.byDepartment?.dietary || 0, 
+        percentage: staffData.summary?.totalStaff > 0 
+          ? Math.round((staffData.summary.byDepartment.dietary / staffData.summary.totalStaff) * 100) 
+          : 0 
+      },
+      { 
+        name: 'Activities', 
+        count: staffData.summary?.byDepartment?.activities || 0, 
+        percentage: staffData.summary?.totalStaff > 0 
+          ? Math.round((staffData.summary.byDepartment.activities / staffData.summary.totalStaff) * 100) 
+          : 0 
+      },
+      { 
+        name: 'Other', 
+        count: staffData.summary?.byDepartment?.other || 0, 
+        percentage: staffData.summary?.totalStaff > 0 
+          ? Math.round((staffData.summary.byDepartment.other / staffData.summary.totalStaff) * 100) 
+          : 0 
       }
     ],
+    shifts: {
+      day: { 
+        scheduled: schedulesData?.summary?.byShift?.day || 0, 
+        actual: schedulesData?.summary?.coverage?.confirmed || 0, 
+        callouts: schedulesData?.summary?.coverage?.noShow || 0 
+      },
+      evening: { 
+        scheduled: schedulesData?.summary?.byShift?.evening || 0, 
+        actual: 0, 
+        callouts: 0 
+      },
+      night: { 
+        scheduled: schedulesData?.summary?.byShift?.night || 0, 
+        actual: 0, 
+        callouts: 0 
+      }
+    },
+    employees: staffData.staff?.map(s => ({
+      id: s.id,
+      name: `${s.firstName} ${s.lastName}`,
+      role: s.position,
+      department: s.department,
+      shift: s.shift,
+      status: s.status,
+      avatar: s.photoUrl,
+      email: s.email,
+      phone: s.phone,
+      hireDate: s.hireDate,
+      certifications: s.certifications || [],
+      nextReview: null,
+      performanceScore: 0,
+      attendance: 0,
+      overtimeHours: 0,
+      salary: s.salary,
+      licenseNumber: s.licenseNumber,
+      licenseExpiry: s.licenseExpiry,
+      emergencyContact: s.emergencyContact,
+      emergencyPhone: s.emergencyPhone
+    })) || []
+  } : {
+    // Fallback structure when no data
+    summary: {
+      totalStaff: 0,
+      activeToday: 0,
+      onLeave: 0,
+      openPositions: 0,
+      avgTenure: 0,
+      turnoverRate: 0,
+      overtimeHours: 0,
+      trainingCompliance: 0
+    },
+    departments: [
+      { name: 'Nursing', count: 0, percentage: 0 },
+      { name: 'Care Staff', count: 0, percentage: 0 },
+      { name: 'Dining', count: 0, percentage: 0 },
+      { name: 'Housekeeping', count: 0, percentage: 0 },
+      { name: 'Administration', count: 0, percentage: 0 },
+      { name: 'Maintenance', count: 0, percentage: 0 }
+    ],
+    shifts: {
+      day: { scheduled: 0, actual: 0, callouts: 0 },
+      evening: { scheduled: 0, actual: 0, callouts: 0 },
+      night: { scheduled: 0, actual: 0, callouts: 0 }
+    },
+    employees: [],
     performance: {
       topPerformers: [
         { name: 'Lisa Brown', score: 94, department: 'Dining' },
@@ -197,7 +228,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
     return 'text-red-600';
   };
 
-  const filteredEmployees = mockStaff.employees.filter(employee => {
+  const filteredEmployees = staff.employees.filter(employee => {
     const matchesSearch = employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          employee.role.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesDepartment = filterDepartment === 'all' || employee.department === filterDepartment;
@@ -234,9 +265,9 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Staff</p>
-                <p className="text-2xl font-bold">{mockStaff.summary.totalStaff}</p>
+                <p className="text-2xl font-bold">{staff.summary.totalStaff}</p>
                 <p className="text-xs text-gray-500 mt-1">
-                  {mockStaff.summary.activeToday} active today
+                  {staff.summary.activeToday} active today
                 </p>
               </div>
               <Users className="w-8 h-8 text-blue-500" />
@@ -249,7 +280,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Turnover Rate</p>
-                <p className="text-2xl font-bold">{mockStaff.summary.turnoverRate}%</p>
+                <p className="text-2xl font-bold">{staff.summary.turnoverRate}%</p>
                 <div className="flex items-center mt-1">
                   <TrendingDown className="w-3 h-3 text-green-500 mr-1" />
                   <span className="text-xs text-green-500">-0.3% this month</span>
@@ -265,8 +296,8 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Training Compliance</p>
-                <p className="text-2xl font-bold">{mockStaff.summary.trainingCompliance}%</p>
-                <Progress value={mockStaff.summary.trainingCompliance} className="h-1 mt-2" />
+                <p className="text-2xl font-bold">{staff.summary.trainingCompliance}%</p>
+                <Progress value={staff.summary.trainingCompliance} className="h-1 mt-2" />
               </div>
               <Award className="w-8 h-8 text-green-500" />
             </div>
@@ -278,7 +309,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Open Positions</p>
-                <p className="text-2xl font-bold">{mockStaff.summary.openPositions}</p>
+                <p className="text-2xl font-bold">{staff.summary.openPositions}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   3 interviews scheduled
                 </p>
@@ -433,31 +464,31 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Day Shift (7am-3pm)</span>
-                      <span className="text-sm">{mockStaff.shifts.day.actual}/{mockStaff.shifts.day.scheduled}</span>
+                      <span className="text-sm">{staff.shifts.day.actual}/{staff.shifts.day.scheduled}</span>
                     </div>
-                    <Progress value={(mockStaff.shifts.day.actual / mockStaff.shifts.day.scheduled) * 100} className="h-2" />
-                    {mockStaff.shifts.day.callouts > 0 && (
-                      <p className="text-xs text-red-500 mt-1">{mockStaff.shifts.day.callouts} callouts</p>
+                    <Progress value={(staff.shifts.day.actual / staff.shifts.day.scheduled) * 100} className="h-2" />
+                    {staff.shifts.day.callouts > 0 && (
+                      <p className="text-xs text-red-500 mt-1">{staff.shifts.day.callouts} callouts</p>
                     )}
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Evening Shift (3pm-11pm)</span>
-                      <span className="text-sm">{mockStaff.shifts.evening.actual}/{mockStaff.shifts.evening.scheduled}</span>
+                      <span className="text-sm">{staff.shifts.evening.actual}/{staff.shifts.evening.scheduled}</span>
                     </div>
-                    <Progress value={(mockStaff.shifts.evening.actual / mockStaff.shifts.evening.scheduled) * 100} className="h-2" />
-                    {mockStaff.shifts.evening.callouts > 0 && (
-                      <p className="text-xs text-red-500 mt-1">{mockStaff.shifts.evening.callouts} callouts</p>
+                    <Progress value={(staff.shifts.evening.actual / staff.shifts.evening.scheduled) * 100} className="h-2" />
+                    {staff.shifts.evening.callouts > 0 && (
+                      <p className="text-xs text-red-500 mt-1">{staff.shifts.evening.callouts} callouts</p>
                     )}
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Night Shift (11pm-7am)</span>
-                      <span className="text-sm">{mockStaff.shifts.night.actual}/{mockStaff.shifts.night.scheduled}</span>
+                      <span className="text-sm">{staff.shifts.night.actual}/{staff.shifts.night.scheduled}</span>
                     </div>
-                    <Progress value={(mockStaff.shifts.night.actual / mockStaff.shifts.night.scheduled) * 100} className="h-2" />
-                    {mockStaff.shifts.night.callouts > 0 && (
-                      <p className="text-xs text-red-500 mt-1">{mockStaff.shifts.night.callouts} callouts</p>
+                    <Progress value={(staff.shifts.night.actual / staff.shifts.night.scheduled) * 100} className="h-2" />
+                    {staff.shifts.night.callouts > 0 && (
+                      <p className="text-xs text-red-500 mt-1">{staff.shifts.night.callouts} callouts</p>
                     )}
                   </div>
                 </div>
@@ -477,21 +508,21 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                       <CalendarIcon className="w-4 h-4 text-blue-500" />
                       <span className="text-sm">Time Off Requests</span>
                     </div>
-                    <Badge>{mockStaff.scheduling.requests.timeOff}</Badge>
+                    <Badge>{staff.scheduling.requests.timeOff}</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-2">
                       <RefreshCw className="w-4 h-4 text-purple-500" />
                       <span className="text-sm">Shift Swaps</span>
                     </div>
-                    <Badge>{mockStaff.scheduling.requests.shiftSwaps}</Badge>
+                    <Badge>{staff.scheduling.requests.shiftSwaps}</Badge>
                   </div>
                   <div className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-2">
                       <Clock className="w-4 h-4 text-amber-500" />
                       <span className="text-sm">Pending Approval</span>
                     </div>
-                    <Badge variant="destructive">{mockStaff.scheduling.requests.pending}</Badge>
+                    <Badge variant="destructive">{staff.scheduling.requests.pending}</Badge>
                   </div>
                 </div>
                 <Button className="w-full mt-4">Review Requests</Button>
@@ -510,19 +541,19 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Understaffed Shifts</AlertTitle>
                     <AlertDescription>
-                      {mockStaff.scheduling.nextWeek.understaffed} shifts need additional coverage
+                      {staff.scheduling.nextWeek.understaffed} shifts need additional coverage
                     </AlertDescription>
                   </Alert>
                   <div className="grid grid-cols-2 gap-2 text-sm">
                     <div className="p-2 bg-green-50 dark:bg-green-900/20 rounded text-center">
                       <p className="font-semibold text-green-700 dark:text-green-300">
-                        {mockStaff.scheduling.nextWeek.adequatelyStaffed}
+                        {staff.scheduling.nextWeek.adequatelyStaffed}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Adequately Staffed</p>
                     </div>
                     <div className="p-2 bg-red-50 dark:bg-red-900/20 rounded text-center">
                       <p className="font-semibold text-red-700 dark:text-red-300">
-                        {mockStaff.scheduling.nextWeek.understaffed}
+                        {staff.scheduling.nextWeek.understaffed}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">Understaffed</p>
                     </div>
@@ -571,7 +602,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockStaff.performance.topPerformers.map((performer, index) => (
+                  {staff.performance.topPerformers.map((performer, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div className="flex items-center space-x-3">
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
@@ -604,7 +635,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={mockStaff.departments}>
+                  <BarChart data={staff.departments}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
                     <YAxis />
@@ -658,11 +689,11 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Mandatory Training</span>
                       <span className="text-sm font-bold">
-                        {mockStaff.training.compliance.mandatory.completed}/{mockStaff.training.compliance.mandatory.total}
+                        {staff.training.compliance.mandatory.completed}/{staff.training.compliance.mandatory.total}
                       </span>
                     </div>
                     <Progress 
-                      value={(mockStaff.training.compliance.mandatory.completed / mockStaff.training.compliance.mandatory.total) * 100} 
+                      value={(staff.training.compliance.mandatory.completed / staff.training.compliance.mandatory.total) * 100} 
                       className="h-3" 
                     />
                     <p className="text-xs text-gray-500 mt-1">94.4% compliance rate</p>
@@ -671,11 +702,11 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                     <div className="flex justify-between mb-2">
                       <span className="text-sm font-medium">Optional Training</span>
                       <span className="text-sm font-bold">
-                        {mockStaff.training.compliance.optional.completed}/{mockStaff.training.compliance.optional.total}
+                        {staff.training.compliance.optional.completed}/{staff.training.compliance.optional.total}
                       </span>
                     </div>
                     <Progress 
-                      value={(mockStaff.training.compliance.optional.completed / mockStaff.training.compliance.optional.total) * 100} 
+                      value={(staff.training.compliance.optional.completed / staff.training.compliance.optional.total) * 100} 
                       className="h-3" 
                     />
                     <p className="text-xs text-gray-500 mt-1">54.8% participation rate</p>
@@ -692,7 +723,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockStaff.training.upcoming.map((training, index) => (
+                  {staff.training.upcoming.map((training, index) => (
                     <div key={index} className="flex items-center justify-between p-3 border rounded">
                       <div>
                         <p className="font-medium text-sm">{training.course}</p>
@@ -757,7 +788,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={250}>
-                  <LineChart data={mockStaff.turnoverTrend}>
+                  <LineChart data={staff.turnoverTrend}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
@@ -785,7 +816,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                 <ResponsiveContainer width="100%" height={250}>
                   <RechartsPieChart>
                     <Pie
-                      data={mockStaff.departments}
+                      data={staff.departments}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -794,7 +825,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                       fill="#8884d8"
                       dataKey="count"
                     >
-                      {mockStaff.departments.map((entry, index) => (
+                      {staff.departments.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'][index]} />
                       ))}
                     </Pie>
@@ -814,7 +845,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center p-3 border rounded">
-                  <p className="text-3xl font-bold text-blue-600">{mockStaff.summary.avgTenure}</p>
+                  <p className="text-3xl font-bold text-blue-600">{staff.summary.avgTenure}</p>
                   <p className="text-sm text-gray-600 mt-1">Avg Tenure (years)</p>
                 </div>
                 <div className="text-center p-3 border rounded">
@@ -822,7 +853,7 @@ export function StaffManagement({ communityId }: StaffManagementProps) {
                   <p className="text-sm text-gray-600 mt-1">Staff to Resident Ratio</p>
                 </div>
                 <div className="text-center p-3 border rounded">
-                  <p className="text-3xl font-bold text-purple-600">{mockStaff.summary.overtimeHours}</p>
+                  <p className="text-3xl font-bold text-purple-600">{staff.summary.overtimeHours}</p>
                   <p className="text-sm text-gray-600 mt-1">Overtime Hours</p>
                 </div>
                 <div className="text-center p-3 border rounded">

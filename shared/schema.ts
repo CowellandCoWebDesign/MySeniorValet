@@ -5295,3 +5295,265 @@ export const complianceRecords = pgTable('compliance_records', {
 
 export type ComplianceRecord = typeof complianceRecords.$inferSelect;
 export type InsertComplianceRecord = typeof complianceRecords.$inferInsert;
+
+// ==========================================
+// PHASE 2: PEOPLE SYSTEMS
+// ==========================================
+
+// Enterprise Residents table
+export const enterpriseResidents = pgTable('enterprise_residents', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  
+  // Basic Information
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  middleName: varchar('middle_name', { length: 100 }),
+  preferredName: varchar('preferred_name', { length: 100 }),
+  dateOfBirth: date('date_of_birth').notNull(),
+  gender: varchar('gender', { length: 20 }),
+  photoUrl: text('photo_url'),
+  
+  // Contact Information
+  email: varchar('email', { length: 255 }),
+  phone: varchar('phone', { length: 20 }),
+  emergencyContact: varchar('emergency_contact', { length: 255 }),
+  emergencyPhone: varchar('emergency_phone', { length: 20 }),
+  
+  // Room & Care Information
+  roomNumber: varchar('room_number', { length: 20 }),
+  buildingSection: varchar('building_section', { length: 50 }),
+  careLevel: varchar('care_level', { length: 50 }).notNull(), // 'Independent', 'Assisted', 'Memory Care', 'Skilled'
+  admissionDate: date('admission_date').notNull(),
+  dischargeDate: date('discharge_date'),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // 'active', 'discharged', 'temporary_leave', 'deceased'
+  
+  // Medical Information
+  primaryDiagnosis: text('primary_diagnosis'),
+  medications: json('medications').$type<Array<{
+    name: string;
+    dosage: string;
+    frequency: string;
+    prescriber: string;
+  }>>().default([]),
+  allergies: text('allergies').array().default([]),
+  dietaryRestrictions: text('dietary_restrictions').array().default([]),
+  mobilityLevel: varchar('mobility_level', { length: 50 }), // 'independent', 'walker', 'wheelchair', 'bedbound'
+  cognitiveStatus: varchar('cognitive_status', { length: 50 }), // 'alert', 'mild_impairment', 'moderate_impairment', 'severe_impairment'
+  
+  // Financial Information
+  paymentSource: varchar('payment_source', { length: 50 }), // 'private', 'medicare', 'medicaid', 'insurance'
+  monthlyRate: real('monthly_rate'),
+  billingCycle: varchar('billing_cycle', { length: 20 }), // 'monthly', 'quarterly', 'annual'
+  accountBalance: real('account_balance').default(0),
+  
+  // Additional Information
+  specialNeeds: text('special_needs'),
+  preferences: json('preferences').$type<{
+    activities?: string[];
+    roomTemperature?: string;
+    mealPreferences?: string[];
+    visitingHours?: string;
+  }>().default({}),
+  notes: text('notes'),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('enterprise_residents_community_id_idx').on(table.communityId),
+  index('enterprise_residents_status_idx').on(table.status),
+  index('enterprise_residents_care_level_idx').on(table.careLevel)
+]);
+
+export type EnterpriseResident = typeof enterpriseResidents.$inferSelect;
+export type InsertEnterpriseResident = typeof enterpriseResidents.$inferInsert;
+
+// Enterprise Staff table
+export const enterpriseStaff = pgTable('enterprise_staff', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  userId: varchar('user_id').references(() => users.id), // Link to user account if they have one
+  
+  // Basic Information
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 20 }),
+  photoUrl: text('photo_url'),
+  employeeId: varchar('employee_id', { length: 50 }).unique(),
+  
+  // Employment Information
+  department: varchar('department', { length: 100 }).notNull(), // 'Nursing', 'Administration', 'Maintenance', 'Dietary', etc
+  position: varchar('position', { length: 100 }).notNull(),
+  employmentType: varchar('employment_type', { length: 20 }).notNull(), // 'full_time', 'part_time', 'per_diem', 'contract'
+  shift: varchar('shift', { length: 20 }), // 'day', 'evening', 'night', 'rotating'
+  hireDate: date('hire_date').notNull(),
+  terminationDate: date('termination_date'),
+  status: varchar('status', { length: 20 }).notNull().default('active'), // 'active', 'on_leave', 'terminated', 'suspended'
+  
+  // Qualifications
+  certifications: json('certifications').$type<Array<{
+    name: string;
+    issuer: string;
+    issueDate: string;
+    expiryDate: string;
+  }>>().default([]),
+  licenses: json('licenses').$type<Array<{
+    type: string;
+    number: string;
+    state: string;
+    expiryDate: string;
+  }>>().default([]),
+  trainings: json('trainings').$type<Array<{
+    name: string;
+    completedDate: string;
+    nextDueDate: string;
+  }>>().default([]),
+  
+  // Compensation
+  hourlyRate: real('hourly_rate'),
+  salary: real('salary'),
+  overtimeRate: real('overtime_rate'),
+  bonusEligible: boolean('bonus_eligible').default(false),
+  
+  // Scheduling
+  weeklyHours: real('weekly_hours'),
+  availableDays: text('available_days').array().default([]), // ['monday', 'tuesday', ...]
+  vacationDays: integer('vacation_days').default(0),
+  sickDays: integer('sick_days').default(0),
+  
+  // Performance
+  lastReviewDate: date('last_review_date'),
+  nextReviewDate: date('next_review_date'),
+  performanceRating: real('performance_rating'), // 1-5 scale
+  
+  // Access & Permissions
+  accessLevel: varchar('access_level', { length: 50 }), // 'basic', 'supervisor', 'manager', 'director'
+  canAdministerMeds: boolean('can_administer_meds').default(false),
+  backgroundCheckDate: date('background_check_date'),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('enterprise_staff_community_id_idx').on(table.communityId),
+  index('enterprise_staff_department_idx').on(table.department),
+  index('enterprise_staff_status_idx').on(table.status),
+  index('enterprise_staff_email_idx').on(table.email)
+]);
+
+export type EnterpriseStaff = typeof enterpriseStaff.$inferSelect;
+export type InsertEnterpriseStaff = typeof enterpriseStaff.$inferInsert;
+
+// Enterprise Families table (for resident family members)
+export const enterpriseFamilies = pgTable('enterprise_families', {
+  id: serial('id').primaryKey(),
+  residentId: integer('resident_id').notNull().references(() => enterpriseResidents.id, { onDelete: 'cascade' }),
+  userId: varchar('user_id').references(() => users.id), // Link to user account if they have one
+  
+  // Basic Information
+  firstName: varchar('first_name', { length: 100 }).notNull(),
+  lastName: varchar('last_name', { length: 100 }).notNull(),
+  relationship: varchar('relationship', { length: 50 }).notNull(), // 'spouse', 'child', 'sibling', 'parent', 'guardian', 'other'
+  
+  // Contact Information
+  email: varchar('email', { length: 255 }),
+  phone: varchar('phone', { length: 20 }).notNull(),
+  alternatePhone: varchar('alternate_phone', { length: 20 }),
+  address: text('address'),
+  city: varchar('city', { length: 100 }),
+  state: varchar('state', { length: 2 }),
+  zipCode: varchar('zip_code', { length: 10 }),
+  
+  // Permissions & Responsibilities
+  isPrimaryContact: boolean('is_primary_contact').default(false),
+  isEmergencyContact: boolean('is_emergency_contact').default(false),
+  isPowerOfAttorney: boolean('is_power_of_attorney').default(false),
+  isHealthcareProxy: boolean('is_healthcare_proxy').default(false),
+  isFinancialResponsible: boolean('is_financial_responsible').default(false),
+  
+  // Portal Access
+  hasPortalAccess: boolean('has_portal_access').default(true),
+  lastPortalLogin: timestamp('last_portal_login'),
+  portalPermissions: json('portal_permissions').$type<{
+    viewMedical: boolean;
+    viewFinancial: boolean;
+    viewActivities: boolean;
+    requestVisits: boolean;
+    communicateStaff: boolean;
+  }>().default({
+    viewMedical: true,
+    viewFinancial: false,
+    viewActivities: true,
+    requestVisits: true,
+    communicateStaff: true
+  }),
+  
+  // Communication Preferences
+  preferredContactMethod: varchar('preferred_contact_method', { length: 20 }), // 'email', 'phone', 'text', 'portal'
+  contactFrequency: varchar('contact_frequency', { length: 20 }), // 'daily', 'weekly', 'monthly', 'as_needed'
+  receiveUpdates: boolean('receive_updates').default(true),
+  receiveNewsletter: boolean('receive_newsletter').default(true),
+  
+  // Visit Information
+  lastVisitDate: date('last_visit_date'),
+  visitFrequency: varchar('visit_frequency', { length: 50 }), // 'daily', 'weekly', 'biweekly', 'monthly', 'occasional'
+  visitRestrictions: text('visit_restrictions'),
+  
+  notes: text('notes'),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+}, (table) => [
+  index('enterprise_families_resident_id_idx').on(table.residentId),
+  index('enterprise_families_user_id_idx').on(table.userId),
+  index('enterprise_families_is_primary_idx').on(table.isPrimaryContact)
+]);
+
+export type EnterpriseFamily = typeof enterpriseFamilies.$inferSelect;
+export type InsertEnterpriseFamily = typeof enterpriseFamilies.$inferInsert;
+
+// Staff Schedules table
+export const staffSchedules = pgTable('staff_schedules', {
+  id: serial('id').primaryKey(),
+  staffId: integer('staff_id').notNull().references(() => enterpriseStaff.id, { onDelete: 'cascade' }),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  
+  // Schedule Information
+  date: date('date').notNull(),
+  shiftType: varchar('shift_type', { length: 20 }).notNull(), // 'day', 'evening', 'night'
+  startTime: varchar('start_time', { length: 10 }).notNull(), // Format: 'HH:MM'
+  endTime: varchar('end_time', { length: 10 }).notNull(), // Format: 'HH:MM'
+  breakMinutes: integer('break_minutes').default(0),
+  
+  // Status
+  status: varchar('status', { length: 20 }).notNull().default('scheduled'), // 'scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'
+  actualStartTime: varchar('actual_start_time', { length: 10 }), // Format: 'HH:MM'
+  actualEndTime: varchar('actual_end_time', { length: 10 }), // Format: 'HH:MM'
+  
+  // Coverage
+  department: varchar('department', { length: 100 }),
+  position: varchar('position', { length: 100 }),
+  isCoverage: boolean('is_coverage').default(false), // If covering for someone else
+  coveringForId: integer('covering_for_id').references(() => enterpriseStaff.id),
+  
+  // Overtime & Pay
+  isOvertime: boolean('is_overtime').default(false),
+  overtimeHours: real('overtime_hours'),
+  holidayPay: boolean('holiday_pay').default(false),
+  
+  notes: text('notes'),
+  
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+  createdBy: integer('created_by').references(() => users.id)
+}, (table) => [
+  index('staff_schedules_staff_id_idx').on(table.staffId),
+  index('staff_schedules_community_id_idx').on(table.communityId),
+  index('staff_schedules_date_idx').on(table.date),
+  index('staff_schedules_status_idx').on(table.status)
+]);
+
+export type StaffSchedule = typeof staffSchedules.$inferSelect;
+export type InsertStaffSchedule = typeof staffSchedules.$inferInsert;

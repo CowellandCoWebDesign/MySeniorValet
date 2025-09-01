@@ -6,9 +6,14 @@ import {
   users, 
   communityAnalytics,
   financialRecords,
-  complianceRecords 
+  complianceRecords,
+  enterpriseResidents,
+  enterpriseStaff,
+  enterpriseFamilies,
+  staffSchedules
 } from '@shared/schema';
-import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { eq, and, gte, lte, desc, sql, inArray } from 'drizzle-orm';
+import * as schema from '@shared/schema';
 import { format, subDays, subMonths, startOfMonth, endOfMonth } from 'date-fns';
 
 const router = Router();
@@ -407,6 +412,232 @@ router.get('/api/enterprise/compliance/:communityId/trends', async (req, res) =>
   } catch (error) {
     console.error('Error fetching compliance trends:', error);
     res.status(500).json({ error: 'Failed to fetch compliance trends' });
+  }
+});
+
+// ==========================================
+// PHASE 2: PEOPLE SYSTEMS ENDPOINTS
+// ==========================================
+
+// Residents Management
+router.get('/api/enterprise/residents/:communityId', async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    const { status, careLevel } = req.query;
+    
+    let conditions = [eq(schema.enterpriseResidents.communityId, parseInt(communityId))];
+    
+    // Apply filters if provided
+    if (status) {
+      conditions.push(eq(schema.enterpriseResidents.status, status as string));
+    }
+    if (careLevel) {
+      conditions.push(eq(schema.enterpriseResidents.careLevel, careLevel as string));
+    }
+    
+    const residents = await db
+      .select()
+      .from(schema.enterpriseResidents)
+      .where(and(...conditions))
+      .orderBy(desc(schema.enterpriseResidents.createdAt));
+    
+    // Calculate summary statistics
+    const summary = {
+      totalResidents: residents.length,
+      byStatus: {
+        active: residents.filter(r => r.status === 'active').length,
+        discharged: residents.filter(r => r.status === 'discharged').length,
+        temporaryLeave: residents.filter(r => r.status === 'temporary_leave').length
+      },
+      byCareLevel: {
+        independent: residents.filter(r => r.careLevel === 'Independent').length,
+        assisted: residents.filter(r => r.careLevel === 'Assisted').length,
+        memoryCare: residents.filter(r => r.careLevel === 'Memory Care').length,
+        skilled: residents.filter(r => r.careLevel === 'Skilled').length
+      },
+      occupancyRate: 0, // Will be calculated based on capacity
+      avgAge: residents.length > 0 
+        ? Math.round(residents.reduce((sum, r) => {
+            const age = r.dateOfBirth ? new Date().getFullYear() - new Date(r.dateOfBirth).getFullYear() : 0;
+            return sum + age;
+          }, 0) / residents.length)
+        : 0
+    };
+    
+    res.json({ residents, summary });
+  } catch (error) {
+    console.error('Error fetching residents:', error);
+    res.status(500).json({ error: 'Failed to fetch residents' });
+  }
+});
+
+// Staff Management
+router.get('/api/enterprise/staff/:communityId', async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    const { department, status, shift } = req.query;
+    
+    let conditions = [eq(schema.enterpriseStaff.communityId, parseInt(communityId))];
+    
+    // Apply filters
+    if (department) {
+      conditions.push(eq(schema.enterpriseStaff.department, department as string));
+    }
+    if (status) {
+      conditions.push(eq(schema.enterpriseStaff.status, status as string));
+    }
+    if (shift) {
+      conditions.push(eq(schema.enterpriseStaff.shift, shift as string));
+    }
+    
+    const staff = await db
+      .select()
+      .from(schema.enterpriseStaff)
+      .where(and(...conditions))
+      .orderBy(desc(schema.enterpriseStaff.createdAt));
+    
+    // Calculate summary
+    const summary = {
+      totalStaff: staff.length,
+      byDepartment: {
+        nursing: staff.filter(s => s.department === 'Nursing').length,
+        administration: staff.filter(s => s.department === 'Administration').length,
+        maintenance: staff.filter(s => s.department === 'Maintenance').length,
+        dietary: staff.filter(s => s.department === 'Dietary').length,
+        activities: staff.filter(s => s.department === 'Activities').length,
+        other: staff.filter(s => !['Nursing', 'Administration', 'Maintenance', 'Dietary', 'Activities'].includes(s.department)).length
+      },
+      byStatus: {
+        active: staff.filter(s => s.status === 'active').length,
+        onLeave: staff.filter(s => s.status === 'on_leave').length,
+        terminated: staff.filter(s => s.status === 'terminated').length
+      },
+      byShift: {
+        day: staff.filter(s => s.shift === 'day').length,
+        evening: staff.filter(s => s.shift === 'evening').length,
+        night: staff.filter(s => s.shift === 'night').length
+      },
+      avgTenure: staff.length > 0
+        ? Math.round(staff.reduce((sum, s) => {
+            const years = s.hireDate ? (new Date().getTime() - new Date(s.hireDate).getTime()) / (365 * 24 * 60 * 60 * 1000) : 0;
+            return sum + years;
+          }, 0) / staff.length * 10) / 10
+        : 0
+    };
+    
+    res.json({ staff, summary });
+  } catch (error) {
+    console.error('Error fetching staff:', error);
+    res.status(500).json({ error: 'Failed to fetch staff' });
+  }
+});
+
+// Staff Schedules
+router.get('/api/enterprise/schedules/:communityId', async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    const { date, startDate, endDate, staffId } = req.query;
+    
+    let conditions = [eq(schema.staffSchedules.communityId, parseInt(communityId))];
+    
+    // Apply date filters
+    if (date) {
+      conditions.push(eq(schema.staffSchedules.date, date as string));
+    } else if (startDate && endDate) {
+      conditions.push(gte(schema.staffSchedules.date, startDate as string));
+      conditions.push(lte(schema.staffSchedules.date, endDate as string));
+    }
+    
+    if (staffId) {
+      conditions.push(eq(schema.staffSchedules.staffId, parseInt(staffId as string)));
+    }
+    
+    const schedules = await db
+      .select({
+        schedule: schema.staffSchedules,
+        staff: schema.enterpriseStaff
+      })
+      .from(schema.staffSchedules)
+      .leftJoin(
+        schema.enterpriseStaff,
+        eq(schema.staffSchedules.staffId, schema.enterpriseStaff.id)
+      )
+      .where(and(...conditions));
+    
+    // Calculate coverage metrics
+    const summary = {
+      totalShifts: schedules.length,
+      byShift: {
+        day: schedules.filter(s => s.schedule.shiftType === 'day').length,
+        evening: schedules.filter(s => s.schedule.shiftType === 'evening').length,
+        night: schedules.filter(s => s.schedule.shiftType === 'night').length
+      },
+      coverage: {
+        scheduled: schedules.filter(s => s.schedule.status === 'scheduled').length,
+        confirmed: schedules.filter(s => s.schedule.status === 'confirmed').length,
+        completed: schedules.filter(s => s.schedule.status === 'completed').length,
+        cancelled: schedules.filter(s => s.schedule.status === 'cancelled').length,
+        noShow: schedules.filter(s => s.schedule.status === 'no_show').length
+      },
+      overtimeHours: schedules.reduce((sum, s) => sum + (s.schedule.overtimeHours || 0), 0)
+    };
+    
+    res.json({ schedules, summary });
+  } catch (error) {
+    console.error('Error fetching schedules:', error);
+    res.status(500).json({ error: 'Failed to fetch schedules' });
+  }
+});
+
+// Family Members
+router.get('/api/enterprise/families/:communityId', async (req, res) => {
+  try {
+    const { communityId } = req.params;
+    
+    // Get all residents for this community first
+    const residents = await db
+      .select()
+      .from(schema.enterpriseResidents)
+      .where(eq(schema.enterpriseResidents.communityId, parseInt(communityId)));
+    
+    const residentIds = residents.map(r => r.id);
+    
+    if (residentIds.length === 0) {
+      res.json({ families: [], summary: { totalFamilies: 0 } });
+      return;
+    }
+    
+    // Get all family members for these residents
+    const families = await db
+      .select({
+        family: schema.enterpriseFamilies,
+        resident: schema.enterpriseResidents
+      })
+      .from(schema.enterpriseFamilies)
+      .leftJoin(
+        schema.enterpriseResidents,
+        eq(schema.enterpriseFamilies.residentId, schema.enterpriseResidents.id)
+      )
+      .where(inArray(schema.enterpriseFamilies.residentId, residentIds));
+    
+    // Calculate summary
+    const summary = {
+      totalFamilies: families.length,
+      byRelationship: {
+        spouse: families.filter(f => f.family.relationship === 'spouse').length,
+        child: families.filter(f => f.family.relationship === 'child').length,
+        sibling: families.filter(f => f.family.relationship === 'sibling').length,
+        other: families.filter(f => !['spouse', 'child', 'sibling'].includes(f.family.relationship)).length
+      },
+      withPortalAccess: families.filter(f => f.family.hasPortalAccess).length,
+      primaryContacts: families.filter(f => f.family.isPrimaryContact).length,
+      emergencyContacts: families.filter(f => f.family.isEmergencyContact).length
+    };
+    
+    res.json({ families, summary });
+  } catch (error) {
+    console.error('Error fetching families:', error);
+    res.status(500).json({ error: 'Failed to fetch families' });
   }
 });
 
