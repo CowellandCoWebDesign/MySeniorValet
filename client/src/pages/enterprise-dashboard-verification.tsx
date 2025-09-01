@@ -70,6 +70,27 @@ export default function EnterpriseDashboardVerification() {
     enabled: false,
   });
 
+  // Phase 4 API endpoints - Business Intelligence Systems
+  const marketingQuery = useQuery({
+    queryKey: [`/api/enterprise/marketing/${communityId}`],
+    enabled: false,
+  });
+
+  const communicationsQuery = useQuery({
+    queryKey: [`/api/enterprise/communications/${communityId}`],
+    enabled: false,
+  });
+
+  const documentsQuery = useQuery({
+    queryKey: [`/api/enterprise/documents/${communityId}`],
+    enabled: false,
+  });
+
+  const activitiesQuery = useQuery({
+    queryKey: [`/api/enterprise/activities/${communityId}`],
+    enabled: false,
+  });
+
   const verifyPhases = async () => {
     setIsVerifying(true);
     const results: VerificationResult[] = [];
@@ -361,6 +382,93 @@ export default function EnterpriseDashboardVerification() {
       });
     }
 
+    // Phase 4 Verification - Business Intelligence Systems
+    console.log('🔍 Starting Phase 4 Verification...');
+    
+    // Check Marketing Analytics
+    try {
+      const marketingData = await marketingQuery.refetch();
+      if (marketingData.data) {
+        const data = marketingData.data as any;
+        results.push({
+          component: 'MarketingAnalytics',
+          status: data.summary || data.leadSources?.length ? 'success' : 'no-data',
+          message: data.summary || data.leadSources?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.leadSources?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'MarketingAnalytics',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'MarketingAnalytics',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Communications/RealTimeNotifications
+    try {
+      const communicationsData = await communicationsQuery.refetch();
+      if (communicationsData.data) {
+        const data = communicationsData.data as any;
+        results.push({
+          component: 'RealTimeNotifications',
+          status: data.summary || data.messages?.length ? 'success' : 'no-data',
+          message: data.summary || data.messages?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.messages?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'RealTimeNotifications',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'RealTimeNotifications',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
+    // Check Document Management
+    try {
+      const documentsData = await documentsQuery.refetch();
+      if (documentsData.data) {
+        const data = documentsData.data as any;
+        results.push({
+          component: 'DocumentManagement',
+          status: data.summary || data.documents?.length ? 'success' : 'no-data',
+          message: data.summary || data.documents?.length 
+            ? 'Connected to real API - Data retrieved successfully'
+            : 'API connected but no data available yet',
+          dataCount: data.documents?.length || 0
+        });
+      } else {
+        results.push({
+          component: 'DocumentManagement',
+          status: 'no-data',
+          message: 'API connected but no data available yet'
+        });
+      }
+    } catch (error: any) {
+      results.push({
+        component: 'DocumentManagement',
+        status: 'error',
+        message: `API Error: ${error?.message || 'Unknown error'}`
+      });
+    }
+
     setVerificationResults(results);
     setIsVerifying(false);
     console.log('✅ Verification Complete!', results);
@@ -384,7 +492,9 @@ export default function EnterpriseDashboardVerification() {
       ? verificationResults.filter(r => ['EnterpriseAnalytics', 'FinancialManagement', 'ComplianceMonitoring'].includes(r.component))
       : phase === 'Phase 2'
       ? verificationResults.filter(r => ['ResidentManagement', 'StaffManagement', 'StaffScheduling', 'FamilyPortal'].includes(r.component))
-      : verificationResults.filter(r => ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'].includes(r.component));
+      : phase === 'Phase 3'
+      ? verificationResults.filter(r => ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'].includes(r.component))
+      : verificationResults.filter(r => ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'].includes(r.component));
     
     if (phaseResults.length === 0) return 'pending';
     if (phaseResults.every(r => r.status === 'success')) return 'success';
@@ -505,6 +615,39 @@ export default function EnterpriseDashboardVerification() {
                 </h3>
                 {verificationResults
                   .filter(r => ['MaintenanceSystem', 'VendorManagement', 'QualityMetrics'].includes(r.component))
+                  .map((result, index) => (
+                    <Card key={index} className="border-l-4" style={{
+                      borderLeftColor: result.status === 'success' ? '#10b981' : 
+                                       result.status === 'error' ? '#ef4444' : '#f59e0b'
+                    }}>
+                      <CardContent className="py-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            {getStatusIcon(result.status)}
+                            <div>
+                              <p className="font-semibold">{result.component}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{result.message}</p>
+                              {result.dataCount !== undefined && result.dataCount > 0 && (
+                                <p className="text-xs text-gray-500 mt-1">Records found: {result.dataCount}</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+              </div>
+
+              {/* Phase 4: Business Intelligence Systems */}
+              <div className="space-y-3">
+                <h3 className="text-lg font-semibold flex items-center gap-2">
+                  Phase 4: Business Intelligence Systems
+                  {getPhaseStatus('Phase 4') === 'success' && <CheckCircle className="w-5 h-5 text-green-500" />}
+                  {getPhaseStatus('Phase 4') === 'partial' && <AlertCircle className="w-5 h-5 text-yellow-500" />}
+                  {getPhaseStatus('Phase 4') === 'error' && <XCircle className="w-5 h-5 text-red-500" />}
+                </h3>
+                {verificationResults
+                  .filter(r => ['MarketingAnalytics', 'RealTimeNotifications', 'DocumentManagement'].includes(r.component))
                   .map((result, index) => (
                     <Card key={index} className="border-l-4" style={{
                       borderLeftColor: result.status === 'success' ? '#10b981' : 

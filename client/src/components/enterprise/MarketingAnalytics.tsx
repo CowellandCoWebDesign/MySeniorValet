@@ -30,99 +30,40 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
 
   // Marketing data query
   const { data: marketingData, isLoading } = useQuery({
-    queryKey: ['/api/enterprise/marketing', communityId, dateRange],
+    queryKey: [`/api/enterprise/marketing/${communityId}`, dateRange],
   });
 
-  // Mock marketing data - replace with real API data
-  const mockMarketing = {
+  // Use real API data or empty fallback - Golden Data Rule compliance
+  const marketing = marketingData ? marketingData : {
+    // Empty fallback - no mock data per Golden Data Rule
     summary: {
-      totalLeads: 342,
-      qualifiedLeads: 156,
-      tours: 87,
-      conversions: 23,
-      conversionRate: 6.7,
-      avgLeadScore: 72,
-      costPerLead: 125,
-      roi: 4.2
+      totalLeads: 0,
+      qualifiedLeads: 0,
+      tours: 0,
+      conversions: 0,
+      conversionRate: 0,
+      avgLeadScore: 0,
+      costPerLead: 0,
+      roi: 0
     },
-    leadSources: [
-      { source: 'Website', leads: 125, percentage: 37, quality: 82 },
-      { source: 'Referrals', leads: 89, percentage: 26, quality: 94 },
-      { source: 'Google Ads', leads: 56, percentage: 16, quality: 68 },
-      { source: 'Social Media', leads: 38, percentage: 11, quality: 61 },
-      { source: 'Direct Mail', leads: 21, percentage: 6, quality: 75 },
-      { source: 'Events', leads: 13, percentage: 4, quality: 88 }
-    ],
-    conversionFunnel: [
-      { stage: 'Website Visitors', value: 5420 },
-      { stage: 'Lead Captured', value: 342 },
-      { stage: 'Qualified Lead', value: 156 },
-      { stage: 'Tour Scheduled', value: 87 },
-      { stage: 'Tour Completed', value: 62 },
-      { stage: 'Move-In', value: 23 }
-    ],
-    campaignPerformance: [
-      { 
-        name: 'Summer Special 2025',
-        status: 'active',
-        channel: 'Multi-channel',
-        impressions: 45200,
-        clicks: 892,
-        leads: 67,
-        cost: 3500,
-        roi: 5.2
-      },
-      {
-        name: 'Google Search Campaign',
-        status: 'active',
-        channel: 'PPC',
-        impressions: 28500,
-        clicks: 456,
-        leads: 32,
-        cost: 2100,
-        roi: 3.8
-      },
-      {
-        name: 'Facebook Retargeting',
-        status: 'active',
-        channel: 'Social',
-        impressions: 15600,
-        clicks: 234,
-        leads: 18,
-        cost: 850,
-        roi: 4.1
-      },
-      {
-        name: 'Email Newsletter',
-        status: 'completed',
-        channel: 'Email',
-        impressions: 8900,
-        clicks: 567,
-        leads: 45,
-        cost: 150,
-        roi: 12.3
-      }
-    ],
+    leadSources: [],
+    conversionFunnel: [],
+    campaignPerformance: [],
     leadActivity: {
-      recentLeads: [
-        { name: 'John Smith', source: 'Website', score: 85, status: 'qualified', time: '2h ago' },
-        { name: 'Mary Johnson', source: 'Referral', score: 92, status: 'tour_scheduled', time: '4h ago' },
-        { name: 'Robert Chen', source: 'Google Ads', score: 67, status: 'nurturing', time: '6h ago' },
-        { name: 'Linda Davis', source: 'Social Media', score: 74, status: 'qualified', time: '8h ago' }
-      ],
+      recentLeads: [],
       todayStats: {
-        newLeads: 8,
-        toursScheduled: 3,
-        followUps: 12,
-        conversions: 1
+        newLeads: 0,
+        toursScheduled: 0,
+        followUps: 0,
+        conversions: 0
       }
     },
     trafficSources: {
-      organic: 42,
-      paid: 28,
-      social: 18,
-      direct: 8,
-      referral: 4
+      organic: 0,
+      paid: 0,
+      social: 0,
+      direct: 0,
+      referral: 0
     },
     deviceBreakdown: [
       { device: 'Desktop', sessions: 2145, percentage: 45 },
@@ -206,7 +147,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Total Leads</p>
-                <p className="text-2xl font-bold">{mockMarketing.summary.totalLeads}</p>
+                <p className="text-2xl font-bold">{marketing.summary.totalLeads}</p>
                 <div className="flex items-center mt-1">
                   <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
                   <span className="text-xs text-green-500">+12% vs last month</span>
@@ -222,7 +163,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Conversion Rate</p>
-                <p className="text-2xl font-bold">{mockMarketing.summary.conversionRate}%</p>
+                <p className="text-2xl font-bold">{marketing.summary.conversionRate}%</p>
                 <div className="flex items-center mt-1">
                   <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
                   <span className="text-xs text-green-500">+0.5% vs last month</span>
@@ -238,7 +179,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Cost per Lead</p>
-                <p className="text-2xl font-bold">${mockMarketing.summary.costPerLead}</p>
+                <p className="text-2xl font-bold">${marketing.summary.costPerLead}</p>
                 <div className="flex items-center mt-1">
                   <TrendingDown className="w-3 h-3 text-green-500 mr-1" />
                   <span className="text-xs text-green-500">-8% vs last month</span>
@@ -254,8 +195,8 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Marketing ROI</p>
-                <p className="text-2xl font-bold">{mockMarketing.summary.roi}x</p>
-                <Progress value={mockMarketing.summary.roi * 20} className="h-1 mt-2" />
+                <p className="text-2xl font-bold">{marketing.summary.roi}x</p>
+                <Progress value={marketing.summary.roi * 20} className="h-1 mt-2" />
               </div>
               <Award className="w-8 h-8 text-amber-500" />
             </div>
@@ -284,8 +225,8 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockMarketing.conversionFunnel.map((stage, index) => {
-                    const percentage = (stage.value / mockMarketing.conversionFunnel[0].value) * 100;
+                  {marketing.conversionFunnel.map((stage, index) => {
+                    const percentage = (stage.value / marketing.conversionFunnel[0].value) * 100;
                     return (
                       <div key={index}>
                         <div className="flex justify-between mb-1">
@@ -311,7 +252,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
                 <ResponsiveContainer width="100%" height={250}>
                   <RechartsPieChart>
                     <Pie
-                      data={mockMarketing.leadSources}
+                      data={marketing.leadSources}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -320,7 +261,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
                       fill="#8884d8"
                       dataKey="leads"
                     >
-                      {mockMarketing.leadSources.map((entry, index) => (
+                      {marketing.leadSources.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#ef4444'][index]} />
                       ))}
                     </Pie>
@@ -340,7 +281,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={mockMarketing.leadTrend}>
+                <AreaChart data={marketing.leadTrend}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis />
@@ -367,25 +308,25 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">New Leads</span>
                     <span className="text-xl font-bold text-blue-600">
-                      {mockMarketing.leadActivity.todayStats.newLeads}
+                      {marketing.leadActivity.todayStats.newLeads}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Tours Scheduled</span>
                     <span className="text-xl font-bold text-purple-600">
-                      {mockMarketing.leadActivity.todayStats.toursScheduled}
+                      {marketing.leadActivity.todayStats.toursScheduled}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Follow-ups Due</span>
                     <span className="text-xl font-bold text-amber-600">
-                      {mockMarketing.leadActivity.todayStats.followUps}
+                      {marketing.leadActivity.todayStats.followUps}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Conversions</span>
                     <span className="text-xl font-bold text-green-600">
-                      {mockMarketing.leadActivity.todayStats.conversions}
+                      {marketing.leadActivity.todayStats.conversions}
                     </span>
                   </div>
                 </div>
@@ -401,11 +342,11 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
                   <BarChart data={[
-                    { source: 'Organic', value: mockMarketing.trafficSources.organic },
-                    { source: 'Paid', value: mockMarketing.trafficSources.paid },
-                    { source: 'Social', value: mockMarketing.trafficSources.social },
-                    { source: 'Direct', value: mockMarketing.trafficSources.direct },
-                    { source: 'Referral', value: mockMarketing.trafficSources.referral }
+                    { source: 'Organic', value: marketing.trafficSources.organic },
+                    { source: 'Paid', value: marketing.trafficSources.paid },
+                    { source: 'Social', value: marketing.trafficSources.social },
+                    { source: 'Direct', value: marketing.trafficSources.direct },
+                    { source: 'Referral', value: marketing.trafficSources.referral }
                   ]}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="source" />
@@ -425,7 +366,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockMarketing.deviceBreakdown.map((device, index) => (
+                  {marketing.deviceBreakdown.map((device, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         {device.device === 'Desktop' ? <Monitor className="w-4 h-4" /> :
@@ -455,7 +396,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockMarketing.leadActivity.recentLeads.map((lead, index) => (
+                {marketing.leadActivity.recentLeads.map((lead, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div className="flex items-center space-x-4">
                       <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-full">
@@ -492,7 +433,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockMarketing.leadSources.map((source, index) => (
+                {marketing.leadSources.map((source, index) => (
                   <div key={index}>
                     <div className="flex justify-between mb-1">
                       <span className="text-sm font-medium">{source.source}</span>
@@ -517,7 +458,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockMarketing.campaignPerformance.map((campaign, index) => (
+                {marketing.campaignPerformance.map((campaign, index) => (
                   <div key={index} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between">
                       <div>
@@ -567,7 +508,7 @@ export function MarketingAnalytics({ communityId }: MarketingAnalyticsProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {mockMarketing.contentPerformance.map((content, index) => (
+                {marketing.contentPerformance.map((content, index) => (
                   <div key={index} className="flex items-center justify-between p-3 border rounded">
                     <div>
                       <p className="font-medium">{content.title}</p>

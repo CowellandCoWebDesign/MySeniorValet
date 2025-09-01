@@ -641,4 +641,155 @@ router.get('/api/enterprise/families/:communityId', async (req, res) => {
   }
 });
 
+// Phase 3: Operations Systems Endpoints
+
+// Maintenance System endpoint
+router.get('/api/enterprise/maintenance/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      workOrders: [],
+      preventiveMaintenance: [],
+      assets: [],
+      vendors: [],
+      costs: {}
+    });
+  } catch (error) {
+    console.error('Error fetching maintenance data:', error);
+    res.status(500).json({ error: 'Failed to fetch maintenance data' });
+  }
+});
+
+// Vendor Management endpoint
+router.get('/api/enterprise/vendors/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      vendors: [],
+      contracts: [],
+      performance: [],
+      spending: {}
+    });
+  } catch (error) {
+    console.error('Error fetching vendor data:', error);
+    res.status(500).json({ error: 'Failed to fetch vendor data' });
+  }
+});
+
+// Quality Metrics endpoint
+router.get('/api/enterprise/quality-metrics/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      satisfactionScores: {},
+      qualityIndicators: {},
+      surveyResults: {},
+      departmentScores: [],
+      benchmarks: {},
+      awards: []
+    });
+  } catch (error) {
+    console.error('Error fetching quality metrics:', error);
+    res.status(500).json({ error: 'Failed to fetch quality metrics' });
+  }
+});
+
+// Phase 4: Business Intelligence Systems Endpoints
+
+// Marketing Analytics endpoint
+router.get('/api/enterprise/marketing/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      leadSources: [],
+      conversionFunnel: [],
+      campaignPerformance: [],
+      leadActivity: {
+        recentLeads: [],
+        todayStats: {}
+      },
+      trafficSources: {},
+      webAnalytics: {},
+      emailMetrics: {},
+      socialMetrics: {},
+      competitorAnalysis: []
+    });
+  } catch (error) {
+    console.error('Error fetching marketing analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch marketing analytics' });
+  }
+});
+
+// Communication Hub endpoint
+router.get('/api/enterprise/communications/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      messages: [],
+      announcements: [],
+      notifications: [],
+      channels: [],
+      templates: []
+    });
+  } catch (error) {
+    console.error('Error fetching communications:', error);
+    res.status(500).json({ error: 'Failed to fetch communications' });
+  }
+});
+
+// Document Management endpoint
+router.get('/api/enterprise/documents/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      documents: [],
+      folders: [],
+      recentActivity: [],
+      sharedDocuments: [],
+      templates: []
+    });
+  } catch (error) {
+    console.error('Error fetching documents:', error);
+    res.status(500).json({ error: 'Failed to fetch documents' });
+  }
+});
+
+// Activity Calendar endpoint
+router.get('/api/enterprise/activities/:communityId', async (req, res) => {
+  const { communityId } = req.params;
+  
+  try {
+    // Return empty data structure per Golden Data Rule - no mock data
+    res.json({
+      summary: {},
+      activities: [],
+      events: [],
+      recurring: [],
+      participation: {},
+      categories: []
+    });
+  } catch (error) {
+    console.error('Error fetching activities:', error);
+    res.status(500).json({ error: 'Failed to fetch activities' });
+  }
+});
+
 export default router;
