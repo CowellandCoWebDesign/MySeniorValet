@@ -62,6 +62,23 @@ const ExecutiveDashboard = lazy(() => import("@/components/enterprise/ExecutiveD
   default: module.ExecutiveDashboard
 })));
 
+// Lazy load Phase 5 Enterprise Components
+const FinancialAnalyticsTab = lazy(() => import("@/components/phase5/Phase5Tabs").then(module => ({
+  default: module.FinancialAnalyticsTab
+})));
+const ComplianceTab = lazy(() => import("@/components/phase5/Phase5Tabs").then(module => ({
+  default: module.ComplianceTab
+})));
+const MarketingTab = lazy(() => import("@/components/phase5/Phase5Tabs").then(module => ({
+  default: module.MarketingTab
+})));
+const ResidentPortalTab = lazy(() => import("@/components/phase5/Phase5Tabs").then(module => ({
+  default: module.ResidentPortalTab
+})));
+const OperationsTab = lazy(() => import("@/components/phase5/Phase5Tabs").then(module => ({
+  default: module.OperationsTab
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2744,6 +2761,26 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <Activity className="h-4 w-4 mr-2" />
               Live Activity
             </TabsTrigger>
+            <TabsTrigger value="financial">
+              <DollarSign className="h-4 w-4 mr-2" />
+              Financial
+            </TabsTrigger>
+            <TabsTrigger value="compliance">
+              <Shield className="h-4 w-4 mr-2" />
+              Compliance
+            </TabsTrigger>
+            <TabsTrigger value="marketing">
+              <Rocket className="h-4 w-4 mr-2" />
+              Marketing
+            </TabsTrigger>
+            <TabsTrigger value="residents">
+              <Heart className="h-4 w-4 mr-2" />
+              Residents
+            </TabsTrigger>
+            <TabsTrigger value="operations">
+              <Wrench className="h-4 w-4 mr-2" />
+              Operations
+            </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -3015,6 +3052,62 @@ Communities Created: ${details.stats.communitiesCreated}`;
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          {/* Phase 5 Enterprise Features */}
+          <TabsContent value="financial" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading financial analytics...</span>
+              </div>
+            }>
+              <FinancialAnalyticsTab />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="compliance" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading compliance management...</span>
+              </div>
+            }>
+              <ComplianceTab />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="marketing" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading marketing automation...</span>
+              </div>
+            }>
+              <MarketingTab />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="residents" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading resident portal...</span>
+              </div>
+            }>
+              <ResidentPortalTab />
+            </Suspense>
+          </TabsContent>
+          
+          <TabsContent value="operations" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading operations dashboard...</span>
+              </div>
+            }>
+              <OperationsTab />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>
