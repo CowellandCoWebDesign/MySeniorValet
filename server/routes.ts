@@ -128,6 +128,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const familyRoutes = await import('./routes/familyRoutes');
   app.use('/api/family', familyRoutes.default);
   
+  // Register Community Dashboard routes (for logged-in community owners)
+  const communityDashboardRoutes = await import('./routes/communityDashboard');
+  app.use(communityDashboardRoutes.default);
+  
   // Register Enhanced Search Intelligence routes
   const enhancedSearchRoutes = await import('./routes/enhanced-search-routes');
   app.use('/api/search', enhancedSearchRoutes.default);
