@@ -2969,7 +2969,7 @@ export default function MySeniorValetHome() {
             </p>
           </div>
 
-          <div className="max-w-2xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8">
             {/* Community Join Card */}
             <Card className="relative overflow-hidden border-2 border-blue-500 hover:shadow-2xl transition-all duration-300">
               <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500 to-purple-500 text-white px-4 py-1 text-sm font-semibold">
@@ -3064,6 +3064,99 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
+            {/* Vendor Join Card */}
+            <Card className="relative overflow-hidden border-2 border-purple-500 hover:shadow-2xl transition-all duration-300">
+              <div className="absolute top-0 right-0 bg-gradient-to-l from-purple-500 to-pink-500 text-white px-4 py-1 text-sm font-semibold">
+                For Vendors
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center gap-3">
+                  <Truck className="w-8 h-8 text-purple-600" />
+                  Vendor Partnership
+                </CardTitle>
+                <CardDescription>Reach families & communities nationwide</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-blue-700 dark:text-blue-300">Basic Tier</span>
+                      <Badge className="bg-blue-500 text-white">$99/mo</Badge>
+                    </div>
+                    <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-500" />
+                        Enhanced vendor listing
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-500" />
+                        5 service leads per month
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-blue-500" />
+                        Service area targeting
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border-2 border-indigo-300 dark:border-indigo-600">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-indigo-700 dark:text-indigo-300">Featured Tier</span>
+                      <Badge className="bg-indigo-500 text-white">$399/mo</Badge>
+                    </div>
+                    <ul className="text-sm space-y-1 text-gray-600 dark:text-gray-400">
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-indigo-500" />
+                        Featured vendor placement
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-indigo-500" />
+                        25 qualified leads per month
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-indigo-500" />
+                        Priority support & analytics
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-indigo-500" />
+                        Custom landing page
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-300 dark:border-purple-600">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="font-semibold text-purple-700 dark:text-purple-300">National Partner</span>
+                      <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+                        $999/mo
+                        <span className="ml-1 text-xs">Coming Soon</span>
+                      </Badge>
+                    </div>
+                    <ul className="text-sm space-y-1 text-gray-500 dark:text-gray-500 italic">
+                      <li className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-purple-500" />
+                        <span>Unlimited leads nationwide</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-purple-500" />
+                        <span>API integration access</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Star className="w-4 h-4 text-purple-500" />
+                        <span>Dedicated account manager</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <Link href="/vendor-signup">
+                  <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90">
+                    Become a Partner
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Family Access Banner */}
