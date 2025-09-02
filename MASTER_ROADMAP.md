@@ -84,7 +84,7 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 4. **Premium ($1,999)** - Payment & deposit processing, healthcare integrations, 10 properties
 5. **Enterprise ($3,999)** - Full resident management system, white-label, 25 properties
 
-**Volume Discounts:** For communities managing 10+ properties, contact hello@myseniorvalet.com for customized pricing and special rates.
+**Volume Discounts:** For communities managing over 25 properties, contact hello@myseniorvalet.com for customized pricing and special rates.
 
 **Vendor Subscription Tiers ($99-$499/month):**
 1. **Basic ($99)** - Nationwide coverage, up to 10 leads/month max

@@ -60,7 +60,7 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 - Premium: $1,999 (Payment & deposit processing, healthcare integrations, 10 properties)
 - Enterprise: $3,999 (Full resident management system, white-label, 25 properties)
 
-**Volume Discounts:** Managing 10+ communities? Contact hello@myseniorvalet.com for special rates.
+**Volume Discounts:** Managing over 25 communities? Contact hello@myseniorvalet.com for special rates.
 
 **All Tiers Include Access To:**
 - Community Portal & Dashboard

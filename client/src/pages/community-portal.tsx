@@ -671,7 +671,7 @@ export default function CommunityPortal() {
             <div className="flex items-center gap-3">
               <Info className="w-5 h-5 text-blue-600" />
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                <strong>Volume Discounts Available:</strong> Managing 10+ communities? Contact hello@myseniorvalet.com for special rates!
+                <strong>Volume Discounts Available:</strong> Managing over 25 communities? Contact hello@myseniorvalet.com for special rates!
               </p>
             </div>
           </Card>
