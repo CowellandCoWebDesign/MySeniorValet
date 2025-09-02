@@ -377,7 +377,7 @@ export const communityReports = pgTable("community_reports", {
 });
 
 // Legal Document Version Control System
-export const legalDocumentVersions: any = pgTable("legal_document_versions", {
+export const legalDocumentVersions = pgTable("legal_document_versions", {
   id: serial("id").primaryKey(),
   documentType: varchar("document_type", { enum: ["terms", "privacy", "cookie"] }).notNull(),
   version: varchar("version").notNull(), // e.g., "2.1", "3.0"
@@ -408,7 +408,7 @@ export const legalDocumentVersions: any = pgTable("legal_document_versions", {
     lastModified?: string;
     template?: string;
   }>().default({}),
-  supersededVersionId: integer("superseded_version_id").references((): any => legalDocumentVersions.id),
+  supersededVersionId: integer("superseded_version_id").references(() => legalDocumentVersions.id),
   isActive: boolean("is_active").default(false),
   viewCount: integer("view_count").default(0),
   downloadCount: integer("download_count").default(0),
@@ -3530,16 +3530,24 @@ export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit(
 export const insertMessageSchema = createInsertSchema(messages).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+  isRead: true,
+  readAt: true,
 });
 
 export const insertMessageTemplateSchema = createInsertSchema(messageTemplates).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+  useCount: true,
 });
 
 export const insertTourSchema = createInsertSchema(tours).omit({
   id: true,
   createdAt: true,
+  updatedAt: true,
+  reminderSent: true,
+  feedbackSubmitted: true,
 });
 
 // Enhanced tour creation schema for the comprehensive tour tracker

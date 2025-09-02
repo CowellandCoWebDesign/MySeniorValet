@@ -95,17 +95,11 @@ export class PerformanceMonitorService extends EventEmitter {
     // Check for performance issues
     this.detectPerformanceIssues(snapshot);
 
-    // Broadcast real-time metrics (optional - only if WebSocket service is available)
-    try {
-      if (this.wsService && typeof this.wsService.broadcast === 'function') {
-        this.wsService.broadcast('metrics', {
-          type: 'performance_update',
-          snapshot
-        });
-      }
-    } catch (error) {
-      // Silently handle WebSocket unavailability
-    }
+    // Broadcast real-time metrics
+    this.wsService.broadcast('metrics', {
+      type: 'performance_update',
+      snapshot
+    });
   }
 
   private async createPerformanceSnapshot(): Promise<PerformanceSnapshot> {
@@ -308,9 +302,6 @@ export class PerformanceMonitorService extends EventEmitter {
   }
 
   trackQueryTime(query: string, duration: number) {
-    // Only track valid numeric durations
-    if (isNaN(duration) || duration < 0) return;
-    
     if (!this.queryMetrics.has(query)) {
       this.queryMetrics.set(query, []);
     }
@@ -320,9 +311,6 @@ export class PerformanceMonitorService extends EventEmitter {
   }
 
   trackAPITime(endpoint: string, duration: number) {
-    // Only track valid numeric durations  
-    if (isNaN(duration) || duration < 0) return;
-    
     if (!this.apiMetrics.has(endpoint)) {
       this.apiMetrics.set(endpoint, []);
     }
@@ -352,31 +340,21 @@ export class PerformanceMonitorService extends EventEmitter {
       const communityIds = await this.getActiveCommunityIds();
       
       for (const communityId of communityIds) {
-        // Ensure all values are valid numbers before inserting
-        const validCommunityId = Number(communityId);
-        if (!validCommunityId || validCommunityId <= 0) {
-          console.log(`⚠️ Skipping invalid community ID: ${communityId}`);
-          continue; // Skip invalid community IDs instead of inserting them
-        }
-        const safeRequestCount = Number(aggregated.api.requestCount) || 0;
-        const safeAvgResponseTime = Number(aggregated.api.avgResponseTime) || 0;
-        const safeErrorRate = Number(aggregated.api.errorRate) || 0;
-
         await db.insert(enterpriseMetrics).values({
-          community_id: validCommunityId,
+          communityId,
           date: new Date().toISOString().split('T')[0] as any,
           period: 'hourly',
-          uniqueVisitors: Math.max(0, Math.floor(safeRequestCount / 10)),
-          totalPageViews: Math.max(0, safeRequestCount),
-          avgSessionDuration: Math.max(0, safeAvgResponseTime),
-          bounceRate: Math.min(1, Math.max(0, safeErrorRate / 100)),
-          conversionRate: Math.round(Math.random() * 5) / 100, // 0-0.05
+          uniqueVisitors: Math.floor(aggregated.api.requestCount / 10),
+          totalPageViews: aggregated.api.requestCount,
+          avgSessionDuration: aggregated.api.avgResponseTime,
+          bounceRate: aggregated.api.errorRate / 100,
+          conversionRate: Math.random() * 0.05,
           totalRevenue: '0',
           occupancyRate: 0,
           avgLengthOfStay: 0,
           customerSatisfaction: 0,
           staffTurnover: 0,
-          qualityScore: Math.max(0, Math.min(100, Math.round(100 - safeErrorRate)))
+          qualityScore: 100 - aggregated.api.errorRate
         }).onConflictDoNothing();
       }
 
@@ -400,31 +378,30 @@ export class PerformanceMonitorService extends EventEmitter {
         .limit(10);
 
       return communities
-        .filter(c => c.communityId !== null && !isNaN(Number(c.communityId)))
-        .map(c => Number(c.communityId))
-        .filter(id => id > 0);
+        .filter(c => c.communityId !== null)
+        .map(c => c.communityId as number);
     } catch {
       return [47677]; // Default community for testing
     }
   }
 
   async getAggregatedMetrics() {
-    const dbMetrics = Array.from(this.queryMetrics.values()).flat().filter(v => !isNaN(v) && v > 0);
-    const apiMetrics = Array.from(this.apiMetrics.values()).flat().filter(v => !isNaN(v) && v > 0);
+    const dbMetrics = Array.from(this.queryMetrics.values()).flat();
+    const apiMetrics = Array.from(this.apiMetrics.values()).flat();
 
     return {
       database: {
         avgQueryTime: dbMetrics.length > 0 
-          ? Math.round(dbMetrics.reduce((a, b) => a + b, 0) / dbMetrics.length) || 0
+          ? dbMetrics.reduce((a, b) => a + b, 0) / dbMetrics.length 
           : 0,
-        queryCount: dbMetrics.length || 0
+        queryCount: dbMetrics.length
       },
       api: {
         avgResponseTime: apiMetrics.length > 0
-          ? Math.round(apiMetrics.reduce((a, b) => a + b, 0) / apiMetrics.length) || 0
+          ? apiMetrics.reduce((a, b) => a + b, 0) / apiMetrics.length
           : 0,
-        requestCount: apiMetrics.length || 0,
-        errorRate: Math.round(Math.random() * 2 * 100) / 100 // 0-2% error rate
+        requestCount: apiMetrics.length,
+        errorRate: Math.random() * 2 // 0-2% error rate
       },
       cache: this.calculateCacheMetrics(),
       system: this.collectSystemMetrics()
