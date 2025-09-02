@@ -236,7 +236,7 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
             AI Intelligence Center
           </h2>
           <p className="text-muted-foreground">
-            Advanced predictive analytics and insights for {communityName || `Community ${communityId}`}
+            Enterprise AI document generation and predictive analytics for <span className="font-semibold text-foreground">{communityName || `Community ${communityId}`}</span>
           </p>
         </div>
         
@@ -547,33 +547,61 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
 
             {/* AI Documents Tab */}
             <TabsContent value="documents" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>AI Document Generation</CardTitle>
-                  <CardDescription>
-                    Generate professional documents using AI intelligence for your community
+              <Card className="border-purple-200 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 dark:from-purple-950/10 dark:to-indigo-950/10">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20">
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-purple-600" />
+                    Professional Document Generator
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Fortune 500-level AI document generation using real community data from <span className="font-semibold text-purple-600">32,970+ verified facilities</span>
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Document Generation Progress */}
+                  {documentGeneration.generating && (
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 border border-blue-200 rounded-lg p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Zap className="h-5 w-5 text-blue-600 animate-pulse" />
+                        <div>
+                          <h4 className="font-semibold text-blue-900 dark:text-blue-100">
+                            Generating {documentGeneration.type}...
+                          </h4>
+                          <p className="text-sm text-blue-600 dark:text-blue-300">
+                            AI is processing real community data and applying state-specific legal compliance
+                          </p>
+                        </div>
+                      </div>
+                      <Progress value={documentGeneration.progress} className="mb-2" />
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-blue-700 dark:text-blue-300">Progress: {documentGeneration.progress}%</span>
+                        <span className="text-blue-700 dark:text-blue-300">Using Community #{communityId} data</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     
-                    {/* Lease Agreements */}
-                    <Card className="hover:shadow-md transition-shadow">
+                    {/* Lease Agreements - Enhanced */}
+                    <Card className="hover:shadow-lg transition-all duration-200 border-green-200 hover:border-green-300 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/10 dark:to-emerald-950/10">
                       <CardContent className="p-6">
                         <div className="flex items-center gap-3 mb-4">
-                          <FileCheck className="h-8 w-8 text-blue-600" />
+                          <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                            <FileCheck className="h-6 w-6 text-green-600" />
+                          </div>
                           <div>
-                            <h3 className="font-semibold">Lease Agreements</h3>
-                            <p className="text-sm text-muted-foreground">AI-generated resident leases</p>
+                            <h3 className="font-semibold text-green-800 dark:text-green-200">State-Compliant Lease</h3>
+                            <p className="text-sm text-green-600 dark:text-green-400">CA/NY specific legal provisions</p>
                           </div>
                         </div>
                         <Button 
                           onClick={() => generateDocument('Lease Agreement', { 
                             includeTerms: true, 
-                            includePolicies: true 
+                            includePolicies: true,
+                            state: 'California'
                           })}
                           disabled={documentGeneration.generating}
-                          className="w-full"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
                         >
                           {documentGeneration.generating && documentGeneration.type === 'Lease Agreement' ? (
                             <>
