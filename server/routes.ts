@@ -118,6 +118,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Phase 4: Advanced Monitoring routes
   const enterpriseMonitoringRoutes = await import('./routes/enterprise-monitoring');
   app.use('/api/enterprise/monitoring', enterpriseMonitoringRoutes.default);
+
+  // Register Phase 6: AI Intelligence Layer routes
+  const aiIntelligenceRoutes = await import('./routes/ai-intelligence-routes');
+  app.use('/api/ai', aiIntelligenceRoutes.default);
   
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);

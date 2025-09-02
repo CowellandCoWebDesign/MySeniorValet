@@ -28,6 +28,7 @@ import {
 } from 'recharts';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
+import { AIIntelligenceDashboard } from '@/components/AIIntelligenceDashboard';
 
 /**
  * Unified Community Dashboard
@@ -232,10 +233,14 @@ export default function CommunityDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="residents">Residents</TabsTrigger>
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsTrigger value="ai-intelligence">
+              <Brain className="h-4 w-4 mr-2" />
+              AI Intelligence
+            </TabsTrigger>
             <TabsTrigger value="operations">Operations</TabsTrigger>
             <TabsTrigger value="billing">Billing</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -898,6 +903,14 @@ export default function CommunityDashboard() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* AI Intelligence Tab */}
+          <TabsContent value="ai-intelligence">
+            <AIIntelligenceDashboard 
+              communityId={communityId} 
+              communityName={community?.name} 
+            />
           </TabsContent>
 
           {/* Settings Tab */}
