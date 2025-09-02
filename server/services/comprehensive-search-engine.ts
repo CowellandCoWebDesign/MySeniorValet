@@ -862,47 +862,128 @@ export class ComprehensiveSearchEngine {
     const normalizedQuery = query.toLowerCase().trim();
     const suggestions: string[] = [];
     
-    // International location enhancement
-    const locationMap: { [key: string]: string[] } = {
-      'tokyo': ['Tokyo, Japan', 'Tokyo communities', 'Tokyo senior living'],
-      'paris': ['Paris, France', 'Paris communities', 'Paris senior care'],
-      'london': ['London, UK', 'London communities', 'London senior living'],
-      'sydney': ['Sydney, Australia', 'Sydney communities', 'Sydney senior care'],
-      'toronto': ['Toronto, Canada', 'Toronto communities', 'Toronto senior living'],
-      'vancouver': ['Vancouver, Canada', 'Vancouver communities', 'Vancouver senior care']
-    };
-    
-    // Check if it's a known international location
-    if (locationMap[normalizedQuery]) {
-      suggestions.push(...locationMap[normalizedQuery]);
+    // Don't provide suggestions for very short queries
+    if (normalizedQuery.length < 2) {
+      return [];
     }
     
-    // Add general suggestions based on query type
-    if (normalizedQuery.includes('senior') || normalizedQuery.includes('living')) {
-      suggestions.push(
-        `${query} under $5000`,
-        `${query} memory care`,
-        `${query} assisted living`,
-        `best ${query}`
-      );
-    } else if (/^\d+$/.test(normalizedQuery) || normalizedQuery.includes('$')) {
-      suggestions.push(
-        `under $${normalizedQuery.replace(/\$/, '')}`,
-        `communities under $${normalizedQuery.replace(/\$/, '')}`,
-        `affordable senior living`
-      );
-    } else {
-      // Location-based suggestions
-      suggestions.push(
+    try {
+      // 1. Search for actual community names (highest priority)
+      const communityNameResults = await db
+        .select({
+          name: communities.name,
+          city: communities.city,
+          state: communities.state
+        })
+        .from(communities)
+        .where(
+          or(
+            ilike(communities.name, `${normalizedQuery}%`),  // Starts with
+            ilike(communities.name, `%${normalizedQuery}%`)  // Contains
+          )
+        )
+        .orderBy(sql`
+          CASE 
+            WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedQuery}) || '%' THEN 1
+            ELSE 2
+          END,
+          LENGTH(${communities.name})
+        `)
+        .limit(5);
+      
+      // Add community names to suggestions
+      communityNameResults.forEach(community => {
+        if (!suggestions.includes(community.name)) {
+          suggestions.push(community.name);
+        }
+      });
+      
+      // 2. Search for cities that match
+      const cityResults = await db
+        .select({
+          city: communities.city,
+          state: communities.state,
+          count: sql<number>`COUNT(*)::int`.as('count')
+        })
+        .from(communities)
+        .where(
+          ilike(communities.city, `${normalizedQuery}%`)  // Cities starting with query
+        )
+        .groupBy(communities.city, communities.state)
+        .having(sql`COUNT(*) > 0`)
+        .orderBy(desc(sql`COUNT(*)`))
+        .limit(3);
+      
+      // Add city suggestions
+      cityResults.forEach(location => {
+        const cityStateSuggestion = `${location.city}, ${location.state}`;
+        if (!suggestions.includes(cityStateSuggestion)) {
+          suggestions.push(cityStateSuggestion);
+        }
+      });
+      
+      // 3. Search for states (if query is 2+ chars)
+      if (normalizedQuery.length >= 2) {
+        const stateResults = await db
+          .select({
+            state: communities.state,
+            count: sql<number>`COUNT(*)::int`.as('count')
+          })
+          .from(communities)
+          .where(
+            or(
+              ilike(communities.state, `${normalizedQuery}%`),  // State abbreviation
+              ilike(communities.state, `%${normalizedQuery}%`)  // State name contains
+            )
+          )
+          .groupBy(communities.state)
+          .having(sql`COUNT(*) > 0`)
+          .orderBy(desc(sql`COUNT(*)`))
+          .limit(2);
+        
+        stateResults.forEach(state => {
+          if (!suggestions.includes(state.state)) {
+            suggestions.push(state.state);
+          }
+        });
+      }
+      
+      // 4. Search for management companies
+      const companyResults = await db
+        .select({
+          managementCompany: communities.managementCompany,
+          count: sql<number>`COUNT(*)::int`.as('count')
+        })
+        .from(communities)
+        .where(
+          and(
+            ilike(communities.managementCompany, `%${normalizedQuery}%`),
+            sql`${communities.managementCompany} IS NOT NULL`,
+            sql`${communities.managementCompany} != ''`
+          )
+        )
+        .groupBy(communities.managementCompany)
+        .having(sql`COUNT(*) > 0`)
+        .orderBy(desc(sql`COUNT(*)`))
+        .limit(2);
+      
+      companyResults.forEach(company => {
+        if (company.managementCompany && !suggestions.includes(company.managementCompany)) {
+          suggestions.push(company.managementCompany);
+        }
+      });
+      
+    } catch (error) {
+      console.error('Database suggestion error:', error);
+      // Return basic fallback suggestions if database fails
+      return [
         `${query} senior living`,
-        `${query} assisted living`,
-        `${query} memory care`,
-        `${query} under $5000`,
-        `best communities in ${query}`
-      );
+        `${query} communities`,
+        `senior living near ${query}`
+      ].slice(0, 5);
     }
     
-    // Remove duplicates and limit results
+    // Remove duplicates and limit to 8 suggestions
     return [...new Set(suggestions)].slice(0, 8);
   }
 }
