@@ -2630,14 +2630,14 @@ export default function MySeniorValetHome() {
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
                             <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$99/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic profile, photos, analytics dashboard</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Live messaging, basic profile, analytics</p>
                         </div>
                         <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Growth</p>
                             <p className="text-xs font-bold text-green-600 dark:text-green-400">$299/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3D tour embed, reservation system, priority support</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Reservation mgmt (CC hold), 3D tours, priority support</p>
                         </div>
                         <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border border-purple-300 dark:border-purple-700">
                           <div className="flex justify-between items-center">
@@ -2658,7 +2658,7 @@ export default function MySeniorValetHome() {
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Enterprise</p>
                             <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$3,999/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">White-label, API access, unlimited properties</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full resident mgmt, white-label, unlimited properties</p>
                         </div>
                         <div className="mt-3 p-2 bg-gradient-to-r from-green-500/20 to-emerald-600/20 dark:from-green-500/10 dark:to-emerald-600/10 rounded border border-green-300 dark:border-green-700">
                           <p className="text-xs font-semibold text-green-700 dark:text-green-300 text-center">🚀 PHASE 5A COMPLETE</p>
@@ -2680,7 +2680,7 @@ export default function MySeniorValetHome() {
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Resident Management</span>
+                          <span className="text-gray-700 dark:text-gray-300">Move-in Calculator</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
@@ -2784,43 +2784,29 @@ export default function MySeniorValetHome() {
                     {/* Right side - Coverage Tiers Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌎</span> Coverage Tiers
+                        <span>🌎</span> 3 Partnership Tiers
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
                         <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
                             <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Local coverage, up to 5 leads/mo</p>
-                        </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional</p>
-                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$199/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">1 state coverage, up to 15 leads/mo</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
                         </div>
                         <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Business ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$299/mo</p>
+                            <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
+                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 states, up to 30 leads/mo, featured</p>
-                        </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
-                            <p className="text-xs font-bold text-orange-600 dark:text-orange-400">$399/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">5 states, up to 50 leads/mo, priority</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
                         </div>
                         <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Enterprise</p>
+                            <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
                             <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, no lead cap, white-label</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
                         </div>
                         <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
                           <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>

@@ -98,6 +98,7 @@ export default function CommunityPortal() {
       tagline: 'Essential online presence',
       description: 'Perfect for single communities',
       features: [
+        { text: '💬 Live messaging with families', included: true, highlight: true },
         { text: 'Basic profile with 5 photos', included: true },
         { text: 'Pricing & availability display', included: true },
         { text: 'Contact information', included: true },
@@ -120,12 +121,12 @@ export default function CommunityPortal() {
       description: 'Includes 3D tour technology',
       features: [
         { text: 'Everything in Starter, plus:', header: true },
+        { text: '📅 Reservation Management (credit card hold, no deposit)', included: true, highlight: true },
         { text: '🏠 3D tour embed capability', included: true, highlight: true },
         { text: 'Enhanced listing with 20 photos', included: true },
         { text: 'Featured search ranking', included: true },
-        { text: 'TourMate™ reservation system', included: true },
+        { text: 'TourMate™ advanced scheduling', included: true },
         { text: 'Lead tracking & CRM exports', included: true },
-        { text: 'Family messaging system', included: true },
         { text: 'Priority phone support', included: true },
         { text: 'Weekly analytics reports', included: true }
       ],
@@ -144,8 +145,6 @@ export default function CommunityPortal() {
         { text: 'Everything in Growth, plus:', header: true },
         { text: '⭐ Manage up to 25 properties', included: true, highlight: true },
         { text: '🤖 AI lease generation & move-in paperwork', included: true, highlight: true },
-        { text: '📋 Real-time reservation management', included: true, highlight: true },
-        { text: '🏠 Full resident management system', included: true },
         { text: '🛡️ Rental insurance tracking', included: true },
         { text: 'Advanced lead tracking & CRM exports', included: true },
         { text: 'RMS integration (Yardi, Aline, etc.)', included: true },
@@ -195,6 +194,7 @@ export default function CommunityPortal() {
       features: [
         { text: 'Everything in Premium, plus:', header: true },
         { text: '🚀 Unlimited properties', included: true, highlight: true },
+        { text: '👥 Full Resident Management System', included: true, highlight: true },
         { text: 'White-label platform options', included: true },
         { text: 'Full API access & webhooks', included: true },
         { text: 'Custom domain & branding', included: true },

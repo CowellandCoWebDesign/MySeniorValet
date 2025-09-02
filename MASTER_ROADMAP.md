@@ -74,21 +74,27 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 - **Vendor Tiers** - $199, $499, $999/month (service providers)
 - **API Access Tiers** - $299, $999, $2,999/month (data partners)
 
-#### **TIER SYSTEM REDUNDANCY ISSUE (Needs Consolidation):**
-**Three Different Systems Found:**
-1. **Backend Services (Actually Built):**
-   - Community: $99 (Starter), $299 (Growth), $999 (Professional), $1,999 (Premium), $3,999 (Enterprise)
-   - Vendor: $99 (Basic), $249 (Featured), $499 (National)
-   
-2. **Pricing Page Display (User-Facing):**
-   - Shows different features than backend (e.g., 5 photos vs 1 photo for Starter)
-   - Promises features not wired (3D tours at Growth, payment processing at Premium)
-   
-3. **Kraken Original Roadmap:**
-   - Different pricing structure entirely
-   - Includes Professional ($79-$249) and API tiers not built
+#### **✅ TIER SYSTEM CONSOLIDATED (Sep 2, 2025):**
+**Single Source of Truth Established:**
 
-**CONSOLIDATION NEEDED:** Single source of truth for tiers across platform
+**Community Subscription Tiers ($99-$3,999/month):**
+1. **Starter ($99)** - Live messaging with families, basic profile, analytics
+2. **Growth ($299)** - Reservation management (CC hold only), 3D tours, priority support
+3. **Professional ($999)** - AI lease generation, move-in calculator, 25 properties
+4. **Premium ($1,999)** - Payment & deposit processing, healthcare integrations, 100 properties
+5. **Enterprise ($3,999)** - Full resident management system, white-label, unlimited properties
+
+**Vendor Subscription Tiers ($99-$499/month):**
+1. **Basic ($99)** - Nationwide coverage, up to 10 leads/month max
+2. **Featured ($249)** - Premium placement, up to 50 leads/month max
+3. **National Partner ($499)** - Unlimited leads, API access, white-label options
+
+**Key Feature Redistributions:**
+- Live messaging moved to Starter tier ($99)
+- Reservation management (credit card holds) moved to Growth tier ($299)
+- Full resident management system moved to Enterprise tier ($3,999)
+- Move-in cost calculator at Professional ($999)
+- Payment processing at Premium ($1,999)
 
 **Conservative Revenue Projections:**
 - 10% of 32,970 communities × avg $999/month = $32.9M/month ($395M ARR)

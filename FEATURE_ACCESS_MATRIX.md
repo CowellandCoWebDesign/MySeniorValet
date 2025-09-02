@@ -52,30 +52,24 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 
 ### 💰 **PAYING B2B CUSTOMERS** (Revenue Source)
 
-#### **COMMUNITIES** (Consolidated Portal Access)
-**Current Active Tiers ($99-$3,999/month) - Portal & Dashboard Included:**
-- Starter: $99 (Basic listing, 10 leads, TourMate™ Scheduler)
-- Growth: $299 (3D tours, 50 leads, Real-Time Analytics)
-- Professional: $999 (Multi-property, 200 leads, Lead Management CRM)
-- Premium: $1,999 (Healthcare integrations, 500 leads, Revenue Optimization)
-- Enterprise: $3,999 (White-label, unlimited, Full API Integration)
+#### **COMMUNITIES** (✅ CONSOLIDATED Sep 2, 2025)
+**Active Tier Structure ($99-$3,999/month) - Portal & Dashboard Included:**
+- Starter: $99 (Live messaging with families, basic listing, analytics)
+- Growth: $299 (Reservation management with CC hold, 3D tours, priority support)
+- Professional: $999 (AI lease generation, move-in calculator, 25 properties)
+- Premium: $1,999 (Payment & deposit processing, healthcare integrations, 100 properties)
+- Enterprise: $3,999 (Full resident management system, white-label, unlimited properties)
 
 **All Tiers Include Access To:**
 - Community Portal & Dashboard
 - Roadmap features as they become available
 - Enterprise-level infrastructure
 
-**Kraken System Tiers (Original Architecture):**
-- Basic: $99/month
-- Standard: $299/month
-- Professional: $599/month
-- Also includes Professional ($79-$249) and Enterprise ($2,499-$4,999) variants
-
-#### **VENDORS** (Complete Portal Experience)
+#### **VENDORS** (✅ CONSOLIDATED Sep 2, 2025)
 **Vendor Portal & Dashboard Included ($99-$499/month):**
-- Basic: $99 (5 products, 10 leads, Nationwide Coverage)
-- Featured: $249 (25 products, 50 leads, Premium Analytics)
-- National Partner: $499 (Unlimited products/leads, API Integration)
+- Basic: $99 (Nationwide coverage, up to 10 leads/month maximum)
+- Featured: $249 (Premium placement, up to 50 leads/month maximum)
+- National Partner: $499 (Unlimited leads, API access, white-label options)
 
 **All Vendor Tiers Include:**
 - Vendor Portal & Dashboard access
@@ -104,11 +98,13 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 
 #### **STARTER TIER ($99/month)**
 ✅ **ACCESSIBLE NOW:**
+- 💬 Live messaging with families (NEW - moved from Growth)
 - Basic listing management (`/community-dashboard`)
-- Photo uploads (Backend: 1 photo only, Pricing page claims: 5 photos) ⚠️
+- Photo uploads (5 photos)
 - Basic pricing updates
 - Tour scheduling (TourMate™)
 - Response to inquiries
+- Analytics dashboard
 
 ✅ **ACCESSIBLE NOW:**
 - Lead tracking system (`lead-tracking.service.ts` - complete with CRM integration!)
@@ -124,7 +120,10 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 #### **GROWTH TIER ($299/month)**
 ✅ **ACCESSIBLE NOW:**
 - Everything in Starter
+- 📅 Reservation Management with credit card holds (NEW - moved from Professional)
+- 3D Virtual Tours (Matterport, YouVisit)
 - Email campaigns
+- Priority phone support
 
 ✅ **ACCESSIBLE NOW:**
 - 3D Virtual Tours (`tour-embed.service.ts` - Matterport, YouVisit, etc. READY!)
