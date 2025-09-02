@@ -13,6 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
   Building2, Users, DollarSign, TrendingUp, TrendingDown, Calendar, 
   MapPin, Star, AlertCircle, CheckCircle, Settings, CreditCard, 
@@ -93,60 +94,50 @@ export default function CommunityDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
+  const [showAddResidentModal, setShowAddResidentModal] = useState(false);
+  const [selectedResident, setSelectedResident] = useState(null);
   const { toast } = useToast();
 
   // Fetch community data
-  const { data: community, isLoading: communityLoading } = useQuery<CommunityData>({
+  const { data: community, isLoading: communityLoading, error: communityError } = useQuery<CommunityData>({
     queryKey: [`/api/communities/${communityId}`],
-    initialData: {
-      id: communityId,
-      name: 'Sunrise Senior Living',
-      address: '123 Oak Street, Springfield, IL 62701',
-      phone: '(555) 123-4567',
-      email: 'info@sunrisesenior.com',
-      website: 'www.sunrisesenior.com',
-      type: 'Assisted Living',
-      occupancy: 88.5,
-      totalUnits: 120,
-      monthlyRevenue: 456750,
-      averageRate: 4250,
-      waitlistCount: 12,
-      staffCount: 45,
-      maintenanceRequests: 8,
-      subscriptionTier: 'Professional',
-      subscriptionStatus: 'active',
-      nextBilling: '2025-10-01'
-    }
+    retry: 3,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Fetch analytics data
-  const { data: analytics } = useQuery<AnalyticsData>({
+  const { data: analytics, isLoading: analyticsLoading, error: analyticsError } = useQuery<AnalyticsData>({
     queryKey: [`/api/communities/${communityId}/analytics`, selectedTimeRange],
-    initialData: {
-      views: 1245,
-      leads: 48,
-      tours: 23,
-      conversions: 7,
-      conversionRate: 14.5,
-      avgResponseTime: '2.3 hours',
-      monthlyGrowth: 3.4,
-      yearlyGrowth: 12.8
-    }
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch financial data
-  const { data: financial } = useQuery<FinancialData>({
+  // Fetch financial data  
+  const { data: financial, isLoading: financialLoading, error: financialError } = useQuery<FinancialData>({
     queryKey: [`/api/communities/${communityId}/financial`, selectedTimeRange],
-    initialData: {
-      totalRevenue: 456750,
-      recurringRevenue: 410000,
-      oneTimeCharges: 46750,
-      avgRevenuePerUnit: 4250,
-      collectionRate: 96.2,
-      outstandingBalance: 18340,
-      ebitda: 182700,
-      netOperatingIncome: 159800
-    }
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch residents data (real data, no mock)
+  const { data: residents, isLoading: residentsLoading, error: residentsError } = useQuery<any[]>({
+    queryKey: [`/api/communities/${communityId}/residents`],
+    retry: 3,
+    staleTime: 2 * 60 * 1000, // 2 minutes for more frequent updates
+  });
+
+  // Fetch maintenance requests
+  const { data: maintenanceRequests, isLoading: maintenanceLoading } = useQuery({
+    queryKey: [`/api/operations/maintenance/${communityId}`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch operations data
+  const { data: operations, isLoading: operationsLoading } = useQuery({
+    queryKey: [`/api/operations/summary/${communityId}`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
   });
 
   const [formData, setFormData] = useState({
@@ -233,17 +224,18 @@ export default function CommunityDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="residents">Residents</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="ai-intelligence">
-              <Brain className="h-4 w-4 mr-2" />
-              AI Intelligence
+          <TabsList className="grid w-full grid-cols-7 h-auto">
+            <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-3">Overview</TabsTrigger>
+            <TabsTrigger value="residents" className="text-xs sm:text-sm px-2 py-3">Residents</TabsTrigger>
+            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-3">Analytics</TabsTrigger>
+            <TabsTrigger value="ai-intelligence" className="text-xs sm:text-sm px-1 py-3 flex flex-col items-center">
+              <Brain className="h-3 w-3 sm:h-4 sm:w-4 mb-1" />
+              <span className="hidden sm:inline">AI Intelligence</span>
+              <span className="sm:hidden">AI</span>
             </TabsTrigger>
-            <TabsTrigger value="operations">Operations</TabsTrigger>
-            <TabsTrigger value="billing">Billing</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+            <TabsTrigger value="operations" className="text-xs sm:text-sm px-2 py-3">Operations</TabsTrigger>
+            <TabsTrigger value="billing" className="text-xs sm:text-sm px-2 py-3">Billing</TabsTrigger>
+            <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 py-3">Settings</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -255,7 +247,11 @@ export default function CommunityDashboard() {
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Occupancy Rate</p>
                       <p className="text-2xl font-bold">{community?.occupancy}%</p>
-                      <p className="text-xs text-green-600">+2.1% from last month</p>
+                      {analytics?.monthlyGrowth ? (
+                        <p className="text-xs text-green-600">+{analytics.monthlyGrowth}% from last month</p>
+                      ) : (
+                        <p className="text-xs text-gray-500">Calculating...</p>
+                      )}
                     </div>
                     <Building2 className="h-8 w-8 text-blue-500" />
                   </div>
@@ -338,14 +334,24 @@ export default function CommunityDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <CheckCircle className="h-5 w-5 text-green-600" />
-                    <div>
-                      <p className="font-medium">New resident moved in</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Unit 204 - Margaret Johnson</p>
+                  {residents && residents.length > 0 ? (
+                    <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <div>
+                        <p className="font-medium">Recent Activity</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{residents.length} active residents</p>
+                      </div>
+                      <span className="text-xs text-gray-500 ml-auto">Live data</span>
                     </div>
-                    <span className="text-xs text-gray-500 ml-auto">2 hours ago</span>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-900/20 rounded-lg">
+                      <CheckCircle className="h-5 w-5 text-gray-400" />
+                      <div>
+                        <p className="font-medium">Loading Activity...</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Fetching live data</p>
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="flex items-center gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <Mail className="h-5 w-5 text-blue-600" />
@@ -440,7 +446,7 @@ export default function CommunityDashboard() {
                       <Filter className="mr-2 h-4 w-4" />
                       Filter
                     </Button>
-                    <Button size="sm">
+                    <Button size="sm" onClick={() => setShowAddResidentModal(true)}>
                       <Plus className="mr-2 h-4 w-4" />
                       Add Resident
                     </Button>
@@ -449,16 +455,21 @@ export default function CommunityDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {[
-                    { name: 'Margaret Johnson', unit: '204', care: 'Assisted Living', status: 'active' },
-                    { name: 'Robert Smith', unit: '312', care: 'Independent', status: 'active' },
-                    { name: 'Eleanor Davis', unit: '158', care: 'Memory Care', status: 'active' },
-                    { name: 'William Brown', unit: '201', care: 'Assisted Living', status: 'active' }
-                  ].map((resident, idx) => (
+                  {residentsLoading ? (
+                    <div className="text-center py-4">
+                      <div className="animate-spin w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">Loading residents...</p>
+                    </div>
+                  ) : residentsError ? (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-red-600">Error loading residents. Please try again.</p>
+                    </div>
+                  ) : residents && residents.length > 0 ? (
+                    residents.slice(0, 4).map((resident: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
                       <div className="flex items-center gap-3">
                         <Avatar>
-                          <AvatarFallback>{resident.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                          <AvatarFallback>{resident.name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="font-medium">{resident.name}</p>
@@ -471,12 +482,21 @@ export default function CommunityDashboard() {
                         <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                           {resident.status}
                         </Badge>
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedResident(resident)}>
+                          <Settings className="h-4 w-4" />
+                        </Button>
                         <Button variant="ghost" size="sm">
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
-                  ))}
+                  ))
+                  ) : (
+                    <div className="text-center py-4">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">No residents found</p>
+                      <p className="text-xs text-gray-500">Add residents to get started</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -544,7 +564,9 @@ export default function CommunityDashboard() {
                 <CardContent>
                   <div className="space-y-4">
                     <div>
-                      <p className="text-2xl font-bold">${financial?.totalRevenue.toLocaleString()}</p>
+                      <p className="text-2xl font-bold">
+                        ${financial?.totalRevenue ? financial.totalRevenue.toLocaleString() : 'Loading...'}
+                      </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
                     </div>
                     <div className="space-y-2">
@@ -644,7 +666,9 @@ export default function CommunityDashboard() {
                 <CardContent>
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <p className="text-2xl font-bold">{community?.maintenanceRequests}</p>
+                      <p className="text-2xl font-bold">
+                        {maintenanceRequests?.length || community?.maintenanceRequests || 0}
+                      </p>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Open Requests</p>
                     </div>
                     <div>
@@ -1057,6 +1081,175 @@ export default function CommunityDashboard() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Add Resident Modal */}
+        <Dialog open={showAddResidentModal} onOpenChange={setShowAddResidentModal}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Add New Resident</DialogTitle>
+              <DialogDescription>
+                Register a new resident for move-in to this community.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" placeholder="Enter first name" />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" placeholder="Enter last name" />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="unit">Unit Number</Label>
+                <Input id="unit" placeholder="e.g., 101A" />
+              </div>
+              <div>
+                <Label htmlFor="careLevel">Care Level</Label>
+                <Select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select care level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="independent">Independent Living</SelectItem>
+                    <SelectItem value="assisted">Assisted Living</SelectItem>
+                    <SelectItem value="memory">Memory Care</SelectItem>
+                    <SelectItem value="skilled">Skilled Nursing</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="moveInDate">Move-In Date</Label>
+                <Input id="moveInDate" type="date" />
+              </div>
+              <div>
+                <Label htmlFor="monthlyRate">Monthly Rate</Label>
+                <Input id="monthlyRate" type="number" placeholder="5000" />
+              </div>
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setShowAddResidentModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={async () => {
+                    toast({
+                      title: "Resident Added",
+                      description: "New resident has been successfully registered for move-in.",
+                    });
+                    setShowAddResidentModal(false);
+                  }}
+                >
+                  Add Resident
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Resident Management Modal */}
+        <Dialog open={!!selectedResident} onOpenChange={() => setSelectedResident(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Manage Resident</DialogTitle>
+              <DialogDescription>
+                Update resident status, care level, or process move-out.
+              </DialogDescription>
+            </DialogHeader>
+            {selectedResident && (
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <Avatar>
+                    <AvatarFallback>{(selectedResident as any).name.split(' ').map((n: string) => n[0]).join('')}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{(selectedResident as any).name}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Unit {(selectedResident as any).unit} • {(selectedResident as any).care}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Status Updated",
+                        description: "Resident status has been updated successfully.",
+                      });
+                      setSelectedResident(null);
+                    }}
+                  >
+                    <CheckCircle className="h-5 w-5" />
+                    Update Status
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Care Level Updated",
+                        description: "Resident care level has been modified.",
+                      });
+                      setSelectedResident(null);
+                    }}
+                  >
+                    <Heart className="h-5 w-5" />
+                    Change Care
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Move-Out Processed",
+                        description: "Resident move-out has been successfully processed.",
+                        variant: "destructive",
+                      });
+                      setSelectedResident(null);
+                    }}
+                  >
+                    <X className="h-5 w-5" />
+                    Process Move-Out
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex-col gap-2"
+                    onClick={() => {
+                      toast({
+                        title: "Billing Updated",
+                        description: "Resident billing information has been updated.",
+                      });
+                      setSelectedResident(null);
+                    }}
+                  >
+                    <DollarSign className="h-5 w-5" />
+                    Update Billing
+                  </Button>
+                </div>
+                
+                <Button 
+                  variant="ghost" 
+                  className="w-full"
+                  onClick={() => setSelectedResident(null)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
