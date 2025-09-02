@@ -2575,18 +2575,18 @@ export default function MySeniorValetHome() {
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">List Your Community</CardTitle>
+                  <CardTitle className="text-2xl mb-2">Community Portal & Dashboard</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    {isLoading ? (
-                      <span className="animate-pulse">Loading community count...</span>
-                    ) : (
-                      `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
-                    )}
+                    Your Complete Community Management Experience
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Reach qualified families actively searching for senior care. Get your verified listing.
+                    {isLoading ? (
+                      <span className="animate-pulse">Loading community count...</span>
+                    ) : (
+                      `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
+                    )} - Reach qualified families actively searching for senior care.
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
@@ -2595,24 +2595,27 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Free</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">to Start</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$3,999/mo</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">No Credit Card Required</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">TourMate™ Scheduler</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Tour Scheduler</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Analytics</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Analytics Dashboard</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management CRM</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Featured Placement</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Revenue Optimization</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">White-Label Options</span>
                       </div>
                     </div>
                     
@@ -2665,8 +2668,39 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Get Started</span>
+                  {/* Roadmap Features Section */}
+                  <div className="mt-4 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
+                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 Enterprise Features Roadmap</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">AI-Powered Insights</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Compliance Monitoring</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Census Management</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Financial Reporting</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Multi-Site Management</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">API Integration</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
+                    <span className="font-semibold">Access Portal & Dashboard</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
@@ -2693,14 +2727,14 @@ export default function MySeniorValetHome() {
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Services Partnership</CardTitle>
+                  <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Join 1,500+ Service Providers
+                    Your Complete Vendor Management Experience
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Reach families nationwide with your senior care services across all markets.
+                    Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
@@ -2709,8 +2743,7 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">50% OFF</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">First Month</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -2722,11 +2755,15 @@ export default function MySeniorValetHome() {
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
                         <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Generation</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
                       </div>
                     </div>
                     
@@ -2768,8 +2805,39 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">View Vendor Tiers</span>
+                  {/* Roadmap Features Section */}
+                  <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
+                    <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">White-Label</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
+                    <span className="font-semibold">Access Portal & Dashboard</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
