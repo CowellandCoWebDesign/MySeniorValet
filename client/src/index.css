@@ -2483,3 +2483,29 @@ body {
     );
   }
 }
+
+/* Custom Scrollbar Styles for Search Results */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: #9333ea;
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: #a855f7;
+  }
+  
+  /* Firefox scrollbar support */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #9333ea transparent;
+  }
+}

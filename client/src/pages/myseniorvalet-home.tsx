@@ -544,29 +544,44 @@ function HeroSectionWithTransformingSearch() {
               
               {/* Results Content with premium glass design - Only show for non-Research mode */}
               {!searchResults?.metadata?.isResearchMode && (
-                <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
+                <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
                   {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
                     <span className="ml-3 text-gray-300">Searching...</span>
                   </div>
                 ) : (
-                  <div className="space-y-3 p-4" style={{ willChange: 'auto' }}>
-                    {/* Graceful Fallback Message */}
-                    {searchResults?.metadata?.fallbackApplied && (
-                      <GracefulFallbackMessage
-                        message={searchResults.metadata.fallbackMessage || "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area!"}
-                        originalResultCount={searchResults.metadata.originalResultCount || 0}
-                        totalFallbackResults={searchResults?.results?.length || 0}
-                        searchQuery={searchQuery}
-                        location={searchResults.metadata.searchLocation}
-                        careTypes={searchResults.metadata.careTypes}
-                      />
+                  <>
+                    {/* Scroll indicator for more results - Outside scrollable area */}
+                    {searchResults?.results && searchResults.results.length > 3 && (
+                      <div className="absolute bottom-2 right-2 z-10 text-xs text-purple-400 bg-black/70 px-3 py-1 rounded-full animate-pulse flex items-center gap-1">
+                        <span>↓</span>
+                        <span>{searchResults.results.length - 3} more</span>
+                      </div>
                     )}
                     
-                    {searchResults?.results && searchResults.results.length > 0 ? (
-                      <>
-                        {searchResults.results.slice(0, visibleResults).map((item: any, index: number) => (
+                    <div 
+                      className="space-y-3 p-4 max-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-transparent" 
+                      style={{ 
+                        willChange: 'auto',
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: '#9333ea transparent'
+                      }}>
+                      {/* Graceful Fallback Message */}
+                      {searchResults?.metadata?.fallbackApplied && (
+                        <GracefulFallbackMessage
+                          message={searchResults.metadata.fallbackMessage || "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area!"}
+                          originalResultCount={searchResults.metadata.originalResultCount || 0}
+                          totalFallbackResults={searchResults?.results?.length || 0}
+                          searchQuery={searchQuery}
+                          location={searchResults.metadata.searchLocation}
+                          careTypes={searchResults.metadata.careTypes}
+                        />
+                      )}
+                      
+                      {searchResults?.results && searchResults.results.length > 0 ? (
+                        <>
+                          {searchResults.results.slice(0, visibleResults).map((item: any, index: number) => (
                           <motion.div
                             key={item.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -750,12 +765,13 @@ function HeroSectionWithTransformingSearch() {
                         </motion.div>
                       </div>
                     )}
-                  </div>
+                    </div>
+                  </>
                 )}
               </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
+        )}
         </div>
         
         {/* Back to Top Button - appears when there are many results */}
