@@ -60,67 +60,87 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 
 ## 🔥 FEATURE ACCESSIBILITY MAP
 
+### 🎯 **LEGEND FOR STATUS INDICATORS**
+- ✅ **WORKING** - Built and accessible in UI
+- 🔧 **BUILT BUT NOT WIRED** - Service/component exists but not connected to dashboard
+- ❌ **NOT BUILT** - Feature doesn't exist yet
+- ⚠️ **PARTIAL** - Some parts work, others missing
+
 ### 📈 **COMMUNITY DASHBOARD FEATURES** (What Communities Get)
 
 #### **STARTER TIER ($99/month)**
 ✅ **ACCESSIBLE NOW:**
 - Basic listing management (`/community-dashboard`)
-- Photo uploads (5 photos)
+- Photo uploads (Backend: 1 photo only, Pricing page claims: 5 photos) ⚠️
 - Basic pricing updates
 - Tour scheduling (TourMate™)
-- Lead tracking (10 leads/month)
 - Response to inquiries
 
-❌ **NOT YET ACCESSIBLE IN UI:**
-- RMS Integration basics (Yardi, A-Line connection)
-- Basic analytics dashboard
-- Occupancy management
+🔧 **BUILT BUT NOT WIRED:**
+- Lead tracking system (`lead-tracking.service.ts` - complete with CRM integration!)
+- RMS Integration basics (Yardi, A-Line ready but not in UI)
+- Analytics dashboard (service exists, not exposed)
+- Occupancy management (in reservation service)
+
+❌ **FEATURES CLAIMED BUT NOT MATCHING:**
+- Backend allows 1 photo, pricing page promises 5
+- Backend has NO analytics, pricing page promises basic analytics
+- Lead limits not enforced (service built but not connected)
 
 #### **GROWTH TIER ($299/month)**
 ✅ **ACCESSIBLE NOW:**
 - Everything in Starter
-- 3D Virtual Tours (`/api/tour-embed`)
-- Enhanced analytics (`/community-dashboard/analytics`)
-- 25 photos
-- 50 leads/month
 - Email campaigns
 
-❌ **NOT YET ACCESSIBLE IN UI:**
-- CRM Integration (A-Line, Yardi CRM)
-- Automated lead scoring
-- Competitor analysis
-- Marketing automation
+🔧 **BUILT BUT NOT WIRED:**
+- 3D Virtual Tours (`tour-embed.service.ts` - Matterport, YouVisit, etc. READY!)
+- CRM Integration (`lead-tracking.service.ts` - Salesforce, HubSpot connectors built!)
+- Automated lead scoring (in lead-tracking service with 0-100 scoring)
+- Analytics (`/community-dashboard/analytics` route exists but not showing)
+
+⚠️ **MISMATCHED FEATURES:**
+- Backend: 10 photos allowed
+- Pricing page: Claims 25 photos
+- 3D tours built but not accessible in dashboard
 
 #### **PROFESSIONAL TIER ($999/month)**
 ✅ **ACCESSIBLE NOW:**
 - Everything in Growth
 - Multi-property dashboard (`/multi-property`)
-- Advanced analytics
-- Unlimited photos
-- 200 leads/month
 - Custom branding
 
-❌ **NOT YET ACCESSIBLE IN UI:**
-- Full RMS Integration Suite
-- Revenue management tools
-- Predictive analytics
-- Healthcare integrations
-- Discharge planning connections
+🔧 **BUILT BUT NOT WIRED:**
+- AI Lease Management (in `reservation.service.ts`)
+- Insurance tracking (in reservation metadata)
+- Full RMS Integration Suite (6 systems ready!)
+- Revenue management tools (in financial services)
+- Healthcare integrations (Epic, Cerner built)
+- Advanced lead analytics (complete in lead-tracking service)
+
+⚠️ **MISMATCHED FEATURES:**
+- Backend: 25 photos, 1 video (2 min)
+- Pricing page: Claims unlimited leads (backend doesn't track)
+- Multiple 3D tours promised but not configured
 
 #### **PREMIUM TIER ($1,999/month)**
 ✅ **ACCESSIBLE NOW:**
 - Everything in Professional
-- API access
-- Priority support
-- Custom reports
-- 500 leads/month
+- API access routes exist
+- Priority support flagging
 
-❌ **NOT YET ACCESSIBLE IN UI:**
-- Epic MyChart integration
-- Cerner PowerChart access
-- Medicare eligibility checking
-- Pharmacy network integration
-- Advanced financial tracking
+🔧 **BUILT BUT NOT WIRED:**
+- Payment Processing (`payment.service.ts` - Complete Stripe integration!)
+- Move-In Cost Calculator (`MoveInCostCalculator.tsx` - Beautiful component!)
+- Epic MyChart integration (`epic-fhir-integration.ts` - READY!)
+- Cerner PowerChart (`cerner-health-integration.ts` - READY!)
+- Medicare eligibility (`medicare-integration.ts` - READY!)
+- Pharmacy network (`pharmacy-integration.ts` - READY!)
+- Advanced financial tracking (in financial.service.ts)
+
+⚠️ **MAJOR FEATURES NOT IN UI:**
+- Payment processing promised but not accessible
+- Accept deposits & rent feature built but hidden
+- Healthcare integrations all built but not connected
 
 #### **ENTERPRISE TIER ($3,999/month)**
 ✅ **ACCESSIBLE NOW:**
@@ -256,30 +276,109 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 
 ---
 
-## 🚨 **CRITICAL GAPS IDENTIFIED**
+## 🚨 **CRITICAL GAPS IDENTIFIED - UPDATED Sep 2, 2025**
 
-### 1. **HEALTHCARE INTEGRATIONS NOT WIRED TO UI** ⚠️
+### **MAJOR DISCOVERY: Most "missing" features are actually BUILT!**
+The problem is UI connection, not missing functionality.
+
+### **TIER CONSOLIDATION URGENTLY NEEDED:**
+1. Backend services have one set of limits
+2. Pricing page shows different features
+3. Original Kraken roadmap has third set
+4. No single source of truth
+
+### **IMMEDIATE CONNECTION NEEDS:**
+
+### 1. **LEAD TRACKING & CRM COMPLETELY HIDDEN** 🔧
+- `lead-tracking.service.ts` has FULL implementation:
+  - Lead scoring (0-100)
+  - Source tracking
+  - Conversion analytics
+  - CRM sync (Salesforce, HubSpot, Pipedrive)
+  - Monthly trends & reports
+- **ACTION:** Add "Leads" tab to community dashboard
+
+### 2. **3D TOURS & VIRTUAL TOURS BUILT BUT INVISIBLE** 🔧
+- `tour-embed.service.ts` supports:
+  - Matterport
+  - YouVisit
+  - EyeSpy360
+  - Kuula
+  - Google Street View
+- **ACTION:** Add "Virtual Tours" section to community dashboard
+
+### 3. **PAYMENT SYSTEM COMPLETE BUT NOT EXPOSED** 🔧
+- Full Stripe integration ready
+- Subscription management built
+- Payment processing for deposits
+- Move-in calculator component exists
+- **ACTION:** Add payment section to Premium tier dashboard
+
+### 4. **HEALTHCARE INTEGRATIONS NOT WIRED TO UI** ⚠️
 - Resident portal EXISTS at `/resident-portal` ✅
 - Epic, Cerner, Medicare APIs built but not connected to UI
-- Need: Wire the healthcare services to resident portal components
+- **ACTION:** Wire the healthcare services to resident portal components
 
-### 2. **COMMUNITY DASHBOARD MISSING INTEGRATIONS** ⚠️
-- RMS integrations (Yardi, A-Line, etc.) not visible
-- CRM features not accessible
-- Financial tracking not shown
-- Need: Enhanced `/community-dashboard` with integration tabs
+### 5. **RESERVATION & UNIT MANAGEMENT SYSTEM HIDDEN** 🔧
+- `reservation.service.ts` includes:
+  - Full unit availability tracking
+  - Tour scheduling (in-person, virtual, self-guided)
+  - Payment processing with Stripe
+  - Lease application management
+  - Document storage
+- **ACTION:** Add "Units & Reservations" tab to community dashboard
 
-### 3. **VENDOR TOOLS INCOMPLETE** ⚠️
-- Analytics dashboard missing
-- Campaign management not built
-- Lead tracking not visible
-- Need: `/vendor-dashboard` with full features
+### 6. **RMS/CRM INTEGRATIONS NOT VISIBLE** ⚠️
+- 6 RMS systems integrated (Yardi, A-Line, LCS, REPS, OneSite, Entrata)
+- 3 CRM systems ready (A-Line, Yardi, Vitals)
+- **ACTION:** Add "Integrations" tab showing connected systems
 
-### 4. **HEALTHCARE FEATURES HIDDEN** ⚠️
-- Epic FHIR ready but not used
-- Cerner integration complete but no UI
-- Discharge planning system not connected
-- Need: Healthcare tab in community dashboard
+### 7. **FINANCIAL FEATURES BUILT BUT HIDDEN** 🔧
+- Financial tracking service complete
+- Commission tracking ready
+- Revenue analytics built
+- **ACTION:** Add "Financials" tab to show revenue, commissions, metrics
+
+---
+
+## 📊 **PRIORITY CONNECTION PLAN**
+
+### **PHASE 1: Quick Wins (1-2 days)**
+1. **Connect Lead Tracking to UI**
+   - Add "Leads" tab to `/community-dashboard`
+   - Wire up `lead-tracking.service.ts`
+   - Show conversion analytics, lead scoring
+
+2. **Expose 3D Tours**
+   - Add "Virtual Tours" section to dashboard
+   - Connect `tour-embed.service.ts`
+   - Enable Matterport/YouVisit embeds
+
+3. **Add Move-In Calculator**
+   - Surface `MoveInCostCalculator` component
+   - Add to Premium tier features
+
+### **PHASE 2: Critical Features (3-5 days)**
+1. **Payment Processing**
+   - Wire Stripe integration
+   - Add deposit acceptance
+   - Enable subscription management
+
+2. **Unit/Reservation Management**
+   - Connect reservation service
+   - Add unit availability tracking
+   - Enable tour scheduling
+
+3. **Healthcare Integrations**
+   - Wire Epic/Cerner to resident portal
+   - Connect Medicare eligibility
+   - Enable pharmacy network
+
+### **PHASE 3: Tier Consolidation (2-3 days)**
+1. **Single Source of Truth**
+   - Align backend limits with pricing display
+   - Update feature flags to match tiers
+   - Consolidate three tier systems into one
 
 ---
 
@@ -299,9 +398,14 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 11. `/admin/vendor-dashboard` - Vendor analytics ✅
 
 ### **Pages That Need Enhancement:**
-1. `/community-dashboard/:id` - Add RMS/CRM/Healthcare tabs ⚠️
+1. `/community-dashboard/:id` - Add these tabs:
+   - "Leads" (connect lead-tracking.service.ts)
+   - "Virtual Tours" (connect tour-embed.service.ts)
+   - "Units & Reservations" (connect reservation.service.ts)
+   - "Financials" (connect payment.service.ts)
+   - "Integrations" (show RMS/CRM connections)
 2. `/resident-portal` - Wire healthcare APIs (Epic, Cerner) ⚠️
-3. `/vendor-dashboard` - Add campaign management tools ⚠️
+3. `/pricing` - Update to match actual backend tier limits ⚠️
 
 ---
 

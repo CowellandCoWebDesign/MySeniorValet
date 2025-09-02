@@ -5,7 +5,7 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 
 **Current Status**: Phase 5b ✅ COMPLETE | Phase 6 🔄 90% COMPLETE | Next: Complete Phase 6 connections
 
-**Platform Reality Check (Sep 2, 2025 - MASSIVE UPDATE)**:
+**Platform Reality Check (Sep 2, 2025 - MAJOR DISCOVERY UPDATE)**:
 - **63 service files** built (confirmed!)
 - **381 API endpoints** implemented
 - **144 route files** created
@@ -15,6 +15,17 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 - **3 CRM systems** integrated (A-Line, Yardi, Vitals)
 - **Kraken Tier System** - $50M revenue architecture with 15+ tiers
 - **95% infrastructure complete** - ready for 2-week launch!
+
+**🔍 CRITICAL DISCOVERY (Sep 2, 2025):**
+- **Lead Tracking System** - ✅ BUILT (`lead-tracking.service.ts`) but NOT connected to UI
+- **3D Tour Embeds** - ✅ BUILT (`tour-embed.service.ts`) supports Matterport, YouVisit, etc.
+- **Unit Reservation System** - ✅ BUILT (`reservation.service.ts`) with Stripe integration
+- **Payment Processing** - ✅ BUILT (`payment.service.ts`) complete Stripe setup
+- **Move-In Calculator** - ✅ BUILT (`MoveInCostCalculator.tsx`) interactive component
+- **AI Lease Management** - ✅ BUILT in reservation service
+- **Insurance Tracking** - ✅ BUILT in reservation metadata
+
+**THE REAL ISSUE:** Features are 90% built but not exposed in UI dashboards!
 
 ---
 
@@ -50,10 +61,21 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 - **Vendor Tiers** - $199, $499, $999/month (service providers)
 - **API Access Tiers** - $299, $999, $2,999/month (data partners)
 
-#### **UPDATED B2B TIERS (Discovered in Services):**
-- **Community Subscription Tiers** - $99, $299, $999, $1,999, $3,999/month
-- **Vendor Subscription Tiers** - $99, $249, $499/month
-- **Healthcare/Enterprise** - Custom pricing
+#### **TIER SYSTEM REDUNDANCY ISSUE (Needs Consolidation):**
+**Three Different Systems Found:**
+1. **Backend Services (Actually Built):**
+   - Community: $99 (Starter), $299 (Growth), $999 (Professional), $1,999 (Premium), $3,999 (Enterprise)
+   - Vendor: $99 (Basic), $249 (Featured), $499 (National)
+   
+2. **Pricing Page Display (User-Facing):**
+   - Shows different features than backend (e.g., 5 photos vs 1 photo for Starter)
+   - Promises features not wired (3D tours at Growth, payment processing at Premium)
+   
+3. **Kraken Original Roadmap:**
+   - Different pricing structure entirely
+   - Includes Professional ($79-$249) and API tiers not built
+
+**CONSOLIDATION NEEDED:** Single source of truth for tiers across platform
 
 **Conservative Revenue Projections:**
 - 10% of 32,970 communities × avg $999/month = $32.9M/month ($395M ARR)
@@ -103,10 +125,11 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 
 **Enterprise Features**
 - `white-label.service.ts` - ✅ Custom branding
-- `lead-tracking.service.ts` - ✅ CRM capabilities
-- `reservation.service.ts` - ✅ Tour scheduling
-- `tour-embed.service.ts` - ✅ 3D tour integration
+- `lead-tracking.service.ts` - ✅ CRM capabilities (BUILT BUT NOT IN UI!)
+- `reservation.service.ts` - ✅ Tour scheduling + Unit management + Payments
+- `tour-embed.service.ts` - ✅ 3D tour integration (Matterport, YouVisit, etc.)
 - `vendor-subscription.ts` - ✅ Vendor management
+- `MoveInCostCalculator.tsx` - ✅ Interactive cost calculator component
 
 ### 🔌 30+ MAJOR INTEGRATIONS (Already Built!)
 
@@ -194,14 +217,14 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 | Phase 5 | Enterprise Dashboard | ✅ COMPLETE | Sep 2025 | ✅ Passed |
 | Phase 5a | Testing & Optimization | ✅ COMPLETE | Sep 1, 2025 | ✅ Passed |
 | Phase 5b | Enhanced Operations | ✅ COMPLETE | Sep 2, 2025 | ✅ 100% Pass |
-| **Phase 6** | **Advanced Intelligence Layer** | **🔄 90% COMPLETE** | 3-5 days | Testing |
-| Phase 7 | Enterprise Integration Suite | ⏳ PENDING | 2-3 weeks | - |
-| Phase 8 | Regulatory & Compliance | ⏳ PENDING | 2 weeks | - |
-| Phase 9 | Revenue Optimization | ⏳ PENDING | 2-3 weeks | - |
-| Phase 10 | Production Deployment | ⏳ PENDING | 1 week | - |
-| Phase 11 | Mobile & Cross-Platform | ⏳ FUTURE | 2-3 weeks | - |
-| Phase 12 | Marketplace & Ecosystem | ⏳ FUTURE | 3-4 weeks | - |
-| Phase 13 | Global Expansion | ⏳ FUTURE | 4-6 weeks | - |
+| **Phase 6** | **UI Connection Phase** | **🔄 NEW PRIORITY** | 3-5 days | - |
+| Phase 6a | Connect Lead/CRM/Tours | 🔄 IN PROGRESS | 1-2 days | - |
+| Phase 6b | Wire Payment/Units | ⏳ PENDING | 2-3 days | - |
+| Phase 6c | Healthcare Integration | ⏳ PENDING | 2-3 days | - |
+| Phase 7 | Tier Consolidation | ⏳ PENDING | 2-3 days | - |
+| Phase 8 | Production Deployment | ⏳ PENDING | 1 week | - |
+| Phase 9 | Mobile & Cross-Platform | ⏳ FUTURE | 2-3 weeks | - |
+| Phase 10 | Global Expansion | ⏳ FUTURE | 4-6 weeks | - |
 
 ---
 
