@@ -518,6 +518,13 @@ export class NLPSearchSystem {
       if (fullQuery.length > 0) {
         const orConditions = [];
         
+        // Check if this is a ZIP code search (5 digits or 5+4 format)
+        const zipMatch = fullQuery.match(/^\d{5}(-\d{4})?$/);
+        if (zipMatch) {
+          // HIGHEST PRIORITY: ZIP code match
+          orConditions.push(ilike(communities.zipCode, `${fullQuery}%`));
+        }
+        
         // Check if this is a city, state search (e.g., "Redding, CA")
         const cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
         if (cityStateMatch) {
@@ -525,13 +532,41 @@ export class NLPSearchSystem {
           const state = cityStateMatch[2].trim();
           
           // HIGHEST PRIORITY: Exact city AND state match
+          // Also expand state abbreviations (CA -> California)
+          const stateConditions = [
+            ilike(communities.state, state),
+            ilike(communities.state, `%${state}%`)
+          ];
+          
+          // If it's a 2-letter state code, also search for full state name
+          if (state.length === 2) {
+            const stateLower = state.toLowerCase();
+            // Common state abbreviations
+            const stateExpansions: Record<string, string> = {
+              'ca': 'california', 'tx': 'texas', 'fl': 'florida', 'ny': 'new york',
+              'pa': 'pennsylvania', 'il': 'illinois', 'oh': 'ohio', 'ga': 'georgia',
+              'nc': 'north carolina', 'mi': 'michigan', 'nj': 'new jersey', 'va': 'virginia',
+              'wa': 'washington', 'az': 'arizona', 'ma': 'massachusetts', 'tn': 'tennessee',
+              'in': 'indiana', 'mo': 'missouri', 'md': 'maryland', 'wi': 'wisconsin',
+              'co': 'colorado', 'mn': 'minnesota', 'sc': 'south carolina', 'al': 'alabama',
+              'la': 'louisiana', 'ky': 'kentucky', 'or': 'oregon', 'ok': 'oklahoma',
+              'ct': 'connecticut', 'ut': 'utah', 'ia': 'iowa', 'nv': 'nevada', 'ar': 'arkansas',
+              'ms': 'mississippi', 'ks': 'kansas', 'nm': 'new mexico', 'ne': 'nebraska',
+              'wv': 'west virginia', 'id': 'idaho', 'hi': 'hawaii', 'nh': 'new hampshire',
+              'me': 'maine', 'ri': 'rhode island', 'mt': 'montana', 'de': 'delaware',
+              'sd': 'south dakota', 'nd': 'north dakota', 'ak': 'alaska', 'dc': 'district of columbia',
+              'vt': 'vermont', 'wy': 'wyoming'
+            };
+            
+            if (stateExpansions[stateLower]) {
+              stateConditions.push(ilike(communities.state, stateExpansions[stateLower]));
+            }
+          }
+          
           orConditions.push(
             and(
               ilike(communities.city, city),
-              or(
-                ilike(communities.state, state),
-                ilike(communities.state, `%${state}%`) // Handle abbreviations like CA for California
-              )
+              or(...stateConditions)
             )
           );
           
@@ -539,11 +574,25 @@ export class NLPSearchSystem {
           orConditions.push(
             and(
               ilike(communities.city, `%${city}%`),
-              or(
-                ilike(communities.state, state),
-                ilike(communities.state, `%${state}%`)
-              )
+              or(...stateConditions)
             )
+          );
+        }
+        
+        // Check for county searches
+        const countyMatch = fullQuery.toLowerCase().includes('county');
+        if (countyMatch) {
+          orConditions.push(
+            sql`COALESCE(${communities.county}, '') ILIKE ${'%' + fullQuery + '%'}`
+          );
+        }
+        
+        // Check for regional searches (Bay Area, Central Valley, etc.)
+        const regionKeywords = ['bay area', 'central valley', 'north coast', 'southern', 'northern', 'east bay', 'west side'];
+        const isRegionalSearch = regionKeywords.some(keyword => fullQuery.toLowerCase().includes(keyword));
+        if (isRegionalSearch) {
+          orConditions.push(
+            sql`COALESCE(${communities.region}, '') ILIKE ${'%' + fullQuery + '%'}`
           );
         }
         
@@ -559,7 +608,15 @@ export class NLPSearchSystem {
         // PRIORITY 4: City contains full query
         orConditions.push(ilike(communities.city, `%${fullQuery}%`));
         
-        // PRIORITY 5: State match (for state searches)
+        // PRIORITY 5: ZIP code partial match (even if not pure numeric)
+        orConditions.push(ilike(communities.zipCode, `%${fullQuery}%`));
+        
+        // PRIORITY 6: County match (without requiring "county" word)
+        orConditions.push(
+          sql`COALESCE(${communities.county}, '') ILIKE ${'%' + fullQuery + '%'}`
+        );
+        
+        // PRIORITY 7: State match (for state searches)
         orConditions.push(ilike(communities.state, fullQuery));
         orConditions.push(ilike(communities.state, `%${fullQuery}%`));
         
