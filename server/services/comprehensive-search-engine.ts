@@ -227,20 +227,34 @@ export class ComprehensiveSearchEngine {
         console.log(`🔍 Added company search conditions for "${normalizedQuery}"`);
       }
       
+      // CRITICAL FIX: Always search by community name to find specific communities
+      // This ensures searches like "Hilltop Estates" always work
+      const nameSearchCondition = ilike(communities.name, `%${normalizedQuery}%`);
+      
       // If no specific intent detected strongly AND not a country search, use general search
       // BUT don't add general search if we already added location conditions
       const hasLocationConditions = intentScores.location >= 0.3;
-      if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
-        conditions.push(
-          or(
-            ilike(communities.name, `%${normalizedQuery}%`),
-            ilike(communities.city, `%${normalizedQuery}%`),
-            ilike(communities.state, `%${normalizedQuery}%`),
-            ilike(communities.managementCompany, `%${normalizedQuery}%`),
-            ilike(communities.address, `%${normalizedQuery}%`)
-          )
-        );
-        console.log(`🔍 Added general search conditions for "${normalizedQuery}"`);
+      const hasCompanyConditions = intentScores.company > 0.3;
+      
+      if (!hasCompanyConditions) {
+        // Always include name search unless we already added it via company search
+        if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
+          // Full general search for low-intent queries
+          conditions.push(
+            or(
+              nameSearchCondition,
+              ilike(communities.city, `%${normalizedQuery}%`),
+              ilike(communities.state, `%${normalizedQuery}%`),
+              ilike(communities.managementCompany, `%${normalizedQuery}%`),
+              ilike(communities.address, `%${normalizedQuery}%`)
+            )
+          );
+          console.log(`🔍 Added general search conditions for "${normalizedQuery}"`);
+        } else {
+          // For high-intent queries, still add name search to ensure we find specific communities
+          conditions.push(nameSearchCondition);
+          console.log(`🔍 Added name search condition for "${normalizedQuery}" to ensure specific communities are found`);
+        }
       }
       
       searchType = dominantIntent;
@@ -273,11 +287,11 @@ export class ComprehensiveSearchEngine {
     
     // Location intent patterns
     const locationPatterns = [
-      /^[a-zA-Z\s]+(,\s*[A-Z]{2})?$/,  // "Sacramento" or "Sacramento, CA"
+      /^[a-zA-Z\s]+,\s*[A-Z]{2}$/,     // "Sacramento, CA" - ONLY if it has comma and state
       /^\d{5}(-\d{4})?$/,              // ZIP codes
       /\b(in|near|around)\s+/,         // "memory care in Sacramento"
       /\b(city|state|county|zip)\b/,
-      /\b(california|texas|florida|new york|illinois)\b/i,  // State names
+      /\b(california|texas|florida|new york|illinois|ohio|pennsylvania|arizona|georgia|north carolina|michigan|new jersey|virginia|washington|massachusetts|indiana|tennessee|missouri|maryland|wisconsin|minnesota|colorado|alabama|south carolina|louisiana|kentucky|oregon|oklahoma|connecticut|iowa|mississippi|arkansas|utah|kansas|nevada|new mexico|nebraska|west virginia|idaho|hawaii|maine|new hampshire|rhode island|montana|delaware|south dakota|alaska|north dakota|vermont|wyoming)\b/i,  // State names
       /\b(sacramento|los angeles|san francisco|san diego|chicago|houston|phoenix|philadelphia|san antonio|dallas|san jose|austin|jacksonville|columbus|charlotte|detroit|el paso|memphis|seattle|denver|washington|boston|nashville|baltimore|oklahoma city|louisville|portland|las vegas|milwaukee|albuquerque|tucson|fresno|mesa|atlanta|kansas city|colorado springs|miami|raleigh|omaha|long beach|virginia beach|oakland|minneapolis|tulsa|arlington|tampa|new orleans)\b/i  // Major cities
     ];
     
