@@ -14,7 +14,7 @@ import 'leaflet-control-geocoder';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye, Brain } from 'lucide-react';
 import AIMapIntegration from './AIMapIntegration';
-import PrioritizedCommunityCard from './PrioritizedCommunityCard';
+import { PrioritizedCommunityCard } from './PrioritizedCommunityCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
