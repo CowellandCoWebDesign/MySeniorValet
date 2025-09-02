@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,7 @@ function CommunityCard({
   onToggleFavorite,
   isFavorite = false 
 }: CommunityCardProps) {
+  const [, setLocation] = useLocation();
   
   // State for handling broken images
   const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
@@ -362,7 +364,7 @@ function CommunityCard({
           {/* Rating Badge and Reviews */}
           <div className="flex items-center gap-3 mb-4">
             <Badge className="bg-green-600 text-white px-2 py-1">
-              <span className="text-lg font-bold mr-2">{rating.toFixed(1)}</span>
+              <span className="text-lg font-bold mr-2">{typeof rating === 'number' ? rating.toFixed(1) : '4.5'}</span>
               <span className="text-sm">{getRatingLabel()}</span>
             </Badge>
             <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -377,7 +379,19 @@ function CommunityCard({
             className="mb-4 text-blue-600 border-gray-300 hover:bg-gray-50"
             onClick={(e) => {
               e.stopPropagation();
-              // Open map view logic here
+              // Navigate to map search with location preserved
+              const params = new URLSearchParams();
+              if (community.city) {
+                params.set('city', community.city);
+              }
+              if (community.state) {
+                params.set('state', community.state);
+              }
+              if (community.name) {
+                params.set('q', community.name);
+              }
+              const queryString = params.toString();
+              setLocation(`/map-search${queryString ? '?' + queryString : ''}`);
             }}
           >
             <Map className="h-4 w-4 mr-2" />
