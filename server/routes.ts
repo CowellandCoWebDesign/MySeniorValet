@@ -131,6 +131,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerCRMIntegrationRoutes } = await import('./routes/crmIntegrationRoutes');
   registerCRMIntegrationRoutes(app);
   
+  // Register Community Subscription routes (Comprehensive pricing tiers)
+  const communitySubscriptionRoutes = await import('./routes/community-subscription');
+  app.use('/api', communitySubscriptionRoutes.default);
+  
+  // Register Vendor Subscription routes
+  const { vendorSubscriptionRouter } = await import('./routes/vendor-subscription');
+  app.use('/api', vendorSubscriptionRouter);
+  
+  // Register Healthcare Integration routes (Epic, Cerner, Medicare, Pharmacy)
+  const { registerHealthcareIntegrationRoutes } = await import('./routes/healthcareIntegrationRoutes');
+  registerHealthcareIntegrationRoutes(app);
+  
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);
@@ -238,10 +250,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register marketplace routes
   const marketplaceRoutes = await import('./routes/marketplaceRoutes');
   app.use('/api/marketplace', marketplaceRoutes.default);
-  
-  // Register vendor subscription routes
-  const { vendorSubscriptionRouter } = await import('./routes/vendor-subscription');
-  app.use('/api', vendorSubscriptionRouter);
   
   // Register hospital routes
   const { registerHospitalRoutes } = await import('./routes/hospitalRoutes');
@@ -389,10 +397,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register vendor image generation routes
   const { vendorImageRoutes } = await import('./routes/vendorImageRoutes');
   app.use(vendorImageRoutes);
-  
-  // Register community subscription tier routes
-  const communitySubscriptionRoutes = await import('./routes/community-subscription');
-  app.use(communitySubscriptionRoutes.default);
   
   // Register enterprise routes (Wave 4: Core Enterprise Systems)
   const enterpriseAnalyticsRoutes = await import('./routes/enterprise-analytics');
