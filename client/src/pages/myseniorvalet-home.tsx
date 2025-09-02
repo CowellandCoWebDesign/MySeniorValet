@@ -2775,24 +2775,38 @@ export default function MySeniorValetHome() {
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
                         <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic (1 State)</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
                             <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Single state coverage, basic listing</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Local coverage, 5 monthly leads</p>
                         </div>
                         <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Featured (3 States)</p>
-                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$249/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional</p>
+                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$199/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Regional presence, priority placement</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">1 state coverage, 15 monthly leads</p>
+                        </div>
+                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Business ⭐</p>
+                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$299/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">3 states, 30 leads, featured placement</p>
                         </div>
                         <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">National Partner</p>
-                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$499/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
+                            <p className="text-xs font-bold text-orange-600 dark:text-orange-400">$399/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide reach, premium features</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">5 states, 50 leads, priority support</p>
+                        </div>
+                        <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Enterprise</p>
+                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, unlimited leads, white-label</p>
                         </div>
                         <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
                           <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
