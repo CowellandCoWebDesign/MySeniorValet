@@ -15,7 +15,7 @@ const router = Router();
  */
 router.post('/search', async (req, res) => {
   try {
-    const { query, limit = 20, filters, userContext } = req.body;
+    const { query, limit = 20, filters, userContext, category = 'communities' } = req.body;
     
     if (!query || typeof query !== 'string') {
       return res.status(400).json({
@@ -27,14 +27,15 @@ router.post('/search', async (req, res) => {
     // Track search start time
     const startTime = Date.now();
     
-    // Perform NLP search
+    // Perform NLP search with category context
     const results = await nlpSearchSystem.search(query, {
       limit,
       filters,
-      userContext
+      userContext,
+      category
     });
     
-    // Track analytics for self-learning
+    // Track analytics for self-learning with category
     const searchTime = Date.now() - startTime;
     await nlpAnalytics.trackSearch(
       query,
@@ -44,7 +45,7 @@ router.post('/search', async (req, res) => {
       (req.session as any)?.userId
     );
     
-    console.log(`🧠 KRAKEN LEARNS: Query "${query}" processed in ${searchTime}ms with ${results.results.length} results`);
+    console.log(`🧠 KRAKEN LEARNS: Query "${query}" (${category}) processed in ${searchTime}ms with ${results.results.length} results`);
     
     // Add performance metrics
     const response = {

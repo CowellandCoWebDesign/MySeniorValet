@@ -457,18 +457,44 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
  */
 router.post('/api/search/suggestions', async (req, res) => {
   try {
-    const { query = '' } = req.body;
+    const { query = '', category = 'communities' } = req.body;
     
     if (!query || query.trim().length === 0) {
-      return res.json({
-        success: true,
-        suggestions: [
+      // Return category-specific default suggestions
+      const defaultSuggestions = {
+        communities: [
           'assisted living near me',
           'memory care communities',
           'senior living under $5000',
           'affordable senior housing',
           'luxury senior communities'
+        ],
+        services: [
+          'home care services',
+          'medical transportation',
+          'meal delivery services',
+          'housekeeping services',
+          'companion care'
+        ],
+        healthcare: [
+          'hospitals near me',
+          'urgent care centers',
+          'primary care physicians',
+          'specialist doctors',
+          'rehabilitation centers'
+        ],
+        resources: [
+          'medicare guides',
+          'senior living costs',
+          'care planning resources',
+          'financial assistance programs',
+          'legal resources for seniors'
         ]
+      };
+      
+      return res.json({
+        success: true,
+        suggestions: defaultSuggestions[category as keyof typeof defaultSuggestions] || defaultSuggestions.communities
       });
     }
     

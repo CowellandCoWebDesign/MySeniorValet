@@ -11,6 +11,7 @@ interface AutoExpandingSearchProps {
   initialQuery?: string;
   placeholder?: string;
   className?: string;
+  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
 }
 
 export function AutoExpandingSearch({ 
@@ -19,7 +20,8 @@ export function AutoExpandingSearch({
   onFocusChange,
   initialQuery = '',
   placeholder = "Search communities or ask anything...",
-  className = ""
+  className = "",
+  searchCategory = 'communities'
 }: AutoExpandingSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -68,10 +70,17 @@ export function AutoExpandingSearch({
 
   // Fetch suggestions
   const { data: suggestions } = useQuery<string[]>({
-    queryKey: ['/api/search/suggestions', query],
+    queryKey: ['/api/search/suggestions', query, searchCategory],
     queryFn: async () => {
       if (!query || query.length < 2) return [];
-      const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(query)}`);
+      const response = await fetch('/api/search/suggestions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          query, 
+          category: searchCategory 
+        })
+      });
       if (!response.ok) return [];
       const data = await response.json();
       return data.suggestions || [];

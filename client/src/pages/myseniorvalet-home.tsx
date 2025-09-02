@@ -155,7 +155,8 @@ function HeroSectionWithTransformingSearch() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query: query,
-            limit: 50
+            limit: 50,
+            category: searchCategory
           })
         });
 
@@ -439,6 +440,7 @@ function HeroSectionWithTransformingSearch() {
                 searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
                 "Search communities, cities, companies, or ask anything..."
               }
+              searchCategory={searchCategory}
               className="w-full"
               />
             </div>
