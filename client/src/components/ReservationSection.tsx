@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Calendar, Clock, DollarSign, Home, Users, Phone, Mail, CheckCircle, CreditCard, Shield, Info } from 'lucide-react';
 import { AdvancedReservationFlow } from './AdvancedReservationFlow';
+import { StripePaymentModal } from './StripePaymentModal';
 import { useToast } from '@/hooks/use-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
@@ -16,6 +17,7 @@ interface ReservationSectionProps {
 
 export function ReservationSection({ community }: ReservationSectionProps) {
   const [showReservation, setShowReservation] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState<{ type: string; id: string } | null>(null);
   const [activeTab, setActiveTab] = useState('quick-reserve');
   const { toast } = useToast();
@@ -167,7 +169,7 @@ export function ReservationSection({ community }: ReservationSectionProps) {
                   disabled={!selectedUnit}
                   onClick={() => {
                     if (selectedUnit) {
-                      setShowReservation(true);
+                      setShowPaymentModal(true);
                     }
                   }}
                 >
@@ -286,6 +288,45 @@ export function ReservationSection({ community }: ReservationSectionProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Stripe Payment Modal */}
+      <StripePaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        amount={500}
+        description="Reservation deposit for senior living community"
+        communityName={community.name}
+        communityId={community.id}
+        unitType={selectedUnit?.type}
+        onSuccess={(paymentIntent) => {
+          // Handle successful payment
+          toast({
+            title: "Reservation Confirmed!",
+            description: "Your deposit has been processed. A move-in coordinator will contact you within 24 hours.",
+          });
+          
+          // Create reservation record
+          quickReserveMutation.mutate({
+            communityId: community.id,
+            unitType: selectedUnit?.type,
+            paymentIntentId: paymentIntent.id,
+            depositAmount: 500,
+            status: 'confirmed'
+          });
+          
+          // Close modals
+          setShowPaymentModal(false);
+          setSelectedUnit(null);
+          
+          // Refresh data
+          queryClient.invalidateQueries({ queryKey: ['/api/reservations'] });
+        }}
+        metadata={{
+          unitType: selectedUnit?.type,
+          communityAddress: `${community.address}, ${community.city}, ${community.state}`,
+          userAgent: navigator.userAgent
+        }}
+      />
     </>
   );
 }

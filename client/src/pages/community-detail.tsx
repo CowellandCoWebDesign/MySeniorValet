@@ -47,6 +47,7 @@ import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { ReservationSection } from "@/components/ReservationSection";
+import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import valetMascot from '@/assets/valet-mascot.png';
 
 // Default photos for communities without images
@@ -3044,6 +3045,9 @@ export default function CommunityDetail() {
                     </div>
                   </CardContent>
                 </Card>
+                
+                {/* Healthcare Partnerships Section */}
+                <HealthcarePartnerships community={community} isAdminView={false} />
                 
                 {/* Community Management Live Updates */}
                 <Card className="border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">

@@ -23,7 +23,8 @@ import {
   Target, ChevronRight, Filter, Mail, Phone, X, Save, UserPlus,
   Activity, ArrowUpRight, ArrowDownRight, PhoneCall, Video,
   Play, Maximize2, Eye as EyeIcon, Tv, CalendarCheck,
-  Calculator, FileText, Percent, HelpCircle, BookOpen
+  Calculator, FileText, Percent, HelpCircle, BookOpen,
+  RefreshCw, ExternalLink
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, 
@@ -34,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { AIIntelligenceDashboard } from '@/components/AIIntelligenceDashboard';
 import { MoveInCostCalculator } from '@/components/MoveInCostCalculator';
+import { HealthcarePartnerships } from '@/components/HealthcarePartnerships';
 
 /**
  * Unified Community Dashboard
@@ -1422,15 +1424,251 @@ export default function CommunityDashboard() {
                 )}
               </CardContent>
             </Card>
+            
+            {/* Healthcare Partnerships Management */}
+            <div className="mt-6">
+              <HealthcarePartnerships 
+                community={community} 
+                isAdminView={true}
+              />
+            </div>
           </TabsContent>
 
           {/* Billing Tab */}
           <TabsContent value="billing">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Payment Dashboard Summary */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Revenue</p>
+                      <p className="text-2xl font-bold">$456,750</p>
+                      <p className="text-xs text-green-600">+12.5% from last month</p>
+                    </div>
+                    <DollarSign className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Pending Deposits</p>
+                      <p className="text-2xl font-bold">$3,500</p>
+                      <p className="text-xs text-blue-600">7 reservations</p>
+                    </div>
+                    <Clock className="h-8 w-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Refunds Processed</p>
+                      <p className="text-2xl font-bold">$1,000</p>
+                      <p className="text-xs text-orange-600">2 this month</p>
+                    </div>
+                    <RefreshCw className="h-8 w-8 text-orange-500" />
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Collection Rate</p>
+                      <p className="text-2xl font-bold">97.8%</p>
+                      <p className="text-xs text-green-600">Excellent</p>
+                    </div>
+                    <Shield className="h-8 w-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Payment Management Tabs */}
+            <Tabs defaultValue="transactions" className="space-y-4">
+              <TabsList className="grid w-full grid-cols-5">
+                <TabsTrigger value="transactions">Transactions</TabsTrigger>
+                <TabsTrigger value="deposits">Deposits</TabsTrigger>
+                <TabsTrigger value="refunds">Refunds</TabsTrigger>
+                <TabsTrigger value="recurring">Recurring</TabsTrigger>
+                <TabsTrigger value="reports">Reports</TabsTrigger>
+              </TabsList>
+              
+              {/* Transactions Tab */}
+              <TabsContent value="transactions">
+                <Card>
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle>Payment History</CardTitle>
+                        <CardDescription>Recent transactions and payment activity</CardDescription>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          <Download className="h-4 w-4 mr-2" />
+                          Export
+                        </Button>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                          <CreditCard className="h-4 w-4 mr-2" />
+                          Process Payment
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* Payment entries */}
+                      {[
+                        { id: 'pi_1234', resident: 'John Smith', amount: 500, type: 'Deposit', status: 'completed', date: '2024-01-15' },
+                        { id: 'pi_1235', resident: 'Mary Johnson', amount: 4500, type: 'Monthly', status: 'completed', date: '2024-01-14' },
+                        { id: 'pi_1236', resident: 'Robert Brown', amount: 500, type: 'Deposit', status: 'pending', date: '2024-01-14' },
+                        { id: 'pi_1237', resident: 'Patricia Davis', amount: 3800, type: 'Monthly', status: 'completed', date: '2024-01-13' },
+                      ].map((payment) => (
+                        <div key={payment.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-2 h-2 rounded-full ${
+                              payment.status === 'completed' ? 'bg-green-500' : 
+                              payment.status === 'pending' ? 'bg-yellow-500' : 'bg-red-500'
+                            }`} />
+                            <div>
+                              <p className="font-medium">{payment.resident}</p>
+                              <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                <span>{payment.id}</span>
+                                <span>•</span>
+                                <span>{payment.date}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <Badge variant={payment.type === 'Deposit' ? 'secondary' : 'default'}>
+                              {payment.type}
+                            </Badge>
+                            <div className="text-right">
+                              <p className="font-semibold">${payment.amount.toLocaleString()}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {payment.status === 'completed' ? 'Paid' : 'Pending'}
+                              </p>
+                            </div>
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              {/* Deposits Tab */}
+              <TabsContent value="deposits">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Reservation Deposits</CardTitle>
+                    <CardDescription>Manage $500 reservation deposits</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {[
+                        { name: 'John Smith', unit: 'Studio 204', depositDate: '2024-01-15', status: 'held', amount: 500 },
+                        { name: 'Robert Brown', unit: 'One Bed 312', depositDate: '2024-01-14', status: 'processing', amount: 500 },
+                        { name: 'Lisa Wilson', unit: 'Two Bed 108', depositDate: '2024-01-10', status: 'refunded', amount: 500 },
+                      ].map((deposit, idx) => (
+                        <div key={idx} className="p-4 border rounded-lg">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-medium">{deposit.name}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{deposit.unit}</p>
+                              <p className="text-xs text-gray-500">Deposited: {deposit.depositDate}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant={
+                                deposit.status === 'held' ? 'default' :
+                                deposit.status === 'processing' ? 'secondary' : 'outline'
+                              }>
+                                {deposit.status}
+                              </Badge>
+                              <p className="font-semibold">${deposit.amount}</p>
+                              {deposit.status === 'held' && (
+                                <Button variant="outline" size="sm">
+                                  <RefreshCw className="h-3 w-3 mr-1" />
+                                  Refund
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              {/* Refunds Tab */}
+              <TabsContent value="refunds">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Refund Management</CardTitle>
+                    <CardDescription>Process and track refunds</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                        <div className="flex items-center gap-2 mb-2">
+                          <AlertCircle className="h-4 w-4 text-yellow-600" />
+                          <p className="font-medium text-yellow-800 dark:text-yellow-200">Pending Refund Request</p>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="text-sm">Sarah Martinez - Deposit Refund</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">Requested 2 hours ago</p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              Deny
+                            </Button>
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                              Approve
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        {[
+                          { name: 'Lisa Wilson', amount: 500, reason: 'Changed plans', status: 'completed', date: '2024-01-10' },
+                          { name: 'James Anderson', amount: 500, reason: 'Medical emergency', status: 'completed', date: '2024-01-08' },
+                        ].map((refund, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-3 border rounded">
+                            <div>
+                              <p className="font-medium">{refund.name}</p>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{refund.reason}</p>
+                            </div>
+                            <div className="text-right">
+                              <p className="font-semibold">${refund.amount}</p>
+                              <p className="text-xs text-gray-500">{refund.date}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
               <Card>
                 <CardHeader>
                   <CardTitle>Revenue Streams</CardTitle>
-                  <CardDescription>Breakdown of income sources</CardDescription>
+                  <CardDescription>Income breakdown by category</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
@@ -1456,22 +1694,22 @@ export default function CommunityDashboard() {
                     </div>
                     <div className="flex justify-between items-center">
                       <div>
-                        <p className="font-medium">Dining Services</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Meal plans</p>
+                        <p className="font-medium">Reservation Deposits</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">New move-ins</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">$31,500</p>
-                        <p className="text-sm text-green-600">6.9%</p>
+                        <p className="font-semibold">$3,500</p>
+                        <p className="text-sm text-green-600">0.8%</p>
                       </div>
                     </div>
                     <div className="flex justify-between items-center">
                       <div>
                         <p className="font-medium">Other Services</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Misc charges</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Miscellaneous</p>
                       </div>
                       <div className="text-right">
-                        <p className="font-semibold">$21,000</p>
-                        <p className="text-sm text-green-600">4.5%</p>
+                        <p className="font-semibold">$49,000</p>
+                        <p className="text-sm text-green-600">10.7%</p>
                       </div>
                     </div>
                   </div>
@@ -1480,32 +1718,47 @@ export default function CommunityDashboard() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Payment Processing</CardTitle>
-                  <CardDescription>Transaction overview</CardDescription>
+                  <CardTitle>Payment Gateway</CardTitle>
+                  <CardDescription>Stripe integration status</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                      <p className="text-lg font-semibold">{financial?.collectionRate}%</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Collection Rate</p>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-5 w-5 text-green-600" />
+                        <span className="font-medium">Stripe Connected</span>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Active</Badge>
                     </div>
-                    <div>
-                      <p className="text-lg font-semibold">2.3</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Days DSO</p>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Processing Rate</p>
+                        <p className="font-semibold">2.9% + $0.30</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Payout Schedule</p>
+                        <p className="font-semibold">Daily</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">This Month</p>
+                        <p className="font-semibold">142 transactions</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Success Rate</p>
+                        <p className="font-semibold">99.3%</p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-sm">Auto-pay Enrolled</span>
-                      <span className="font-medium">85%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Late Payments</span>
-                      <span className="font-medium">3.8%</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-sm">Payment Methods</span>
-                      <span className="font-medium">Bank, Card</span>
+                    
+                    <div className="flex gap-2">
+                      <Button variant="outline" className="flex-1">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Settings
+                      </Button>
+                      <Button variant="outline" className="flex-1">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
