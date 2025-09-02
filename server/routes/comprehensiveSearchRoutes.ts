@@ -148,15 +148,15 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   const normalizedQuery = query.toLowerCase().trim();
   const queryWords = normalizedQuery.split(/\s+/);
   
-  // COMPREHENSIVE DATABASE-DRIVEN SUGGESTIONS
+  // REAL DATABASE-DRIVEN SUGGESTIONS - NO HARDCODED OPTIONS
   
   try {
     const { db } = await import('../db');
     const { communities } = await import('@shared/schema');
-    const { ilike, sql, or } = await import('drizzle-orm');
+    const { ilike, sql, or, and, ne } = await import('drizzle-orm');
     
-    // 1. COMMUNITY NAME MATCHES (highest priority)
-    const communityMatches = await db
+    // 1. EXACT & PREFIX COMMUNITY NAME MATCHES (highest priority)
+    const exactMatches = await db
       .select({
         name: communities.name,
         city: communities.city,
@@ -165,125 +165,130 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       })
       .from(communities)
       .where(
-        or(
-          ilike(communities.name, `${normalizedQuery}%`),  // Starts with
-          ilike(communities.name, `%${normalizedQuery}%`)  // Contains
-        )
+        ilike(communities.name, `${normalizedQuery}%`)  // Starts with (highest priority)
       )
-      .orderBy(communities.name)
-      .limit(8);
-    
-    communityMatches.forEach(community => {
-      suggestions.push(community.name);
-    });
-    
-    // 2. CITY MATCHES (with state context)
-    const cityMatches = await db
-      .select({
-        city: communities.city,
-        state: communities.state,
-        count: sql<number>`COUNT(*)::int`.as('count')
-      })
-      .from(communities)
-      .where(
-        or(
-          ilike(communities.city, `${normalizedQuery}%`),   // Starts with
-          ilike(communities.city, `%${normalizedQuery}%`)   // Contains
-        )
-      )
-      .groupBy(communities.city, communities.state)
-      .orderBy(sql`count DESC`)
-      .limit(6);
-    
-    cityMatches.forEach(city => {
-      suggestions.push(`${city.city}, ${city.state}`);
-    });
-    
-    // 3. STATE MATCHES
-    const stateMatches = await db
-      .select({
-        state: communities.state,
-        count: sql<number>`COUNT(*)::int`.as('count')
-      })
-      .from(communities)
-      .where(
-        or(
-          ilike(communities.state, `${normalizedQuery}%`),
-          ilike(communities.state, `%${normalizedQuery}%`)
-        )
-      )
-      .groupBy(communities.state)
-      .orderBy(sql`count DESC`)
+      .orderBy(sql`LENGTH(${communities.name})`)  // Shorter names first (more likely exact matches)
       .limit(5);
     
-    stateMatches.forEach(state => {
-      suggestions.push(state.state);
+    exactMatches.forEach(community => {
+      // Add the full community name
+      if (!suggestions.includes(community.name)) {
+        suggestions.push(community.name);
+      }
     });
     
-    // 4. INTERNATIONAL COUNTRY MATCHES
-    if (normalizedQuery.length >= 2) {
-      // Map country codes to full names for better user experience
-      const countryMapping = {
-        'US': 'United States',
-        'CA': 'Canada', 
-        'AU': 'Australia',
-        'Mexico': 'Mexico',
-        'Japan': 'Japan',
-        'CU': 'Cuba',
-        'PE': 'Peru', 
-        'PA': 'Panama',
-        'CR': 'Costa Rica'
-      };
-      
-      const countryMatches = await db
+    // 2. CONTAINS MATCHES (if we don't have enough exact matches)
+    if (suggestions.length < 5) {
+      const containsMatches = await db
         .select({
-          country: communities.country,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state
+        })
+        .from(communities)
+        .where(
+          and(
+            ilike(communities.name, `%${normalizedQuery}%`),  // Contains
+            // Exclude already found exact matches
+            ...(exactMatches.length > 0 ? [
+              ne(communities.name, sql`ANY(ARRAY[${sql.join(exactMatches.map(m => sql`${m.name}`), sql`, `)}])`)
+            ] : [])
+          )
+        )
+        .orderBy(sql`LENGTH(${communities.name})`)  // Prefer shorter, more relevant names
+        .limit(5 - suggestions.length);
+      
+      containsMatches.forEach(community => {
+        if (!suggestions.includes(community.name)) {
+          suggestions.push(community.name);
+        }
+      });
+    }
+    
+    // 3. CITY MATCHES (only if we still need more suggestions)
+    if (suggestions.length < 8) {
+      const cityMatches = await db
+        .select({
+          city: communities.city,
+          state: communities.state,
           count: sql<number>`COUNT(*)::int`.as('count')
         })
         .from(communities)
         .where(
-          or(
-            ilike(communities.country, `${normalizedQuery}%`),
-            ilike(communities.country, `%${normalizedQuery}%`)
-          )
+          ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
         )
-        .groupBy(communities.country)
+        .groupBy(communities.city, communities.state)
         .orderBy(sql`count DESC`)
-        .limit(5);
+        .limit(3);
       
-      countryMatches.forEach(country => {
-        if (country.country) {
-          // Use full country name if available, otherwise use database value
-          const displayName = countryMapping[country.country as keyof typeof countryMapping] || country.country;
-          // Include all countries for international coverage
-          if (displayName !== 'United States' || normalizedQuery.includes('us') || normalizedQuery.includes('unit')) {
-            suggestions.push(displayName);
-          }
+      cityMatches.forEach(city => {
+        const cityStr = `${city.city}, ${city.state}`;
+        if (!suggestions.includes(cityStr)) {
+          suggestions.push(cityStr);
         }
       });
+    }
+    
+    // 4. STATE MATCHES (only if we still need more suggestions)
+    if (suggestions.length < 10 && normalizedQuery.length >= 2) {
+      const stateMatches = await db
+        .select({
+          state: communities.state,
+          count: sql<number>`COUNT(*)::int`.as('count')
+        })
+        .from(communities)
+        .where(
+          ilike(communities.state, `${normalizedQuery}%`)  // Only prefix match for states
+        )
+        .groupBy(communities.state)
+        .orderBy(sql`count DESC`)
+        .limit(2);
       
-      // Add specific international suggestions for common queries
-      const internationalSuggestions = [];
-      if (normalizedQuery.includes('canad') || normalizedQuery.includes('ca')) {
-        internationalSuggestions.push('Senior living in Canada', 'Canada assisted living');
-      }
-      if (normalizedQuery.includes('austr') || normalizedQuery.includes('au')) {
-        internationalSuggestions.push('Senior living in Australia', 'Australia aged care');
-      }
-      if (normalizedQuery.includes('mexic') || normalizedQuery.includes('mx')) {
-        internationalSuggestions.push('Senior living in Mexico', 'Mexico retirement communities');
-      }
-      if (normalizedQuery.includes('japan') || normalizedQuery.includes('jp')) {
-        internationalSuggestions.push('Senior living in Japan', 'Japan elder care');
-      }
-      suggestions.push(...internationalSuggestions);
+      stateMatches.forEach(state => {
+        if (!suggestions.includes(state.state)) {
+          suggestions.push(state.state);
+        }
+      });
+    }
+    
+    // 5. MANAGEMENT COMPANY MATCHES (for company-specific searches)
+    if (suggestions.length < 10) {
+      const companyMatches = await db
+        .select({
+          managementCompany: communities.managementCompany,
+          count: sql<number>`COUNT(*)::int`.as('count')
+        })
+        .from(communities)
+        .where(
+          and(
+            ilike(communities.managementCompany, `${normalizedQuery}%`),
+            sql`${communities.managementCompany} IS NOT NULL`,
+            sql`${communities.managementCompany} != ''`
+          )
+        )
+        .groupBy(communities.managementCompany)
+        .orderBy(sql`count DESC`)
+        .limit(2);
+      
+      companyMatches.forEach(company => {
+        if (company.managementCompany && !suggestions.includes(company.managementCompany)) {
+          suggestions.push(company.managementCompany);
+        }
+      });
     }
     
   } catch (error) {
     console.error('Database suggestion error:', error);
   }
   
-  // 5. COMMON SEARCH PATTERNS (including international)
+  // Remove duplicates and return only unique suggestions
+  const uniqueSuggestions = [...new Set(suggestions)];
+  
+  // Return the suggestions (limit to 10 most relevant)
+  return uniqueSuggestions.slice(0, 10);
+}
+
+/* REMOVED ALL HARDCODED SUGGESTIONS - Only database-driven results now
   const commonSearches = [
     'Assisted living near me',
     'Memory care facilities', 
@@ -444,6 +449,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   
   return ranked.slice(0, 10); // Return top 10 suggestions
 }
+*/
 
 /**
  * Search suggestions endpoint
