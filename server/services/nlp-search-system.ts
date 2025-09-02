@@ -511,43 +511,46 @@ export class NLPSearchSystem {
     try {
       const conditions = [];
       
-      // IMPROVED SEARCH: Prioritize exact phrase matches, then individual terms
+      // IMPROVED SEARCH: Prioritize exact matches for locations and names
       const fullQuery = query.trim();
       const searchTerms = fullQuery.toLowerCase().split(' ').filter(term => term.length > 1);
       
       if (fullQuery.length > 0) {
-        // First priority: Exact phrase match in name
-        const exactNameMatch = ilike(communities.name, `%${fullQuery}%`);
-        
-        // Second priority: All terms must be present in name (AND logic)
-        const nameAndConditions = searchTerms.map(term => 
-          ilike(communities.name, `%${term}%`)
-        );
-        
-        // Third priority: Search in other fields
         const orConditions = [];
         
-        // Full phrase search in all fields
-        orConditions.push(exactNameMatch);
+        // PRIORITY 1: Exact phrase match in name
+        orConditions.push(ilike(communities.name, `%${fullQuery}%`));
+        
+        // PRIORITY 2: Exact city match (very important for location searches)
+        orConditions.push(ilike(communities.city, fullQuery));
+        
+        // PRIORITY 3: City starts with query (e.g., "San" matches "San Francisco")
+        orConditions.push(ilike(communities.city, `${fullQuery}%`));
+        
+        // PRIORITY 4: City contains full query
         orConditions.push(ilike(communities.city, `%${fullQuery}%`));
+        
+        // PRIORITY 5: State match (for state searches)
+        orConditions.push(ilike(communities.state, fullQuery));
         orConditions.push(ilike(communities.state, `%${fullQuery}%`));
+        
+        // PRIORITY 6: All terms present in name (for multi-word searches)
+        if (searchTerms.length > 1) {
+          const nameAndConditions = searchTerms.map(term => 
+            ilike(communities.name, `%${term}%`)
+          );
+          if (nameAndConditions.length > 0) {
+            orConditions.push(and(...nameAndConditions));
+          }
+        }
+        
+        // PRIORITY 7: Management company and address
         orConditions.push(
           sql`COALESCE(${communities.managementCompany}, '') ILIKE ${'%' + fullQuery + '%'}`
         );
         orConditions.push(
           sql`COALESCE(${communities.address}, '') ILIKE ${'%' + fullQuery + '%'}`
         );
-        
-        // If multiple terms, also allow matching all terms in name
-        if (searchTerms.length > 1 && nameAndConditions.length > 0) {
-          orConditions.push(and(...nameAndConditions));
-        }
-        
-        // Individual term matching as fallback (lower priority)
-        for (const term of searchTerms) {
-          orConditions.push(ilike(communities.city, `%${term}%`));
-          orConditions.push(ilike(communities.state, `%${term}%`));
-        }
         
         // Add all conditions as OR
         if (orConditions.length > 0) {
@@ -1081,9 +1084,11 @@ export class NLPSearchSystem {
       if (typeof value === 'string') {
         const valueLower = value.toLowerCase();
         
-        // Name field gets highest priority
+        // Field priority weights
         const isNameField = key === 'name';
-        const fieldMultiplier = isNameField ? 10 : 1;
+        const isCityField = key === 'city';
+        const isStateField = key === 'state';
+        const fieldMultiplier = isNameField ? 10 : (isCityField ? 8 : (isStateField ? 5 : 1));
         
         // Exact match (highest score)
         if (valueLower === queryLower) {
