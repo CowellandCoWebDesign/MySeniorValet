@@ -212,9 +212,33 @@ export class NLPSearchSystem {
   private extractEntities(query: string): QueryIntent['entities'] {
     const entities: QueryIntent['entities'] = {};
     
-    // First expand abbreviations in the query
+    // CRITICAL: Check for city-state pattern FIRST before any expansion
+    // This prevents "Chicago, IL" from becoming "Chicago, Independent Living"
+    const cityStatePattern = /^([^,]+),\s*([A-Z]{2})$/i;
+    const cityStateMatch = query.match(cityStatePattern);
+    
+    if (cityStateMatch) {
+      // This is a city-state search, handle it specially
+      const city = cityStateMatch[1].trim();
+      const state = cityStateMatch[2].trim().toUpperCase();
+      entities.locations = [`${city}, ${state}`];
+      entities.careTypes = [];
+      entities.amenities = [];
+      entities.modifiers = [];
+      return entities;
+    }
+    
+    // Only expand abbreviations if NOT a city-state pattern
     let expandedQuery = query;
     Object.entries(this.abbreviations).forEach(([abbr, full]) => {
+      // Skip state abbreviations that are part of a location pattern
+      if (abbr.length === 2 && /^[A-Z]{2}$/i.test(abbr)) {
+        // Check if this looks like a state code in a location context
+        const locationPattern = new RegExp(`(,\\s*|\\s+)${abbr}\\s*$`, 'i');
+        if (locationPattern.test(query)) {
+          return; // Skip expanding this abbreviation
+        }
+      }
       const regex = new RegExp(`\\b${abbr}\\b`, 'gi');
       expandedQuery = expandedQuery.replace(regex, full);
     });
@@ -558,12 +582,33 @@ export class NLPSearchSystem {
           }
         }
         
-        // Check if this is a city, state search (e.g., "Las Vegas, NV")
-        const cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
-        if (cityStateMatch) {
-          isLocationSearch = true; // Mark this as a location-specific search
-          const city = cityStateMatch[1].trim();
-          const state = cityStateMatch[2].trim().toUpperCase(); // Normalize state to uppercase
+        // Check if this is a city, state search from entities or query
+        let cityStateMatch = null;
+        let city = '';
+        let state = '';
+        
+        // First check if we have a location entity with city-state pattern
+        if (intent.entities?.locations?.length > 0) {
+          const locationEntity = intent.entities.locations[0];
+          cityStateMatch = locationEntity.match(/^([^,]+),\s*([A-Z]{2})$/i);
+          if (cityStateMatch) {
+            city = cityStateMatch[1].trim();
+            state = cityStateMatch[2].trim().toUpperCase();
+            isLocationSearch = true;
+          }
+        }
+        
+        // If no entity, check the raw query
+        if (!cityStateMatch) {
+          cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
+          if (cityStateMatch) {
+            city = cityStateMatch[1].trim();
+            state = cityStateMatch[2].trim().toUpperCase();
+            isLocationSearch = true;
+          }
+        }
+        
+        if (isLocationSearch && cityStateMatch) {
           
           // Build state conditions - be VERY specific for state codes
           const stateConditions = [];
@@ -612,8 +657,10 @@ export class NLPSearchSystem {
               or(...stateConditions)
             )
           );
-        } else if (!isLocationSearch) {
-          // Only add general search conditions if NOT a location search
+        } 
+        
+        // Only add general search conditions if NOT a location search
+        if (!isLocationSearch) {
           
           // Check for county searches
           const countyMatch = fullQuery.toLowerCase().includes('county');
