@@ -511,30 +511,42 @@ export class NLPSearchSystem {
     try {
       const conditions = [];
       
-      // CRITICAL FIX: Simple search across all relevant fields
-      const searchTerms = query.trim().toLowerCase().split(' ').filter(term => term.length > 1);
+      // IMPROVED SEARCH: Prioritize exact phrase matches, then individual terms
+      const fullQuery = query.trim();
+      const searchTerms = fullQuery.toLowerCase().split(' ').filter(term => term.length > 1);
       
-      if (searchTerms.length > 0) {
-        // Build a simple OR condition for all search terms
+      if (fullQuery.length > 0) {
+        // First priority: Exact phrase match in name
+        const exactNameMatch = ilike(communities.name, `%${fullQuery}%`);
+        
+        // Second priority: All terms must be present in name (AND logic)
+        const nameAndConditions = searchTerms.map(term => 
+          ilike(communities.name, `%${term}%`)
+        );
+        
+        // Third priority: Search in other fields
         const orConditions = [];
         
+        // Full phrase search in all fields
+        orConditions.push(exactNameMatch);
+        orConditions.push(ilike(communities.city, `%${fullQuery}%`));
+        orConditions.push(ilike(communities.state, `%${fullQuery}%`));
+        orConditions.push(
+          sql`COALESCE(${communities.managementCompany}, '') ILIKE ${'%' + fullQuery + '%'}`
+        );
+        orConditions.push(
+          sql`COALESCE(${communities.address}, '') ILIKE ${'%' + fullQuery + '%'}`
+        );
+        
+        // If multiple terms, also allow matching all terms in name
+        if (searchTerms.length > 1 && nameAndConditions.length > 0) {
+          orConditions.push(and(...nameAndConditions));
+        }
+        
+        // Individual term matching as fallback (lower priority)
         for (const term of searchTerms) {
-          // Search in name (primary field for company searches)
-          orConditions.push(ilike(communities.name, `%${term}%`));
-          
-          // Search in location fields
           orConditions.push(ilike(communities.city, `%${term}%`));
           orConditions.push(ilike(communities.state, `%${term}%`));
-          
-          // Search in management company using COALESCE to handle nulls
-          orConditions.push(
-            sql`COALESCE(${communities.managementCompany}, '') ILIKE ${'%' + term + '%'}`
-          );
-          
-          // Search in address using COALESCE to handle nulls
-          orConditions.push(
-            sql`COALESCE(${communities.address}, '') ILIKE ${'%' + term + '%'}`
-          );
         }
         
         // Add all conditions as OR
@@ -577,7 +589,7 @@ export class NLPSearchSystem {
       const results = await dbQuery.limit(options?.limit || 50);
       
       // Convert to unified format
-      return results.map(community => ({
+      return results.map((community: any) => ({
         type: 'community' as const,
         id: community.id,
         data: community,
@@ -630,7 +642,7 @@ export class NLPSearchSystem {
       
       const results = await dbQuery.limit(options?.limit || 30);
       
-      return results.map(service => ({
+      return results.map((service: any) => ({
         type: 'service' as const,
         id: service.id,
         data: service,
@@ -703,7 +715,7 @@ export class NLPSearchSystem {
       
       const results = await dbQuery.limit(options?.limit || 20);
       
-      return results.map(vendor => ({
+      return results.map((vendor: any) => ({
         type: 'vendor' as const,
         id: vendor.id,
         data: vendor,
@@ -1062,27 +1074,43 @@ export class NLPSearchSystem {
   private calculateRelevanceScore(query: string, data: any): number {
     let score = 0;
     const queryLower = query.toLowerCase();
-    const queryWords = queryLower.split(' ');
+    const queryWords = queryLower.split(' ').filter(w => w.length > 1);
     
-    // Check each field for matches
+    // Check each field for matches with weighted importance
     for (const [key, value] of Object.entries(data)) {
       if (typeof value === 'string') {
         const valueLower = value.toLowerCase();
         
-        // Exact match
+        // Name field gets highest priority
+        const isNameField = key === 'name';
+        const fieldMultiplier = isNameField ? 10 : 1;
+        
+        // Exact match (highest score)
         if (valueLower === queryLower) {
-          score += 10;
+          score += 100 * fieldMultiplier;
         }
         
-        // Contains full query
-        if (valueLower.includes(queryLower)) {
-          score += 5;
+        // Contains full query as phrase
+        else if (valueLower.includes(queryLower)) {
+          score += 50 * fieldMultiplier;
         }
         
-        // Contains query words
-        for (const word of queryWords) {
-          if (valueLower.includes(word)) {
-            score += 1;
+        // Contains ALL query words (but not as exact phrase)
+        else if (queryWords.length > 1 && queryWords.every(word => valueLower.includes(word))) {
+          score += 25 * fieldMultiplier;
+        }
+        
+        // Contains some query words
+        else {
+          let wordMatches = 0;
+          for (const word of queryWords) {
+            if (valueLower.includes(word)) {
+              wordMatches++;
+            }
+          }
+          // Score based on percentage of words matched
+          if (wordMatches > 0) {
+            score += (wordMatches / queryWords.length) * 10 * fieldMultiplier;
           }
         }
       }
