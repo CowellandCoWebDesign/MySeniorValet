@@ -568,10 +568,10 @@ export class NLPSearchSystem {
           // Build state conditions - be VERY specific for state codes
           const stateConditions = [];
           
-          // If it's a 2-letter state code, match exactly and also try full state name
+          // If it's a 2-letter state code, match flexibly
           if (state.length === 2) {
-            // Exact match for state code
-            stateConditions.push(eq(communities.state, state));
+            // Match state code (case-insensitive)
+            stateConditions.push(ilike(communities.state, state));
             
             // State/Province abbreviations to full names
             const stateExpansions: Record<string, string> = {
@@ -597,8 +597,8 @@ export class NLPSearchSystem {
             };
             
             if (stateExpansions[state]) {
-              // Also match the full state name
-              stateConditions.push(eq(communities.state, stateExpansions[state]));
+              // Also match the full state name (case-insensitive)
+              stateConditions.push(ilike(communities.state, stateExpansions[state]));
             }
           } else {
             // For full state names, use exact match
