@@ -109,6 +109,9 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 - Multi-property dashboard (`/multi-property`)
 - Custom branding
 
+✅ **ACCESSIBLE NOW:**
+- Unit/Reservation Management (in `reservation.service.ts`)
+- Move-In Cost Calculator (`MoveInCostCalculator.tsx`)
 🔧 **BUILT BUT NOT WIRED:**
 - AI Lease Management (in `reservation.service.ts`)
 - Insurance tracking (in reservation metadata)

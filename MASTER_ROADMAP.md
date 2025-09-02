@@ -19,9 +19,9 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 **🔍 CRITICAL DISCOVERY (Sep 2, 2025):**
 - **Lead Tracking System** - ✅ CONNECTED (`lead-tracking.service.ts`) with full Leads tab in Community Dashboard
 - **3D Tour Embeds** - ✅ CONNECTED (`tour-embed.service.ts`) with Tours tab supporting 6 platforms
-- **Unit Reservation System** - ✅ BUILT (`reservation.service.ts`) with Stripe integration
+- **Unit Reservation System** - ✅ CONNECTED (`reservation.service.ts`) with Reservations tab in Community Dashboard
 - **Payment Processing** - ✅ BUILT (`payment.service.ts`) complete Stripe setup
-- **Move-In Calculator** - ✅ BUILT (`MoveInCostCalculator.tsx`) interactive component
+- **Move-In Calculator** - ✅ CONNECTED (`MoveInCostCalculator.tsx`) integrated in Reservations tab
 - **AI Lease Management** - ✅ BUILT in reservation service
 - **Insurance Tracking** - ✅ BUILT in reservation metadata
 

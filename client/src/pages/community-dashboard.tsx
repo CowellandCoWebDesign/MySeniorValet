@@ -22,7 +22,8 @@ import {
   Wrench, Clock, Plus, Download, BarChart3, LineChart, PieChart,
   Target, ChevronRight, Filter, Mail, Phone, X, Save, UserPlus,
   Activity, ArrowUpRight, ArrowDownRight, PhoneCall, Video,
-  Play, Maximize2, Eye as EyeIcon, Tv
+  Play, Maximize2, Eye as EyeIcon, Tv, CalendarCheck,
+  Calculator, FileText, Percent, HelpCircle, BookOpen
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, 
@@ -32,6 +33,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { AIIntelligenceDashboard } from '@/components/AIIntelligenceDashboard';
+import { MoveInCostCalculator } from '@/components/MoveInCostCalculator';
 
 /**
  * Unified Community Dashboard
@@ -156,6 +158,20 @@ export default function CommunityDashboard() {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Fetch reservations
+  const { data: reservations, isLoading: reservationsLoading } = useQuery<any[]>({
+    queryKey: [`/api/reservations/community/${communityId}`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch available units
+  const { data: availableUnits, isLoading: unitsLoading } = useQuery<any[]>({
+    queryKey: [`/api/reservations/units/${communityId}`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Fetch maintenance requests
   const { data: maintenanceRequests, isLoading: maintenanceLoading } = useQuery({
     queryKey: [`/api/operations/maintenance/${communityId}`],
@@ -264,6 +280,10 @@ export default function CommunityDashboard() {
               <TabsTrigger value="tours" className="text-sm px-4 py-3 flex-shrink-0 flex items-center gap-2">
                 <Video className="h-4 w-4" />
                 <span>3D Tours</span>
+              </TabsTrigger>
+              <TabsTrigger value="reservations" className="text-sm px-4 py-3 flex-shrink-0 flex items-center gap-2">
+                <CalendarCheck className="h-4 w-4" />
+                <span>Reservations</span>
               </TabsTrigger>
               <TabsTrigger value="residents" className="text-sm px-4 py-3 flex-shrink-0">Residents</TabsTrigger>
               <TabsTrigger value="analytics" className="text-sm px-4 py-3 flex-shrink-0">Analytics</TabsTrigger>
@@ -1195,6 +1215,209 @@ export default function CommunityDashboard() {
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Tour
                     </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Reservations Tab */}
+          <TabsContent value="reservations">
+            {/* Reservation Statistics */}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-6">
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Active Reservations</p>
+                      <p className="text-3xl font-bold">{reservations?.length || 0}</p>
+                    </div>
+                    <CalendarCheck className="h-8 w-8 text-green-500" />
+                  </div>
+                  <Progress value={65} className="h-2" />
+                  <p className="text-xs text-gray-500 mt-2">65% occupancy rate</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Available Units</p>
+                      <p className="text-3xl font-bold">{availableUnits?.length || 12}</p>
+                    </div>
+                    <Home className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="flex gap-2 text-xs">
+                    <Badge variant="secondary">5 Studio</Badge>
+                    <Badge variant="secondary">4 1BR</Badge>
+                    <Badge variant="secondary">3 2BR</Badge>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Avg. Move-In Cost</p>
+                      <p className="text-3xl font-bold">$8,450</p>
+                    </div>
+                    <Calculator className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <p className="text-xs text-gray-500">Including deposits & fees</p>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Pending Tours</p>
+                      <p className="text-3xl font-bold">7</p>
+                    </div>
+                    <Eye className="h-8 w-8 text-orange-500" />
+                  </div>
+                  <p className="text-xs text-gray-500">Next tour in 2 hours</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Move-In Cost Calculator */}
+            <div className="mb-6">
+              <MoveInCostCalculator />
+            </div>
+
+            {/* Unit Management */}
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Unit Availability Management</CardTitle>
+                    <CardDescription>Track and manage your available units</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export
+                    </Button>
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Unit
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {[
+                    { type: 'Studio', available: 5, total: 20, price: '$2,500-3,500', color: 'purple' },
+                    { type: 'One Bedroom', available: 4, total: 30, price: '$3,000-4,500', color: 'blue' },
+                    { type: 'Two Bedroom', available: 3, total: 15, price: '$4,000-6,000', color: 'green' }
+                  ].map((unit) => (
+                    <div key={unit.type} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h4 className="font-semibold">{unit.type}</h4>
+                          <p className="text-sm text-gray-600">{unit.price}/month</p>
+                        </div>
+                        <Badge className={`bg-${unit.color}-100 text-${unit.color}-800`}>
+                          {unit.available}/{unit.total} available
+                        </Badge>
+                      </div>
+                      <Progress value={(unit.available / unit.total) * 100} className="h-2 mb-2" />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>{unit.total - unit.available} occupied</span>
+                        <span>{Math.round((1 - unit.available / unit.total) * 100)}% occupancy</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Active Reservations List */}
+            <Card>
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Recent Reservations</CardTitle>
+                    <CardDescription>Manage and track your reservations</CardDescription>
+                  </div>
+                  <Select defaultValue="all">
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Reservations</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {reservationsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin h-8 w-8 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-gray-600">Loading reservations...</p>
+                  </div>
+                ) : reservations && reservations.length > 0 ? (
+                  <div className="space-y-4">
+                    {reservations.slice(0, 5).map((reservation: any, index: number) => (
+                      <div key={reservation.id || index} className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-semibold">{reservation.residentName || 'Guest'}</h4>
+                              <Badge className={
+                                reservation.status === 'approved' ? 'bg-green-100 text-green-800' :
+                                reservation.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                              }>
+                                {reservation.status}
+                              </Badge>
+                              <Badge variant="outline">{reservation.unitType || 'Studio'}</Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Move-in: {new Date(reservation.moveInDate || Date.now()).toLocaleDateString()}
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="h-3 w-3" />
+                                ${reservation.monthlyRent || 3500}/mo
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Phone className="h-3 w-3" />
+                                {reservation.residentPhone || '(555) 123-4567'}
+                              </span>
+                            </div>
+                            {reservation.notes && (
+                              <p className="text-sm text-gray-500 mt-2">{reservation.notes}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm">
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <CalendarCheck className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p className="mb-4">No reservations yet</p>
+                    <p className="text-sm">Reservations will appear here when prospects book units.</p>
                   </div>
                 )}
               </CardContent>
