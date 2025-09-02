@@ -20,7 +20,9 @@ import {
   Brain, Zap, Package, Globe, Eye, MessageSquare, Upload, Edit,
   Home, Shield, Heart, Stethoscope, Coffee, Car, Utensils, Bed,
   Wrench, Clock, Plus, Download, BarChart3, LineChart, PieChart,
-  Target, ChevronRight, Filter, Mail, Phone, X, Save
+  Target, ChevronRight, Filter, Mail, Phone, X, Save, UserPlus,
+  Activity, ArrowUpRight, ArrowDownRight, PhoneCall, Video,
+  Play, Maximize2, Eye as EyeIcon, Tv
 } from 'lucide-react';
 import { 
   LineChart as RechartsLineChart, Line, BarChart, Bar, PieChart as RechartsPieChart, 
@@ -126,6 +128,34 @@ export default function CommunityDashboard() {
     staleTime: 2 * 60 * 1000, // 2 minutes for more frequent updates
   });
 
+  // Fetch leads data
+  const { data: leads, isLoading: leadsLoading, error: leadsError } = useQuery<any[]>({
+    queryKey: [`/api/communities/${communityId}/leads`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch lead analytics
+  const { data: leadAnalytics, isLoading: leadAnalyticsLoading } = useQuery<any>({
+    queryKey: [`/api/communities/${communityId}/leads/analytics`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch virtual tours
+  const { data: tours, isLoading: toursLoading } = useQuery<any[]>({
+    queryKey: [`/api/tours/communities/${communityId}/tours`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Fetch tour analytics
+  const { data: tourAnalytics, isLoading: tourAnalyticsLoading } = useQuery<any>({
+    queryKey: [`/api/tours/communities/${communityId}/analytics`],
+    retry: 3,
+    staleTime: 5 * 60 * 1000,
+  });
+
   // Fetch maintenance requests
   const { data: maintenanceRequests, isLoading: maintenanceLoading } = useQuery({
     queryKey: [`/api/operations/maintenance/${communityId}`],
@@ -227,6 +257,14 @@ export default function CommunityDashboard() {
           <div className="overflow-x-auto scrollbar-hide">
             <TabsList className="flex w-max min-w-full h-auto gap-1">
               <TabsTrigger value="overview" className="text-sm px-4 py-3 flex-shrink-0">Overview</TabsTrigger>
+              <TabsTrigger value="leads" className="text-sm px-4 py-3 flex-shrink-0 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                <span>Leads</span>
+              </TabsTrigger>
+              <TabsTrigger value="tours" className="text-sm px-4 py-3 flex-shrink-0 flex items-center gap-2">
+                <Video className="h-4 w-4" />
+                <span>3D Tours</span>
+              </TabsTrigger>
               <TabsTrigger value="residents" className="text-sm px-4 py-3 flex-shrink-0">Residents</TabsTrigger>
               <TabsTrigger value="analytics" className="text-sm px-4 py-3 flex-shrink-0">Analytics</TabsTrigger>
               <TabsTrigger value="ai-intelligence" className="text-sm px-3 py-3 flex-shrink-0 flex items-center gap-2">
@@ -785,6 +823,382 @@ export default function CommunityDashboard() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          {/* Leads Tab */}
+          <TabsContent value="leads">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Lead Statistics */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Leads</p>
+                      <p className="text-3xl font-bold">{leads?.length || 0}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <ArrowUpRight className="h-4 w-4 text-green-500" />
+                    <span className="text-sm text-green-600">
+                      {leadAnalytics?.newLeadsThisMonth || 0} new this month
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Conversion Rate</p>
+                      <p className="text-3xl font-bold">{leadAnalytics?.conversionRate || 0}%</p>
+                    </div>
+                    <Target className="h-8 w-8 text-green-500" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm text-gray-600">
+                      {leadAnalytics?.avgTimeToConvert || 0} days avg
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Qualified Leads</p>
+                      <p className="text-3xl font-bold">
+                        {leads?.filter((l: any) => l.status === 'qualified').length || 0}
+                      </p>
+                    </div>
+                    <CheckCircle className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {leads?.filter((l: any) => l.status === 'tour_scheduled').length || 0} tours scheduled
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Lead Management Actions */}
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Lead Management</CardTitle>
+                    <CardDescription>Track and manage your community leads</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Filter className="h-4 w-4 mr-2" />
+                      Filter
+                    </Button>
+                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Add Lead
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Lead Pipeline */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Lead Pipeline</CardTitle>
+                <CardDescription>Visualize your lead conversion funnel</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {leadAnalytics?.leadsByStatus && Object.entries(leadAnalytics.leadsByStatus).map(([status, count]: [string, any]) => (
+                    <div key={status} className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <Badge variant="outline" className="capitalize">
+                          {status.replace('_', ' ')}
+                        </Badge>
+                        <span className="text-sm text-gray-600">{count} leads</span>
+                      </div>
+                      <Progress value={(count / (leads?.length || 1)) * 100} className="w-32" />
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Leads Table */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Leads</CardTitle>
+                <CardDescription>Latest inquiries and prospects</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {leadsLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-gray-600">Loading leads...</p>
+                  </div>
+                ) : leads && leads.length > 0 ? (
+                  <div className="space-y-3">
+                    {leads.slice(0, 10).map((lead: any) => (
+                      <div key={lead.id} className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-semibold">
+                                {lead.firstName} {lead.lastName}
+                              </h4>
+                              <Badge className={`text-xs ${
+                                lead.score >= 75 ? 'bg-green-100 text-green-800' :
+                                lead.score >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                Score: {lead.score}
+                              </Badge>
+                              <Badge variant="outline" className="text-xs capitalize">
+                                {lead.status?.replace('_', ' ')}
+                              </Badge>
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <Mail className="h-3 w-3" />
+                                {lead.email}
+                              </span>
+                              {lead.phone && (
+                                <span className="flex items-center gap-1">
+                                  <Phone className="h-3 w-3" />
+                                  {lead.phone}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                {new Date(lead.createdAt).toLocaleDateString()}
+                              </span>
+                            </div>
+                            {lead.notes && (
+                              <p className="text-sm text-gray-600 mt-2">{lead.notes}</p>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm">
+                              <PhoneCall className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Mail className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Users className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p>No leads yet. They'll appear here when prospects inquire about your community.</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* 3D Tours Tab */}
+          <TabsContent value="tours">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+              {/* Tour Statistics */}
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Active Tours</p>
+                      <p className="text-3xl font-bold">{tours?.length || 0}</p>
+                    </div>
+                    <Tv className="h-8 w-8 text-indigo-500" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Play className="h-4 w-4 text-green-500" />
+                    <span className="text-sm text-gray-600">
+                      {tours?.filter((t: any) => t.isPrimary).length || 0} primary tours
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Total Views</p>
+                      <p className="text-3xl font-bold">
+                        {tours?.reduce((sum: number, t: any) => sum + (t.viewCount || 0), 0) || 0}
+                      </p>
+                    </div>
+                    <EyeIcon className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm text-gray-600">
+                      {tourAnalytics?.avgViewDuration || 0}s avg duration
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Lead Conversion</p>
+                      <p className="text-3xl font-bold">
+                        {tourAnalytics?.leadConversionRate || 0}%
+                      </p>
+                    </div>
+                    <Target className="h-8 w-8 text-green-500" />
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {tourAnalytics?.completionRate || 0}% completion rate
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Tour Management Actions */}
+            <Card className="mb-6">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <CardTitle>Virtual Tour Management</CardTitle>
+                    <CardDescription>Manage your 3D tours and virtual experiences</CardDescription>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </Button>
+                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Tour
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+
+            {/* Supported Platforms */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle>Supported Platforms</CardTitle>
+                <CardDescription>Compatible 3D tour providers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {['Matterport', 'YouVisit', 'EyeSpy360', 'Kuula', 'Google Street View', 'Custom 360'].map(platform => (
+                    <div key={platform} className="text-center p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <Video className="h-8 w-8 mx-auto mb-2 text-gray-600" />
+                      <p className="text-xs font-medium">{platform}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tours List */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Your Virtual Tours</CardTitle>
+                <CardDescription>Manage and preview your 3D tour experiences</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {toursLoading ? (
+                  <div className="text-center py-8">
+                    <div className="animate-spin h-8 w-8 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-gray-600">Loading tours...</p>
+                  </div>
+                ) : tours && tours.length > 0 ? (
+                  <div className="space-y-4">
+                    {tours.map((tour: any) => (
+                      <div key={tour.id} className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-2">
+                              <h4 className="font-semibold">{tour.title}</h4>
+                              {tour.isPrimary && (
+                                <Badge className="bg-indigo-100 text-indigo-800">Primary</Badge>
+                              )}
+                              <Badge variant="outline" className="capitalize">
+                                {tour.tourType?.replace('_', ' ')}
+                              </Badge>
+                              <Badge className={tour.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
+                                {tour.isActive ? 'Active' : 'Inactive'}
+                              </Badge>
+                            </div>
+                            {tour.description && (
+                              <p className="text-sm text-gray-600 mb-2">{tour.description}</p>
+                            )}
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <span className="flex items-center gap-1">
+                                <EyeIcon className="h-3 w-3" />
+                                {tour.viewCount || 0} views
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Clock className="h-3 w-3" />
+                                {tour.avgViewDuration || 0}s avg
+                              </span>
+                              <span className="flex items-center gap-1">
+                                <Target className="h-3 w-3" />
+                                {tour.leadConversionRate || 0}% conversion
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                Platform: {tour.platform}
+                              </span>
+                            </div>
+                            {tour.metadata?.rooms && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className="text-xs text-gray-500">Rooms:</span>
+                                <div className="flex gap-1">
+                                  {tour.metadata.rooms.slice(0, 3).map((room: string) => (
+                                    <Badge key={room} variant="secondary" className="text-xs">
+                                      {room}
+                                    </Badge>
+                                  ))}
+                                  {tour.metadata.rooms.length > 3 && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      +{tour.metadata.rooms.length - 3} more
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button variant="ghost" size="sm">
+                              <Maximize2 className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <BarChart3 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Video className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                    <p className="mb-4">No virtual tours yet</p>
+                    <p className="text-sm">Add immersive 3D tours to showcase your community and increase engagement.</p>
+                    <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Your First Tour
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Billing Tab */}

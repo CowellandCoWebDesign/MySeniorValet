@@ -6,6 +6,7 @@ import { communityStatsCache } from "../community-stats-cache";
 // Import route modules
 import { registerCommunityRoutes } from "./communityRoutes";
 import { registerCommunityEnrichmentRoutes } from "./community-enrichment-routes";
+import { registerLeadTrackingRoutes } from "./lead-tracking-routes";
 import { registerDirectoryRoutes } from "./directoryRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
@@ -120,6 +121,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerDirectoryRoutes(app); // Register directory filtering routes
   registerCommunityRoutes(app);
   registerCommunityEnrichmentRoutes(app); // Register enrichment admin endpoints
+  registerLeadTrackingRoutes(app); // Register lead tracking routes
   registerUserRoutes(app);
   registerSearchRoutes(app);
   registerAIRoutes(app);

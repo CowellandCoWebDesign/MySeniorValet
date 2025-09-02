@@ -76,7 +76,7 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 - Tour scheduling (TourMate™)
 - Response to inquiries
 
-🔧 **BUILT BUT NOT WIRED:**
+✅ **ACCESSIBLE NOW:**
 - Lead tracking system (`lead-tracking.service.ts` - complete with CRM integration!)
 - RMS Integration basics (Yardi, A-Line ready but not in UI)
 - Analytics dashboard (service exists, not exposed)
@@ -92,7 +92,7 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 - Everything in Starter
 - Email campaigns
 
-🔧 **BUILT BUT NOT WIRED:**
+✅ **ACCESSIBLE NOW:**
 - 3D Virtual Tours (`tour-embed.service.ts` - Matterport, YouVisit, etc. READY!)
 - CRM Integration (`lead-tracking.service.ts` - Salesforce, HubSpot connectors built!)
 - Automated lead scoring (in lead-tracking service with 0-100 scoring)

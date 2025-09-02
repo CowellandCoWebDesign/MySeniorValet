@@ -17,8 +17,8 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 - **95% infrastructure complete** - ready for 2-week launch!
 
 **🔍 CRITICAL DISCOVERY (Sep 2, 2025):**
-- **Lead Tracking System** - ✅ BUILT (`lead-tracking.service.ts`) but NOT connected to UI
-- **3D Tour Embeds** - ✅ BUILT (`tour-embed.service.ts`) supports Matterport, YouVisit, etc.
+- **Lead Tracking System** - ✅ CONNECTED (`lead-tracking.service.ts`) with full Leads tab in Community Dashboard
+- **3D Tour Embeds** - ✅ CONNECTED (`tour-embed.service.ts`) with Tours tab supporting 6 platforms
 - **Unit Reservation System** - ✅ BUILT (`reservation.service.ts`) with Stripe integration
 - **Payment Processing** - ✅ BUILT (`payment.service.ts`) complete Stripe setup
 - **Move-In Calculator** - ✅ BUILT (`MoveInCostCalculator.tsx`) interactive component
