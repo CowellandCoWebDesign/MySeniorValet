@@ -2969,7 +2969,7 @@ export default function MySeniorValetHome() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="max-w-2xl mx-auto">
             {/* Community Join Card */}
             <Card className="relative overflow-hidden border-2 border-blue-500 hover:shadow-2xl transition-all duration-300">
               <div className="absolute top-0 right-0 bg-gradient-to-l from-blue-500 to-purple-500 text-white px-4 py-1 text-sm font-semibold">
