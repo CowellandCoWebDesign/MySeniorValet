@@ -563,133 +563,130 @@ export class NLPSearchSystem {
         if (cityStateMatch) {
           isLocationSearch = true; // Mark this as a location-specific search
           const city = cityStateMatch[1].trim();
-          const state = cityStateMatch[2].trim();
+          const state = cityStateMatch[2].trim().toUpperCase(); // Normalize state to uppercase
           
-          // HIGHEST PRIORITY: Exact city AND state match
-          // Also expand state abbreviations (CA -> California)
-          const stateConditions = [
-            ilike(communities.state, state),
-            ilike(communities.state, `%${state}%`)
-          ];
+          // Build state conditions - be VERY specific for state codes
+          const stateConditions = [];
           
-          // If it's a 2-letter state code, also search for full state name
+          // If it's a 2-letter state code, match exactly and also try full state name
           if (state.length === 2) {
-            const stateLower = state.toLowerCase();
-            // State/Province abbreviations (US states, Canadian provinces, Mexican states)
+            // Exact match for state code
+            stateConditions.push(eq(communities.state, state));
+            
+            // State/Province abbreviations to full names
             const stateExpansions: Record<string, string> = {
               // US States
-              'ca': 'california', 'tx': 'texas', 'fl': 'florida', 'ny': 'new york',
-              'pa': 'pennsylvania', 'il': 'illinois', 'oh': 'ohio', 'ga': 'georgia',
-              'nc': 'north carolina', 'mi': 'michigan', 'nj': 'new jersey', 'va': 'virginia',
-              'wa': 'washington', 'az': 'arizona', 'ma': 'massachusetts', 'tn': 'tennessee',
-              'in': 'indiana', 'mo': 'missouri', 'md': 'maryland', 'wi': 'wisconsin',
-              'co': 'colorado', 'mn': 'minnesota', 'sc': 'south carolina', 'al': 'alabama',
-              'la': 'louisiana', 'ky': 'kentucky', 'or': 'oregon', 'ok': 'oklahoma',
-              'ct': 'connecticut', 'ut': 'utah', 'ia': 'iowa', 'nv': 'nevada', 'ar': 'arkansas',
-              'ms': 'mississippi', 'ks': 'kansas', 'nm': 'new mexico', 'ne': 'nebraska',
-              'wv': 'west virginia', 'id': 'idaho', 'hi': 'hawaii', 'nh': 'new hampshire',
-              'me': 'maine', 'ri': 'rhode island', 'mt': 'montana', 'de': 'delaware',
-              'sd': 'south dakota', 'nd': 'north dakota', 'ak': 'alaska', 'dc': 'district of columbia',
-              'vt': 'vermont', 'wy': 'wyoming',
+              'CA': 'California', 'TX': 'Texas', 'FL': 'Florida', 'NY': 'New York',
+              'PA': 'Pennsylvania', 'IL': 'Illinois', 'OH': 'Ohio', 'GA': 'Georgia',
+              'NC': 'North Carolina', 'MI': 'Michigan', 'NJ': 'New Jersey', 'VA': 'Virginia',
+              'WA': 'Washington', 'AZ': 'Arizona', 'MA': 'Massachusetts', 'TN': 'Tennessee',
+              'IN': 'Indiana', 'MO': 'Missouri', 'MD': 'Maryland', 'WI': 'Wisconsin',
+              'CO': 'Colorado', 'MN': 'Minnesota', 'SC': 'South Carolina', 'AL': 'Alabama',
+              'LA': 'Louisiana', 'KY': 'Kentucky', 'OR': 'Oregon', 'OK': 'Oklahoma',
+              'CT': 'Connecticut', 'UT': 'Utah', 'IA': 'Iowa', 'NV': 'Nevada', 'AR': 'Arkansas',
+              'MS': 'Mississippi', 'KS': 'Kansas', 'NM': 'New Mexico', 'NE': 'Nebraska',
+              'WV': 'West Virginia', 'ID': 'Idaho', 'HI': 'Hawaii', 'NH': 'New Hampshire',
+              'ME': 'Maine', 'RI': 'Rhode Island', 'MT': 'Montana', 'DE': 'Delaware',
+              'SD': 'South Dakota', 'ND': 'North Dakota', 'AK': 'Alaska', 'DC': 'District of Columbia',
+              'VT': 'Vermont', 'WY': 'Wyoming',
               // Canadian Provinces
-              'on': 'ontario', 'qc': 'quebec', 'bc': 'british columbia', 'ab': 'alberta',
-              'mb': 'manitoba', 'sk': 'saskatchewan', 'ns': 'nova scotia', 'nb': 'new brunswick',
-              'nl': 'newfoundland and labrador', 'pe': 'prince edward island', 'nt': 'northwest territories',
-              'yt': 'yukon', 'nu': 'nunavut',
-              // Mexican States (common abbreviations)
-              'cdmx': 'ciudad de méxico', 'jal': 'jalisco', 'nl': 'nuevo león', 'bc': 'baja california',
-              'chih': 'chihuahua', 'qro': 'querétaro', 'yuc': 'yucatán', 'pue': 'puebla'
+              'ON': 'Ontario', 'QC': 'Quebec', 'BC': 'British Columbia', 'AB': 'Alberta',
+              'MB': 'Manitoba', 'SK': 'Saskatchewan', 'NS': 'Nova Scotia', 'NB': 'New Brunswick',
+              'NL': 'Newfoundland and Labrador', 'PE': 'Prince Edward Island', 'NT': 'Northwest Territories',
+              'YT': 'Yukon', 'NU': 'Nunavut'
             };
             
-            if (stateExpansions[stateLower]) {
-              stateConditions.push(ilike(communities.state, stateExpansions[stateLower]));
+            if (stateExpansions[state]) {
+              // Also match the full state name
+              stateConditions.push(eq(communities.state, stateExpansions[state]));
             }
+          } else {
+            // For full state names, use exact match
+            stateConditions.push(ilike(communities.state, state));
           }
           
-          // For location searches, set these as required conditions
-          locationConditions.push(
+          // For location searches, create strict conditions
+          conditions.push(
             and(
               ilike(communities.city, `%${city}%`),
               or(...stateConditions)
             )
           );
-        }
-        
-        // Check for county searches
-        const countyMatch = fullQuery.toLowerCase().includes('county');
-        if (countyMatch) {
+        } else if (!isLocationSearch) {
+          // Only add general search conditions if NOT a location search
+          
+          // Check for county searches
+          const countyMatch = fullQuery.toLowerCase().includes('county');
+          if (countyMatch) {
+            orConditions.push(
+              sql`COALESCE(${communities.county}, '') ILIKE ${'%' + fullQuery + '%'}`
+            );
+          }
+          
+          // Check for regional searches (Bay Area, Central Valley, GTA, etc.)
+          const regionKeywords = [
+            // US regions
+            'bay area', 'central valley', 'north coast', 'southern', 'northern', 'east bay', 'west side',
+            'silicon valley', 'pacific northwest', 'midwest', 'northeast', 'southwest',
+            // Canadian regions
+            'greater toronto area', 'gta', 'metro vancouver', 'national capital region',
+            'golden horseshoe', 'maritime provinces', 'prairies',
+            // Mexican regions
+            'valle de méxico', 'zona metropolitana', 'riviera maya', 'bajío'
+          ];
+          const isRegionalSearch = regionKeywords.some(keyword => fullQuery.toLowerCase().includes(keyword));
+          if (isRegionalSearch) {
+            orConditions.push(
+              sql`COALESCE(${communities.region}, '') ILIKE ${'%' + fullQuery + '%'}`
+            );
+          }
+          
+          // PRIORITY 1: Exact phrase match in name
+          orConditions.push(ilike(communities.name, `%${fullQuery}%`));
+          
+          // PRIORITY 2: Exact city match (very important for location searches)
+          orConditions.push(ilike(communities.city, fullQuery));
+          
+          // PRIORITY 3: City starts with query (e.g., "San" matches "San Francisco")
+          orConditions.push(ilike(communities.city, `${fullQuery}%`));
+          
+          // PRIORITY 4: City contains full query
+          orConditions.push(ilike(communities.city, `%${fullQuery}%`));
+          
+          // PRIORITY 5: ZIP code partial match (even if not pure numeric)
+          orConditions.push(ilike(communities.zipCode, `%${fullQuery}%`));
+          
+          // PRIORITY 6: County match (without requiring "county" word)
           orConditions.push(
             sql`COALESCE(${communities.county}, '') ILIKE ${'%' + fullQuery + '%'}`
           );
-        }
-        
-        // Check for regional searches (Bay Area, Central Valley, GTA, etc.)
-        const regionKeywords = [
-          // US regions
-          'bay area', 'central valley', 'north coast', 'southern', 'northern', 'east bay', 'west side',
-          'silicon valley', 'pacific northwest', 'midwest', 'northeast', 'southwest',
-          // Canadian regions
-          'greater toronto area', 'gta', 'metro vancouver', 'national capital region',
-          'golden horseshoe', 'maritime provinces', 'prairies',
-          // Mexican regions
-          'valle de méxico', 'zona metropolitana', 'riviera maya', 'bajío'
-        ];
-        const isRegionalSearch = regionKeywords.some(keyword => fullQuery.toLowerCase().includes(keyword));
-        if (isRegionalSearch) {
-          orConditions.push(
-            sql`COALESCE(${communities.region}, '') ILIKE ${'%' + fullQuery + '%'}`
-          );
-        }
-        
-        // PRIORITY 1: Exact phrase match in name
-        orConditions.push(ilike(communities.name, `%${fullQuery}%`));
-        
-        // PRIORITY 2: Exact city match (very important for location searches)
-        orConditions.push(ilike(communities.city, fullQuery));
-        
-        // PRIORITY 3: City starts with query (e.g., "San" matches "San Francisco")
-        orConditions.push(ilike(communities.city, `${fullQuery}%`));
-        
-        // PRIORITY 4: City contains full query
-        orConditions.push(ilike(communities.city, `%${fullQuery}%`));
-        
-        // PRIORITY 5: ZIP code partial match (even if not pure numeric)
-        orConditions.push(ilike(communities.zipCode, `%${fullQuery}%`));
-        
-        // PRIORITY 6: County match (without requiring "county" word)
-        orConditions.push(
-          sql`COALESCE(${communities.county}, '') ILIKE ${'%' + fullQuery + '%'}`
-        );
-        
-        // PRIORITY 7: State match (for state searches)
-        orConditions.push(ilike(communities.state, fullQuery));
-        orConditions.push(ilike(communities.state, `%${fullQuery}%`));
-        
-        // PRIORITY 6: All terms present in name (for multi-word searches)
-        if (searchTerms.length > 1 && !cityStateMatch) {
-          const nameAndConditions = searchTerms.map(term => 
-            ilike(communities.name, `%${term}%`)
-          );
-          if (nameAndConditions.length > 0) {
-            orConditions.push(and(...nameAndConditions));
+          
+          // PRIORITY 7: State match (for state searches)
+          orConditions.push(ilike(communities.state, fullQuery));
+          orConditions.push(ilike(communities.state, `%${fullQuery}%`));
+          
+          // PRIORITY 6: All terms present in name (for multi-word searches)
+          if (searchTerms.length > 1 && !cityStateMatch) {
+            const nameAndConditions = searchTerms.map(term => 
+              ilike(communities.name, `%${term}%`)
+            );
+            if (nameAndConditions.length > 0) {
+              orConditions.push(and(...nameAndConditions));
+            }
           }
-        }
-        
-        // PRIORITY 7: Management company and address
-        orConditions.push(
-          sql`COALESCE(${communities.managementCompany}, '') ILIKE ${'%' + fullQuery + '%'}`
-        );
-        orConditions.push(
-          sql`COALESCE(${communities.address}, '') ILIKE ${'%' + fullQuery + '%'}`
-        );
-        
-        // If this is a location search, use location conditions as required filter
-        if (isLocationSearch && locationConditions.length > 0) {
-          // For location searches, ONLY return results from that location
-          conditions.push(or(...locationConditions));
-        } else if (orConditions.length > 0) {
-          // For non-location searches, use all OR conditions
-          conditions.push(or(...orConditions));
+          
+          // PRIORITY 7: Management company and address
+          orConditions.push(
+            sql`COALESCE(${communities.managementCompany}, '') ILIKE ${'%' + fullQuery + '%'}`
+          );
+          orConditions.push(
+            sql`COALESCE(${communities.address}, '') ILIKE ${'%' + fullQuery + '%'}`
+          );
+          
+          // Add all OR conditions for non-location searches
+          if (orConditions.length > 0) {
+            conditions.push(or(...orConditions));
+          }
         }
       }
       
