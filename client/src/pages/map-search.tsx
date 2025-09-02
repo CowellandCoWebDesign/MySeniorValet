@@ -115,6 +115,11 @@ export default function MapSearch() {
   const initialQuery = urlParams.get('query') || urlParams.get('location') || urlParams.get('q') || '';
   const budgetParam = urlParams.get('budget') || '';
   const careTypesParam = urlParams.get('careTypes') || '';
+  const latParam = urlParams.get('lat');
+  const lngParam = urlParams.get('lng');
+  const zoomParam = urlParams.get('zoom');
+  const viewParam = urlParams.get('view');
+  const communityParam = urlParams.get('community');
   
   // Map budget values from onboarding to filter values
   const getBudgetFilter = (budget: string) => {
@@ -129,8 +134,8 @@ export default function MapSearch() {
     }
   };
 
-  const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
+  const [searchQuery, setSearchQuery] = useState(communityParam || initialQuery);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>(viewParam === 'map' ? 'map' : 'map');
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
   const [hasSearched, setHasSearched] = useState(false);
   const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>('all');
@@ -175,13 +180,31 @@ export default function MapSearch() {
 
   // Trigger search when arriving with query from URL
   useEffect(() => {
+    // Handle direct coordinates first (from View in a map button)
+    if (latParam && lngParam && !hasSearched) {
+      const lat = parseFloat(latParam);
+      const lng = parseFloat(lngParam);
+      const zoom = zoomParam ? parseInt(zoomParam) : 15;
+      
+      console.log('📍 Direct coordinates provided:', { lat, lng, zoom });
+      setMapCenter([lat, lng]);
+      setMapZoom(zoom);
+      setHasSearched(true);
+      
+      // Don't open the panel automatically when coming from View in a map
+      if (viewParam === 'map') {
+        setShowBottomPanel(false);
+      }
+      return;
+    }
+    
     if (initialQuery && !hasSearched) {
       console.log('🔍 Initial search query detected:', initialQuery);
       setSearchQuery(initialQuery);
       setHasSearched(true);
       
-      // Open the bottom panel to show results
-      if (!showBottomPanel && initialQuery.length > 0) {
+      // Only open the bottom panel if not explicitly coming from View in a map
+      if (!showBottomPanel && initialQuery.length > 0 && viewParam !== 'map') {
         setPanelHeight(90);
         setShowBottomPanel(true);
       }

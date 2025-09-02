@@ -29,6 +29,8 @@ interface CommunityCardProps {
     reviewCount?: number;
     photos?: string[];
     description?: string;
+    latitude?: number;
+    longitude?: number;
     totalUnits?: number;
     availabilityStatus?: string;
     monthlyRentRangeStart?: number;
@@ -379,17 +381,27 @@ function CommunityCard({
             className="mb-4 text-blue-600 border-gray-300 hover:bg-gray-50"
             onClick={(e) => {
               e.stopPropagation();
-              // Navigate to map search with location preserved
+              // Navigate to map search with specific community location
               const params = new URLSearchParams();
-              if (community.city) {
-                params.set('city', community.city);
+              
+              // Pass coordinates if available for direct map centering
+              if (community.latitude && community.longitude) {
+                params.set('lat', community.latitude.toString());
+                params.set('lng', community.longitude.toString());
+                params.set('zoom', '15'); // Closer zoom for specific location
               }
-              if (community.state) {
-                params.set('state', community.state);
+              
+              // Pass community name for display
+              params.set('community', community.name);
+              
+              // Pass location as backup for geocoding if no coordinates
+              if (!community.latitude && community.city && community.state) {
+                params.set('location', `${community.city}, ${community.state}`);
               }
-              if (community.name) {
-                params.set('q', community.name);
-              }
+              
+              // Indicate we want map view, not list
+              params.set('view', 'map');
+              
               const queryString = params.toString();
               setLocation(`/map-search${queryString ? '?' + queryString : ''}`);
             }}
@@ -437,11 +449,11 @@ function CommunityCard({
             </div>
           )}
           
-          {/* No pricing - Contact for pricing */}
+          {/* No pricing - Click to search for pricing */}
           {!pricing && (
             <div className="border-t pt-4">
               <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                Contact for Pricing
+                Click to Search for Pricing!
               </Button>
             </div>
           )}
