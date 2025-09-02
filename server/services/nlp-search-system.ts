@@ -12,7 +12,7 @@
  */
 
 import { db } from '../db';
-import { communities, services, vendors } from '@shared/schema';
+import { communities, services, vendors, hospitals, educationalResources } from '@shared/schema';
 import { and, or, ilike, sql, eq, gte, lte, desc, asc } from 'drizzle-orm';
 import { weaviateService } from './weaviate-service';
 import OpenAI from 'openai';
@@ -111,6 +111,7 @@ export class NLPSearchSystem {
     limit?: number;
     filters?: any;
     userContext?: any;
+    category?: 'communities' | 'services' | 'healthcare' | 'resources';
   }): Promise<{
     results: UnifiedSearchResult[];
     intent: QueryIntent;
@@ -118,10 +119,16 @@ export class NLPSearchSystem {
     suggestions?: string[];
     facets?: any;
   }> {
-    console.log(`🧠 NLP Search System: Processing query "${query}"`);
+    console.log(`🧠 NLP Search System: Processing query "${query}" (category: ${options?.category || 'auto'})`);
     
     // 1. Query Understanding & Intent Classification
     const intent = await this.classifyIntent(query);
+    
+    // Override databases based on category if provided
+    if (options?.category) {
+      intent.databases = [options.category];
+    }
+    
     console.log('📊 Intent Classification:', intent);
     
     // 2. Query Enhancement & Expansion
@@ -846,27 +853,111 @@ export class NLPSearchSystem {
   }
   
   /**
-   * Search healthcare providers (placeholder for future implementation)
+   * Search healthcare providers (hospitals and medical facilities)
    */
   private async searchHealthcare(
     query: string,
     intent: QueryIntent,
     options?: any
   ): Promise<UnifiedSearchResult[]> {
-    // Healthcare database not yet implemented
-    return [];
+    try {
+      const conditions = [];
+      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
+      
+      // Search for healthcare facilities
+      const healthcareConditions = searchTerms.map(term =>
+        or(
+          ilike(hospitals.name, `%${term}%`),
+          ilike(hospitals.address, `%${term}%`),
+          ilike(hospitals.city, `%${term}%`),
+          ilike(hospitals.state, `%${term}%`),
+          ilike(hospitals.hospitalType, `%${term}%`),
+          ilike(hospitals.ownership, `%${term}%`)
+        )
+      );
+      
+      if (healthcareConditions.length > 0) {
+        conditions.push(or(...healthcareConditions));
+      }
+      
+      const results = await db
+        .select()
+        .from(hospitals)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .limit(options?.limit || 50);
+      
+      return results.map(hospital => ({
+        type: 'healthcare' as const,
+        id: hospital.id,
+        data: hospital,
+        score: 0.8,
+        source: 'hospitals',
+        metadata: {
+          database: 'hospitals',
+          matchedFields: ['name', 'city', 'type'],
+          queryRelevance: 0.8,
+        }
+      }));
+    } catch (error) {
+      console.error('Healthcare search error:', error);
+      return [];
+    }
   }
   
   /**
-   * Search resources database (placeholder for future implementation)
+   * Search resources database (educational resources and guides)
    */
   private async searchResources(
     query: string,
     intent: QueryIntent,
     options?: any
   ): Promise<UnifiedSearchResult[]> {
-    // Resources database not yet implemented
-    return [];
+    try {
+      const conditions = [];
+      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
+      
+      // Search educational resources
+      const resourceConditions = searchTerms.map(term =>
+        or(
+          ilike(educationalResources.title, `%${term}%`),
+          ilike(educationalResources.description, `%${term}%`),
+          ilike(educationalResources.category, `%${term}%`),
+          ilike(educationalResources.subcategory, `%${term}%`),
+          ilike(educationalResources.content, `%${term}%`),
+          ilike(educationalResources.summary, `%${term}%`)
+        )
+      );
+      
+      if (resourceConditions.length > 0) {
+        conditions.push(or(...resourceConditions));
+      }
+      
+      // Only get active resources
+      conditions.push(eq(educationalResources.isActive, true));
+      
+      const results = await db
+        .select()
+        .from(educationalResources)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(educationalResources.viewCount))
+        .limit(options?.limit || 50);
+      
+      return results.map(resource => ({
+        type: 'resource' as const,
+        id: resource.id,
+        data: resource,
+        score: 0.85,
+        source: 'educational_resources',
+        metadata: {
+          database: 'educational_resources',
+          matchedFields: ['title', 'category', 'content'],
+          queryRelevance: 0.85,
+        }
+      }));
+    } catch (error) {
+      console.error('Resources search error:', error);
+      return [];
+    }
   }
   
   /**
