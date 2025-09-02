@@ -80,9 +80,11 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 **Community Subscription Tiers ($99-$3,999/month):**
 1. **Starter ($99)** - Live messaging with families, basic profile, analytics
 2. **Growth ($299)** - Reservation management (CC hold only), 3D tours, priority support
-3. **Professional ($999)** - AI lease generation, move-in calculator, 25 properties
-4. **Premium ($1,999)** - Payment & deposit processing, healthcare integrations, 100 properties
-5. **Enterprise ($3,999)** - Full resident management system, white-label, unlimited properties
+3. **Professional ($999)** - AI lease generation, move-in calculator, 5 properties
+4. **Premium ($1,999)** - Payment & deposit processing, healthcare integrations, 10 properties
+5. **Enterprise ($3,999)** - Full resident management system, white-label, 25 properties
+
+**Volume Discounts:** For communities managing 10+ properties, contact hello@myseniorvalet.com for customized pricing and special rates.
 
 **Vendor Subscription Tiers ($99-$499/month):**
 1. **Basic ($99)** - Nationwide coverage, up to 10 leads/month max

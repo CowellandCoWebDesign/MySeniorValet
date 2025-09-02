@@ -56,9 +56,11 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 **Active Tier Structure ($99-$3,999/month) - Portal & Dashboard Included:**
 - Starter: $99 (Live messaging with families, basic listing, analytics)
 - Growth: $299 (Reservation management with CC hold, 3D tours, priority support)
-- Professional: $999 (AI lease generation, move-in calculator, 25 properties)
-- Premium: $1,999 (Payment & deposit processing, healthcare integrations, 100 properties)
-- Enterprise: $3,999 (Full resident management system, white-label, unlimited properties)
+- Professional: $999 (AI lease generation, move-in calculator, 5 properties)
+- Premium: $1,999 (Payment & deposit processing, healthcare integrations, 10 properties)
+- Enterprise: $3,999 (Full resident management system, white-label, 25 properties)
+
+**Volume Discounts:** Managing 10+ communities? Contact hello@myseniorvalet.com for special rates.
 
 **All Tiers Include Access To:**
 - Community Portal & Dashboard

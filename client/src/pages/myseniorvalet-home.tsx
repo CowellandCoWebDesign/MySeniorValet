@@ -2644,21 +2644,21 @@ export default function MySeniorValetHome() {
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional ⭐</p>
                             <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$999/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Multi-property (25), lead tracking, CRM integration</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Multi-property (5), lead tracking, CRM integration</p>
                         </div>
                         <div className="p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
                             <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$1,999/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Payment processing, AI insights, 100 properties</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Payment processing, AI insights, 10 properties</p>
                         </div>
                         <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Enterprise</p>
                             <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$3,999/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full resident mgmt, white-label, unlimited properties</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full resident mgmt, white-label, 25 properties</p>
                         </div>
                         <div className="mt-3 p-2 bg-gradient-to-r from-green-500/20 to-emerald-600/20 dark:from-green-500/10 dark:to-emerald-600/10 rounded border border-green-300 dark:border-green-700">
                           <p className="text-xs font-semibold text-green-700 dark:text-green-300 text-center">🚀 PHASE 5A COMPLETE</p>

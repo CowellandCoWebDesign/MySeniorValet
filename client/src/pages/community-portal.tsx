@@ -143,7 +143,7 @@ export default function CommunityPortal() {
       description: 'Most popular for portfolios',
       features: [
         { text: 'Everything in Growth, plus:', header: true },
-        { text: '⭐ Manage up to 25 properties', included: true, highlight: true },
+        { text: '⭐ Manage up to 5 properties', included: true, highlight: true },
         { text: '🤖 AI lease generation & move-in paperwork', included: true, highlight: true },
         { text: '🛡️ Rental insurance tracking', included: true },
         { text: 'Advanced lead tracking & CRM exports', included: true },
@@ -168,7 +168,7 @@ export default function CommunityPortal() {
       description: 'For large portfolios',
       features: [
         { text: 'Everything in Professional, plus:', header: true },
-        { text: '💎 Manage up to 100 properties', included: true, highlight: true },
+        { text: '💎 Manage up to 10 properties', included: true, highlight: true },
         { text: '💳 Payment & deposit processing', included: true, highlight: true },
         { text: '🏥 Healthcare integrations (Epic, Cerner)', included: true },
         { text: 'AI-powered insights & forecasting', included: true },
@@ -193,7 +193,7 @@ export default function CommunityPortal() {
       description: 'Fortune 500 infrastructure',
       features: [
         { text: 'Everything in Premium, plus:', header: true },
-        { text: '🚀 Unlimited properties', included: true, highlight: true },
+        { text: '🚀 Manage up to 25 properties', included: true, highlight: true },
         { text: '👥 Full Resident Management System', included: true, highlight: true },
         { text: 'White-label platform options', included: true },
         { text: 'Full API access & webhooks', included: true },
@@ -671,7 +671,7 @@ export default function CommunityPortal() {
             <div className="flex items-center gap-3">
               <Info className="w-5 h-5 text-blue-600" />
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                <strong>Volume Discounts Available:</strong> Managing 10+ communities? Contact us for special rates!
+                <strong>Volume Discounts Available:</strong> Managing 10+ communities? Contact hello@myseniorvalet.com for special rates!
               </p>
             </div>
           </Card>
