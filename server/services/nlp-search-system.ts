@@ -518,6 +518,35 @@ export class NLPSearchSystem {
       if (fullQuery.length > 0) {
         const orConditions = [];
         
+        // Check if this is a city, state search (e.g., "Redding, CA")
+        const cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
+        if (cityStateMatch) {
+          const city = cityStateMatch[1].trim();
+          const state = cityStateMatch[2].trim();
+          
+          // HIGHEST PRIORITY: Exact city AND state match
+          orConditions.push(
+            and(
+              ilike(communities.city, city),
+              or(
+                ilike(communities.state, state),
+                ilike(communities.state, `%${state}%`) // Handle abbreviations like CA for California
+              )
+            )
+          );
+          
+          // Also search for communities containing city name in that state
+          orConditions.push(
+            and(
+              ilike(communities.city, `%${city}%`),
+              or(
+                ilike(communities.state, state),
+                ilike(communities.state, `%${state}%`)
+              )
+            )
+          );
+        }
+        
         // PRIORITY 1: Exact phrase match in name
         orConditions.push(ilike(communities.name, `%${fullQuery}%`));
         
@@ -535,7 +564,7 @@ export class NLPSearchSystem {
         orConditions.push(ilike(communities.state, `%${fullQuery}%`));
         
         // PRIORITY 6: All terms present in name (for multi-word searches)
-        if (searchTerms.length > 1) {
+        if (searchTerms.length > 1 && !cityStateMatch) {
           const nameAndConditions = searchTerms.map(term => 
             ilike(communities.name, `%${term}%`)
           );
