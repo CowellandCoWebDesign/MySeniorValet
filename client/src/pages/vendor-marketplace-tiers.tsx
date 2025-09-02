@@ -30,7 +30,8 @@ import {
   DollarSign,
   Zap,
   X,
-  Info
+  Info,
+  Headset
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
@@ -444,7 +445,7 @@ export default function VendorMarketplaceTiers() {
                   </td>
                 </tr>
                 <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Monthly Leads</td>
+                  <td className="py-3 px-3 md:py-4 md:px-6 font-medium text-gray-900 dark:text-gray-100 text-sm md:text-base">Monthly Lead Cap <span className="text-xs text-gray-500 dark:text-gray-400">(maximum)</span></td>
                   <td className="text-center py-2 px-2 md:py-3 md:px-4 text-gray-700 dark:text-gray-300">
                     <div className="font-medium text-xs md:text-sm">5</div>
                   </td>
@@ -701,8 +702,8 @@ export default function VendorMarketplaceTiers() {
               </div>
               <div className="flex flex-col items-center text-center">
                 <Users className="w-10 h-10 text-green-600 dark:text-green-400 mb-3" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Pre-Qualified Leads</h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Connect with families and facilities already looking for your specific services</p>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Pre-Qualified Lead Opportunities</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Connect with families and facilities actively searching for your services (up to your plan's monthly cap)</p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <TrendingUp className="w-10 h-10 text-purple-600 dark:text-purple-400 mb-3" />
@@ -790,7 +791,7 @@ export default function VendorMarketplaceTiers() {
                     </div>
                     <div className="flex items-start gap-2">
                       <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 mt-0.5" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Basic lead notifications</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Lead notifications (up to 5/month cap)</span>
                     </div>
                   </>
                 )}
