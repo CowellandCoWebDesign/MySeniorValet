@@ -221,8 +221,9 @@ export class NLPSearchSystem {
     
     const lowerQuery = expandedQuery.toLowerCase();
     
-    // State name to abbreviation mapping
+    // State/Province name to abbreviation mapping
     const stateMap: Record<string, string> = {
+      // US States
       'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
       'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
       'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
@@ -235,7 +236,12 @@ export class NLPSearchSystem {
       'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
       'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
       'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
-      'wisconsin': 'WI', 'wyoming': 'WY'
+      'wisconsin': 'WI', 'wyoming': 'WY',
+      // Canadian Provinces
+      'ontario': 'ON', 'quebec': 'QC', 'québec': 'QC', 'british columbia': 'BC',
+      'alberta': 'AB', 'manitoba': 'MB', 'saskatchewan': 'SK', 'nova scotia': 'NS',
+      'new brunswick': 'NB', 'newfoundland and labrador': 'NL', 'prince edward island': 'PE',
+      'northwest territories': 'NT', 'yukon': 'YT', 'nunavut': 'NU'
     };
     
     // Extract locations - focus on full state names first
@@ -518,11 +524,34 @@ export class NLPSearchSystem {
       if (fullQuery.length > 0) {
         const orConditions = [];
         
-        // Check if this is a ZIP code search (5 digits or 5+4 format)
-        const zipMatch = fullQuery.match(/^\d{5}(-\d{4})?$/);
-        if (zipMatch) {
-          // HIGHEST PRIORITY: ZIP code match
+        // Check if this is a postal/ZIP code search
+        // US: 5 digits or 5+4, Canada: A1A 1A1, Mexico: 5 digits
+        const postalMatch = fullQuery.match(/^(\d{5}(-\d{4})?|[A-Z]\d[A-Z]\s?\d[A-Z]\d|\d{5})$/i);
+        if (postalMatch) {
+          // HIGHEST PRIORITY: Postal/ZIP code match
           orConditions.push(ilike(communities.zipCode, `${fullQuery}%`));
+        }
+        
+        // Check for country-specific searches
+        const countryKeywords: Record<string, string[]> = {
+          'canada': ['CA', 'canadian', 'québec', 'quebec', 'ontario', 'british columbia', 'alberta', 'manitoba', 'saskatchewan', 'nova scotia', 'newfoundland'],
+          'mexico': ['MX', 'mexican', 'méxico', 'mexico city', 'cdmx', 'guadalajara', 'monterrey', 'cancun', 'tijuana'],
+          'peru': ['PE', 'peruvian', 'perú', 'lima', 'arequipa', 'cusco'],
+          'cuba': ['CU', 'cuban', 'havana', 'habana', 'santiago de cuba'],
+          'puerto rico': ['PR', 'puerto rican', 'san juan', 'bayamon', 'ponce']
+        };
+        
+        let detectedCountry: string | null = null;
+        for (const [country, keywords] of Object.entries(countryKeywords)) {
+          if (keywords.some(keyword => fullQuery.toLowerCase().includes(keyword.toLowerCase()))) {
+            detectedCountry = country === 'canada' ? 'CA' : 
+                             country === 'mexico' ? 'MX' :
+                             country === 'peru' ? 'PE' :
+                             country === 'cuba' ? 'CU' :
+                             country === 'puerto rico' ? 'PR' : 'US';
+            orConditions.push(ilike(communities.country, detectedCountry));
+            break;
+          }
         }
         
         // Check if this is a city, state search (e.g., "Redding, CA")
@@ -541,8 +570,9 @@ export class NLPSearchSystem {
           // If it's a 2-letter state code, also search for full state name
           if (state.length === 2) {
             const stateLower = state.toLowerCase();
-            // Common state abbreviations
+            // State/Province abbreviations (US states, Canadian provinces, Mexican states)
             const stateExpansions: Record<string, string> = {
+              // US States
               'ca': 'california', 'tx': 'texas', 'fl': 'florida', 'ny': 'new york',
               'pa': 'pennsylvania', 'il': 'illinois', 'oh': 'ohio', 'ga': 'georgia',
               'nc': 'north carolina', 'mi': 'michigan', 'nj': 'new jersey', 'va': 'virginia',
@@ -555,7 +585,15 @@ export class NLPSearchSystem {
               'wv': 'west virginia', 'id': 'idaho', 'hi': 'hawaii', 'nh': 'new hampshire',
               'me': 'maine', 'ri': 'rhode island', 'mt': 'montana', 'de': 'delaware',
               'sd': 'south dakota', 'nd': 'north dakota', 'ak': 'alaska', 'dc': 'district of columbia',
-              'vt': 'vermont', 'wy': 'wyoming'
+              'vt': 'vermont', 'wy': 'wyoming',
+              // Canadian Provinces
+              'on': 'ontario', 'qc': 'quebec', 'bc': 'british columbia', 'ab': 'alberta',
+              'mb': 'manitoba', 'sk': 'saskatchewan', 'ns': 'nova scotia', 'nb': 'new brunswick',
+              'nl': 'newfoundland and labrador', 'pe': 'prince edward island', 'nt': 'northwest territories',
+              'yt': 'yukon', 'nu': 'nunavut',
+              // Mexican States (common abbreviations)
+              'cdmx': 'ciudad de méxico', 'jal': 'jalisco', 'nl': 'nuevo león', 'bc': 'baja california',
+              'chih': 'chihuahua', 'qro': 'querétaro', 'yuc': 'yucatán', 'pue': 'puebla'
             };
             
             if (stateExpansions[stateLower]) {
@@ -587,8 +625,17 @@ export class NLPSearchSystem {
           );
         }
         
-        // Check for regional searches (Bay Area, Central Valley, etc.)
-        const regionKeywords = ['bay area', 'central valley', 'north coast', 'southern', 'northern', 'east bay', 'west side'];
+        // Check for regional searches (Bay Area, Central Valley, GTA, etc.)
+        const regionKeywords = [
+          // US regions
+          'bay area', 'central valley', 'north coast', 'southern', 'northern', 'east bay', 'west side',
+          'silicon valley', 'pacific northwest', 'midwest', 'northeast', 'southwest',
+          // Canadian regions
+          'greater toronto area', 'gta', 'metro vancouver', 'national capital region',
+          'golden horseshoe', 'maritime provinces', 'prairies',
+          // Mexican regions
+          'valle de méxico', 'zona metropolitana', 'riviera maya', 'bajío'
+        ];
         const isRegionalSearch = regionKeywords.some(keyword => fullQuery.toLowerCase().includes(keyword));
         if (isRegionalSearch) {
           orConditions.push(
