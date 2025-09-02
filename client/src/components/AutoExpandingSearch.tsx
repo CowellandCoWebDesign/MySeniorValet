@@ -282,7 +282,7 @@ export function AutoExpandingSearch({
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
-            className="absolute top-full left-0 right-0 mt-2 z-50"
+            className="relative mt-2 z-50"
           >
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
               <div className="p-2">
