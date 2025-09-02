@@ -110,8 +110,13 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 - Custom branding
 
 ✅ **ACCESSIBLE NOW:**
-- Unit/Reservation Management (in `reservation.service.ts`)
+- Unit/Reservation Management (in `reservation.service.ts` - BOTH SIDES)
+  - Admin: Community Dashboard Reservations tab
+  - Public: Community Details Availability tab
 - Move-In Cost Calculator (`MoveInCostCalculator.tsx`)
+- 3D Virtual Tours (in `tour-embed.service.ts` - BOTH SIDES)
+  - Admin: Community Dashboard Tours tab
+  - Public: Community Details Photo Carousel
 🔧 **BUILT BUT NOT WIRED:**
 - AI Lease Management (in `reservation.service.ts`)
 - Insurance tracking (in reservation metadata)

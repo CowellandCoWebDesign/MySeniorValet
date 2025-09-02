@@ -1064,6 +1064,32 @@ const HeroPhotoCarousel = ({
   community?: Community,
   verificationReport?: any
 }) => {
+  const [tours, setTours] = useState<any[]>([]);
+  const [showTourModal, setShowTourModal] = useState(false);
+  const [selectedTour, setSelectedTour] = useState<any>(null);
+  const [toursLoading, setToursLoading] = useState(false);
+  
+  // Fetch 3D tours for this community
+  useEffect(() => {
+    const fetchTours = async () => {
+      if (!communityId) return;
+      setToursLoading(true);
+      try {
+        const response = await fetch(`/api/communities/${communityId}/tours`);
+        if (response.ok) {
+          const data = await response.json();
+          setTours(data.tours || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch tours:', error);
+      } finally {
+        setToursLoading(false);
+      }
+    };
+    
+    fetchTours();
+  }, [communityId]);
+  
   // Dynamically get all available photos with source tracking
   const getAllPhotos = () => {
     console.log('🔍 [HeroPhotoCarousel] Getting all photos...');
@@ -1290,16 +1316,39 @@ const HeroPhotoCarousel = ({
   }
 
   return (
-    <div 
-      className="absolute inset-0 group cursor-grab active:cursor-grabbing"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
-    >
+    <>
+      {/* 3D Tour Modal */}
+      {selectedTour && (
+        <Dialog open={showTourModal} onOpenChange={setShowTourModal}>
+          <DialogContent className="max-w-6xl w-full h-[80vh] p-0">
+            <DialogHeader className="p-4 pb-0">
+              <DialogTitle>{selectedTour.title || '3D Virtual Tour'}</DialogTitle>
+              {selectedTour.description && (
+                <DialogDescription>{selectedTour.description}</DialogDescription>
+              )}
+            </DialogHeader>
+            <div className="relative w-full h-full p-4">
+              <iframe
+                src={selectedTour.embedUrl}
+                className="w-full h-full rounded-lg"
+                allowFullScreen
+                frameBorder="0"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      <div 
+        className="absolute inset-0 group cursor-grab active:cursor-grabbing"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
       {/* Photo Carousel Container */}
       <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
         <div className="w-full h-full overflow-hidden">
@@ -1381,9 +1430,24 @@ const HeroPhotoCarousel = ({
             ))}
           </div>
 
-          {/* Photo counter - moved to top left to avoid share button conflict */}
-          <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
-            {currentIndex + 1} / {safePhotos.length}
+          {/* Photo counter and 3D Tour button */}
+          <div className="absolute top-4 left-4 flex gap-2 z-10">
+            <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {currentIndex + 1} / {safePhotos.length}
+            </div>
+            {tours.length > 0 && (
+              <Button
+                onClick={() => {
+                  setSelectedTour(tours[0]);
+                  setShowTourModal(true);
+                }}
+                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-medium flex items-center gap-1"
+                size="sm"
+              >
+                <Camera className="w-3 h-3" />
+                3D Tour
+              </Button>
+            )}
           </div>
 
           {/* Swipe instruction on mobile - now properly at the bottom */}
@@ -1392,7 +1456,8 @@ const HeroPhotoCarousel = ({
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 
@@ -2929,6 +2994,56 @@ export default function CommunityDetail() {
 
               {/* Availability Tab */}
               <TabsContent value="availability" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                
+                {/* Real-Time Unit Availability */}
+                <Card className="border-2 border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center text-green-800 dark:text-green-200">
+                      <Home className="w-5 h-5 mr-2" />
+                      Real-Time Unit Availability
+                    </CardTitle>
+                    <CardDescription className="text-green-700 dark:text-green-300">
+                      Current available units and reservation status
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      {[
+                        { type: 'Studio', available: 5, price: '$2,500-3,500', features: '400-600 sq ft', color: 'purple' },
+                        { type: 'One Bedroom', available: 4, price: '$3,000-4,500', features: '600-800 sq ft', color: 'blue' },
+                        { type: 'Two Bedroom', available: 3, price: '$4,000-6,000', features: '800-1200 sq ft', color: 'green' }
+                      ].map((unit) => (
+                        <div key={unit.type} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                          <div className="flex justify-between items-start mb-3">
+                            <div>
+                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">{unit.type}</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">{unit.features}</p>
+                            </div>
+                            <Badge className={`bg-${unit.color}-100 text-${unit.color}-800`}>
+                              {unit.available} available
+                            </Badge>
+                          </div>
+                          <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">{unit.price}/mo</p>
+                          <Button 
+                            size="sm" 
+                            className="w-full bg-green-600 hover:bg-green-700"
+                            onClick={() => setIsScheduleTourOpen(true)}
+                          >
+                            Reserve Unit
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Separator className="my-6" />
+                    
+                    {/* Move-In Cost Calculator Integration */}
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Estimate Your Move-In Costs</h3>
+                      <ReservationSection community={community} />
+                    </div>
+                  </CardContent>
+                </Card>
                 
                 {/* Community Management Live Updates */}
                 <Card className="border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
