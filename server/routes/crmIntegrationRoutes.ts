@@ -239,9 +239,9 @@ export function registerCRMIntegrationRoutes(app: Express) {
         res.json({
           success: true,
           message: `${provider.toUpperCase()} data synced successfully`,
-          dataCount: Array.isArray(syncResult.leads) ? syncResult.leads.length : 
-                     Array.isArray(syncResult.prospects) ? syncResult.prospects.length :
-                     Array.isArray(syncResult.patients) ? syncResult.patients.length : 0
+          dataCount: Array.isArray((syncResult as any).leads) ? (syncResult as any).leads.length : 
+                     Array.isArray((syncResult as any).prospects) ? (syncResult as any).prospects.length :
+                     Array.isArray((syncResult as any).patients) ? (syncResult as any).patients.length : 0
         });
       } else {
         res.status(500).json({
