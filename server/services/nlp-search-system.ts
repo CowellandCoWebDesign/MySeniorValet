@@ -521,6 +521,10 @@ export class NLPSearchSystem {
       const fullQuery = query.trim();
       const searchTerms = fullQuery.toLowerCase().split(' ').filter(term => term.length > 1);
       
+      // Flag to determine if this is a location-specific search
+      let isLocationSearch = false;
+      let locationConditions: any[] = [];
+      
       if (fullQuery.length > 0) {
         const orConditions = [];
         
@@ -554,9 +558,10 @@ export class NLPSearchSystem {
           }
         }
         
-        // Check if this is a city, state search (e.g., "Redding, CA")
+        // Check if this is a city, state search (e.g., "Las Vegas, NV")
         const cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
         if (cityStateMatch) {
+          isLocationSearch = true; // Mark this as a location-specific search
           const city = cityStateMatch[1].trim();
           const state = cityStateMatch[2].trim();
           
@@ -601,15 +606,8 @@ export class NLPSearchSystem {
             }
           }
           
-          orConditions.push(
-            and(
-              ilike(communities.city, city),
-              or(...stateConditions)
-            )
-          );
-          
-          // Also search for communities containing city name in that state
-          orConditions.push(
+          // For location searches, set these as required conditions
+          locationConditions.push(
             and(
               ilike(communities.city, `%${city}%`),
               or(...stateConditions)
@@ -685,8 +683,12 @@ export class NLPSearchSystem {
           sql`COALESCE(${communities.address}, '') ILIKE ${'%' + fullQuery + '%'}`
         );
         
-        // Add all conditions as OR
-        if (orConditions.length > 0) {
+        // If this is a location search, use location conditions as required filter
+        if (isLocationSearch && locationConditions.length > 0) {
+          // For location searches, ONLY return results from that location
+          conditions.push(or(...locationConditions));
+        } else if (orConditions.length > 0) {
+          // For non-location searches, use all OR conditions
           conditions.push(or(...orConditions));
         }
       }
@@ -717,9 +719,12 @@ export class NLPSearchSystem {
         dbQuery = dbQuery.where(and(...conditions));
       }
       
-      // Apply modifiers
+      // Apply modifiers and sorting
       if (intent.entities.modifiers?.includes('cheapest')) {
         dbQuery = dbQuery.orderBy(asc(communities.rentPerMonth));
+      } else if (isLocationSearch) {
+        // For location searches, order by name to get more relevant results
+        dbQuery = dbQuery.orderBy(asc(communities.name));
       }
       
       const results = await dbQuery.limit(options?.limit || 50);
