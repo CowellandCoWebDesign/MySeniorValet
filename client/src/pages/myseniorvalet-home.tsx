@@ -287,8 +287,8 @@ function HeroSectionWithTransformingSearch() {
           }}
         >
           <img
-            src={RetroFamilyLivingRoom}
-            alt="Home Sweet Home - Your warm welcome to senior living wisdom"
+            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
+            alt="Cosmic space background - Infinite possibilities in senior living"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
@@ -2001,8 +2001,8 @@ export default function MySeniorValetHome() {
                 {/* Full-size Cosmic Image at top of card */}
                 <div className="relative h-64 w-full">
                   <img 
-                    src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg" 
-                    alt="Cosmic space background" 
+                    src={RetroFamilyLivingRoom}
+                    alt="Home Sweet Home - Your warm welcome" 
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Overlay elements on the image */}
