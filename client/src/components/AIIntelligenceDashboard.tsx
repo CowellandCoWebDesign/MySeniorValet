@@ -590,6 +590,57 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
                       </CardContent>
                     </Card>
 
+                    {/* Move-in Paperwork - Professional Tier Feature */}
+                    <Card className="hover:shadow-md transition-shadow border-purple-200 dark:border-purple-800">
+                      <CardContent className="p-6 relative">
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-purple-100 text-purple-700 text-xs">Pro</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 mb-4">
+                          <FileText className="h-8 w-8 text-purple-600" />
+                          <div>
+                            <h3 className="font-semibold">Move-in Paperwork</h3>
+                            <p className="text-sm text-muted-foreground">Complete move-in package</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Move-in Paperwork', { 
+                            includeLeaseAgreement: true,
+                            includeInventoryChecklist: true,
+                            includeWelcomePacket: true,
+                            includeEmergencyContacts: true,
+                            includeInsuranceVerification: true,
+                            includeParkingAgreement: true,
+                            includePetPolicy: true,
+                            includeHouseRules: true
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Move-in Paperwork' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Package
+                            </>
+                          )}
+                        </Button>
+                        <div className="mt-3 text-xs text-gray-600 dark:text-gray-400">
+                          <p className="font-medium mb-1">Includes:</p>
+                          <ul className="space-y-0.5 text-gray-500">
+                            <li>• Resident agreement</li>
+                            <li>• Insurance forms</li>
+                            <li>• Welcome packet</li>
+                            <li>• Emergency contacts</li>
+                          </ul>
+                        </div>
+                      </CardContent>
+                    </Card>
+
                     {/* Care Plans */}
                     <Card className="hover:shadow-md transition-shadow">
                       <CardContent className="p-6">

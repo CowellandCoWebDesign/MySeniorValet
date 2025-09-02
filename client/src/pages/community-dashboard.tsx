@@ -497,21 +497,131 @@ export default function CommunityDashboard() {
               </Card>
             </div>
 
-            {/* Resident Management Tools */}
+            {/* Insurance Tracking Section - Professional Tier Feature */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Shield className="h-5 w-5 text-blue-600" />
+                        Rental Insurance Tracking
+                      </CardTitle>
+                      <CardDescription>Monitor resident insurance compliance</CardDescription>
+                    </div>
+                    <Badge className="bg-purple-100 text-purple-700">Pro Feature</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div>
+                        <p className="font-medium">Insured Residents</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Valid coverage on file</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-green-600">92%</p>
+                        <p className="text-sm text-gray-600">94 of 102</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Expiring within 30 days</span>
+                        <Badge variant="outline" className="text-orange-600">5 residents</Badge>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>No insurance on file</span>
+                        <Badge variant="outline" className="text-red-600">8 residents</Badge>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Verified this month</span>
+                        <Badge variant="outline" className="text-blue-600">12 updated</Badge>
+                      </div>
+                    </div>
+                    <Button className="w-full" variant="outline">
+                      <FileText className="h-4 w-4 mr-2" />
+                      Generate Insurance Report
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <Home className="h-5 w-5 text-purple-600" />
+                        RMS Integration Status
+                      </CardTitle>
+                      <CardDescription>Property management system sync</CardDescription>
+                    </div>
+                    <Badge className="bg-purple-100 text-purple-700">Pro Feature</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-3 border rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="font-medium">Yardi</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Last sync: 5 min ago</p>
+                      </div>
+                      <div className="p-3 border rounded-lg">
+                        <div className="flex items-center gap-2 mb-1">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          <span className="font-medium">Aline</span>
+                        </div>
+                        <p className="text-xs text-gray-600">Last sync: 12 min ago</p>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <p className="text-sm font-medium mb-2">Auto-Sync Enabled</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Resident data, insurance records, and lease documents sync every 15 minutes
+                      </p>
+                    </div>
+                    <Button className="w-full" variant="outline">
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Manual Sync Now
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Enhanced Resident Management System - Professional Tier Feature */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>Resident Directory</CardTitle>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Filter className="mr-2 h-4 w-4" />
-                      Filter
-                    </Button>
-                    <Button size="sm" onClick={() => setShowAddResidentModal(true)}>
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add Resident
-                    </Button>
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="h-5 w-5 text-purple-600" />
+                      Resident Management System
+                    </CardTitle>
+                    <CardDescription>Complete resident lifecycle management</CardDescription>
                   </div>
+                  <Badge className="bg-purple-100 text-purple-700">Pro Feature</Badge>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <Button variant="outline" size="sm">
+                    <Filter className="mr-2 h-4 w-4" />
+                    Filter
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Download className="mr-2 h-4 w-4" />
+                    Export
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Import
+                  </Button>
+                  <Button size="sm" onClick={() => setShowAddResidentModal(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Resident
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
