@@ -2603,19 +2603,19 @@ export default function MySeniorValetHome() {
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Analytics</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">AI Lease Generation</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management CRM</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Resident Management</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Revenue Optimization</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Reservations</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">White-Label Options</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Insurance Tracking</span>
                       </div>
                     </div>
                     
@@ -2670,31 +2670,45 @@ export default function MySeniorValetHome() {
 
                   {/* Roadmap Features Section */}
                   <div className="mt-4 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 Enterprise Features Roadmap</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">AI-Powered Insights</span>
+                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 Key Features by Tier</p>
+                    <div className="space-y-2">
+                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">Professional ($999):</div>
+                      <div className="grid grid-cols-2 gap-1 text-xs mb-2">
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">AI Lease Generation</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Resident Management</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Insurance Tracking</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Real-Time Availability</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Compliance Monitoring</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Census Management</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Financial Reporting</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Multi-Site Management</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">API Integration</span>
+                      <div className="text-xs font-medium text-orange-700 dark:text-orange-300">Premium+ ($1,999+):</div>
+                      <div className="grid grid-cols-2 gap-1 text-xs">
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Healthcare Integration</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Payment Processing</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Multi-Site Management</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">White-Label Options</span>
+                        </div>
                       </div>
                     </div>
                   </div>
