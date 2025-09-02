@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LoadingMascot } from "@/components/mascot";
 import { FamilyShareButton } from "@/components/family-share-button";
 import { AdvancedReservationFlow } from "@/components/AdvancedReservationFlow";
+import { apiRequest } from "@/lib/queryClient";
 import { CompetitiveAnalysisLoader } from "@/components/CompetitiveAnalysisLoader";
 import { 
   getAmenitiesByCategory, 
@@ -45,6 +46,7 @@ import { PricingHistory } from "@/components/pricing-history";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
+import { ReservationSection } from "@/components/ReservationSection";
 import valetMascot from '@/assets/valet-mascot.png';
 
 // Default photos for communities without images
@@ -53,6 +55,8 @@ const defaultPhotos = [
   "/hero-gentleman-stars.jpg",
   "/starry-night-hero.png"
 ];
+
+// Legacy reservation component removed - using comprehensive ReservationSection component now
 
 // Community Competitive Analysis Component
 const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void }) => {
