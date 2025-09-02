@@ -264,14 +264,14 @@ function HeroSectionWithTransformingSearch() {
   return (
     <>
       <ProfessionalNavbar transparent />
-      <section className="relative h-screen overflow-hidden mt-16"
+      <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'h-screen'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
         <div 
-          className="absolute inset-0 h-full w-full cursor-pointer"
+          className={`absolute inset-0 ${isSearchActive ? 'h-screen' : 'h-full'} w-full cursor-pointer`}
           onClick={(e) => {
             // Only trigger if clicking the background image directly
             const target = e.target as HTMLElement;
@@ -317,7 +317,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
-        <div className="flex-grow flex flex-col justify-end pb-16 sm:pb-20 md:pb-32">
+        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-end pb-16 sm:pb-20 md:pb-32'}`}>
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6 md:mb-8">
           {/* Category Tabs - File Folder Style - Simplified */}
@@ -506,7 +506,7 @@ function HeroSectionWithTransformingSearch() {
           
           {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
-            <div className="w-full max-w-2xl mt-4">
+            <div className="w-full max-w-2xl mx-auto mt-4 mb-8">
               {/* Show AI Response directly in results area for Research mode */}
               {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
                 <div className="animate-fade-in">
@@ -544,7 +544,7 @@ function HeroSectionWithTransformingSearch() {
               
               {/* Results Content with premium glass design - Only show for non-Research mode */}
               {!searchResults?.metadata?.isResearchMode && (
-                <div className="mt-3 max-h-[calc(100vh-200px)] overflow-y-auto bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
+                <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20">
                   {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
