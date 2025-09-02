@@ -122,6 +122,7 @@ import ComplianceDashboard from "@/pages/compliance-dashboard";
 import MarketingAutomationDashboard from "@/pages/marketing-automation-dashboard";
 import ResidentPortal from "@/pages/resident-portal";
 import PublicResidentPortal from "@/pages/public-resident-portal";
+import ResidentDashboard from "@/pages/resident-dashboard";
 import OperationsDashboard from "@/pages/operations-dashboard";
 import CommunityDashboardPhase5A from "@/pages/community-dashboard-phase5a";
 import { MultiPropertyDashboard } from "@/pages/multi-property-dashboard";
@@ -398,6 +399,7 @@ function Router() {
       <Route path="/marketing-automation" component={MarketingAutomationDashboard} />
       <Route path="/resident-portal" component={ResidentPortal} />
       <Route path="/public-resident-portal" component={PublicResidentPortal} />
+      <Route path="/resident-dashboard" component={ResidentDashboard} />
       <Route path="/operations" component={OperationsDashboard} />
       <Route path="/community-dashboard-phase5a" component={CommunityDashboardPhase5A} />
       <Route path="/multi-property-dashboard" component={MultiPropertyDashboard} />

@@ -1977,6 +1977,196 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
+            {/* Resident Portal - Comprehensive Dashboard */}
+            <Link href="/resident-dashboard">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
+                {/* Full-size Cosmic Image at top of card */}
+                <div className="relative h-64 w-full">
+                  <img 
+                    src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg" 
+                    alt="Cosmic space background" 
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                  {/* Overlay elements on the image */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                    <Home className="h-8 w-8" />
+                  </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1">
+                    RESIDENT ACCESS
+                  </Badge>
+                </div>
+                <CardHeader className="relative z-10">
+                  <CardTitle className="text-2xl mb-2">Resident Portal & Dashboard</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Your Complete Community Living Experience
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    Access all resident services in one place - billing, dining, transportation, maintenance, activities & more
+                  </p>
+                  
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Service Categories */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Activity className="h-5 w-5 text-indigo-500" />
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">All Services</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Billing & Payments</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Dining Menus</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Maintenance Requests</span>
+                      </div>
+                    </div>
+                    
+                    {/* Right side - Features Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🏠</span> Quick Access
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <DollarSign className="h-3 w-3 text-green-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pay Monthly Rent</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Calendar className="h-3 w-3 text-blue-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Daily Activities Schedule</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <UtensilsCrossed className="h-3 w-3 text-orange-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Today's Menu</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Bus className="h-3 w-3 text-purple-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Book Transportation</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Wrench className="h-3 w-3 text-gray-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Submit Maintenance Request</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Heart className="h-3 w-3 text-red-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Wellness Check-In</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Users className="h-3 w-3 text-indigo-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Family Communication</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <FileText className="h-3 w-3 text-teal-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">View Statements</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <MessageSquare className="h-3 w-3 text-yellow-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Community Announcements</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Shield className="h-3 w-3 text-emerald-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Emergency Contacts</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Video className="h-3 w-3 text-pink-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Video Call Family</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Briefcase className="h-3 w-3 text-brown-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Personal Documents</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-indigo-600 dark:text-indigo-400 mt-2 font-medium">
+                        Your Community Life • All in One Place
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Horizontal Action Buttons Row */}
+                  <div className="mb-4 grid grid-cols-4 gap-2">
+                    {/* Quick Bill Pay */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/resident-billing-portal';
+                      }}
+                      className="h-auto bg-green-600 hover:bg-green-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <DollarSign className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Pay Bill</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Quick Pay</div>
+                      </div>
+                    </Button>
+
+                    {/* Dining Menu */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/dining-menu-viewer';
+                      }}
+                      className="h-auto bg-orange-600 hover:bg-orange-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <UtensilsCrossed className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Dining</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Today's Menu</div>
+                      </div>
+                    </Button>
+
+                    {/* Transportation */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/transportation-scheduler';
+                      }}
+                      className="h-auto bg-purple-600 hover:bg-purple-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <Bus className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Transport</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Book Ride</div>
+                      </div>
+                    </Button>
+
+                    {/* Maintenance */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/maintenance-request-portal';
+                      }}
+                      className="h-auto bg-gray-600 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <Wrench className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Maintenance</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Request</div>
+                      </div>
+                    </Button>
+                  </div>
+
+                  <Button className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Home className="mr-2 h-4 w-4" />
+                    <span className="font-semibold">Access Your Resident Dashboard</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
             {/* Senior Resources and Support Center */}
             <Link href="/senior-resources-center">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
