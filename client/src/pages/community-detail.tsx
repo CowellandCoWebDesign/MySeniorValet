@@ -339,10 +339,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
     }
   }, [community?.id]);
 
-  // Don't render if there's no real-time data and no verification report
-  if (!realTimeData && !localVerificationReport) {
-    return null;
-  }
+  // Show loading or placeholder content while waiting for data
+  const hasData = realTimeData || localVerificationReport;
 
   // Parse text arrays to filter out empty or "no information" responses
   const parseDataArray = (data: string[] | string | undefined): string[] => {
@@ -399,8 +397,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
           />
         )}
         
-        {/* Only show additional sections if we have real-time data */}
-        {realTimeData && (
+        {/* Show sections even without real-time data - will populate when loaded */}
+        {(
         <div className="space-y-6 mt-6">
           {/* Current Availability & Pricing - Enhanced with Web Intelligence Data */}
           {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (
@@ -597,7 +595,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
 
           {/* Community-Specific Web Intelligence - What We Found About */}
-          {(realTimeData || localVerificationReport?.consensus?.verifiedFacts?.length > 0 || isVerifying) && (
+          {(true) && (
             <div className="mt-6 mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex flex-col gap-1">

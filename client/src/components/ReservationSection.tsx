@@ -20,6 +20,7 @@ export function ReservationSection({ community }: ReservationSectionProps) {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedUnit, setSelectedUnit] = useState<{ type: string; id: string } | null>(null);
   const [activeTab, setActiveTab] = useState('quick-reserve');
+  const [showAdvancedFlow, setShowAdvancedFlow] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -224,18 +225,39 @@ export function ReservationSection({ community }: ReservationSectionProps) {
             </TabsContent>
 
             {/* Advanced Options Tab */}
-            <TabsContent value="advanced">
-              <AdvancedReservationFlow
-                community={community}
-                selectedUnit={selectedUnit || undefined}
-                onClose={() => {
-                  setShowReservation(false);
-                  toast({
-                    title: "Advanced Reservation Complete!",
-                    description: "Your detailed reservation has been submitted successfully",
-                  });
-                }}
-              />
+            <TabsContent value="advanced" className="space-y-4">
+              <div className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg p-6 border border-purple-200 dark:border-purple-700">
+                <h3 className="text-lg font-semibold mb-2 text-purple-800 dark:text-purple-200">Advanced Reservation Options</h3>
+                <p className="text-sm text-purple-700 dark:text-purple-300 mb-4">
+                  Access our comprehensive reservation system with tour scheduling, care assessment, and personalized move-in planning.
+                </p>
+                <Button
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => setShowAdvancedFlow(true)}
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Start Advanced Reservation Process
+                </Button>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Schedule personalized tours
+                  </div>
+                  <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+                    <Users className="w-4 h-4 mr-2" />
+                    Care needs assessment
+                  </div>
+                  <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+                    <Home className="w-4 h-4 mr-2" />
+                    Unit selection assistance
+                  </div>
+                  <div className="flex items-center text-sm text-purple-700 dark:text-purple-300">
+                    <Shield className="w-4 h-4 mr-2" />
+                    Move-in coordination
+                  </div>
+                </div>
+              </div>
             </TabsContent>
           </Tabs>
         </CardContent>
@@ -288,6 +310,17 @@ export function ReservationSection({ community }: ReservationSectionProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Advanced Reservation Flow Modal */}
+      {showAdvancedFlow && (
+        <AdvancedReservationFlow
+          community={community}
+          selectedUnit={selectedUnit || undefined}
+          onClose={() => {
+            setShowAdvancedFlow(false);
+          }}
+        />
+      )}
 
       {/* Stripe Payment Modal */}
       <StripePaymentModal
