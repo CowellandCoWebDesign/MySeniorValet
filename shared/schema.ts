@@ -6242,45 +6242,36 @@ export type ResidentProfile = typeof residentProfiles.$inferSelect;
 // Family Communication Portal - Messages between families and residents
 export const familyMessages = pgTable('family_messages', {
   id: serial('id').primaryKey(),
-  communityId: integer('community_id').references(() => communities.id).notNull(),
+  communityId: integer('community_id'),
   
-  // Participants
-  senderId: varchar('sender_id').references(() => users.id).notNull(),
-  recipientId: varchar('recipient_id').references(() => users.id),
+  // Participants - matching actual database with integer IDs
+  senderId: integer('sender_id'),
+  recipientId: integer('recipient_id'),
+  residentId: integer('resident_id'),
   recipientGroupId: integer('recipient_group_id'), // For group messages
   
   // Message Content
   subject: varchar('subject', { length: 255 }),
-  content: text('content').notNull(),
-  messageType: varchar('message_type', { length: 50 }).notNull().default('text'), // 'text', 'photo', 'video', 'voice', 'document'
-  attachments: jsonb('attachments').$type<Array<{
-    type: string;
-    url: string;
-    thumbnail?: string;
-    size: number;
-    filename: string;
-  }>>().default([]),
+  content: text('content'),
+  type: varchar('type', { length: 50 }), // Original type field
+  messageType: varchar('message_type', { length: 50 }), // New message type field
+  attachments: text('attachments').array().default([]),
   
   // Status
-  status: varchar('status', { length: 20 }).notNull().default('sent'), // 'draft', 'sent', 'delivered', 'read'
-  readAt: timestamp('read_at'),
+  status: varchar('status', { length: 20 }).default('sent'), // 'draft', 'sent', 'delivered', 'read'
+  isRead: boolean('is_read').default(false),
   
-  // Threading
-  threadId: varchar('thread_id', { length: 100 }),
-  replyToId: integer('reply_to_id'),
+  // Reply tracking
+  parentMessageId: integer('parent_message_id'),
   
-  // Priority & Tags
+  // Priority
   priority: varchar('priority', { length: 20 }).default('normal'), // 'low', 'normal', 'high', 'urgent'
-  tags: text('tags').array().default([]),
   
   // Timestamps
   createdAt: timestamp('created_at').defaultNow(),
   updatedAt: timestamp('updated_at').defaultNow()
 }, (table) => [
   index('family_messages_community_idx').on(table.communityId),
-  index('family_messages_sender_idx').on(table.senderId),
-  index('family_messages_recipient_idx').on(table.recipientId),
-  index('family_messages_thread_idx').on(table.threadId),
   index('family_messages_status_idx').on(table.status)
 ]);
 

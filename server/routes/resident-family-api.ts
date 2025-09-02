@@ -145,22 +145,36 @@ router.get('/messages', async (req: Request, res: Response) => {
   try {
     const { userId, communityId } = req.query;
     
-    let query = db.select().from(familyMessages);
+    // Build the where conditions
+    const conditions = [];
     
     if (communityId) {
-      query = query.where(eq(familyMessages.communityId, parseInt(communityId as string)));
+      conditions.push(eq(familyMessages.communityId, parseInt(communityId as string)));
     }
     
     if (userId) {
-      query = query.where(
-        or(
-          eq(familyMessages.senderId, userId as string),
-          eq(familyMessages.recipientId, userId as string)
-        )
-      );
+      // Parse userId as integer since database has integer IDs
+      const userIdInt = parseInt(userId as string);
+      if (!isNaN(userIdInt)) {
+        conditions.push(
+          or(
+            eq(familyMessages.senderId, userIdInt),
+            eq(familyMessages.recipientId, userIdInt)
+          )
+        );
+      }
     }
     
-    const messages = await query.orderBy(desc(familyMessages.createdAt));
+    // Execute query with all conditions
+    const messages = conditions.length > 0
+      ? await db.select()
+          .from(familyMessages)
+          .where(and(...conditions))
+          .orderBy(desc(familyMessages.createdAt))
+      : await db.select()
+          .from(familyMessages)
+          .orderBy(desc(familyMessages.createdAt));
+    
     res.json(messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
@@ -168,14 +182,14 @@ router.get('/messages', async (req: Request, res: Response) => {
   }
 });
 
-// Get message thread
-router.get('/messages/thread/:threadId', async (req: Request, res: Response) => {
+// Get message thread - using parent message ID instead of threadId
+router.get('/messages/thread/:parentId', async (req: Request, res: Response) => {
   try {
-    const { threadId } = req.params;
+    const { parentId } = req.params;
     
     const messages = await db.select()
       .from(familyMessages)
-      .where(eq(familyMessages.threadId, threadId))
+      .where(eq(familyMessages.parentMessageId, parseInt(parentId)))
       .orderBy(familyMessages.createdAt);
     
     res.json(messages);
@@ -188,10 +202,7 @@ router.get('/messages/thread/:threadId', async (req: Request, res: Response) => 
 // Send message
 router.post('/messages', async (req: Request, res: Response) => {
   try {
-    const messageData = {
-      ...req.body,
-      threadId: req.body.threadId || randomUUID()
-    };
+    const messageData = req.body;
     
     const [newMessage] = await db.insert(familyMessages)
       .values(messageData)
@@ -212,7 +223,7 @@ router.put('/messages/:id/read', async (req: Request, res: Response) => {
     const [updatedMessage] = await db.update(familyMessages)
       .set({ 
         status: 'read',
-        readAt: new Date(),
+        isRead: true,
         updatedAt: new Date()
       })
       .where(eq(familyMessages.id, parseInt(id)))
@@ -280,12 +291,11 @@ router.get('/communities/:communityId/video-calls', async (req: Request, res: Re
     const { communityId } = req.params;
     const { status, date } = req.query;
     
-    let query = db.select()
-      .from(videoCallSessions)
-      .where(eq(videoCallSessions.communityId, parseInt(communityId)));
+    // Build conditions array
+    const conditions = [eq(videoCallSessions.communityId, parseInt(communityId))];
     
     if (status) {
-      query = query.where(eq(videoCallSessions.status, status as string));
+      conditions.push(eq(videoCallSessions.status, status as string));
     }
     
     if (date) {
@@ -293,15 +303,16 @@ router.get('/communities/:communityId/video-calls', async (req: Request, res: Re
       const startOfDay = new Date(targetDate.setHours(0, 0, 0, 0));
       const endOfDay = new Date(targetDate.setHours(23, 59, 59, 999));
       
-      query = query.where(
-        and(
-          gte(videoCallSessions.scheduledAt, startOfDay),
-          lte(videoCallSessions.scheduledAt, endOfDay)
-        )
+      conditions.push(
+        gte(videoCallSessions.scheduledAt, startOfDay),
+        lte(videoCallSessions.scheduledAt, endOfDay)
       );
     }
     
-    const sessions = await query.orderBy(desc(videoCallSessions.scheduledAt));
+    const sessions = await db.select()
+      .from(videoCallSessions)
+      .where(and(...conditions))
+      .orderBy(desc(videoCallSessions.scheduledAt));
     res.json(sessions);
   } catch (error) {
     console.error('Error fetching video calls:', error);
@@ -380,19 +391,21 @@ router.get('/communities/:communityId/budgets', async (req: Request, res: Respon
     const { communityId } = req.params;
     const { fiscalYear, status } = req.query;
     
-    let query = db.select()
-      .from(budgetPlans)
-      .where(eq(budgetPlans.communityId, parseInt(communityId)));
+    // Build conditions array
+    const conditions = [eq(budgetPlans.communityId, parseInt(communityId))];
     
     if (fiscalYear) {
-      query = query.where(eq(budgetPlans.fiscalYear, parseInt(fiscalYear as string)));
+      conditions.push(eq(budgetPlans.fiscalYear, parseInt(fiscalYear as string)));
     }
     
     if (status) {
-      query = query.where(eq(budgetPlans.status, status as string));
+      conditions.push(eq(budgetPlans.status, status as string));
     }
     
-    const budgets = await query.orderBy(desc(budgetPlans.createdAt));
+    const budgets = await db.select()
+      .from(budgetPlans)
+      .where(and(...conditions))
+      .orderBy(desc(budgetPlans.createdAt));
     res.json(budgets);
   } catch (error) {
     console.error('Error fetching budget plans:', error);
@@ -560,6 +573,7 @@ router.post('/activity-participation', async (req: Request, res: Response) => {
 });
 */
 
+/*
 // Get resident's activity history
 router.get('/residents/:residentId/activities', async (req: Request, res: Response) => {
   try {
@@ -599,5 +613,6 @@ router.put('/activity-participation/:id/check-in', async (req: Request, res: Res
     res.status(500).json({ error: 'Failed to check in to activity' });
   }
 });
+*/
 
 export default router;
