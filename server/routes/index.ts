@@ -7,6 +7,7 @@ import { communityStatsCache } from "../community-stats-cache";
 import { registerCommunityRoutes } from "./communityRoutes";
 import { registerCommunityEnrichmentRoutes } from "./community-enrichment-routes";
 import { registerLeadTrackingRoutes } from "./lead-tracking-routes";
+import { registerHealthcareIntegrationRoutes } from "./healthcareIntegrationRoutes";
 import { registerDirectoryRoutes } from "./directoryRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
@@ -122,6 +123,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerCommunityRoutes(app);
   registerCommunityEnrichmentRoutes(app); // Register enrichment admin endpoints
   registerLeadTrackingRoutes(app); // Register lead tracking routes
+  registerHealthcareIntegrationRoutes(app); // Register healthcare integration routes (Epic, Cerner, Medicare)
   registerUserRoutes(app);
   registerSearchRoutes(app);
   registerAIRoutes(app);
