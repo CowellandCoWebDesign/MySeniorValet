@@ -224,19 +224,20 @@ export default function CommunityDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 h-auto">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-3">Overview</TabsTrigger>
-            <TabsTrigger value="residents" className="text-xs sm:text-sm px-2 py-3">Residents</TabsTrigger>
-            <TabsTrigger value="analytics" className="text-xs sm:text-sm px-2 py-3">Analytics</TabsTrigger>
-            <TabsTrigger value="ai-intelligence" className="text-xs sm:text-sm px-1 py-3 flex flex-col items-center">
-              <Brain className="h-3 w-3 sm:h-4 sm:w-4 mb-1" />
-              <span className="hidden sm:inline">AI Intelligence</span>
-              <span className="sm:hidden">AI</span>
-            </TabsTrigger>
-            <TabsTrigger value="operations" className="text-xs sm:text-sm px-2 py-3">Operations</TabsTrigger>
-            <TabsTrigger value="billing" className="text-xs sm:text-sm px-2 py-3">Billing</TabsTrigger>
-            <TabsTrigger value="settings" className="text-xs sm:text-sm px-2 py-3">Settings</TabsTrigger>
-          </TabsList>
+          <div className="overflow-x-auto scrollbar-hide">
+            <TabsList className="flex w-max min-w-full h-auto gap-1">
+              <TabsTrigger value="overview" className="text-sm px-4 py-3 flex-shrink-0">Overview</TabsTrigger>
+              <TabsTrigger value="residents" className="text-sm px-4 py-3 flex-shrink-0">Residents</TabsTrigger>
+              <TabsTrigger value="analytics" className="text-sm px-4 py-3 flex-shrink-0">Analytics</TabsTrigger>
+              <TabsTrigger value="ai-intelligence" className="text-sm px-3 py-3 flex-shrink-0 flex items-center gap-2">
+                <Brain className="h-4 w-4" />
+                <span>AI Intelligence</span>
+              </TabsTrigger>
+              <TabsTrigger value="operations" className="text-sm px-4 py-3 flex-shrink-0">Operations</TabsTrigger>
+              <TabsTrigger value="billing" className="text-sm px-4 py-3 flex-shrink-0">Billing</TabsTrigger>
+              <TabsTrigger value="settings" className="text-sm px-4 py-3 flex-shrink-0">Settings</TabsTrigger>
+            </TabsList>
+          </div>
 
           {/* Overview Tab */}
           <TabsContent value="overview">
@@ -492,9 +493,22 @@ export default function CommunityDashboard() {
                     </div>
                   ))
                   ) : (
-                    <div className="text-center py-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">No residents found</p>
-                      <p className="text-xs text-gray-500">Add residents to get started</p>
+                    <div className="text-center py-8">
+                      <div className="flex flex-col items-center gap-3">
+                        <Users className="h-12 w-12 text-gray-400" />
+                        <div>
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">No residents yet</p>
+                          <p className="text-xs text-gray-500">Click "Add Resident" to register your first resident</p>
+                        </div>
+                        <Button 
+                          size="sm" 
+                          onClick={() => setShowAddResidentModal(true)}
+                          className="mt-2"
+                        >
+                          <Plus className="mr-2 h-4 w-4" />
+                          Add First Resident
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>

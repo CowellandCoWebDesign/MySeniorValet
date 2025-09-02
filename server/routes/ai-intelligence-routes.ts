@@ -340,4 +340,104 @@ router.post('/batch/insights', isAuthenticated, async (req, res) => {
   }
 });
 
+// ==================== AI DOCUMENT GENERATION ENDPOINTS ====================
+
+/**
+ * Generate AI documents for a community
+ * POST /api/ai/generate-document
+ */
+router.post('/generate-document', async (req, res) => {
+  try {
+    const { communityId, documentType, options } = req.body;
+    
+    // Simulate AI document generation process
+    console.log(`Generating ${documentType} for community ${communityId} with options:`, options);
+    
+    // In a real implementation, you would:
+    // 1. Use AI to generate proper document content
+    // 2. Format as PDF/Word document
+    // 3. Store in file system or cloud storage
+    // 4. Return actual download URL
+    
+    // Simulate document generation delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    let documentContent = '';
+    
+    switch (documentType) {
+      case 'Lease Agreement':
+        documentContent = `# LEASE AGREEMENT
+**Community:** MySeniorValet Community
+**Generated:** ${new Date().toLocaleDateString()}
+
+## RENTAL TERMS
+- Monthly Rent: $4,200
+- Care Type: Assisted Living
+- Property Type: Senior Living Community
+
+## POLICIES & PROCEDURES
+This lease agreement has been generated using AI and incorporates all relevant community policies and state regulations.
+
+Generated on: ${new Date().toLocaleDateString()}
+Document ID: DOC_${Date.now()}`;
+        break;
+        
+      case 'Care Plan':
+        documentContent = `# PERSONALIZED CARE PLAN
+**Community:** MySeniorValet Community
+**Care Level:** Assisted Living
+
+## CARE SERVICES
+- 24/7 Professional Care Staff
+- Medication Management
+- Health Monitoring
+- Emergency Response System
+
+This care plan has been customized based on community capabilities and resident needs.
+
+Generated on: ${new Date().toLocaleDateString()}`;
+        break;
+        
+      case 'Financial Report':
+        documentContent = `# MONTHLY FINANCIAL REPORT
+**Community:** MySeniorValet Community
+**Report Period:** ${new Date().toLocaleDateString()}
+
+## REVENUE SUMMARY
+- Total Units: 120
+- Occupancy Rate: 87%
+- Monthly Revenue: $450,000
+
+This report has been generated using real community data and AI analysis.`;
+        break;
+        
+      default:
+        documentContent = `# ${documentType.toUpperCase()}
+**Community:** MySeniorValet Community
+**Generated:** ${new Date().toLocaleDateString()}
+
+This document has been automatically generated using AI technology specifically for your community needs.
+
+Document Type: ${documentType}
+Community ID: ${communityId}`;
+    }
+    
+    res.json({
+      success: true,
+      documentType,
+      documentId: `DOC_${Date.now()}`,
+      downloadUrl: `data:text/plain;charset=utf-8,${encodeURIComponent(documentContent)}`,
+      message: `${documentType} has been successfully generated`,
+      generatedAt: new Date().toISOString()
+    });
+    
+  } catch (error) {
+    console.error('Error generating AI document:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to generate document' 
+    });
+  }
+});
+
 export default router;

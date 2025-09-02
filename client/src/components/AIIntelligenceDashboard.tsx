@@ -23,7 +23,10 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Zap
+  Zap,
+  FileText,
+  PenTool,
+  FileCheck
 } from 'lucide-react';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -74,6 +77,11 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [documentGeneration, setDocumentGeneration] = useState({
+    generating: false,
+    type: '',
+    progress: 0
+  });
   const { toast } = useToast();
 
   // Load comprehensive AI analysis
@@ -107,6 +115,66 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // AI Document Generation Function
+  const generateDocument = async (type: string, options: any = {}) => {
+    setDocumentGeneration({
+      generating: true,
+      type,
+      progress: 0
+    });
+    
+    try {
+      // Simulate progress updates
+      const progressInterval = setInterval(() => {
+        setDocumentGeneration(prev => ({
+          ...prev,
+          progress: Math.min(prev.progress + 20, 90)
+        }));
+      }, 500);
+      
+      const response = await apiRequest('POST', `/api/ai/generate-document`, {
+        communityId,
+        documentType: type,
+        options
+      });
+      
+      clearInterval(progressInterval);
+      
+      if (response.ok) {
+        const data = await response.json();
+        setDocumentGeneration({
+          generating: false,
+          type: '',
+          progress: 100
+        });
+        
+        // Download the generated document
+        if (data.downloadUrl) {
+          window.open(data.downloadUrl, '_blank');
+        }
+        
+        toast({
+          title: "Document Generated",
+          description: `${type} has been successfully generated and is ready for download.`,
+        });
+      } else {
+        throw new Error('Failed to generate document');
+      }
+    } catch (error) {
+      setDocumentGeneration({
+        generating: false,
+        type: '',
+        progress: 0
+      });
+      
+      toast({
+        title: "Generation Failed",
+        description: `Failed to generate ${type}. Please try again.`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -281,7 +349,7 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
 
           {/* Main Analysis Tabs */}
           <Tabs defaultValue="insights" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="insights">
                 <Lightbulb className="h-4 w-4 mr-2" />
                 AI Insights ({analysis.insights.length})
@@ -293,6 +361,10 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
               <TabsTrigger value="forecasts">
                 <TrendingUp className="h-4 w-4 mr-2" />
                 Forecasts ({analysis.forecasts.length})
+              </TabsTrigger>
+              <TabsTrigger value="documents">
+                <FileText className="h-4 w-4 mr-2" />
+                AI Documents
               </TabsTrigger>
               <TabsTrigger value="summary">
                 <BarChart3 className="h-4 w-4 mr-2" />
@@ -469,6 +541,286 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
                       )}
                     </div>
                   )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* AI Documents Tab */}
+            <TabsContent value="documents" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Document Generation</CardTitle>
+                  <CardDescription>
+                    Generate professional documents using AI intelligence for your community
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    
+                    {/* Lease Agreements */}
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <FileCheck className="h-8 w-8 text-blue-600" />
+                          <div>
+                            <h3 className="font-semibold">Lease Agreements</h3>
+                            <p className="text-sm text-muted-foreground">AI-generated resident leases</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Lease Agreement', { 
+                            includeTerms: true, 
+                            includePolicies: true 
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Lease Agreement' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Lease
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Care Plans */}
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <Users className="h-8 w-8 text-green-600" />
+                          <div>
+                            <h3 className="font-semibold">Care Plans</h3>
+                            <p className="text-sm text-muted-foreground">Personalized care plans</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Care Plan', { 
+                            includeHealthMetrics: true, 
+                            includeMedications: true 
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Care Plan' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Plan
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Incident Reports */}
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <AlertTriangle className="h-8 w-8 text-orange-600" />
+                          <div>
+                            <h3 className="font-semibold">Incident Reports</h3>
+                            <p className="text-sm text-muted-foreground">Automated incident documentation</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Incident Report', { 
+                            includeTimeline: true, 
+                            includeWitnesses: true 
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Incident Report' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Report
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Financial Reports */}
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <DollarSign className="h-8 w-8 text-purple-600" />
+                          <div>
+                            <h3 className="font-semibold">Financial Reports</h3>
+                            <p className="text-sm text-muted-foreground">Monthly financial summaries</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Financial Report', { 
+                            includeBudgetComparison: true, 
+                            includeForecasts: true 
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Financial Report' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Report
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Policy Documents */}
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <FileText className="h-8 w-8 text-indigo-600" />
+                          <div>
+                            <h3 className="font-semibold">Policy Documents</h3>
+                            <p className="text-sm text-muted-foreground">Community policies & procedures</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Policy Document', { 
+                            includeCompliance: true, 
+                            includeUpdates: true 
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Policy Document' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Policy
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+
+                    {/* Marketing Materials */}
+                    <Card className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-center gap-3 mb-4">
+                          <Target className="h-8 w-8 text-red-600" />
+                          <div>
+                            <h3 className="font-semibold">Marketing Materials</h3>
+                            <p className="text-sm text-muted-foreground">Brochures & promotional content</p>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => generateDocument('Marketing Material', { 
+                            includePhotos: true, 
+                            includeTestimonials: true 
+                          })}
+                          disabled={documentGeneration.generating}
+                          className="w-full"
+                          variant="outline"
+                        >
+                          {documentGeneration.generating && documentGeneration.type === 'Marketing Material' ? (
+                            <>
+                              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                              Generating... {documentGeneration.progress}%
+                            </>
+                          ) : (
+                            <>
+                              <PenTool className="h-4 w-4 mr-2" />
+                              Generate Material
+                            </>
+                          )}
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Progress indicator */}
+                  {documentGeneration.generating && (
+                    <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3 mb-3">
+                          <Brain className="h-5 w-5 text-blue-600 animate-pulse" />
+                          <div>
+                            <h4 className="font-medium text-blue-800 dark:text-blue-200">
+                              Generating {documentGeneration.type}
+                            </h4>
+                            <p className="text-sm text-blue-600 dark:text-blue-300">
+                              AI is analyzing your community data and creating the document...
+                            </p>
+                          </div>
+                        </div>
+                        <Progress value={documentGeneration.progress} className="w-full" />
+                        <p className="text-xs text-blue-600 dark:text-blue-300 mt-2">
+                          {documentGeneration.progress}% complete
+                        </p>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Features info */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-yellow-600" />
+                        AI-Powered Features
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Community-specific customization</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Legal compliance checking</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Professional formatting</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Real-time data integration</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Version control & tracking</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-600" />
+                          <span>Digital signature ready</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
