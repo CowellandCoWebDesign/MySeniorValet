@@ -22,27 +22,36 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 1. **Golden Data Rule**: NO mock/synthetic data - all features use real database content
 2. **Flawless Execution**: Test each phase thoroughly before proceeding
 3. **Enterprise Grade**: Fortune 500-level infrastructure and capabilities
-4. **User-First**: Families always have free access; revenue from B2B only
+4. **User-First Business Model**:
+   - **FREE FOREVER**: Both Standard Users (families) AND Resident Users (seniors)
+   - **EQUAL ACCESS**: Both user types get ALL features - collaboration, planning, resident tools
+   - **INCLUSIVE DESIGN**: Support all scenarios (family-led, senior-led, handoffs, tech barriers)
+   - **B2B REVENUE ONLY**: Communities ($99-$3,999) and Vendors ($99-$499) pay
 5. **REDUNDANCY CHECK RULE**: Always verify existing infrastructure before building new features
 
 ---
 
 ## 🏗️ EXISTING INFRASTRUCTURE INVENTORY (Critical Reference)
 
-### 💰 THE KRAKEN TIER SYSTEM - $50M Revenue Architecture
-**6 Categories, 15+ Pricing Tiers**
-- **Family Tier** - FREE FOREVER (core principle)
-- **Professional Tiers** - $79, $149, $249/month (sales agents, advisors)
-- **Community Tiers** - $99, $299, $599/month (senior living facilities)
-- **Enterprise Tiers** - $2,499, $4,999/month (healthcare systems)
-- **Vendor Tiers** - $199, $499, $999/month (service providers)
-- **API Access Tiers** - $299, $999, $2,999/month (data partners)
+### 💰 CORRECTED REVENUE MODEL - $400M+ ARR Potential
 
-**Projected Year 1 Revenue:**
-- 1,000 communities × $299 = $3.6M/year
-- 100 healthcare systems × $2,499 = $3M/year
-- 500 professionals × $149 = $894K/year
-- **Total: $7.5M+ ARR**
+#### **FREE FOREVER (Consumer Side):**
+- **Standard Free Users** - Family members searching for care
+- **Resident Free Users** - Seniors/future residents
+- **BOTH GET**: Full platform access, Family Collaboration Center, voting tools, resident planning, citations in discussions
+- **KEY**: Support all scenarios (family-only, senior-involved, handoffs)
+
+#### **B2B REVENUE TIERS (Updated from Kraken System):**
+- **Community Tiers** - $99, $299, $999, $1,999, $3,999/month
+- **Vendor Tiers** - $99, $249, $499/month
+- **Professional/Enterprise** - Custom pricing for healthcare systems
+
+**Conservative Revenue Projections:**
+- 10% of 32,970 communities × avg $999/month = $32.9M/month ($395M ARR)
+- Plus vendor subscriptions, healthcare systems
+- **Total Potential: $400M+ ARR**
+
+**Critical Success Factor:** Inclusive free access drives adoption → communities pay for leads
 
 ### Core Services Already Built (63 Total - CONFIRMED!)
 **Financial & Payment Services (5)**
