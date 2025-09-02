@@ -103,6 +103,7 @@
     "ioredis": "^5.6.1",
     "jest": "^30.0.5",
     "jest-environment-jsdom": "^30.0.5",
+    "jsforce": "^3.10.4",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",

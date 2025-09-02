@@ -8,6 +8,8 @@ import { registerCommunityRoutes } from "./communityRoutes";
 import { registerCommunityEnrichmentRoutes } from "./community-enrichment-routes";
 import { registerLeadTrackingRoutes } from "./lead-tracking-routes";
 import { registerHealthcareIntegrationRoutes } from "./healthcareIntegrationRoutes";
+import { registerCommunicationRoutes } from "./communicationRoutes";
+import { registerSalesforceRoutes } from "./salesforceRoutes";
 import { registerDirectoryRoutes } from "./directoryRoutes";
 import { registerUserRoutes } from "./userRoutes";
 import { registerAIRoutes } from "./aiRoutes";
@@ -124,6 +126,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerCommunityEnrichmentRoutes(app); // Register enrichment admin endpoints
   registerLeadTrackingRoutes(app); // Register lead tracking routes
   registerHealthcareIntegrationRoutes(app); // Register healthcare integration routes (Epic, Cerner, Medicare)
+  registerCommunicationRoutes(app); // Register communication routes (Zoom, WhatsApp)
+  registerSalesforceRoutes(app); // Register Salesforce CRM integration
   registerUserRoutes(app);
   registerSearchRoutes(app);
   registerAIRoutes(app);
