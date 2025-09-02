@@ -28,16 +28,30 @@ We've built 63+ services with 30+ integrations generating $400M ARR potential, b
 
 **KEY INSIGHT:** Both user types get IDENTICAL features - it's about inclusive collaboration, not restricted access!
 
-### 💰 **PAYING B2B CUSTOMERS**
+### 💰 **PAYING B2B CUSTOMERS** (Revenue Source)
 
-#### **COMMUNITIES** (Pay $99-$3,999/month)
-- Dashboard access to manage their properties
-- Lead tracking, analytics, marketing tools
-- RMS/CRM/Healthcare integrations
+#### **COMMUNITIES** (Multiple Tier Systems)
+**Current Active Tiers ($99-$3,999/month):**
+- Starter: $99 (Basic listing, 10 leads)
+- Growth: $299 (3D tours, 50 leads)
+- Professional: $999 (Multi-property, 200 leads)
+- Premium: $1,999 (Healthcare integrations, 500 leads)
+- Enterprise: $3,999 (White-label, unlimited)
+
+**Kraken System Tiers (Original Architecture):**
+- Basic: $99/month
+- Standard: $299/month
+- Professional: $599/month
+- Also includes Professional ($79-$249) and Enterprise ($2,499-$4,999) variants
 
 #### **VENDORS** (Pay $99-$499/month)
-- Marketplace access to advertise services
-- Lead generation & analytics
+- Basic: $99 (5 products, 10 leads)
+- Featured: $249 (25 products, 50 leads)
+- National Partner: $499 (Unlimited products/leads)
+
+#### **HEALTHCARE SYSTEMS & API ACCESS**
+- Custom enterprise pricing
+- API tiers: $299-$2,999/month
 
 #### **PLATFORM ADMINS** (MySeniorValet Staff)
 - Super admin control of entire platform

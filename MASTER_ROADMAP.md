@@ -33,18 +33,27 @@ This document serves as the single source of truth for MySeniorValet's enterpris
 
 ## 🏗️ EXISTING INFRASTRUCTURE INVENTORY (Critical Reference)
 
-### 💰 CORRECTED REVENUE MODEL - $400M+ ARR Potential
+### 💰 COMPREHENSIVE REVENUE MODEL - $400M+ ARR Potential
 
-#### **FREE FOREVER (Consumer Side):**
+#### **CRITICAL CLARIFICATION - FREE FOREVER (Consumer Side):**
 - **Standard Free Users** - Family members searching for care
-- **Resident Free Users** - Seniors/future residents
+- **Resident Free Users** - Seniors/future residents  
 - **BOTH GET**: Full platform access, Family Collaboration Center, voting tools, resident planning, citations in discussions
 - **KEY**: Support all scenarios (family-only, senior-involved, handoffs)
 
-#### **B2B REVENUE TIERS (Updated from Kraken System):**
-- **Community Tiers** - $99, $299, $999, $1,999, $3,999/month
-- **Vendor Tiers** - $99, $249, $499/month
-- **Professional/Enterprise** - Custom pricing for healthcare systems
+#### **THE KRAKEN TIER SYSTEM - Original B2B Revenue Architecture**
+**6 Categories, 15+ Pricing Tiers (KEPT FOR REFERENCE)**
+- **Family Tier** - FREE FOREVER (core principle)
+- **Professional Tiers** - $79, $149, $249/month (sales agents, advisors)
+- **Community Tiers** - $99, $299, $599/month (senior living facilities)
+- **Enterprise Tiers** - $2,499, $4,999/month (healthcare systems)
+- **Vendor Tiers** - $199, $499, $999/month (service providers)
+- **API Access Tiers** - $299, $999, $2,999/month (data partners)
+
+#### **UPDATED B2B TIERS (Discovered in Services):**
+- **Community Subscription Tiers** - $99, $299, $999, $1,999, $3,999/month
+- **Vendor Subscription Tiers** - $99, $249, $499/month
+- **Healthcare/Enterprise** - Custom pricing
 
 **Conservative Revenue Projections:**
 - 10% of 32,970 communities × avg $999/month = $32.9M/month ($395M ARR)
