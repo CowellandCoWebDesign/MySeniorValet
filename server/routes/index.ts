@@ -238,6 +238,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', residentFamilyRouter.default);
   registerOperationsManagementRoutes(app);
   
+  // Register Phase 5b Week 4: Marketing Enhancement routes
+  const marketingRouter = await import('./marketing-api');
+  app.use('/api/marketing', marketingRouter.default);
+  
   // Register Community Features routes (Phase 5 - tier-based features)
   app.use('/api/community-features', communityFeaturesRoutes);
 

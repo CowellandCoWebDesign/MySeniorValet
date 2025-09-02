@@ -6722,3 +6722,187 @@ export const tripPassengers = pgTable("trip_passengers", {
   status: varchar("status", { length: 50 }).default("confirmed"),
   createdAt: timestamp("created_at").defaultNow()
 });
+
+// ==================== PHASE 5b WEEK 4: MARKETING ENHANCEMENT ====================
+
+// Marketing Campaigns (Overall)
+export const marketingCampaigns = pgTable('marketing_campaigns', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: varchar('type', { length: 100 }).notNull(), // 'awareness', 'conversion', 'retention', 'seasonal'
+  startDate: date('start_date').notNull(),
+  endDate: date('end_date'),
+  budget: real('budget'),
+  spentAmount: real('spent_amount').default(0),
+  goals: jsonb('goals').default('{}'), // target metrics
+  channels: text('channels').array(), // ['email', 'social', 'ppc', 'content']
+  status: varchar('status', { length: 50 }).notNull().default('planning'), // 'planning', 'active', 'paused', 'completed'
+  results: jsonb('results').default('{}'),
+  roi: real('roi'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Email Campaign Management
+export const emailCampaigns = pgTable('email_campaigns', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  subject: varchar('subject', { length: 500 }).notNull(),
+  templateId: varchar('template_id', { length: 100 }),
+  htmlContent: text('html_content'),
+  textContent: text('text_content'),
+  recipientSegment: varchar('recipient_segment', { length: 100 }).notNull(), // 'all', 'leads', 'families', 'prospects'
+  status: varchar('status', { length: 50 }).notNull().default('draft'), // 'draft', 'scheduled', 'sending', 'sent', 'paused'
+  scheduledAt: timestamp('scheduled_at'),
+  sentAt: timestamp('sent_at'),
+  metrics: jsonb('metrics').default('{}'), // opens, clicks, bounces, unsubscribes
+  abTestingEnabled: boolean('ab_testing_enabled').default(false),
+  variantB: jsonb('variant_b'), // Alternative subject/content for A/B testing
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Lead Nurturing Workflows
+export const leadWorkflows = pgTable('lead_workflows', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  triggerType: varchar('trigger_type', { length: 100 }).notNull(), // 'form_submission', 'tour_scheduled', 'inquiry', 'time_based'
+  isActive: boolean('is_active').default(true),
+  steps: jsonb('steps').notNull().default('[]'), // Array of workflow steps
+  enrollmentCriteria: jsonb('enrollment_criteria').default('{}'),
+  exitCriteria: jsonb('exit_criteria').default('{}'),
+  metrics: jsonb('metrics').default('{}'), // conversion rates, engagement
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Lead Workflow Enrollments
+export const workflowEnrollments = pgTable('workflow_enrollments', {
+  id: serial('id').primaryKey(),
+  workflowId: integer('workflow_id').notNull().references(() => leadWorkflows.id),
+  leadId: integer('lead_id').notNull(),
+  currentStep: integer('current_step').notNull().default(0),
+  status: varchar('status', { length: 50 }).notNull().default('active'), // 'active', 'completed', 'exited', 'paused'
+  enrolledAt: timestamp('enrolled_at').defaultNow(),
+  completedAt: timestamp('completed_at'),
+  stepHistory: jsonb('step_history').default('[]'),
+  engagementScore: integer('engagement_score').default(0)
+});
+
+// Virtual Tours
+export const virtualTours = pgTable('virtual_tours', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  title: varchar('title', { length: 255 }).notNull(),
+  tourType: varchar('tour_type', { length: 50 }).notNull(), // '360', 'video', 'interactive', 'live'
+  embedCode: text('embed_code'),
+  matterportId: varchar('matterport_id', { length: 100 }),
+  videoUrl: varchar('video_url', { length: 500 }),
+  thumbnailUrl: varchar('thumbnail_url', { length: 500 }),
+  duration: integer('duration'), // in seconds
+  viewCount: integer('view_count').default(0),
+  avgViewDuration: integer('avg_view_duration'), // in seconds
+  hotspots: jsonb('hotspots').default('[]'), // Interactive points in tour
+  isPublished: boolean('is_published').default(true),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Virtual Tour Analytics
+export const tourAnalytics = pgTable('tour_analytics', {
+  id: serial('id').primaryKey(),
+  tourId: integer('tour_id').notNull().references(() => virtualTours.id),
+  visitorId: varchar('visitor_id', { length: 100 }).notNull(),
+  leadId: integer('lead_id'),
+  startedAt: timestamp('started_at').defaultNow(),
+  endedAt: timestamp('ended_at'),
+  viewDuration: integer('view_duration'), // in seconds
+  completionRate: real('completion_rate'),
+  interactions: jsonb('interactions').default('[]'), // clicks, hotspot views
+  deviceType: varchar('device_type', { length: 50 }),
+  referrer: varchar('referrer', { length: 500 })
+});
+
+// Social Media Posts
+export const socialMediaPosts = pgTable('social_media_posts', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  platforms: text('platforms').array(), // ['facebook', 'instagram', 'twitter', 'linkedin']
+  content: text('content').notNull(),
+  mediaUrls: text('media_urls').array(),
+  hashtags: text('hashtags').array(),
+  scheduledAt: timestamp('scheduled_at').notNull(),
+  publishedAt: timestamp('published_at'),
+  status: varchar('status', { length: 50 }).notNull().default('draft'), // 'draft', 'scheduled', 'published', 'failed'
+  engagement: jsonb('engagement').default('{}'), // likes, shares, comments per platform
+  campaignId: integer('campaign_id').references(() => marketingCampaigns.id),
+  createdBy: integer('created_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// Marketing Leads
+export const marketingLeads = pgTable('marketing_leads', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  firstName: varchar('first_name', { length: 100 }),
+  lastName: varchar('last_name', { length: 100 }),
+  email: varchar('email', { length: 255 }).notNull(),
+  phone: varchar('phone', { length: 50 }),
+  source: varchar('source', { length: 100 }), // 'website', 'social', 'referral', 'ppc', 'organic'
+  campaignId: integer('campaign_id').references(() => marketingCampaigns.id),
+  stage: varchar('stage', { length: 50 }).notNull().default('new'), // 'new', 'contacted', 'qualified', 'tour_scheduled', 'converted', 'lost'
+  score: integer('score').default(0), // Lead scoring
+  interests: text('interests').array(),
+  preferredContactMethod: varchar('preferred_contact_method', { length: 50 }),
+  assignedTo: integer('assigned_to').references(() => users.id),
+  lastContactedAt: timestamp('last_contacted_at'),
+  convertedAt: timestamp('converted_at'),
+  lostReason: varchar('lost_reason', { length: 255 }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// ROI Tracking
+export const roiTracking = pgTable('roi_tracking', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  campaignId: integer('campaign_id').references(() => marketingCampaigns.id),
+  channel: varchar('channel', { length: 100 }).notNull(),
+  date: date('date').notNull(),
+  spend: real('spend').notNull().default(0),
+  impressions: integer('impressions').default(0),
+  clicks: integer('clicks').default(0),
+  conversions: integer('conversions').default(0),
+  revenue: real('revenue').default(0),
+  costPerClick: real('cost_per_click'),
+  costPerConversion: real('cost_per_conversion'),
+  conversionRate: real('conversion_rate'),
+  roi: real('roi'),
+  attribution: jsonb('attribution').default('{}'), // Multi-touch attribution data
+  createdAt: timestamp('created_at').defaultNow()
+});
+
+// Marketing Automation Rules
+export const automationRules = pgTable('automation_rules', {
+  id: serial('id').primaryKey(),
+  communityId: integer('community_id').notNull().references(() => communities.id),
+  name: varchar('name', { length: 255 }).notNull(),
+  triggerEvent: varchar('trigger_event', { length: 100 }).notNull(),
+  conditions: jsonb('conditions').notNull().default('{}'),
+  actions: jsonb('actions').notNull().default('[]'),
+  isActive: boolean('is_active').default(true),
+  priority: integer('priority').default(0),
+  executionCount: integer('execution_count').default(0),
+  lastExecutedAt: timestamp('last_executed_at'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow()
+});
+
+// ==================== PHASE 5b WEEK 4: MARKETING ENHANCEMENT COMPLETE ====================

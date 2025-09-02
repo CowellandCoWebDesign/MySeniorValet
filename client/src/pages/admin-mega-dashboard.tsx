@@ -84,6 +84,11 @@ const BillingDashboard = lazy(() => import("@/components/phase5b/BillingDashboar
   default: module.BillingDashboard
 })));
 
+// Lazy load Phase 5b Marketing Component
+const MarketingDashboard = lazy(() => import("@/components/admin/MarketingDashboard").then(module => ({
+  default: module.MarketingDashboard
+})));
+
 // Lazy load Master Validation System
 const MasterValidationSystem = lazy(() => import("@/components/admin/MasterValidationSystem"));
 
@@ -3111,7 +3116,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                 <span className="ml-2">Loading marketing automation...</span>
               </div>
             }>
-              <MarketingTab />
+              <MarketingDashboard communityId={1} />
             </Suspense>
           </TabsContent>
           
