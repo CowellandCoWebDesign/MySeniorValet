@@ -217,12 +217,72 @@ router.post('/api/competitive-analysis', async (req, res) => {
     if (location) {
       const nearbyOptions = await simplifiedPerplexityService.findNearbyOptions(location);
       
+      // Extract pricing from nearby options if available
+      const prices = nearbyOptions.nearbyOptions?.map((opt: any) => {
+        // Try to extract numeric price from pricing field
+        if (opt.pricing && typeof opt.pricing === 'string') {
+          const priceMatch = opt.pricing.match(/\$([\d,]+)/);
+          if (priceMatch) {
+            return parseInt(priceMatch[1].replace(',', ''));
+          }
+        }
+        return null;
+      }).filter((p: number | null) => p !== null) || [];
+      
+      const avgPrice = prices.length > 0 ? 
+        Math.round(prices.reduce((sum: number, p: number) => sum + p, 0) / prices.length) : 
+        null;
+      
+      const minPrice = prices.length > 0 ? Math.min(...prices) : null;
+      const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+      
+      // Format response to match frontend expectations
       return res.json({
         success: true,
         location,
-        type,
+        locationType: type,
+        
+        // Market analysis fields
+        averageMonthlyRent: avgPrice || 4500, // Default national average if no data
+        
+        priceRange: {
+          min: minPrice || 2000,
+          max: maxPrice || 8000
+        },
+        
+        // Compare to national average ($4,500)
+        comparedToNational: avgPrice ? Math.round(((avgPrice - 4500) / 4500) * 100) : 0,
+        
+        trend: 'stable', // Default to stable
+        
+        // Detailed insights
+        insights: [
+          nearbyOptions.nearbyOptions?.length && `Found ${nearbyOptions.nearbyOptions.length} senior living communities in ${location}`,
+          avgPrice && `Average monthly cost: $${avgPrice.toLocaleString()}`,
+          minPrice && maxPrice && `Price range: $${minPrice.toLocaleString()} - $${maxPrice.toLocaleString()}`,
+          nearbyOptions.found && 'Real-time market data available',
+          'Analysis powered by Perplexity AI web search'
+        ].filter(Boolean),
+        
+        detailedSummary: nearbyOptions.description || 
+          `Market analysis for ${location}: ${nearbyOptions.nearbyOptions?.length || 0} senior living communities found in the area. ${
+            avgPrice ? 
+            `Average monthly cost is approximately $${avgPrice.toLocaleString()}. ` : 
+            'Contact communities directly for current pricing. '
+          }This analysis is based on real-time web search data.`,
+        
+        communityMentions: nearbyOptions.nearbyOptions?.map((opt: any) => opt.name) || [],
+        
+        lastUpdated: new Date().toISOString(),
+        
+        sources: nearbyOptions.sources || [],
+        
+        // Include original intelligence for backward compatibility
         intelligence: nearbyOptions,
-        timestamp: new Date().toISOString()
+        
+        timestamp: new Date().toISOString(),
+        _version: 'v4_streamlined_hero_' + Date.now(),
+        _timestamp: Date.now()
       });
     }
     
