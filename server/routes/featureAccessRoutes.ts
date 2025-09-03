@@ -57,72 +57,94 @@ router.get('/communities/:communityId/upgrade-info', requireAuth, async (req, re
   }
 });
 
-// Get tier comparison for upgrade flow
+// Get tier comparison for upgrade flow - Fortune 500 Enterprise Tiers
 router.get('/tiers/comparison', async (req, res) => {
   try {
     const tiers = [
       {
-        id: 'verified',
-        name: 'Verified',
+        id: 'free',
+        name: 'Free',
         price: 0,
         features: [
           'Basic listing visibility',
           'Contact information display',
           'Search accessibility',
-          'Verified badge',
-          '1 photo',
-          'Tour scheduling (if email verified)'
-        ]
+          'Family can view your community',
+          'Claim your listing'
+        ],
+        priorities: []
       },
       {
-        id: 'standard',
-        name: 'Standard',
-        price: 149,
+        id: 'starter',
+        name: 'Starter',
+        price: 99,
         features: [
-          'Everything in Verified',
-          'Up to 10 photos',
-          '1 brochure/PDF',
-          'Respond to reviews',
-          'Basic analytics',
-          'Tour calendar link'
-        ]
+          'Everything in Free',
+          '✅ Priority 1: Complete Financial Transparency',
+          'Billing & invoice management',
+          'Payment tracking & processing',
+          'Financial reporting dashboard',
+          'Family cost calculator',
+          'Dual-sided financial portal'
+        ],
+        priorities: ['Financial Transparency']
       },
       {
-        id: 'featured',
-        name: 'Featured',
-        price: 249,
+        id: 'professional',
+        name: 'Professional',
+        price: 499,
         features: [
-          'Everything in Standard',
-          'Up to 25 photos',
-          '1 video (max 2 mins)',
-          'Up to 3 PDFs',
-          'In-app messaging',
-          'AI response assist',
-          'Advanced analytics',
-          'Featured placement',
-          'Map priority',
-          'Search boost',
-          'Concierge preferred',
-          'Seasonal badges'
-        ]
+          'Everything in Starter',
+          '✅ Priority 2: Care Coordination Platform',
+          'Electronic health records',
+          'Medication management',
+          'Personalized care plans',
+          '✅ Priority 3: Daily Life Connection',
+          'Activity calendar & planning',
+          'Meal planning & dietary management',
+          'Transportation scheduling',
+          'Family messaging portal'
+        ],
+        priorities: ['Financial Transparency', 'Care Coordination', 'Daily Life Connection']
       },
       {
-        id: 'platinum',
-        name: 'Platinum',
-        price: 349,
+        id: 'premium',
+        name: 'Premium',
+        price: 999,
         features: [
-          'Everything in Featured',
-          'Up to 50 photos',
-          'Up to 3 videos (max 5 mins each)',
-          'Unlimited PDFs',
-          'Monthly performance review call',
-          'Staff bios',
-          'Menus',
-          'Care philosophy',
-          'Job listings',
-          'Real-time availability syncing',
-          'Multi-property dashboard'
-        ]
+          'Everything in Professional',
+          '✅ Priority 4: Staff Management Suite',
+          'Complete HR tools',
+          'Staff scheduling & time tracking',
+          'Training program management',
+          'Performance reviews & tracking',
+          '✅ Priority 5: Marketing & Occupancy',
+          'Full CRM system',
+          'Lead tracking & conversion',
+          'Tour scheduling & management',
+          'Real-time occupancy tracking',
+          'Marketing campaign analytics'
+        ],
+        priorities: ['Financial', 'Care', 'Daily Life', 'Staff', 'Marketing']
+      },
+      {
+        id: 'enterprise',
+        name: 'Enterprise',
+        price: 3999,
+        features: [
+          'Everything in Premium',
+          '🚀 Multi-property management dashboard',
+          '🎨 White-label branding',
+          '🔌 Full API integration access',
+          '📊 Custom report builder',
+          '👨‍💼 Dedicated success manager',
+          '🤖 AI-powered business insights',
+          '📈 Predictive analytics',
+          '💰 Revenue forecasting & optimization',
+          '🏢 Corporate account management',
+          '🌐 Global expansion support'
+        ],
+        priorities: ['All 5 Priorities', 'Plus Enterprise Features']
       }
     ];
 

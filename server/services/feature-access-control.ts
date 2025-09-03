@@ -6,45 +6,51 @@ import { communities, communitySubscriptions, stripeProducts } from '@shared/sch
 import { eq } from 'drizzle-orm';
 
 export interface FeatureAccess {
-  // Basic Features (Free Tier)
+  // Free Tier - Basic Features
   basicListing: boolean;
   contactDisplay: boolean;
   searchVisibility: boolean;
   
-  // Standard Features ($149/mo)
-  profileEditing: boolean;
-  featuredPlacement: boolean;
-  redTagSpecials: boolean;
-  photoTools: boolean; // 5 photos max
-  customForms: boolean;
-  basicAnalytics: boolean;
+  // Starter Tier ($99/mo) - Priority 1: Financial Transparency
+  billingManagement: boolean;
+  financialReporting: boolean;
+  invoiceGeneration: boolean;
+  paymentTracking: boolean;
+  costCalculator: boolean;
   
-  // Featured Features ($249/mo)
-  brandedIntake: boolean;
-  availabilityManagement: boolean;
-  tourScheduler: boolean;
-  unlimitedPhotos: boolean;
-  advancedAnalytics: boolean;
+  // Professional Tier ($499/mo) - Priority 2 & 3: Care Coordination + Daily Life
+  careCoordination: boolean;
+  healthRecords: boolean;
+  medicationManagement: boolean;
+  carePlans: boolean;
+  dailyLifeActivities: boolean;
+  mealPlanning: boolean;
+  transportationScheduling: boolean;
   familyMessaging: boolean;
-  prioritySupport: boolean;
   
-  // Platinum Features ($349/mo)
-  homepageFeatured: boolean;
-  conciergeService: boolean;
-  sponsoredContent: boolean;
-  aiAccess: boolean;
-  apiIntegration: boolean;
+  // Premium Tier ($999/mo) - Priority 4 & 5: Staff Management + Marketing
+  staffManagement: boolean;
+  hrTools: boolean;
+  trainingPrograms: boolean;
+  performanceTracking: boolean;
+  marketingCRM: boolean;
+  leadTracking: boolean;
+  tourScheduler: boolean;
+  occupancyManagement: boolean;
+  campaignAnalytics: boolean;
+  
+  // Enterprise Tier ($3,999/mo) - Advanced Enterprise Features
+  multiPropertyDashboard: boolean;
   whiteLabeling: boolean;
+  apiIntegration: boolean;
   customReporting: boolean;
   dedicatedSuccess: boolean;
-  
-  // Add-on Features
-  additionalLocations: boolean;
-  aiTourAssistant: boolean;
-  billPayTools: boolean;
+  aiPoweredInsights: boolean;
+  advancedAnalytics: boolean;
+  revenueForecasting: boolean;
   
   // Meta information
-  currentTier: 'verified' | 'standard' | 'featured' | 'platinum';
+  currentTier: 'free' | 'starter' | 'professional' | 'premium' | 'enterprise';
   tierName: string;
   monthlyPrice: number;
   upgradeAvailable: boolean;
@@ -53,48 +59,61 @@ export interface FeatureAccess {
 export class FeatureAccessControl {
   // Tier hierarchy for upgrade path
   private static readonly tierHierarchy = {
-    verified: 0,
-    standard: 1,
-    featured: 2,
-    platinum: 3
+    free: 0,
+    starter: 1,
+    professional: 2,
+    premium: 3,
+    enterprise: 4
   };
 
-  // Feature mapping by tier
+  // Feature mapping by tier - Fortune 500 Enterprise Structure
   private static readonly tierFeatures = {
-    verified: [
+    free: [
       'basicListing',
       'contactDisplay',
       'searchVisibility'
     ],
-    standard: [
-      // Includes all verified features plus:
-      'profileEditing',
-      'featuredPlacement',
-      'redTagSpecials',
-      'photoTools',
-      'customForms',
-      'basicAnalytics'
+    starter: [
+      // Priority 1: Financial Transparency ($99/mo)
+      'billingManagement',
+      'financialReporting',
+      'invoiceGeneration',
+      'paymentTracking',
+      'costCalculator'
     ],
-    featured: [
-      // Includes all standard features plus:
-      'brandedIntake',
-      'availabilityManagement',
+    professional: [
+      // Priority 2 & 3: Care Coordination + Daily Life ($499/mo)
+      'careCoordination',
+      'healthRecords',
+      'medicationManagement',
+      'carePlans',
+      'dailyLifeActivities',
+      'mealPlanning',
+      'transportationScheduling',
+      'familyMessaging'
+    ],
+    premium: [
+      // Priority 4 & 5: Staff Management + Marketing ($999/mo)
+      'staffManagement',
+      'hrTools',
+      'trainingPrograms',
+      'performanceTracking',
+      'marketingCRM',
+      'leadTracking',
       'tourScheduler',
-      'unlimitedPhotos',
-      'advancedAnalytics',
-      'familyMessaging',
-      'prioritySupport'
+      'occupancyManagement',
+      'campaignAnalytics'
     ],
-    platinum: [
-      // Includes all featured features plus:
-      'homepageFeatured',
-      'conciergeService',
-      'sponsoredContent',
-      'aiAccess',
-      'apiIntegration',
+    enterprise: [
+      // Advanced Enterprise Features ($3,999/mo)
+      'multiPropertyDashboard',
       'whiteLabeling',
+      'apiIntegration',
       'customReporting',
-      'dedicatedSuccess'
+      'dedicatedSuccess',
+      'aiPoweredInsights',
+      'advancedAnalytics',
+      'revenueForecasting'
     ]
   };
 
@@ -115,9 +134,9 @@ export class FeatureAccessControl {
         .where(eq(communitySubscriptions.communityId, communityId))
         .limit(1);
 
-      // Default to verified tier if no subscription
+      // Default to free tier if no subscription
       if (!subscription.length || subscription[0].status !== 'active') {
-        return this.getFeatureAccessForTier('verified');
+        return this.getFeatureAccessForTier('free');
       }
 
       const { tierLevel, productName, price } = subscription[0];
@@ -131,45 +150,51 @@ export class FeatureAccessControl {
       };
     } catch (error) {
       console.error('Error checking community access:', error);
-      return this.getFeatureAccessForTier('verified');
+      return this.getFeatureAccessForTier('free');
     }
   }
 
   // Get feature access for a specific tier
-  private static getFeatureAccessForTier(tier: 'verified' | 'standard' | 'featured' | 'platinum'): FeatureAccess {
+  private static getFeatureAccessForTier(tier: 'free' | 'starter' | 'professional' | 'premium' | 'enterprise'): FeatureAccess {
     const allFeatures: FeatureAccess = {
       // Initialize all features as false
       basicListing: false,
       contactDisplay: false,
       searchVisibility: false,
-      profileEditing: false,
-      featuredPlacement: false,
-      redTagSpecials: false,
-      photoTools: false,
-      customForms: false,
-      basicAnalytics: false,
-      brandedIntake: false,
-      availabilityManagement: false,
-      tourScheduler: false,
-      unlimitedPhotos: false,
-      advancedAnalytics: false,
+      billingManagement: false,
+      financialReporting: false,
+      invoiceGeneration: false,
+      paymentTracking: false,
+      costCalculator: false,
+      careCoordination: false,
+      healthRecords: false,
+      medicationManagement: false,
+      carePlans: false,
+      dailyLifeActivities: false,
+      mealPlanning: false,
+      transportationScheduling: false,
       familyMessaging: false,
-      prioritySupport: false,
-      homepageFeatured: false,
-      conciergeService: false,
-      sponsoredContent: false,
-      aiAccess: false,
-      apiIntegration: false,
+      staffManagement: false,
+      hrTools: false,
+      trainingPrograms: false,
+      performanceTracking: false,
+      marketingCRM: false,
+      leadTracking: false,
+      tourScheduler: false,
+      occupancyManagement: false,
+      campaignAnalytics: false,
+      multiPropertyDashboard: false,
       whiteLabeling: false,
+      apiIntegration: false,
       customReporting: false,
       dedicatedSuccess: false,
-      additionalLocations: false,
-      aiTourAssistant: false,
-      billPayTools: false,
+      aiPoweredInsights: false,
+      advancedAnalytics: false,
+      revenueForecasting: false,
       currentTier: tier,
       tierName: this.getTierDisplayName(tier),
       monthlyPrice: this.getTierPrice(tier),
-      upgradeAvailable: tier !== 'platinum'
+      upgradeAvailable: tier !== 'enterprise'
     };
 
     // Enable features based on tier hierarchy
@@ -189,38 +214,44 @@ export class FeatureAccessControl {
   }
 
   // Map Stripe tier levels to internal tiers
-  private static mapTierLevel(tierLevel: string): 'verified' | 'standard' | 'featured' | 'platinum' {
-    const mapping: Record<string, 'verified' | 'standard' | 'featured' | 'platinum'> = {
-      'basic-listing': 'verified',
-      'verified': 'verified',
-      'standard': 'standard',
-      'featured-spotlight': 'standard',
-      'featured': 'featured',
-      'premium-tools': 'featured',
-      'platinum-partner': 'platinum',
-      'platinum': 'platinum'
+  private static mapTierLevel(tierLevel: string): 'free' | 'starter' | 'professional' | 'premium' | 'enterprise' {
+    const mapping: Record<string, 'free' | 'starter' | 'professional' | 'premium' | 'enterprise'> = {
+      'basic-listing': 'free',
+      'free': 'free',
+      'verified': 'free',
+      'starter': 'starter',
+      'standard': 'starter',
+      'professional': 'professional',
+      'featured': 'professional',
+      'premium': 'premium',
+      'featured-spotlight': 'premium',
+      'enterprise': 'enterprise',
+      'platinum': 'enterprise',
+      'platinum-partner': 'enterprise'
     };
-    return mapping[tierLevel] || 'verified';
+    return mapping[tierLevel] || 'free';
   }
 
   // Get display name for tier
-  private static getTierDisplayName(tier: 'verified' | 'standard' | 'featured' | 'platinum'): string {
+  private static getTierDisplayName(tier: 'free' | 'starter' | 'professional' | 'premium' | 'enterprise'): string {
     const names = {
-      verified: 'Verified',
-      standard: 'Standard',
-      featured: 'Featured',
-      platinum: 'Platinum'
+      free: 'Free',
+      starter: 'Starter',
+      professional: 'Professional',
+      premium: 'Premium',
+      enterprise: 'Enterprise'
     };
     return names[tier];
   }
 
-  // Get monthly price for tier
-  private static getTierPrice(tier: 'verified' | 'standard' | 'featured' | 'platinum'): number {
+  // Get monthly price for tier - Fortune 500 Enterprise Pricing
+  private static getTierPrice(tier: 'free' | 'starter' | 'professional' | 'premium' | 'enterprise'): number {
     const prices = {
-      verified: 0,
-      standard: 149,
-      featured: 249,
-      platinum: 349
+      free: 0,
+      starter: 99,
+      professional: 499,
+      premium: 999,
+      enterprise: 3999
     };
     return prices[tier];
   }
@@ -244,7 +275,7 @@ export class FeatureAccessControl {
       return null;
     }
 
-    const tierOrder: Array<'verified' | 'standard' | 'featured' | 'platinum'> = ['verified', 'standard', 'featured', 'platinum'];
+    const tierOrder: Array<'free' | 'starter' | 'professional' | 'premium' | 'enterprise'> = ['free', 'starter', 'professional', 'premium', 'enterprise'];
     const currentIndex = tierOrder.indexOf(access.currentTier);
     const nextTier = tierOrder[currentIndex + 1];
 
@@ -263,30 +294,43 @@ export class FeatureAccessControl {
     };
   }
 
-  // Get human-readable feature names
+  // Get human-readable feature names - Fortune 500 Enterprise Features
   private static getFeatureDisplayNames(features: string[]): string[] {
     const displayNames: Record<string, string> = {
-      profileEditing: 'Profile Editing Tools',
-      featuredPlacement: 'Featured Search Placement',
-      redTagSpecials: 'Red Tag Special Promotions',
-      photoTools: 'Photo Gallery Management',
-      customForms: 'Custom Intake Forms',
-      basicAnalytics: 'Basic Analytics Dashboard',
-      brandedIntake: 'Branded Intake Forms',
-      availabilityManagement: 'Real-time Availability',
-      tourScheduler: 'Tour Scheduling System',
-      unlimitedPhotos: 'Unlimited Photo Storage',
-      advancedAnalytics: 'Advanced Analytics & Insights',
-      familyMessaging: 'Family Messaging Platform',
-      prioritySupport: 'Priority Support Access',
-      homepageFeatured: 'Homepage Featured Placement',
-      conciergeService: 'Dedicated Concierge Service',
-      sponsoredContent: 'Sponsored Content Creation',
-      aiAccess: 'AI-Powered Tools Suite',
-      apiIntegration: 'API Integration Access',
+      // Starter Features
+      billingManagement: 'Complete Billing Management System',
+      financialReporting: 'Financial Reporting & Analytics',
+      invoiceGeneration: 'Automated Invoice Generation',
+      paymentTracking: 'Payment Tracking & Processing',
+      costCalculator: 'Family Cost Calculator Tool',
+      // Professional Features
+      careCoordination: 'Care Coordination Platform',
+      healthRecords: 'Electronic Health Records',
+      medicationManagement: 'Medication Management System',
+      carePlans: 'Personalized Care Plans',
+      dailyLifeActivities: 'Activity Calendar & Planning',
+      mealPlanning: 'Meal Planning & Dietary Management',
+      transportationScheduling: 'Transportation Scheduling',
+      familyMessaging: 'Family Communication Portal',
+      // Premium Features
+      staffManagement: 'Complete Staff Management Suite',
+      hrTools: 'HR Tools & Document Management',
+      trainingPrograms: 'Staff Training Programs',
+      performanceTracking: 'Performance Tracking & Reviews',
+      marketingCRM: 'Marketing CRM System',
+      leadTracking: 'Lead Tracking & Conversion',
+      tourScheduler: 'Tour Scheduling & Management',
+      occupancyManagement: 'Real-time Occupancy Management',
+      campaignAnalytics: 'Marketing Campaign Analytics',
+      // Enterprise Features
+      multiPropertyDashboard: 'Multi-Property Management Dashboard',
       whiteLabeling: 'White Label Branding',
+      apiIntegration: 'Full API Integration Access',
       customReporting: 'Custom Report Builder',
-      dedicatedSuccess: 'Dedicated Success Manager'
+      dedicatedSuccess: 'Dedicated Success Manager',
+      aiPoweredInsights: 'AI-Powered Business Insights',
+      advancedAnalytics: 'Advanced Predictive Analytics',
+      revenueForecasting: 'Revenue Forecasting & Optimization'
     };
 
     return features.map(f => displayNames[f] || f);
