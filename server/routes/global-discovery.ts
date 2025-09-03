@@ -91,7 +91,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
-      // Call Perplexity API
+      // Call Perplexity API with working configuration
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
@@ -99,13 +99,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online',
+          model: 'sonar-pro',
           messages: [
             {
               role: 'system',
-              content: `You are a senior care research assistant. Extract structured data about senior living communities. 
-                       For each community found, provide: name, full address, city, state, country, phone, email, website, 
-                       care types offered, and a brief description. Format as a JSON array.`
+              content: 'You are a senior care research assistant. Find real senior living communities, nursing homes, and assisted living facilities. For each found, provide: name, address, city, country, phone, website if available.'
             },
             {
               role: 'user',
@@ -114,8 +112,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           ],
           temperature: 0.2,
           max_tokens: 2000,
-          return_images: true, // Try to get images if available
-          return_related_questions: false,
+          top_p: 0.9,
           stream: false
         })
       });
