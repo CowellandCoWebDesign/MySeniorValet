@@ -648,15 +648,23 @@ function HeroSectionWithTransformingSearch() {
                   <div className="">
                     <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
                       <h3 className="text-lg font-semibold text-white">
-                        <span>
-                          Found {searchResults?.results?.length || 0} 
-                          {searchCategory === 'services' ? ' services' : 
-                           searchCategory === 'healthcare' ? ' healthcare providers' : 
-                           searchCategory === 'resources' ? ' resources' : ' communities'}
-                        </span>
-                        {searchQuery && (
-                          <span className="ml-2 text-green-400">
-                            "{searchQuery}"
+                        {searchQuery ? (
+                          <>
+                            Found {searchResults?.results?.length || 0}
+                            {searchCategory === 'services' ? ' services' : 
+                             searchCategory === 'healthcare' ? ' healthcare providers' : 
+                             searchCategory === 'resources' ? ' resources' : ' communities'}
+                            {' matching "'}
+                            <span className="text-green-400">{searchQuery}</span>
+                            {'"'}
+                          </>
+                        ) : (
+                          <span>
+                            {searchResults?.results?.length || 0}
+                            {searchCategory === 'services' ? ' Services' : 
+                             searchCategory === 'healthcare' ? ' Healthcare Providers' : 
+                             searchCategory === 'resources' ? ' Resources' : ' Communities'}
+                            {' Found'}
                           </span>
                         )}
                       </h3>

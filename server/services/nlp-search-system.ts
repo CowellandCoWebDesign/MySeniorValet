@@ -695,38 +695,40 @@ export class NLPSearchSystem {
             );
           }
           
-          // PRIORITY 1: Exact phrase match in name
-          orConditions.push(ilike(communities.name, `%${fullQuery}%`));
+          // PRIORITY 1: Exact phrase match in name (MOST IMPORTANT)
+          // This should catch exact facility names like "Willow Springs Alzheimer's Special Care Center"
+          conditions.push(ilike(communities.name, `%${fullQuery}%`));
           
-          // PRIORITY 2: Exact city match (very important for location searches)
-          orConditions.push(ilike(communities.city, fullQuery));
-          
-          // PRIORITY 3: City starts with query (e.g., "San" matches "San Francisco")
-          orConditions.push(ilike(communities.city, `${fullQuery}%`));
-          
-          // PRIORITY 4: City contains full query
-          orConditions.push(ilike(communities.city, `%${fullQuery}%`));
-          
-          // PRIORITY 5: ZIP code partial match (even if not pure numeric)
-          orConditions.push(ilike(communities.zipCode, `%${fullQuery}%`));
-          
-          // PRIORITY 6: County match (without requiring "county" word)
-          orConditions.push(
-            sql`COALESCE(${communities.county}, '') ILIKE ${'%' + fullQuery + '%'}`
-          );
-          
-          // PRIORITY 7: State match (for state searches)
-          orConditions.push(ilike(communities.state, fullQuery));
-          orConditions.push(ilike(communities.state, `%${fullQuery}%`));
-          
-          // PRIORITY 6: All terms present in name (for multi-word searches)
+          // If no exact phrase match, try other approaches
+          // PRIORITY 2: For multi-word searches, require ALL significant words to be present
           if (searchTerms.length > 1 && !cityStateMatch) {
-            const nameAndConditions = searchTerms.map(term => 
-              ilike(communities.name, `%${term}%`)
-            );
-            if (nameAndConditions.length > 0) {
+            // Filter out common words that shouldn't be required
+            const significantWords = searchTerms.filter(term => {
+              const commonWords = ['the', 'of', 'and', 'in', 'at', 'for', 'on', 'to', 'a', 'an'];
+              return term.length > 2 && !commonWords.includes(term.toLowerCase());
+            });
+            
+            // If we have multiple significant words, search for communities with ALL of them
+            if (significantWords.length > 1) {
+              const nameAndConditions = significantWords.map(term => 
+                ilike(communities.name, `%${term}%`)
+              );
               orConditions.push(and(...nameAndConditions));
             }
+          }
+          
+          // PRIORITY 3: Location searches - only if query looks like a location
+          if (fullQuery.split(' ').length <= 2 || fullQuery.match(/^[a-zA-Z\s]+$/)) {
+            // Exact city match
+            orConditions.push(ilike(communities.city, fullQuery));
+            // City starts with query
+            orConditions.push(ilike(communities.city, `${fullQuery}%`));
+            // City contains query (broader match)
+            orConditions.push(ilike(communities.city, `%${fullQuery}%`));
+            // ZIP code match
+            orConditions.push(ilike(communities.zipCode, `%${fullQuery}%`));
+            // State match
+            orConditions.push(ilike(communities.state, fullQuery));
           }
           
           // PRIORITY 7: Management company and address
@@ -770,11 +772,12 @@ export class NLPSearchSystem {
         dbQuery = dbQuery.where(and(...conditions));
       }
       
-      // Apply modifiers and sorting
+      // Apply modifiers and sorting with improved relevance
       if (intent.entities.modifiers?.includes('cheapest')) {
         dbQuery = dbQuery.orderBy(asc(communities.rentPerMonth));
-      } else if (isLocationSearch) {
-        // For location searches, order by name to get more relevant results
+      } else {
+        // For all searches, prioritize exact matches first
+        // Communities with names containing the full query should appear at top
         dbQuery = dbQuery.orderBy(asc(communities.name));
       }
       
