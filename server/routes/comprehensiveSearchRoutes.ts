@@ -131,6 +131,9 @@ router.get('/api/search/comprehensive', async (req, res) => {
       { limit: parseInt(limit as string), offset: parseInt(offset as string) }
     );
     
+    // Store original domestic results count
+    const domesticResultsCount = results.communities?.length || 0;
+    
     // If international search detected, also query global discovery
     if (isInternational && process.env.PERPLEXITY_API_KEY) {
       try {
@@ -153,17 +156,46 @@ router.get('/api/search/comprehensive', async (req, res) => {
               r.isDiscovered || r.data_source === 'AI Discovery'
             );
             
-            // Merge discovered facilities with existing results
-            results.communities = [...discoveredFacilities, ...(results.communities || [])];
-            results.results = [...discoveredFacilities, ...(results.results || [])];  
-            results.total = (results.total || 0) + discoveredFacilities.length;
+            // If we have no domestic results, fetch some popular US communities to show alongside
+            let domesticCommunities = results.communities || [];
+            if (domesticResultsCount === 0) {
+              console.log(`📊 No domestic matches for "${query}" - fetching popular US communities`);
+              // Fetch some popular US communities as suggestions
+              // Try different strategies to ensure we get results
+              const popularResults = await comprehensiveSearchEngine.search(
+                'senior living',  // Common search term to get results
+                { state: filters.state || 'CA' },  // Default to CA if no state specified
+                { limit: 10, offset: 0 }
+              );
+              
+              // If still no results, try without any filters
+              if (!popularResults.communities || popularResults.communities.length === 0) {
+                const generalResults = await comprehensiveSearchEngine.search(
+                  '',  // Empty query
+                  {},  // No filters
+                  { limit: 10, offset: 0 }
+                );
+                domesticCommunities = generalResults.communities || [];
+              } else {
+                domesticCommunities = popularResults.communities;
+              }
+              
+              console.log(`✅ Added ${domesticCommunities.length} popular US communities as suggestions`);
+            }
+            
+            // Merge discovered facilities with domestic results (discovered first)
+            results.communities = [...discoveredFacilities, ...domesticCommunities];
+            results.results = [...discoveredFacilities, ...domesticCommunities];  
+            results.total = discoveredFacilities.length + domesticCommunities.length;
             results.metadata = {
               ...results.metadata,
               globalDiscoveryCount: discoveredFacilities.length,
+              domesticResultsCount: domesticCommunities.length,
               isInternational: true,
-              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))]
+              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))],
+              searchNote: domesticResultsCount === 0 ? 'Showing popular US communities alongside international discoveries' : undefined
             };
-            console.log(`✅ Added ${discoveredFacilities.length} discovered facilities to GET results`);
+            console.log(`✅ Combined ${discoveredFacilities.length} discovered + ${domesticCommunities.length} domestic results`);
           }
         }
       } catch (globalError) {
