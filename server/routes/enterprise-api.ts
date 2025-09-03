@@ -355,4 +355,58 @@ router.get('/portfolio/:corporateId/export', requireAuth, async (req, res) => {
   }
 });
 
+// Get white-label configuration
+router.get('/:corporateId/white-label', requireAuth, async (req, res) => {
+  try {
+    const { corporateId } = req.params;
+    
+    // In production, this would fetch from database
+    const whiteLabel = {
+      primaryColor: '#3B82F6',
+      secondaryColor: '#10B981',
+      accentColor: '#F59E0B',
+      logoUrl: '',
+      faviconUrl: '',
+      companyName: 'Enterprise Corp',
+      tagline: 'Excellence in Senior Living',
+      customDomain: '',
+      emailFooter: '© 2025 Enterprise Corp. All rights reserved.',
+      supportEmail: 'support@enterprise.com',
+      supportPhone: '1-800-555-0100',
+      socialLinks: {},
+      features: {
+        hideMySeniorValetBranding: false,
+        customLoginPage: false,
+        customEmailTemplates: false,
+        customReports: false,
+        apiWhiteLabel: false
+      }
+    };
+    
+    res.json(whiteLabel);
+  } catch (error) {
+    console.error('Error fetching white-label config:', error);
+    res.status(500).json({ error: 'Failed to fetch white-label configuration' });
+  }
+});
+
+// Update white-label configuration
+router.put('/:corporateId/white-label', requireAuth, async (req, res) => {
+  try {
+    const { corporateId } = req.params;
+    const config = req.body;
+    
+    // In production, this would save to database
+    // For now, just return success
+    res.json({ 
+      success: true, 
+      message: 'White-label configuration updated successfully',
+      config 
+    });
+  } catch (error) {
+    console.error('Error updating white-label config:', error);
+    res.status(500).json({ error: 'Failed to update white-label configuration' });
+  }
+});
+
 export default router;

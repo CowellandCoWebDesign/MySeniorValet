@@ -11,6 +11,7 @@ import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
 import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
+import WhiteLabelManager from '@/components/enterprise/WhiteLabelManager';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -313,11 +314,18 @@ export default function CommunityDashboardEnhanced() {
               Billing
             </TabsTrigger>
             {featureAccess?.currentTier === 'enterprise' && (
-              <TabsTrigger value="enterprise" className="relative">
-                <Briefcase className="w-3 h-3 mr-1" />
-                Enterprise
-                <Badge className="ml-2 bg-purple-100 text-purple-700">New</Badge>
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="enterprise" className="relative">
+                  <Briefcase className="w-3 h-3 mr-1" />
+                  Enterprise
+                  <Badge className="ml-2 bg-purple-100 text-purple-700">New</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="whitelabel" className="relative">
+                  <Palette className="w-3 h-3 mr-1" />
+                  Branding
+                  <Badge className="ml-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white">Enterprise</Badge>
+                </TabsTrigger>
+              </>
             )}
             <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -1211,6 +1219,16 @@ export default function CommunityDashboardEnhanced() {
                   viewMode="executive"
                 />
               </div>
+            </TabsContent>
+          )}
+
+          {/* White-Label Tab - Enterprise Branding (Enterprise Tier Only) */}
+          {featureAccess?.currentTier === 'enterprise' && (
+            <TabsContent value="whitelabel">
+              <WhiteLabelManager 
+                corporateId={communityId || 'demo'}
+                viewMode="admin"
+              />
             </TabsContent>
           )}
 
