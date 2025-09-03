@@ -312,6 +312,7 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />
       <Route path="/senior-services-comprehensive" component={SeniorServicesComprehensive} />
+      <Route path="/childcare-directory" component={lazy(() => import("./pages/childcare-directory"))} />
       <Route path="/senior-resources" component={SeniorResources} />
       <Route path="/move-in-coordination" component={MoveInCoordination} />
       <Route path="/marketplace" component={Marketplace} />

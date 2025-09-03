@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Baby } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -1920,6 +1920,58 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
+            {/* Child Care Directory - NEW DEDICATED SECTION */}
+            <Link href="/childcare-directory">
+              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-pink-400 relative overflow-hidden group transform hover:scale-105">
+                <div className="relative h-64 w-full bg-gradient-to-br from-pink-300 via-rose-400 to-pink-500">
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg">
+                    <span className="text-3xl">👶</span>
+                  </div>
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1">
+                    CHILDCARE
+                  </Badge>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-white text-center">
+                      <Baby className="h-24 w-24 mx-auto mb-4 opacity-80" />
+                      <p className="text-xl font-bold">Child Care Discovery</p>
+                    </div>
+                  </div>
+                </div>
+                <CardHeader className="relative z-10">
+                  <CardTitle className="text-2xl mb-2">Global Child Care Directory</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Daycare, Preschools & Early Learning Centers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="relative z-10">
+                  <p className="text-gray-600 dark:text-gray-400 mb-6">
+                    🌍 Discover ANY childcare center globally - daycares, preschools, Montessori schools, early learning centers
+                  </p>
+                  
+                  <div className="space-y-2 mb-6">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Real-time pricing transparency</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Globe className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">7+ centers discovered in Austin</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-pink-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">AI-powered global discovery</span>
+                    </div>
+                  </div>
+                  
+                  <Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white group-hover:shadow-lg transition-shadow">
+                    Discover Child Care
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardContent>
+              </Card>
+            </Link>
+
             {/* Senior Service Providers Directory */}
             <Link href="/senior-services">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
@@ -1947,26 +1999,26 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with 200+ verified national service providers for all your senior care needs
+                    Connect with discovered service providers for all your senior care needs - powered by AI discovery
                   </p>
                   
-                  {/* Provider highlights */}
+                  {/* Provider highlights - Connected to real discovered services */}
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center gap-2">
                       <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines, Allied, Mayflower</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Hansen's Moving & Storage (Verified)</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health, Lyft Healthcare</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Medical Transport Services</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Pride Mobility, Life Alert, Medical Guardian</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Home Care Equipment & Supplies</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels, Mom's Meals</span>
+                      <Globe className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">100+ More Services Available</span>
                     </div>
                   </div>
                   
