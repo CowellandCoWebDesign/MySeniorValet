@@ -9,24 +9,28 @@ import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Alert } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
 import { 
   Baby, MapPin, Phone, Globe, CheckCircle, Search, ArrowRight, Sparkles,
   Clock, DollarSign, Star, Building, Users, Shield, Award, Heart,
-  Calendar, School, Home, Sun, Moon, Zap, AlertCircle, BookOpen,
-  UserCheck, Activity, Bell, MessageSquare, ChevronLeft, ChevronRight,
-  TrendingUp, BarChart3, Filter, Info, Lock, Unlock, Coffee,
-  PlayCircle, Palette, Music, TreePine, Utensils, Bus, Camera,
-  Smartphone, Wifi, ShieldCheck, FileCheck, BadgeCheck, ClipboardCheck,
+  Calendar, School, Home, Bell, MessageSquare, Camera, Wifi,
+  UserCheck, Activity, ShieldCheck, FileCheck, BadgeCheck, ClipboardCheck,
   UserPlus, Settings, Edit, Eye, RefreshCw, Plus, ListOrdered,
-  Mail, CheckSquare, XCircle, Timer, CreditCard
+  Mail, CheckSquare, XCircle, Timer, CreditCard, ChevronLeft, ChevronRight,
+  Utensils, Bus, TreePine, PlayCircle, Brain, Music, Palette, Database,
+  TrendingUp, BarChart3, Info, AlertCircle, HeartHandshake, Filter,
+  Zap, Navigation2, GraduationCap, BookOpen, Moon, Sun
 } from "lucide-react";
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
-import { Link } from "wouter";
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+import { Link, useLocation } from "wouter";
+import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 
 interface ChildcareCenter {
   id: string | number;
@@ -43,7 +47,7 @@ interface ChildcareCenter {
   isDiscovered?: boolean;
   type?: string;
   
-  // Enhanced fields based on research
+  // Enhanced fields
   licenseNumber?: string;
   licenseStatus?: 'Active' | 'Pending' | 'Expired';
   capacity?: number;
@@ -57,7 +61,6 @@ interface ChildcareCenter {
   accreditations?: string[];
   inspectionScore?: number;
   lastInspectionDate?: string;
-  incidentReports?: number;
   yearEstablished?: number;
   acceptsSubsidy?: boolean;
   
@@ -67,165 +70,130 @@ interface ChildcareCenter {
   liveCamera?: boolean;
   digitalPayments?: boolean;
   instantMessaging?: boolean;
-}
-
-interface WaitlistEntry {
-  parentName: string;
-  childName: string;
-  childAge: string;
-  desiredStartDate: string;
-  position: number;
-  estimatedAvailability?: string;
-  status: 'active' | 'pending' | 'offered' | 'expired';
+  
+  // For display purposes
+  photos?: string[];
+  priceRange?: { min: number; max: number };
+  careTypes?: string[];
 }
 
 export default function ChildcareDirectory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [childcareCenters, setChildcareCenters] = useState<ChildcareCenter[]>([]);
   const [showGlobalDiscovery, setShowGlobalDiscovery] = useState(false);
   const [discoveryResults, setDiscoveryResults] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState("search");
+  const [activeTab, setActiveTab] = useState("overview");
   const [selectedCareType, setSelectedCareType] = useState("");
   const [priceRange, setPriceRange] = useState([0, 3000]);
   const [distanceRange, setDistanceRange] = useState([5]);
   const [selectedAgeGroup, setSelectedAgeGroup] = useState("");
-  const [showProviderPanel, setShowProviderPanel] = useState(false);
-  const [currentRotation, setCurrentRotation] = useState(0);
-  const [selectedCenter, setSelectedCenter] = useState<ChildcareCenter | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [, setLocation] = useLocation();
   
   const { toast } = useToast();
 
-  // Care types with detailed information (addressing parent pain points from research)
-  const careTypes = [
-    { 
-      id: 'infant', 
-      name: 'Infant Care', 
-      icon: Baby, 
-      color: 'bg-pink-500',
-      ageRange: '6 weeks - 18 months',
-      description: 'Specialized care for infants with low ratios and dedicated nurseries',
-      avgCost: '$1,200-2,500/month',
-      keyFeatures: ['1:3 or 1:4 ratio', 'Bottle & diaper service', 'Nap schedules'],
-      waitlistAvg: '6-12 months'
-    },
-    { 
-      id: 'toddler', 
-      name: 'Toddler Care', 
-      icon: PlayCircle, 
-      color: 'bg-purple-500',
-      ageRange: '18 months - 3 years',
-      description: 'Active learning and potty training support for toddlers',
-      avgCost: '$1,000-2,000/month',
-      keyFeatures: ['1:5 or 1:6 ratio', 'Potty training', 'Early learning activities'],
-      waitlistAvg: '3-6 months'
-    },
-    { 
-      id: 'preschool', 
-      name: 'Preschool', 
-      icon: School, 
-      color: 'bg-blue-500',
-      ageRange: '3 - 5 years',
-      description: 'Pre-K education with structured curriculum and kindergarten prep',
-      avgCost: '$800-1,800/month',
-      keyFeatures: ['1:8 or 1:10 ratio', 'Pre-K curriculum', 'Social skills development'],
-      waitlistAvg: '2-4 months'
-    },
-    { 
-      id: 'montessori', 
-      name: 'Montessori', 
-      icon: Palette, 
-      color: 'bg-green-500',
-      ageRange: '2.5 - 6 years',
-      description: 'Child-led learning with Montessori certified teachers and materials',
-      avgCost: '$1,200-2,500/month',
-      keyFeatures: ['Mixed age groups', 'Self-directed learning', 'Montessori materials'],
-      waitlistAvg: '6-9 months'
-    },
-    { 
-      id: 'homebased', 
-      name: 'Home-Based', 
-      icon: Home, 
-      color: 'bg-yellow-500',
-      ageRange: 'All ages',
-      description: 'Family childcare in home settings with mixed age groups',
-      avgCost: '$600-1,200/month',
-      keyFeatures: ['Small group size', 'Home-like setting', 'Flexible hours'],
-      waitlistAvg: '1-2 months'
-    },
-    { 
-      id: 'afterschool', 
-      name: 'After School', 
-      icon: Sun, 
-      color: 'bg-orange-500',
-      ageRange: '5 - 12 years',
-      description: 'Before/after school care with homework help and activities',
-      avgCost: '$300-800/month',
-      keyFeatures: ['Homework help', 'Snacks provided', 'Activity programs'],
-      waitlistAvg: '1 month'
-    },
-    { 
-      id: 'dropin', 
-      name: 'Drop-In', 
-      icon: Clock, 
-      color: 'bg-red-500',
-      ageRange: 'All ages',
-      description: 'Flexible hourly care without long-term commitments',
-      avgCost: '$15-30/hour',
-      keyFeatures: ['No commitment', 'Hourly rates', 'Backup care option'],
-      waitlistAvg: 'Usually available'
-    },
-    { 
-      id: 'overnight', 
-      name: 'Overnight', 
-      icon: Moon, 
-      color: 'bg-indigo-500',
-      ageRange: 'All ages',
-      description: '24-hour and overnight care for shift workers and emergencies',
-      avgCost: '$100-200/night',
-      keyFeatures: ['24/7 availability', 'Overnight staff', 'Evening meals'],
-      waitlistAvg: 'Varies'
-    },
-    { 
-      id: 'special', 
-      name: 'Special Needs', 
-      icon: Heart, 
-      color: 'bg-teal-500',
-      ageRange: 'All ages',
-      description: 'Specialized care for children with developmental or physical needs',
-      avgCost: '$1,500-3,000/month',
-      keyFeatures: ['Trained staff', 'IEP support', 'Therapy services'],
-      waitlistAvg: '3-6 months'
-    },
-    { 
-      id: 'corporate', 
-      name: 'Corporate', 
-      icon: Building, 
-      color: 'bg-gray-600',
-      ageRange: 'All ages',
-      description: 'Employer-sponsored onsite childcare with employee discounts',
-      avgCost: '$800-2,000/month',
-      keyFeatures: ['Onsite convenience', 'Employee discounts', 'Extended hours'],
-      waitlistAvg: 'Priority for employees'
-    }
-  ];
+  // Refs for horizontal sliders
+  const sanFranciscoSliderRef = useRef<HTMLDivElement>(null);
+  const newYorkSliderRef = useRef<HTMLDivElement>(null);
+  const losAngelesSliderRef = useRef<HTMLDivElement>(null);
+  const chicagoSliderRef = useRef<HTMLDivElement>(null);
+  const houstonSliderRef = useRef<HTMLDivElement>(null);
+  const miamiSliderRef = useRef<HTMLDivElement>(null);
 
-  // Load initial childcare centers on mount
-  useEffect(() => {
-    loadChildcareCenters();
-  }, []);
-
-  const loadChildcareCenters = async () => {
-    try {
-      const response = await fetch('/api/communities?careType=childcare&limit=20');
-      if (response.ok) {
-        const data = await response.json();
-        setChildcareCenters(data.communities || []);
-      }
-    } catch (error) {
-      console.error('Error loading childcare centers:', error);
+  // Scroll navigation function
+  const scrollSlider = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+    if (ref.current) {
+      const scrollAmount = 320;
+      const currentScroll = ref.current.scrollLeft;
+      const newScroll = direction === 'left' 
+        ? currentScroll - scrollAmount 
+        : currentScroll + scrollAmount;
+      
+      ref.current.scrollTo({
+        left: newScroll,
+        behavior: 'smooth'
+      });
     }
   };
+
+  // Fetch childcare centers for different metro areas
+  const { data: sanFranciscoCenters, isLoading: sfLoading } = useQuery({
+    queryKey: ['childcare-sf'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities?city=San Francisco&careType=childcare&limit=20');
+      if (!response.ok) return { communities: [] };
+      const data = await response.json();
+      return { communities: data.communities || [] };
+    }
+  });
+
+  const { data: newYorkCenters, isLoading: nyLoading } = useQuery({
+    queryKey: ['childcare-ny'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities?city=New York&careType=childcare&limit=20');
+      if (!response.ok) return { communities: [] };
+      const data = await response.json();
+      return { communities: data.communities || [] };
+    }
+  });
+
+  const { data: losAngelesCenters, isLoading: laLoading } = useQuery({
+    queryKey: ['childcare-la'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities?city=Los Angeles&careType=childcare&limit=20');
+      if (!response.ok) return { communities: [] };
+      const data = await response.json();
+      return { communities: data.communities || [] };
+    }
+  });
+
+  const { data: chicagoCenters, isLoading: chiLoading } = useQuery({
+    queryKey: ['childcare-chi'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities?city=Chicago&careType=childcare&limit=20');
+      if (!response.ok) return { communities: [] };
+      const data = await response.json();
+      return { communities: data.communities || [] };
+    }
+  });
+
+  const { data: houstonCenters, isLoading: houLoading } = useQuery({
+    queryKey: ['childcare-hou'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities?city=Houston&careType=childcare&limit=20');
+      if (!response.ok) return { communities: [] };
+      const data = await response.json();
+      return { communities: data.communities || [] };
+    }
+  });
+
+  const { data: miamiCenters, isLoading: miaLoading } = useQuery({
+    queryKey: ['childcare-mia'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities?city=Miami&careType=childcare&limit=20');
+      if (!response.ok) return { communities: [] };
+      const data = await response.json();
+      return { communities: data.communities || [] };
+    }
+  });
+
+  // Fetch childcare statistics
+  const { data: childcareStats } = useQuery({
+    queryKey: ['childcare-stats'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/stats?careType=childcare');
+      if (!response.ok) return { total: 0, withPricing: 0, licensed: 0 };
+      return response.json();
+    }
+  });
+
+  // Simulate loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleGlobalDiscovery = async () => {
     if (!searchQuery.trim()) {
@@ -257,10 +225,6 @@ export default function ChildcareDirectory() {
           metadata: data.metadata
         });
         setShowGlobalDiscovery(true);
-        
-        if (data.results && data.results.length > 0) {
-          setChildcareCenters(prev => [...data.results, ...prev]);
-        }
 
         toast({
           title: "Discovery Complete",
@@ -279,387 +243,246 @@ export default function ChildcareDirectory() {
     }
   };
 
-  // Enhanced childcare card with transparency features
-  const EnhancedChildcareCard = ({ center }: { center: ChildcareCenter }) => (
-    <Card className="hover:shadow-xl transition-all hover:scale-105 border-pink-200 dark:border-pink-800 overflow-hidden">
-      {/* Trust Indicators Bar */}
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 px-4 py-2 border-b">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {center.licenseStatus === 'Active' && (
-              <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100">
-                <ShieldCheck className="h-3 w-3 mr-1" />
-                Licensed
-              </Badge>
+  // Enhanced childcare card component for horizontal sliders
+  const ChildcareSliderCard = ({ center }: { center: ChildcareCenter }) => (
+    <Link href={`/childcare/${center.id}`} className="flex-shrink-0">
+      <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-pink-300 dark:border-pink-600 rounded-xl h-[520px]">
+        <div className="relative">
+          {/* Image Section */}
+          <div className="h-48 bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900 dark:to-purple-900 flex items-center justify-center relative">
+            {center.photos && center.photos.length > 0 ? (
+              <img 
+                src={center.photos[0]} 
+                alt={center.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="text-center">
+                <Baby className="h-16 w-16 text-pink-400 mx-auto mb-2" />
+                <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
+              </div>
             )}
-            {center.inspectionScore && center.inspectionScore >= 90 && (
-              <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100">
-                <Award className="h-3 w-3 mr-1" />
-                {center.inspectionScore}% Score
-              </Badge>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+          </div>
+          
+          {/* Badges Overlay */}
+          <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
+            <div className="flex gap-2">
+              {center.licenseStatus === 'Active' && (
+                <Badge className="bg-green-600 text-white text-xs px-2 py-1">
+                  <ShieldCheck className="h-3 w-3 mr-1" />
+                  Licensed
+                </Badge>
+              )}
+              {center.isDiscovered && (
+                <Badge className="bg-purple-600 text-white text-xs px-2 py-1">
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  AI Found
+                </Badge>
+              )}
+            </div>
+            
+            {center.pricing && (
+              <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  {center.pricing}
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                  per week
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Card Body */}
+        <CardContent className="p-4 space-y-3">
+          {/* Name & Location */}
+          <div>
+            <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
+              {center.name}
+            </h3>
+            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+              <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+              <span>{center.city}, {center.state}</span>
+            </div>
+          </div>
+          
+          {/* Age Range */}
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              <Users className="h-3 w-3 mr-1" />
+              {center.ageRange || '6 weeks - 12 years'}
+            </Badge>
+            {center.rating && (
+              <div className="flex items-center gap-1">
+                <Star className="h-3.5 w-3.5 text-yellow-400 fill-current" />
+                <span className="text-sm font-medium">{center.rating}</span>
+              </div>
+            )}
+          </div>
+          
+          {/* Features Grid */}
+          <div className="grid grid-cols-2 gap-2 py-2 border-t border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5 text-blue-500" />
+              <span className="text-xs">{center.hoursOfOperation || '6:30am-6:30pm'}</span>
+            </div>
+            {center.mealsProvided && (
+              <div className="flex items-center gap-1">
+                <Utensils className="h-3.5 w-3.5 text-green-500" />
+                <span className="text-xs">Meals Included</span>
+              </div>
             )}
             {center.parentApp && (
-              <Badge className="bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-100">
-                <Smartphone className="h-3 w-3 mr-1" />
-                Parent App
-              </Badge>
+              <div className="flex items-center gap-1">
+                <Bell className="h-3.5 w-3.5 text-purple-500" />
+                <span className="text-xs">Parent App</span>
+              </div>
+            )}
+            {center.acceptsSubsidy && (
+              <div className="flex items-center gap-1">
+                <CreditCard className="h-3.5 w-3.5 text-emerald-500" />
+                <span className="text-xs">Subsidy OK</span>
+              </div>
             )}
           </div>
-          {center.rating && (
-            <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-              <span className="text-sm font-semibold">{center.rating}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div className="flex-1">
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Baby className="h-5 w-5 text-pink-500" />
-              {center.name}
-            </CardTitle>
-            {center.isDiscovered && (
-              <Badge className="mt-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white">
-                <Sparkles className="h-3 w-3 mr-1" />
-                AI Discovered
-              </Badge>
-            )}
-            {center.waitlistLength && center.waitlistLength > 10 && (
-              <Badge variant="outline" className="mt-1 border-orange-500 text-orange-600">
-                <Users className="h-3 w-3 mr-1" />
-                {center.waitlistLength} on waitlist
-              </Badge>
-            )}
-          </div>
-        </div>
-        
-        {/* Availability Indicator */}
-        {center.capacity && center.currentEnrollment && (
-          <div className="mt-3">
-            <div className="flex justify-between text-sm mb-1">
-              <span className="text-gray-600 dark:text-gray-400">Availability</span>
-              <span className="font-medium">
-                {center.capacity - center.currentEnrollment} spots
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-              <div 
-                className={`h-2 rounded-full ${
-                  (center.currentEnrollment / center.capacity) > 0.9 
-                    ? 'bg-red-500' 
-                    : (center.currentEnrollment / center.capacity) > 0.7 
-                    ? 'bg-yellow-500' 
-                    : 'bg-green-500'
-                }`}
-                style={{ width: `${(center.currentEnrollment / center.capacity) * 100}%` }}
+          
+          {/* Availability Bar */}
+          {center.capacity && center.currentEnrollment && (
+            <div>
+              <div className="flex justify-between text-xs mb-1">
+                <span className="text-gray-600 dark:text-gray-400">Availability</span>
+                <span className="font-medium">
+                  {center.capacity - center.currentEnrollment} spots
+                </span>
+              </div>
+              <Progress 
+                value={(center.currentEnrollment / center.capacity) * 100} 
+                className="h-2"
               />
             </div>
-          </div>
-        )}
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        {center.description && (
-          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-            {center.description}
-          </p>
-        )}
-        
-        {/* Key Information Grid */}
-        <div className="grid grid-cols-2 gap-2 text-sm">
-          {center.ageRange && (
-            <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-pink-400" />
-              <span>Ages: {center.ageRange}</span>
-            </div>
           )}
           
-          {center.staffChildRatio && (
-            <div className="flex items-center gap-2">
-              <UserCheck className="h-4 w-4 text-blue-400" />
-              <span>Ratio: {center.staffChildRatio}</span>
-            </div>
+          {/* Waitlist Badge */}
+          {center.waitlistLength && center.waitlistLength > 0 && (
+            <Badge variant="outline" className="w-full justify-center">
+              <ListOrdered className="h-3 w-3 mr-1" />
+              {center.waitlistLength} on waitlist
+            </Badge>
           )}
           
-          {center.hoursOfOperation && (
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-green-400" />
-              <span>{center.hoursOfOperation}</span>
-            </div>
-          )}
-          
-          {center.pricing && (
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-emerald-400" />
-              <span className="font-medium text-emerald-600 dark:text-emerald-400">
-                {center.pricing}
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* Features & Programs */}
-        <div className="flex flex-wrap gap-1">
-          {center.mealsProvided && (
-            <Badge variant="secondary" className="text-xs">
-              <Utensils className="h-3 w-3 mr-1" />
-              Meals
-            </Badge>
-          )}
-          {center.transportProvided && (
-            <Badge variant="secondary" className="text-xs">
-              <Bus className="h-3 w-3 mr-1" />
-              Transport
-            </Badge>
-          )}
-          {center.liveCamera && (
-            <Badge variant="secondary" className="text-xs">
-              <Camera className="h-3 w-3 mr-1" />
-              Live Cam
-            </Badge>
-          )}
-          {center.dailyUpdates && (
-            <Badge variant="secondary" className="text-xs">
-              <Bell className="h-3 w-3 mr-1" />
-              Daily Updates
-            </Badge>
-          )}
-          {center.acceptsSubsidy && (
-            <Badge variant="secondary" className="text-xs">
-              <CreditCard className="h-3 w-3 mr-1" />
-              Subsidy OK
-            </Badge>
-          )}
-        </div>
-
-        {/* Contact Information */}
-        <div className="space-y-2 pt-2 border-t">
-          {(center.city || center.state) && (
-            <div className="flex items-center gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-pink-400" />
-              <span>{center.city}{center.city && center.state ? ', ' : ''}{center.state}</span>
-            </div>
-          )}
-          
-          {center.phone && (
-            <div className="flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4 text-pink-400" />
-              <span>{center.phone}</span>
-            </div>
-          )}
-        </div>
-        
-        {/* Action Buttons */}
-        <div className="flex gap-2 mt-4">
-          <Link href={`/childcare/${center.id}`} className="flex-1">
+          {/* Action Buttons */}
+          <div className="flex gap-2 pt-2">
             <Button 
-              size="sm" 
-              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white"
+              size="sm"
+              className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white"
             >
               View Details
               <Eye className="h-4 w-4 ml-1" />
             </Button>
-          </Link>
-          <Button 
-            size="sm" 
-            variant="outline"
-            className="border-pink-300 hover:bg-pink-50 dark:hover:bg-pink-900/20"
-          >
-            <Heart className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  // Provider Dashboard Component
-  const ProviderDashboard = () => (
-    <div className="space-y-6">
-      <Card className="border-purple-200 dark:border-purple-800">
-        <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-          <CardTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5 text-purple-600" />
-            Provider Dashboard
-          </CardTitle>
-          <CardDescription>
-            Manage your childcare center listing and connect with families
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="p-6 space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="border-green-200 dark:border-green-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg">
-                    <ClipboardCheck className="h-6 w-6 text-green-600 dark:text-green-300" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Claim Your Listing</p>
-                    <p className="text-lg font-semibold">Free Verification</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-blue-200 dark:border-blue-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg">
-                    <ListOrdered className="h-6 w-6 text-blue-600 dark:text-blue-300" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Manage Waitlist</p>
-                    <p className="text-lg font-semibold">Digital System</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="border-purple-200 dark:border-purple-800">
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg">
-                    <MessageSquare className="h-6 w-6 text-purple-600 dark:text-purple-300" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Parent Communication</p>
-                    <p className="text-lg font-semibold">Real-time Updates</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-4">
-            <h4 className="font-semibold mb-2 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-indigo-600" />
-              Benefits of Transparency
-            </h4>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                <span>67% of centers report being at capacity with transparent pricing</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                <span>Parents are 3x more likely to choose centers with real-time updates</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                <span>Digital waitlists reduce administrative burden by 70%</span>
-              </li>
-            </ul>
-          </div>
-
-          <div className="flex gap-3">
-            <Button className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
-              <UserPlus className="h-4 w-4 mr-2" />
-              Claim Your Center
-            </Button>
-            <Button variant="outline" className="flex-1">
-              <Settings className="h-4 w-4 mr-2" />
-              Learn More
+            <Button size="sm" variant="outline">
+              <Heart className="h-4 w-4" />
             </Button>
           </div>
         </CardContent>
       </Card>
-    </div>
+    </Link>
   );
 
-  // 3D Carousel Component for Care Types
-  const CareTypeCarousel = () => {
-    const handleRotate = (direction: 'left' | 'right') => {
-      const increment = direction === 'left' ? 36 : -36;
-      setCurrentRotation(prev => prev + increment);
+  // Metro area slider component
+  const MetroSlider = ({ 
+    title, 
+    subtitle, 
+    data, 
+    loading, 
+    sliderRef, 
+    colorTheme = 'pink' 
+  }: { 
+    title: string; 
+    subtitle: string; 
+    data: any; 
+    loading: boolean; 
+    sliderRef: React.RefObject<HTMLDivElement>;
+    colorTheme?: string;
+  }) => {
+    const colors = {
+      pink: 'from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20',
+      blue: 'from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20',
+      green: 'from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20',
+      orange: 'from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20',
+      purple: 'from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20',
+      red: 'from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20'
     };
 
     return (
-      <div className="relative h-[400px] flex items-center justify-center mb-8">
-        <button
-          onClick={() => handleRotate('left')}
-          className="absolute left-0 z-10 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        
-        <div className="relative w-full max-w-4xl h-full perspective-1000">
-          <div 
-            className="absolute inset-0 flex items-center justify-center transform-style-preserve-3d transition-transform duration-500"
-            style={{ transform: `rotateY(${currentRotation}deg)` }}
-          >
-            {careTypes.map((type, index) => {
-              const angle = (index * 360) / careTypes.length;
-              return (
-                <div
-                  key={type.id}
-                  className="absolute w-80 h-64 backface-hidden"
-                  style={{
-                    transform: `rotateY(${angle}deg) translateZ(400px)`
-                  }}
+      <section className={`px-4 py-12 bg-gradient-to-br ${colors[colorTheme as keyof typeof colors] || colors.pink}`}>
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+              {title}
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
+              {subtitle}
+            </p>
+          </div>
+          
+          <div className="relative">
+            {/* Navigation Arrows */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(sliderRef, 'left')}
+            >
+              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
+              onClick={() => scrollSlider(sliderRef, 'right')}
+            >
+              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+            </Button>
+            
+            {loading ? (
+              <div className="flex items-center justify-center h-40">
+                <div className="animate-spin w-8 h-8 border-4 border-pink-600 border-t-transparent rounded-full"></div>
+              </div>
+            ) : !data?.communities?.length ? (
+              <div className="text-center text-gray-600 dark:text-gray-400">
+                <Baby className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                <p>No childcare centers discovered yet in this area.</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => handleGlobalDiscovery()}
                 >
-                  <Card 
-                    className={`h-full cursor-pointer transition-all hover:scale-105 ${
-                      selectedCareType === type.id ? 'ring-2 ring-pink-500' : ''
-                    }`}
-                    onClick={() => setSelectedCareType(type.id)}
-                  >
-                    <CardHeader className={`${type.color} bg-opacity-10`}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 ${type.color} rounded-lg`}>
-                            <type.icon className="h-6 w-6 text-white" />
-                          </div>
-                          <div>
-                            <CardTitle className="text-lg">{type.name}</CardTitle>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">{type.ageRange}</p>
-                          </div>
-                        </div>
-                        <Badge variant="secondary">{type.avgCost}</Badge>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="pt-4">
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                        {type.description}
-                      </p>
-                      <div className="space-y-2">
-                        {type.keyFeatures.map((feature, idx) => (
-                          <div key={idx} className="flex items-center gap-2 text-xs">
-                            <CheckCircle className="h-3 w-3 text-green-500" />
-                            <span>{feature}</span>
-                          </div>
-                        ))}
-                      </div>
-                      {type.waitlistAvg && (
-                        <div className="mt-3 pt-3 border-t">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="text-gray-600 dark:text-gray-400">Typical wait:</span>
-                            <Badge variant="outline" className="text-xs">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {type.waitlistAvg}
-                            </Badge>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              );
-            })}
+                  <Search className="h-4 w-4 mr-2" />
+                  Discover Centers Here
+                </Button>
+              </div>
+            ) : (
+              <div 
+                ref={sliderRef} 
+                className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-hide"
+                style={{ scrollBehavior: 'smooth' }}
+              >
+                {data.communities.map((center: ChildcareCenter) => (
+                  <ChildcareSliderCard key={center.id} center={center} />
+                ))}
+              </div>
+            )}
           </div>
         </div>
-
-        <button
-          onClick={() => handleRotate('right')}
-          className="absolute right-0 z-10 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-colors"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
-      </div>
+      </section>
     );
   };
+
+  if (isLoading) {
+    return <MascotLoadingDisplay />;
+  }
 
   return (
     <>
@@ -675,493 +498,524 @@ export default function ChildcareDirectory() {
         />
       )}
 
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-purple-50 dark:from-gray-900 dark:via-pink-900/20 dark:to-purple-900/20 pt-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Hero Section with Mascot */}
-          <div className="mb-8">
-            <HeroMascotPanel 
-              title="Global Child Care Transparency Platform"
-              subtitle="Addressing the $9.39 billion childcare crisis with real-time availability, transparent pricing, and digital waitlist management"
-              showStats={false}
-            />
-          </div>
+      {/* Hero Section */}
+      <section className="relative py-16 bg-gradient-to-br from-pink-900 via-purple-800 to-indigo-900 overflow-hidden pt-32">
+        <div className="absolute inset-0">
+          <img 
+            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
+            alt="Cosmic background"
+            className="w-full h-full object-cover opacity-40"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Badge className="bg-white/20 text-white px-4 py-1 mb-4">
+              <Baby className="h-4 w-4 mr-2" />
+              GLOBAL CHILDCARE TRANSPARENCY
+            </Badge>
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
+              Child Care Directory
+            </h1>
+            
+            <p className="text-xl text-pink-100 mb-8 max-w-3xl mx-auto">
+              Solving the $9.39 billion childcare crisis with real-time availability, 
+              transparent pricing, and digital waitlist management
+            </p>
+            
+            {/* Key Stats */}
+            <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-3xl font-bold text-white">Global</div>
+                  <div className="text-xs text-pink-100">Coverage</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-3xl font-bold text-yellow-300">Real-Time</div>
+                  <div className="text-xs text-pink-100">Availability</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-3xl font-bold text-white">Licensed</div>
+                  <div className="text-xs text-pink-100">Centers Only</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardContent className="p-4 text-center">
+                  <div className="text-3xl font-bold text-green-300">AI</div>
+                  <div className="text-xs text-pink-100">Discovery</div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-          {/* Main Tabs */}
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5 bg-white/80 dark:bg-gray-800/80">
-              <TabsTrigger value="search" className="flex items-center gap-2">
-                <Search className="h-4 w-4" />
-                <span className="hidden sm:inline">Find Care</span>
-              </TabsTrigger>
-              <TabsTrigger value="transparency" className="flex items-center gap-2">
-                <Eye className="h-4 w-4" />
-                <span className="hidden sm:inline">Transparency</span>
-              </TabsTrigger>
-              <TabsTrigger value="waitlist" className="flex items-center gap-2">
-                <ListOrdered className="h-4 w-4" />
-                <span className="hidden sm:inline">Waitlists</span>
-              </TabsTrigger>
-              <TabsTrigger value="providers" className="flex items-center gap-2">
-                <Building className="h-4 w-4" />
-                <span className="hidden sm:inline">Providers</span>
-              </TabsTrigger>
-              <TabsTrigger value="resources" className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4" />
-                <span className="hidden sm:inline">Resources</span>
-              </TabsTrigger>
+      {/* Search Section */}
+      <section className="px-4 py-8 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <div className="text-center mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                Find Child Care Centers
+              </h2>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Discover centers globally • Real-time availability • Transparent pricing
+              </p>
+            </div>
+            
+            <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center p-2">
+                <Search className="ml-3 h-5 w-5 text-gray-400" />
+                <div className="flex-1">
+                  <AutocompleteSearch
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                    onSubmit={(value) => {
+                      if (value) {
+                        handleGlobalDiscovery();
+                      }
+                    }}
+                    placeholder="Search childcare in any city (e.g., 'daycares in Seattle' or 'preschools London')"
+                    inputClassName="w-full pl-3 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                    hideSearchButton={true}
+                  />
+                </div>
+                <Button
+                  onClick={handleGlobalDiscovery}
+                  disabled={isSearching}
+                  className="mr-2 px-4 py-2 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all"
+                >
+                  {isSearching ? (
+                    <>
+                      <Clock className="h-4 w-4 mr-2 animate-spin" />
+                      Discovering...
+                    </>
+                  ) : (
+                    <>
+                      <Globe className="h-4 w-4 mr-2" />
+                      Discover
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            
+            {/* Trust Indicators */}
+            <div className="flex flex-wrap justify-center items-center gap-3 mt-6">
+              <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+                <ShieldCheck className="h-3 w-3 text-green-500" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Licensed Only</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+                <Activity className="h-3 w-3 text-blue-500" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Live Waitlists</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md">
+                <Bell className="h-3 w-3 text-purple-500" />
+                <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Parent Apps</span>
+              </span>
+              <span className="inline-flex items-center space-x-1 bg-gradient-to-r from-purple-800/80 to-indigo-800/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md border border-purple-400/30">
+                <Sparkles className="h-3 w-3 text-yellow-300 animate-pulse" />
+                <span className="text-xs font-semibold text-white">AI-Powered</span>
+              </span>
+            </div>
+
+            {/* Quick Filter Badges */}
+            <div className="flex flex-wrap gap-2 mt-6 justify-center">
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-pink-50 dark:hover:bg-pink-900/20 transition-colors border-pink-300 dark:border-pink-600"
+              >
+                <Baby className="h-3 w-3 mr-1 text-pink-600" />
+                <span>Infant Care</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-300 dark:border-purple-600"
+              >
+                <PlayCircle className="h-3 w-3 mr-1 text-purple-600" />
+                <span>Toddler Programs</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-300 dark:border-blue-600"
+              >
+                <School className="h-3 w-3 mr-1 text-blue-600" />
+                <span>Preschool</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border-green-300 dark:border-green-600"
+              >
+                <Palette className="h-3 w-3 mr-1 text-green-600" />
+                <span>Montessori</span>
+              </Badge>
+              <Badge 
+                variant="outline" 
+                className="cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/20 transition-colors border-orange-300 dark:border-orange-600"
+              >
+                <Sun className="h-3 w-3 mr-1 text-orange-600" />
+                <span>After School</span>
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Hero Mascot Panel */}
+      <section className="px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <HeroMascotPanel 
+            title="Bringing Transparency to Child Care"
+            subtitle="ProCare-inspired features: Real-time updates, digital waitlists, parent apps, and transparent pricing"
+          />
+        </div>
+      </section>
+
+      {/* San Francisco Bay Area */}
+      <MetroSlider
+        title="🌉 San Francisco Bay Area"
+        subtitle="Premium childcare centers in San Francisco, San Jose, and Oakland"
+        data={sanFranciscoCenters}
+        loading={sfLoading}
+        sliderRef={sanFranciscoSliderRef}
+        colorTheme="blue"
+      />
+
+      {/* New York Metro */}
+      <MetroSlider
+        title="🗽 New York Metropolitan Area"
+        subtitle="Quality childcare in Manhattan, Brooklyn, Queens, and surrounding areas"
+        data={newYorkCenters}
+        loading={nyLoading}
+        sliderRef={newYorkSliderRef}
+        colorTheme="purple"
+      />
+
+      {/* Los Angeles */}
+      <MetroSlider
+        title="☀️ Los Angeles & Southern California"
+        subtitle="Year-round childcare options in LA, Orange County, and San Diego"
+        data={losAngelesCenters}
+        loading={laLoading}
+        sliderRef={losAngelesSliderRef}
+        colorTheme="orange"
+      />
+
+      {/* Chicago */}
+      <MetroSlider
+        title="🏙️ Chicago & Midwest"
+        subtitle="Trusted childcare centers throughout Chicagoland"
+        data={chicagoCenters}
+        loading={chiLoading}
+        sliderRef={chicagoSliderRef}
+        colorTheme="green"
+      />
+
+      {/* Houston */}
+      <MetroSlider
+        title="⭐ Houston & Texas Cities"
+        subtitle="Everything's bigger in Texas, including childcare options"
+        data={houstonCenters}
+        loading={houLoading}
+        sliderRef={houstonSliderRef}
+        colorTheme="red"
+      />
+
+      {/* Miami */}
+      <MetroSlider
+        title="🌴 Miami & South Florida"
+        subtitle="Bilingual and multicultural childcare in the sunshine state"
+        data={miamiCenters}
+        loading={miaLoading}
+        sliderRef={miamiSliderRef}
+        colorTheme="pink"
+      />
+
+      {/* Main Content Tabs */}
+      <section className="px-4 py-12 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-6xl mx-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-3 lg:grid-cols-5 mb-8">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="transparency">Transparency</TabsTrigger>
+              <TabsTrigger value="waitlists">Waitlists</TabsTrigger>
+              <TabsTrigger value="providers">Providers</TabsTrigger>
+              <TabsTrigger value="resources">Resources</TabsTrigger>
             </TabsList>
 
-            {/* Search Tab */}
-            <TabsContent value="search" className="space-y-6">
-              {/* Care Type Carousel */}
-              <Card className="border-pink-200 dark:border-pink-800">
+            {/* Overview Tab */}
+            <TabsContent value="overview" className="space-y-6 mt-8">
+              <Card>
                 <CardHeader>
-                  <CardTitle className="text-2xl">Choose Your Care Type</CardTitle>
+                  <CardTitle className="text-2xl">The Child Care Crisis</CardTitle>
                   <CardDescription>
-                    Explore different childcare options with transparent pricing and availability
+                    Understanding the challenges facing parents and providers in 2025
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CareTypeCarousel />
-                </CardContent>
-              </Card>
-
-              {/* Advanced Search Filters */}
-              <Card className="border-pink-200 dark:border-pink-800">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Filter className="h-5 w-5 text-pink-500" />
-                    Advanced Search Filters
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label>Location Search</Label>
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                          placeholder="City, state, or zip code"
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-10"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Age Group</Label>
-                      <Select value={selectedAgeGroup} onValueChange={setSelectedAgeGroup}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select age range" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="infant">Infant (0-18 months)</SelectItem>
-                          <SelectItem value="toddler">Toddler (18m-3y)</SelectItem>
-                          <SelectItem value="preschool">Preschool (3-5y)</SelectItem>
-                          <SelectItem value="schoolage">School Age (5-12y)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Special Requirements</Label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select requirements" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="meals">Meals Included</SelectItem>
-                          <SelectItem value="transport">Transportation</SelectItem>
-                          <SelectItem value="subsidy">Accepts Subsidy</SelectItem>
-                          <SelectItem value="special">Special Needs</SelectItem>
-                          <SelectItem value="bilingual">Bilingual Program</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label className="flex items-center justify-between">
-                        <span>Monthly Budget</span>
-                        <span className="text-sm font-normal text-gray-600">
-                          ${priceRange[0]} - ${priceRange[1]}
-                        </span>
-                      </Label>
-                      <Slider
-                        value={priceRange}
-                        onValueChange={setPriceRange}
-                        min={0}
-                        max={3000}
-                        step={100}
-                        className="mt-2"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label className="flex items-center justify-between">
-                        <span>Distance</span>
-                        <span className="text-sm font-normal text-gray-600">
-                          {distanceRange[0]} miles
-                        </span>
-                      </Label>
-                      <Slider
-                        value={distanceRange}
-                        onValueChange={setDistanceRange}
-                        min={1}
-                        max={25}
-                        step={1}
-                        className="mt-2"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button 
-                      onClick={handleGlobalDiscovery}
-                      disabled={isSearching}
-                      className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white"
-                    >
-                      {isSearching ? (
-                        <>
-                          <Clock className="h-4 w-4 mr-2 animate-spin" />
-                          Discovering...
-                        </>
-                      ) : (
-                        <>
-                          <Globe className="h-4 w-4 mr-2" />
-                          Discover Centers
-                        </>
-                      )}
-                    </Button>
-                    <Button variant="outline" className="border-pink-300">
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Reset Filters
-                    </Button>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="border-orange-200">
+                      <CardContent className="p-4">
+                        <DollarSign className="h-8 w-8 text-orange-500 mb-2" />
+                        <h4 className="font-semibold mb-1">Cost Crisis</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Annual costs: $4,810-$15,417, consuming up to 19.3% of median family income
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-blue-200">
+                      <CardContent className="p-4">
+                        <Users className="h-8 w-8 text-blue-500 mb-2" />
+                        <h4 className="font-semibold mb-1">Availability Shortage</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          50% of US children live in "childcare deserts" with insufficient licensed care
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-purple-200">
+                      <CardContent className="p-4">
+                        <ListOrdered className="h-8 w-8 text-purple-500 mb-2" />
+                        <h4 className="font-semibold mb-1">Waitlist Crisis</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          Average waitlist: 236 children, up 28% from 2020
+                        </p>
+                      </CardContent>
+                    </Card>
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Results Grid */}
-              {childcareCenters.length > 0 && (
-                <>
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {childcareCenters.length} Centers Found
-                    </h2>
-                    <div className="flex gap-2">
-                      <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100">
-                        <CheckCircle className="h-3 w-3 mr-1" />
-                        Verified Data
-                      </Badge>
-                      <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-100">
-                        <Shield className="h-3 w-3 mr-1" />
-                        Licensed Only
-                      </Badge>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {childcareCenters.map((center) => (
-                      <EnhancedChildcareCard key={center.id} center={center} />
-                    ))}
-                  </div>
-                </>
-              )}
             </TabsContent>
 
             {/* Transparency Tab */}
-            <TabsContent value="transparency" className="space-y-6">
-              <Card className="border-green-200 dark:border-green-800">
+            <TabsContent value="transparency" className="space-y-6 mt-8">
+              <Card className="border-green-200">
                 <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20">
                   <CardTitle className="text-2xl flex items-center gap-2">
                     <Eye className="h-6 w-6 text-green-600" />
                     Complete Transparency Dashboard
                   </CardTitle>
                   <CardDescription>
-                    Real-time information inspired by ProCare's transparency model
+                    Inspired by ProCare's model - 80% of centers now use management software
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card>
-                      <CardContent className="p-4">
-                        <ShieldCheck className="h-8 w-8 text-green-500 mb-2" />
-                        <h4 className="font-semibold">License Verification</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          All centers verified through state licensing databases
-                        </p>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-4">
-                        <BarChart3 className="h-8 w-8 text-blue-500 mb-2" />
-                        <h4 className="font-semibold">Inspection Scores</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          Health & safety inspection results updated monthly
-                        </p>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-4">
-                        <Activity className="h-8 w-8 text-purple-500 mb-2" />
-                        <h4 className="font-semibold">Live Availability</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                          Real-time enrollment and waitlist status
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-4">
-                    <h4 className="text-lg font-semibold">What Parents Can See:</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {[
-                        { icon: Camera, text: "Live classroom cameras (where available)" },
-                        { icon: Bell, text: "Real-time daily activity updates" },
-                        { icon: MessageSquare, text: "Direct messaging with teachers" },
-                        { icon: Calendar, text: "Digital calendar and event updates" },
-                        { icon: Utensils, text: "Daily meal menus and dietary info" },
-                        { icon: FileCheck, text: "Digital forms and documents" },
-                        { icon: Timer, text: "Check-in/out times and attendance" },
-                        { icon: Heart, text: "Mood and behavior updates" }
-                      ].map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <item.icon className="h-4 w-4 text-pink-500" />
-                          <span className="text-sm">{item.text}</span>
-                        </div>
-                      ))}
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <ShieldCheck className="h-6 w-6 text-green-600 mb-2" />
+                      <h4 className="font-semibold">License Verification</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        All centers verified through state databases
+                      </p>
+                    </div>
+                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <Camera className="h-6 w-6 text-blue-600 mb-2" />
+                      <h4 className="font-semibold">Live Cameras</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Watch your child anytime (where available)
+                      </p>
+                    </div>
+                    <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <Bell className="h-6 w-6 text-purple-600 mb-2" />
+                      <h4 className="font-semibold">Daily Updates</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Real-time activity reports and photos
+                      </p>
+                    </div>
+                    <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                      <MessageSquare className="h-6 w-6 text-orange-600 mb-2" />
+                      <h4 className="font-semibold">Direct Messaging</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Chat with teachers instantly
+                      </p>
+                    </div>
+                    <div className="p-4 bg-pink-50 dark:bg-pink-900/20 rounded-lg">
+                      <Activity className="h-6 w-6 text-pink-600 mb-2" />
+                      <h4 className="font-semibold">Live Availability</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Real-time enrollment and waitlist status
+                      </p>
+                    </div>
+                    <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                      <BarChart3 className="h-6 w-6 text-indigo-600 mb-2" />
+                      <h4 className="font-semibold">Inspection Scores</h4>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        Health & safety results updated monthly
+                      </p>
                     </div>
                   </div>
-
-                  <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold mb-3">Industry Impact (2024 Data)</h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-2xl font-bold text-indigo-600">80%</p>
-                          <p className="text-gray-600 dark:text-gray-400">Centers using management software</p>
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-purple-600">67%</p>
-                          <p className="text-gray-600 dark:text-gray-400">Report being at capacity</p>
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-pink-600">4.9/5</p>
-                          <p className="text-gray-600 dark:text-gray-400">Parent app rating</p>
-                        </div>
-                        <div>
-                          <p className="text-2xl font-bold text-green-600">3x</p>
-                          <p className="text-gray-600 dark:text-gray-400">More likely to choose transparent centers</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Waitlist Tab */}
-            <TabsContent value="waitlist" className="space-y-6">
-              <Card className="border-orange-200 dark:border-orange-800">
+            {/* Waitlists Tab */}
+            <TabsContent value="waitlists" className="space-y-6 mt-8">
+              <Card className="border-orange-200">
                 <CardHeader className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
                   <CardTitle className="text-2xl flex items-center gap-2">
                     <ListOrdered className="h-6 w-6 text-orange-600" />
                     Digital Waitlist Management
                   </CardTitle>
-                  <CardDescription>
-                    Solving the waitlist crisis with transparency and automation
-                  </CardDescription>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-900/20">
-                    <AlertCircle className="h-4 w-4 text-orange-600" />
+                <CardContent className="p-6">
+                  <Alert className="mb-6">
+                    <AlertCircle className="h-4 w-4" />
                     <div>
-                      <p className="font-semibold">The Waitlist Crisis</p>
-                      <p className="text-sm mt-1">Average waitlist length increased 28% (185 to 236 children) from 2020-2023. Some parents report being #451 on waitlists.</p>
+                      <p className="font-semibold">The Numbers</p>
+                      <p className="text-sm">Average waitlist increased from 185 to 236 children (28% increase). Some parents report being #451 on lists.</p>
                     </div>
                   </Alert>
-
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <h4 className="font-semibold flex items-center gap-2">
-                        <Users className="h-5 w-5 text-blue-500" />
-                        For Parents
-                      </h4>
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-2">
+                    <div>
+                      <h4 className="font-semibold mb-3">For Parents</h4>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium">Join Multiple Waitlists</p>
-                            <p className="text-gray-600 dark:text-gray-400">Track your position across multiple centers in one dashboard</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-2">
+                          <span className="text-sm">Join multiple waitlists from one dashboard</span>
+                        </li>
+                        <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium">Real-Time Updates</p>
-                            <p className="text-gray-600 dark:text-gray-400">Get notified immediately when spots open up</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-2">
+                          <span className="text-sm">Get instant notifications when spots open</span>
+                        </li>
+                        <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium">Estimated Wait Times</p>
-                            <p className="text-gray-600 dark:text-gray-400">AI-powered predictions based on historical data</p>
-                          </div>
-                        </div>
-                      </div>
+                          <span className="text-sm">AI-powered estimated wait times</span>
+                        </li>
+                      </ul>
                     </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-semibold flex items-center gap-2">
-                        <Building className="h-5 w-5 text-purple-500" />
-                        For Providers
-                      </h4>
-                      <div className="space-y-3">
-                        <div className="flex items-start gap-2">
+                    <div>
+                      <h4 className="font-semibold mb-3">For Providers</h4>
+                      <ul className="space-y-2">
+                        <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium">Automated Management</p>
-                            <p className="text-gray-600 dark:text-gray-400">70% reduction in administrative burden</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-2">
+                          <span className="text-sm">70% reduction in admin burden</span>
+                        </li>
+                        <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium">Fair Queue System</p>
-                            <p className="text-gray-600 dark:text-gray-400">Transparent, first-come-first-served with priority rules</p>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-2">
+                          <span className="text-sm">Automated fair queue system</span>
+                        </li>
+                        <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                          <div className="text-sm">
-                            <p className="font-medium">Instant Communication</p>
-                            <p className="text-gray-600 dark:text-gray-400">One-click offers with 48-hour response windows</p>
-                          </div>
-                        </div>
-                      </div>
+                          <span className="text-sm">One-click offers with response tracking</span>
+                        </li>
+                      </ul>
                     </div>
                   </div>
-
-                  <Card className="bg-gradient-to-r from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20">
-                    <CardContent className="p-4">
-                      <h4 className="font-semibold mb-2">Sample Waitlist Status</h4>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
-                          <span className="text-sm">Sunshine Daycare</span>
-                          <Badge className="bg-green-100 text-green-700">Position: 3</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
-                          <span className="text-sm">Little Learners Academy</span>
-                          <Badge className="bg-yellow-100 text-yellow-700">Position: 12</Badge>
-                        </div>
-                        <div className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded">
-                          <span className="text-sm">Rainbow Preschool</span>
-                          <Badge className="bg-orange-100 text-orange-700">Position: 28</Badge>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
                 </CardContent>
               </Card>
             </TabsContent>
 
             {/* Providers Tab */}
-            <TabsContent value="providers">
-              <ProviderDashboard />
-            </TabsContent>
-
-            {/* Resources Tab */}
-            <TabsContent value="resources" className="space-y-6">
-              <Card className="border-teal-200 dark:border-teal-800">
-                <CardHeader className="bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
+            <TabsContent value="providers" className="space-y-6 mt-8">
+              <Card className="border-purple-200">
+                <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
                   <CardTitle className="text-2xl flex items-center gap-2">
-                    <BookOpen className="h-6 w-6 text-teal-600" />
-                    Parent Resources & Tools
+                    <Building className="h-6 w-6 text-purple-600" />
+                    Provider Dashboard
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                     <Card>
                       <CardContent className="p-4">
-                        <DollarSign className="h-6 w-6 text-green-500 mb-2" />
-                        <h4 className="font-semibold">Cost Calculator</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 mb-3">
-                          Estimate your monthly childcare costs including hidden fees
+                        <ClipboardCheck className="h-6 w-6 text-green-600 mb-2" />
+                        <h4 className="font-semibold">Claim Your Listing</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Free verification & management
                         </p>
-                        <Button size="sm" variant="outline">Calculate Costs</Button>
                       </CardContent>
                     </Card>
-
                     <Card>
                       <CardContent className="p-4">
-                        <CreditCard className="h-6 w-6 text-blue-500 mb-2" />
-                        <h4 className="font-semibold">Subsidy Eligibility</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 mb-3">
-                          Check if you qualify for childcare assistance programs
+                        <TrendingUp className="h-6 w-6 text-blue-600 mb-2" />
+                        <h4 className="font-semibold">67% at Capacity</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Centers using transparency tools
                         </p>
-                        <Button size="sm" variant="outline">Check Eligibility</Button>
                       </CardContent>
                     </Card>
-
                     <Card>
                       <CardContent className="p-4">
-                        <ClipboardCheck className="h-6 w-6 text-purple-500 mb-2" />
-                        <h4 className="font-semibold">Visit Checklist</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 mb-3">
-                          Questions to ask when touring childcare centers
+                        <Star className="h-6 w-6 text-yellow-600 mb-2" />
+                        <h4 className="font-semibold">4.9/5 Rating</h4>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          Parent app satisfaction
                         </p>
-                        <Button size="sm" variant="outline">Get Checklist</Button>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-4">
-                        <Shield className="h-6 w-6 text-red-500 mb-2" />
-                        <h4 className="font-semibold">Safety Guide</h4>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 mb-3">
-                          Understanding licensing, ratios, and safety standards
-                        </p>
-                        <Button size="sm" variant="outline">Learn More</Button>
                       </CardContent>
                     </Card>
                   </div>
-
-                  <Separator />
-
-                  <div>
-                    <h4 className="font-semibold mb-3">Quick Facts from Research</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-blue-500 mt-0.5" />
-                        <span>Annual childcare costs range from $4,810 to $15,417, consuming up to 19.3% of median family income</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-orange-500 mt-0.5" />
-                        <span>Over 50% of US children live in "childcare deserts" without enough licensed care</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-purple-500 mt-0.5" />
-                        <span>The childcare industry is short 60,000 teachers nationwide with median wage of $12/hour</span>
-                      </div>
-                      <div className="flex items-start gap-2">
-                        <Info className="h-4 w-4 text-red-500 mt-0.5" />
-                        <span>Texas alone loses $9.39 billion annually due to insufficient childcare</span>
-                      </div>
-                    </div>
-                  </div>
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Claim Your Center
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* Resources Tab */}
+            <TabsContent value="resources" className="space-y-6 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                  <CardContent className="p-6">
+                    <DollarSign className="h-8 w-8 text-green-500 mb-3" />
+                    <h4 className="font-semibold text-lg mb-2">Cost Calculator</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Estimate monthly costs including hidden fees
+                    </p>
+                    <Button variant="outline" className="w-full">Calculate Costs</Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <CreditCard className="h-8 w-8 text-blue-500 mb-3" />
+                    <h4 className="font-semibold text-lg mb-2">Subsidy Checker</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Check eligibility for childcare assistance
+                    </p>
+                    <Button variant="outline" className="w-full">Check Eligibility</Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <ClipboardCheck className="h-8 w-8 text-purple-500 mb-3" />
+                    <h4 className="font-semibold text-lg mb-2">Visit Checklist</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Questions to ask when touring centers
+                    </p>
+                    <Button variant="outline" className="w-full">Get Checklist</Button>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardContent className="p-6">
+                    <Shield className="h-8 w-8 text-red-500 mb-3" />
+                    <h4 className="font-semibold text-lg mb-2">Safety Guide</h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                      Understanding licensing and standards
+                    </p>
+                    <Button variant="outline" className="w-full">Learn More</Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </section>
     </>
   );
 }
