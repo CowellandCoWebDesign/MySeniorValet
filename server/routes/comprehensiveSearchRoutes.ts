@@ -34,9 +34,15 @@ router.post('/api/search/comprehensive', async (req, res) => {
     const domesticCommunities = results.communities || [];
     const domesticResultsCount = domesticCommunities.length;
     
-    // ALWAYS attempt global discovery for ANY search (if Perplexity is configured)
-    // This makes search truly unified - any city, anywhere!
-    if (query && query.toString().trim().length > 0 && process.env.PERPLEXITY_API_KEY) {
+    // CONDITIONAL global discovery - only if location search AND less than 20 results
+    // This prevents unnecessary API calls while ensuring comprehensive results
+    const isLocationSearch = results.searchMetadata?.searchType === 'location';
+    const needsDiscovery = domesticResultsCount < 20;
+    
+    if (query && query.toString().trim().length > 0 && 
+        process.env.PERPLEXITY_API_KEY && 
+        isLocationSearch && 
+        needsDiscovery) {
       try {
         console.log(`🌍 Global discovery search for: "${query}"`);
         const globalResponse = await fetch('http://localhost:5000/api/global-discovery/search', {
