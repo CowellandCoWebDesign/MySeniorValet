@@ -156,9 +156,44 @@ function HeroSectionWithTransformingSearch() {
     setIsLoading(true);
 
     try {
-      // Automatically use research mode if in Learn tab or if it's detected as a research query
-      if (isResearchMode || viewMode === 'discover') {
-        // Use Public AI Chat endpoint for conversational queries
+      // Discovery mode for Communities - use global discovery to find facilities
+      if (viewMode === 'discover' && searchCategory === 'communities') {
+        // Call global discovery endpoint to find actual facilities
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: query,
+            searchType: 'location',
+            limit: 20
+          })
+        });
+
+        if (!response.ok) throw new Error('Discovery search failed');
+        
+        const data = await response.json();
+        
+        // Show discovered facilities in modal
+        if (data.results && data.results.length > 0) {
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results,
+            metadata: data.metadata
+          });
+          setShowGlobalDiscoveryModal(true);
+        } else {
+          // No facilities found, show message
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `No senior living facilities found in ${query} yet. Try a different city or check back later as we expand our coverage.`,
+              isResearchMode: false
+            }
+          });
+        }
+        
+      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities')) {
+        // Use Public AI Chat for research mode or non-community discovery
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
