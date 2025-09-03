@@ -1256,9 +1256,10 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={currentZoom}
-          minZoom={2}  // World-level zoom for global view
+          minZoom={6}  // State-level zoom limit - prevents excessive clustering
           maxZoom={18} // Street-level detail
-          // No maxBounds - allow global viewing for international facilities
+          maxBounds={[[14.0, -170.0], [70.0, -50.0]]} // Full North America including Alaska and Mexico
+          maxBoundsViscosity={1.0} // Prevents panning outside bounds
           style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
         >

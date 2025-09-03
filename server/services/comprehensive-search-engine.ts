@@ -50,8 +50,7 @@ export class ComprehensiveSearchEngine {
   
   async search(query: string, filters: SearchFilters = {}, options: { limit?: number; offset?: number } = {}): Promise<SearchResult> {
     const startTime = Date.now();
-    // Increase default limit to get more results from database
-    const { limit = 500, offset = 0 } = options;
+    const { limit = 100, offset = 0 } = options;
     
     // Store original filters for fallback message
     const originalFilters = { ...filters };
@@ -93,16 +92,6 @@ export class ComprehensiveSearchEngine {
     }
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
-    
-    console.log(`📊 Database search for "${query}":
-      - Results returned: ${results.length}
-      - Total matching in DB: ${totalResults}
-      - Limit used: ${limit}
-      - Search type: ${searchType}`);
-    
-    if (results.length === limit && totalResults > limit) {
-      console.log(`⚠️ Hit limit of ${limit} but DB has ${totalResults} total matches`);
-    }
     
     // GRACEFUL FALLBACK: If we have filters but too few results, show location-only results
     let fallbackApplied = false;
@@ -242,16 +231,13 @@ export class ComprehensiveSearchEngine {
       // This ensures searches like "Hilltop Estates" always work
       const nameSearchCondition = ilike(communities.name, `%${normalizedQuery}%`);
       
-      // Check if this is a pure state search (already handled completely in location conditions)
-      const isStateOnlySearch = (conditions as any).__isStateSearch;
-      
-      // If no specific intent detected strongly AND not a country/state search, use general search
+      // If no specific intent detected strongly AND not a country search, use general search
       // BUT don't add general search if we already added location conditions
       const hasLocationConditions = intentScores.location >= 0.3;
       const hasCompanyConditions = intentScores.company > 0.3;
       
-      if (!hasCompanyConditions && !isStateOnlySearch) {
-        // Always include name search unless we already added it via company search OR it's a state search
+      if (!hasCompanyConditions) {
+        // Always include name search unless we already added it via company search
         if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
           // Full general search for low-intent queries
           conditions.push(
@@ -266,7 +252,6 @@ export class ComprehensiveSearchEngine {
           console.log(`🔍 Added general search conditions for "${normalizedQuery}"`);
         } else {
           // For high-intent queries, still add name search to ensure we find specific communities
-          // BUT skip this for state-only searches
           conditions.push(nameSearchCondition);
           console.log(`🔍 Added name search condition for "${normalizedQuery}" to ensure specific communities are found`);
         }
@@ -496,15 +481,9 @@ export class ComprehensiveSearchEngine {
         return conditions;
       }
 
-      // Check if the entire query is a state name
-      let isStateSearch = false;
+      // Check each state name
       for (const [stateName, code] of Object.entries(stateAbbreviations)) {
-        if (query.toLowerCase() === stateName) {
-          stateCode = code;
-          isStateSearch = true;
-          console.log(`🔍 State search detected: "${query}" → state code "${code}"`);
-          break;
-        } else if (query.toLowerCase().includes(stateName)) {
+        if (query.toLowerCase().includes(stateName)) {
           stateCode = code;
           // Extract city name by removing state from query
           cityName = query.toLowerCase().replace(stateName, '').trim();
@@ -512,32 +491,15 @@ export class ComprehensiveSearchEngine {
         }
       }
       
-      // Also check if query is already a state abbreviation
-      const upperQuery = query.toUpperCase();
-      if (!stateCode && Object.values(stateAbbreviations).includes(upperQuery)) {
-        stateCode = upperQuery;
-        isStateSearch = true;
-        console.log(`🔍 State abbreviation search: "${query}" → "${upperQuery}"`);
-      }
-      
       // Build flexible conditions
       const locationConditions = [];
-      
-      // If this is a pure state search, get ALL communities in that state
-      if (isStateSearch && stateCode) {
-        conditions.push(eq(communities.state, stateCode));
-        // Mark this as a state search to prevent adding name conditions later
-        (conditions as any).__isStateSearch = true;
-        console.log(`🔍 Searching for ALL communities in state: ${stateCode}`);
-        return conditions; // Return early for state-only searches
-      }
       
       // If we have both city and state, search for that combination
       if (stateCode && cityName) {
         locationConditions.push(
           and(
             ilike(communities.city, `%${cityName}%`),
-            eq(communities.state, stateCode)  // Use exact state match
+            ilike(communities.state, stateCode)  // Use state abbreviation
           )
         );
         // Also add fallback to just search the city
@@ -545,29 +507,11 @@ export class ComprehensiveSearchEngine {
       }
       
       // Enhanced location search with international administrative divisions
-      // IMPORTANT: Be more inclusive to return more relevant results
       locationConditions.push(
-        ilike(communities.city, `%${query}%`),  // City matches
-        ilike(communities.state, `%${query}%`), // State matches
-        ilike(communities.name, `%${query}%`),  // Community names
-        ilike(communities.address, `%${query}%`), // Address matches
-        ilike(communities.county, `%${query}%`)   // County matches
+        ilike(communities.city, `%${query}%`),
+        ilike(communities.state, `%${query}%`),
+        ilike(communities.name, `%${query}%`)  // Community names
       );
-      
-      // For city searches, also include partial matches
-      // This helps return more relevant results from our 33k+ database
-      if (!query.includes(',') && query.split(' ').length <= 2) {
-        // Single city name search - be more inclusive
-        // Also search for communities that start with the query
-        const queryWords = query.split(' ');
-        if (queryWords.length === 2) {
-          // Two word city like "San Francisco"
-          locationConditions.push(
-            ilike(communities.city, `${queryWords[0]}%`),  // First word match
-            ilike(communities.city, `%${queryWords[1]}`)   // Second word match
-          );
-        }
-      }
       
       // Enhanced county/administrative division search
       // Handle variations: "Harris County", "Orange County", "Cook County" etc.

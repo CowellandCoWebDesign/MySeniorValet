@@ -23,28 +23,22 @@ router.post('/api/search/comprehensive', async (req, res) => {
       offset = 0 
     } = req.body;
     
-    // ALWAYS search domestic database first
+    // Check if query contains international locations
+    const internationalKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'New Zealand', 'Singapore'];
+    const queryLower = query.toLowerCase();
+    const isInternational = internationalKeywords.some(country => queryLower.includes(country.toLowerCase()));
+    
+    // Execute comprehensive search
     let results = await comprehensiveSearchEngine.search(
       query, 
       filters as SearchFilters,
       { limit, offset }
     );
     
-    // Store original domestic results
-    const domesticCommunities = results.communities || [];
-    const domesticResultsCount = domesticCommunities.length;
-    
-    // CONDITIONAL global discovery - only if location search AND less than 20 results
-    // This prevents unnecessary API calls while ensuring comprehensive results
-    const isLocationSearch = results.searchMetadata?.searchType === 'location';
-    const needsDiscovery = domesticResultsCount < 20;
-    
-    if (query && query.toString().trim().length > 0 && 
-        process.env.PERPLEXITY_API_KEY && 
-        isLocationSearch && 
-        needsDiscovery) {
+    // If international search detected, also query global discovery
+    if (isInternational && process.env.PERPLEXITY_API_KEY) {
       try {
-        console.log(`🌍 Global discovery search for: "${query}"`);
+        console.log(`🌍 International search detected: "${query}" - querying global discovery`);
         const globalResponse = await fetch('http://localhost:5000/api/global-discovery/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -63,20 +57,17 @@ router.post('/api/search/comprehensive', async (req, res) => {
               r.isDiscovered || r.data_source === 'AI Discovery'
             );
             
-            // UNIFIED DISPLAY: Merge ALL results together seamlessly
-            // This creates a single unified list of domestic + international facilities
-            results.communities = [...domesticCommunities, ...discoveredFacilities];
-            results.results = [...domesticCommunities, ...discoveredFacilities];
-            results.total = domesticCommunities.length + discoveredFacilities.length;
+            // Merge discovered facilities with existing results
+            results.communities = [...discoveredFacilities, ...(results.communities || [])];
+            results.results = [...discoveredFacilities, ...(results.results || [])];
+            results.total = (results.total || 0) + discoveredFacilities.length;
             results.metadata = {
               ...results.metadata,
               globalDiscoveryCount: discoveredFacilities.length,
-              domesticResultsCount: domesticCommunities.length,
-              totalResultsCount: discoveredFacilities.length + domesticCommunities.length,
-              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))],
-              searchType: 'unified_global'
+              isInternational: true,
+              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))]
             };
-            console.log(`✅ Unified search: ${domesticCommunities.length} US + ${discoveredFacilities.length} international = ${results.total} total`);
+            console.log(`✅ Added ${discoveredFacilities.length} discovered facilities to results`);
           }
         }
       } catch (globalError) {
@@ -129,22 +120,21 @@ router.get('/api/search/comprehensive', async (req, res) => {
     if (priceMax) filters.priceMax = parseInt(priceMax as string);
     if (rating) filters.rating = parseFloat(rating as string);
     
-    // ALWAYS search domestic database first
+    // Check if query contains international locations
+    const internationalKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'New Zealand', 'Singapore'];
+    const queryLower = (query as string).toLowerCase();
+    const isInternational = internationalKeywords.some(country => queryLower.includes(country.toLowerCase()));
+    
     let results = await comprehensiveSearchEngine.search(
       query as string,
       filters,
       { limit: parseInt(limit as string), offset: parseInt(offset as string) }
     );
     
-    // Store original domestic results
-    const domesticResultsCount = results.communities?.length || 0;
-    const domesticCommunities = results.communities || [];
-    
-    // ALWAYS attempt global discovery for ANY search (if Perplexity is configured)
-    // This makes search truly unified - any city, anywhere!
-    if (query && query.toString().trim().length > 0 && process.env.PERPLEXITY_API_KEY) {
+    // If international search detected, also query global discovery
+    if (isInternational && process.env.PERPLEXITY_API_KEY) {
       try {
-        console.log(`🌍 Global discovery search for: "${query}"`);
+        console.log(`🌍 International search detected (GET): "${query}" - querying global discovery`);
         const globalResponse = await fetch('http://localhost:5000/api/global-discovery/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -163,20 +153,17 @@ router.get('/api/search/comprehensive', async (req, res) => {
               r.isDiscovered || r.data_source === 'AI Discovery'
             );
             
-            // UNIFIED DISPLAY: Merge ALL results together seamlessly
-            // This creates a single unified list of domestic + international facilities
-            results.communities = [...domesticCommunities, ...discoveredFacilities];
-            results.results = [...domesticCommunities, ...discoveredFacilities];  
-            results.total = discoveredFacilities.length + domesticCommunities.length;
+            // Merge discovered facilities with existing results
+            results.communities = [...discoveredFacilities, ...(results.communities || [])];
+            results.results = [...discoveredFacilities, ...(results.results || [])];  
+            results.total = (results.total || 0) + discoveredFacilities.length;
             results.metadata = {
               ...results.metadata,
               globalDiscoveryCount: discoveredFacilities.length,
-              domesticResultsCount: domesticCommunities.length,
-              totalResultsCount: discoveredFacilities.length + domesticCommunities.length,
-              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))],
-              searchType: 'unified_global'
+              isInternational: true,
+              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))]
             };
-            console.log(`✅ Unified search: ${domesticCommunities.length} US + ${discoveredFacilities.length} international = ${results.total} total`);
+            console.log(`✅ Added ${discoveredFacilities.length} discovered facilities to GET results`);
           }
         }
       } catch (globalError) {
