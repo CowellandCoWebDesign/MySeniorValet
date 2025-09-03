@@ -482,7 +482,7 @@ function HeroSectionWithTransformingSearch() {
               onFocusChange={(focused) => setIsSearchFocused(focused)}
               initialQuery={searchQuery}
               placeholder={
-                viewMode === 'discover' ? "Research senior living insights..." : 
+                viewMode === 'discover' ? "🌍 Search globally: Try 'Australia', 'Scotland', 'Japan'..." : 
                 viewMode === 'map' ? "Enter location to search on map..." : 
                 searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
                 searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
@@ -548,7 +548,7 @@ function HeroSectionWithTransformingSearch() {
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🧠</span>
-                  <span>Research</span>
+                  <span>🌍 Discovery mode</span>
                 </button>
               </div>
             </div>

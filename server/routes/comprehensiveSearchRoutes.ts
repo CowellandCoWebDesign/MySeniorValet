@@ -23,58 +23,13 @@ router.post('/api/search/comprehensive', async (req, res) => {
       offset = 0 
     } = req.body;
     
-    // Check if query contains international locations
-    const internationalKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'New Zealand', 'Singapore'];
-    const queryLower = query.toLowerCase();
-    const isInternational = internationalKeywords.some(country => queryLower.includes(country.toLowerCase()));
-    
-    // Execute comprehensive search
-    let results = await comprehensiveSearchEngine.search(
+    // NORMAL DATABASE SEARCH ONLY - No global discovery here
+    // Global discovery is reserved for the dedicated "🌍 Discovery mode" button
+    const results = await comprehensiveSearchEngine.search(
       query, 
       filters as SearchFilters,
       { limit, offset }
     );
-    
-    // If international search detected, also query global discovery
-    if (isInternational && process.env.PERPLEXITY_API_KEY) {
-      try {
-        console.log(`🌍 International search detected: "${query}" - querying global discovery`);
-        const globalResponse = await fetch('http://localhost:5000/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query, 
-            searchType: 'location',
-            limit: limit
-          })
-        });
-        
-        if (globalResponse.ok) {
-          const globalData = await globalResponse.json();
-          if (globalData.success && globalData.results) {
-            // Filter to only discovered facilities (not US database results)
-            const discoveredFacilities = globalData.results.filter((r: any) => 
-              r.isDiscovered || r.data_source === 'AI Discovery'
-            );
-            
-            // Merge discovered facilities with existing results
-            results.communities = [...discoveredFacilities, ...(results.communities || [])];
-            results.results = [...discoveredFacilities, ...(results.results || [])];
-            results.total = (results.total || 0) + discoveredFacilities.length;
-            results.metadata = {
-              ...results.metadata,
-              globalDiscoveryCount: discoveredFacilities.length,
-              isInternational: true,
-              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))]
-            };
-            console.log(`✅ Added ${discoveredFacilities.length} discovered facilities to results`);
-          }
-        }
-      } catch (globalError) {
-        console.error('Global discovery integration error:', globalError);
-        // Continue with normal results if global discovery fails
-      }
-    }
     
     res.json({
       success: true,
@@ -120,57 +75,13 @@ router.get('/api/search/comprehensive', async (req, res) => {
     if (priceMax) filters.priceMax = parseInt(priceMax as string);
     if (rating) filters.rating = parseFloat(rating as string);
     
-    // Check if query contains international locations
-    const internationalKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'New Zealand', 'Singapore'];
-    const queryLower = (query as string).toLowerCase();
-    const isInternational = internationalKeywords.some(country => queryLower.includes(country.toLowerCase()));
-    
-    let results = await comprehensiveSearchEngine.search(
+    // NORMAL DATABASE SEARCH ONLY - No global discovery here
+    // Global discovery is reserved for the dedicated "🌍 Discovery mode" button
+    const results = await comprehensiveSearchEngine.search(
       query as string,
       filters,
       { limit: parseInt(limit as string), offset: parseInt(offset as string) }
     );
-    
-    // If international search detected, also query global discovery
-    if (isInternational && process.env.PERPLEXITY_API_KEY) {
-      try {
-        console.log(`🌍 International search detected (GET): "${query}" - querying global discovery`);
-        const globalResponse = await fetch('http://localhost:5000/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query as string, 
-            searchType: 'location',
-            limit: parseInt(limit as string)
-          })
-        });
-        
-        if (globalResponse.ok) {
-          const globalData = await globalResponse.json();
-          if (globalData.success && globalData.results) {
-            // Filter to only discovered facilities (not US database results)
-            const discoveredFacilities = globalData.results.filter((r: any) => 
-              r.isDiscovered || r.data_source === 'AI Discovery'
-            );
-            
-            // Merge discovered facilities with existing results
-            results.communities = [...discoveredFacilities, ...(results.communities || [])];
-            results.results = [...discoveredFacilities, ...(results.results || [])];  
-            results.total = (results.total || 0) + discoveredFacilities.length;
-            results.metadata = {
-              ...results.metadata,
-              globalDiscoveryCount: discoveredFacilities.length,
-              isInternational: true,
-              discoveredCountries: [...new Set(discoveredFacilities.map((f: any) => f.country).filter(Boolean))]
-            };
-            console.log(`✅ Added ${discoveredFacilities.length} discovered facilities to GET results`);
-          }
-        }
-      } catch (globalError) {
-        console.error('Global discovery integration error (GET):', globalError);
-        // Continue with normal results if global discovery fails
-      }
-    }
     
     res.json({
       success: true,
