@@ -836,6 +836,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const billingRoutes = await import('./routes/billing-api');
   app.use('/api/billing', billingRoutes.default);
 
+  // Register Care Coordination routes
+  const careRoutes = await import('./routes/care-api');
+  app.use(careRoutes.default);
+
   app.use('/api/resident-family', residentFamilyRoutes);
 
   return httpServer;

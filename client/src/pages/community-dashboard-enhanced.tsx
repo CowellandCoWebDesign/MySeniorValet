@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CommunityBillingManager from '@/components/billing/CommunityBillingManager';
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
+import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -285,6 +286,10 @@ export default function CommunityDashboardEnhanced() {
             >
               Medicare
               {(featureAccess?.currentTier !== 'professional' && featureAccess?.currentTier !== 'premium' && featureAccess?.currentTier !== 'platinum') && <Lock className="w-3 h-3 ml-1" />}
+            </TabsTrigger>
+            <TabsTrigger value="care" className="relative">
+              <Heart className="w-3 h-3 mr-1" />
+              Care
             </TabsTrigger>
             <TabsTrigger value="billing" className="relative">
               <Receipt className="w-3 h-3 mr-1" />
@@ -968,6 +973,42 @@ export default function CommunityDashboardEnhanced() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Care Coordination Tab - Available to ALL Paid Tiers */}
+          <TabsContent value="care">
+            <div className="space-y-6">
+              {featureAccess?.currentTier !== 'free' ? (
+                <>
+                  <CareCoordinationManager 
+                    residentId={communityId}
+                    viewMode="community"
+                    tier={featureAccess?.currentTier || 'featured'}
+                  />
+                  
+                  <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-900/20">
+                    <CheckCircle className="h-4 w-4 text-blue-600" />
+                    <AlertDescription>
+                      <span className="font-semibold">Dual-Sided Care Coordination:</span> All care information is automatically shared with families. They can view health records, medications, appointments, and care plans in real-time through their Family Portal.
+                    </AlertDescription>
+                  </Alert>
+                </>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <Heart className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Care Coordination</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Comprehensive care management is available for all paid subscription tiers.
+                    </p>
+                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Upgrade to Featured
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           {/* Billing Tab - Available to ALL Paid Tiers */}

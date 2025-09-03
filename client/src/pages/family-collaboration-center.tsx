@@ -18,6 +18,7 @@ import { FamilyVideoCall } from '@/components/integrations/FamilyVideoCall';
 import { FamilyHealthRecords } from '@/components/integrations/FamilyHealthRecords';
 import { FamilyMedicareManager } from '@/components/family/FamilyMedicareManager';
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
+import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import { 
   Calendar, 
   MessageCircle, 
@@ -341,6 +342,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Medicare</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="care" 
+                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-pink-500/0 group-hover:from-red-500/10 group-hover:to-pink-500/10 data-[state=active]:from-red-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Heart className="w-5 h-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400 group-data-[state=active]:text-red-700 dark:group-data-[state=active]:text-red-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Care</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -945,6 +957,34 @@ export default function FamilyCollaborationCenter() {
                   <Plus className="w-4 h-4 mr-2" />
                   Add Community to Favorites
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Care Coordination Tab - Family View */}
+          <TabsContent value="care" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Heart className="w-5 h-5 text-red-500" />
+                      Care Coordination
+                    </CardTitle>
+                    <CardDescription>
+                      Complete access to health records, medications, appointments, and care plans
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                    Real-Time Updates
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CareCoordinationManager 
+                  residentId="family-view"
+                  viewMode="family"
+                />
               </CardContent>
             </Card>
           </TabsContent>
