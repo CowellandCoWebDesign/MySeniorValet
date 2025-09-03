@@ -77,15 +77,7 @@ export class SimpleEnrichmentService {
     console.log(`🔍 Starting simple enrichment for ${community.name}`);
     
     // Step 3: Search for community information (single Perplexity call)
-    // Adjust query based on community type (childcare vs senior living)
-    const careTypesStr = community.careTypes?.join(' ').toLowerCase() || '';
-    const isChildcare = careTypesStr.includes('childcare') || 
-                       careTypesStr.includes('daycare') ||
-                       community.name?.toLowerCase().includes('child');
-    
-    const searchQuery = isChildcare 
-      ? `${community.name} ${community.city} ${community.state} childcare daycare preschool website phone pricing photos 2025`
-      : `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
+    const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
     
     let searchResults;
     try {
@@ -99,9 +91,8 @@ export class SimpleEnrichmentService {
     // Step 4: Extract information from search results
     const extractedInfo = this.extractInformation(searchResults);
     
-    // Step 5: Get photos (try website first, no fallback to stock per Golden Data Rule)
-    const careType = community.careTypes?.join(' ') || 'senior living';
-    const photos = await this.getPhotos(extractedInfo.website, careType);
+    // Step 5: Get photos (try website first, fallback to stock)
+    const photos = await this.getPhotos(extractedInfo.website, community.careType);
     
     // Step 6: Build simple result
     const result: SimpleEnrichmentResult = {
@@ -188,14 +179,14 @@ export class SimpleEnrichmentService {
           isAuthentic: true
         })));
       } catch (error) {
-        console.log('Website scraping failed - will show loading state');
+        console.log('Website scraping failed, using stock photos');
       }
     }
     
-    // Never add stock/mock photos - follow Golden Data Rule
-    // Empty photos array will trigger proper loading state in UI
+    // If no photos found, add stock photos
     if (photos.length === 0) {
-      console.log('📷 No authentic photos found - UI will show loading state');
+      const stockPhotos = this.getStockPhotos(careType);
+      photos.push(...stockPhotos);
     }
     
     return photos;
@@ -242,11 +233,18 @@ export class SimpleEnrichmentService {
    * Get stock photos based on care type
    */
   private getStockPhotos(careType: string): any[] {
-    // IMPORTANT: Following Golden Data Rule - no mock/placeholder photos
-    // Return empty array instead of fake stock photos
-    // This allows the UI to show proper loading state until real photos are discovered
-    console.log(`📷 No authentic photos found for ${careType} - returning empty array per Golden Data Rule`);
-    return [];
+    // Pixabay stock photos based on care type
+    const stockUrls = [
+      'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
+      'https://cdn.pixabay.com/photo/2017/08/06/02/32/people-2587896_1280.jpg',
+      'https://cdn.pixabay.com/photo/2015/07/11/23/00/elderly-841418_1280.jpg'
+    ];
+    
+    return stockUrls.map(url => ({
+      url,
+      source: 'pixabay' as const,
+      isAuthentic: false
+    }));
   }
   
   /**
@@ -259,7 +257,7 @@ export class SimpleEnrichmentService {
       verificationStatus: 'unverified',
       confidence: 0,
       lastUpdated: new Date().toISOString(),
-      photos: [], // No mock photos per Golden Data Rule
+      photos: this.getStockPhotos(community.careType || 'senior living'),
       searchResults: {
         summary: 'Search temporarily unavailable',
         sources: []

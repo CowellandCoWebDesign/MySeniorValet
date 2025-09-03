@@ -7,7 +7,7 @@ import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 // Schema for global discovery search
 const globalSearchSchema = z.object({
   query: z.string(),
-  searchType: z.enum(['location', 'service', 'services', 'community', 'childcare']).optional(),
+  searchType: z.enum(['location', 'service', 'services', 'community']).optional(),
   limit: z.number().min(1).max(100).default(20)
 });
 
@@ -90,9 +90,6 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       if (searchType === 'services') {
         // For services, discover ANY type of service providers - not limited to senior care
         searchQuery = `Find ALL types of service providers and businesses in ${query}. This includes restaurants, law firms, tech companies, retail stores, fitness centers, beauty salons, medical practices, financial services, education centers, entertainment venues, transportation services, and ANY other business or service provider. Include ONLY real, operational businesses physically located in ${query}. Provide exact business names, complete street addresses, phone numbers, websites, and descriptions of their services. Do not limit to senior care - include ALL types of businesses and services.`;
-      } else if (searchType === 'childcare') {
-        // For childcare, discover daycares, preschools, and childcare centers
-        searchQuery = `Find ALL childcare centers, daycares, preschools, nursery schools, early learning centers, Montessori schools, and child development centers in ${query}. Include ONLY real, operational childcare facilities physically located in ${query}. Provide exact facility names, complete street addresses, phone numbers, websites, pricing information if available, age ranges served, and descriptions of their programs. Focus on facilities that parents can actually visit and enroll their children in.`;
       } else if (searchType === 'location' || locationSearch || isSpecificCitySearch) {
         searchQuery = `Find ALL senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. Include ONLY real, operational facilities physically located in ${query}. Provide exact facility names, complete street addresses with street numbers, phone numbers, websites, and descriptions of their services. Focus on facilities that families can actually visit and tour.`;
       } else if (searchType === 'service') {

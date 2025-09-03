@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import valetGentleman from '@/assets/valet-mascot.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
-import thinkerLighthouseImage from '@assets/generated_images/Thinker_cliff_sunset_lighthouse_e6af9604.png';
 import { getShuffledFacts } from '@/lib/loadingFacts';
 
 // Preload The Thinker image immediately when component loads
@@ -75,9 +74,9 @@ export function MascotLoadingDisplay({
           className="mb-4"
         >
           <img 
-            src={thinkerLighthouseImage} 
-            alt="The Thinker contemplating by the lighthouse" 
-            className="w-24 h-24 object-contain rounded-lg"
+            src={valetGentleman} 
+            alt="Your Senior Valet Assistant" 
+            className="w-24 h-24 object-contain"
           />
         </motion.div>
 

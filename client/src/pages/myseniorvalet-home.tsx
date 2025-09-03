@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Baby } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -46,7 +46,6 @@ import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
-import { SearchLoader } from '@/components/SearchLoader';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -96,7 +95,7 @@ function HeroSectionWithTransformingSearch() {
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources' | 'childcare'>('communities');
+  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -228,42 +227,7 @@ function HeroSectionWithTransformingSearch() {
           });
         }
         
-      } else if (viewMode === 'discover' && searchCategory === 'childcare') {
-        // Discovery mode for Child Care - discover daycares and childcare centers
-        const response = await fetch('/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            searchType: 'childcare',  // Childcare-specific search
-            limit: 20
-          })
-        });
-
-        if (!response.ok) throw new Error('Childcare discovery search failed');
-        
-        const data = await response.json();
-        
-        // Show discovered childcare centers in modal
-        if (data.results && data.results.length > 0) {
-          setGlobalDiscoveryResults({
-            query,
-            results: data.results,
-            metadata: {...data.metadata, discoveryType: 'childcare'}
-          });
-          setShowGlobalDiscoveryModal(true);
-        } else {
-          // No childcare centers found, show message
-          setSearchResults({ 
-            results: [],
-            metadata: {
-              aiResponse: `No childcare centers found in ${query} yet. Try a different city or search term.`,
-              isResearchMode: false
-            }
-          });
-        }
-        
-      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services' && searchCategory !== 'childcare')) {
+      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
         // Use Public AI Chat for research mode or non-implemented discovery categories
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
@@ -482,7 +446,7 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-2 sm:px-3 lg:px-4 py-1.5 transition-all duration-300 text-[10px] sm:text-[11px] lg:text-xs font-semibold flex items-center gap-0.5 sm:gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
                   ${searchCategory === 'communities' 
                     ? isSearchActive 
                       ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-xl scale-105'
@@ -492,17 +456,17 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300 shadow-md'
                   }`}
               >
-                <span className="text-[10px] sm:text-xs lg:text-sm">🏘️</span>
+                <span className="text-sm">🏘️</span>
                 <div className="flex flex-col items-start leading-tight">
-                  <span className="hidden lg:inline">Senior Living</span>
-                  <span className="lg:hidden">Communities</span>
-                  <span className="text-[7px] sm:text-[8px] opacity-75">35,000+</span>
+                  <span className="hidden sm:inline">Senior Living Communities</span>
+                  <span className="sm:hidden">Communities</span>
+                  <span className="text-[8px] opacity-75">35,000+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-2 sm:px-3 lg:px-4 py-1.5 transition-all duration-300 text-[10px] sm:text-[11px] lg:text-xs font-semibold flex items-center gap-0.5 sm:gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
                   ${searchCategory === 'services' 
                     ? isSearchActive 
                       ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white border-t-2 border-l-2 border-r-2 border-green-400 dark:border-green-600 z-20 shadow-xl scale-105'
@@ -512,16 +476,16 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-green-300 dark:hover:text-green-300 shadow-md'
                   }`}
               >
-                <span className="text-[10px] sm:text-xs lg:text-sm">🛍️</span>
+                <span className="text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Services</span>
-                  <span className="text-[7px] sm:text-[8px] opacity-75">1,000+</span>
+                  <span className="text-[8px] opacity-75">1,000+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-2 sm:px-3 lg:px-4 py-1.5 transition-all duration-300 text-[10px] sm:text-[11px] lg:text-xs font-semibold flex items-center gap-0.5 sm:gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
                   ${searchCategory === 'healthcare' 
                     ? isSearchActive 
                       ? 'bg-gradient-to-br from-red-600 to-pink-600 text-white border-t-2 border-l-2 border-r-2 border-red-400 dark:border-red-600 z-20 shadow-xl scale-105'
@@ -531,16 +495,16 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-red-300 dark:hover:text-red-300 shadow-md'
                   }`}
               >
-                <span className="text-[10px] sm:text-xs lg:text-sm">🏥</span>
+                <span className="text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Healthcare</span>
-                  <span className="text-[7px] sm:text-[8px] opacity-75">10,000+</span>
+                  <span className="text-[8px] opacity-75">10,000+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-2 sm:px-3 lg:px-4 py-1.5 transition-all duration-300 text-[10px] sm:text-[11px] lg:text-xs font-semibold flex items-center gap-0.5 sm:gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
                   ${searchCategory === 'resources' 
                     ? isSearchActive 
                       ? 'bg-gradient-to-br from-amber-600 to-orange-600 text-white border-t-2 border-l-2 border-r-2 border-amber-400 dark:border-amber-600 z-20 shadow-xl scale-105'
@@ -550,30 +514,10 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-amber-300 dark:hover:text-amber-300 shadow-md'
                   }`}
               >
-                <span className="text-[10px] sm:text-xs lg:text-sm">📚</span>
+                <span className="text-sm">📚</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Resources</span>
-                  <span className="text-[7px] sm:text-[8px] opacity-75">500+</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('childcare')}
-                className={`relative px-2 sm:px-3 lg:px-4 py-1.5 transition-all duration-300 text-[10px] sm:text-[11px] lg:text-xs font-semibold flex items-center gap-0.5 sm:gap-1 rounded-t-lg transform
-                  ${searchCategory === 'childcare' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-pink-600 to-rose-600 text-white border-t-2 border-l-2 border-r-2 border-pink-400 dark:border-pink-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-pink-500 to-rose-500 text-white border-t border-l border-r border-pink-300 dark:border-pink-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-pink-600 dark:hover:text-pink-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-pink-300 dark:hover:text-pink-300 shadow-md'
-                  }`}
-              >
-                <span className="text-[10px] sm:text-xs lg:text-sm">👶</span>
-                <div className="flex flex-col items-start leading-tight">
-                  <span className="hidden lg:inline">Child Care</span>
-                  <span className="lg:hidden">Childcare</span>
-                  <span className="text-[7px] sm:text-[8px] opacity-75">Discover</span>
+                  <span className="text-[8px] opacity-75">500+</span>
                 </div>
               </button>
             </div>
@@ -587,8 +531,6 @@ function HeroSectionWithTransformingSearch() {
               ? 'border-red-500 dark:border-red-600' 
               : searchCategory === 'resources'
               ? 'border-amber-500 dark:border-amber-600' 
-              : searchCategory === 'childcare'
-              ? 'border-pink-500 dark:border-pink-600'
               : 'border-purple-500 dark:border-purple-600'
           }`}>
             <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
@@ -598,8 +540,6 @@ function HeroSectionWithTransformingSearch() {
                 ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
                 : searchCategory === 'resources'
                 ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
-                : searchCategory === 'childcare'
-                ? 'bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 border-pink-200/50 dark:border-pink-700/50'
                 : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
             }`}>
               {/* Search component wrapper */}
@@ -614,13 +554,11 @@ function HeroSectionWithTransformingSearch() {
               placeholder={
                 viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
                 viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
-                viewMode === 'discover' && searchCategory === 'childcare' ? "🌍 Discover childcare: Try 'daycares in Seattle' or 'preschools in Austin'..." :
                 viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
                 viewMode === 'map' ? "Enter location to search on map..." : 
                 searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
                 searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
                 searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
-                searchCategory === 'childcare' ? "Search for daycares, preschools, or childcare centers..." :
                 "Search communities, cities, companies, or ask anything..."
               }
               searchCategory={searchCategory}
@@ -731,7 +669,10 @@ function HeroSectionWithTransformingSearch() {
               {!searchResults?.metadata?.isResearchMode && (
                 <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
                   {isLoading ? (
-                  <SearchLoader searchQuery={searchQuery} searchType="Communities" />
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                    <span className="ml-3 text-gray-300">Searching...</span>
+                  </div>
                 ) : (
                   <>
                     {/* Scroll indicator for more results - Outside scrollable area */}
@@ -1919,58 +1860,6 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
-            {/* Child Care Directory - NEW DEDICATED SECTION */}
-            <Link href="/childcare-directory">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-pink-400 relative overflow-hidden group transform hover:scale-105">
-                <div className="relative h-64 w-full bg-gradient-to-br from-pink-300 via-rose-400 to-pink-500">
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg">
-                    <span className="text-3xl">👶</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1">
-                    CHILDCARE
-                  </Badge>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-white text-center">
-                      <Baby className="h-24 w-24 mx-auto mb-4 opacity-80" />
-                      <p className="text-xl font-bold">Child Care Discovery</p>
-                    </div>
-                  </div>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Global Child Care Directory</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Daycare, Preschools & Early Learning Centers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🌍 Discover ANY childcare center globally - daycares, preschools, Montessori schools, early learning centers
-                  </p>
-                  
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-pink-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Real-time pricing transparency</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-pink-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">7+ centers discovered in Austin</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-pink-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">AI-powered global discovery</span>
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white group-hover:shadow-lg transition-shadow">
-                    Discover Child Care
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
             {/* Senior Service Providers Directory */}
             <Link href="/senior-services">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
@@ -1998,26 +1887,26 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with discovered service providers for all your senior care needs - powered by AI discovery
+                    Connect with 200+ verified national service providers for all your senior care needs
                   </p>
                   
-                  {/* Provider highlights - Connected to real discovered services */}
+                  {/* Provider highlights */}
                   <div className="space-y-2 mb-6">
                     <div className="flex items-center gap-2">
                       <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Hansen's Moving & Storage (Verified)</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines, Allied, Mayflower</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Medical Transport Services</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health, Lyft Healthcare</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Home Care Equipment & Supplies</span>
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Pride Mobility, Life Alert, Medical Guardian</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Globe className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">100+ More Services Available</span>
+                      <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels, Mom's Meals</span>
                     </div>
                   </div>
                   
