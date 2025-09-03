@@ -70,6 +70,7 @@ import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
 import SeniorServices from "@/pages/senior-services";
 import SeniorServicesComprehensive from "@/pages/senior-services-comprehensive";
+import ChildcareDirectory from "@/pages/childcare-directory";
 import SeniorResources from "@/pages/senior-resources";
 import FloralServices from "@/pages/FloralServices";
 import MovingServices from "@/pages/MovingServices";
@@ -312,7 +313,7 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />
       <Route path="/senior-services-comprehensive" component={SeniorServicesComprehensive} />
-      <Route path="/childcare-directory" component={lazy(() => import("./pages/childcare-directory"))} />
+      <Route path="/childcare-directory" component={ChildcareDirectory} />
       <Route path="/senior-resources" component={SeniorResources} />
       <Route path="/move-in-coordination" component={MoveInCoordination} />
       <Route path="/marketplace" component={Marketplace} />
