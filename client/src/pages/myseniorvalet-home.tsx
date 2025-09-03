@@ -29,7 +29,7 @@ import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
-import { MarketIntelligence } from "@/components/MarketIntelligence";
+import UnifiedSearchView from "@/components/UnifiedSearchView";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
@@ -673,88 +673,18 @@ function HeroSectionWithTransformingSearch() {
                 </>
               )}
               
-              {/* Results Content with premium glass design - Only show for non-Research mode */}
-              {!searchResults?.metadata?.isResearchMode && (
-                <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
-                  {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-300">Searching...</span>
-                  </div>
-                ) : (
-                  <>
-                    {/* Scroll indicator for more results - Outside scrollable area */}
-                    {searchResults?.results && searchResults.results.length > 3 && (
-                      <div className="absolute bottom-2 right-2 z-10 text-xs text-purple-400 bg-black/70 px-3 py-1 rounded-full animate-pulse flex items-center gap-1">
-                        <span>↓</span>
-                        <span>{searchResults.results.length - 3} more</span>
-                      </div>
-                    )}
-                    
-                    <div 
-                      className="space-y-3 p-4 max-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-transparent" 
-                      style={{ 
-                        willChange: 'auto',
-                        scrollbarWidth: 'thin',
-                        scrollbarColor: '#9333ea transparent'
-                      }}>
-                      {/* Graceful Fallback Message */}
-                      {searchResults?.metadata?.fallbackApplied && (
-                        <GracefulFallbackMessage
-                          message={searchResults.metadata.fallbackMessage || "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area!"}
-                          originalResultCount={searchResults.metadata.originalResultCount || 0}
-                          totalFallbackResults={searchResults?.results?.length || 0}
-                          searchQuery={searchQuery}
-                          location={searchResults.metadata.searchLocation}
-                          careTypes={searchResults.metadata.careTypes}
-                        />
-                      )}
-                      
-                      {searchResults?.results && searchResults.results.length > 0 ? (
-                        <>
-                          {searchResults.results.slice(0, visibleResults).map((item: any, index: number) => (
-                          <motion.div
-                            key={item.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.01 }}
-                          >
-                            {searchCategory === 'services' ? (
-                              <VendorServiceCard
-                                vendor={item}
-                                variant="list"
-                                onSelect={() => {
-                                  window.open(item.website || '#', '_blank');
-                                }}
-                              />
-                            ) : searchCategory === 'healthcare' ? (
-                              // Enhanced Healthcare Provider Card with Hospital Data
-                              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-red-200 dark:border-red-800">
-                                <div className="flex items-start gap-4">
-                                  <div className="p-3 bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 rounded-lg">
-                                    <span className="text-2xl">
-                                      {item.emergency_services ? '🚑' : item.hospital_type?.includes('Children') ? '👶' : '🏥'}
-                                    </span>
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-start justify-between">
-                                      <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                          {item.name}
-                                        </h3>
-                                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                          {item.city}, {item.state} {item.zip_code}
-                                        </p>
-                                      </div>
-                                      {item.cms_rating && (
-                                        <div className="flex items-center gap-1 bg-yellow-100 dark:bg-yellow-900/30 px-2 py-1 rounded">
-                                          <span className="text-yellow-600 dark:text-yellow-400">⭐</span>
-                                          <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
-                                            {item.cms_rating}/5
-                                          </span>
-                                        </div>
-                                      )}
-                                    </div>
+              {/* Unified Search Results View */}
+              {!searchResults?.metadata?.isResearchMode && searchResults && (
+                <div className="mt-3">
+                  <UnifiedSearchView
+                    searchResults={searchResults}
+                    searchQuery={searchQuery}
+                    searchCategory={searchCategory}
+                    onCommunityClick={(community) => setLocation(`/community/${community.id}`)}
+                    isLoading={isLoading}
+                  />
+                </div>
+              )}
                                     
                                     {/* Hospital Type and Emergency Status */}
                                     <div className="flex flex-wrap gap-2 mt-2">
@@ -899,8 +829,8 @@ function HeroSectionWithTransformingSearch() {
                     </div>
                   </>
                 )}
-              </div>
-            )}
+                </div>
+              )}
           </div>
         )}
         </div>
