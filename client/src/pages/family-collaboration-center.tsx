@@ -17,6 +17,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { FamilyVideoCall } from '@/components/integrations/FamilyVideoCall';
 import { FamilyHealthRecords } from '@/components/integrations/FamilyHealthRecords';
 import { FamilyMedicareManager } from '@/components/family/FamilyMedicareManager';
+import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import { 
   Calendar, 
   MessageCircle, 
@@ -47,7 +48,9 @@ import {
   TrendingUp,
   Lightbulb,
   UserPlus,
-  Video
+  Video,
+  Receipt,
+  Calculator
 } from 'lucide-react';
 
 export default function FamilyCollaborationCenter() {
@@ -338,6 +341,28 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Medicare</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="billing" 
+                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 to-emerald-500/0 group-hover:from-green-500/10 group-hover:to-emerald-500/10 data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Receipt className="w-5 h-5 mr-2 flex-shrink-0 text-green-600 dark:text-green-400 group-data-[state=active]:text-green-700 dark:group-data-[state=active]:text-green-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Billing</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="calculator" 
+                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-cyan-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Calculator className="w-5 h-5 mr-2 flex-shrink-0 text-blue-600 dark:text-blue-400 group-data-[state=active]:text-blue-700 dark:group-data-[state=active]:text-blue-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Cost Calculator</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="favorites" 
@@ -920,6 +945,144 @@ export default function FamilyCollaborationCenter() {
                   <Plus className="w-4 h-4 mr-2" />
                   Add Community to Favorites
                 </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Billing Tab - Family View of Financial Transparency */}
+          <TabsContent value="billing" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Receipt className="w-5 h-5 text-green-500" />
+                      Billing & Payments
+                    </CardTitle>
+                    <CardDescription>
+                      View statements, make payments, and track financial information
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                    Full Transparency
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Current Balance Card */}
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 rounded-lg p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Current Balance</h3>
+                    <Badge variant="outline" className="bg-white dark:bg-gray-900">Due April 1</Badge>
+                  </div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">
+                    $5,785.00
+                  </div>
+                  <p className="text-sm text-muted-foreground">Includes base rent and care services</p>
+                </div>
+
+                {/* Recent Transactions */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
+                  <div className="space-y-3">
+                    {[
+                      { date: 'Mar 1, 2025', description: 'Monthly Rent', amount: '$3,500.00', type: 'charge' },
+                      { date: 'Mar 1, 2025', description: 'Level 2 Care Services', amount: '$1,285.00', type: 'charge' },
+                      { date: 'Mar 5, 2025', description: 'Medication Management', amount: '$350.00', type: 'charge' },
+                      { date: 'Mar 15, 2025', description: 'Transportation Services', amount: '$150.00', type: 'charge' },
+                      { date: 'Feb 28, 2025', description: 'Payment Received - Thank you!', amount: '-$5,785.00', type: 'payment' }
+                    ].map((transaction, idx) => (
+                      <div key={idx} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-full ${transaction.type === 'payment' ? 'bg-blue-100 dark:bg-blue-900/30' : 'bg-gray-100 dark:bg-gray-800'}`}>
+                            {transaction.type === 'payment' ? 
+                              <CheckCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" /> :
+                              <Receipt className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            }
+                          </div>
+                          <div>
+                            <p className="font-medium">{transaction.description}</p>
+                            <p className="text-sm text-muted-foreground">{transaction.date}</p>
+                          </div>
+                        </div>
+                        <span className={`font-semibold ${transaction.type === 'payment' ? 'text-blue-600 dark:text-blue-400' : 'text-gray-900 dark:text-gray-100'}`}>
+                          {transaction.amount}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Payment Options */}
+                <div className="flex gap-3">
+                  <Button className="flex-1" variant="default">
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    Make Payment
+                  </Button>
+                  <Button className="flex-1" variant="outline">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Set Up AutoPay
+                  </Button>
+                </div>
+
+                {/* Download Statement */}
+                <Button variant="outline" className="w-full">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Monthly Statement
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Cost Calculator Tab - Family Cost Planning */}
+          <TabsContent value="calculator" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calculator className="w-5 h-5 text-blue-500" />
+                  Cost Calculator
+                </CardTitle>
+                <CardDescription>
+                  Estimate monthly costs based on care needs and preferences
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <DualSidedCostCalculator 
+                  viewMode="family"
+                  prefilledData={{
+                    baseRent: 3500,
+                    careLevel: 'assisted',
+                    roomType: 'private'
+                  }}
+                />
+              </CardContent>
+            </Card>
+
+            {/* Cost Comparison */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Cost Comparison</CardTitle>
+                <CardDescription>Compare costs across your favorite communities</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {[
+                    { name: 'Sunrise of Beverly Hills', monthly: '$5,785', annual: '$69,420' },
+                    { name: 'Atria Park of San Mateo', monthly: '$6,200', annual: '$74,400' },
+                    { name: 'Brookdale Santa Monica', monthly: '$5,450', annual: '$65,400' }
+                  ].map((community, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-4 rounded-lg border hover:border-blue-500 transition-colors">
+                      <div>
+                        <h4 className="font-semibold">{community.name}</h4>
+                        <p className="text-sm text-muted-foreground">Based on Level 2 care, private room</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{community.monthly}/mo</p>
+                        <p className="text-sm text-muted-foreground">{community.annual}/year</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

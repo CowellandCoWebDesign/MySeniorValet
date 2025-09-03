@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import CommunityBillingManager from '@/components/billing/CommunityBillingManager';
+import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -37,7 +39,10 @@ import {
   ArrowRight,
   X,
   Clock,
-  Globe
+  Globe,
+  Heart,
+  Receipt,
+  Shield
 } from "lucide-react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -280,6 +285,10 @@ export default function CommunityDashboardEnhanced() {
             >
               Medicare
               {(featureAccess?.currentTier !== 'professional' && featureAccess?.currentTier !== 'premium' && featureAccess?.currentTier !== 'platinum') && <Lock className="w-3 h-3 ml-1" />}
+            </TabsTrigger>
+            <TabsTrigger value="billing" className="relative">
+              <Receipt className="w-3 h-3 mr-1" />
+              Billing
             </TabsTrigger>
             <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -959,6 +968,62 @@ export default function CommunityDashboardEnhanced() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Billing Tab - Available to ALL Paid Tiers */}
+          <TabsContent value="billing">
+            <div className="space-y-6">
+              {/* Show both components for all paid tiers */}
+              {featureAccess?.currentTier !== 'free' ? (
+                <>
+                  <CommunityBillingManager 
+                    communityId={communityId} 
+                    tier={featureAccess?.currentTier || 'featured'}
+                  />
+                  
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Cost Calculator Configuration</CardTitle>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Configure how families calculate their estimated costs
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <DualSidedCostCalculator 
+                        viewMode="community"
+                        communityId={communityId}
+                        prefilledData={{
+                          baseRent: 3500,
+                          careLevel: 'assisted',
+                          roomType: 'private'
+                        }}
+                      />
+                    </CardContent>
+                  </Card>
+
+                  <Alert className="border-green-200 bg-green-50 dark:bg-green-900/20">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription>
+                      <span className="font-semibold">Both Sides Active:</span> Your billing management is fully synchronized. Families can view statements, make payments, and calculate costs through their Family Portal while you manage everything here.
+                    </AlertDescription>
+                  </Alert>
+                </>
+              ) : (
+                <Card>
+                  <CardContent className="p-8 text-center">
+                    <DollarSign className="w-12 h-12 mx-auto text-gray-400 mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Billing Management</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Professional billing and payment management is available for all paid subscription tiers.
+                    </p>
+                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Upgrade to Featured
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </TabsContent>
 
           {/* Integrations Tab - All Tiers */}
