@@ -10,6 +10,7 @@ import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
+import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -311,6 +312,13 @@ export default function CommunityDashboardEnhanced() {
               <Receipt className="w-3 h-3 mr-1" />
               Billing
             </TabsTrigger>
+            {featureAccess?.currentTier === 'enterprise' && (
+              <TabsTrigger value="enterprise" className="relative">
+                <Briefcase className="w-3 h-3 mr-1" />
+                Enterprise
+                <Badge className="ml-2 bg-purple-100 text-purple-700">New</Badge>
+              </TabsTrigger>
+            )}
             <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
@@ -1186,6 +1194,25 @@ export default function CommunityDashboardEnhanced() {
               tierLevel={featureAccess?.currentTier as 'starter' | 'growth' | 'professional' | 'premium' | 'enterprise'}
             />
           </TabsContent>
+
+          {/* Enterprise Tab - Multi-Property Management (Enterprise Tier Only) */}
+          {featureAccess?.currentTier === 'enterprise' && (
+            <TabsContent value="enterprise">
+              <div className="space-y-6">
+                <Alert className="border-purple-200 bg-purple-50 dark:bg-purple-900/20">
+                  <Briefcase className="h-4 w-4 text-purple-600" />
+                  <AlertDescription>
+                    <span className="font-semibold">Enterprise Dashboard:</span> Manage your entire portfolio of communities from one unified interface. View cross-property analytics, comparative metrics, and AI-powered insights.
+                  </AlertDescription>
+                </Alert>
+                
+                <MultiPropertyDashboard 
+                  corporateId={communityId || 'demo'}
+                  viewMode="executive"
+                />
+              </div>
+            </TabsContent>
+          )}
 
         </Tabs>
 

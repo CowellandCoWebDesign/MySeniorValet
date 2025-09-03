@@ -22,6 +22,7 @@ import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
+import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
 import { 
   Calendar, 
   MessageCircle, 
@@ -390,6 +391,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Availability</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="corporate" 
+                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Briefcase className="w-5 h-5 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400 group-data-[state=active]:text-purple-700 dark:group-data-[state=active]:text-purple-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Corporate</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -1244,6 +1256,41 @@ export default function FamilyCollaborationCenter() {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Corporate Tab - View of Managing Organization */}
+          <TabsContent value="corporate" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Briefcase className="w-5 h-5 text-purple-500" />
+                      Corporate Management
+                    </CardTitle>
+                    <CardDescription>
+                      View the organization managing your loved one's community
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-purple-100 text-purple-700">
+                    Transparency View
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Alert className="mb-6 border-purple-200 bg-purple-50">
+                  <Building2 className="h-4 w-4 text-purple-600" />
+                  <AlertDescription>
+                    <strong>Why This Matters:</strong> Understanding the corporate structure behind your loved one's community helps you see the resources, support systems, and quality standards in place for their care.
+                  </AlertDescription>
+                </Alert>
+                
+                <MultiPropertyDashboard 
+                  corporateId="family-view"
+                  viewMode="family"
+                />
               </CardContent>
             </Card>
           </TabsContent>
