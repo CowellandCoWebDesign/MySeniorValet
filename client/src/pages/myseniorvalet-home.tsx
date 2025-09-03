@@ -178,7 +178,7 @@ function HeroSectionWithTransformingSearch() {
           setGlobalDiscoveryResults({
             query,
             results: data.results,
-            metadata: data.metadata
+            metadata: {...data.metadata, discoveryType: 'communities'}
           });
           setShowGlobalDiscoveryModal(true);
         } else {
@@ -192,8 +192,43 @@ function HeroSectionWithTransformingSearch() {
           });
         }
         
-      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities')) {
-        // Use Public AI Chat for research mode or non-community discovery
+      } else if (viewMode === 'discover' && searchCategory === 'services') {
+        // Discovery mode for Services - discover ANY type of service providers globally
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: query,
+            searchType: 'services',  // General services, not limited to senior care
+            limit: 20
+          })
+        });
+
+        if (!response.ok) throw new Error('Service discovery search failed');
+        
+        const data = await response.json();
+        
+        // Show discovered services in modal
+        if (data.results && data.results.length > 0) {
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results,
+            metadata: {...data.metadata, discoveryType: 'services'}
+          });
+          setShowGlobalDiscoveryModal(true);
+        } else {
+          // No services found, show message
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `No service providers found in ${query} yet. Try a different city or service type.`,
+              isResearchMode: false
+            }
+          });
+        }
+        
+      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
+        // Use Public AI Chat for research mode or non-implemented discovery categories
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -517,7 +552,9 @@ function HeroSectionWithTransformingSearch() {
               onFocusChange={(focused) => setIsSearchFocused(focused)}
               initialQuery={searchQuery}
               placeholder={
-                viewMode === 'discover' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
+                viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
+                viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
+                viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
                 viewMode === 'map' ? "Enter location to search on map..." : 
                 searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
                 searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :

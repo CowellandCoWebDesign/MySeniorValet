@@ -7,7 +7,7 @@ import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 // Schema for global discovery search
 const globalSearchSchema = z.object({
   query: z.string(),
-  searchType: z.enum(['location', 'service', 'community']).optional(),
+  searchType: z.enum(['location', 'service', 'services', 'community']).optional(),
   limit: z.number().min(1).max(100).default(20)
 });
 
@@ -87,9 +87,13 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Detect if query includes city/country format (e.g., "Brisbane, Australia")
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
-      if (searchType === 'location' || locationSearch || isSpecificCitySearch) {
+      if (searchType === 'services') {
+        // For services, discover ANY type of service providers - not limited to senior care
+        searchQuery = `Find ALL types of service providers and businesses in ${query}. This includes restaurants, law firms, tech companies, retail stores, fitness centers, beauty salons, medical practices, financial services, education centers, entertainment venues, transportation services, and ANY other business or service provider. Include ONLY real, operational businesses physically located in ${query}. Provide exact business names, complete street addresses, phone numbers, websites, and descriptions of their services. Do not limit to senior care - include ALL types of businesses and services.`;
+      } else if (searchType === 'location' || locationSearch || isSpecificCitySearch) {
         searchQuery = `Find ALL senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. Include ONLY real, operational facilities physically located in ${query}. Provide exact facility names, complete street addresses with street numbers, phone numbers, websites, and descriptions of their services. Focus on facilities that families can actually visit and tour.`;
       } else if (searchType === 'service') {
+        // Legacy service type for backward compatibility
         searchQuery = `Find senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions.`;
       } else {
         searchQuery = `Find information about ${query} related to senior living, assisted living, or elder care. Include facility names, locations, and contact details if available.`;

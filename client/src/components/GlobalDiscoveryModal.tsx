@@ -38,6 +38,7 @@ interface GlobalDiscoveryModalProps {
     sources?: string[];
     searchLocation: string;
     aiConfidence?: number;
+    discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources';
   };
 }
 
@@ -72,7 +73,7 @@ export function GlobalDiscoveryModal({
             Global Discovery Results
           </DialogTitle>
           <DialogDescription className="text-base">
-            Found {metadata?.totalFound || results.length} communities for "{searchQuery}"
+            Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
             {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
               <span className="ml-2 text-green-600 dark:text-green-400">
                 ({metadata.discoveredCount} newly discovered!)
