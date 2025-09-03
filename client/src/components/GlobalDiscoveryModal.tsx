@@ -149,10 +149,10 @@ export function GlobalDiscoveryModal({
                             New
                           </Badge>
                         )}
-                        {community.needsApproval && (
-                          <Badge variant="default" className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">
-                            <AlertCircle className="w-3 h-3 mr-1" />
-                            Pending
+                        {community.isDiscovered && (
+                          <Badge variant="default" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Active
                           </Badge>
                         )}
                       </div>

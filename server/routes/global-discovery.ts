@@ -252,17 +252,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 careTypes: discovered.careTypes || ['Unknown'],
                 photos: discovered.photos || [],
                 
-                // Mark as discovered and pending approval
+                // Auto-approve discovered communities
                 discoverySource: 'Global Discovery Search',
                 discoveryDate: new Date(),
-                enrichmentStatus: 'pending', // Will be marked for admin approval
+                enrichmentStatus: 'completed', // Auto-approved (using valid enum value)
                 enrichmentHistory: [{
                   timestamp: new Date().toISOString(),
                   source: 'Perplexity Global Search',
-                  fieldsUpdated: ['initial_discovery']
+                  fieldsUpdated: ['initial_discovery'],
+                  autoApproved: true
                 }],
-                data_source: 'AI Discovery (Pending Verification)',
-                isVerified: false
+                data_source: 'AI Discovery',
+                isVerified: true, // Immediately verified and active
               })
               .returning();
             
@@ -300,7 +301,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           data_source: 'AI Discovery',
           isDiscovered: true,
           confidence: community.confidence || 90,
-          verificationStatus: 'discovered_pending',
+          verificationStatus: 'verified', // Auto-approved
           citations: citations, // Include Perplexity citations
           // Add fields needed for community details view
           photos: [],
