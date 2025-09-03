@@ -24,6 +24,7 @@ import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
 import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
 import ApiIntegrationHub from '@/components/enterprise/ApiIntegrationHub';
+import CustomReportBuilder from '@/components/enterprise/CustomReportBuilder';
 import { 
   Calendar, 
   MessageCircle, 
@@ -414,6 +415,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Integrations</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-red-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="reports" 
+                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 data-[state=active]:from-indigo-500/20 data-[state=active]:to-purple-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <FileText className="w-5 h-5 mr-2 flex-shrink-0 text-indigo-600 dark:text-indigo-400 group-data-[state=active]:text-indigo-700 dark:group-data-[state=active]:text-indigo-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Reports</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -1337,6 +1349,41 @@ export default function FamilyCollaborationCenter() {
                 <ApiIntegrationHub 
                   corporateId="family-view"
                   viewMode="readonly"
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Reports Tab - View Community Reports */}
+          <TabsContent value="reports" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-indigo-500" />
+                      Community Reports
+                    </CardTitle>
+                    <CardDescription>
+                      View reports and analytics for your loved one's community
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-indigo-100 text-indigo-700">
+                    Transparency Reports
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Alert className="mb-6 border-indigo-200 bg-indigo-50">
+                  <BarChart3 className="h-4 w-4 text-indigo-600" />
+                  <AlertDescription>
+                    <strong>Data-Driven Care:</strong> These reports show how your loved one's community uses data analytics to continuously improve care quality, operational efficiency, and resident satisfaction.
+                  </AlertDescription>
+                </Alert>
+                
+                <CustomReportBuilder 
+                  corporateId="family-view"
+                  viewMode="viewer"
                 />
               </CardContent>
             </Card>

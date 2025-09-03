@@ -13,6 +13,7 @@ import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancy
 import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
 import WhiteLabelManager from '@/components/enterprise/WhiteLabelManager';
 import ApiIntegrationHub from '@/components/enterprise/ApiIntegrationHub';
+import CustomReportBuilder from '@/components/enterprise/CustomReportBuilder';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -330,6 +331,11 @@ export default function CommunityDashboardEnhanced() {
                   <Zap className="w-3 h-3 mr-1" />
                   API Hub
                   <Badge className="ml-2 bg-gradient-to-r from-orange-500 to-red-500 text-white">Enterprise</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="reports" className="relative">
+                  <FileText className="w-3 h-3 mr-1" />
+                  Reports
+                  <Badge className="ml-2 bg-gradient-to-r from-indigo-500 to-purple-500 text-white">AI-Powered</Badge>
                 </TabsTrigger>
               </>
             )}
@@ -1244,6 +1250,16 @@ export default function CommunityDashboardEnhanced() {
               <ApiIntegrationHub 
                 corporateId={communityId || 'demo'}
                 viewMode="admin"
+              />
+            </TabsContent>
+          )}
+
+          {/* Custom Report Builder - AI-Powered Analytics (Enterprise Tier Only) */}
+          {featureAccess?.currentTier === 'enterprise' && (
+            <TabsContent value="reports">
+              <CustomReportBuilder 
+                corporateId={communityId || 'demo'}
+                viewMode="builder"
               />
             </TabsContent>
           )}
