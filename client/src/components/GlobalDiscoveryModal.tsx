@@ -57,9 +57,16 @@ export function GlobalDiscoveryModal({
     setSelectedCommunity(community);
     setIsLoading(true);
     
-    // Navigate to the community detail page
+    // Navigate to the appropriate detail page based on discovery type
     setTimeout(() => {
-      setLocation(`/community/${community.id}?discovery=true`);
+      if (metadata?.discoveryType === 'services') {
+        // For services, use slug or ID
+        const slug = community.id.toString();
+        setLocation(`/service/${slug}?discovery=true`);
+      } else {
+        // For communities, use the existing community detail page
+        setLocation(`/community/${community.id}?discovery=true`);
+      }
       onClose();
     }, 500);
   };

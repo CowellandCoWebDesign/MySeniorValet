@@ -42,6 +42,7 @@ import FamilyCollaborationCenter from "@/pages/family-collaboration-center";
 import FamilyDashboard from "@/pages/family-dashboard";
 import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
+import ServiceDetail from "@/pages/service-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
 
@@ -215,6 +216,8 @@ function Router() {
       </Route>
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
+      <Route path="/service/:slug" component={ServiceDetail} />
+      <Route path="/services/:slug" component={ServiceDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
       <Route path="/hospital/:slug" component={HospitalDetails} />
       <Route path="/hospitals" component={SeniorHealthcareDirectory} />

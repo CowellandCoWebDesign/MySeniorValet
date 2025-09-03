@@ -458,8 +458,8 @@ function HeroSectionWithTransformingSearch() {
               >
                 <span className="text-sm">🏘️</span>
                 <div className="flex flex-col items-start leading-tight">
-                  <span className="hidden sm:inline">Communities</span>
-                  <span className="sm:hidden">Homes</span>
+                  <span className="hidden sm:inline">Senior Living Communities</span>
+                  <span className="sm:hidden">Communities</span>
                   <span className="text-[8px] opacity-75">35,000+</span>
                 </div>
               </button>
@@ -1682,14 +1682,14 @@ export default function MySeniorValetHome() {
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Commercial Services Directory</CardTitle>
+                  <CardTitle className="text-2xl mb-2">Global Business & Services Discovery</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Commercial Vendor Services
+                    Find Any Service Provider Worldwide
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Professional services for your senior living needs - moving, legal, floral, transportation, and more
+                    🌍 Discover ANY business globally - moving services, law firms, restaurants, tech companies, and millions more
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
