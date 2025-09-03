@@ -13,8 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { useTranslation } from 'react-i18next';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { useLanguage } from "@/contexts/LanguageContext";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -38,7 +37,7 @@ interface NavbarProps {
 export function ProfessionalNavbar({ transparent = false, className }: NavbarProps) {
   const [location, setLocation] = useLocation();
   const { user, isAuthenticated } = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -100,7 +99,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
   ];
 
-  const currentLanguage = languages.find(l => l.code === i18n.language) || languages[0];
+  const currentLanguage = languages.find(l => l.code === language) || languages[0];
 
   return (
     <nav className={cn(
@@ -290,10 +289,10 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 {languages.map((lang) => (
                   <DropdownMenuItem
                     key={lang.code}
-                    onClick={() => i18n.changeLanguage(lang.code)}
+                    onClick={() => setLanguage(lang.code as any)}
                     className={cn(
                       "flex items-center space-x-2",
-                      i18n.language === lang.code && "bg-purple-100 dark:bg-purple-900/30"
+                      language === lang.code && "bg-purple-100 dark:bg-purple-900/30"
                     )}
                   >
                     <span className="text-lg">{lang.flag}</span>
