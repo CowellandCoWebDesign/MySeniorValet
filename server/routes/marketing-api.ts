@@ -13,8 +13,8 @@ import {
   automationRules
 } from '@shared/schema';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
-import { requireAuth, requireRole } from '../middleware/auth';
-import { apiLimiter } from '../middleware/rateLimiter';
+import { requireAuth, requireAdminAuth } from '../middleware/auth';
+import { apiLimiter, createRateLimitMiddleware } from '../infrastructure/rateLimiter';
 
 const router = Router();
 
@@ -22,9 +22,9 @@ const router = Router();
 
 // Get marketing dashboard data
 router.get('/:communityId/dashboard', 
-  apiLimiter,
+  createRateLimitMiddleware(apiLimiter),
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+  requireAdminAuth,
   async (req: Request, res: Response) => {
     try {
       // Mock data for marketing dashboard
@@ -107,7 +107,7 @@ router.get('/:communityId/dashboard',
 
 // Get available units for families
 router.get('/:communityId/available-units',
-  apiLimiter,
+  createRateLimitMiddleware(apiLimiter),
   async (req: Request, res: Response) => {
     try {
       // Public endpoint - no auth required
@@ -161,9 +161,9 @@ router.get('/:communityId/available-units',
 
 // Update unit status
 router.put('/:communityId/units/:unitId',
-  apiLimiter,
+  createRateLimitMiddleware(apiLimiter),
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+  requireAdminAuth,
   async (req: Request, res: Response) => {
     try {
       const { communityId, unitId } = req.params;
@@ -188,9 +188,9 @@ router.put('/:communityId/units/:unitId',
 
 // Get tour analytics
 router.get('/:communityId/analytics/tours',
-  apiLimiter,
+  createRateLimitMiddleware(apiLimiter),
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+  requireAdminAuth,
   async (req: Request, res: Response) => {
     try {
       const analytics = {
@@ -223,9 +223,9 @@ router.get('/:communityId/analytics/tours',
 
 // Get occupancy trends
 router.get('/:communityId/analytics/occupancy',
-  apiLimiter,
+  createRateLimitMiddleware(apiLimiter),
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+  requireAdminAuth,
   async (req: Request, res: Response) => {
     try {
       const trends = {

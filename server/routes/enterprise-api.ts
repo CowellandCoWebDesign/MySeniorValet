@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { communities, communitySubscriptions, users, billingStatements, careCoordination, dailyLifeActivities, staffMembers, marketingLeads } from '@shared/schema';
+import { communities, communitySubscriptions, users, marketingLeads } from '@shared/schema';
 import { eq, and, inArray, gte, lte, desc, sql } from 'drizzle-orm';
 import { requireAuth } from '../auth';
 
