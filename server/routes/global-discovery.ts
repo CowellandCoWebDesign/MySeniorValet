@@ -35,6 +35,9 @@ const discoveredCommunitySchema = z.object({
   confidence: z.number().min(0).max(100).optional() // How confident we are in the data
 });
 
+// Import multi-AI orchestrator for comparisons
+import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
+
 export function setupGlobalDiscoveryRoutes(app: Express) {
   
   // Global discovery search endpoint
@@ -81,8 +84,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Construct an intelligent search query for Perplexity
       let searchQuery = '';
-      if (searchType === 'location' || locationSearch) {
-        searchQuery = `Find senior living communities, assisted living facilities, nursing homes, and retirement communities in ${query}. Include their names, addresses, websites, phone numbers, and brief descriptions.`;
+      // Extract country from query if present
+      const countryKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India'];
+      const foundCountry = countryKeywords.find(country => query.toLowerCase().includes(country.toLowerCase()));
+      
+      if (searchType === 'location' || locationSearch || foundCountry) {
+        searchQuery = `Find ONLY senior living communities, assisted living facilities, nursing homes, and retirement communities located specifically in ${query}. ${foundCountry ? `Focus ONLY on facilities in ${foundCountry}, not in other countries.` : ''} Include their exact names, full street addresses, cities, phone numbers, websites, and brief descriptions. Do NOT include facilities from other countries or regions.`;
       } else if (searchType === 'service') {
         searchQuery = `Find senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions.`;
       } else {
@@ -103,7 +110,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           messages: [
             {
               role: 'system',
-              content: 'You are a senior care research assistant. Find real senior living communities, nursing homes, and assisted living facilities. For each found, provide: name, address, city, country, phone, website if available.'
+              content: 'You are a senior care research assistant specializing in global senior living facilities. When asked about a specific country or region, ONLY return facilities from that exact location. Do not mix results from different countries. For each facility found, provide: exact name, full street address, city, state/province, country, phone number, and website if available. Format your response as a structured list.'
             },
             {
               role: 'user',
@@ -332,6 +339,104 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         success: false,
         error: 'Failed to reject community' 
       });
+    }
+  });
+  
+  // AI Comparison endpoint for global discovery
+  app.post('/api/global-discovery/compare', async (req, res) => {
+    try {
+      const { query } = req.body;
+      console.log(`🌍 AI Comparison Search: "${query}"`);
+      
+      const results = {
+        query,
+        timestamp: new Date().toISOString(),
+        providers: {},
+        summary: ''
+      };
+      
+      // Test with Perplexity
+      try {
+        const perplexityQuery = `Find ONLY senior living communities in ${query}. List actual facility names, addresses, and contact details.`;
+        const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: 'sonar-pro',
+            messages: [
+              { role: 'system', content: 'List senior living facilities with accurate details.' },
+              { role: 'user', content: perplexityQuery }
+            ],
+            temperature: 0.1,
+            max_tokens: 2000
+          })
+        });
+        const perplexityData = await perplexityResponse.json();
+        results.providers['perplexity'] = {
+          response: perplexityData.choices[0]?.message?.content?.substring(0, 500),
+          sources: perplexityData.citations || []
+        };
+      } catch (e) {
+        results.providers['perplexity'] = { error: 'Failed to query Perplexity' };
+      }
+      
+      // Test with Claude
+      if (process.env.ANTHROPIC_API_KEY) {
+        try {
+          const Anthropic = require('@anthropic-ai/sdk');
+          const anthropic = new Anthropic.Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+          const claudeResponse = await anthropic.messages.create({
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 1000,
+            messages: [{
+              role: 'user',
+              content: `List real senior living facilities in ${query}. Include actual names and addresses.`
+            }]
+          });
+          results.providers['claude'] = {
+            response: claudeResponse.content[0].text?.substring(0, 500)
+          };
+        } catch (e) {
+          results.providers['claude'] = { error: 'Failed to query Claude' };
+        }
+      }
+      
+      // Test with ChatGPT
+      if (process.env.OPENAI_API_KEY) {
+        try {
+          const OpenAI = require('openai');
+          const openai = new OpenAI.default({ apiKey: process.env.OPENAI_API_KEY });
+          const gptResponse = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{
+              role: 'system',
+              content: 'List real senior living facilities with accurate location data.'
+            }, {
+              role: 'user',
+              content: `Find senior living communities in ${query}. List real facility names and addresses.`
+            }],
+            temperature: 0.1,
+            max_tokens: 1000
+          });
+          results.providers['chatgpt'] = {
+            response: gptResponse.choices[0]?.message?.content?.substring(0, 500)
+          };
+        } catch (e) {
+          results.providers['chatgpt'] = { error: 'Failed to query ChatGPT' };
+        }
+      }
+      
+      // Summarize findings
+      const activeProviders = Object.keys(results.providers).filter(p => !results.providers[p].error);
+      results.summary = `Tested ${activeProviders.length} AI providers for "${query}". Active: ${activeProviders.join(', ')}`;
+      
+      res.json(results);
+    } catch (error) {
+      console.error('❌ AI comparison error:', error);
+      res.status(500).json({ error: 'Comparison failed' });
     }
   });
   
