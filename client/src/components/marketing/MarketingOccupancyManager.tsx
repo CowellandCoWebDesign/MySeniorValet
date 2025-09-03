@@ -17,6 +17,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { TranslationWrapper, TranslateText } from '@/components/TranslationWrapper';
 
 interface MarketingOccupancyManagerProps {
   communityId: string;
@@ -56,6 +58,7 @@ const MarketingOccupancyManager: React.FC<MarketingOccupancyManagerProps> = ({
 }) => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { t } = useLanguage(); // Add translation hook
   const features = tierFeatures[subscriptionTier];
   
   const [selectedLead, setSelectedLead] = useState<any>(null);
@@ -172,43 +175,43 @@ const MarketingOccupancyManager: React.FC<MarketingOccupancyManagerProps> = ({
           ))}
         </div>
 
-        {/* Tour Request Dialog */}
+        {/* Tour Request Dialog - Now with Translation */}
         <Dialog open={showTourDialog} onOpenChange={setShowTourDialog}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle>Schedule a Tour</DialogTitle>
+              <DialogTitle>{t('tour.schedule')}</DialogTitle>
               <DialogDescription>
-                We'd love to show you around! Fill out the form below and we'll confirm your tour.
+                <TranslateText text="We'd love to show you around! Fill out the form below and we'll confirm your tour." />
               </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>First Name</Label>
-                  <Input placeholder="John" />
+                  <Label>{t('auth.firstName', { defaultValue: 'First Name' })}</Label>
+                  <Input placeholder={t('auth.firstNamePlaceholder', { defaultValue: 'John' })} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Last Name</Label>
-                  <Input placeholder="Doe" />
+                  <Label>{t('auth.lastName', { defaultValue: 'Last Name' })}</Label>
+                  <Input placeholder={t('auth.lastNamePlaceholder', { defaultValue: 'Doe' })} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Email</Label>
+                <Label>{t('auth.email')}</Label>
                 <Input type="email" placeholder="john@example.com" />
               </div>
               <div className="space-y-2">
-                <Label>Phone</Label>
+                <Label>{t('community.phone', { defaultValue: 'Phone' })}</Label>
                 <Input type="tel" placeholder="(555) 123-4567" />
               </div>
               <div className="space-y-2">
-                <Label>Preferred Date</Label>
+                <Label>{t('tour.preferredDate', { defaultValue: 'Preferred Date' })}</Label>
                 <Input type="date" />
               </div>
               <div className="space-y-2">
-                <Label>Preferred Time</Label>
+                <Label>{t('tour.preferredTime', { defaultValue: 'Preferred Time' })}</Label>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select time" />
+                    <SelectValue placeholder={t('actions.selectTime', { defaultValue: 'Select time' })} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="9am">9:00 AM</SelectItem>
@@ -221,29 +224,32 @@ const MarketingOccupancyManager: React.FC<MarketingOccupancyManagerProps> = ({
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Tour Type</Label>
+                <Label>{t('tour.type', { defaultValue: 'Tour Type' })}</Label>
                 <Select>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select tour type" />
+                    <SelectValue placeholder={t('tour.selectType', { defaultValue: 'Select tour type' })} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="in-person">In-Person Tour</SelectItem>
-                    <SelectItem value="virtual">Virtual Tour (Zoom)</SelectItem>
+                    <SelectItem value="in-person">{t('tour.inPerson')}</SelectItem>
+                    <SelectItem value="virtual">{t('tour.virtual')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label>Questions or Special Requests</Label>
-                <Textarea placeholder="Tell us about your needs..." />
+                <Label>{t('tour.specialRequests', { defaultValue: 'Questions or Special Requests' })}</Label>
+                <Textarea placeholder={t('tour.tellUsNeeds', { defaultValue: 'Tell us about your needs...' })} />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowTourDialog(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => setShowTourDialog(false)}>{t('actions.cancel')}</Button>
               <Button onClick={() => {
-                toast({ title: 'Tour request submitted!', description: 'We\'ll contact you within 24 hours to confirm.' });
+                toast({ 
+                  title: t('tour.requestSubmitted', { defaultValue: 'Tour request submitted!' }), 
+                  description: t('tour.confirmationMessage', { defaultValue: 'We\'ll contact you within 24 hours to confirm.' })
+                });
                 setShowTourDialog(false);
               }}>
-                Submit Request
+                {t('actions.submitRequest', { defaultValue: 'Submit Request' })}
               </Button>
             </DialogFooter>
           </DialogContent>

@@ -1,259 +1,12 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-
-type Language = 'en' | 'fr' | 'es';
+import { getTranslation, type Language } from '@/lib/translations';
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, replacements?: Record<string, string>) => string;
+  translateContent: (content: string) => Promise<string>;
 }
-
-const translations = {
-  en: {
-    'hero.title': 'Find Your Perfect Senior Living Community',
-    'hero.subtitle': 'From live pricing and unit availability to move coordination, furniture setup, and prescription delivery, MySeniorValet is your white-glove partner.',
-    'hero.description': 'Discover verified senior living communities with transparent pricing and authentic reviews across North America',
-    'hero.communities': 'Communities',
-    'hero.search': 'Search Communities',
-    'hero.searchPlaceholder': 'Search by city, state, or community name...',
-    'nav.home': 'Home',
-    'nav.communities': 'Communities',
-    'nav.services': 'Services',
-    'nav.about': 'About',
-    'nav.contact': 'Contact',
-    'nav.language': 'Language',
-    'communities.title': 'Featured Communities',
-    'communities.viewAll': 'View All Communities',
-    'communities.hud': 'HUD Housing',
-    'communities.hudSubtitle': 'Government-subsidized senior housing',
-    'communities.coastal': 'Coastal Communities',
-    'communities.coastalSubtitle': 'Beautiful oceanside retirement',
-    'communities.trending': 'Trending This Week',
-    'communities.trendingSubtitle': 'Most viewed communities',
-    'services.title': 'Senior Care Services',
-    'services.subtitle': 'Professional care providers near you',
-    'services.viewAll': 'View All Services',
-    'marketplace.title': 'Senior Products Marketplace',
-    'marketplace.subtitle': 'Essential products for senior living',
-    'marketplace.viewAll': 'View Marketplace',
-    'stats.totalCommunities': 'Total Communities',
-    'stats.canadianCommunities': 'Canadian Communities',
-    'stats.bilingualCommunities': 'Bilingual Communities',
-    'stats.provinces': 'Provinces & Territories',
-    'community.contactForPricing': 'Contact for pricing',
-    'community.monthlyRent': '/month',
-    'community.viewDetails': 'View Details',
-    'community.callNow': 'Call Now',
-    'community.website': 'Visit Website',
-    'community.bilingual': 'Bilingual Services',
-    'filters.allTypes': 'All Types',
-    'filters.hudSenior': 'HUD Senior Housing',
-    'filters.assistedLiving': 'Assisted Living',
-    'filters.memorycare': 'Memory Care',
-    'filters.independentLiving': 'Independent Living',
-    'filters.activeAdult': '55+ Active Adult',
-    'filters.mobileHome': 'Mobile Home Parks',
-    'filters.manufactureredHome': 'Manufactured Homes',
-    'footer.privacy': 'Privacy Policy',
-    'footer.terms': 'Terms of Service',
-    'footer.disclaimer': 'Disclaimer',
-    'footer.allRightsReserved': 'All rights reserved',
-    'emergency.button': 'Emergency Contact',
-    'emergency.title': '24/7 Emergency Support',
-    'emergency.subtitle': 'Get immediate assistance',
-    'accessibility.title': 'Accessibility Settings',
-    'accessibility.subtitle': 'Customize your viewing experience',
-    'platform.description': 'The trusted platform for authentic senior living community information',
-    'platform.coverage': 'Now serving {{count}} communities across North America',
-    'platform.bilingual': 'Full bilingual support for Quebec communities',
-    'canada.title': 'Canadian Coverage',
-    'canada.provinces': '{{count}} Provinces & Territories',
-    'canada.communities': '{{count}} Communities',
-    'canada.quebec': 'Quebec Communities',
-    'canada.bilingualSupport': '100% Bilingual Support',
-    'search.advanced': 'Advanced Search',
-    'search.filters': 'Search Filters',
-    'search.results': '{{count}} Results',
-    'search.noResults': 'No communities found',
-    'pricing.verified': 'Verified Pricing',
-    'pricing.hud': 'HUD Verified',
-    'pricing.marketRate': 'Market Rate',
-    'pricing.contactForPricing': 'Contact for pricing',
-    'care.types': 'Care Types',
-    'care.independentLiving': 'Independent Living',
-    'care.assistedLiving': 'Assisted Living',
-    'care.memorycare': 'Memory Care',
-    'care.skilledNursing': 'Skilled Nursing',
-    'tour.schedule': 'Schedule Tour',
-    'tour.virtual': 'Virtual Tour',
-    'tour.inPerson': 'In-Person Tour',
-    'tour.tourmate': 'TourMate™ Scheduling',
-  },
-  fr: {
-    'hero.title': 'Trouvez votre communauté de vie pour aînés idéale',
-    'hero.subtitle': 'Des prix en temps réel et la disponibilité des unités à la coordination du déménagement, l\'installation du mobilier et la livraison de médicaments, MySeniorValet est votre partenaire de service haut de gamme.',
-    'hero.description': 'Découvrez des communautés vérifiées avec des prix transparents et des avis authentiques à travers l\'Amérique du Nord',
-    'hero.communities': 'Communautés',
-    'hero.search': 'Rechercher des communautés',
-    'hero.searchPlaceholder': 'Rechercher par ville, province ou nom de communauté...',
-    'nav.home': 'Accueil',
-    'nav.communities': 'Communautés',
-    'nav.services': 'Services',
-    'nav.about': 'À propos',
-    'nav.contact': 'Contact',
-    'nav.language': 'Langue',
-    'communities.title': 'Communautés en vedette',
-    'communities.viewAll': 'Voir toutes les communautés',
-    'communities.hud': 'Logement HUD',
-    'communities.hudSubtitle': 'Logements pour aînés subventionnés par le gouvernement',
-    'communities.coastal': 'Communautés côtières',
-    'communities.coastalSubtitle': 'Belles retraites en bord de mer',
-    'communities.trending': 'Tendances cette semaine',
-    'communities.trendingSubtitle': 'Communautés les plus consultées',
-    'services.title': 'Services de soins aux aînés',
-    'services.subtitle': 'Fournisseurs de soins professionnels près de chez vous',
-    'services.viewAll': 'Voir tous les services',
-    'marketplace.title': 'Marché de produits pour aînés',
-    'marketplace.subtitle': 'Produits essentiels pour la vie des aînés',
-    'marketplace.viewAll': 'Voir le marché',
-    'stats.totalCommunities': 'Communautés totales',
-    'stats.canadianCommunities': 'Communautés canadiennes',
-    'stats.bilingualCommunities': 'Communautés bilingues',
-    'stats.provinces': 'Provinces et territoires',
-    'community.contactForPricing': 'Contactez pour les prix',
-    'community.monthlyRent': '/mois',
-    'community.viewDetails': 'Voir les détails',
-    'community.callNow': 'Appelez maintenant',
-    'community.website': 'Visiter le site web',
-    'community.bilingual': 'Services bilingues',
-    'filters.allTypes': 'Tous les types',
-    'filters.hudSenior': 'Logement HUD pour aînés',
-    'filters.assistedLiving': 'Résidence assistée',
-    'filters.memorycare': 'Soins de la mémoire',
-    'filters.independentLiving': 'Vie autonome',
-    'filters.activeAdult': '55+ Adulte actif',
-    'filters.mobileHome': 'Parcs de maisons mobiles',
-    'filters.manufactureredHome': 'Maisons préfabriquées',
-    'footer.privacy': 'Politique de confidentialité',
-    'footer.terms': 'Conditions d\'utilisation',
-    'footer.disclaimer': 'Avis de non-responsabilité',
-    'footer.allRightsReserved': 'Tous droits réservés',
-    'emergency.button': 'Contact d\'urgence',
-    'emergency.title': 'Assistance d\'urgence 24/7',
-    'emergency.subtitle': 'Obtenez une aide immédiate',
-    'accessibility.title': 'Paramètres d\'accessibilité',
-    'accessibility.subtitle': 'Personnalisez votre expérience visuelle',
-    'platform.description': 'La plateforme de confiance pour des informations authentiques sur les communautés de vie pour aînés',
-    'platform.coverage': 'Desservant maintenant {{count}} communautés à travers l\'Amérique du Nord',
-    'platform.bilingual': 'Support bilingue complet pour les communautés du Québec',
-    'canada.title': 'Couverture canadienne',
-    'canada.provinces': '{{count}} Provinces et territoires',
-    'canada.communities': '{{count}} Communautés',
-    'canada.quebec': 'Communautés du Québec',
-    'canada.bilingualSupport': 'Support bilingue à 100%',
-    'search.advanced': 'Recherche avancée',
-    'search.filters': 'Filtres de recherche',
-    'search.results': '{{count}} Résultats',
-    'search.noResults': 'Aucune communauté trouvée',
-    'pricing.verified': 'Prix vérifiés',
-    'pricing.hud': 'Vérifié HUD',
-    'pricing.marketRate': 'Taux du marché',
-    'pricing.contactForPricing': 'Contactez pour les prix',
-    'care.types': 'Types de soins',
-    'care.independentLiving': 'Vie autonome',
-    'care.assistedLiving': 'Résidence assistée',
-    'care.memorycare': 'Soins de la mémoire',
-    'care.skilledNursing': 'Soins infirmiers',
-    'tour.schedule': 'Planifier une visite',
-    'tour.virtual': 'Visite virtuelle',
-    'tour.inPerson': 'Visite en personne',
-    'tour.tourmate': 'Planification TourMate™',
-  },
-  es: {
-    'hero.title': 'Encuentra tu comunidad de vida para adultos mayores ideal',
-    'hero.subtitle': 'Desde precios en vivo y disponibilidad de unidades hasta coordinación de mudanza, instalación de muebles y entrega de medicamentos, MySeniorValet es tu socio de servicio premium.',
-    'hero.description': 'Descubre comunidades verificadas con precios transparentes y reseñas auténticas en toda América del Norte',
-    'hero.communities': 'Comunidades',
-    'hero.search': 'Buscar comunidades',
-    'hero.searchPlaceholder': 'Buscar por ciudad, estado o nombre de comunidad...',
-    'nav.home': 'Inicio',
-    'nav.communities': 'Comunidades',
-    'nav.services': 'Servicios',
-    'nav.about': 'Acerca de',
-    'nav.contact': 'Contacto',
-    'nav.language': 'Idioma',
-    'communities.title': 'Comunidades destacadas',
-    'communities.viewAll': 'Ver todas las comunidades',
-    'communities.hud': 'Vivienda HUD',
-    'communities.hudSubtitle': 'Vivienda para adultos mayores subsidiada por el gobierno',
-    'communities.coastal': 'Comunidades costeras',
-    'communities.coastalSubtitle': 'Hermosa jubilación junto al mar',
-    'communities.trending': 'Tendencias esta semana',
-    'communities.trendingSubtitle': 'Comunidades más vistas',
-    'services.title': 'Servicios de cuidado para adultos mayores',
-    'services.subtitle': 'Proveedores de cuidado profesional cerca de ti',
-    'services.viewAll': 'Ver todos los servicios',
-    'marketplace.title': 'Mercado de productos para adultos mayores',
-    'marketplace.subtitle': 'Productos esenciales para la vida de adultos mayores',
-    'marketplace.viewAll': 'Ver mercado',
-    'stats.totalCommunities': 'Comunidades totales',
-    'stats.canadianCommunities': 'Comunidades canadienses',
-    'stats.bilingualCommunities': 'Comunidades bilingües',
-    'stats.provinces': 'Provincias y territorios',
-    'community.contactForPricing': 'Contactar para precios',
-    'community.monthlyRent': '/mes',
-    'community.viewDetails': 'Ver detalles',
-    'community.callNow': 'Llamar ahora',
-    'community.website': 'Visitar sitio web',
-    'community.bilingual': 'Servicios bilingües',
-    'filters.allTypes': 'Todos los tipos',
-    'filters.hudSenior': 'Vivienda HUD para adultos mayores',
-    'filters.assistedLiving': 'Vida asistida',
-    'filters.memorycare': 'Cuidado de la memoria',
-    'filters.independentLiving': 'Vida independiente',
-    'filters.activeAdult': '55+ Adulto activo',
-    'filters.mobileHome': 'Parques de casas móviles',
-    'filters.manufactureredHome': 'Casas prefabricadas',
-    'footer.privacy': 'Política de privacidad',
-    'footer.terms': 'Términos de servicio',
-    'footer.disclaimer': 'Aviso legal',
-    'footer.allRightsReserved': 'Todos los derechos reservados',
-    'emergency.button': 'Contacto de emergencia',
-    'emergency.title': 'Soporte de emergencia 24/7',
-    'emergency.subtitle': 'Obtén asistencia inmediata',
-    'accessibility.title': 'Configuración de accesibilidad',
-    'accessibility.subtitle': 'Personaliza tu experiencia visual',
-    'platform.description': 'La plataforma confiable para información auténtica sobre comunidades de vida para adultos mayores',
-    'platform.coverage': 'Ahora sirviendo {{count}} comunidades en toda América del Norte',
-    'platform.bilingual': 'Soporte multilingüe completo para las comunidades de México',
-    'canada.title': 'Cobertura canadiense',
-    'canada.provinces': '{{count}} Provincias y territorios',
-    'canada.communities': '{{count}} Comunidades',
-    'canada.quebec': 'Comunidades de Quebec',
-    'canada.bilingualSupport': 'Soporte 100% bilingüe',
-    'mexico.title': 'Cobertura de México',
-    'mexico.states': '{{count}} Estados',
-    'mexico.communities': '{{count}} Comunidades',
-    'mexico.spanishSupport': 'Soporte completo en español',
-    'search.advanced': 'Búsqueda avanzada',
-    'search.filters': 'Filtros de búsqueda',
-    'search.results': '{{count}} Resultados',
-    'search.noResults': 'No se encontraron comunidades',
-    'pricing.verified': 'Precios verificados',
-    'pricing.hud': 'Verificado HUD',
-    'pricing.marketRate': 'Tarifa de mercado',
-    'pricing.contactForPricing': 'Contactar para precios',
-    'care.types': 'Tipos de cuidado',
-    'care.independentLiving': 'Vida independiente',
-    'care.assistedLiving': 'Vida asistida',
-    'care.memorycare': 'Cuidado de la memoria',
-    'care.skilledNursing': 'Enfermería especializada',
-    'tour.schedule': 'Programar visita',
-    'tour.virtual': 'Visita virtual',
-    'tour.inPerson': 'Visita en persona',
-    'tour.tourmate': 'Programación TourMate™',
-  }
-};
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
@@ -266,14 +19,62 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem('language', language);
     document.documentElement.lang = language;
+    
+    // Update HTML dir attribute for RTL languages if needed in future
+    document.documentElement.dir = 'ltr';
+    
+    // Broadcast language change to all components
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
   }, [language]);
 
-  const t = (key: string): string => {
-    return translations[language][key as keyof typeof translations['en']] || key;
+  // Basic translation function using the comprehensive translation system
+  const t = (key: string, replacements?: Record<string, string>): string => {
+    return getTranslation(language, key, replacements);
+  };
+
+  // Advanced content translation for dynamic content (database content, user-generated content)
+  const translateContent = async (content: string): Promise<string> => {
+    // If content is already in the target language or language is English, return as-is
+    if (!content || language === 'en') {
+      return content;
+    }
+
+    // Check if we have a cached translation
+    const cacheKey = `translation_${language}_${content.substring(0, 50)}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      // Use Google Translate API for dynamic content
+      // Note: In production, this should call your backend API which then calls Google Translate
+      const response = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: content,
+          targetLanguage: language,
+          sourceLanguage: 'en'
+        })
+      });
+
+      if (response.ok) {
+        const { translatedText } = await response.json();
+        // Cache the translation for this session
+        sessionStorage.setItem(cacheKey, translatedText);
+        return translatedText;
+      }
+    } catch (error) {
+      console.warn('Translation API failed, returning original content:', error);
+    }
+
+    // Fallback to original content if translation fails
+    return content;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, translateContent }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -285,4 +86,76 @@ export function useLanguage() {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
+}
+
+// Hook for components that need to translate dynamic content
+export function useTranslateContent() {
+  const { translateContent } = useLanguage();
+  const [translating, setTranslating] = useState(false);
+
+  const translate = async (content: string): Promise<string> => {
+    setTranslating(true);
+    try {
+      const result = await translateContent(content);
+      return result;
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  return { translate, translating };
+}
+
+// Hook for translating arrays of content
+export function useTranslateArray() {
+  const { language, translateContent } = useLanguage();
+  const [translating, setTranslating] = useState(false);
+
+  const translateArray = async (items: string[]): Promise<string[]> => {
+    if (language === 'en' || !items.length) {
+      return items;
+    }
+
+    setTranslating(true);
+    try {
+      const translations = await Promise.all(
+        items.map(item => translateContent(item))
+      );
+      return translations;
+    } finally {
+      setTranslating(false);
+    }
+  };
+
+  return { translateArray, translating };
+}
+
+// Hook that automatically translates when language changes
+export function useAutoTranslate(content: string, enabled = true) {
+  const { language, translateContent } = useLanguage();
+  const [translated, setTranslated] = useState(content);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!enabled || !content || language === 'en') {
+      setTranslated(content);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    translateContent(content).then(result => {
+      if (!cancelled) {
+        setTranslated(result);
+        setLoading(false);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [content, language, enabled, translateContent]);
+
+  return { translated, loading };
 }

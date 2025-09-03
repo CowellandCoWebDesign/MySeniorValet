@@ -86,6 +86,7 @@ import { atriaRoutes } from "./atria-routes";
 import healthcareServicesRoutes from "./healthcareServicesRoutes";
 import careServicesRoutes from "./careServicesRoutes";
 import communityFeaturesRoutes from "./community-features";
+import translateApi from './translate-api';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Replit Auth is already initialized in server/routes.ts
@@ -182,6 +183,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register emergency contact routes
   app.use('/api/emergency', emergencyRoutes);
+  
+  // Register translation routes
+  app.use('/api', translateApi);
   
   // Register Amazon product routes
   app.use('/api/amazon-products', amazonProductRoutes);
