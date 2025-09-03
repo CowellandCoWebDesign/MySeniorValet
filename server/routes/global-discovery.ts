@@ -98,7 +98,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
-      // Call Perplexity API with working configuration
+      // Call Perplexity API with STRUCTURED JSON OUTPUT
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
         headers: {
@@ -110,13 +110,47 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           messages: [
             {
               role: 'system',
-              content: 'You are a senior care research assistant specializing in global senior living facilities. When asked about a specific country or region, ONLY return facilities from that exact location. Do not mix results from different countries. For each facility found, provide: exact name, full street address, city, state/province, country, phone number, and website if available. Format your response as a structured list.'
+              content: 'You are a senior care research assistant. Return ONLY facilities from the requested location with accurate information.'
             },
             {
               role: 'user',
-              content: searchQuery
+              content: searchQuery + ' Provide the response as structured JSON data.'
             }
           ],
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              schema: {
+                type: 'object',
+                properties: {
+                  facilities: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        address: { type: 'string' },
+                        city: { type: 'string' },
+                        state: { type: 'string' },
+                        country: { type: 'string' },
+                        phone: { type: 'string' },
+                        website: { type: 'string' },
+                        description: { type: 'string' },
+                        careTypes: {
+                          type: 'array',
+                          items: { type: 'string' }
+                        }
+                      },
+                      required: ['name', 'city', 'country']
+                    }
+                  },
+                  totalFound: { type: 'number' },
+                  searchLocation: { type: 'string' }
+                },
+                required: ['facilities']
+              }
+            }
+          },
           temperature: 0.2,
           max_tokens: 2000,
           top_p: 0.9,
@@ -136,32 +170,55 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`✅ Perplexity Response Length: ${aiResponse.length} characters`);
       console.log(`📚 Citations: ${citations.length} sources`);
       
-      // Step 3: Parse the AI response to extract community data
+      // Step 3: Parse the structured JSON response
       let discoveredCommunities = [];
       
       try {
-        // Try to extract JSON data from the response
-        const jsonMatch = aiResponse.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          discoveredCommunities = JSON.parse(jsonMatch[0]);
-        } else {
-          // Fallback: Extract community information using patterns
-          const communityMatches = aiResponse.matchAll(/(?:^|\n)[\d\.\-\*\s]*([A-Z][^:\n]{2,50})(?::|\n)/g);
-          for (const match of communityMatches) {
+        // Parse the structured JSON response from Perplexity
+        const structuredData = JSON.parse(aiResponse);
+        
+        if (structuredData.facilities && Array.isArray(structuredData.facilities)) {
+          discoveredCommunities = structuredData.facilities.map(facility => ({
+            name: facility.name,
+            address: facility.address || '',
+            city: facility.city || '',
+            state: facility.state || '',
+            country: facility.country || '',
+            phone: facility.phone || '',
+            website: facility.website || '',
+            description: facility.description || `Discovered in ${facility.city}, ${facility.country}`,
+            careTypes: facility.careTypes || [],
+            source: 'Perplexity AI Discovery',
+            confidence: 95,
+            isDiscovered: true
+          }));
+          console.log(`✅ Successfully parsed ${discoveredCommunities.length} facilities from structured JSON`);
+        }
+      } catch (parseError) {
+        console.error('⚠️ Error parsing structured JSON:', parseError);
+        console.log('Attempting fallback parsing for markdown response...');
+        
+        // Fallback: Extract facilities from markdown format
+        try {
+          const facilityMatches = aiResponse.matchAll(/\*\*([^\*]+)\*\*[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi);
+          for (const match of facilityMatches) {
             const name = match[1].trim();
-            if (name && !name.includes('?') && name.length > 5) {
+            const location = match[2] ? match[2].trim() : '';
+            if (name && name.length > 5 && !name.includes('?')) {
               discoveredCommunities.push({
                 name: name,
+                address: location,
                 description: `Found via search for "${query}"`,
                 source: 'Perplexity Web Search',
-                confidence: 70
+                confidence: 85,
+                isDiscovered: true
               });
             }
           }
+          console.log(`✅ Fallback parsing extracted ${discoveredCommunities.length} facilities`);
+        } catch (fallbackError) {
+          console.error('❌ Fallback parsing also failed:', fallbackError);
         }
-      } catch (parseError) {
-        console.error('⚠️ Error parsing AI response:', parseError);
-        // Continue with fallback extraction
       }
       
       // Step 4: Save discovered communities to database with "discovered_pending" status
@@ -218,13 +275,33 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       }
       
-      // Step 5: Combine existing and discovered communities
+      // Step 5: Format discovered communities for immediate display (don't wait for DB save)
+      const formattedDiscoveries = discoveredCommunities.map(community => ({
+        id: `discovered_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name: community.name,
+        address: community.address || '',
+        city: community.city || '',
+        state: community.state || '',
+        country: community.country || '',
+        phone: community.phone || '',
+        website: community.website || '',
+        description: community.description || '',
+        careTypes: community.careTypes || [],
+        data_source: 'AI Discovery',
+        isDiscovered: true,
+        confidence: community.confidence || 90,
+        verificationStatus: 'discovered_pending',
+        citations: citations // Include Perplexity citations
+      }));
+      
+      // Step 6: Combine results - prioritize discovered facilities over database results
       const allResults = [
+        ...formattedDiscoveries, // Show discovered results FIRST
         ...existingCommunities.map(c => ({ ...c, isExisting: true })),
         ...savedCommunities.map(c => ({ ...c, isDiscovered: true, needsApproval: true }))
       ];
       
-      // Step 6: Return results with metadata
+      // Step 7: Return results with metadata
       res.json({
         success: true,
         query: query,
