@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MascotLoadingDisplay } from './MascotLoadingDisplay';
+import { SearchLoader } from './SearchLoader';
 
 interface SearchResult {
   communities: any[];
@@ -373,21 +374,12 @@ export function ComprehensiveSearch({
           </div>
         </form>
 
-        {/* Loading Display with Thinker */}
-        <MascotLoadingDisplay 
-          title="Deep in Thought..."
-          subtitle={`Contemplating 32,970+ communities for "${query}"`}
-          showProgress={true}
-          progressDuration={8}
-          factRotationSpeed={3000}
-          compact={false}
-          processStages={[
-            "Searching official websites for photos",
-            "Scanning social media and listings", 
-            "Analyzing image quality and authenticity",
-            "Verifying photo sources and ownership",
-            "Organizing visual content library"
-          ]}
+        {/* Loading Display with Lighthouse Thinker */}
+        <SearchLoader 
+          searchQuery={query}
+          searchType={searchCategory === 'services' ? 'Services' : 
+                      searchCategory === 'healthcare' ? 'Healthcare' : 
+                      searchCategory === 'resources' ? 'Resources' : 'Communities'}
         />
       </div>
     );

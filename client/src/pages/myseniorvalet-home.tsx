@@ -46,6 +46,7 @@ import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
+import { SearchLoader } from '@/components/SearchLoader';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -730,10 +731,7 @@ function HeroSectionWithTransformingSearch() {
               {!searchResults?.metadata?.isResearchMode && (
                 <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
                   {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-300">Searching...</span>
-                  </div>
+                  <SearchLoader searchQuery={searchQuery} searchType="Communities" />
                 ) : (
                   <>
                     {/* Scroll indicator for more results - Outside scrollable area */}

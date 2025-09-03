@@ -31,6 +31,7 @@ import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { Link, useLocation } from "wouter";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { SearchLoader } from "@/components/SearchLoader";
 
 interface ChildcareCenter {
   id: string | number;
