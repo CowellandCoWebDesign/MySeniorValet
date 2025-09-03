@@ -6,79 +6,88 @@ import { BarChart3, Brain, Shield, Eye, CheckCircle, TrendingUp, AlertCircle, Ho
 export function MarketIntelligence() {
   return (
     <div className="space-y-6">
-      <div className="text-center mb-4">
-        <h2 className="text-xl font-bold mb-2">Complete Care Spectrum & Live Market Intelligence</h2>
-        <p className="text-sm text-muted-foreground">
-          All 7 care levels from $0 to $12,000+ • Live pricing from 34,171 verified communities
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-100">Complete Care Spectrum & Live Market Intelligence</h2>
+        <p className="text-base text-gray-600 dark:text-gray-300 mb-2">
+          All care levels from $0 to $12,000+ • Live pricing from 34,171 verified communities
         </p>
-        <p className="text-xs text-muted-foreground mt-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           From HUD-Sponsored Housing to Skilled Nursing - Find your perfect care level
         </p>
       </div>
 
-      {/* Market Intelligence Overview - Compact */}
-      <Card className="border-blue-200 dark:border-blue-800">
-        <CardHeader className="py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
-          <CardTitle className="flex items-center gap-2 text-base">
-            <Brain className="w-4 h-4 text-blue-600" />
-            AI-Powered Senior Living Intelligence
+      {/* Market Intelligence Overview - Improved Design */}
+      <Card className="border-blue-200 dark:border-blue-800 shadow-sm">
+        <CardHeader className="py-6 px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <Brain className="w-6 h-6 text-blue-600" />
+            AI-Powered Intelligence System
           </CardTitle>
-          <CardDescription className="text-xs">
+          <CardDescription className="text-base mt-2">
             3-AI Orchestra: Claude + Perplexity + ChatGPT • 34,171 Verified Communities
           </CardDescription>
         </CardHeader>
-        <CardContent className="pt-3">
-          <div className="grid md:grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-1 text-sm">
-                <CheckCircle className="w-3 h-3 text-green-600" />
+        <CardContent className="p-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2 text-lg">
+                <CheckCircle className="w-5 h-5 text-green-600" />
                 Revolutionary Features
               </h3>
-              <ul className="space-y-1 text-xs">
-                <li className="flex items-start gap-1">
-                  <span className="text-green-600">•</span>
-                  <span><strong>AI Search:</strong> Natural language queries</span>
+              <ul className="space-y-3 text-sm">
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 font-bold text-lg">•</span>
+                  <span><strong>AI Search:</strong> Natural language queries with intelligent understanding</span>
                 </li>
-                <li className="flex items-start gap-1">
-                  <span className="text-green-600">•</span>
-                  <span><strong>Live Pricing:</strong> 25,376+ communities</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 font-bold text-lg">•</span>
+                  <span><strong>Live Pricing:</strong> 25,376+ communities with real-time updates</span>
                 </li>
-                <li className="flex items-start gap-1">
-                  <span className="text-green-600">•</span>
-                  <span><strong>Transparency Score:</strong> Multi-factor rating</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 font-bold text-lg">•</span>
+                  <span><strong>Transparency Score:</strong> Multi-factor rating system</span>
                 </li>
-                <li className="flex items-start gap-1">
-                  <span className="text-green-600">•</span>
-                  <span><strong>Geospatial 2.0:</strong> Interactive mapping</span>
+                <li className="flex items-start gap-3">
+                  <span className="text-green-600 font-bold text-lg">•</span>
+                  <span><strong>Interactive Mapping:</strong> Advanced geospatial search</span>
                 </li>
               </ul>
             </div>
 
-            <div className="space-y-2">
-              <h3 className="font-medium flex items-center gap-1 text-sm">
-                <BarChart3 className="w-3 h-3 text-purple-600" />
+            <div className="space-y-4">
+              <h3 className="font-semibold flex items-center gap-2 text-lg">
+                <BarChart3 className="w-5 h-5 text-purple-600" />
                 3-AI Orchestration System
               </h3>
-              <div className="text-xs mb-2 text-muted-foreground">
-                Claude • Perplexity • ChatGPT working in harmony
+              <div className="text-sm mb-4 text-gray-600 dark:text-gray-300">
+                Claude • Perplexity • ChatGPT working in perfect harmony
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
-                  <span>Claude (Analysis)</span>
-                  <Progress value={96} className="w-16 h-1.5" />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="font-medium">Claude (Analysis)</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={96} className="w-20 h-2" />
+                    <span className="text-sm font-semibold">96%</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
-                  <span>Perplexity (Real-time Data)</span>
-                  <Progress value={94} className="w-16 h-1.5" />
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="font-medium">Perplexity (Real-time)</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={94} className="w-20 h-2" />
+                    <span className="text-sm font-semibold">94%</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-1.5 bg-gray-50 dark:bg-gray-800 rounded text-xs">
-                  <span>ChatGPT (Cross-Check)</span>
-                  <Progress value={92} className="w-16 h-1.5" />
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <span className="font-medium">ChatGPT (Cross-Check)</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={92} className="w-20 h-2" />
+                    <span className="text-sm font-semibold">92%</span>
+                  </div>
                 </div>
               </div>
-              <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-950 rounded">
-                <p className="text-xs flex items-start gap-1">
-                  <Eye className="w-3 h-3 text-blue-600 mt-0.5" />
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-950 rounded-lg">
+                <p className="text-sm flex items-start gap-2">
+                  <Eye className="w-4 h-4 text-blue-600 mt-0.5" />
                   <span><strong>Triple Verification:</strong> Each community verified by all 3 AI systems for absolute accuracy</span>
                 </p>
               </div>

@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
+import { TourScheduler } from "@/components/TourScheduler";
+import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 
 interface ChildcareCenter {
   id: string | number;
@@ -74,6 +76,12 @@ interface ChildcareCenter {
   languages?: string[];
   virtualTour?: string;
   photos?: string[];
+  ageGroupAvailability?: {
+    infant?: { available: number; total: number; price: string };
+    toddler?: { available: number; total: number; price: string };
+    preschool?: { available: number; total: number; price: string };
+    schoolAge?: { available: number; total: number; price: string };
+  };
   reviews?: Array<{
     author: string;
     rating: number;
@@ -228,7 +236,19 @@ export default function ChildcareDetails() {
           parentApp: true,
           liveCamera: true,
           digitalPayments: true,
-          instantMessaging: true
+          instantMessaging: true,
+          photos: [
+            'https://images.unsplash.com/photo-1544717297-fa95b6ee9643?w=800&h=600',
+            'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=800&h=600',
+            'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?w=800&h=600',
+            'https://images.unsplash.com/photo-1560159673-d2a75c863dc7?w=800&h=600'
+          ],
+          ageGroupAvailability: {
+            infant: { available: 3, total: 15, price: '$320/week' },
+            toddler: { available: 2, total: 20, price: '$290/week' },
+            preschool: { available: 8, total: 35, price: '$260/week' },
+            schoolAge: { available: 9, total: 50, price: '$180/week' }
+          }
         });
       }
     } catch (error) {
@@ -317,6 +337,19 @@ export default function ChildcareDetails() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Photo Carousel */}
+          {center.photos && center.photos.length > 0 && (
+            <div className="mb-6">
+              <EnhancedPhotoCarousel
+                photos={center.photos}
+                communityName={center.name}
+                className="h-64 md:h-80 lg:h-96 rounded-lg shadow-lg"
+                showValidation={false}
+                showSourceIndicator={true}
+              />
+            </div>
+          )}
+
           {/* Header Section */}
           <Card className="mb-6 border-pink-200 dark:border-pink-800 overflow-hidden">
             {/* Trust & Status Bar */}
@@ -424,19 +457,71 @@ export default function ChildcareDetails() {
                 </div>
               </div>
 
-              {/* Availability Bar */}
-              {center.capacity && center.currentEnrollment && (
-                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold">Current Availability</span>
+              {/* Enhanced Availability by Age Group */}
+              {center.ageGroupAvailability && (
+                <div className="mt-6 p-6 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                      <Users className="h-5 w-5 text-green-600" />
+                      Available Spots by Age Group
+                    </h3>
                     <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {center.capacity - center.currentEnrollment} spots available
+                      Total: {center.capacity - center.currentEnrollment} spots available
                     </span>
                   </div>
-                  <Progress value={availabilityPercentage} className="h-3" />
-                  <div className="flex justify-between mt-2 text-xs text-gray-500">
-                    <span>{center.currentEnrollment} enrolled</span>
-                    <span>{center.waitlistLength || 0} on waitlist</span>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {Object.entries(center.ageGroupAvailability).map(([ageGroup, data]) => (
+                      <div key={ageGroup} className="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <div className="text-center">
+                          <h4 className="font-semibold text-sm capitalize mb-2 text-gray-800 dark:text-gray-200">
+                            {ageGroup === 'schoolAge' ? 'School Age' : ageGroup}
+                          </h4>
+                          <div className="mb-3">
+                            <span className={`text-2xl font-bold ${data.available > 0 ? 'text-green-600' : 'text-red-500'}`}>
+                              {data.available}
+                            </span>
+                            <span className="text-gray-500 text-sm">/{data.total}</span>
+                          </div>
+                          <div className="mb-3">
+                            <Progress 
+                              value={((data.total - data.available) / data.total) * 100} 
+                              className="h-2 mb-1" 
+                            />
+                            <span className="text-xs text-gray-500">
+                              {data.total - data.available} enrolled
+                            </span>
+                          </div>
+                          <div className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                            {data.price}
+                          </div>
+                          {data.available === 0 && (
+                            <Badge className="mt-2 text-xs bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-100">
+                              Waitlist Only
+                            </Badge>
+                          )}
+                          {data.available > 0 && data.available <= 2 && (
+                            <Badge className="mt-2 text-xs bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-100">
+                              Limited Spots
+                            </Badge>
+                          )}
+                          {data.available > 5 && (
+                            <Badge className="mt-2 text-xs bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-100">
+                              Good Availability
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Overall Stats */}
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                      <span>Total Enrolled: {center.currentEnrollment}</span>
+                      <span>Total Capacity: {center.capacity}</span>
+                      <span>Waitlist: {center.waitlistLength || 0}</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -476,10 +561,11 @@ export default function ChildcareDetails() {
 
           {/* Main Content Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-white/80 dark:bg-gray-800/80">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 bg-white/80 dark:bg-gray-800/80">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="programs">Programs</TabsTrigger>
               <TabsTrigger value="pricing">Pricing</TabsTrigger>
+              <TabsTrigger value="tours">Tours</TabsTrigger>
               <TabsTrigger value="safety">Safety</TabsTrigger>
               <TabsTrigger value="contact">Contact</TabsTrigger>
             </TabsList>
@@ -870,6 +956,131 @@ export default function ChildcareDetails() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            {/* Tours Tab */}
+            <TabsContent value="tours" className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Schedule Visit */}
+                <Card className="border-pink-200 dark:border-pink-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Calendar className="h-5 w-5 text-pink-500" />
+                      Schedule a Visit
+                    </CardTitle>
+                    <CardDescription>
+                      Meet the teachers, tour the facilities, and see your child's future learning environment
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="p-4 bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 rounded-lg">
+                      <div className="flex items-center gap-3 mb-3">
+                        <School className="h-5 w-5 text-pink-500" />
+                        <h4 className="font-semibold">What to Expect</h4>
+                      </div>
+                      <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Tour all classrooms and play areas
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Meet teachers and staff
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Review curriculum and daily schedule
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500" />
+                          Discuss enrollment options
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <TourScheduler
+                      communityId={typeof center.id === 'string' ? parseInt(center.id) : center.id}
+                      communityName={center.name}
+                      communityAddress={center.address}
+                      communityPhone={center.phone}
+                      buttonText="Schedule Visit"
+                      buttonVariant="default"
+                      hasEmail={true}
+                    />
+                  </CardContent>
+                </Card>
+
+                {/* Visit Tips */}
+                <Card className="border-pink-200 dark:border-pink-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-purple-500" />
+                      Visit Tips
+                    </CardTitle>
+                    <CardDescription>
+                      Make the most of your childcare center visit
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-pink-100 dark:bg-pink-900 rounded-full flex items-center justify-center text-xs font-bold text-pink-600 dark:text-pink-400">1</div>
+                        <div>
+                          <h4 className="font-medium text-sm">Best Visit Times</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Morning hours (9-11 AM) when children are most active and engaged</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-pink-100 dark:bg-pink-900 rounded-full flex items-center justify-center text-xs font-bold text-pink-600 dark:text-pink-400">2</div>
+                        <div>
+                          <h4 className="font-medium text-sm">Questions to Ask</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Teacher-to-child ratios, discipline policies, sick child procedures</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-pink-100 dark:bg-pink-900 rounded-full flex items-center justify-center text-xs font-bold text-pink-600 dark:text-pink-400">3</div>
+                        <div>
+                          <h4 className="font-medium text-sm">What to Observe</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Cleanliness, safety measures, how staff interact with children</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-6 h-6 bg-pink-100 dark:bg-pink-900 rounded-full flex items-center justify-center text-xs font-bold text-pink-600 dark:text-pink-400">4</div>
+                        <div>
+                          <h4 className="font-medium text-sm">Bring Your Child</h4>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">See how they respond to the environment and teachers</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Virtual Tour (if available) */}
+              {center.virtualTour && (
+                <Card className="border-pink-200 dark:border-pink-800">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Video className="h-5 w-5 text-blue-500" />
+                      Virtual Tour
+                    </CardTitle>
+                    <CardDescription>
+                      Take a virtual walk through our facilities
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="aspect-video bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
+                      <Button
+                        onClick={() => window.open(center.virtualTour, '_blank')}
+                        className="bg-blue-500 hover:bg-blue-600 text-white"
+                      >
+                        <PlayCircle className="h-4 w-4 mr-2" />
+                        Start Virtual Tour
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </TabsContent>
 
             {/* Safety Tab */}
