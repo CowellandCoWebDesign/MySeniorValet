@@ -82,14 +82,13 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         return res.status(500).json({ error: 'Search service not configured' });
       }
       
-      // Construct an intelligent search query for Perplexity
+      // Construct an intelligent search query for Perplexity - optimized for city/region searches
       let searchQuery = '';
-      // Extract country from query if present
-      const countryKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India'];
-      const foundCountry = countryKeywords.find(country => query.toLowerCase().includes(country.toLowerCase()));
+      // Detect if query includes city/country format (e.g., "Brisbane, Australia")
+      const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
-      if (searchType === 'location' || locationSearch || foundCountry) {
-        searchQuery = `Find ONLY senior living communities, assisted living facilities, nursing homes, and retirement communities located specifically in ${query}. ${foundCountry ? `Focus ONLY on facilities in ${foundCountry}, not in other countries.` : ''} Include their exact names, full street addresses, cities, phone numbers, websites, and brief descriptions. Do NOT include facilities from other countries or regions.`;
+      if (searchType === 'location' || locationSearch || isSpecificCitySearch) {
+        searchQuery = `Find ALL senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. Include ONLY real, operational facilities physically located in ${query}. Provide exact facility names, complete street addresses with street numbers, phone numbers, websites, and descriptions of their services. Focus on facilities that families can actually visit and tour.`;
       } else if (searchType === 'service') {
         searchQuery = `Find senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions.`;
       } else {
@@ -186,7 +185,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             country: facility.country || '',
             phone: facility.phone || '',
             website: facility.website || '',
-            description: facility.description || `Discovered in ${facility.city}, ${facility.country}`,
+            description: facility.description || `Senior living facility in ${facility.city}, ${facility.country}`,
             careTypes: facility.careTypes || [],
             source: 'Perplexity AI Discovery',
             confidence: 95,
@@ -276,23 +275,43 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       }
       
       // Step 5: Format discovered communities for immediate display (don't wait for DB save)
-      const formattedDiscoveries = discoveredCommunities.map(community => ({
-        id: `discovered_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: community.name,
-        address: community.address || '',
-        city: community.city || '',
-        state: community.state || '',
-        country: community.country || '',
-        phone: community.phone || '',
-        website: community.website || '',
-        description: community.description || '',
-        careTypes: community.careTypes || [],
-        data_source: 'AI Discovery',
-        isDiscovered: true,
-        confidence: community.confidence || 90,
-        verificationStatus: 'discovered_pending',
-        citations: citations // Include Perplexity citations
-      }));
+      const formattedDiscoveries = discoveredCommunities.map((community, index) => {
+        // Generate a unique temporary ID if not saved yet
+        const tempId = `discovered_${Date.now()}_${index}`;
+        const slug = community.name
+          ? community.name.toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/^-|-$/g, '') + '-' + tempId.substr(-8)
+          : tempId;
+        
+        return {
+          id: tempId,
+          slug: slug, // Required for navigation to community details
+          name: community.name,
+          address: community.address || '',
+          city: community.city || '',
+          state: community.state || '',
+          country: community.country || '',
+          zipCode: community.zipCode || '00000',
+          phone: community.phone || '',
+          website: community.website || '',
+          description: community.description || '',
+          careTypes: community.careTypes || [],
+          data_source: 'AI Discovery',
+          isDiscovered: true,
+          confidence: community.confidence || 90,
+          verificationStatus: 'discovered_pending',
+          citations: citations, // Include Perplexity citations
+          // Add fields needed for community details view
+          photos: [],
+          amenities: [],
+          pricing: null,
+          capacity: null,
+          yearFounded: null,
+          certifications: [],
+          specialties: community.careTypes || []
+        };
+      });
       
       // Step 6: Combine results - prioritize discovered facilities over database results
       const allResults = [

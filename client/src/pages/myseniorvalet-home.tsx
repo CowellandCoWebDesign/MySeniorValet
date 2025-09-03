@@ -482,7 +482,7 @@ function HeroSectionWithTransformingSearch() {
               onFocusChange={(focused) => setIsSearchFocused(focused)}
               initialQuery={searchQuery}
               placeholder={
-                viewMode === 'discover' ? "🌍 Search globally: Try 'Australia', 'Scotland', 'Japan'..." : 
+                viewMode === 'discover' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
                 viewMode === 'map' ? "Enter location to search on map..." : 
                 searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
                 searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
