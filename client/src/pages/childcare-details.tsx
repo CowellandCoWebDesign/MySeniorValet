@@ -689,17 +689,17 @@ export default function ChildcareDetails() {
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {/* Photo Carousel */}
-          {center.photos && center.photos.length > 0 && (
-            <div className="mb-6">
-              <EnhancedPhotoCarousel
-                photos={center.photos}
+          <div className="mb-6">
+            <div className="relative h-64 md:h-80 lg:h-96 rounded-lg shadow-lg overflow-hidden">
+              <HeroPhotoCarousel
+                photos={center.photos || []}
                 communityName={center.name}
-                className="h-64 md:h-80 lg:h-96 rounded-lg shadow-lg"
-                showValidation={false}
-                showSourceIndicator={true}
+                communityId={center.id}
+                community={center}
+                verificationReport={verificationReport}
               />
             </div>
-          )}
+          </div>
 
           {/* Header Section */}
           <Card className="mb-6 border-pink-200 dark:border-pink-800 overflow-hidden">
