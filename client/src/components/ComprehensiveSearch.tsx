@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MascotLoadingDisplay } from './MascotLoadingDisplay';
+import { useTranslation } from 'react-i18next';
 
 interface SearchResult {
   communities: any[];
@@ -18,6 +19,7 @@ interface SearchResult {
     searchType: string;
     processingTime: number;
     suggestions?: string[];
+    searchCategory?: string;
   };
   facets: {
     states: { name: string; count: number }[];
@@ -41,17 +43,21 @@ export function ComprehensiveSearch({
   onSearch,
   onQueryChange,
   initialQuery = '',
-  placeholder = "🔍 Search communities, cities, companies, or ask anything... ✨",
+  placeholder,
   className = "",
   showSuggestions = true,
   searchCategory = 'communities',
   isSearchActive = false
 }: ComprehensiveSearchProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState(initialQuery);
   const [isLoading, setIsLoading] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestionDropdown, setShowSuggestionDropdown] = useState(false);
   const [searchType, setSearchType] = useState<string>('general');
+  
+  const defaultPlaceholder = t('search.placeholder');
+  const actualPlaceholder = placeholder || defaultPlaceholder;
   
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -286,12 +292,7 @@ export function ComprehensiveSearch({
               type="text"
               value={query}
               onChange={handleInputChange}
-              placeholder={
-              searchCategory === 'services' ? '🔍 Search for senior care services and vendors...' :
-              searchCategory === 'healthcare' ? '🏥 Search for hospitals, clinics, and medical facilities...' :
-              searchCategory === 'resources' ? '📚 Search for guides, articles, and educational content...' :
-              placeholder
-            }
+              placeholder={actualPlaceholder}
               className={`w-full pl-12 pr-20 py-4 text-lg border-2 rounded-xl shadow-lg transition-all duration-200 placeholder:text-gray-500 dark:placeholder:text-gray-400
                        ${searchCategory === 'services'
                          ? 'border-green-400 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20'
@@ -347,12 +348,7 @@ export function ComprehensiveSearch({
             value={query}
             onChange={handleInputChange}
             onKeyDown={handleKeyPress}
-            placeholder={
-              searchCategory === 'services' ? '🔍 Search for senior care services and vendors...' :
-              searchCategory === 'healthcare' ? '🏥 Search for hospitals, clinics, and medical facilities...' :
-              searchCategory === 'resources' ? '📚 Search for guides, articles, and educational content...' :
-              placeholder
-            }
+            placeholder={actualPlaceholder}
             className={`w-full pl-12 pr-24 py-5 text-lg border-3 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 placeholder:text-gray-600 dark:placeholder:text-gray-400 font-medium
                      ${searchCategory === 'services'
                        ? 'border-green-400 dark:border-green-600 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 focus:border-green-500 dark:focus:border-green-400 focus:from-green-50 focus:to-emerald-100'

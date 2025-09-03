@@ -21,9 +21,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { CareServiceCard } from "@/components/CareServiceCard";
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 
-
-import { useLanguage } from "@/contexts/LanguageContext";
-import { LanguageSwitcher } from "@/components/language-switcher";
+// Translation imports
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { CanadianStatsCard } from "@/components/canadian-stats-card";
 import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { RemovalRequestModal } from "@/components/RemovalRequestModal";
@@ -805,13 +805,13 @@ function HeroSectionWithTransformingSearch() {
 }
 
 export default function MySeniorValetHome() {
-  const { t, language } = useLanguage();
+  const { t, i18n } = useTranslation();
   const [, setLocation] = useLocation();
   
   // Set SEO metadata for home page
   useSEO({
-    title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
-    description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+    title: t('common.appName') + ' - ' + t('hero.subtitle'),
+    description: t('common.tagline'),
     keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
     canonicalUrl: 'https://www.myseniorvalet.com/'
   });
