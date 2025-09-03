@@ -208,6 +208,31 @@ export function registerPlatformRoutes(app: Express) {
     }
   });
 
+  // Get individual service details - fetch from communities table by ID
+  app.get('/api/services/:id', async (req, res) => {
+    try {
+      const serviceId = parseInt(req.params.id);
+      
+      // Discovered services are stored in communities table
+      // Just fetch by ID - services have high IDs (75000+)
+      const [service] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, serviceId))
+        .limit(1);
+      
+      if (!service) {
+        return res.status(404).json({ error: 'Service provider not found' });
+      }
+      
+      // Return the service data
+      res.json(service);
+    } catch (error) {
+      console.error('Error fetching service details:', error);
+      res.status(500).json({ error: 'Failed to fetch service details' });
+    }
+  });
+
   // Analytics endpoints that were missing
   app.get('/api/analytics/funnel', async (req, res) => {
     res.json({
