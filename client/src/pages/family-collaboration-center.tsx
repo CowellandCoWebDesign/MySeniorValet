@@ -16,6 +16,7 @@ import { Footer } from '@/components/footer';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { FamilyVideoCall } from '@/components/integrations/FamilyVideoCall';
 import { FamilyHealthRecords } from '@/components/integrations/FamilyHealthRecords';
+import { FamilyMedicareManager } from '@/components/family/FamilyMedicareManager';
 import { 
   Calendar, 
   MessageCircle, 
@@ -326,6 +327,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Health Records</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="medicare" 
+                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 to-blue-500/0 group-hover:from-indigo-500/10 group-hover:to-blue-500/10 data-[state=active]:from-indigo-500/20 data-[state=active]:to-blue-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Shield className="w-5 h-5 mr-2 flex-shrink-0 text-indigo-600 dark:text-indigo-400 group-data-[state=active]:text-indigo-700 dark:group-data-[state=active]:text-indigo-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Medicare</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="favorites" 
@@ -814,6 +826,14 @@ export default function FamilyCollaborationCenter() {
               residentId="demo"
               communityId="demo"
               tierLevel="premium"
+            />
+          </TabsContent>
+
+          {/* Medicare Tab */}
+          <TabsContent value="medicare" className="space-y-6">
+            <FamilyMedicareManager 
+              userId="demo-user"
+              residentName="Demo Resident"
             />
           </TabsContent>
 
