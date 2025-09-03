@@ -26,6 +26,7 @@ import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
+import { Link } from "wouter";
 
 interface ChildcareCenter {
   id: string | number;
@@ -453,14 +454,15 @@ export default function ChildcareDirectory() {
         
         {/* Action Buttons */}
         <div className="flex gap-2 mt-4">
-          <Button 
-            size="sm" 
-            className="flex-1 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white"
-            onClick={() => setSelectedCenter(center)}
-          >
-            View Details
-            <Eye className="h-4 w-4 ml-1" />
-          </Button>
+          <Link href={`/childcare/${center.id}`} className="flex-1">
+            <Button 
+              size="sm" 
+              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white"
+            >
+              View Details
+              <Eye className="h-4 w-4 ml-1" />
+            </Button>
+          </Link>
           <Button 
             size="sm" 
             variant="outline"
