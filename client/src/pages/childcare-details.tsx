@@ -22,7 +22,357 @@ import {
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { TourScheduler } from "@/components/TourScheduler";
-import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
+import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+
+// Hero Photo Carousel Component with Touch Support (adapted for childcare)
+const HeroPhotoCarousel = ({ 
+  photos, 
+  communityName, 
+  communityId, 
+  community,
+  verificationReport
+}: { 
+  photos: any[], 
+  communityName: string, 
+  communityId?: number | string,
+  community?: any,
+  verificationReport?: any
+}) => {
+  // Dynamically get all available photos with source tracking
+  const getAllPhotos = () => {
+    console.log('🔍 [HeroPhotoCarousel] Getting all photos for childcare...');
+    console.log('📊 Community photos:', community?.photos);
+    console.log('📊 Verification report:', verificationReport);
+    
+    const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder' }[] = [];
+    
+    // Add database photos first
+    if (community?.photos && community.photos.length > 0) {
+      console.log(`📸 Found ${community.photos.length} database photos`);
+      const dbPhotos = community.photos.map((photo: any) => ({
+        url: typeof photo === 'string' ? photo : photo.image_url || photo.url,
+        source: 'database' as const
+      }));
+      allPhotos.push(...dbPhotos);
+    }
+    
+    // Add live web intelligence photos when they arrive - check all possible paths
+    let webImages = null;
+    
+    // Check multiple paths where photos might be stored
+    if (verificationReport?.webIntelligence?.images) {
+      // Direct from LiveWebIntelligence component
+      webImages = verificationReport.webIntelligence.images;
+      console.log('✅ Found web intelligence images at verificationReport.webIntelligence.images:', webImages);
+    } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
+      // From multi-AI verification
+      webImages = verificationReport.verificationResults.webIntelligence.images;
+      console.log('✅ Found web intelligence images at verificationReport.verificationResults.webIntelligence.images:', webImages);
+    } else {
+      console.log('❌ No web intelligence images found in verification report');
+    }
+    
+    if (webImages && webImages.length > 0) {
+      console.log(`🎯 Adding ${webImages.length} web intelligence photos to carousel`);
+      const webPhotos = webImages.map((img: any) => ({
+        url: typeof img === 'string' ? img : (img.image_url || img.url || img),
+        source: 'web' as const
+      }));
+      allPhotos.push(...webPhotos);
+    }
+    
+    // Remove duplicates based on URL
+    const uniquePhotos = allPhotos.filter((photo, index, self) =>
+      index === self.findIndex((p) => p.url === photo.url)
+    );
+    
+    console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
+    
+    // Return unique photos only if they exist - don't use placeholders
+    return uniquePhotos;
+  };
+  
+  // Force update when verification report changes
+  const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
+  
+  // Watch for verification report changes and force re-render
+  useEffect(() => {
+    const webImages = verificationReport?.webIntelligence?.images || 
+                     verificationReport?.verificationResults?.webIntelligence?.images;
+    if (webImages && webImages.length > 0) {
+      console.log('🎉 Forcing carousel update with new web photos:', webImages.length);
+      setPhotoUpdateKey(prev => prev + 1);
+    }
+  }, [verificationReport]);
+  
+  const safePhotos = getAllPhotos();
+  
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [translateX, setTranslateX] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
+  // Reset to first photo when photos change
+  useEffect(() => {
+    if (safePhotos.length > 0) {
+      console.log(`📷 Carousel now has ${safePhotos.length} photos to display`);
+      if (currentIndex >= safePhotos.length) {
+        setCurrentIndex(0);
+      }
+    }
+  }, [safePhotos.length, photoUpdateKey]);
+  
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const nextPhoto = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const prevPhoto = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+    setIsDragging(true);
+    setIsTransitioning(false);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const currentX = e.targetTouches[0].clientX;
+    setTouchEnd(currentX);
+    const diff = currentX - touchStart;
+    setTranslateX(diff);
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) {
+      setTranslateX(0);
+      setIsDragging(false);
+      return;
+    }
+
+    const distance = touchStart - touchEnd;
+    const threshold = 50;
+
+    if (Math.abs(distance) > threshold && safePhotos.length > 1) {
+      if (distance > 0) {
+        nextPhoto();
+      } else {
+        prevPhoto();
+      }
+    }
+
+    setTranslateX(0);
+    setIsDragging(false);
+    setIsTransitioning(true);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setTouchStart(e.clientX);
+    setIsDragging(true);
+    setIsTransitioning(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const currentX = e.clientX;
+    setTouchEnd(currentX);
+    const diff = currentX - touchStart;
+    setTranslateX(diff);
+  };
+
+  const handleMouseUp = () => {
+    if (!touchStart || !touchEnd) {
+      setTranslateX(0);
+      setIsDragging(false);
+      return;
+    }
+
+    const distance = touchStart - touchEnd;
+    const threshold = 50;
+
+    if (Math.abs(distance) > threshold && safePhotos.length > 1) {
+      if (distance > 0) {
+        nextPhoto();
+      } else {
+        prevPhoto();
+      }
+    }
+
+    setTranslateX(0);
+    setIsDragging(false);
+    setIsTransitioning(true);
+    setTimeout(() => setIsTransitioning(false), 300);
+  };
+
+  // Debug logging - check both paths
+  console.log('HeroPhotoCarousel debug:', {
+    communityPhotos: community?.photos,
+    webIntelligenceImages: verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images,
+    safePhotos: safePhotos,
+    currentIndex,
+    verificationReportExists: !!verificationReport,
+    webIntelligenceExists: !!(verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images)
+  });
+
+  // Check if we're still loading photos from web intelligence - check both possible paths
+  const webImages = verificationReport?.webIntelligence?.images || 
+                   verificationReport?.verificationResults?.webIntelligence?.images;
+  const isLoadingWebPhotos = false; // Photos load quickly enough that we don't need loading state
+  const hasNoRealPhotos = safePhotos.length === 0;
+  
+  console.log('Photo loading state:', {
+    isLoadingWebPhotos,
+    hasNoRealPhotos,
+    safePhotos,
+    verificationReport: !!verificationReport
+  });
+
+  // Show The Thinker loading screen when no photos available or photos are loading
+  if (hasNoRealPhotos || isLoadingWebPhotos) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="scale-75 max-w-md">
+          <MascotLoadingDisplay 
+            title="Deep in Thought..."
+            subtitle={`Gathering authentic photos for ${communityName}`}
+            showProgress={true}
+            progressDuration={10}
+            factRotationSpeed={3000}
+            compact={true}
+            processStages={[
+              "Searching official website for photos",
+              "Scanning social media and listings",
+              "Analyzing image quality and authenticity",
+              "Verifying photo sources and ownership",
+              "Organizing visual content library"
+            ]}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="absolute inset-0 group cursor-grab active:cursor-grabbing"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {/* Photo Carousel Container */}
+      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
+        <div className="w-full h-full overflow-hidden">
+          <div 
+            className="flex h-full"
+            style={{
+              transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
+              transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+            }}
+          >
+            {safePhotos.map((photo, index) => {
+              // Ensure proper URL handling for scraped photos
+              const photoUrl = photo.url.startsWith('http') ? photo.url : 
+                             photo.url.startsWith('//') ? `https:${photo.url}` :
+                             photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
+                             photo.url;
+              
+              return (
+                <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
+                  <img
+                    src={photoUrl}
+                    alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
+                    className="w-full h-full object-cover select-none"
+                    draggable={false}
+                    loading={index === 0 ? "eager" : "lazy"}
+                    onLoad={() => {
+                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                    }}
+                    onError={(e) => {
+                      console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                      // Replace with working fallback image
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/hero-senior-community.svg';
+                    }}
+                  />
+                  {/* Attribution for web-sourced photos */}
+                  {photo.source === 'web' && (
+                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
+                      <div className="flex items-center gap-1">
+                        <Globe className="w-3 h-3" />
+                        <span>Sourced from public web</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Navigation arrows - only show if more than 1 photo */}
+      {safePhotos.length > 1 && (
+        <>
+          <button
+            onClick={prevPhoto}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-900 dark:text-gray-100" />
+          </button>
+          <button
+            onClick={nextPhoto}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-900 dark:text-gray-100" />
+          </button>
+
+          {/* Photo indicator dots - fixed size to prevent stretching */}
+          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
+            {safePhotos.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`block w-2 h-2 min-w-[8px] min-h-[8px] max-w-[8px] max-h-[8px] rounded-full transition-colors ${
+                  index === currentIndex ? 'bg-white' : 'bg-white/50'
+                }`}
+                aria-label={`Go to photo ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Photo counter */}
+          <div className="absolute top-4 left-4 flex gap-2 z-10">
+            <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+              {currentIndex + 1} / {safePhotos.length}
+            </div>
+          </div>
+
+          {/* Swipe instruction on mobile - now properly at the bottom */}
+          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden z-10">
+            Swipe to browse photos
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
 
 interface ChildcareCenter {
   id: string | number;
@@ -117,6 +467,7 @@ export default function ChildcareDetails() {
   const [activeTab, setActiveTab] = useState("overview");
   const [isFavorited, setIsFavorited] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [verificationReport, setVerificationReport] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
