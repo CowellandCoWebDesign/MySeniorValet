@@ -279,50 +279,46 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       }
       
-      // Step 5: Format discovered communities for immediate display (don't wait for DB save)
-      const formattedDiscoveries = discoveredCommunities.map((community, index) => {
-        // Generate a unique temporary ID if not saved yet
-        const tempId = `discovered_${Date.now()}_${index}`;
-        const slug = community.name
-          ? community.name.toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/^-|-$/g, '') + '-' + tempId.substr(-8)
-          : tempId;
+      // Step 5: Map saved communities to have all the display fields needed
+      const discoveredWithRealIds = savedCommunities.map((saved) => {
+        // Find the original discovered data to get additional fields
+        const originalData = discoveredCommunities.find(d => 
+          d.name === saved.name && d.city === saved.city
+        );
         
         return {
-          id: tempId,
-          slug: slug, // Required for navigation to community details
-          name: community.name,
-          address: community.address || '',
-          city: community.city || '',
-          state: community.state || '',
-          country: community.country || '',
-          zipCode: community.zipCode || '00000',
-          phone: community.phone || '',
-          website: community.website || '',
-          description: community.description || '',
-          careTypes: community.careTypes || [],
+          id: saved.id, // Use the REAL database ID
+          slug: saved.slug || `${saved.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${saved.id}`,
+          name: saved.name,
+          address: saved.address || originalData?.address || '',
+          city: saved.city || '',
+          state: saved.state || '',
+          country: saved.country || '',
+          zipCode: saved.zipCode || '00000',
+          phone: saved.phone || originalData?.phone || '',
+          website: saved.website || originalData?.website || '',
+          description: saved.description || originalData?.description || '',
+          careTypes: saved.careTypes || originalData?.careTypes || [],
           data_source: 'AI Discovery',
           isDiscovered: true,
-          confidence: community.confidence || 90,
+          confidence: originalData?.confidence || 90,
           verificationStatus: 'verified', // Auto-approved
           citations: citations, // Include Perplexity citations
           // Add fields needed for community details view
-          photos: [],
-          amenities: [],
-          pricing: null,
-          capacity: null,
-          yearFounded: null,
-          certifications: [],
-          specialties: community.careTypes || []
+          photos: saved.photos || [],
+          amenities: saved.amenities || [],
+          pricing: saved.pricing,
+          capacity: saved.capacity,
+          yearFounded: saved.yearFounded,
+          certifications: saved.certifications || [],
+          specialties: saved.careTypes || []
         };
       });
       
       // Step 6: Combine results - prioritize discovered facilities over database results
       const allResults = [
-        ...formattedDiscoveries, // Show discovered results FIRST
-        ...existingCommunities.map(c => ({ ...c, isExisting: true })),
-        ...savedCommunities.map(c => ({ ...c, isDiscovered: true, needsApproval: true }))
+        ...discoveredWithRealIds, // Show discovered results with REAL IDs first
+        ...existingCommunities.map(c => ({ ...c, isExisting: true }))
       ];
       
       // Step 7: Return results with metadata
