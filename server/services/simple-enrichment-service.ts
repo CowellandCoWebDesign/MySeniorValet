@@ -208,20 +208,40 @@ export class SimpleEnrichmentService {
       while ((match = imgRegex.exec(html)) !== null && photos.length < 10) {
         let imgUrl = match[1];
         
+        // Skip invalid URLs like JavaScript variables or placeholders
+        if (imgUrl.includes('item.') || 
+            imgUrl.includes('{{') || 
+            imgUrl.includes('${') ||
+            !imgUrl.includes('.') ||
+            imgUrl.startsWith('data:') ||
+            imgUrl.includes('javascript:')) {
+          continue;
+        }
+        
         // Make URL absolute
         if (imgUrl.startsWith('//')) {
           imgUrl = 'https:' + imgUrl;
         } else if (imgUrl.startsWith('/')) {
           const urlObj = new URL(url);
           imgUrl = `${urlObj.origin}${imgUrl}`;
+        } else if (!imgUrl.startsWith('http')) {
+          // Skip relative URLs that aren't paths
+          continue;
         }
         
-        // Skip logos and icons
-        if (!imgUrl.includes('logo') && !imgUrl.includes('icon') && !imgUrl.includes('.svg')) {
+        // Skip logos, icons, and ensure it's a valid image format
+        const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+        const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
+        
+        if (!imgUrl.includes('logo') && 
+            !imgUrl.includes('icon') && 
+            !imgUrl.includes('.svg') &&
+            hasValidExtension) {
           photos.push(imgUrl);
         }
       }
       
+      console.log(`📸 Scraped ${photos.length} valid photos from ${url}`);
       return photos;
     } catch (error) {
       console.error('Error scraping website:', error);
