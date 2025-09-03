@@ -151,8 +151,11 @@ export function HealthcareIntegrationPanel({ communityId, tierLevel, residentId 
   const assessments = healthData?.assessments || [];
   const careAlerts = healthData?.alerts || [];
 
-  const isEpicConnected = integrationStatus?.epic?.connected || false;
-  const isCernerConnected = integrationStatus?.cerner?.connected || false;
+  // Epic/Cerner require API keys - marking as coming soon
+  const isEpicConnected = false; // Awaiting API keys from Epic
+  const isCernerConnected = false; // Awaiting API keys from Cerner
+  const epicComingSoon = true;
+  const cernerComingSoon = true;
 
   return (
     <div className="space-y-6">
@@ -170,16 +173,16 @@ export function HealthcareIntegrationPanel({ communityId, tierLevel, residentId 
               </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              {isEpicConnected && (
-                <Badge variant="outline" className="bg-purple-50">
-                  <CheckCircle className="w-3 h-3 mr-1 text-purple-600" />
-                  Epic Connected
+              {epicComingSoon && (
+                <Badge variant="outline" className="bg-yellow-50">
+                  <Clock className="w-3 h-3 mr-1 text-yellow-600" />
+                  Epic - Coming Soon (API Keys Required)
                 </Badge>
               )}
-              {isCernerConnected && (
-                <Badge variant="outline" className="bg-orange-50">
-                  <CheckCircle className="w-3 h-3 mr-1 text-orange-600" />
-                  Cerner Connected
+              {cernerComingSoon && (
+                <Badge variant="outline" className="bg-yellow-50">
+                  <Clock className="w-3 h-3 mr-1 text-yellow-600" />
+                  Cerner - Coming Soon (API Keys Required)
                 </Badge>
               )}
               {tierLevel === 'enterprise' && (

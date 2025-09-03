@@ -50,6 +50,7 @@ import { LeadTrackingDashboard } from "@/components/integrations/LeadTrackingDas
 import { HealthcareIntegrationPanel } from "@/components/integrations/HealthcareIntegrationPanel";
 import { WhatsAppBusiness } from "@/components/integrations/WhatsAppBusiness";
 import { IntegrationStatusDashboard } from "@/components/integrations/IntegrationStatusDashboard";
+import { MedicarePharmacyIntegration } from "@/components/integrations/MedicarePharmacyIntegration";
 
 interface FeatureAccess {
   // Basic Features
@@ -207,7 +208,7 @@ export default function CommunityDashboardEnhanced() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-11">
+          <TabsList className="grid w-full grid-cols-12">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger 
               value="profile"
@@ -271,6 +272,14 @@ export default function CommunityDashboardEnhanced() {
             >
               Healthcare
               {(featureAccess?.currentTier !== 'premium' && featureAccess?.currentTier !== 'platinum') && <Lock className="w-3 h-3 ml-1" />}
+            </TabsTrigger>
+            <TabsTrigger 
+              value="medicare"
+              className="relative"
+              onClick={() => checkFeatureAccess('medicareIntegration', 'Medicare & Pharmacy')}
+            >
+              Medicare
+              {(featureAccess?.currentTier !== 'professional' && featureAccess?.currentTier !== 'premium' && featureAccess?.currentTier !== 'platinum') && <Lock className="w-3 h-3 ml-1" />}
             </TabsTrigger>
             <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
@@ -919,6 +928,32 @@ export default function CommunityDashboardEnhanced() {
                     <Button className="bg-gradient-to-r from-purple-600 to-pink-600">
                       <Crown className="w-4 h-4 mr-2" />
                       Upgrade to Premium
+                    </Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          {/* Medicare Tab - Professional+ Tiers */}
+          <TabsContent value="medicare">
+            {(featureAccess?.currentTier === 'professional' || featureAccess?.currentTier === 'premium' || featureAccess?.currentTier === 'platinum') ? (
+              <MedicarePharmacyIntegration 
+                communityId={communityId}
+                tierLevel={featureAccess.currentTier as 'professional' | 'premium' | 'enterprise'}
+              />
+            ) : (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Medicare Integration is a Professional Feature</h3>
+                  <p className="text-gray-600 mb-6">
+                    Connect to Medicare and pharmacy networks for medication management
+                  </p>
+                  <Link to="/community-portal">
+                    <Button className="bg-gradient-to-r from-blue-600 to-cyan-600">
+                      <Shield className="w-4 h-4 mr-2" />
+                      Upgrade to Professional
                     </Button>
                   </Link>
                 </CardContent>
