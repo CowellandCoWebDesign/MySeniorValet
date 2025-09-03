@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CommunityBillingManager from '@/components/billing/CommunityBillingManager';
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
+import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -290,6 +291,10 @@ export default function CommunityDashboardEnhanced() {
             <TabsTrigger value="care" className="relative">
               <Heart className="w-3 h-3 mr-1" />
               Care
+            </TabsTrigger>
+            <TabsTrigger value="daily" className="relative">
+              <Activity className="w-3 h-3 mr-1" />
+              Daily Life
             </TabsTrigger>
             <TabsTrigger value="billing" className="relative">
               <Receipt className="w-3 h-3 mr-1" />
@@ -1000,6 +1005,45 @@ export default function CommunityDashboardEnhanced() {
                     <h3 className="text-lg font-semibold mb-2">Care Coordination</h3>
                     <p className="text-gray-600 dark:text-gray-400 mb-4">
                       Comprehensive care management is available for all paid subscription tiers.
+                    </p>
+                    <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      Upgrade to Featured
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Daily Life Tab - Available to ALL Paid Tiers */}
+          <TabsContent value="daily">
+            <div className="space-y-6">
+              {featureAccess?.currentTier !== 'free' ? (
+                <>
+                  <DailyLifeManager 
+                    residentId={communityId}
+                    viewMode="community"
+                    tier={featureAccess?.currentTier || 'featured'}
+                  />
+                  
+                  {/* Tier Enhancement Notice */}
+                  {featureAccess?.currentTier === 'featured' && (
+                    <Alert className="border-blue-300 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+                      <TrendingUp className="h-4 w-4 text-blue-600" />
+                      <AlertDescription>
+                        <span className="font-semibold">Upgrade to Professional</span> to unlock photo sharing limits, video calls, and advanced daily activity tracking.
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </>
+              ) : (
+                <Card className="p-12 text-center">
+                  <CardContent className="space-y-4">
+                    <Activity className="w-16 h-16 mx-auto text-gray-400" />
+                    <h3 className="text-xl font-semibold">Daily Life Connection Locked</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Daily life features including activity tracking, photo sharing, and wellness updates are available in paid plans.
                     </p>
                     <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
                       <TrendingUp className="mr-2 h-4 w-4" />
