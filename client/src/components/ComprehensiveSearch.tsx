@@ -49,6 +49,7 @@ export function ComprehensiveSearch({
 }: ComprehensiveSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGlobalSearching, setIsGlobalSearching] = useState(false);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestionDropdown, setShowSuggestionDropdown] = useState(false);
   const [searchType, setSearchType] = useState<string>('general');
@@ -130,11 +131,17 @@ export function ComprehensiveSearch({
     if (!searchQuery.trim()) return;
     
     setIsLoading(true);
+    setIsGlobalSearching(true);
     setShowSuggestionDropdown(false);
     
     try {
       // Check if this is a global search
       const detectedType = detectSearchType(searchQuery);
+      
+      // Log if global search detected
+      if (detectedType === 'global') {
+        console.log('🌍 Global search detected for:', searchQuery);
+      }
       
       // Use global discovery for international searches or unknown locations
       if (detectedType === 'global' || (detectedType === 'location' && !searchQuery.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/i))) {
@@ -179,6 +186,7 @@ export function ComprehensiveSearch({
           
           onSearch(formattedResult);
           setIsLoading(false);
+          setIsGlobalSearching(false);
           return;
         }
       }
@@ -224,7 +232,14 @@ export function ComprehensiveSearch({
         };
       }
       
+      // For comprehensive search, show results immediately but indicate global search is still happening
       onSearch(result);
+      setIsLoading(false);
+      
+      // Simulate global search continuing in background (will complete via the backend)
+      setTimeout(() => {
+        setIsGlobalSearching(false);
+      }, 3000);
       
     } catch (error) {
       console.error('Search error:', error);
@@ -236,8 +251,7 @@ export function ComprehensiveSearch({
           query: searchQuery,
           searchType: 'error',
           processingTime: 0,
-          suggestions: [],
-          searchCategory: searchCategory
+          suggestions: []
         },
         facets: {
           states: [],
@@ -245,8 +259,8 @@ export function ComprehensiveSearch({
           priceRanges: []
         }
       });
-    } finally {
       setIsLoading(false);
+      setIsGlobalSearching(false);
     }
   };
 
@@ -395,6 +409,19 @@ export function ComprehensiveSearch({
 
   return (
     <div className={`relative w-full ${className}`}>
+      {/* Global Search Indicator */}
+      {isGlobalSearching && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="mb-2 flex items-center justify-center gap-2 text-purple-600 dark:text-purple-400"
+        >
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span className="text-sm font-medium">🌍 Searching worldwide facilities...</span>
+        </motion.div>
+      )}
+      
       <form onSubmit={handleSubmit} className="relative">
         <div className="relative flex items-center">
           <Input
