@@ -24,7 +24,16 @@ router.post('/api/search/comprehensive', async (req, res) => {
     } = req.body;
     
     // Check if query contains international locations
-    const internationalKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'New Zealand', 'Singapore'];
+    const internationalKeywords = [
+      'Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 
+      'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'Singapore',
+      // Multi-word countries and variations
+      'United Kingdom', 'New Zealand', 'South Africa', 'Saudi Arabia', 'United Arab Emirates', 'UAE',
+      'Netherlands', 'Belgium', 'Switzerland', 'Austria', 'Sweden', 'Norway', 'Denmark', 'Finland',
+      'South Korea', 'Hong Kong', 'Taiwan', 'Thailand', 'Malaysia', 'Indonesia', 'Philippines',
+      'Argentina', 'Chile', 'Colombia', 'Peru', 'Uruguay', 'Venezuela',
+      'Egypt', 'Israel', 'Turkey', 'Greece', 'Portugal', 'Poland', 'Czech Republic', 'Hungary'
+    ];
     const queryLower = query.toLowerCase();
     const isInternational = internationalKeywords.some(country => queryLower.includes(country.toLowerCase()));
     
@@ -121,7 +130,16 @@ router.get('/api/search/comprehensive', async (req, res) => {
     if (rating) filters.rating = parseFloat(rating as string);
     
     // Check if query contains international locations
-    const internationalKeywords = ['Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'New Zealand', 'Singapore'];
+    const internationalKeywords = [
+      'Australia', 'Scotland', 'China', 'Russia', 'Japan', 'Germany', 'France', 'Italy', 'Spain', 'Brazil', 
+      'India', 'Canada', 'Mexico', 'UK', 'England', 'Wales', 'Ireland', 'Singapore',
+      // Multi-word countries and variations
+      'United Kingdom', 'New Zealand', 'South Africa', 'Saudi Arabia', 'United Arab Emirates', 'UAE',
+      'Netherlands', 'Belgium', 'Switzerland', 'Austria', 'Sweden', 'Norway', 'Denmark', 'Finland',
+      'South Korea', 'Hong Kong', 'Taiwan', 'Thailand', 'Malaysia', 'Indonesia', 'Philippines',
+      'Argentina', 'Chile', 'Colombia', 'Peru', 'Uruguay', 'Venezuela',
+      'Egypt', 'Israel', 'Turkey', 'Greece', 'Portugal', 'Poland', 'Czech Republic', 'Hungary'
+    ];
     const queryLower = (query as string).toLowerCase();
     const isInternational = internationalKeywords.some(country => queryLower.includes(country.toLowerCase()));
     
