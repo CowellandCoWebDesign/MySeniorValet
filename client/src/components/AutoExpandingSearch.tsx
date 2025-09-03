@@ -11,7 +11,7 @@ interface AutoExpandingSearchProps {
   initialQuery?: string;
   placeholder?: string;
   className?: string;
-  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
+  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources' | 'childcare';
 }
 
 export function AutoExpandingSearch({ 

@@ -95,7 +95,7 @@ function HeroSectionWithTransformingSearch() {
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
+  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources' | 'childcare'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -227,7 +227,42 @@ function HeroSectionWithTransformingSearch() {
           });
         }
         
-      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
+      } else if (viewMode === 'discover' && searchCategory === 'childcare') {
+        // Discovery mode for Child Care - discover daycares and childcare centers
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: query,
+            searchType: 'childcare',  // Childcare-specific search
+            limit: 20
+          })
+        });
+
+        if (!response.ok) throw new Error('Childcare discovery search failed');
+        
+        const data = await response.json();
+        
+        // Show discovered childcare centers in modal
+        if (data.results && data.results.length > 0) {
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results,
+            metadata: {...data.metadata, discoveryType: 'childcare'}
+          });
+          setShowGlobalDiscoveryModal(true);
+        } else {
+          // No childcare centers found, show message
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `No childcare centers found in ${query} yet. Try a different city or search term.`,
+              isResearchMode: false
+            }
+          });
+        }
+        
+      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services' && searchCategory !== 'childcare')) {
         // Use Public AI Chat for research mode or non-implemented discovery categories
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
@@ -520,6 +555,25 @@ function HeroSectionWithTransformingSearch() {
                   <span className="text-[8px] opacity-75">500+</span>
                 </div>
               </button>
+              <button
+                type="button"
+                onClick={() => setSearchCategory('childcare')}
+                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
+                  ${searchCategory === 'childcare' 
+                    ? isSearchActive 
+                      ? 'bg-gradient-to-br from-pink-600 to-rose-600 text-white border-t-2 border-l-2 border-r-2 border-pink-400 dark:border-pink-600 z-20 shadow-xl scale-105'
+                      : 'bg-gradient-to-br from-pink-500 to-rose-500 text-white border-t border-l border-r border-pink-300 dark:border-pink-600 z-20 shadow-lg'
+                    : isSearchActive
+                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-pink-600 dark:hover:text-pink-400 shadow-md hover:shadow-lg'
+                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-pink-300 dark:hover:text-pink-300 shadow-md'
+                  }`}
+              >
+                <span className="text-sm">👶</span>
+                <div className="flex flex-col items-start leading-tight">
+                  <span>Child Care</span>
+                  <span className="text-[8px] opacity-75">Discover</span>
+                </div>
+              </button>
             </div>
           </div>
           
@@ -531,6 +585,8 @@ function HeroSectionWithTransformingSearch() {
               ? 'border-red-500 dark:border-red-600' 
               : searchCategory === 'resources'
               ? 'border-amber-500 dark:border-amber-600' 
+              : searchCategory === 'childcare'
+              ? 'border-pink-500 dark:border-pink-600'
               : 'border-purple-500 dark:border-purple-600'
           }`}>
             <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
@@ -540,6 +596,8 @@ function HeroSectionWithTransformingSearch() {
                 ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
                 : searchCategory === 'resources'
                 ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
+                : searchCategory === 'childcare'
+                ? 'bg-gradient-to-br from-pink-100 to-rose-100 dark:from-pink-900/30 dark:to-rose-900/30 border-pink-200/50 dark:border-pink-700/50'
                 : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
             }`}>
               {/* Search component wrapper */}
@@ -554,11 +612,13 @@ function HeroSectionWithTransformingSearch() {
               placeholder={
                 viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
                 viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
+                viewMode === 'discover' && searchCategory === 'childcare' ? "🌍 Discover childcare: Try 'daycares in Seattle' or 'preschools in Austin'..." :
                 viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
                 viewMode === 'map' ? "Enter location to search on map..." : 
                 searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
                 searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
                 searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
+                searchCategory === 'childcare' ? "Search for daycares, preschools, or childcare centers..." :
                 "Search communities, cities, companies, or ask anything..."
               }
               searchCategory={searchCategory}
