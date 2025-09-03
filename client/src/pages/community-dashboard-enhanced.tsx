@@ -12,6 +12,7 @@ import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
 import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
 import WhiteLabelManager from '@/components/enterprise/WhiteLabelManager';
+import ApiIntegrationHub from '@/components/enterprise/ApiIntegrationHub';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -324,6 +325,11 @@ export default function CommunityDashboardEnhanced() {
                   <Palette className="w-3 h-3 mr-1" />
                   Branding
                   <Badge className="ml-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white">Enterprise</Badge>
+                </TabsTrigger>
+                <TabsTrigger value="integrations-hub" className="relative">
+                  <Zap className="w-3 h-3 mr-1" />
+                  API Hub
+                  <Badge className="ml-2 bg-gradient-to-r from-orange-500 to-red-500 text-white">Enterprise</Badge>
                 </TabsTrigger>
               </>
             )}
@@ -1226,6 +1232,16 @@ export default function CommunityDashboardEnhanced() {
           {featureAccess?.currentTier === 'enterprise' && (
             <TabsContent value="whitelabel">
               <WhiteLabelManager 
+                corporateId={communityId || 'demo'}
+                viewMode="admin"
+              />
+            </TabsContent>
+          )}
+
+          {/* API Integration Hub - Enterprise System Integration (Enterprise Tier Only) */}
+          {featureAccess?.currentTier === 'enterprise' && (
+            <TabsContent value="integrations-hub">
+              <ApiIntegrationHub 
                 corporateId={communityId || 'demo'}
                 viewMode="admin"
               />

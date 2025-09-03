@@ -23,6 +23,7 @@ import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
 import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
+import ApiIntegrationHub from '@/components/enterprise/ApiIntegrationHub';
 import { 
   Calendar, 
   MessageCircle, 
@@ -402,6 +403,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Corporate</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="integrations" 
+                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 to-red-500/0 group-hover:from-orange-500/10 group-hover:to-red-500/10 data-[state=active]:from-orange-500/20 data-[state=active]:to-red-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Zap className="w-5 h-5 mr-2 flex-shrink-0 text-orange-600 dark:text-orange-400 group-data-[state=active]:text-orange-700 dark:group-data-[state=active]:text-orange-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Integrations</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-red-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -1290,6 +1302,41 @@ export default function FamilyCollaborationCenter() {
                 <MultiPropertyDashboard 
                   corporateId="family-view"
                   viewMode="family"
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Integrations Tab - View Connected Systems */}
+          <TabsContent value="integrations" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="w-5 h-5 text-orange-500" />
+                      Connected Systems
+                    </CardTitle>
+                    <CardDescription>
+                      See the technology powering your loved one's care
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-orange-100 text-orange-700">
+                    Transparency View
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <Alert className="mb-6 border-orange-200 bg-orange-50">
+                  <Zap className="h-4 w-4 text-orange-600" />
+                  <AlertDescription>
+                    <strong>Why This Matters:</strong> Understanding the integrated systems helps you see how your loved one's community uses technology to enhance care quality, safety monitoring, and family communication.
+                  </AlertDescription>
+                </Alert>
+                
+                <ApiIntegrationHub 
+                  corporateId="family-view"
+                  viewMode="readonly"
                 />
               </CardContent>
             </Card>
