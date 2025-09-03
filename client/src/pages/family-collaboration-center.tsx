@@ -14,6 +14,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { Footer } from '@/components/footer';
 import { NavigationHeader } from '@/components/NavigationHeader';
+import { FamilyVideoCall } from '@/components/integrations/FamilyVideoCall';
+import { FamilyHealthRecords } from '@/components/integrations/FamilyHealthRecords';
 import { 
   Calendar, 
   MessageCircle, 
@@ -43,7 +45,8 @@ import {
   Shield,
   TrendingUp,
   Lightbulb,
-  UserPlus
+  UserPlus,
+  Video
 } from 'lucide-react';
 
 export default function FamilyCollaborationCenter() {
@@ -301,6 +304,28 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Messages</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="video-calls" 
+                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Video className="w-5 h-5 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400 group-data-[state=active]:text-purple-700 dark:group-data-[state=active]:text-purple-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Video Calls</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="health-records" 
+                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-cyan-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Shield className="w-5 h-5 mr-2 flex-shrink-0 text-blue-600 dark:text-blue-400 group-data-[state=active]:text-blue-700 dark:group-data-[state=active]:text-blue-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Health Records</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="favorites" 
@@ -773,6 +798,23 @@ export default function FamilyCollaborationCenter() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Video Calls Tab */}
+          <TabsContent value="video-calls" className="space-y-6">
+            <FamilyVideoCall 
+              familyId="demo"
+              userId="demo"
+            />
+          </TabsContent>
+
+          {/* Health Records Tab */}
+          <TabsContent value="health-records" className="space-y-6">
+            <FamilyHealthRecords 
+              residentId="demo"
+              communityId="demo"
+              tierLevel="premium"
+            />
           </TabsContent>
 
           {/* Shared Favorites Tab */}

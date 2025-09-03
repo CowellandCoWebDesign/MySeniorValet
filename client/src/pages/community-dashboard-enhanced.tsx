@@ -48,6 +48,8 @@ import { PricingHistory } from "@/components/pricing-history";
 import { ZoomVirtualTours } from "@/components/integrations/ZoomVirtualTours";
 import { LeadTrackingDashboard } from "@/components/integrations/LeadTrackingDashboard";
 import { HealthcareIntegrationPanel } from "@/components/integrations/HealthcareIntegrationPanel";
+import { WhatsAppBusiness } from "@/components/integrations/WhatsAppBusiness";
+import { IntegrationStatusDashboard } from "@/components/integrations/IntegrationStatusDashboard";
 
 interface FeatureAccess {
   // Basic Features
@@ -205,7 +207,7 @@ export default function CommunityDashboardEnhanced() {
 
         {/* Main Dashboard Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-11">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger 
               value="profile"
@@ -270,6 +272,7 @@ export default function CommunityDashboardEnhanced() {
               Healthcare
               {(featureAccess?.currentTier !== 'premium' && featureAccess?.currentTier !== 'platinum') && <Lock className="w-3 h-3 ml-1" />}
             </TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
@@ -858,17 +861,33 @@ export default function CommunityDashboardEnhanced() {
           {/* Communications Tab - Professional+ Tiers */}
           <TabsContent value="communications">
             {(featureAccess?.currentTier === 'professional' || featureAccess?.currentTier === 'premium' || featureAccess?.currentTier === 'platinum') ? (
-              <ZoomVirtualTours 
-                communityId={communityId}
-                tierLevel={featureAccess.currentTier as 'professional' | 'premium' | 'enterprise'}
-              />
+              <Tabs defaultValue="zoom" className="space-y-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="zoom">Zoom Virtual Tours</TabsTrigger>
+                  <TabsTrigger value="whatsapp">WhatsApp Business</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="zoom">
+                  <ZoomVirtualTours 
+                    communityId={communityId}
+                    tierLevel={featureAccess.currentTier as 'professional' | 'premium' | 'enterprise'}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="whatsapp">
+                  <WhatsAppBusiness 
+                    communityId={communityId}
+                    tierLevel={featureAccess.currentTier as 'professional' | 'premium' | 'enterprise'}
+                  />
+                </TabsContent>
+              </Tabs>
             ) : (
               <Card>
                 <CardContent className="p-12 text-center">
                   <Lock className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold mb-2">Virtual Tours are a Professional Feature</h3>
+                  <h3 className="text-xl font-semibold mb-2">Communication Tools are Professional Features</h3>
                   <p className="text-gray-600 mb-6">
-                    Schedule and conduct Zoom virtual tours with prospective families
+                    Access Zoom virtual tours and WhatsApp Business messaging
                   </p>
                   <Link to="/community-portal">
                     <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
@@ -905,6 +924,14 @@ export default function CommunityDashboardEnhanced() {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          {/* Integrations Tab - All Tiers */}
+          <TabsContent value="integrations">
+            <IntegrationStatusDashboard 
+              communityId={communityId}
+              tierLevel={featureAccess?.currentTier as 'starter' | 'growth' | 'professional' | 'premium' | 'enterprise'}
+            />
           </TabsContent>
 
         </Tabs>
