@@ -680,163 +680,23 @@ function HeroSectionWithTransformingSearch() {
                     searchResults={searchResults}
                     searchQuery={searchQuery}
                     searchCategory={searchCategory}
-                    onCommunityClick={(community) => setLocation(`/community/${community.id}`)}
+                    onCommunityClick={(community) => {
+                      const path = '/community/' + community.id;
+                      setLocation(path);
+                    }}
                     isLoading={isLoading}
                   />
                 </div>
               )}
             </div>
           </div>
-        )}
         </div>
         
-        {/* Back to Top Button - appears when there are many results */
-                                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                                          Specialties: {item.specialties.slice(0, 3).join(', ')}
-                                          {item.specialties.length > 3 && ` +${item.specialties.length - 3} more`}
-                                        </p>
-                                      </div>
-                                    )}
-                                    
-                                    {/* Contact Information */}
-                                    <div className="flex items-center gap-4 mt-3">
-                                      {item.phone && (
-                                        <a href={`tel:${item.phone}`} className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                                          📞 {item.phone}
-                                        </a>
-                                      )}
-                                      {item.emergency_phone && (
-                                        <a href={`tel:${item.emergency_phone}`} className="text-sm text-red-600 dark:text-red-400 hover:underline font-semibold">
-                                          🚨 Emergency: {item.emergency_phone}
-                                        </a>
-                                      )}
-                                      {item.website && (
-                                        <a href={item.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                                          🌐 Website
-                                        </a>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ) : searchCategory === 'resources' ? (
-                              // Resource Card
-                              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-amber-200 dark:border-amber-800">
-                                <div className="flex items-start gap-4">
-                                  <div className="p-3 bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 rounded-lg">
-                                    <span className="text-2xl">📚</span>
-                                  </div>
-                                  <div className="flex-1">
-                                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                                      {item.name || item.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                      {item.type || 'Educational Resource'} • {item.category || 'General'}
-                                    </p>
-                                    {item.description && (
-                                      <p className="text-sm text-gray-700 dark:text-gray-300 mt-2">
-                                        {item.description}
-                                      </p>
-                                    )}
-                                    {item.url && (
-                                      <button 
-                                        onClick={() => window.open(item.url, '_blank')}
-                                        className="mt-3 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-sm rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all"
-                                      >
-                                        View Resource →
-                                      </button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ) : (
-                              <PrioritizedCommunityCard
-                                community={item}
-                                variant="list"
-                                onSelect={() => {
-                                  setLocation(`/community/${item.id}`);
-                                }}
-                              />
-                            )}
-                          </motion.div>
-                        ))}
-                        
-                        {/* Show More Button */}
-                        {searchResults.results.length > visibleResults && (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex justify-center pt-4"
-                          >
-                            <button
-                              onClick={() => setVisibleResults(prev => prev + 10)}
-                              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
-                            >
-                              Show More Results ({visibleResults} of {searchResults.results.length})
-                            </button>
-                          </motion.div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="text-center py-8">
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="inline-block"
-                        >
-                          <div className="relative">
-                            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 blur-xl opacity-40"></div>
-                            <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
-                              <MapPin className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                              <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
-                              <p className="text-white/70">
-                                {searchQuery 
-                                  ? `We couldn't find any ${
-                                      searchCategory === 'services' ? 'services' : 
-                                      searchCategory === 'healthcare' ? 'healthcare providers' :
-                                      searchCategory === 'resources' ? 'resources' :
-                                      'communities'
-                                    } matching "${searchQuery}"`
-                                  : "Try adjusting your search criteria"}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      </div>
-                    )}
-                    </div>
-                  </>
-                )}
-                </div>
-              )}
-          </div>
-        )}
-        </div>
-        
-        {/* Back to Top Button - appears when there are many results */}
-        {searchResults?.results?.length > 10 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed bottom-4 right-4 z-50"
-          >
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="p-3 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110"
-              aria-label="Back to top"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
-              </svg>
-            </button>
-          </motion.div>
-        )}
-        </div>
+        {/* Back to Top Button - appears when scrolled down */}
         
         {/* Hero Mascot Panel - Temporarily disabled */}
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
       </section>
-
     </>
   );
 }
