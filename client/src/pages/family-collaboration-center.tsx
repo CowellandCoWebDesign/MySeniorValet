@@ -21,6 +21,7 @@ import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculato
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
+import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
 import { 
   Calendar, 
   MessageCircle, 
@@ -378,6 +379,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Staff</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="availability" 
+                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 data-[state=active]:from-amber-500/20 data-[state=active]:to-orange-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Home className="w-5 h-5 mr-2 flex-shrink-0 text-amber-600 dark:text-amber-400 group-data-[state=active]:text-amber-700 dark:group-data-[state=active]:text-amber-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Availability</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -1063,6 +1075,34 @@ export default function FamilyCollaborationCenter() {
               </CardHeader>
               <CardContent>
                 <StaffManagementSystem 
+                  communityId="family-view"
+                  viewMode="family"
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Availability Tab - Family View of Available Units */}
+          <TabsContent value="availability" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Home className="w-5 h-5 text-amber-500" />
+                      Available Rooms & Tours
+                    </CardTitle>
+                    <CardDescription>
+                      Explore available accommodations and schedule a tour
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-amber-100 text-amber-700">
+                    Live Availability
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <MarketingOccupancyManager 
                   communityId="family-view"
                   viewMode="family"
                 />

@@ -9,6 +9,7 @@ import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculato
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
 import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
+import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -301,6 +302,10 @@ export default function CommunityDashboardEnhanced() {
             <TabsTrigger value="staff" className="relative">
               <Users className="w-3 h-3 mr-1" />
               Staff
+            </TabsTrigger>
+            <TabsTrigger value="marketing" className="relative">
+              <TrendingUp className="w-3 h-3 mr-1" />
+              Marketing
             </TabsTrigger>
             <TabsTrigger value="billing" className="relative">
               <Receipt className="w-3 h-3 mr-1" />
@@ -1081,6 +1086,35 @@ export default function CommunityDashboardEnhanced() {
                     </p>
                     <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
                       <Crown className="w-4 h-4 mr-2" />
+                      Upgrade to Premium
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Marketing & Occupancy Tab - Available to Premium & Enterprise Tiers */}
+          <TabsContent value="marketing">
+            <div className="space-y-6">
+              {featureAccess?.currentTier === 'premium' || featureAccess?.currentTier === 'enterprise' ? (
+                <MarketingOccupancyManager 
+                  communityId={communityId || 'demo'}
+                  viewMode="admin"
+                  subscriptionTier={featureAccess?.currentTier as 'premium' | 'enterprise'}
+                />
+              ) : (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <TrendingUp className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                    <h3 className="text-lg font-semibold mb-2">Marketing & Occupancy Management</h3>
+                    <p className="text-gray-600 mb-4">
+                      Advanced marketing tools and occupancy tracking available in Premium and Enterprise tiers.
+                    </p>
+                    <Button 
+                      onClick={() => setShowUpgradeDialog(true)}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600"
+                    >
                       Upgrade to Premium
                     </Button>
                   </CardContent>

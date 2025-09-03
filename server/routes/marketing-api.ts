@@ -1,4 +1,4 @@
-import { Request, Response, Router } from 'express';
+import { Express, Request, Response, Router } from 'express';
 import { db } from '../db';
 import { 
   marketingCampaigns,
@@ -13,8 +13,252 @@ import {
   automationRules
 } from '@shared/schema';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
+import { requireAuth, requireRole } from '../middleware/auth';
+import { apiLimiter } from '../middleware/rateLimiter';
 
 const router = Router();
+
+// ==================== DASHBOARD & OCCUPANCY ====================
+
+// Get marketing dashboard data
+router.get('/:communityId/dashboard', 
+  apiLimiter,
+  requireAuth,
+  requireRole(['community_admin', 'super_admin']),
+  async (req: Request, res: Response) => {
+    try {
+      // Mock data for marketing dashboard
+      const dashboardData = {
+        occupancy: {
+          rate: 92,
+          available: 8,
+          occupied: 92,
+          reserved: 3
+        },
+        leads: {
+          active: 47,
+          total: 47,
+          byStage: [12, 15, 8, 7, 5],
+          list: [
+            { id: 1, name: 'John Smith', phone: '(555) 123-4567', stage: 'New', source: 'Website', daysInStage: 2 },
+            { id: 2, name: 'Mary Johnson', phone: '(555) 234-5678', stage: 'Contacted', source: 'Referral', daysInStage: 4 },
+            { id: 3, name: 'Robert Davis', phone: '(555) 345-6789', stage: 'Tour Scheduled', source: 'Google', daysInStage: 1 },
+            { id: 4, name: 'Linda Wilson', phone: '(555) 456-7890', stage: 'Application', source: 'Event', daysInStage: 6 },
+            { id: 5, name: 'James Brown', phone: '(555) 567-8901', stage: 'Move-In Ready', source: 'Social', daysInStage: 3 }
+          ]
+        },
+        tours: {
+          thisWeek: 8,
+          today: [
+            { id: 1, time: '10:00 AM', name: 'Sarah Miller', type: 'in-person' },
+            { id: 2, time: '2:00 PM', name: 'Tom Anderson', type: 'virtual' },
+            { id: 3, time: '4:00 PM', name: 'Jennifer White', type: 'in-person' }
+          ],
+          byDay: { Mon: 2, Tue: 1, Wed: 3, Thu: 1, Fri: 1 }
+        },
+        conversion: {
+          rate: 24
+        },
+        units: {
+          available: 8,
+          occupied: 92,
+          reserved: 3,
+          list: [
+            { id: 101, number: '101', status: 'occupied', type: 'Studio', squareFeet: 450, price: 3200 },
+            { id: 102, number: '102', status: 'available', type: '1 Bedroom', squareFeet: 650, price: 4100 },
+            { id: 103, number: '103', status: 'reserved', type: '2 Bedroom', squareFeet: 850, price: 5200, moveInDate: 'Oct 15' },
+            { id: 104, number: '104', status: 'occupied', type: 'Studio', squareFeet: 450, price: 3200 },
+            { id: 105, number: '105', status: 'available', type: '1 Bedroom', squareFeet: 650, price: 4100 },
+            { id: 106, number: '106', status: 'occupied', type: '2 Bedroom', squareFeet: 850, price: 5200 },
+            { id: 201, number: '201', status: 'available', type: 'Studio', squareFeet: 450, price: 3400 },
+            { id: 202, number: '202', status: 'occupied', type: '1 Bedroom', squareFeet: 650, price: 4300 }
+          ]
+        },
+        moveIns: [
+          { id: 1, resident: 'Patricia Martinez', unit: '103', date: 'Oct 15', status: 'Confirmed' },
+          { id: 2, resident: 'Michael Thompson', unit: '207', date: 'Oct 22', status: 'Pending' }
+        ],
+        moveOuts: [
+          { id: 1, resident: 'Dorothy Clark', unit: '305', date: 'Oct 31', reason: 'Health' },
+          { id: 2, resident: 'Charles Lewis', unit: '412', date: 'Nov 15', reason: 'Financial' }
+        ],
+        campaigns: [
+          { id: 1, name: 'Fall Open House', type: 'Email', status: 'active', sent: 450, openRate: 32, clickRate: 8, conversions: 3, progress: 75 },
+          { id: 2, name: 'Referral Program', type: 'Multi-channel', status: 'active', sent: 200, openRate: 45, clickRate: 12, conversions: 5, progress: 60 },
+          { id: 3, name: 'Holiday Special', type: 'Social', status: 'scheduled', sent: 0, openRate: 0, clickRate: 0, conversions: 0, progress: 0 }
+        ],
+        referralSources: [
+          { name: 'Website', count: 142, percentage: 35, color: 'bg-blue-500' },
+          { name: 'Referrals', count: 87, percentage: 22, color: 'bg-green-500' },
+          { name: 'Google Ads', count: 63, percentage: 16, color: 'bg-yellow-500' },
+          { name: 'Social Media', count: 41, percentage: 10, color: 'bg-purple-500' },
+          { name: 'Events', count: 23, percentage: 6, color: 'bg-pink-500' },
+          { name: 'Other', count: 44, percentage: 11, color: 'bg-gray-500' }
+        ]
+      };
+
+      res.json(dashboardData);
+    } catch (error) {
+      console.error('Error fetching marketing dashboard:', error);
+      res.status(500).json({ error: 'Failed to fetch marketing data' });
+    }
+  }
+);
+
+// Get available units for families
+router.get('/:communityId/available-units',
+  apiLimiter,
+  async (req: Request, res: Response) => {
+    try {
+      // Public endpoint - no auth required
+      const availableUnits = {
+        units: [
+          {
+            id: 102,
+            name: 'Sunny Garden View Suite',
+            type: '1 Bedroom Apartment',
+            floor: '1st Floor',
+            squareFeet: 650,
+            price: 4100,
+            features: ['Private Bathroom', 'Kitchenette', 'Emergency Call System', 'Garden View'],
+            imageUrl: null,
+            virtualTourUrl: '/virtual-tours/102'
+          },
+          {
+            id: 105,
+            name: 'Cozy Corner Studio',
+            type: 'Studio Apartment',
+            floor: '1st Floor', 
+            squareFeet: 450,
+            price: 3200,
+            features: ['Private Bathroom', 'Emergency Call System', 'Street View'],
+            imageUrl: null,
+            virtualTourUrl: '/virtual-tours/105'
+          },
+          {
+            id: 201,
+            name: 'Premium Mountain View',
+            type: '2 Bedroom Suite',
+            floor: '2nd Floor',
+            squareFeet: 850,
+            price: 5400,
+            features: ['Full Kitchen', 'Balcony', 'Walk-in Closet', 'Mountain View'],
+            imageUrl: null,
+            virtualTourUrl: '/virtual-tours/201'
+          }
+        ],
+        waitlistCount: 12,
+        averageWaitTime: '2-3 months'
+      };
+
+      res.json(availableUnits);
+    } catch (error) {
+      console.error('Error fetching available units:', error);
+      res.status(500).json({ error: 'Failed to fetch available units' });
+    }
+  }
+);
+
+// Update unit status
+router.put('/:communityId/units/:unitId',
+  apiLimiter,
+  requireAuth,
+  requireRole(['community_admin', 'super_admin']),
+  async (req: Request, res: Response) => {
+    try {
+      const { communityId, unitId } = req.params;
+      const updateData = req.body;
+
+      // Mock updating unit status
+      const updatedUnit = {
+        id: unitId,
+        communityId,
+        ...updateData,
+        updatedAt: new Date().toISOString(),
+        updatedBy: req.user?.email
+      };
+
+      res.json({ success: true, unit: updatedUnit });
+    } catch (error) {
+      console.error('Error updating unit:', error);
+      res.status(500).json({ error: 'Failed to update unit' });
+    }
+  }
+);
+
+// Get tour analytics
+router.get('/:communityId/analytics/tours',
+  apiLimiter,
+  requireAuth,
+  requireRole(['community_admin', 'super_admin']),
+  async (req: Request, res: Response) => {
+    try {
+      const analytics = {
+        totalTours: 89,
+        completed: 67,
+        noShows: 12,
+        cancelled: 10,
+        showRate: 85,
+        conversionRate: 32,
+        averageFollowUps: 3.2,
+        averageCloseTime: 7,
+        byType: {
+          inPerson: { count: 56, conversion: 38 },
+          virtual: { count: 33, conversion: 24 }
+        },
+        bySource: {
+          website: { count: 45, conversion: 26 },
+          referral: { count: 28, conversion: 42 },
+          ads: { count: 16, conversion: 18 }
+        }
+      };
+
+      res.json(analytics);
+    } catch (error) {
+      console.error('Error fetching tour analytics:', error);
+      res.status(500).json({ error: 'Failed to fetch tour analytics' });
+    }
+  }
+);
+
+// Get occupancy trends
+router.get('/:communityId/analytics/occupancy',
+  apiLimiter,
+  requireAuth,
+  requireRole(['community_admin', 'super_admin']),
+  async (req: Request, res: Response) => {
+    try {
+      const trends = {
+        current: 92,
+        target: 95,
+        average: 90,
+        history: [
+          { month: 'Jan', rate: 88 },
+          { month: 'Feb', rate: 89 },
+          { month: 'Mar', rate: 90 },
+          { month: 'Apr', rate: 91 },
+          { month: 'May', rate: 90 },
+          { month: 'Jun', rate: 92 }
+        ],
+        forecast: [
+          { month: 'Jul', rate: 93 },
+          { month: 'Aug', rate: 94 },
+          { month: 'Sep', rate: 94 }
+        ],
+        byUnitType: {
+          studio: { occupied: 18, total: 20, rate: 90 },
+          oneBedroom: { occupied: 45, total: 50, rate: 90 },
+          twoBedroom: { occupied: 29, total: 30, rate: 97 }
+        }
+      };
+
+      res.json(trends);
+    } catch (error) {
+      console.error('Error fetching occupancy trends:', error);
+      res.status(500).json({ error: 'Failed to fetch occupancy trends' });
+    }
+  }
+);
 
 // ==================== EMAIL CAMPAIGNS ====================
 
@@ -543,3 +787,9 @@ router.patch('/automation/:id/toggle', async (req: Request, res: Response) => {
 });
 
 export default router;
+
+// Export function to register routes on Express app
+export function registerMarketingRoutes(app: Express) {
+  app.use('/api/marketing', router);
+  console.log('✅ Marketing & Occupancy routes registered');
+}
