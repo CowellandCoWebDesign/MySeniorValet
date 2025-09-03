@@ -123,6 +123,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const aiIntelligenceRoutes = await import('./routes/ai-intelligence-routes');
   app.use('/api/ai', aiIntelligenceRoutes.default);
   
+  // Register Phase 8: Global Discovery Engine routes  
+  const { setupGlobalDiscoveryRoutes } = await import('./routes/global-discovery');
+  setupGlobalDiscoveryRoutes(app);
+  
   // Register RMS Integration routes (Yardi, A-Line, LCS, REPS, OneSite, Entrata)
   const { registerRMSIntegrationRoutes } = await import('./routes/rmsIntegrationRoutes');
   registerRMSIntegrationRoutes(app);

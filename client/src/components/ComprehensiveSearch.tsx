@@ -62,6 +62,12 @@ export function ComprehensiveSearch({
     
     if (!lowerQuery) return 'general';
     
+    // Global location search (international cities, countries)
+    const globalIndicators = ['tokyo', 'paris', 'london', 'berlin', 'madrid', 'rome', 'dubai', 'singapore', 'mexico', 'canada', 'australia', 'france', 'germany', 'spain', 'italy', 'japan', 'china'];
+    if (globalIndicators.some(location => lowerQuery.includes(location))) {
+      return 'global';
+    }
+    
     // Company search
     const companyKeywords = ['atria', 'brookdale', 'sunrise', 'brightview'];
     if (companyKeywords.some(company => lowerQuery.includes(company))) {
@@ -127,6 +133,56 @@ export function ComprehensiveSearch({
     setShowSuggestionDropdown(false);
     
     try {
+      // Check if this is a global search
+      const detectedType = detectSearchType(searchQuery);
+      
+      // Use global discovery for international searches or unknown locations
+      if (detectedType === 'global' || (detectedType === 'location' && !searchQuery.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/i))) {
+        console.log('🌍 Initiating Global Discovery Search for:', searchQuery);
+        
+        // Call global discovery endpoint
+        const globalResponse = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            query: searchQuery,
+            searchType: detectedType === 'global' ? 'location' : undefined,
+            limit: 50
+          })
+        });
+        
+        if (globalResponse.ok) {
+          const globalData = await globalResponse.json();
+          
+          // Format global results to match expected structure
+          const formattedResult = {
+            communities: globalData.results || [],
+            totalResults: globalData.metadata?.totalFound || 0,
+            searchMetadata: {
+              query: searchQuery,
+              searchType: 'global',
+              processingTime: 0,
+              isGlobalSearch: true,
+              existingCount: globalData.metadata?.existingCount || 0,
+              discoveredCount: globalData.metadata?.discoveredCount || 0,
+              sources: globalData.metadata?.sources || []
+            },
+            facets: {
+              states: [],
+              careTypes: [],
+              priceRanges: []
+            },
+            metadata: globalData.metadata
+          };
+          
+          onSearch(formattedResult);
+          setIsLoading(false);
+          return;
+        }
+      }
+      
       // Determine API endpoint based on search category
       let apiEndpoint = '/api/search/comprehensive';
       if (searchCategory === 'services') {

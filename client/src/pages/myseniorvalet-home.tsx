@@ -45,6 +45,7 @@ import { AIChatResponse } from '@/components/AIChatResponse';
 import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
+import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -91,6 +92,8 @@ function HeroSectionWithTransformingSearch() {
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
+  const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
+  const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
@@ -105,6 +108,40 @@ function HeroSectionWithTransformingSearch() {
       setIsSearchActive(false);
       setSearchResults({ results: [], metadata: null });
       return;
+    }
+    
+    // Check for global/international searches
+    const globalIndicators = ['tokyo', 'paris', 'london', 'berlin', 'madrid', 'rome', 'dubai', 'singapore', 'mexico', 'canada', 'australia', 'france', 'germany', 'spain', 'italy', 'japan', 'china'];
+    const isGlobalSearch = globalIndicators.some(location => query.toLowerCase().includes(location));
+    
+    if (isGlobalSearch) {
+      console.log('🌍 Global search detected for:', query);
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, limit: 50 })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.results && data.results.length > 0) {
+            setGlobalDiscoveryResults({
+              query,
+              results: data.results,
+              metadata: data.metadata
+            });
+            setShowGlobalDiscoveryModal(true);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Global discovery error:', error);
+      }
+      setIsLoading(false);
     }
 
     // Handle map view redirect
@@ -265,6 +302,18 @@ function HeroSectionWithTransformingSearch() {
   return (
     <>
       <ProfessionalNavbar transparent />
+      
+      {/* Global Discovery Modal */}
+      {showGlobalDiscoveryModal && globalDiscoveryResults && (
+        <GlobalDiscoveryModal
+          isOpen={showGlobalDiscoveryModal}
+          onClose={() => setShowGlobalDiscoveryModal(false)}
+          searchQuery={globalDiscoveryResults.query}
+          results={globalDiscoveryResults.results}
+          metadata={globalDiscoveryResults.metadata}
+        />
+      )}
+      
       <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'h-screen'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'

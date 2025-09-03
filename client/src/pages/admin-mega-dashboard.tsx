@@ -92,6 +92,11 @@ const MarketingDashboard = lazy(() => import("@/components/admin/MarketingDashbo
 // Lazy load Master Validation System
 const MasterValidationSystem = lazy(() => import("@/components/admin/MasterValidationSystem"));
 
+// Lazy load Global Discovery Approval Queue
+const GlobalDiscoveryApprovalQueue = lazy(() => import("@/components/admin/GlobalDiscoveryApprovalQueue").then(module => ({
+  default: module.GlobalDiscoveryApprovalQueue
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2924,6 +2929,9 @@ Communities Created: ${details.stats.communitiesCreated}`;
           
           <TabsContent value="discovery" className="space-y-4">
             {renderCountyDiscovery()}
+            <Suspense fallback={<LoadingCard title="Loading Global Discovery Queue..." />}>
+              <GlobalDiscoveryApprovalQueue />
+            </Suspense>
           </TabsContent>
           
           <TabsContent value="activity" className="space-y-4">
