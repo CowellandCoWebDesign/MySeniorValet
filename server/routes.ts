@@ -844,6 +844,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const dailyRoutes = await import('./routes/daily-api');
   app.use('/api', dailyRoutes.default);
 
+  // Register Staff Management routes
+  const staffRoutes = await import('./routes/staff-api');
+  app.use('/api/staff', staffRoutes.default);
+
   app.use('/api/resident-family', residentFamilyRoutes);
 
   return httpServer;

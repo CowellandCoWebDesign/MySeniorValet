@@ -20,6 +20,7 @@ import { FamilyMedicareManager } from '@/components/family/FamilyMedicareManager
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
+import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import { 
   Calendar, 
   MessageCircle, 
@@ -366,6 +367,17 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Daily Life</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="staff" 
+                  className="flex-1 min-w-[120px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-indigo-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Users className="w-5 h-5 mr-2 flex-shrink-0 text-blue-600 dark:text-blue-400 group-data-[state=active]:text-blue-700 dark:group-data-[state=active]:text-blue-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Staff</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -1024,6 +1036,34 @@ export default function FamilyCollaborationCenter() {
               <CardContent>
                 <DailyLifeManager 
                   residentId="family-view"
+                  viewMode="family"
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Staff Directory Tab - Family View */}
+          <TabsContent value="staff" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-blue-500" />
+                      Care Team Directory
+                    </CardTitle>
+                    <CardDescription>
+                      Meet the dedicated professionals caring for your loved one
+                    </CardDescription>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-700">
+                    Transparent Care
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <StaffManagementSystem 
+                  communityId="family-view"
                   viewMode="family"
                 />
               </CardContent>

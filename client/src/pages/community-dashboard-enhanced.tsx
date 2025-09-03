@@ -8,6 +8,7 @@ import CommunityBillingManager from '@/components/billing/CommunityBillingManage
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
+import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Input } from "@/components/ui/input";
@@ -44,7 +45,8 @@ import {
   Globe,
   Heart,
   Receipt,
-  Shield
+  Shield,
+  Activity
 } from "lucide-react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -295,6 +297,10 @@ export default function CommunityDashboardEnhanced() {
             <TabsTrigger value="daily" className="relative">
               <Activity className="w-3 h-3 mr-1" />
               Daily Life
+            </TabsTrigger>
+            <TabsTrigger value="staff" className="relative">
+              <Users className="w-3 h-3 mr-1" />
+              Staff
             </TabsTrigger>
             <TabsTrigger value="billing" className="relative">
               <Receipt className="w-3 h-3 mr-1" />
@@ -1048,6 +1054,34 @@ export default function CommunityDashboardEnhanced() {
                     <Button className="bg-gradient-to-r from-blue-600 to-purple-600">
                       <TrendingUp className="mr-2 h-4 w-4" />
                       Upgrade to Featured
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Staff Management Tab - Available to Premium & Enterprise Tiers */}
+          <TabsContent value="staff">
+            <div className="space-y-6">
+              {featureAccess?.currentTier === 'premium' || featureAccess?.currentTier === 'enterprise' ? (
+                <>
+                  <StaffManagementSystem 
+                    communityId={communityId}
+                    viewMode="community"
+                  />
+                </>
+              ) : (
+                <Card className="p-8 text-center">
+                  <CardContent className="space-y-4">
+                    <Users className="w-16 h-16 mx-auto text-gray-400" />
+                    <h3 className="text-xl font-semibold">Staff Management Locked</h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Staff management, scheduling, and compliance tracking are available in Premium and Enterprise plans.
+                    </p>
+                    <Button size="lg" className="bg-purple-600 hover:bg-purple-700">
+                      <Crown className="w-4 h-4 mr-2" />
+                      Upgrade to Premium
                     </Button>
                   </CardContent>
                 </Card>
