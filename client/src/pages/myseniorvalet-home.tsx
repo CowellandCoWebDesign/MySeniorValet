@@ -685,34 +685,12 @@ function HeroSectionWithTransformingSearch() {
                   />
                 </div>
               )}
-                                    
-                                    {/* Hospital Type and Emergency Status */}
-                                    <div className="flex flex-wrap gap-2 mt-2">
-                                      {item.hospital_type && (
-                                        <span className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded">
-                                          {item.hospital_type}
-                                        </span>
-                                      )}
-                                      {item.emergency_services && (
-                                        <span className="text-xs px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded font-semibold">
-                                          24/7 Emergency
-                                        </span>
-                                      )}
-                                      {item.trauma_level && (
-                                        <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded">
-                                          {item.trauma_level}
-                                        </span>
-                                      )}
-                                      {item.bed_count && (
-                                        <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-300 rounded">
-                                          {item.bed_count} beds
-                                        </span>
-                                      )}
-                                    </div>
-                                    
-                                    {/* Services/Specialties Preview */}
-                                    {item.specialties && item.specialties.length > 0 && (
-                                      <div className="mt-2">
+            </div>
+          </div>
+        )}
+        </div>
+        
+        {/* Back to Top Button - appears when there are many results */
                                         <p className="text-xs text-gray-500 dark:text-gray-400">
                                           Specialties: {item.specialties.slice(0, 3).join(', ')}
                                           {item.specialties.length > 3 && ` +${item.specialties.length - 3} more`}
