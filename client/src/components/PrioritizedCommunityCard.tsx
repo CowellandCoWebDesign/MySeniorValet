@@ -22,6 +22,9 @@ interface CommunityCardProps {
     name: string;
     city: string;
     state: string;
+    country?: string;  // For international facilities
+    isDiscovered?: boolean;  // Marks AI-discovered facilities
+    data_source?: string;  // e.g. "AI Discovery"
     address?: string;
     careTypes?: string[];
     priceRange?: { min: number; max: number };
@@ -338,11 +341,22 @@ function CommunityCard({
         <CardContent className="flex-1 p-4">
           {/* Title and Location */}
           <div className="mb-3">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-              {community.name}
-            </h3>
+            <div className="flex items-start justify-between mb-1">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+                {community.name}
+              </h3>
+              {/* AI Discovery Badge for international facilities */}
+              {community.isDiscovered && (
+                <Badge className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-1 text-xs">
+                  🌏 AI Discovery
+                </Badge>
+              )}
+            </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              {community.city}, {community.state}
+              {community.city}, {community.country || community.state}
+              {community.country && (
+                <span className="ml-2">🌍 {community.country}</span>
+              )}
             </div>
           </div>
           
