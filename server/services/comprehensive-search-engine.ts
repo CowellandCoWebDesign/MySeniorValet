@@ -50,7 +50,8 @@ export class ComprehensiveSearchEngine {
   
   async search(query: string, filters: SearchFilters = {}, options: { limit?: number; offset?: number } = {}): Promise<SearchResult> {
     const startTime = Date.now();
-    const { limit = 100, offset = 0 } = options;
+    // Increase default limit to get more results from database
+    const { limit = 500, offset = 0 } = options;
     
     // Store original filters for fallback message
     const originalFilters = { ...filters };
@@ -92,6 +93,16 @@ export class ComprehensiveSearchEngine {
     }
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
+    
+    console.log(`📊 Database search for "${query}":
+      - Results returned: ${results.length}
+      - Total matching in DB: ${totalResults}
+      - Limit used: ${limit}
+      - Search type: ${searchType}`);
+    
+    if (results.length === limit && totalResults > limit) {
+      console.log(`⚠️ Hit limit of ${limit} but DB has ${totalResults} total matches`);
+    }
     
     // GRACEFUL FALLBACK: If we have filters but too few results, show location-only results
     let fallbackApplied = false;
@@ -507,11 +518,29 @@ export class ComprehensiveSearchEngine {
       }
       
       // Enhanced location search with international administrative divisions
+      // IMPORTANT: Be more inclusive to return more relevant results
       locationConditions.push(
-        ilike(communities.city, `%${query}%`),
-        ilike(communities.state, `%${query}%`),
-        ilike(communities.name, `%${query}%`)  // Community names
+        ilike(communities.city, `%${query}%`),  // City matches
+        ilike(communities.state, `%${query}%`), // State matches
+        ilike(communities.name, `%${query}%`),  // Community names
+        ilike(communities.address, `%${query}%`), // Address matches
+        ilike(communities.county, `%${query}%`)   // County matches
       );
+      
+      // For city searches, also include partial matches
+      // This helps return more relevant results from our 33k+ database
+      if (!query.includes(',') && query.split(' ').length <= 2) {
+        // Single city name search - be more inclusive
+        // Also search for communities that start with the query
+        const queryWords = query.split(' ');
+        if (queryWords.length === 2) {
+          // Two word city like "San Francisco"
+          locationConditions.push(
+            ilike(communities.city, `${queryWords[0]}%`),  // First word match
+            ilike(communities.city, `%${queryWords[1]}`)   // Second word match
+          );
+        }
+      }
       
       // Enhanced county/administrative division search
       // Handle variations: "Harris County", "Orange County", "Cook County" etc.
