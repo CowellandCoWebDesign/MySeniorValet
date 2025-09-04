@@ -4414,6 +4414,7 @@ export default function CommunityDetail() {
       communityId={community?.id || 0}
       communityName={community?.name || ''}
       />
+    </div>
     </>
   );
 }

@@ -230,44 +230,24 @@ export default function CommunityDirectory() {
   // Extract topStates from stats
   const topStates = communityStats?.topStates || [];
   
-  // Fetch Hawaii communities - with explicit queryFn
+  // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['hawaiiCommunities'],
-    queryFn: async () => {
-      const response = await fetch('/api/communities/by-state?state=HI');
-      if (!response.ok) throw new Error('Failed to fetch');
-      return response.json();
-    }
+    queryKey: ['/api/communities/by-state', { state: 'HI' }]
   });
   
-  // Fetch Florida communities - with explicit queryFn
+  // Fetch Florida communities
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ['floridaCommunities'],
-    queryFn: async () => {
-      const response = await fetch('/api/communities/by-state?state=FL');
-      if (!response.ok) throw new Error('Failed to fetch');
-      return response.json();
-    }
+    queryKey: ['/api/communities/by-state', { state: 'FL' }]
   });
   
-  // Fetch Texas communities (Fort Worth) - with explicit queryFn
+  // Fetch Texas communities (Fort Worth)
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
-    queryKey: ['texasCommunities'],
-    queryFn: async () => {
-      const response = await fetch('/api/communities/by-city?city=Fort%20Worth&state=TX');
-      if (!response.ok) throw new Error('Failed to fetch');
-      return response.json();
-    }
+    queryKey: ['/api/communities/by-city', { city: 'Fort Worth', state: 'TX' }]
   });
   
-  // Fetch New York communities - with explicit queryFn
+  // Fetch New York communities
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
-    queryKey: ['newYorkCommunities'],
-    queryFn: async () => {
-      const response = await fetch('/api/communities/by-state?state=NY');
-      if (!response.ok) throw new Error('Failed to fetch');
-      return response.json();
-    }
+    queryKey: ['/api/communities/by-state', { state: 'NY' }]
   });
   
   // Fetch Canadian communities

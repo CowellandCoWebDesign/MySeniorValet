@@ -8,7 +8,6 @@ import {
   CheckCircle, XCircle, AlertCircle, DollarSign
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
-import { FamilyShareButton } from "./FamilyShareButton";
 import { HeroPhotoCarousel } from "@/pages/community-detail";
 
 interface CommunityDetailsHeaderProps {
@@ -213,22 +212,25 @@ export function CommunityDetailsHeader({
               </button>
             )}
             
-            <FamilyShareButton 
-              community={{
-                id: community.id,
-                name: community.name,
-                address: community.address,
-                city: community.city,
-                state: community.state,
-                priceRange: community.priceRange || undefined,
-                careTypes: community.careTypes,
-                rating: community.googleRating || undefined,
-                photos: community.photos || undefined,
-                phone: displayPhone || undefined,
-                website: displayWebsite || undefined
+            <button
+              onClick={() => {
+                const shareUrl = `${window.location.origin}/community/${community.id}`;
+                const shareText = `Check out ${community.name} in ${community.city}, ${community.state} on MySeniorValet`;
+                
+                if (navigator.share) {
+                  navigator.share({
+                    title: community.name,
+                    text: shareText,
+                    url: shareUrl
+                  }).catch(() => {});
+                } else {
+                  navigator.clipboard.writeText(shareUrl);
+                }
               }}
               className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transition-shadow"
-            />
+            >
+              <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            </button>
           </div>
         </div>
         
