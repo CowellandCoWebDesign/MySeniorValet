@@ -1,7 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs } from "@shared/schema";
-import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull, like } from "drizzle-orm";
+import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { insertCommunitySchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { storage } from "../storage";
@@ -1015,33 +1015,6 @@ export function registerCommunityRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching Mexican communities:", error);
       res.status(500).json({ error: "Failed to fetch Mexican communities" });
-    }
-  });
-
-  // Get featured Oakmont communities (Featured Excellence)
-  app.get("/api/communities/featured-oakmont", async (req, res) => {
-    try {
-      const oakmontCommunities = await db
-        .select()
-        .from(communities)
-        .where(
-          or(
-            eq(communities.parentCompany, 'Oakmont Senior Living'),
-            like(communities.name, '%Oakmont%'),
-            like(communities.name, '%Ivy Park%'),
-            like(communities.name, '%Ivy Terrace%'),
-            like(communities.name, '%Santianna%'),
-            like(communities.name, '%Capriana%'),
-            like(communities.name, '%Villagio%')
-          )
-        )
-        .orderBy(desc(communities.rating))
-        .limit(3); // Get top 3 Oakmont communities for featured showcase
-      
-      res.json({ communities: oakmontCommunities });
-    } catch (error) {
-      console.error("Error fetching featured Oakmont communities:", error);
-      res.status(500).json({ error: "Failed to fetch featured Oakmont communities" });
     }
   });
 

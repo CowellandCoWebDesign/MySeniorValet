@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { VendorCard } from '@/components/VendorCard';
 import EnhancedVendorCard from '@/components/EnhancedVendorCard';
 import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
@@ -2031,11 +2031,13 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                  <EnhancedCommunityCard
+                  <PrioritizedCommunityCard
                     key={`community-${community.id}`}
                     community={community}
-                    variant="featured"
-                    onNavigate={() => handleCommunityClick(community)}
+                    variant="list"
+                    onSelect={() => handleCommunityClick(community)}
+                    onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
+                    isFavorite={false}
                   />
                 ))}
               
@@ -2142,11 +2144,13 @@ export default function MapSearch() {
                             {filteredCommunities
                               .slice(0, 5)
                               .map((community: Community, index: number) => (
-                              <EnhancedCommunityCard
+                              <PrioritizedCommunityCard
                                 key={`all-community-${community.id}`}
                                 community={community}
-                                variant="featured"
-                                onNavigate={() => handleCommunityClick(community)}
+                                variant="list"
+                                onSelect={() => handleCommunityClick(community)}
+                                onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
+                                isFavorite={false}
                               />
                             ))}
                           </>

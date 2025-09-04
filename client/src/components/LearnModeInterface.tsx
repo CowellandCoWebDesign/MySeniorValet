@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Brain, Lightbulb, BookOpen, MessageCircle, ChevronRight, Star, Clock, User } from 'lucide-react';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 
 interface LearnModeProps {
   searchQuery: string;
@@ -247,23 +246,26 @@ export default function LearnModeInterface({ searchQuery, searchResults, onCommu
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Related Communities
           </h3>
-          <div className="grid gap-4 md:grid-cols-1">
-            {searchResults.results.slice(0, 4).map((community: any, index: number) => {
-              // Determine if this is a featured brand community
-              const isFeatured = community.featuredBrand === true || 
-                                community.parentCompany?.toLowerCase().includes('oakmont') ||
-                                community.name?.toLowerCase().includes('oakmont');
-              
-              return (
-                <EnhancedCommunityCard
-                  key={community.id || index}
-                  community={community}
-                  index={index}
-                  variant={isFeatured ? 'featured' : 'default'}
-                  showActions={false}
-                />
-              );
-            })}
+          <div className="grid gap-4 md:grid-cols-2">
+            {searchResults.results.slice(0, 4).map((community: any, index: number) => (
+              <div
+                key={community.id || index}
+                onClick={() => onCommunitySelect?.(community)}
+                className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg hover:border-purple-300 dark:hover:border-purple-500 cursor-pointer transition-colors duration-200"
+              >
+                <h4 className="font-medium text-gray-900 dark:text-white mb-1">
+                  {community.name}
+                </h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {community.city}, {community.state}
+                </p>
+                {community.rentPerMonth && (
+                  <p className="text-sm font-medium text-purple-600 dark:text-purple-400">
+                    ${community.rentPerMonth}/month
+                  </p>
+                )}
+              </div>
+            ))}
           </div>
         </motion.div>
       )}

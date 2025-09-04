@@ -1029,136 +1029,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     ? "flex-shrink-0 w-56 h-auto dark:bg-gray-700 will-change-transform"
     : "group hover:shadow-lg transition-all duration-200 will-change-transform";
 
-  // Premium Fortune 500-level card design for featured variant
-  if (variant === 'featured') {
-    // Calculate display price
-    const priceDisplay = community.displayPricing?.displayPrice || 
-      (community.hudPropertyId && community.rentPerMonth ? 
-        `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}` : 
-        community.priceRange ? 
-          `$${community.priceRange.min} - $${community.priceRange.max}` : 
-          'Contact for pricing');
-
-    // Get key amenities (top 3)
-    const keyAmenities = community.amenities?.slice(0, 3) || [
-      'Premium Senior Care',
-      'Professional Staff',
-      '24/7 Support'
-    ];
-
-    // Why Featured reasons
-    const whyFeatured = [
-      'Verified Premium Community',
-      'Exceptional Care Standards',
-      'Transparent Pricing Available'
-    ];
-
-    return (
-      <Card className="w-full max-w-md hover:shadow-2xl transition-all overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 dark:from-gray-950 dark:to-gray-900 border-2 border-gray-700">
-        {/* Featured Badge */}
-        <div className="absolute top-4 left-4 z-10">
-          <Badge className="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-3 py-1.5 text-sm font-bold flex items-center gap-1.5 shadow-lg">
-            <Star className="h-4 w-4 fill-current" />
-            FEATURED
-          </Badge>
-        </div>
-
-        {/* Image Section */}
-        <div className="relative h-48 bg-gradient-to-br from-gray-800 to-gray-700">
-          {community.photos && community.photos.length > 0 ? (
-            <img 
-              src={community.photos[0]} 
-              alt={community.name}
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center">
-                <Building className="h-12 w-12 text-gray-600 mx-auto mb-2" />
-                <div className="text-sm font-medium text-gray-400">Premium Community</div>
-                <div className="text-xs text-gray-500">Photos Coming Soon</div>
-              </div>
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        </div>
-
-        <CardContent className="p-6 space-y-4">
-          {/* Community Name & Location */}
-          <div>
-            <h3 className="text-xl font-bold text-white mb-1">
-              {community.name}
-            </h3>
-            <div className="flex items-center text-gray-300 text-sm">
-              <MapPin className="h-4 w-4 mr-1" />
-              {community.city}, {community.state}
-            </div>
-          </div>
-
-          {/* Rating and Price Row */}
-          <div className="flex items-center justify-between py-3 border-y border-gray-700">
-            <div className="flex items-center">
-              <div className="flex items-center text-yellow-400">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={`h-5 w-5 ${
-                      star <= Math.round(typeof community.rating === 'string' ? parseFloat(community.rating) : (community.rating || 0))
-                        ? 'fill-current'
-                        : 'stroke-current fill-transparent'
-                    }`}
-                  />
-                ))}
-              </div>
-              <span className="ml-2 text-gray-300 text-sm">
-                {community.rating ? (typeof community.rating === 'string' ? parseFloat(community.rating) : community.rating).toFixed(1) : '5.0'}
-              </span>
-            </div>
-            <div className="text-right">
-              <div className="text-xl font-bold text-white">{priceDisplay}</div>
-              <div className="text-xs text-gray-400">per month</div>
-            </div>
-          </div>
-
-          {/* Key Amenities */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Key Amenities</h4>
-            <div className="space-y-1.5">
-              {keyAmenities.map((amenity, idx) => (
-                <div key={idx} className="flex items-center text-gray-200 text-sm">
-                  <CheckCircle className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-                  {amenity}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Why Featured Section */}
-          <div className="space-y-2">
-            <h4 className="text-sm font-semibold text-gray-300 uppercase tracking-wider">Why Featured</h4>
-            <div className="space-y-1.5">
-              {whyFeatured.map((reason, idx) => (
-                <div key={idx} className="flex items-center text-gray-200 text-sm">
-                  <Award className="h-4 w-4 text-orange-500 mr-2 flex-shrink-0" />
-                  {reason}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* View Details Button */}
-          <Link href={`/community/${community.id}`} className="block">
-            <Button className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold py-3 text-base shadow-lg">
-              View Community Details
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Keep coastal and HUD variants separate from featured
-  if (variant === 'coastal' || variant === 'hud') {
+  if (variant === 'featured' || variant === 'coastal' || variant === 'hud') {
     // Determine background gradient based on state/location
     const getBackgroundGradient = () => {
       if (community.state === 'NY') return 'from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900';
@@ -1193,7 +1064,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
     const locationBadge = getLocationBadge();
     
-    // Calculate display price for coastal/hud variants
+    // Calculate display price for featured/coastal/hud variants
     const priceDisplay = community.displayPricing?.displayPrice || 
       (community.hudPropertyId && community.rentPerMonth ? 
         `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}` : 

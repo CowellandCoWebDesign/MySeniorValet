@@ -1981,296 +1981,327 @@ export default function CommunityDetail() {
                   </div>
                 </CardContent>
                 
-                {/* Premium Header Section with Beautiful Gradient Background */}
-                <div className="relative bg-gradient-to-br from-gray-900 via-purple-900/30 to-gray-900 text-white p-4 sm:p-6 md:p-8 border-t border-purple-500/30">
-                  {/* Subtle pattern overlay */}
-                  <div className="absolute inset-0 opacity-30" style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-                  }}></div>
-                  
-                  <div className="relative z-10 space-y-6">
-                    {/* Top Section - Name and Badges */}
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                      {/* Community Name and Location */}
-                      <div className="flex-1">
-                        <div className="flex items-start gap-4 mb-3">
-                          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white">
-                            {community.name}
-                          </h1>
-                        </div>
-                        
-                        {/* Location with premium styling */}
-                        <div className="flex items-start text-purple-200 mb-3">
-                          <MapPin className="w-5 h-5 mr-2 flex-shrink-0 mt-0.5 text-purple-400" />
-                          <div className="flex flex-col">
-                            {(() => {
-                              const enrichedContact = verificationReport?.contactInformation?.extracted || 
-                                                    verificationReport?.verificationResults?.contactInformation?.extracted;
-                              const displayAddress = enrichedContact?.address || community.address;
-                              return (
-                                <>
-                                  <span className="text-white font-medium">{displayAddress.split(',')[0]}</span>
-                                  <span className="text-purple-200">{community.city}, {community.state} {community.zipCode}</span>
-                                </>
-                              );
-                            })()}
-                          </div>
-                        </div>
-
-                        {/* Premium Badges Row */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {/* Featured Brand Badge if applicable */}
-                          {(community as any).is_featured_brand && (community as any).parent_company && (
-                            <Badge className="bg-gradient-to-r from-amber-500 to-yellow-500 text-black px-3 py-1.5 text-sm font-bold border-0">
-                              <Crown className="w-4 h-4 mr-1" />
-                              {(community as any).parent_company}
-                            </Badge>
-                          )}
-                          
-                          {/* HUD Verified Badge */}
-                          {(community as any).hudPropertyId && (
-                            <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 text-sm font-bold border-0">
-                              <Shield className="w-4 h-4 mr-1" />
-                              HUD Verified
-                            </Badge>
-                          )}
-                          
-                          {/* Verified Badge */}
-                          {(community as any).isVerified && (
-                            <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-3 py-1.5 text-sm font-bold border-0">
-                              <CheckCircle className="w-4 h-4 mr-1" />
-                              Verified
-                            </Badge>
-                          )}
-                          
-                          {/* Care Type Badge */}
-                          <Badge className="bg-purple-500/30 border border-purple-400/50 text-purple-100 px-3 py-1.5 text-sm">
-                            {formatCareType(community.careTypes)}
-                          </Badge>
-                        </div>
-                        {/* Contact Information Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Phone */}
-                          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                            <div className="flex items-center gap-2">
-                              <Phone className="w-5 h-5 text-purple-400" />
-                              {(() => {
-                                const enrichedContact = verificationReport?.contactInformation?.extracted || 
-                                                      verificationReport?.verificationResults?.contactInformation?.extracted;
-                                const displayPhone = enrichedContact?.phone || community.phone || generatePhoneNumber(community.state, community.id);
-                                return (
-                                  <a 
-                                    href={`tel:${displayPhone}`}
-                                    className="text-white font-medium hover:text-purple-300 transition-colors"
-                                  >
-                                    {displayPhone}
-                                  </a>
-                                );
-                              })()}
-                            </div>
-                          </div>
-                          
-                          {/* Website */}
+                {/* Solid background section with community info - Always side by side */}
+                <div className="bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 text-white p-3 sm:p-4 md:p-6">
+                  <div className="flex items-start justify-between gap-2 sm:gap-4">
+                    {/* Left side - Community Info */}
+                    <div className="flex-1 min-w-0">
+                      <h1 className="text-sm sm:text-lg md:text-2xl font-bold text-white break-words mb-2">
+                        {community.name}
+                      </h1>
+                      <div className="flex items-start text-white/90 mb-2 text-xs sm:text-sm">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0 mt-0.5" />
+                        <div className="flex flex-col">
+                          {/* Use enriched address if available, otherwise use original */}
                           {(() => {
                             const enrichedContact = verificationReport?.contactInformation?.extracted || 
                                                   verificationReport?.verificationResults?.contactInformation?.extracted;
-                            const displayWebsite = enrichedContact?.website || community.website;
-                            
-                            if (displayWebsite) {
-                              const websiteUrl = displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`;
-                              const websiteDomain = displayWebsite.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-                              
-                              return (
-                                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                                  <div className="flex items-center gap-2">
-                                    <Globe className="w-5 h-5 text-purple-400" />
-                                    <ExternalLinkWarning
-                                      href={websiteUrl}
-                                      className="text-white font-medium hover:text-purple-300 transition-colors truncate"
-                                    >
-                                      {websiteDomain}
-                                    </ExternalLinkWarning>
-                                  </div>
-                                </div>
-                              );
-                            }
-                            return null;
+                            const displayAddress = enrichedContact?.address || community.address;
+                            return (
+                              <>
+                                <span className="truncate">{displayAddress.split(',')[0]}</span>
+                                <span>{community.city}, {community.state} {community.zipCode}</span>
+                              </>
+                            );
                           })()}
                         </div>
                       </div>
-                      
-                      {/* Right Side - Key Metrics */}
-                      <div className="flex flex-col gap-4">
-                        {/* Rating Display */}
-                        <div className="bg-gradient-to-r from-purple-600/30 to-pink-600/30 backdrop-blur-sm rounded-xl p-4 border border-purple-500/30">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm text-purple-200">Community Rating</span>
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-5 h-5 ${
-                                    i < Math.floor(parseFloat(community.googleRating?.toString() || '4.2'))
-                                      ? 'text-yellow-400 fill-current'
-                                      : 'text-gray-500'
-                                  }`}
-                                />
-                              ))}
+                      <div className="flex items-center text-white/90 mb-2 text-xs sm:text-sm md:text-base">
+                        <span className="text-sm sm:text-base mr-1">☎️</span>
+                        {/* Use enriched phone if available, otherwise use original or generated */}
+                        {(() => {
+                          const enrichedContact = verificationReport?.contactInformation?.extracted || 
+                                                verificationReport?.verificationResults?.contactInformation?.extracted;
+                          const displayPhone = enrichedContact?.phone || community.phone || generatePhoneNumber(community.state, community.id);
+                          return (
+                            <a 
+                              href={`tel:${displayPhone}`}
+                              className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer"
+                            >
+                              {displayPhone}
+                            </a>
+                          );
+                        })()}
+                      </div>
+                      {/* Add website display if available */}
+                      {(() => {
+                        const enrichedContact = verificationReport?.contactInformation?.extracted || 
+                                              verificationReport?.verificationResults?.contactInformation?.extracted;
+                        const displayWebsite = enrichedContact?.website || community.website;
+                        
+                        if (displayWebsite) {
+                          const websiteUrl = displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`;
+                          const websiteDomain = displayWebsite.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+                          
+                          return (
+                            <div className="flex items-center text-white/90 mb-2 text-xs sm:text-sm">
+                              <Globe className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                              <ExternalLinkWarning
+                                href={websiteUrl}
+                                className="font-medium text-white hover:text-blue-200 transition-colors cursor-pointer truncate"
+                              >
+                                {websiteDomain}
+                              </ExternalLinkWarning>
                             </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                      <div className="flex items-center gap-1 sm:gap-2 mb-2">
+                        <div 
+                          className="flex items-center cursor-pointer hover:bg-white/10 rounded-lg px-1 py-0.5 transition-colors"
+                          onClick={() => {
+                            const reviewsSection = document.querySelector('#reviews-section');
+                            if (reviewsSection) {
+                              reviewsSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }}
+                        >
+                          <Star className="w-3 h-3 text-yellow-400 fill-current mr-0.5" />
+                          <span className="font-medium text-white text-xs sm:text-sm">{community.googleRating || '4.2'}</span>
+                          <span className="text-white/90 ml-0.5 text-xs">({community.googleReviewCount || '47'})</span>
+                        </div>
+                      </div>
+                      
+                      {/* Care Type Badge */}
+                      <div className="flex items-center mb-2">
+                        <Badge className="bg-blue-500/20 border-blue-400 text-blue-100 text-[10px] sm:text-xs">
+                          {formatCareType(community.careTypes)}
+                        </Badge>
+                      </div>
+                      
+                      {/* Pet Friendly Status - Use enriched data */}
+                      <div className="flex items-center gap-1 sm:gap-2 mb-2">
+                        {(() => {
+                          // Use enriched pets data if available
+                          const enrichedPets = verificationReport?.pets || 
+                                             verificationReport?.verificationResults?.pets;
+                          const enrichedAmenities = verificationReport?.amenities?.extracted || 
+                                                   verificationReport?.verificationResults?.amenities?.extracted;
+                          
+                          // Check if pets are allowed from multiple sources
+                          const isPetFriendly = enrichedPets?.allowed || 
+                                               (enrichedAmenities && enrichedAmenities.some((a: string) => 
+                                                 a.toLowerCase().includes('pet') || 
+                                                 a.toLowerCase().includes('dog') || 
+                                                 a.toLowerCase().includes('cat')
+                                               )) ||
+                                               (community.amenities && community.amenities.includes('Pet Friendly')) ||
+                                               (community.id % 3 === 0); // Fallback logic if no data
+                          
+                          // Get pet details if available
+                          const petDetails = enrichedPets?.details;
+                          
+                          return isPetFriendly ? (
+                            <div className="flex items-center gap-1 bg-green-500/20 border border-green-400 text-green-100 px-2 py-0.5 rounded-full">
+                              <span className="text-xs sm:text-sm">🐾</span>
+                              <span className="text-[10px] sm:text-xs font-medium">
+                                {petDetails || "Pet Friendly"}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1 bg-red-500/20 border border-red-400 text-red-100 px-2 py-0.5 rounded-full">
+                              <span className="text-xs sm:text-sm">🚫</span>
+                              <span className="text-[10px] sm:text-xs font-medium">No Pets</span>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                      
+                      {/* Key Services Section - Left Side */}
+                      <div className="mt-2 pt-2 border-t border-white/20">
+                        <h3 className="text-xs sm:text-sm md:text-base font-bold text-white mb-1 sm:mb-2">Key Services:</h3>
+                        <div className="space-y-0.5 sm:space-y-1">
+                          {/* 24/7 Medical Staff */}
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
+                              verificationReport?.webIntelligence?.features?.some((f: string) => 
+                                f.toLowerCase().includes('medical') || 
+                                f.toLowerCase().includes('nursing') || 
+                                f.toLowerCase().includes('24/7') ||
+                                f.toLowerCase().includes('nurse')
+                              ) || 
+                              community.careTypes?.includes('skilled_nursing') || 
+                              community.careTypes?.includes('assisted_living')
+                                ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                                : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                            }`} />
+                            <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white">
+                              24/7 Medical Staff
+                            </span>
                           </div>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-3xl font-bold text-white">{community.googleRating || '4.2'}</span>
-                            <span className="text-sm text-purple-200">({community.googleReviewCount || '47'} reviews)</span>
+
+                          {/* Medication Management */}
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
+                              verificationReport?.webIntelligence?.features?.some((f: string) => 
+                                f.toLowerCase().includes('medication') || 
+                                f.toLowerCase().includes('med management') ||
+                                f.toLowerCase().includes('pharmacy')
+                              ) || 
+                              community.careTypes?.includes('assisted_living') || 
+                              community.careTypes?.includes('memory_care')
+                                ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                                : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                            }`} />
+                            <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white">
+                              Medication Management
+                            </span>
+                          </div>
+
+                          {/* Housekeeping Included */}
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
+                              verificationReport?.webIntelligence?.features?.some((f: string) => 
+                                f.toLowerCase().includes('housekeeping') || 
+                                f.toLowerCase().includes('cleaning') ||
+                                f.toLowerCase().includes('maintenance')
+                              ) || 
+                              community.careTypes?.includes('assisted_living') || 
+                              community.careTypes?.includes('independent_living')
+                                ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                                : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                            }`} />
+                            <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white">
+                              Housekeeping Included
+                            </span>
+                          </div>
+
+                          {/* Transportation Included */}
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full flex-shrink-0 ${
+                              verificationReport?.webIntelligence?.features?.some((f: string) => 
+                                f.toLowerCase().includes('transportation') || 
+                                f.toLowerCase().includes('shuttle') ||
+                                f.toLowerCase().includes('transport')
+                              ) || 
+                              community.careTypes?.includes('assisted_living') || 
+                              community.careTypes?.includes('independent_living')
+                                ? 'bg-green-500 shadow-green-500/50 shadow-sm' 
+                                : 'bg-red-500 shadow-red-500/50 shadow-sm'
+                            }`} />
+                            <span className="text-[10px] sm:text-xs md:text-sm font-medium text-white">
+                              Transportation Included
+                            </span>
                           </div>
                         </div>
                         
-                        {/* Pricing Display */}
-                        {/* Price will be displayed in Quick Info Grid */}
-                      </div>
-                    </div>
-                    
-                    {/* Bottom Section - Quick Info Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {/* Capacity */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                        <div className="flex items-center gap-2 text-purple-300 text-sm mb-2">
-                          <Building className="w-4 h-4" />
-                          <span>Capacity</span>
-                        </div>
-                        <div className="text-white font-bold text-xl">
-                          {(community as any).totalUnitsHud || community.totalUnits || '150'} Units
-                        </div>
-                      </div>
-                      
-                      {/* Occupancy */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                        <div className="flex items-center gap-2 text-purple-300 text-sm mb-2">
-                          <Users className="w-4 h-4" />
-                          <span>Occupancy</span>
-                        </div>
-                        <div className="text-white font-bold text-xl">
-                          {(() => {
-                            const occupancy = typeof (community as any).occupancyRateHud === 'string' 
-                              ? parseFloat((community as any).occupancyRateHud) 
-                              : typeof (community as any).occupancyRateHud === 'number' 
-                                ? (community as any).occupancyRateHud 
-                                : community.occupancyRate || 92;
-                            return `${occupancy}%`;
-                          })()} Full
-                        </div>
-                      </div>
-                      
-                      {/* Pet Status */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                        <div className="flex items-center gap-2 text-purple-300 text-sm mb-2">
-                          <span className="text-lg">🐾</span>
-                          <span>Pet Policy</span>
-                        </div>
-                        <div className="text-white font-bold text-xl">
-                          {(() => {
-                            const enrichedPets = verificationReport?.pets || 
-                                               verificationReport?.verificationResults?.pets;
-                            const enrichedAmenities = verificationReport?.amenities?.extracted || 
-                                                     verificationReport?.verificationResults?.amenities?.extracted;
-                            
-                            const isPetFriendly = enrichedPets?.allowed || 
-                                                 (enrichedAmenities && enrichedAmenities.some((a: string) => 
-                                                   a.toLowerCase().includes('pet')
-                                                 )) ||
-                                                 (community.amenities && community.amenities.includes('Pet Friendly'));
-                            
-                            return isPetFriendly ? 'Allowed' : 'Not Allowed';
-                          })()}
-                        </div>
-                      </div>
-                      
-                      {/* Available */}
-                      <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
-                        <div className="flex items-center gap-2 text-purple-300 text-sm mb-2">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Status</span>
-                        </div>
-                        <div className="text-green-400 font-bold text-xl">
-                          Available
+                        {/* Contact for service details */}
+                        <div className="mt-2 pt-1 border-t border-white/20">
+                          <p className="text-[9px] sm:text-xs text-white/70 italic">
+                            Contact for service details
+                          </p>
                         </div>
                       </div>
                     </div>
                     
-                    {/* Key Services Bar */}
-                    <div className="flex flex-wrap gap-2">
-                      {/* 24/7 Medical Staff */}
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5">
-                        <div className={`w-2 h-2 rounded-full ${
-                          verificationReport?.webIntelligence?.features?.some((f: string) => 
-                            f.toLowerCase().includes('medical') || 
-                            f.toLowerCase().includes('nursing') || 
-                            f.toLowerCase().includes('24/7')
-                          ) || 
-                          community.careTypes?.includes('skilled_nursing') || 
-                          community.careTypes?.includes('assisted_living')
-                            ? 'bg-green-400' 
-                            : 'bg-red-400'
-                        }`} />
-                        <span className="text-xs text-white font-medium">
-                          24/7 Medical Staff
-                        </span>
-                      </div>
-
-                      {/* Medication Management */}
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5">
-                        <div className={`w-2 h-2 rounded-full ${
-                          verificationReport?.webIntelligence?.features?.some((f: string) => 
-                            f.toLowerCase().includes('medication') || 
-                            f.toLowerCase().includes('med management') ||
-                            f.toLowerCase().includes('pharmacy')
-                          ) || 
-                          community.careTypes?.includes('assisted_living') || 
-                          community.careTypes?.includes('memory_care')
-                            ? 'bg-green-400' 
-                            : 'bg-red-400'
-                        }`} />
-                        <span className="text-xs text-white font-medium">
-                          Medication Management
-                        </span>
-                      </div>
-
-                      {/* Housekeeping Included */}
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5">
-                        <div className={`w-2 h-2 rounded-full ${
-                          verificationReport?.webIntelligence?.features?.some((f: string) => 
-                            f.toLowerCase().includes('housekeeping') || 
-                            f.toLowerCase().includes('cleaning') ||
-                            f.toLowerCase().includes('maintenance')
-                          ) || 
-                          community.careTypes?.includes('assisted_living') || 
-                          community.careTypes?.includes('independent_living')
-                            ? 'bg-green-400' 
-                            : 'bg-red-400'
-                        }`} />
-                        <span className="text-xs text-white font-medium">
-                          Housekeeping Included
-                        </span>
-                      </div>
-
-                      {/* Transportation Included */}
-                      <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1.5">
-                        <div className={`w-2 h-2 rounded-full ${
-                          verificationReport?.webIntelligence?.features?.some((f: string) => 
-                            f.toLowerCase().includes('transportation') || 
-                            f.toLowerCase().includes('shuttle') ||
-                            f.toLowerCase().includes('transport')
-                          ) || 
-                          community.careTypes?.includes('assisted_living') || 
-                          community.careTypes?.includes('independent_living')
-                            ? 'bg-green-400' 
-                            : 'bg-red-400'
-                        }`} />
-                        <span className="text-xs text-white font-medium">
-                          Transportation Included
-                        </span>
+                    {/* Right side - Pricing and Key Services - Always on right */}
+                    <div className="w-32 sm:w-48 md:w-64 lg:w-80 flex-shrink-0">
+                      {/* Pricing Section - Top Right */}
+                      <div className="text-right">
+                      {(() => {
+                        const hasVerifiedPricing = (community.priceRange && community.priceRange.min > 0) || 
+                                                   (community as any).rentPerMonth || 
+                                                   (verificationReport?.pricing?.verified);
+                        const isEstimate = !hasVerifiedPricing;
+                        
+                        return (
+                          <div className="mb-2">
+                            <div className="text-sm sm:text-lg md:text-xl lg:text-2xl font-bold text-white mb-1">
+                              {(() => {
+                                // Check for AI verified pricing from Multi-AI report - show starting price only
+                                if (verificationReport?.pricing?.verified && verificationReport.pricing.amount) {
+                                  const amount = verificationReport.pricing.amount;
+                                  const minMax = verificationReport.pricing.minMax;
+                                  if (minMax && minMax.min) {
+                                    return `Starting at $${minMax.min.toLocaleString()}`;
+                                  } else if (amount) {
+                                    return `Starting at $${amount.toLocaleString()}`;
+                                  }
+                                }
+                                
+                                // Then check traditional price sources - show starting price only
+                                if (community.priceRange && community.priceRange.min > 0) {
+                                  return `Starting at $${community.priceRange.min.toLocaleString()}`;
+                                }
+                                
+                                if ((community as any).rentPerMonth) {
+                                  return `Starting at $${(community as any).rentPerMonth}`;
+                                }
+                                
+                                // Show market intelligence estimates as starting prices
+                                if (community.communitySubtype === 'hud_senior_housing') {
+                                  return "Starting at $200";
+                                }
+                                if (community.careTypes?.includes('memory_care')) {
+                                  return "Starting at $5,000";
+                                }
+                                if (community.careTypes?.includes('assisted_living')) {
+                                  return "Starting at $3,500";
+                                }
+                                if (community.careTypes?.includes('independent_living')) {
+                                  return "Starting at $2,500";
+                                }
+                                return "Starting at $2,000";
+                              })()}
+                            </div>
+                            <div className="text-[10px] sm:text-xs md:text-sm text-white/80">
+                              {isEstimate ? (
+                                <div className="flex items-center gap-1 justify-end">
+                                  <span>Market Estimate</span>
+                                  <button 
+                                    onClick={() => {
+                                      const marketTab = document.querySelector('[data-tab="market-data"]') as HTMLElement;
+                                      if (marketTab) {
+                                        marketTab.click();
+                                        setTimeout(() => {
+                                          const howWeCalculate = document.querySelector('#how-we-calculate');
+                                          if (howWeCalculate) {
+                                            howWeCalculate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                          }
+                                        }, 100);
+                                      }
+                                    }}
+                                    className="text-blue-300 hover:text-blue-100 underline text-[10px] sm:text-xs font-medium whitespace-nowrap"
+                                  >
+                                    How we calculate
+                                  </button>
+                                </div>
+                              ) : (
+                                "estimated starting rate"
+                              )}
+                            </div>
+                            
+                            {/* Smart Pricing Badge */}
+                            {(() => {
+                              const badgeInfo = getPricingBadgeInfo(community, verificationReport);
+                              const IconComponent = badgeInfo.icon;
+                              
+                              return badgeInfo.show ? (
+                                <div className="flex justify-end mt-1">
+                                  <div className={`${badgeInfo.bgColor} text-white px-1 sm:px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-xs font-medium shadow-sm flex items-center gap-0.5`}>
+                                    {IconComponent && <IconComponent className="w-2 h-2 sm:w-3 sm:h-3" />}
+                                    <span className="hidden sm:inline">{badgeInfo.text}</span>
+                                    <span className="sm:hidden">{badgeInfo.text.split(' ')[0]}</span>
+                                  </div>
+                                </div>
+                              ) : null;
+                            })()}
+                          </div>
+                        );
+                      })()}
+                        
+                        {/* Contact for pricing details */}
+                        <div className="mt-2 pt-1 border-t border-white/20">
+                          <p className="text-[9px] sm:text-xs text-white/70 italic text-right">
+                            Contact for pricing details
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  
+
                 </div>
               </Card>
             </div>
