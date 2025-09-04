@@ -929,7 +929,9 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       description: nearbyOptions.length > 0 
         ? `Found ${nearbyOptions.length} senior living communities in the area with market data`
         : 'No specific communities found in this search',
-      sources: citations
+      sources: citations,
+      // RAW PERPLEXITY CONTENT - THE USER DESERVES TO SEE IT ALL
+      content: content
     };
   }
 }

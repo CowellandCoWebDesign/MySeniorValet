@@ -518,7 +518,61 @@ export default function CompetitiveAnalysis() {
           </Card>
         )}
 
-        {/* Top Communities from AI Discovery - Clickable */}
+        {/* Raw Perplexity Intelligence - THE ACTUAL VALUE */}
+        {analysisMutation.isSuccess && analysisMutation.data?.perplexityRawAnalysis && (
+          <Card className="mt-6 shadow-xl border-0 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 animate-fadeInUp">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="p-2 bg-amber-100 dark:bg-amber-800/50 rounded-lg">
+                  <Brain className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                </div>
+                What We Found About {analysisMutation.data.location}
+                <Badge className="bg-amber-500 text-white">
+                  Unfiltered Intelligence
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                Raw market analysis directly from Perplexity AI
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="p-6 bg-white/80 dark:bg-gray-900/80 rounded-xl border border-amber-200 dark:border-amber-700">
+                <div className="prose prose-gray dark:prose-invert max-w-none">
+                  <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                    {analysisMutation.data.perplexityRawAnalysis}
+                  </div>
+                </div>
+                
+                {/* Show ALL data sources */}
+                {analysisMutation.data.dataAttribution?.sources && analysisMutation.data.dataAttribution.sources.length > 0 && (
+                  <div className="mt-6 pt-6 border-t border-amber-200 dark:border-amber-700">
+                    <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                      Data Sources ({analysisMutation.data.dataAttribution.sources.length}):
+                    </p>
+                    <div className="space-y-2">
+                      {analysisMutation.data.dataAttribution.sources.map((source, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <span className="text-amber-500 text-xs mt-0.5">[{index + 1}]</span>
+                          <a 
+                            href={source} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 dark:text-blue-400 hover:underline break-all"
+                          >
+                            {source}
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* ALL Communities from AI Discovery - No Limit */}
         {analysisMutation.isSuccess && analysisMutation.data?.topCommunities && analysisMutation.data.topCommunities.length > 0 && (
           <Card className="mt-6 shadow-xl border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 animate-fadeInUp">
             <CardHeader>
@@ -526,13 +580,13 @@ export default function CompetitiveAnalysis() {
                 <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
                   <Building2 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
                 </div>
-                Discovered Communities from Perplexity AI
+                ALL Discovered Communities
                 <Badge className="bg-purple-500 text-white">
-                  {analysisMutation.data.topCommunities.length} Found
+                  {analysisMutation.data.topCommunities.length} Total
                 </Badge>
               </CardTitle>
               <CardDescription className="text-gray-600 dark:text-gray-400">
-                Click any community to search for it in our database
+                Every community found - click any to search our database
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-6">

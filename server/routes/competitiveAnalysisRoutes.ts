@@ -389,15 +389,20 @@ router.post('/api/competitive-analysis', async (req, res) => {
           ].filter(Boolean)
         },
         
-        // Top Communities (Executive View)
+        // ALL Communities (no artificial limit - users deserve to see everything)
         topCommunities: mergedCommunities
-          .slice(0, 10)
           .map(c => ({
             name: c.name,
             location: c.address || `${c.city || location}`,
             price: c.rentPerMonth ? `$${c.rentPerMonth.toLocaleString()}/month` : 'Contact for pricing',
             verified: c.source === 'database'
           })),
+        
+        // Raw Perplexity Analysis - THE ACTUAL VALUABLE CONTENT
+        perplexityRawAnalysis: nearbyOptions.content || null,
+        
+        // All Community Names from Perplexity
+        allPerplexityCommunities: nearbyOptions.nearbyOptions?.map((opt: any) => opt.name) || [],
         
         // Data Attribution
         dataAttribution: {
