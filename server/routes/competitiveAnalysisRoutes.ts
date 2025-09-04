@@ -291,8 +291,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
       console.log(`🌐 Total unique communities: ${mergedCommunities.length} (${dbCommunities.length} from DB, ${nearbyOptions.nearbyOptions?.length || 0} from AI)`);
       
       // Calculate REAL pricing from database communities
+      // Filter out HUD/subsidized properties (typically under $1000/month)
       const dbPrices = dbCommunities
-        .filter(c => c.rentPerMonth && c.rentPerMonth > 0)
+        .filter(c => c.rentPerMonth && c.rentPerMonth > 1000) // Exclude HUD/subsidized
+        .map(c => c.rentPerMonth);
+      
+      // Also get HUD pricing separately
+      const hudPrices = dbCommunities
+        .filter(c => c.rentPerMonth && c.rentPerMonth > 0 && c.rentPerMonth <= 1000)
         .map(c => c.rentPerMonth);
       
       // Also try to extract prices from AI results
@@ -309,12 +315,20 @@ router.post('/api/competitive-analysis', async (req, res) => {
       // Combine all prices
       const allPrices = [...dbPrices, ...aiPrices];
       
-      const avgPrice = allPrices.length > 0 ? 
-        Math.round(allPrices.reduce((sum: number, p: number) => sum + p, 0) / allPrices.length) : 
+      // Use market-rate prices only for averages, excluding HUD
+      const marketPrices = [...dbPrices, ...aiPrices.filter((p: number) => p > 1000)];
+      
+      const avgPrice = marketPrices.length > 0 ? 
+        Math.round(marketPrices.reduce((sum: number, p: number) => sum + p, 0) / marketPrices.length) : 
         null;
       
-      const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : null;
-      const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : null;
+      // For price range, use realistic market rates
+      const minPrice = marketPrices.length > 0 ? Math.min(...marketPrices) : 2500;
+      const maxPrice = marketPrices.length > 0 ? Math.max(...marketPrices) : 8000;
+      
+      // Calculate HUD average if available
+      const avgHudPrice = hudPrices.length > 0 ?
+        Math.round(hudPrices.reduce((sum, p) => sum + p, 0) / hudPrices.length) : null;
       
       // Format response to match frontend expectations
       return res.json({
@@ -326,9 +340,16 @@ router.post('/api/competitive-analysis', async (req, res) => {
         averageMonthlyRent: avgPrice || 4500, // Default national average if no data
         
         priceRange: {
-          min: minPrice || 2000,
-          max: maxPrice || 8000
+          min: minPrice || 2500,  // Realistic minimum for market-rate
+          max: maxPrice || 8000   // Realistic maximum
         },
+        
+        // Add HUD pricing info if available
+        hudPricing: hudPrices.length > 0 ? {
+          average: avgHudPrice,
+          count: hudPrices.length,
+          note: 'Income-based subsidized housing'
+        } : null,
         
         // Compare to national average ($4,500)
         comparedToNational: avgPrice ? Math.round(((avgPrice - 4500) / 4500) * 100) : 0,
@@ -340,18 +361,22 @@ router.post('/api/competitive-analysis', async (req, res) => {
           `Found ${mergedCommunities.length} total senior living communities in ${location}`,
           dbCommunities.length > 0 ? `${dbCommunities.length} verified from database` : null,
           nearbyOptions.nearbyOptions?.length ? `${nearbyOptions.nearbyOptions.length} discovered from web search` : null,
-          dbPrices.length > 0 ? `Real pricing from ${dbPrices.length} communities` : null,
-          avgPrice ? `Average monthly: $${avgPrice.toLocaleString()}` : null,
-          minPrice && maxPrice ? `Price range: $${minPrice.toLocaleString()} - $${maxPrice.toLocaleString()}` : null,
+          dbPrices.length > 0 ? `Market-rate pricing from ${dbPrices.length} communities` : null,
+          hudPrices.length > 0 ? `${hudPrices.length} HUD/subsidized properties (income-based)` : null,
+          avgPrice ? `Average market rate: $${avgPrice.toLocaleString()}/month` : 'Estimated market rate: $4,500/month',
+          `Market range: $${minPrice.toLocaleString()} - $${maxPrice.toLocaleString()}/month`,
+          avgHudPrice ? `HUD average: $${avgHudPrice}/month (income-based)` : null,
           'Hybrid database + AI analysis for comprehensive results'
         ].filter(Boolean),
         
         detailedSummary: `Comprehensive market analysis for ${location}: Found ${mergedCommunities.length} total communities (${dbCommunities.length} from verified database, ${nearbyOptions.nearbyOptions?.length || 0} from web search). ${
             avgPrice && dbPrices.length > 0 ? 
-            `Average monthly cost from ${dbPrices.length} communities: $${avgPrice.toLocaleString()}. ` : 
-            avgPrice ? `Estimated average: $${avgPrice.toLocaleString()}. ` :
-            'Contact communities for current pricing. '
-          }This hybrid analysis combines verified database records with real-time web search.`,
+            `Average market-rate cost from ${dbPrices.length} communities: $${avgPrice.toLocaleString()}/month. ` : 
+            'Estimated market rate: $4,500/month based on national averages. '
+          }${
+            hudPrices.length > 0 ?
+            `Note: ${hudPrices.length} HUD/subsidized properties available with income-based pricing averaging $${avgHudPrice}/month. ` : ''
+          }This analysis combines verified database records with real-time web search.`,
         
         communityMentions: mergedCommunities
           .slice(0, 50) // Limit to 50 communities for display
