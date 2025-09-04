@@ -301,46 +301,130 @@ router.post('/api/competitive-analysis', async (req, res) => {
         Math.round(marketPrices.reduce((sum: number, p: number) => sum + p, 0) / marketPrices.length) : 
         4500; // Default to national average
       
-      // Clean, simplified response
-      return res.json({
+      // Fortune 500-level response structure showcasing Perplexity's intelligence
+      const response = {
         success: true,
         location,
         locationType: type,
         
-        // Core metrics
-        averageMonthlyRent: avgPrice,
-        priceRange: {
-          min: 2500,
-          max: 8000
+        // Executive Summary - Highlighting AI Intelligence
+        executiveSummary: {
+          marketPosition: avgPrice > 4500 ? 'Premium Market' : avgPrice < 3500 ? 'Value Market' : 'Mid-Range Market',
+          totalCommunities: mergedCommunities.length,
+          dataConfidence: dbCommunities.length > 20 ? 'High' : dbCommunities.length > 10 ? 'Medium' : 'Developing',
+          aiIntelligence: nearbyOptions.found ? 'Comprehensive Analysis Available' : 'Market Intelligence Gathered',
+          recommendation: avgPrice > 5000 ? 
+            'Consider value-oriented options or negotiate for better rates in this premium market' : 
+            'Market offers good value with multiple affordable options available'
         },
+        
+        // Core Pricing Intelligence
+        pricingIntelligence: {
+          averageMonthlyRent: avgPrice,
+          marketRange: {
+            min: 2500,
+            max: 8000,
+            median: avgPrice
+          },
+          nationalComparison: {
+            percentage: Math.round(((avgPrice - 4500) / 4500) * 100),
+            interpretation: avgPrice > 5500 ? 'Significantly Above National Average' :
+                          avgPrice > 4500 ? 'Above National Average' :
+                          avgPrice < 3500 ? 'Below National Average' : 'At National Average'
+          },
+          trend: 'stable',
+          priceDrivers: nearbyOptions.priceFactors || [
+            'Local cost of living',
+            'Quality of healthcare infrastructure',
+            'Demand vs. supply dynamics'
+          ]
+        },
+        
+        // Strategic Market Insights from Perplexity
+        strategicInsights: [
+          {
+            type: 'market_overview',
+            insight: `${location} senior living market comprises ${mergedCommunities.length} identified communities with ${dbCommunities.length} verified options`,
+            confidence: 'high'
+          },
+          {
+            type: 'pricing_analysis',
+            insight: marketPrices.length > 0 ? 
+              `Market pricing based on ${marketPrices.length} communities shows average of $${avgPrice.toLocaleString()}/month` :
+              `Market estimated at national average of $${avgPrice.toLocaleString()}/month`,
+            confidence: marketPrices.length > 0 ? 'verified' : 'estimated'
+          },
+          {
+            type: 'discovery_intelligence',
+            insight: nearbyOptions.nearbyOptions?.length ? 
+              `AI discovered ${nearbyOptions.nearbyOptions.length} additional communities through real-time market research` :
+              'Market analysis based on verified database records',
+            confidence: 'high'
+          },
+          {
+            type: 'market_opportunity',
+            insight: avgPrice < 4000 ? 'Strong value proposition for budget-conscious families' :
+                    avgPrice > 6000 ? 'Premium market with opportunities for luxury services' :
+                    'Balanced market serving diverse economic segments',
+            confidence: 'analytical'
+          }
+        ],
+        
+        // Perplexity's Market Analysis (Premium Display)
+        marketIntelligence: {
+          summary: nearbyOptions.detailedSummary || 
+            `Executive market analysis for ${location}: Identified ${mergedCommunities.length} total senior living options. ` +
+            `Market average of $${avgPrice.toLocaleString()}/month positions this as a ${avgPrice > 4500 ? 'premium' : avgPrice < 3500 ? 'value' : 'mid-range'} market. ` +
+            `Analysis combines ${dbCommunities.length} verified facilities with AI-discovered market intelligence.`,
+          keyFindings: nearbyOptions.keyFindings || [
+            `${mergedCommunities.length} total communities identified`,
+            `Average monthly cost: $${avgPrice.toLocaleString()}`,
+            `Market range: $${(2500).toLocaleString()} - $${(8000).toLocaleString()}`,
+            dbCommunities.length > 30 ? 'Highly competitive market with many options' : 'Emerging market with growth potential'
+          ],
+          marketOpportunities: [
+            mergedCommunities.length > 50 ? 'High competition creates negotiation opportunities' : null,
+            avgPrice < 4000 ? 'Below-average pricing attracts value seekers' : null,
+            nearbyOptions.nearbyOptions?.length > 10 ? 'Growing market with new developments' : null
+          ].filter(Boolean)
+        },
+        
+        // Top Communities (Executive View)
+        topCommunities: mergedCommunities
+          .slice(0, 10)
+          .map(c => ({
+            name: c.name,
+            location: c.address || `${c.city || location}`,
+            price: c.rentPerMonth ? `$${c.rentPerMonth.toLocaleString()}/month` : 'Contact for pricing',
+            verified: c.source === 'database'
+          })),
+        
+        // Data Attribution
+        dataAttribution: {
+          lastUpdated: new Date().toISOString(),
+          sources: nearbyOptions.sources || [],
+          verifiedCommunities: dbCommunities.length,
+          aiDiscoveredCommunities: nearbyOptions.nearbyOptions?.length || 0,
+          dataQuality: dbCommunities.length > 20 ? 'Excellent' : dbCommunities.length > 10 ? 'Good' : 'Building'
+        },
+        
+        // Legacy fields for backward compatibility
+        averageMonthlyRent: avgPrice,
+        priceRange: { min: 2500, max: 8000 },
         comparedToNational: Math.round(((avgPrice - 4500) / 4500) * 100),
         trend: 'stable',
-        
-        // Simple insights
         insights: [
-          `Found ${mergedCommunities.length} senior living communities in ${location}`,
-          `${dbCommunities.length} verified from database`,
-          `${nearbyOptions.nearbyOptions?.length || 0} discovered from web search`,
-          marketPrices.length > 0 ? 
-            `Market pricing from ${marketPrices.length} communities` : 
-            `National average pricing: $${avgPrice.toLocaleString()}/month`
-        ].filter(Boolean),
-        
-        // Clean summary
-        detailedSummary: nearbyOptions.detailedSummary || 
-          `Market analysis for ${location}: ${mergedCommunities.length} communities found. ` +
-          `Average market rate: $${avgPrice.toLocaleString()}/month. ` +
-          `Based on ${dbCommunities.length} verified database records and AI-powered web search.`,
-        
-        // Just show top communities, not all
-        communityMentions: mergedCommunities
-          .slice(0, 20)
-          .map(c => c.name),
-        
-        lastUpdated: new Date(),
+          `${mergedCommunities.length} communities analyzed`,
+          `${dbCommunities.length} verified facilities`,
+          `Market average: $${avgPrice.toLocaleString()}/month`
+        ],
+        detailedSummary: nearbyOptions.detailedSummary,
+        communityMentions: mergedCommunities.slice(0, 20).map(c => c.name),
         sources: nearbyOptions.sources || [],
-        intelligence: nearbyOptions.intelligence
-      });
+        lastUpdated: new Date().toISOString()
+      };
+      
+      return res.json(response);
     }
     
     return res.status(400).json({ 

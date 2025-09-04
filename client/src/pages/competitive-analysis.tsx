@@ -16,17 +16,75 @@ import heroThinkerImage from '@assets/generated_images/Thinker_leftmost_boundary
 interface MarketAnalysis {
   location: string;
   locationType: 'city' | 'state' | 'region' | 'country';
+  
+  // Executive Summary
+  executiveSummary?: {
+    marketPosition: string;
+    totalCommunities: number;
+    dataConfidence: 'High' | 'Medium' | 'Developing';
+    aiIntelligence: string;
+    recommendation: string;
+  };
+  
+  // Pricing Intelligence
+  pricingIntelligence?: {
+    averageMonthlyRent: number;
+    marketRange: {
+      min: number;
+      max: number;
+      median: number;
+    };
+    nationalComparison: {
+      percentage: number;
+      interpretation: string;
+    };
+    trend: string;
+    priceDrivers: string[];
+  };
+  
+  // Strategic Insights
+  strategicInsights?: Array<{
+    type: string;
+    insight: string;
+    confidence: string;
+  }>;
+  
+  // Market Intelligence
+  marketIntelligence?: {
+    summary: string;
+    keyFindings: string[];
+    marketOpportunities: string[];
+  };
+  
+  // Top Communities
+  topCommunities?: Array<{
+    name: string;
+    location: string;
+    price: string;
+    verified: boolean;
+  }>;
+  
+  // Data Attribution
+  dataAttribution?: {
+    lastUpdated: string;
+    sources: string[];
+    verifiedCommunities: number;
+    aiDiscoveredCommunities: number;
+    dataQuality: string;
+  };
+  
+  // Legacy fields for backward compatibility
   averageMonthlyRent: number;
   priceRange: {
     min: number;
     max: number;
   };
-  comparedToNational: number; // percentage difference
+  comparedToNational: number;
   trend: 'increasing' | 'decreasing' | 'stable';
   insights: string[];
   detailedSummary?: string;
-  communityMentions?: string[]; // Array of community names found in analysis
-  matchedCommunities?: Array<{ // Communities that exist in our database
+  communityMentions?: string[];
+  matchedCommunities?: Array<{
     id: string;
     name: string;
     city: string;
