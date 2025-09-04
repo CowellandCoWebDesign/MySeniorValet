@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText, ExternalLink } from 'lucide-react';
 import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
 import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
@@ -72,6 +72,17 @@ interface MarketAnalysis {
     aiDiscoveredCommunities: number;
     dataQuality: string;
   };
+  
+  // Raw Perplexity Intelligence - THE USER DESERVES TO SEE IT ALL
+  perplexityRawAnalysis?: string;
+  
+  // All Communities from Perplexity Discovery
+  allPerplexityCommunities?: Array<{
+    name: string;
+    location: string;
+    price?: string;
+    verified?: boolean;
+  }>;
   
   // Legacy fields for backward compatibility
   averageMonthlyRent: number;
@@ -603,7 +614,9 @@ export default function CompetitiveAnalysis() {
                           <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2 group-hover:text-purple-600 dark:group-hover:text-purple-400">
                             {community.name}
                             {community.verified && (
-                              <CheckCircle className="w-4 h-4 text-green-500" title="Verified in database" />
+                              <span title="Verified in database">
+                                <CheckCircle className="w-4 h-4 text-green-500" />
+                              </span>
                             )}
                           </h4>
                           <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
