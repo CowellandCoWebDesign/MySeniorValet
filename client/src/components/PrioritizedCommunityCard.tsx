@@ -159,7 +159,9 @@ function CommunityCard({
   const occupancyRate = getOccupancyRate();
   
   // Rating (use actual or generate based on some logic)
-  const rating = community.rating || (community.verified ? 4.8 : 4.2);
+  const rating = typeof community.rating === 'number' ? community.rating : 
+                 typeof community.rating === 'string' ? parseFloat(community.rating) :
+                 (community.verified ? 4.8 : 4.2);
   const reviewCount = community.reviewCount || Math.floor(Math.random() * 500) + 100;
   
   // Get care types display
