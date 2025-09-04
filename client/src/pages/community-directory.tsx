@@ -18,6 +18,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
@@ -697,8 +698,8 @@ export default function CommunityDirectory() {
               ))
             ) : (
               ((hawaiiCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
+                <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`}>
+                  <FeaturedExcellenceCard community={community} index={index} compact />
                     <div className="relative">
                       {/* Image Section with Hawaii Theme */}
                       <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center relative">
@@ -742,9 +743,6 @@ export default function CommunityDirectory() {
                         🌊 Island Life
                       </Badge>
                     </div>
-                    
-                    {/* Standardized Card Body with Essential Rental Information */}
-                    <CardContent className="p-4 space-y-3">
                       {/* Community Name & Location */}
                       <div>
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
@@ -858,8 +856,7 @@ export default function CommunityDirectory() {
                           <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+
                 </Link>
               ))
             )}
@@ -942,8 +939,8 @@ export default function CommunityDirectory() {
             ) : (
               <div ref={texasSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 " style={{scrollBehavior: 'smooth'}}>
                 {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-orange-300 dark:border-orange-600 rounded-xl h-[520px]">
+                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`}>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                       <div className="relative">
                         {/* Image Section with Texas Theme */}
                         <div className="h-48 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900 dark:to-red-900 flex items-center justify-center relative">
@@ -1095,8 +1092,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -1170,8 +1165,8 @@ export default function CommunityDirectory() {
               
               <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
+                  <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`}>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                       <div className="relative">
                         {/* Image Section with Florida Theme */}
                         <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
@@ -1323,8 +1318,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -1594,8 +1587,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
                 
@@ -1647,8 +1638,7 @@ export default function CommunityDirectory() {
                         Search All HUD Communities
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-                    </CardContent>
-                  </Card>
+
                 </Link>
               </>
             )}
@@ -1736,8 +1726,8 @@ export default function CommunityDirectory() {
               </div>
             ) : (
               ((newYorkCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-purple-300 dark:border-purple-600 rounded-xl h-[520px]">
+                <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`}>
+                  <FeaturedExcellenceCard community={community} index={index} compact />
                     <div className="relative">
                       {/* Image Section with New York Theme */}
                       <div className="h-48 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 flex items-center justify-center relative">
@@ -1773,9 +1763,6 @@ export default function CommunityDirectory() {
                         </div>
                       </div>
                     </div>
-                    
-                    {/* Standardized Card Body with Essential Rental Information */}
-                    <CardContent className="p-4 space-y-3">
                       {/* Community Name & Location */}
                       <div>
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
@@ -1889,8 +1876,7 @@ export default function CommunityDirectory() {
                           <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+
                 </Link>
               ))
             )}
@@ -2032,8 +2018,7 @@ export default function CommunityDirectory() {
                         {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-                    </CardContent>
-                  </Card>
+
                 </Link>
               </>
             ) : (
@@ -2083,9 +2068,6 @@ export default function CommunityDirectory() {
                         </Badge>
                       )}
                     </div>
-                    
-                    {/* Standardized Card Body with Essential Rental Information */}
-                    <CardContent className="p-4 space-y-3">
                       {/* Community Name & Location */}
                       <div>
                         <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
@@ -2199,8 +2181,7 @@ export default function CommunityDirectory() {
                           <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+
                 </Link>
               ))
             )}
@@ -2422,8 +2403,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -2661,8 +2640,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -2897,8 +2874,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -3129,8 +3104,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -3361,8 +3334,6 @@ export default function CommunityDirectory() {
                             <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
                   </Link>
                 ))}
               </div>
@@ -3556,8 +3527,7 @@ export default function CommunityDirectory() {
                           <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+
                 </Link>
               ))
             )}
