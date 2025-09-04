@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
-import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
+import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { VendorCard } from '@/components/VendorCard';
 import EnhancedVendorCard from '@/components/EnhancedVendorCard';
 import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
@@ -2031,13 +2031,11 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                  <PrioritizedCommunityCard
+                  <EnhancedCommunityCard
                     key={`community-${community.id}`}
                     community={community}
-                    variant="list"
-                    onSelect={() => handleCommunityClick(community)}
-                    onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
-                    isFavorite={false}
+                    variant="featured"
+                    onNavigate={() => handleCommunityClick(community)}
                   />
                 ))}
               
@@ -2144,13 +2142,11 @@ export default function MapSearch() {
                             {filteredCommunities
                               .slice(0, 5)
                               .map((community: Community, index: number) => (
-                              <PrioritizedCommunityCard
+                              <EnhancedCommunityCard
                                 key={`all-community-${community.id}`}
                                 community={community}
-                                variant="list"
-                                onSelect={() => handleCommunityClick(community)}
-                                onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
-                                isFavorite={false}
+                                variant="featured"
+                                onNavigate={() => handleCommunityClick(community)}
                               />
                             ))}
                           </>
