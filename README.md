@@ -49,17 +49,41 @@ The platform maintains a database of verified senior living communities with:
 
 ## Development
 
+**Quick Start (Post-Replit Migration):**
+
 ```bash
-# Install dependencies
-npm install
+# Development mode (automatic setup)
+./dev.sh
+
+# Production deployment
+cp .env.example .env
+# Edit .env with your configuration
+./start.sh
+```
+
+**Manual Setup:**
+
+```bash
+# Install dependencies (safe mode)
+npm run install:safe
 
 # Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
 
 # Database operations
 npm run db:push
 npm run db:seed
 ```
+
+## Migration from Replit
+
+This platform has been migrated from Replit for better hosting flexibility. See [DEPLOYMENT.md](DEPLOYMENT.md) for complete setup instructions.
 
 ## Documentation
 
