@@ -842,12 +842,10 @@ function HeroSectionWithTransformingSearch() {
                                 </div>
                               </div>
                             ) : (
-                              <PrioritizedCommunityCard
+                              <EnhancedCommunityCard
                                 community={item}
-                                variant="list"
-                                onSelect={() => {
-                                  setLocation(`/community/${item.id}`);
-                                }}
+                                variant="featured"
+                                index={index}
                               />
                             )}
                           </motion.div>
