@@ -13,7 +13,7 @@ import {
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
   Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
-  ArrowRight, Languages, Phone
+  ArrowRight, Languages, Phone, Crown, Award
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -215,6 +215,16 @@ export default function CommunityDirectory() {
     queryKey: ['/api/communities/hud-count']
   });
   
+  // Fetch featured Oakmont communities for Excellence Showcase
+  const { data: oakmontFeatured, isLoading: oakmontLoading } = useQuery({
+    queryKey: ['/api/communities/featured-oakmont'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/featured-oakmont');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
   // Fetch community stats including top states
   const { data: communityStats } = useQuery<{
     totalCommunities: string;
@@ -412,6 +422,194 @@ export default function CommunityDirectory() {
               </Card>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Featured Excellence - Oakmont Senior Living Showcase */}
+      <section className="px-4 py-12 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Header */}
+          <div className="text-center mb-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+            >
+              <Badge className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-4 py-2 mb-4">
+                <Award className="h-4 w-4 mr-2" />
+                FEATURED EXCELLENCE
+              </Badge>
+              
+              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+                🏆 Oakmont Senior Living
+              </h2>
+              
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-6 max-w-3xl mx-auto">
+                Premier luxury senior living communities across California, Nevada & Hawaii - now fully integrated with 114 locations in our database
+              </p>
+              
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <Badge variant="outline" className="border-amber-300 dark:border-amber-600">
+                  <Building2 className="h-3 w-3 mr-1 text-amber-600" />
+                  114 Communities
+                </Badge>
+                <Badge variant="outline" className="border-orange-300 dark:border-orange-600">
+                  <MapPin className="h-3 w-3 mr-1 text-orange-600" />
+                  3 States
+                </Badge>
+                <Badge variant="outline" className="border-yellow-300 dark:border-yellow-600">
+                  <Crown className="h-3 w-3 mr-1 text-yellow-600" />
+                  Luxury Living
+                </Badge>
+                <Badge variant="outline" className="border-green-300 dark:border-green-600">
+                  <Shield className="h-3 w-3 mr-1 text-green-600" />
+                  100% Verified
+                </Badge>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Featured Oakmont Communities Grid */}
+          {oakmontLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="overflow-hidden animate-pulse">
+                  <div className="h-64 bg-gray-200 dark:bg-gray-700" />
+                  <CardContent className="p-6">
+                    <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-3" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {(oakmontFeatured?.communities || []).slice(0, 3).map((community: any) => (
+                <Link key={community.id} href={`/community/${community.id}`}>
+                  <Card className="overflow-hidden hover:shadow-2xl transition-all border-2 border-amber-200 dark:border-amber-700 bg-white dark:bg-gray-900 h-full">
+                    {/* Premium Image Section */}
+                    <div className="relative h-64">
+                      {community.photos && community.photos.length > 0 ? (
+                        <img 
+                          src={community.photos[0]} 
+                          alt={community.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900 dark:to-orange-900 flex items-center justify-center">
+                          <div className="text-center">
+                            <Building2 className="h-20 w-20 text-amber-600 dark:text-amber-400 mx-auto mb-3" />
+                            <div className="text-lg font-medium text-gray-800 dark:text-gray-200">Oakmont Excellence</div>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {/* Overlays and Badges */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                      
+                      {/* Top Badges */}
+                      <div className="absolute top-4 left-4 right-4 flex justify-between items-start">
+                        <Badge className="bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-lg">
+                          <Crown className="h-3 w-3 mr-1" />
+                          Oakmont
+                        </Badge>
+                        
+                        {/* Rating Badge */}
+                        {community.rating && (
+                          <Badge className="bg-white/95 dark:bg-gray-900/95 text-gray-900 dark:text-white shadow-lg">
+                            <Star className="h-3 w-3 mr-1 text-yellow-500" />
+                            {parseFloat(community.rating).toFixed(1)}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Bottom Price Overlay */}
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-4 py-3 shadow-xl">
+                          <div className="text-2xl font-bold text-gray-900 dark:text-white">
+                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
+                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 
+                             community.livePricing?.startingPrice ? `$${Number(community.livePricing.startingPrice).toLocaleString()}+` :
+                             'Premium Pricing'}
+                          </div>
+                          <div className="text-sm text-gray-600 dark:text-gray-400">Starting monthly</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Premium Card Content */}
+                    <CardContent className="p-6">
+                      {/* Community Name & Location */}
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                          {community.name}
+                        </h3>
+                        <div className="flex items-center text-gray-600 dark:text-gray-400">
+                          <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <span className="text-sm">{community.city}, {community.state}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Care Types */}
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {community.careTypes?.slice(0, 3).map((careType: string, idx: number) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {careType}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {/* Premium Features Grid */}
+                      <div className="grid grid-cols-2 gap-3 mb-4">
+                        <div className="flex items-center gap-2">
+                          <Users className="h-4 w-4 text-amber-600" />
+                          <div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Capacity</div>
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.totalUnits || '80+'} Units
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Heart className="h-4 w-4 text-red-600" />
+                          <div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">Occupancy</div>
+                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
+                              {community.occupancy || '96%'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Amenities Preview */}
+                      <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-4">
+                        <Sparkles className="h-4 w-4 text-yellow-600" />
+                        <span>{community.amenitiesCount || 15}+ Premium Amenities</span>
+                      </div>
+                      
+                      {/* Action Button */}
+                      <Button className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white">
+                        View Details
+                        <ChevronRight className="h-4 w-4 ml-2" />
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+          
+          {/* View All Oakmont Communities Button */}
+          <div className="text-center mt-8">
+            <Link href="/search?company=Oakmont">
+              <Button size="lg" variant="outline" className="border-2 border-amber-300 dark:border-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20">
+                <Building2 className="h-5 w-5 mr-2" />
+                View All 114 Oakmont Communities
+                <ChevronRight className="h-5 w-5 ml-2" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </section>
 
