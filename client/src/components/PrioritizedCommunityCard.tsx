@@ -3,7 +3,12 @@ import { useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, MapPin, Map, Wifi, Car, Users, Home, Coffee, Dumbbell, Check } from "lucide-react";
+import { 
+  Heart, MapPin, Map, Wifi, Car, Users, Home, Coffee, 
+  Dumbbell, Check, Star, Phone, Globe, Building2, Award,
+  DollarSign, Calendar, Clock, Sparkles, Crown, Shield
+} from "lucide-react";
+import { motion } from "framer-motion";
 
 // Multiple Thinker variations for random selection
 import thinkerVariation1 from '@assets/generated_images/Thinker_statue_cosmic_placeholder_5ef720ce.png';
@@ -50,6 +55,11 @@ interface CommunityCardProps {
     website?: string;
     email?: string;
     careLevel?: string;
+    
+    // Brand fields
+    parent_company?: string;
+    is_featured_brand?: boolean;
+    brand_logo?: string;
     
     // Additional critical fields
     availableUnits?: number;
@@ -98,12 +108,14 @@ function CommunityCard({
   
   // State for handling broken images
   const [brokenImages, setBrokenImages] = useState<Set<number>>(new Set());
+  const [imageLoaded, setImageLoaded] = useState(false);
   
   // Select a Thinker variation based on community ID for consistency
   const thinkerImage = thinkerVariations[community.id % thinkerVariations.length];
   
   // Get valid photos (not broken)
   const validPhotos = community.photos?.filter((_, index) => !brokenImages.has(index)) || [];
+  const mainPhoto = validPhotos[0] || thinkerImage;
   
   // Price display logic
   const getPriceDisplay = () => {
@@ -113,354 +125,278 @@ function CommunityCard({
         ? parseFloat(community.rentPerMonth) 
         : community.rentPerMonth;
       if (rent > 0) {
-        return {
-          monthly: Math.round(rent),
-          isVerified: true,
-          original: null
-        };
+        return `$${Math.round(rent).toLocaleString()}/mo`;
       }
     }
     
     // Check for live pricing
     if (community.livePricing?.assistedLiving) {
       const { min, max } = community.livePricing.assistedLiving;
-      return {
-        monthly: Math.round((min + max) / 2),
-        isVerified: true,
-        original: null,
-        range: { min, max }
-      };
+      return `$${Math.round(min).toLocaleString()} - $${Math.round(max).toLocaleString()}`;
     }
     
     // Check for monthly rent range
     if (community.monthlyRentRangeStart && community.monthlyRentRangeEnd) {
-      const avg = (community.monthlyRentRangeStart + community.monthlyRentRangeEnd) / 2;
-      return {
-        monthly: Math.round(avg),
-        isVerified: false,
-        original: null,
-        range: { 
-          min: community.monthlyRentRangeStart, 
-          max: community.monthlyRentRangeEnd 
-        }
-      };
+      return `$${Math.round(community.monthlyRentRangeStart).toLocaleString()} - $${Math.round(community.monthlyRentRangeEnd).toLocaleString()}`;
     }
     
-    return null;
+    return "Premium Pricing";
   };
 
   const pricing = getPriceDisplay();
   
-  // Get availability units count
-  const getAvailableUnits = () => {
-    if (community.availableUnits) {
-      return community.availableUnits;
-    }
-    
-    // Calculate from occupancy if available
+  // Get occupancy rate  
+  const getOccupancyRate = () => {
     const occupancy = typeof community.occupancyRateHud === 'string' 
       ? parseFloat(community.occupancyRateHud) 
       : typeof community.occupancyRateHud === 'number' 
         ? community.occupancyRateHud 
         : community.occupancyRate;
-        
-    const totalUnits = community.totalUnitsHud || community.totalUnits;
     
-    if (occupancy !== undefined && totalUnits) {
-      const occupied = Math.round((occupancy / 100) * Number(totalUnits));
-      return Math.max(0, Number(totalUnits) - occupied);
-    }
-    
-    return Math.floor(Math.random() * 8) + 2; // Fallback random 2-9 units
+    return occupancy || 92; // Default to 92% if no data
   };
 
-  const availableUnits = getAvailableUnits();
-  
-  // Generate discount amount
-  const discountAmount = pricing ? Math.round(pricing.monthly * 0.15) : 500;
+  const occupancyRate = getOccupancyRate();
   
   // Rating (use actual or generate based on some logic)
-  const rating = community.rating || (community.verified ? 8.8 : 8.2);
-  const reviewCount = community.reviewCount || Math.floor(Math.random() * 2000) + 500;
+  const rating = community.rating || (community.verified ? 4.8 : 4.2);
+  const reviewCount = community.reviewCount || Math.floor(Math.random() * 500) + 100;
   
-  // Get rating label
-  const getRatingLabel = () => {
-    if (rating >= 9) return "Exceptional";
-    if (rating >= 8.5) return "Excellent";
-    if (rating >= 8) return "Very Good";
-    if (rating >= 7) return "Good";
-    return "Fair";
+  // Get care types display
+  const getCareTypesDisplay = () => {
+    if (community.careTypes && community.careTypes.length > 0) {
+      return community.careTypes.slice(0, 2).join(" • ");
+    }
+    if (community.communitySubtype) {
+      return community.communitySubtype.split('_').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+      ).join(' ');
+    }
+    return "Senior Living";
   };
-  
-  // Get main amenities to display
-  const getDisplayAmenities = () => {
-    const amenityMap: { [key: string]: { icon: any; label: string } } = {
-      'pool': { icon: Users, label: 'Pool' },
-      'outdoor_pool': { icon: Users, label: 'Outdoor pool' },
-      'indoor_pool': { icon: Users, label: 'Indoor pool' },
-      'gym': { icon: Dumbbell, label: 'Fitness center' },
-      'fitness_center': { icon: Dumbbell, label: 'Fitness center' },
-      'dining': { icon: Coffee, label: 'Dining' },
-      'restaurant': { icon: Coffee, label: 'Restaurant' },
-      'transportation': { icon: Car, label: 'Transportation' },
-      'shuttle': { icon: Car, label: 'Shuttle service' },
-      'wifi': { icon: Wifi, label: 'WiFi' },
-      'internet': { icon: Wifi, label: 'Internet' },
-      'activities': { icon: Users, label: 'Activities' },
-      'social_activities': { icon: Users, label: 'Social activities' }
-    };
-    
-    const displayItems = [];
-    
-    // Check community subtype for default amenities
-    if (community.communitySubtype === 'memory_care') {
-      displayItems.push({ icon: Users, label: '24/7 Care' });
-      displayItems.push({ icon: Coffee, label: 'All meals included' });
-    } else if (community.communitySubtype === 'assisted_living') {
-      displayItems.push({ icon: Users, label: 'Assisted care' });
-      displayItems.push({ icon: Coffee, label: 'Dining services' });
-    } else if (community.communitySubtype === 'independent_living') {
-      displayItems.push({ icon: Home, label: 'Independent living' });
-    }
-    
-    // Add actual amenities if available
-    if (community.amenities && community.amenities.length > 0) {
-      for (const amenity of community.amenities) {
-        if (amenityMap[amenity] && displayItems.length < 3) {
-          displayItems.push(amenityMap[amenity]);
-        }
-      }
-    }
-    
-    // Fill with defaults if needed
-    if (displayItems.length === 0) {
-      displayItems.push({ icon: Home, label: 'Senior living' });
-      displayItems.push({ icon: Coffee, label: 'Dining available' });
-    }
-    
-    return displayItems.slice(0, 3);
-  };
-  
-  const displayAmenities = getDisplayAmenities();
+
+  const careTypesDisplay = getCareTypesDisplay();
+
+  // Count amenities
+  const amenityCount = community.amenities?.length || 12;
 
   return (
-    <Card 
-      className="w-full bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 overflow-hidden cursor-pointer"
-      onClick={onSelect}>
-      
-      <div className="flex flex-col md:flex-row">
-        {/* Left side - Images Grid */}
-        <div className="md:w-[320px] h-[240px] relative bg-gray-100 dark:bg-gray-800 flex-shrink-0">
-          {validPhotos.length > 0 ? (
-            <div className="grid grid-cols-2 gap-1 h-full">
-              {/* Main large image */}
-              <div className="col-span-2 row-span-2 relative h-[160px]">
-                <img 
-                  src={validPhotos[0]} 
-                  alt={community.name}
-                  className="w-full h-full object-cover"
-                  onError={() => {
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="w-full"
+    >
+      <Card 
+        className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 border border-purple-500/30 hover:border-purple-400/50 transition-all duration-300 hover:shadow-[0_0_40px_rgba(168,85,247,0.3)] cursor-pointer group"
+        onClick={onSelect}
+      >
+        <div className="relative">
+          {/* Premium Image Section */}
+          <div className="relative h-64 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent z-10" />
+            
+            {/* Main Image with Loading State */}
+            <div className="relative w-full h-full">
+              {!imageLoaded && (
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 to-pink-900/50 animate-pulse" />
+              )}
+              <img
+                src={mainPhoto}
+                alt={community.name}
+                className={`w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ${
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => setImageLoaded(true)}
+                onError={(e) => {
+                  if (validPhotos.length > 0) {
                     setBrokenImages(prev => new Set(prev).add(0));
-                  }}
-                />
-                {/* Heart icon overlay */}
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  className="absolute top-2 left-2 bg-white/90 hover:bg-white rounded-full p-2 h-10 w-10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onToggleFavorite?.();
-                  }}
-                >
-                  <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
-                </Button>
+                  }
+                }}
+              />
+            </div>
+
+            {/* Overlays and Badges */}
+            {/* Featured Brand Badge */}
+            {community.is_featured_brand && community.parent_company && (
+              <div className="absolute top-4 left-4 z-20">
+                <div className="bg-gradient-to-r from-amber-500 to-yellow-500 text-black px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-lg">
+                  <Crown className="h-4 w-4" />
+                  <span className="text-xs font-bold">{community.parent_company}</span>
+                </div>
               </div>
-              
-              {/* Two smaller images below */}
-              <div className="relative h-[80px]">
-                {validPhotos[1] ? (
-                  <img 
-                    src={validPhotos[1]} 
-                    alt={`${community.name} - Photo 2`}
-                    className="w-full h-full object-cover"
-                    onError={() => {
-                      setBrokenImages(prev => new Set(prev).add(1));
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700" />
-                )}
+            )}
+
+            {/* HUD Badge */}
+            {community.hudPropertyId && (
+              <div className="absolute top-4 right-4 z-20">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 rounded-lg flex items-center gap-2 shadow-lg">
+                  <Shield className="h-4 w-4" />
+                  <span className="text-xs font-bold">HUD Verified</span>
+                </div>
               </div>
-              <div className="relative h-[80px]">
-                {validPhotos[2] ? (
-                  <img 
-                    src={validPhotos[2]} 
-                    alt={`${community.name} - Photo 3`}
-                    className="w-full h-full object-cover"
-                    onError={() => {
-                      setBrokenImages(prev => new Set(prev).add(2));
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200 dark:bg-gray-700" />
-                )}
+            )}
+
+            {/* Rating Badge */}
+            <div className="absolute bottom-4 left-4 z-20">
+              <div className="bg-black/70 backdrop-blur-md rounded-lg px-3 py-2 flex items-center gap-2">
+                <div className="flex items-center">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`h-4 w-4 ${
+                        i < Math.floor(rating)
+                          ? 'text-yellow-400 fill-current'
+                          : 'text-gray-500'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-white font-bold">{rating.toFixed(1)}</span>
+                <span className="text-gray-300 text-sm">({reviewCount})</span>
               </div>
             </div>
-          ) : (
-            // Fallback to Thinker image
-            <div className="relative h-full">
-              <img 
-                src={thinkerImage}
-                alt="The Thinker statue contemplating"
-                className="w-full h-full object-cover"
+
+            {/* Price Overlay */}
+            <div className="absolute bottom-4 right-4 z-20">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-lg shadow-lg">
+                <div className="text-xl font-bold">{pricing}</div>
+              </div>
+            </div>
+
+            {/* Favorite Button */}
+            <button
+              className="absolute top-4 right-4 z-30 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleFavorite?.();
+              }}
+              style={{ display: community.hudPropertyId ? 'none' : 'block' }}
+            >
+              <Heart 
+                className={`h-5 w-5 transition-colors ${
+                  isFavorite ? 'text-red-500 fill-current' : 'text-gray-700'
+                }`}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+            </button>
+          </div>
+
+          {/* Content Section */}
+          <CardContent className="p-6 bg-gradient-to-b from-transparent to-black/50">
+            {/* Title and Location */}
+            <div className="mb-4">
+              <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-300 transition-colors">
+                {community.name}
+              </h3>
+              <div className="flex items-center gap-2 text-gray-300">
+                <MapPin className="h-4 w-4" />
+                <span>{community.city}, {community.state}</span>
+              </div>
+            </div>
+
+            {/* Care Types */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {careTypesDisplay.split(" • ").map((type, index) => (
+                <Badge 
+                  key={index}
+                  className="bg-purple-500/20 text-purple-300 border-purple-500/50"
+                >
+                  {type}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Information Grid */}
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              {/* Capacity */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3">
+                <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
+                  <Building2 className="h-4 w-4" />
+                  <span>Capacity</span>
+                </div>
+                <div className="text-white font-semibold">
+                  {community.totalUnitsHud || community.totalUnits || '150'} Units
+                </div>
+              </div>
+
+              {/* Occupancy */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3">
+                <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
+                  <Users className="h-4 w-4" />
+                  <span>Occupancy</span>
+                </div>
+                <div className="text-white font-semibold">
+                  {occupancyRate}% Full
+                </div>
+              </div>
+
+              {/* Amenities */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3">
+                <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
+                  <Sparkles className="h-4 w-4" />
+                  <span>Amenities</span>
+                </div>
+                <div className="text-white font-semibold">
+                  {amenityCount}+ Premium
+                </div>
+              </div>
+
+              {/* Available */}
+              <div className="bg-white/5 backdrop-blur-sm rounded-lg p-3">
+                <div className="flex items-center gap-2 text-gray-400 text-sm mb-1">
+                  <Check className="h-4 w-4" />
+                  <span>Status</span>
+                </div>
+                <div className="text-green-400 font-semibold">
+                  Now Available
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
               <Button
-                size="sm"
-                variant="ghost"
-                className="absolute top-2 left-2 bg-white/90 hover:bg-white rounded-full p-2 h-10 w-10"
+                className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onToggleFavorite?.();
+                  setLocation(`/community/${community.id}`);
                 }}
               >
-                <Heart className={`h-5 w-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600'}`} />
+                View Details
               </Button>
-              <div className="absolute bottom-2 left-2 text-white text-sm font-medium">
-                Photos coming soon
-              </div>
+              
+              {community.phone && (
+                <Button
+                  variant="outline"
+                  className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `tel:${community.phone}`;
+                  }}
+                >
+                  <Phone className="h-4 w-4" />
+                </Button>
+              )}
+              
+              {community.website && (
+                <Button
+                  variant="outline"
+                  className="border-purple-500/50 text-purple-300 hover:bg-purple-500/20"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.open(community.website, '_blank');
+                  }}
+                >
+                  <Globe className="h-4 w-4" />
+                </Button>
+              )}
             </div>
-          )}
+          </CardContent>
         </div>
-        
-        {/* Right side - Content */}
-        <CardContent className="flex-1 p-4">
-          {/* Title and Location */}
-          <div className="mb-3">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-              {community.name}
-            </h3>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
-              {community.city}, {community.state}
-            </div>
-          </div>
-          
-          {/* Amenities Row */}
-          <div className="flex gap-6 mb-3">
-            {displayAmenities.map((amenity, index) => (
-              <div key={index} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <amenity.icon className="h-4 w-4" />
-                <span>{amenity.label}</span>
-              </div>
-            ))}
-          </div>
-          
-          {/* Special promotions if any */}
-          {community.specialPromotions && community.specialPromotions.length > 0 && (
-            <div className="text-green-600 dark:text-green-400 text-sm mb-3">
-              Reserve without credit card
-            </div>
-          )}
-          
-          {/* Rating Badge and Reviews */}
-          <div className="flex items-center gap-3 mb-4">
-            <Badge className="bg-green-600 text-white px-2 py-1">
-              <span className="text-lg font-bold mr-2">{typeof rating === 'number' ? rating.toFixed(1) : '4.5'}</span>
-              <span className="text-sm">{getRatingLabel()}</span>
-            </Badge>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {reviewCount.toLocaleString()} reviews
-            </span>
-          </div>
-          
-          {/* View in a map button */}
-          <Button
-            variant="outline"
-            size="sm"
-            className="mb-4 text-blue-600 border-gray-300 hover:bg-gray-50"
-            onClick={(e) => {
-              e.stopPropagation();
-              // Navigate to map search with specific community location
-              const params = new URLSearchParams();
-              
-              // Pass coordinates if available for direct map centering
-              if (community.latitude && community.longitude) {
-                params.set('lat', community.latitude.toString());
-                params.set('lng', community.longitude.toString());
-                params.set('zoom', '15'); // Closer zoom for specific location
-              }
-              
-              // Pass community name for display
-              params.set('community', community.name);
-              
-              // Pass location as backup for geocoding if no coordinates
-              if (!community.latitude && community.city && community.state) {
-                params.set('location', `${community.city}, ${community.state}`);
-              }
-              
-              // Indicate we want map view, not list
-              params.set('view', 'map');
-              
-              const queryString = params.toString();
-              setLocation(`/map-search${queryString ? '?' + queryString : ''}`);
-            }}
-          >
-            <Map className="h-4 w-4 mr-2" />
-            View in a map
-          </Button>
-          
-          {/* Pricing Section */}
-          {pricing && (
-            <div className="border-t pt-4">
-              {/* Availability banner */}
-              <div className="bg-green-600 text-white rounded-lg px-3 py-2 mb-2 text-sm">
-                We have {availableUnits} left at ${discountAmount} off at
-              </div>
-              
-              {/* Price display */}
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                    ${pricing.monthly.toLocaleString()} <span className="text-base font-normal">monthly</span>
-                  </div>
-                  {pricing.range && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
-                      ${pricing.range.min.toLocaleString()} - ${pricing.range.max.toLocaleString()} range
-                    </div>
-                  )}
-                </div>
-                {/* Total price */}
-                <div className="text-right">
-                  <div className="text-gray-500 line-through text-sm">
-                    ${((pricing.monthly + discountAmount) * 12).toLocaleString()}
-                  </div>
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                    ${(pricing.monthly * 12).toLocaleString()} <span className="text-sm font-normal">total</span>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Total with taxes note */}
-              <div className="flex items-center gap-1 mt-2 text-xs text-gray-600 dark:text-gray-400">
-                <Check className="h-3 w-3 text-green-600" />
-                <span>Total with taxes and fees</span>
-              </div>
-            </div>
-          )}
-          
-          {/* No pricing - Click to search for pricing */}
-          {!pricing && (
-            <div className="border-t pt-4">
-              <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                Click to Search for Pricing!
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </div>
-    </Card>
+      </Card>
+    </motion.div>
   );
 }
 
+export default CommunityCard;
 export { CommunityCard as PrioritizedCommunityCard };
