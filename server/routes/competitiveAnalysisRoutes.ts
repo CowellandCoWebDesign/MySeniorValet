@@ -215,11 +215,88 @@ router.post('/api/competitive-analysis', async (req, res) => {
     
     // For broad area searches
     if (location) {
+      // STEP 1: Query database for communities in this location
+      console.log(`📊 Querying database for communities in ${location}...`);
+      
+      let dbCommunities = [];
+      
+      // Parse location to extract city/state
+      const locationParts = location.split(',').map(s => s.trim());
+      const cityName = locationParts[0];
+      const stateName = locationParts[1];
+      
+      // Query database for communities in this city
+      if (cityName) {
+        try {
+          dbCommunities = await db
+            .select({
+              id: communities.id,
+              name: communities.name,
+              address: communities.address,
+              city: communities.city,
+              state: communities.state,
+              rentPerMonth: communities.rentPerMonth,
+              careServices: communities.careServices,
+              website: communities.website,
+              phone: communities.phone
+            })
+            .from(communities)
+            .where(eq(communities.city, cityName))
+            .limit(50);
+          
+          console.log(`✅ Found ${dbCommunities.length} communities in database for ${cityName}`);
+        } catch (error) {
+          console.error('Database query error:', error);
+        }
+      }
+      
+      // STEP 2: Get AI-enhanced data from Perplexity
       const nearbyOptions = await simplifiedPerplexityService.findNearbyOptions(location);
       
-      // Extract pricing from nearby options if available
-      const prices = nearbyOptions.nearbyOptions?.map((opt: any) => {
-        // Try to extract numeric price from pricing field
+      // STEP 3: Merge database communities with AI communities
+      const allCommunities = new Map<string, any>();
+      
+      // Add database communities first (more reliable)
+      dbCommunities.forEach(comm => {
+        allCommunities.set(comm.name.toLowerCase(), {
+          id: comm.id,
+          name: comm.name,
+          address: comm.address,
+          city: comm.city,
+          state: comm.state,
+          rentPerMonth: comm.rentPerMonth,
+          website: comm.website,
+          phone: comm.phone,
+          careServices: comm.careServices,
+          source: 'database'
+        });
+      });
+      
+      // Add AI communities (may have duplicates or new ones)
+      nearbyOptions.nearbyOptions?.forEach((opt: any) => {
+        const key = opt.name.toLowerCase();
+        if (!allCommunities.has(key)) {
+          allCommunities.set(key, {
+            name: opt.name,
+            address: opt.address || '',
+            description: opt.description,
+            source: 'ai'
+          });
+        }
+      });
+      
+      // Convert map back to array
+      const mergedCommunities = Array.from(allCommunities.values());
+      
+      console.log(`🌐 Total unique communities: ${mergedCommunities.length} (${dbCommunities.length} from DB, ${nearbyOptions.nearbyOptions?.length || 0} from AI)`);
+      
+      // Calculate REAL pricing from database communities
+      const dbPrices = dbCommunities
+        .filter(c => c.rentPerMonth && c.rentPerMonth > 0)
+        .map(c => c.rentPerMonth);
+      
+      // Also try to extract prices from AI results
+      const aiPrices = nearbyOptions.nearbyOptions?.map((opt: any) => {
         if (opt.pricing && typeof opt.pricing === 'string') {
           const priceMatch = opt.pricing.match(/\$([\d,]+)/);
           if (priceMatch) {
@@ -229,12 +306,15 @@ router.post('/api/competitive-analysis', async (req, res) => {
         return null;
       }).filter((p: number | null) => p !== null) || [];
       
-      const avgPrice = prices.length > 0 ? 
-        Math.round(prices.reduce((sum: number, p: number) => sum + p, 0) / prices.length) : 
+      // Combine all prices
+      const allPrices = [...dbPrices, ...aiPrices];
+      
+      const avgPrice = allPrices.length > 0 ? 
+        Math.round(allPrices.reduce((sum: number, p: number) => sum + p, 0) / allPrices.length) : 
         null;
       
-      const minPrice = prices.length > 0 ? Math.min(...prices) : null;
-      const maxPrice = prices.length > 0 ? Math.max(...prices) : null;
+      const minPrice = allPrices.length > 0 ? Math.min(...allPrices) : null;
+      const maxPrice = allPrices.length > 0 ? Math.max(...allPrices) : null;
       
       // Format response to match frontend expectations
       return res.json({
@@ -255,23 +335,27 @@ router.post('/api/competitive-analysis', async (req, res) => {
         
         trend: 'stable', // Default to stable
         
-        // Detailed insights
+        // Detailed insights with real data
         insights: [
-          nearbyOptions.nearbyOptions?.length && `Found ${nearbyOptions.nearbyOptions.length} senior living communities in ${location}`,
-          avgPrice && `Average monthly cost: $${avgPrice.toLocaleString()}`,
-          minPrice && maxPrice && `Price range: $${minPrice.toLocaleString()} - $${maxPrice.toLocaleString()}`,
-          nearbyOptions.found && 'Real-time market data available',
-          'Analysis powered by Perplexity AI web search'
+          `Found ${mergedCommunities.length} total senior living communities in ${location}`,
+          dbCommunities.length > 0 ? `${dbCommunities.length} verified from database` : null,
+          nearbyOptions.nearbyOptions?.length ? `${nearbyOptions.nearbyOptions.length} discovered from web search` : null,
+          dbPrices.length > 0 ? `Real pricing from ${dbPrices.length} communities` : null,
+          avgPrice ? `Average monthly: $${avgPrice.toLocaleString()}` : null,
+          minPrice && maxPrice ? `Price range: $${minPrice.toLocaleString()} - $${maxPrice.toLocaleString()}` : null,
+          'Hybrid database + AI analysis for comprehensive results'
         ].filter(Boolean),
         
-        detailedSummary: nearbyOptions.description || 
-          `Market analysis for ${location}: ${nearbyOptions.nearbyOptions?.length || 0} senior living communities found in the area. ${
-            avgPrice ? 
-            `Average monthly cost is approximately $${avgPrice.toLocaleString()}. ` : 
-            'Contact communities directly for current pricing. '
-          }This analysis is based on real-time web search data.`,
+        detailedSummary: `Comprehensive market analysis for ${location}: Found ${mergedCommunities.length} total communities (${dbCommunities.length} from verified database, ${nearbyOptions.nearbyOptions?.length || 0} from web search). ${
+            avgPrice && dbPrices.length > 0 ? 
+            `Average monthly cost from ${dbPrices.length} communities: $${avgPrice.toLocaleString()}. ` : 
+            avgPrice ? `Estimated average: $${avgPrice.toLocaleString()}. ` :
+            'Contact communities for current pricing. '
+          }This hybrid analysis combines verified database records with real-time web search.`,
         
-        communityMentions: nearbyOptions.nearbyOptions?.map((opt: any) => opt.name) || [],
+        communityMentions: mergedCommunities
+          .slice(0, 50) // Limit to 50 communities for display
+          .map(c => c.name),
         
         lastUpdated: new Date().toISOString(),
         

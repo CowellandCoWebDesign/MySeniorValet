@@ -369,14 +369,22 @@ IMPORTANT:
   async findNearbyOptions(location: string): Promise<CommunityIntelligence> {
     console.log(`🗺️ Searching for communities near: ${location}`);
 
-    const query = `List senior living communities near ${location}. 
-    Include for each:
-    - Community name
-    - Address
-    - Distance from ${location}
-    - Brief description
-    
-    Focus on communities within 10 miles.`;
+    const query = `List ALL senior living communities in ${location}.
+
+CRITICAL: Provide a NUMBERED LIST of actual community names. Format EXACTLY like this:
+
+1. Community Name Here - Address if available
+2. Another Community Name - Address  
+3. Third Community Name - Address
+
+Include:
+- At least 20-30 communities if available
+- Focus on community NAMES, not descriptions
+- Include assisted living, independent living, memory care, nursing homes
+- Include major chains like Brookdale, Sunrise, Atria, Holiday, etc.
+- Include local communities too
+
+DO NOT provide general descriptions. ONLY list actual community names.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
