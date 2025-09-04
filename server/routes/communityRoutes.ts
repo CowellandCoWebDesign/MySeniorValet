@@ -96,7 +96,8 @@ export function registerCommunityRoutes(app: Express) {
   });
 
   // Get single community (MUST come after specific routes to avoid conflicts)
-  app.get("/api/communities/:id", async (req, res) => {
+  // COMMENTED OUT - This route is defined later after all specific routes
+  /* app.get("/api/communities/:id", async (req, res) => {
     try {
       const { id } = req.params;
       const communityId = parseInt(id);
@@ -150,7 +151,7 @@ export function registerCommunityRoutes(app: Express) {
       };
       res.json(mockCommunity);
     }
-  });
+  }); */
 
   // Coastal communities
   app.get("/api/communities/coastal", async (req, res) => {
