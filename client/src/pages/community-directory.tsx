@@ -556,8 +556,8 @@ export default function CommunityDirectory() {
         </div>
       </section>
       
-      {/* Global Coverage Showcase */}
-      <section className="px-4 py-12 bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      {/* Excellence Showcase - Oakmont Senior Living */}
+      <section className="px-4 py-12 bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <motion.div
@@ -565,154 +565,101 @@ export default function CommunityDirectory() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Badge className="bg-white/20 text-white px-4 py-2 mb-4">
-                <Globe className="h-4 w-4 mr-2" />
-                GLOBAL COVERAGE
+              <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-2 mb-6 text-sm font-bold">
+                <Award className="h-4 w-4 mr-2" />
+                EXCELLENCE SHOWCASE
               </Badge>
               
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                🌍 Worldwide Senior Care Network
+              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                Featured Communities by Oakmont Senior Living
               </h2>
               
-              <p className="text-xl text-blue-100 mb-8 max-w-4xl mx-auto">
-                Access senior living communities across 9 countries with authentic, verified data from trusted sources
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto">
+                Discover excellence in senior care with our featured partner communities across California
               </p>
+              
+              <div className="flex flex-wrap gap-3 justify-center mb-8">
+                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
+                  <Building className="h-3 w-3 mr-1" />
+                  106 Communities
+                </Badge>
+                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
+                  <MapPin className="h-3 w-3 mr-1" />
+                  CA, NV, HI
+                </Badge>
+                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
+                  <Star className="h-3 w-3 mr-1" />
+                  Premium Care
+                </Badge>
+              </div>
             </motion.div>
           </div>
           
-          {/* Global Stats Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-white mb-2">37,895+</div>
-                <div className="text-sm text-blue-100">Total Communities</div>
-                <div className="text-xs text-blue-200 mt-1">Globally Verified</div>
-              </CardContent>
-            </Card>
+          {/* Featured Oakmont Communities Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {/* Capriana at Brea */}
+            <EnhancedCommunityCard 
+              community={{
+                id: 75135,
+                name: "Capriana at Brea",
+                city: "Brea",
+                state: "CA",
+                address: "900 E Imperial Hwy",
+                careTypes: ["Assisted Living", "Memory Care"],
+                description: "Premier senior living community offering assisted living and memory care in the heart of Orange County. Experience luxury amenities and personalized care in a vibrant community setting.",
+                amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
+                rating: 4.8,
+                reviewCount: 45
+              }}
+              variant="featured"
+              index={0}
+            />
             
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-yellow-300 mb-2">9</div>
-                <div className="text-sm text-blue-100">Countries</div>
-                <div className="text-xs text-blue-200 mt-1">3 Continents</div>
-              </CardContent>
-            </Card>
+            {/* Ivy Park at Alta Loma */}
+            <EnhancedCommunityCard 
+              community={{
+                id: 75125,
+                name: "Ivy Park at Alta Loma",
+                city: "Alta Loma",
+                state: "CA",
+                address: "9954 Foothill Blvd",
+                careTypes: ["Assisted Living", "Memory Care"],
+                description: "Nestled in the foothills of the San Gabriel Mountains, Ivy Park offers exceptional assisted living and memory care services with a focus on dignity, respect, and quality of life.",
+                amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
+                rating: 4.7,
+                reviewCount: 38
+              }}
+              variant="featured"
+              index={1}
+            />
             
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-green-300 mb-2">5,000+</div>
-                <div className="text-sm text-blue-100">Cities</div>
-                <div className="text-xs text-blue-200 mt-1">Major Metros</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-              <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-pink-300 mb-2">100%</div>
-                <div className="text-sm text-blue-100">Authentic</div>
-                <div className="text-xs text-blue-200 mt-1">Real Data Only</div>
-              </CardContent>
-            </Card>
+            {/* Ivy Park at Bonita */}
+            <EnhancedCommunityCard 
+              community={{
+                id: 75128,
+                name: "Ivy Park at Bonita",
+                city: "Chula Vista",
+                state: "CA",
+                address: "3302 Bonita Rd",
+                careTypes: ["Assisted Living", "Memory Care"],
+                description: "Beautiful senior living community in San Diego County providing compassionate assisted living and specialized memory care in a warm, homelike environment.",
+                amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
+                rating: 4.6,
+                reviewCount: 42
+              }}
+              variant="featured"
+              index={2}
+            />
           </div>
           
-          {/* Country Coverage Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {/* North America */}
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇺🇸</div>
-                <div className="font-bold text-white">United States</div>
-                <div className="text-sm text-blue-100">28,380 communities</div>
-                <div className="text-xs text-blue-200 mt-1">50 states + territories</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇨🇦</div>
-                <div className="font-bold text-white">Canada</div>
-                <div className="text-sm text-blue-100">6,780 communities</div>
-                <div className="text-xs text-blue-200 mt-1">All provinces</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇲🇽</div>
-                <div className="font-bold text-white">Mexico</div>
-                <div className="text-sm text-blue-100">405 communities</div>
-                <div className="text-xs text-blue-200 mt-1">Major cities</div>
-              </CardContent>
-            </Card>
-            
-            {/* Latin America */}
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇵🇪</div>
-                <div className="font-bold text-white">Peru</div>
-                <div className="text-sm text-blue-100">10 communities</div>
-                <div className="text-xs text-blue-200 mt-1">Lima & regions</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇨🇺</div>
-                <div className="font-bold text-white">Cuba</div>
-                <div className="text-sm text-blue-100">12 communities</div>
-                <div className="text-xs text-blue-200 mt-1">Havana & provinces</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇨🇷</div>
-                <div className="font-bold text-white">Costa Rica</div>
-                <div className="text-sm text-blue-100">5 communities</div>
-                <div className="text-xs text-blue-200 mt-1">San José & coast</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇵🇦</div>
-                <div className="font-bold text-white">Panama</div>
-                <div className="text-sm text-blue-100">5 communities</div>
-                <div className="text-xs text-blue-200 mt-1">Panama City</div>
-              </CardContent>
-            </Card>
-            
-            {/* Asia-Pacific */}
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇯🇵</div>
-                <div className="font-bold text-white">Japan</div>
-                <div className="text-sm text-blue-100">171 communities</div>
-                <div className="text-xs text-blue-200 mt-1">87 cities nationwide</div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border-white/20 hover:bg-white/20 transition-all">
-              <CardContent className="p-4 text-center">
-                <div className="text-2xl mb-2">🇦🇺</div>
-                <div className="font-bold text-white">Australia</div>
-                <div className="text-sm text-blue-100">2,231 communities</div>
-                <div className="text-xs text-blue-200 mt-1">All major cities</div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Global Mission Statement */}
-          <div className="text-center mt-12">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
-              <h3 className="text-2xl font-bold text-white mb-4">
-                The Dawn of Transparency in Senior Living - Worldwide
-              </h3>
-              <p className="text-blue-100 text-lg max-w-4xl mx-auto">
-                From Tokyo to Toronto, Mexico City to Melbourne - we bring authentic, verified senior care information to families worldwide. 
-                No synthetic data, no paywalls, just real communities serving real people across the globe.
-              </p>
-            </div>
+          {/* Call to Action */}
+          <div className="text-center">
+            <Link href="/search?brand=Oakmont">
+              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                View All 106 Oakmont Communities
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

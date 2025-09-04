@@ -433,6 +433,8 @@ export default function SimplifiedSearch() {
                 <EnhancedCommunityCard
                   key={community.id || index}
                   community={community}
+                  variant="featured"
+                  index={index}
                 />
               ))}
             </div>
