@@ -26,9 +26,10 @@ interface FeaturedExcellenceCardProps {
     hudPropertyId?: string;
   };
   index?: number;
+  compact?: boolean; // For horizontal sliders
 }
 
-export function FeaturedExcellenceCard({ community, index = 0 }: FeaturedExcellenceCardProps) {
+export function FeaturedExcellenceCard({ community, index = 0, compact = false }: FeaturedExcellenceCardProps) {
   // Default amenities if none provided
   const amenities = community.amenities && community.amenities.length > 0 
     ? community.amenities.slice(0, 3)
@@ -102,9 +103,9 @@ export function FeaturedExcellenceCard({ community, index = 0 }: FeaturedExcelle
   const rating = community.rating || 4.5;
 
   return (
-    <Card className="relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800">
+    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 ${compact ? 'w-80 flex-shrink-0' : ''}`}>
       {/* Hero Image */}
-      <div className="relative h-40 overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900">
+      <div className={`relative ${compact ? 'h-36' : 'h-40'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900`}>
         {community.photos && community.photos.length > 0 ? (
           <img 
             src={community.photos[0]} 
@@ -141,12 +142,12 @@ export function FeaturedExcellenceCard({ community, index = 0 }: FeaturedExcelle
         </div>
       </div>
 
-      <CardContent className="p-3">
+      <CardContent className={compact ? 'p-2.5' : 'p-3'}>
         {/* Header with community info and rating */}
-        <div className="flex justify-between items-start mb-3">
+        <div className={`flex justify-between items-start ${compact ? 'mb-2' : 'mb-3'}`}>
           {/* Left: Community info */}
           <div className="flex-1 pr-3">
-            <h3 className="text-base font-bold mb-1 leading-tight text-gray-900 dark:text-white">
+            <h3 className={`${compact ? 'text-sm' : 'text-base'} font-bold mb-1 leading-tight text-gray-900 dark:text-white`}>
               {community.name}
             </h3>
             <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-1">
@@ -179,9 +180,9 @@ export function FeaturedExcellenceCard({ community, index = 0 }: FeaturedExcelle
         </div>
 
         {/* Compact Features Grid */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className={`grid grid-cols-2 ${compact ? 'gap-1.5 mb-2' : 'gap-2 mb-3'}`}>
           {/* Amenities */}
-          <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-2">
+          <div className={`bg-gray-50 dark:bg-gray-700 rounded-md ${compact ? 'p-1.5' : 'p-2'}`}>
             <h4 className="text-xs font-semibold mb-1.5 text-gray-900 dark:text-gray-100">Amenities</h4>
             <div className="space-y-0.5">
               {amenities.map((amenity, idx) => (
@@ -194,7 +195,7 @@ export function FeaturedExcellenceCard({ community, index = 0 }: FeaturedExcelle
           </div>
 
           {/* Why Featured */}
-          <div className="bg-amber-50 dark:bg-amber-950/30 rounded-md p-2">
+          <div className={`bg-amber-50 dark:bg-amber-950/30 rounded-md ${compact ? 'p-1.5' : 'p-2'}`}>
             <h4 className="text-xs font-semibold mb-1.5 text-amber-800 dark:text-amber-200">Why Featured</h4>
             <div className="space-y-0.5">
               {getWhyFeatured().map((reason, idx) => (
@@ -225,7 +226,7 @@ export function FeaturedExcellenceCard({ community, index = 0 }: FeaturedExcelle
 
         {/* CTA Button */}
         <Link href={`/community/${community.id}`}>
-          <Button className="w-full h-8 text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white">
+          <Button className={`w-full ${compact ? 'h-7' : 'h-8'} text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white`}>
             <Star className="w-3 h-3 mr-1.5" />
             View Community Details
           </Button>
