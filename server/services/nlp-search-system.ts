@@ -697,7 +697,12 @@ export class NLPSearchSystem {
           
           // PRIORITY 1: Exact phrase match in name (MOST IMPORTANT)
           // This should catch exact facility names like "Willow Springs Alzheimer's Special Care Center"
-          conditions.push(ilike(communities.name, `%${fullQuery}%`));
+          orConditions.push(ilike(communities.name, `%${fullQuery}%`));
+          
+          // PRIORITY 1.5: For single word searches like "Oakmont", also search for it as a starting word
+          if (searchTerms.length === 1 && searchTerms[0].length > 3) {
+            orConditions.push(ilike(communities.name, `${searchTerms[0]}%`));
+          }
           
           // If no exact phrase match, try other approaches
           // PRIORITY 2: For multi-word searches, require ALL significant words to be present
@@ -714,6 +719,13 @@ export class NLPSearchSystem {
                 ilike(communities.name, `%${term}%`)
               );
               orConditions.push(and(...nameAndConditions));
+            }
+            
+            // PRIORITY 2.5: Also try searching for just the first few significant words (common pattern)
+            // This helps find "Oakmont Assisted Living" when searching for "Oakmont Assisted Living and Memory Care of Redding"
+            if (significantWords.length >= 2) {
+              const firstTwoWords = significantWords.slice(0, 2).join(' ');
+              orConditions.push(ilike(communities.name, `%${firstTwoWords}%`));
             }
           }
           
