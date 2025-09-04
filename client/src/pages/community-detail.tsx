@@ -2306,9 +2306,92 @@ export default function CommunityDetail() {
               </Card>
             </div>
 
+            {/* Quick Access Media Links - NEW SECTION */}
+            {(() => {
+              const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
+              const hasMedia = webIntel?.videoTour || webIntel?.virtualTour || webIntel?.floorPlans?.length > 0 || webIntel?.socialMedia;
+              
+              if (!hasMedia) return null;
+              
+              return (
+                <Card className="mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
+                  <CardContent className="p-4">
+                    <h3 className="text-sm font-semibold mb-3 flex items-center">
+                      <Camera className="w-4 h-4 mr-2" />
+                      Virtual Experience & Media
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {webIntel?.videoTour && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          onClick={() => window.open(webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`, '_blank')}
+                        >
+                          <span className="text-lg">🎥</span>
+                          <span className="text-xs">Video Tour</span>
+                        </Button>
+                      )}
+                      {webIntel?.virtualTour && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          onClick={() => window.open(webIntel.virtualTour, '_blank')}
+                        >
+                          <span className="text-lg">🏠</span>
+                          <span className="text-xs">3D Tour</span>
+                        </Button>
+                      )}
+                      {webIntel?.floorPlans?.length > 0 && (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex items-center gap-2"
+                            >
+                              <span className="text-lg">📐</span>
+                              <span className="text-xs">Floor Plans</span>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                            <DialogHeader>
+                              <DialogTitle>Floor Plans</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-4">
+                              {webIntel.floorPlans.map((plan: string, idx: number) => (
+                                <img
+                                  key={idx}
+                                  src={plan}
+                                  alt={`Floor Plan ${idx + 1}`}
+                                  className="w-full rounded-lg"
+                                />
+                              ))}
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      )}
+                      {webIntel?.socialMedia && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex items-center gap-2"
+                          onClick={() => window.open(webIntel.socialMedia, '_blank')}
+                        >
+                          <span className="text-lg">👥</span>
+                          <span className="text-xs">Facebook</span>
+                        </Button>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
             {/* Tabbed Content Section - Mobile Responsive */}
             <Tabs defaultValue="market-data" className="w-full mt-4 sm:mt-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
                 <TabsTrigger 
                   value="community-info" 
                   className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-blue-100 !to-indigo-100 dark:!from-blue-800 dark:!to-indigo-800 border border-blue-200 dark:border-blue-500 shadow-md hover:shadow-lg hover:!from-blue-200 hover:!to-indigo-200 dark:hover:!from-blue-700 dark:hover:!to-indigo-700 hover:border-blue-300 dark:hover:border-blue-400 text-blue-700 dark:text-blue-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
@@ -2323,6 +2406,18 @@ export default function CommunityDetail() {
                   </span>
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="tours" 
+                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-teal-100 !to-cyan-100 dark:!from-teal-800 dark:!to-cyan-800 border border-teal-200 dark:border-teal-500 shadow-md hover:shadow-lg hover:!from-teal-200 hover:!to-cyan-200 dark:hover:!from-teal-700 dark:hover:!to-cyan-700 hover:border-teal-300 dark:hover:border-teal-400 text-teal-700 dark:text-teal-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-teal-600 data-[state=active]:!to-cyan-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-teal-400 data-[state=active]:!font-bold"
+                >
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                    <span className="text-xs sm:text-sm font-bold">Tours</span>
+                  </div>
+                  <span className="text-xs opacity-75 font-normal hidden sm:block">
+                    Schedule Visit
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger 
                   value="availability" 
                   className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-green-100 !to-emerald-100 dark:!from-green-800 dark:!to-emerald-800 border border-green-200 dark:border-green-500 shadow-md hover:shadow-lg hover:!from-green-200 hover:!to-emerald-200 dark:hover:!from-green-700 dark:hover:!to-emerald-700 hover:border-green-300 dark:hover:border-green-400 text-green-700 dark:text-green-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-green-600 data-[state=active]:!to-emerald-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-green-400 data-[state=active]:!font-bold"
                 >
@@ -2331,7 +2426,7 @@ export default function CommunityDetail() {
                     <span className="text-xs sm:text-sm font-bold">Availability</span>
                   </div>
                   <span className="text-xs opacity-75 font-normal hidden sm:block">
-                    Units & Tours
+                    Units & Pricing
                   </span>
                 </TabsTrigger>
                 <TabsTrigger 
@@ -2370,6 +2465,104 @@ export default function CommunityDetail() {
                   </span>
                 </TabsTrigger>
               </TabsList>
+
+              {/* Tours Tab - NEW DEDICATED TAB */}
+              <TabsContent value="tours" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                <Card className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center">
+                      <Calendar className="w-6 h-6 mr-2 text-teal-600" />
+                      Schedule Your Visit
+                    </CardTitle>
+                    <CardDescription>
+                      Book a personalized tour and discover what makes {community.name} special
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <TourScheduler
+                        communityId={community.id}
+                        communityName={community.name}
+                        communityAddress={`${community.city}, ${community.state}`}
+                        communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
+                        buttonText="Schedule In-Person Tour"
+                        buttonVariant="default"
+                        hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
+                        onSuccess={() => {
+                          toast({
+                            title: "Tour Scheduled Successfully!",
+                            description: `Your tour at ${community.name} has been confirmed.`,
+                          });
+                        }}
+                      />
+                      
+                      {/* Virtual Tour Options */}
+                      <div className="space-y-3">
+                        {(() => {
+                          const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
+                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour;
+                          
+                          if (hasVirtualOptions) {
+                            return (
+                              <>
+                                <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
+                                {webIntel?.videoTour && (
+                                  <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => {
+                                      const videoUrl = webIntel.videoTour.includes('://') ? 
+                                        webIntel.videoTour : 
+                                        `https://${webIntel.videoTour}`;
+                                      window.open(videoUrl, '_blank');
+                                    }}
+                                  >
+                                    <span className="mr-2">🎥</span>
+                                    Watch Video Tour
+                                  </Button>
+                                )}
+                                {webIntel?.virtualTour && (
+                                  <Button
+                                    variant="outline"
+                                    className="w-full"
+                                    onClick={() => window.open(webIntel.virtualTour, '_blank')}
+                                  >
+                                    <span className="mr-2">🏠</span>
+                                    Take 3D Virtual Tour
+                                  </Button>
+                                )}
+                              </>
+                            );
+                          }
+                          
+                          return (
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              <p>Virtual tours not yet available for this community.</p>
+                              <p className="mt-2">Contact the community directly for more information.</p>
+                            </div>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                    
+                    {/* Tour Tips */}
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
+                      <h4 className="font-semibold text-sm mb-2 flex items-center">
+                        <Info className="w-4 h-4 mr-2 text-blue-600" />
+                        What to Ask During Your Tour
+                      </h4>
+                      <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
+                        <li>• Staff-to-resident ratio and caregiver qualifications</li>
+                        <li>• Available care services and medical support</li>
+                        <li>• Activities calendar and social programs</li>
+                        <li>• Dining options and meal customization</li>
+                        <li>• Pricing details and what's included</li>
+                        <li>• Move-in process and timeline</li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
@@ -2547,21 +2740,25 @@ export default function CommunityDetail() {
 
                       {/* Main Action Buttons - Mobile Responsive */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <TourScheduler
-                          communityId={community.id}
-                          communityName={community.name}
-                          communityAddress={`${community.city}, ${community.state}`}
-                          communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
-                          buttonText="Schedule Tour"
-                          buttonVariant="default"
-                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
-                          onSuccess={() => {
-                            toast({
-                              title: "Tour Scheduled Successfully!",
-                              description: "Check your email for confirmation details.",
-                            });
+                        <Button
+                          className="py-3 sm:py-4 text-responsive-base font-semibold bg-teal-600 hover:bg-teal-700 text-white touch-target"
+                          onClick={() => {
+                            // Switch to Tours tab
+                            const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
+                            if (toursTab) {
+                              toursTab.click();
+                              setTimeout(() => {
+                                const toursSection = document.querySelector('[data-state="active"][value="tours"]')?.parentElement?.parentElement;
+                                if (toursSection) {
+                                  toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }
+                              }, 100);
+                            }
                           }}
-                        />
+                        >
+                          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                          Schedule Tour
+                        </Button>
                         
                         <Button 
                           variant="outline" 
