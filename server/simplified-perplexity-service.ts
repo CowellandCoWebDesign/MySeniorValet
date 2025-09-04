@@ -449,6 +449,10 @@ IMPORTANT:
     citations: string[],
     communityName: string
   ): CommunityIntelligence {
+    console.log('\n=== PERPLEXITY RAW RESPONSE ===');
+    console.log(content.substring(0, 2000));
+    console.log('=== END PERPLEXITY RESPONSE ===\n');
+    
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
@@ -757,23 +761,120 @@ IMPORTANT:
   }
 
   /**
+   * Helper to validate if a string is a valid community name
+   */
+  private isValidCommunityName(name: string): boolean {
+    if (!name || name.length < 5 || name.length > 80) return false;
+    
+    // Skip invalid patterns
+    const invalidPatterns = [
+      'additional', 'context', 'typically', 'designed for',
+      'communities are', 'pricing', 'contact', 'information',
+      'available', 'website', 'phone', 'email', 'address'
+    ];
+    
+    const lowerName = name.toLowerCase();
+    for (const pattern of invalidPatterns) {
+      if (lowerName.includes(pattern)) return false;
+    }
+    
+    // Must not be just symbols or numbers
+    if (/^[|\\-•*\d\s]+$/.test(name)) return false;
+    
+    // Must contain at least one uppercase letter (proper noun)
+    if (!/[A-Z]/.test(name)) return false;
+    
+    return true;
+  }
+  
+  /**
    * Parse nearby communities from Perplexity response
    */
   private parseNearbyOptions(content: string, citations: string[]): CommunityIntelligence {
+    console.log('\n=== PARSING NEARBY OPTIONS FROM CONTENT ===');
+    console.log(content.substring(0, 1000));
+    console.log('=== END CONTENT PREVIEW ===\n');
+    
     const nearbyOptions = [];
     
-    // Enhanced pattern extraction for communities
-    const lines = content.split('\n');
+    // First, try to extract community names using multiple patterns
+    const communityNames = new Set<string>();
     
-    // Pattern 1: Numbered lists
-    const numberedPattern = /^\d+\.\s*(.+)/;
-    // Pattern 2: Bulleted lists
-    const bulletPattern = /^[-•*]\s*(.+)/;
-    // Pattern 3: Communities with pricing
-    const pricePattern = /\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/;
+    // Pattern 1: Look for bold/marked community names (more flexible)
+    const boldPattern = /\*\*([A-Z][^*]+?(?:Estates?|Living|Care|Community|Center|Home|Residence|Village|Manor|Place|Gardens?|Lodge|Park|Heights|Terrace|Court|Plaza|Meadows?|Springs?|Oaks?|Hills?|Valley|of\s+[A-Z]\w+))\*\*/g;
+    let boldMatch;
+    while ((boldMatch = boldPattern.exec(content)) !== null) {
+      const name = boldMatch[1].trim();
+      if (this.isValidCommunityName(name)) {
+        communityNames.add(name);
+        // Also check for parenthetical variations
+        const parenMatch = name.match(/^(.+?)\s*\((.+?)\)/);
+        if (parenMatch) {
+          if (this.isValidCommunityName(parenMatch[1].trim())) {
+            communityNames.add(parenMatch[1].trim());
+          }
+          if (this.isValidCommunityName(parenMatch[2].trim())) {
+            communityNames.add(parenMatch[2].trim());
+          }
+        }
+      }
+    }
     
-    for (const line of lines) {
-      let communityInfo = null;
+    // Also look for numbered list items with community names (even without bold)
+    const numberedListPattern = /^\*\*?\d+\.\s*([A-Z][^*\n]+?(?:Estates?|Living|Care|Community|Center|Home|Residence|Village|Manor|Place|Gardens?|Lodge|Park|Heights|Terrace|Court|Plaza|Meadows?|Springs?|Oaks?|Hills?|Valley))\*?\*?/gm;
+    let listMatch;
+    while ((listMatch = numberedListPattern.exec(content)) !== null) {
+      const name = listMatch[1].trim().replace(/\*+$/, '').trim();
+      if (this.isValidCommunityName(name)) {
+        communityNames.add(name);
+      }
+    }
+    
+    // Pattern 2: Communities in numbered lists
+    const numberedCommunityPattern = /^\d+\.\s*([A-Z][^:\n]+?(?:Senior Living|Assisted Living|Memory Care|Community|Center|Residence|of\s+[A-Z]\w+))(?:\s*[-–:]|$)/gm;
+    let numberedMatch;
+    while ((numberedMatch = numberedCommunityPattern.exec(content)) !== null) {
+      const name = numberedMatch[1].trim();
+      if (this.isValidCommunityName(name)) {
+        communityNames.add(name);
+      }
+    }
+    
+    // Pattern 3: Look for specific senior living community names
+    const specificPattern = /((?:Oakmont|Sunrise|Brookdale|Atria|Holiday|Waterstone|Benchmark|Five Star|Silverado|Belmont Village|Vi at|MorningStar|Aegis|Capital Senior|Enlivant|Discovery|Integral Senior|Life Care Services|Presbyterian|Hebrew)\s+(?:of\s+)?[A-Z]\w+(?:\s+[A-Z]\w+)*)/g;
+    let specificMatch;
+    while ((specificMatch = specificPattern.exec(content)) !== null) {
+      const name = specificMatch[1].trim();
+      if (this.isValidCommunityName(name)) {
+        communityNames.add(name);
+      }
+    }
+    
+    console.log(`Extracted ${communityNames.size} unique community names:`, Array.from(communityNames));
+    
+    // Convert found names to nearbyOptions format
+    Array.from(communityNames).forEach(name => {
+      nearbyOptions.push({
+        name: name,
+        address: '',
+        distance: 'In area',
+        description: `Senior living community in the area`
+      });
+    });
+    
+    // If we didn't find communities with patterns, fall back to line-by-line parsing
+    if (nearbyOptions.length === 0) {
+      const lines = content.split('\n');
+      
+      // Pattern 1: Numbered lists
+      const numberedPattern = /^\d+\.\s*(.+)/;
+      // Pattern 2: Bulleted lists
+      const bulletPattern = /^[-•*]\s*(.+)/;
+      // Pattern 3: Communities with pricing
+      const pricePattern = /\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/;
+      
+      for (const line of lines) {
+        let communityInfo = null;
       
       // Check for numbered or bulleted items
       const numberedMatch = line.match(numberedPattern);
@@ -808,26 +909,10 @@ IMPORTANT:
             description: itemContent
           });
         }
+        }
       }
     }
     
-    // Also look for communities mentioned inline
-    const inlinePattern = /([A-Z][^,]+?)\s+(?:is|offers|provides)\s+([^.]+)/g;
-    let inlineMatch;
-    while ((inlineMatch = inlinePattern.exec(content)) !== null) {
-      const name = inlineMatch[1].trim();
-      const description = inlineMatch[2].trim();
-      
-      if (!nearbyOptions.some(opt => opt.name === name) && name.length < 60) {
-        nearbyOptions.push({
-          name: name,
-          address: '',
-          distance: 'In area',
-          description: description
-        });
-      }
-    }
-
     // Return enriched data even for area searches
     return {
       found: nearbyOptions.length > 0,
