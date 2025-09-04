@@ -517,6 +517,58 @@ export default function CompetitiveAnalysis() {
             </CardContent>
           </Card>
         )}
+
+        {/* Top Communities from AI Discovery - Clickable */}
+        {analysisMutation.isSuccess && analysisMutation.data?.topCommunities && analysisMutation.data.topCommunities.length > 0 && (
+          <Card className="mt-6 shadow-xl border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 animate-fadeInUp">
+            <CardHeader>
+              <CardTitle className="text-2xl flex items-center gap-3">
+                <div className="p-2 bg-purple-100 dark:bg-purple-800/50 rounded-lg">
+                  <Building2 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                </div>
+                Discovered Communities from Perplexity AI
+                <Badge className="bg-purple-500 text-white">
+                  {analysisMutation.data.topCommunities.length} Found
+                </Badge>
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                Click any community to search for it in our database
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {analysisMutation.data.topCommunities.map((community, index) => (
+                  <Link 
+                    key={index} 
+                    href={`/search?q=${encodeURIComponent(community.name)}`}
+                    className="block"
+                  >
+                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border-2 border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] group">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                            {community.name}
+                            {community.verified && (
+                              <CheckCircle className="w-4 h-4 text-green-500" title="Verified in database" />
+                            )}
+                          </h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            {community.location}
+                          </p>
+                          <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
+                            {community.price}
+                          </p>
+                        </div>
+                        <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600" />
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         {/* Communities in Our Database - SHOWN FIRST */}
         {analysisMutation.isSuccess && analysisMutation.data && analysisMutation.data.matchedCommunities && analysisMutation.data.matchedCommunities.length > 0 && (
