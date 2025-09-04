@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -842,9 +842,8 @@ function HeroSectionWithTransformingSearch() {
                                 </div>
                               </div>
                             ) : (
-                              <EnhancedCommunityCard
+                              <FeaturedExcellenceCard
                                 community={item}
-                                variant="featured"
                                 index={index}
                               />
                             )}
