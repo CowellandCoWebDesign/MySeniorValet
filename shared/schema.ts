@@ -1267,6 +1267,14 @@ export const communities = pgTable("communities", {
   propertyCategory: text("property_category"), // PROPERTY_CATEGORY_NAME
   clientGroup: text("client_group"), // CLIENT_GROUP_NAME
   
+  // Brand & Company Tracking - For featured major senior living companies
+  parentCompany: text("parent_company"), // Parent company brand (e.g., "Oakmont Senior Living", "Brookdale", "Atria")
+  isFeaturedBrand: boolean("is_featured_brand").default(false), // True for major brands we're highlighting
+  brandLogo: text("brand_logo"), // URL to company brand logo
+  brandWebsite: text("brand_website"), // Corporate brand website (not individual community)
+  communityCount: integer("community_count"), // Total communities in this brand/company
+  brandRanking: integer("brand_ranking"), // National ranking (1 = largest, etc.)
+  
   // HUD Dates and Timeline Data - Operational history
   occupancyDate: date("occupancy_date"), // OCCUPANCY_DATE
   lastReacInspection: date("last_reac_inspection"), // REAC_LAST_INSPECTION_DATE
