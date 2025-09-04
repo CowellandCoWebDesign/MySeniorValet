@@ -254,7 +254,7 @@ function CommunityCard({
                     />
                   ))}
                 </div>
-                <span className="text-white font-bold">{rating.toFixed(1)}</span>
+                <span className="text-white font-bold">{(typeof rating === 'number' && !isNaN(rating) ? rating : 4.2).toFixed(1)}</span>
                 <span className="text-gray-300 text-sm">({reviewCount})</span>
               </div>
             </div>
