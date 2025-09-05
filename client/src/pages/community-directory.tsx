@@ -13,7 +13,7 @@ import {
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
   Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
-  ArrowRight, Languages, Phone, Award
+  ArrowRight, Languages, Phone, Award, Trophy
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
