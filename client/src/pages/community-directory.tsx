@@ -537,6 +537,143 @@ export default function CommunityDirectory() {
           <CareSpectrumSlider />
         </div>
       </section>
+
+      {/* ★ UNDERSTANDING YOUR SENIOR LIVING BRAND OPTIONS ★ */}
+      <section className="px-4 py-12 bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
+              Understanding Your Senior Living Brand Options
+            </h2>
+            <p className="text-lg text-gray-300 max-w-4xl mx-auto">
+              From industry giants to luxury boutiques, each brand brings unique strengths. 
+              Here's your guide to America's most trusted senior living providers.
+            </p>
+          </div>
+          
+          <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400">350+</div>
+                <div className="text-sm text-gray-400">Total Premium Brands</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">33,000+</div>
+                <div className="text-sm text-gray-400">Communities Nationwide</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-pink-400">2.5M+</div>
+                <div className="text-sm text-gray-400">Seniors Served</div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white mb-3">🏆 The Top 5 Industry Leaders (2025)</h3>
+              <div className="grid gap-3">
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-rose-400 font-bold">#1 Brookdale</span>
+                  <span className="text-gray-300 ml-2">• 50,000+ units • 675 communities • Industry titan</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-cyan-400 font-bold">#2 Discovery</span>
+                  <span className="text-gray-300 ml-2">• 36,000 units • 350 communities • Innovation leader</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-green-400 font-bold">#3 LCS</span>
+                  <span className="text-gray-300 ml-2">• 33,000 units • 136 communities • CCRC specialist</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-indigo-400 font-bold">#4 Erickson</span>
+                  <span className="text-gray-300 ml-2">• 25,300 units • 22 communities • Large-scale CCRCs</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-purple-400 font-bold">#5 Atria</span>
+                  <span className="text-gray-300 ml-2">• 25,000 units • 199 communities • Hospitality focus</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-4 mt-6 border border-blue-500/30">
+              <p className="text-blue-200 text-sm text-center">
+                💡 <strong>Pro Tip:</strong> Each brand has unique strengths. Brookdale offers scale and accessibility, 
+                Discovery leads in innovation, while boutique providers like Oakmont excel in luxury resort experiences. 
+                Explore each to find your perfect match!
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DISCOVERY SENIOR LIVING - #2 INNOVATION POWERHOUSE */}
+      <section className="px-4 py-16 bg-gradient-to-br from-cyan-950 via-blue-950 to-indigo-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🚀</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Sparkles className="h-5 w-5 mr-2" />
+              #2 LARGEST PROVIDER • INNOVATION LEADER
+              <Sparkles className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                Discovery Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-cyan-100 mb-4 font-semibold">
+              454 Awards in 2025 • 350+ Communities Nationwide
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              Industry record-holder with 148 communities ranked "Best in Senior Living" and pioneering 
+              SHINE® Memory Care certified by the Alzheimer's Association
+            </p>
+          </div>
+
+          {/* Discovery Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-cyan-900/90 to-blue-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Award className="w-8 h-8 text-cyan-300" />
+              <h3 className="text-xl font-bold text-white">Why Discovery Leads Innovation</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">🏆 Industry Records</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ 454 total awards in 2025 (industry record)</li>
+                  <li>★ 148 "Best in Senior Living" communities</li>
+                  <li>★ Great Place To Work certified</li>
+                  <li>★ 4.2/5 from 16,000+ reviews</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">🚀 Exclusive Programs</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• SHINE® Memory Care (Alzheimer's certified)</li>
+                  <li>• Experiential Living™ personalization</li>
+                  <li>• Six Signature Lifestyle Programs</li>
+                  <li>• À la carte pricing (save 15-20%)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => window.open('/search?company=Discovery Senior Living', '_self')}
+            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Explore All 350+ Discovery Communities →
+          </Button>
+        </div>
+      </section>
       
       {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
       <section className="relative px-4 py-20 overflow-hidden">
