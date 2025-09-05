@@ -243,7 +243,12 @@ router.post("/schedule", async (req, res) => {
           </div>
           
           <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">
-            <p style="color: #92400E; margin: 0;"><strong>Platform Notification:</strong> This tour was scheduled through MySeniorValet. Community has ${community?.email ? 'been notified' : 'NOT been notified (no email on file)'}.</p>
+            <p style="color: #92400E; margin: 0;"><strong>Platform Notification:</strong> This tour was scheduled through MySeniorValet.</p>
+            ${community?.email ? 
+              `<p style="color: #92400E; margin: 5px 0 0 0;">✅ Community has been notified via email.</p>` : 
+              `<p style="color: #92400E; margin: 5px 0 0 0;">⚠️ <strong>ACTION REQUIRED:</strong> Community has NOT been notified (no email on file).</p>
+               <p style="color: #92400E; margin: 5px 0 0 0;">Please contact the community at ${community?.phone || 'their listed phone number'} to inform them of this tour request.</p>`
+            }
           </div>
           
           <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">

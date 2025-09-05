@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "wouter";
 
 interface TourSchedulerProps {
   communityId: number;
@@ -34,8 +35,10 @@ export function TourScheduler({
   hasEmail = true
 }: TourSchedulerProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState("");
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const scheduleTourMutation = useMutation({
     mutationFn: async (tourData: any) => {
@@ -55,11 +58,17 @@ export function TourScheduler({
       return response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Tour Scheduled!",
-        description: "You'll receive a confirmation email shortly.",
-      });
+      setConfirmationCode(data.confirmationCode);
       setDialogOpen(false);
+      
+      if (!isAuthenticated) {
+        setShowSuccessDialog(true);
+      } else {
+        toast({
+          title: "Tour Scheduled!",
+          description: "Check your email for confirmation. Visit Tour Tracker to manage your tours.",
+        });
+      }
       onSuccess?.();
     },
     onError: (error: any) => {
@@ -130,38 +139,19 @@ export function TourScheduler({
             </DialogDescription>
           </DialogHeader>
           
-          {!hasEmail ? (
-            <Alert className="mt-4 border-amber-200 bg-amber-50">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-900">Community Not Yet Verified</AlertTitle>
-              <AlertDescription className="text-amber-800 mt-2">
-                <p className="mb-3">
-                  This community hasn't claimed their listing on MySeniorValet yet, so online tour scheduling isn't available.
-                </p>
-                <p className="font-semibold mb-2">No worries! You can still schedule a tour by calling directly.</p>
+          {!hasEmail && (
+            <Alert className="mt-4 border-blue-200 bg-blue-50">
+              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="text-blue-900">Platform-Facilitated Tour</AlertTitle>
+              <AlertDescription className="text-blue-800 mt-2">
                 <p className="text-sm">
-                  When you call, they'll be happy to:
+                  This community hasn't claimed their listing yet, but don't worry! 
+                  MySeniorValet will facilitate your tour request and ensure the community receives your information.
                 </p>
-                <ul className="text-sm mt-2 space-y-1">
-                  <li>• Schedule a convenient tour time</li>
-                  <li>• Answer your questions about services</li>
-                  <li>• Discuss pricing and availability</li>
-                  <li>• Show you available units</li>
-                  <li>• Provide information about amenities</li>
-                </ul>
-                <div className="mt-4">
-                  <Button 
-                    type="button"
-                    variant="default"
-                    className="w-full bg-amber-600 hover:bg-amber-700"
-                    onClick={() => window.open(`tel:${communityPhone || '1-800-SENIOR-1'}`, '_self')}
-                  >
-                    Call Community Directly
-                  </Button>
-                </div>
               </AlertDescription>
             </Alert>
-          ) : (
+          )}
+          
           <form onSubmit={handleSubmit}>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
@@ -279,6 +269,11 @@ export function TourScheduler({
                     <li>• Learn about services and amenities</li>
                     <li>• Discuss pricing and availability</li>
                   </ul>
+                  {!isAuthenticated && (
+                    <p className="text-xs text-gray-500 mt-3 border-t pt-2">
+                      💡 Tip: Create a free account after scheduling to track all your tours!
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -292,7 +287,56 @@ export function TourScheduler({
               </Button>
             </div>
           </form>
-          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog for Non-Authenticated Users */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-green-600">✅ Tour Successfully Scheduled!</DialogTitle>
+            <DialogDescription>
+              <div className="space-y-4 mt-4">
+                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                  <p className="text-sm text-green-800">
+                    <strong>Confirmation Code:</strong> {confirmationCode}
+                  </p>
+                  <p className="text-sm text-green-800 mt-2">
+                    We've sent confirmation details to your email.
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2">🎯 Want to Track Your Tours?</h4>
+                  <p className="text-sm text-blue-800 mb-3">
+                    Create a free account to:
+                  </p>
+                  <ul className="text-sm text-blue-800 space-y-1 mb-4">
+                    <li>• Track all your scheduled tours in one place</li>
+                    <li>• Get reminders before your visits</li>
+                    <li>• Take notes and photos during tours</li>
+                    <li>• Compare communities side-by-side</li>
+                    <li>• Share insights with family members</li>
+                    <li>• Access our Family Collaboration Center</li>
+                  </ul>
+                  
+                  <div className="flex gap-2">
+                    <Link href="/api/login">
+                      <Button className="bg-blue-600 hover:bg-blue-700">
+                        Sign Up Free
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowSuccessDialog(false)}
+                    >
+                      Maybe Later
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
         </DialogContent>
       </Dialog>
     </>
