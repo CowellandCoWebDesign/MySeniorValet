@@ -2224,7 +2224,6 @@ export default function CommunityDetail() {
               <ReservationDialog
                 community={community}
                 verificationReport={verificationReport}
-                userProfile={userProfile}
               >
                 <Button
                   size="lg"
