@@ -7,7 +7,12 @@ import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon, Shield, Database, Info } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Star, MapPin, Phone, Globe, CheckCircle, Users, Calendar, DollarSign, Camera, Video, Home, UserCheck, Stethoscope, Activity, Wifi, Car, Utensils, ChevronLeft, ChevronRight, ExternalLink, Heart, Share, Clock, AlertTriangle, Heart as HeartIcon, Dumbbell, UtensilsCrossed, Bus, HandHeart, Waves, Scissors, AlertCircle, ShieldCheck, Mail as MailIcon, Shield, Database, Info, CreditCard, Check, X, Loader } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { FlagListingDialog } from "@/components/flag-listing-dialog";
@@ -15,10 +20,20 @@ import { PhotoCarousel } from "@/components/photo-carousel";
 import { FamilyShareButton } from "@/components/family-share-button";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { CommunityDetailsCard } from "@/components/CommunityDetailsCard";
+import { ReservationDialog } from "@/components/ReservationDialog";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
+  const [reservationForm, setReservationForm] = useState({
+    unitType: '',
+    moveInDate: '',
+    careNeeds: '',
+    budget: '',
+    additionalNotes: ''
+  });
+  const [isSubmittingReservation, setIsSubmittingReservation] = useState(false);
   
   // Redirect to search if no ID is provided
   if (!params?.id) {
@@ -1670,9 +1685,54 @@ export default function CommunityPage() {
                 <CardTitle className="flex items-center space-x-2">
                   <Home className="h-6 w-6 text-blue-600" />
                   <span>Unit Types & Floor Plans</span>
+                  {community.perplexityResponse?.livePricing && (
+                    <Badge className="bg-green-100 text-green-800 text-xs">
+                      Live Pricing Available
+                    </Badge>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {/* Display Perplexity-sourced pricing if available */}
+                {community.perplexityResponse?.livePricing && (
+                  <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 rounded-lg">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <TrendingUp className="h-5 w-5 text-green-600" />
+                      <span className="font-semibold text-green-900 dark:text-green-200">Current Market Pricing</span>
+                      <Badge className="bg-green-100 text-green-800 text-xs">From Web Search</Badge>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {community.perplexityResponse.livePricing.independentLiving && (
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Independent Living</div>
+                          <div className="text-xl font-bold text-green-900 dark:text-green-200">
+                            ${community.perplexityResponse.livePricing.independentLiving.min.toLocaleString()} - ${community.perplexityResponse.livePricing.independentLiving.max.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">per month</div>
+                        </div>
+                      )}
+                      {community.perplexityResponse.livePricing.assistedLiving && (
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Assisted Living</div>
+                          <div className="text-xl font-bold text-green-900 dark:text-green-200">
+                            ${community.perplexityResponse.livePricing.assistedLiving.min.toLocaleString()} - ${community.perplexityResponse.livePricing.assistedLiving.max.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">per month</div>
+                        </div>
+                      )}
+                      {community.perplexityResponse.livePricing.memoryCare && (
+                        <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
+                          <div className="text-sm font-medium text-gray-600 dark:text-gray-400">Memory Care</div>
+                          <div className="text-xl font-bold text-green-900 dark:text-green-200">
+                            ${community.perplexityResponse.livePricing.memoryCare.min.toLocaleString()} - ${community.perplexityResponse.livePricing.memoryCare.max.toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500">per month</div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
                 {community.unitTypes && community.unitTypes.length > 0 ? (
                   <div className="space-y-6">
                     {community.unitTypes.map((unitType, index) => (
@@ -2177,6 +2237,17 @@ export default function CommunityPage() {
 
                 {/* Quick Actions */}
                 <div className="space-y-3">
+                  {/* Reserve Now Button - Primary CTA */}
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700 text-lg py-3"
+                    onClick={() => {
+                      setShowReservationDialog(true);
+                    }}
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    Reserve Now - $500 Pay at Arrival
+                  </Button>
+                  
                   <Button 
                     className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
                     onClick={() => {
