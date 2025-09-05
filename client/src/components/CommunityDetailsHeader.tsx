@@ -352,7 +352,7 @@ export function CommunityDetailsHeader({
               <button
                 onClick={() => {
                   // Open the availability tab - find and click the tab trigger
-                  const availabilityTab = document.querySelector('[role="tab"][data-value="availability"]') as HTMLElement;
+                  const availabilityTab = document.querySelector('button[value="availability"]') as HTMLElement;
                   if (availabilityTab) {
                     availabilityTab.click();
                     // Give time for tab to activate then scroll to the tabs section
@@ -362,26 +362,26 @@ export function CommunityDetailsHeader({
                       if (tabsContainer) {
                         tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }
-                      // Also ensure the content is visible
-                      const availabilityContent = document.querySelector('[role="tabpanel"][data-value="availability"]');
-                      if (availabilityContent) {
-                        setTimeout(() => {
-                          availabilityContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 300);
-                      }
                     }, 100);
                   }
                 }}
-                className="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
+                className="w-full py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               >
-                <Home className="w-6 h-6" />
-                Reserve Now
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="flex items-center gap-2">
+                    <Home className="w-6 h-6" />
+                    <span className="font-bold text-lg">🏠 Reserve Now</span>
+                  </div>
+                  <span className="text-xs opacity-90 font-medium">
+                    📊 See Vacancies/Rates
+                  </span>
+                </div>
               </button>
               
               <button
                 onClick={() => {
                   // Open the tours tab - find and click the tab trigger
-                  const toursTab = document.querySelector('[role="tab"][data-value="tours"]') as HTMLElement;
+                  const toursTab = document.querySelector('button[value="tours"]') as HTMLElement;
                   if (toursTab) {
                     toursTab.click();
                     // Give time for tab to activate then scroll to the tabs section
@@ -391,20 +391,20 @@ export function CommunityDetailsHeader({
                       if (tabsContainer) {
                         tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }
-                      // Also ensure the content is visible
-                      const toursContent = document.querySelector('[role="tabpanel"][data-value="tours"]');
-                      if (toursContent) {
-                        setTimeout(() => {
-                          toursContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 300);
-                      }
                     }, 100);
                   }
                 }}
-                className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
+                className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               >
-                <Calendar className="w-6 h-6" />
-                Schedule Tour
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-6 h-6" />
+                    <span className="font-bold text-lg">📅 Schedule Tour</span>
+                  </div>
+                  <span className="text-xs opacity-90 font-medium">
+                    🤝 Schedule with Tour Tracker & TourMate™
+                  </span>
+                </div>
               </button>
             </div>
           </div>
