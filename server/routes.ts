@@ -23,6 +23,7 @@ import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
 import { vendors, users } from "../shared/schema";
+import { sendEmail } from "./sendgrid-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -547,6 +548,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('AI status check failed:', error);
       res.status(500).json({ error: 'Failed to check AI status' });
+    }
+  });
+
+  // Feedback for incorrect external links
+  app.post('/api/feedback/incorrect-link', async (req, res) => {
+    try {
+      const { reportedUrl, pageUrl, userAgent, timestamp } = req.body;
+      
+      console.log('📝 Incorrect link reported:', {
+        reportedUrl,
+        pageUrl,
+        timestamp,
+        userAgent
+      });
+
+      // Send notification email to admin
+      const emailSent = await sendEmail({
+        to: 'admin@myseniorvalet.com',
+        from: 'notifications@myseniorvalet.com',
+        subject: 'Incorrect External Link Reported',
+        text: `A user has reported an incorrect external link on MySeniorValet.
+        
+Reported URL: ${reportedUrl}
+Found on page: ${pageUrl}
+Reported at: ${timestamp}
+User Agent: ${userAgent}
+
+Please review and update the link accuracy for this community.`,
+        html: `
+          <h3>Incorrect External Link Reported</h3>
+          <p>A user has reported an incorrect external link on MySeniorValet.</p>
+          <table style="border-collapse: collapse; width: 100%;">
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reported URL:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${reportedUrl}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Found on page:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${pageUrl}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reported at:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${timestamp}</td>
+            </tr>
+          </table>
+          <p style="margin-top: 20px;">Please review and update the link accuracy for this community.</p>
+        `
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Feedback received. Thank you for helping us improve!' 
+      });
+    } catch (error) {
+      console.error('Error processing link feedback:', error);
+      res.status(500).json({ 
+        error: 'Failed to process feedback',
+        message: 'Please try again later' 
+      });
     }
   });
 
