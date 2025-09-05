@@ -674,6 +674,240 @@ export default function CommunityDirectory() {
           </Button>
         </div>
       </section>
+
+      {/* LCS LIFE CARE SERVICES - #3 J.D. POWER CHAMPION */}
+      <section className="px-4 py-16 bg-gradient-to-br from-green-950 via-emerald-950 to-teal-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🏆</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Award className="h-5 w-5 mr-2" />
+              J.D. POWER #1 FOR 6 CONSECUTIVE YEARS
+              <Award className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-green-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
+                LCS Life Care Services
+              </span>
+            </div>
+            
+            <p className="text-2xl text-green-100 mb-4 font-semibold">
+              America's Most Awarded Senior Living Brand
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              The only provider to win #1 in Customer Satisfaction for both Independent Living (6 years) 
+              and Assisted Living/Memory Care - serving 40,000+ residents in 130+ communities
+            </p>
+          </div>
+
+          {/* LCS Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Trophy className="w-8 h-8 text-green-300" />
+              <h3 className="text-xl font-bold text-white">Why LCS Dominates J.D. Power Rankings</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-green-300 mb-3">🥇 Unmatched Awards</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ #1 in Independent Living (2019-2024)</li>
+                  <li>★ #1 in Assisted Living/Memory Care (2023)</li>
+                  <li>★ Highest scores in ALL 6 satisfaction factors</li>
+                  <li>★ Most awarded brand in J.D. Power history</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-green-300 mb-3">💚 CCRC Leadership</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Largest not-for-profit operator</li>
+                  <li>• Full continuum of care specialist</li>
+                  <li>• "Age in place" philosophy</li>
+                  <li>• Experience Is Everything® approach</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-green-800/30 rounded-lg p-3 border border-green-600/30 mt-4">
+              <p className="text-green-200 text-sm font-semibold text-center">
+                🌟 LCS Advantage: Only provider excelling in dining, grounds, apartments, pricing, 
+                staff, AND activities - complete excellence across every touchpoint.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => window.open('/search?company=LCS Life Care Services', '_self')}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Explore All 130+ Award-Winning LCS Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* ATRIA SENIOR LIVING - #5 HOSPITALITY EXCELLENCE */}
+      <section className="px-4 py-16 bg-gradient-to-br from-purple-950 via-pink-950 to-fuchsia-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">💎</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-purple-500 via-pink-500 to-fuchsia-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Heart className="h-5 w-5 mr-2" />
+              HOSPITALITY-FIRST LUXURY LIVING
+              <Heart className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-fuchsia-300 bg-clip-text text-transparent">
+                Atria Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-purple-100 mb-4 font-semibold">
+              230+ Communities • Uncommon Hospitality Since 1998
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              Where hospitality meets healthcare - featuring Engage Life® programs, Coterie ultra-luxury 
+              partnerships, and a commitment to creating connections that last a lifetime
+            </p>
+          </div>
+
+          {/* Atria Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-purple-900/90 to-pink-900/90 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Heart className="w-8 h-8 text-purple-300" />
+              <h3 className="text-xl font-bold text-white">The Atria Hospitality Difference</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">🌟 Signature Programs</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ Engage Life® - Six dimensions of wellness</li>
+                  <li>★ Uncommon Hospitality initiative</li>
+                  <li>★ Life Guidance® memory care</li>
+                  <li>★ StoryWise digital connections</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">💎 Luxury Features</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Coterie ultra-luxury communities</li>
+                  <li>• Chef-prepared cuisine with Starbucks®</li>
+                  <li>• Amazon Echo in every apartment</li>
+                  <li>• $3+ billion luxury investment</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-purple-800/30 rounded-lg p-3 border border-purple-600/30 mt-4">
+              <p className="text-purple-200 text-sm font-semibold text-center">
+                🌟 Atria Advantage: The only provider combining true hospitality DNA with healthcare - 
+                24 communities earned 2025 Caring Star Awards for exceptional service.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => window.open('/search?company=Atria Senior Living', '_self')}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Experience Atria's 230+ Hospitality Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* BROOKDALE SENIOR LIVING - #1 INDUSTRY TITAN */}
+      <section className="px-4 py-16 bg-gradient-to-br from-rose-950 via-red-950 to-pink-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-rose-400 to-red-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🔴</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Building className="h-5 w-5 mr-2" />
+              #1 LARGEST PROVIDER • 60,000+ RESIDENTS
+              <Building className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-rose-300 via-red-300 to-pink-300 bg-clip-text text-transparent">
+                Brookdale Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-rose-100 mb-4 font-semibold">
+              America's Senior Living Leader Since 1978
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              With 647 communities in 41 states, Brookdale's unmatched scale and 47 years of experience 
+              delivers the full spectrum of care to more seniors than any other provider
+            </p>
+          </div>
+
+          {/* Brookdale Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-rose-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-rose-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Building className="w-8 h-8 text-rose-300" />
+              <h3 className="text-xl font-bold text-white">Why Brookdale Leads the Industry</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-rose-300 mb-3">📊 Unmatched Scale</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ 53,794 units nationwide</li>
+                  <li>★ 15.6% market share</li>
+                  <li>★ $3.24 billion annual revenue</li>
+                  <li>★ 80% of U.S. population coverage</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-rose-300 mb-3">🏥 Healthcare Innovation</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Brookdale HealthPlus on-site clinics</li>
+                  <li>• AI-driven health monitoring</li>
+                  <li>• 37% lower litigation rates</li>
+                  <li>• Full-spectrum care on single campus</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-rose-800/30 rounded-lg p-3 border border-rose-600/30 mt-4">
+              <p className="text-rose-200 text-sm font-semibold text-center">
+                🌟 Brookdale Advantage: The only provider with true national coverage - wherever your family is, 
+                Brookdale is there with consistent, quality care backed by 47 years of experience.
+              </p>
+            </div>
+          </div>
+
+          <Button
+            onClick={() => window.open('/search?company=Brookdale Senior Living', '_self')}
+            className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Find Your Local Brookdale Community (647 Locations) →
+          </Button>
+        </div>
+      </section>
       
       {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
       <section className="relative px-4 py-20 overflow-hidden">
