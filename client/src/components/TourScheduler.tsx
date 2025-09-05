@@ -125,7 +125,7 @@ export function TourScheduler({
       </Button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Schedule a Tour</DialogTitle>
             <DialogDescription>
@@ -153,6 +153,7 @@ export function TourScheduler({
           )}
           
           <form onSubmit={handleSubmit}>
+            <p className="text-sm text-gray-500 mb-2">Fields marked with <span className="text-red-500">*</span> are required</p>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -206,32 +207,35 @@ export function TourScheduler({
               </div>
 
               <div>
-                <Label htmlFor="contactName">Your Name *</Label>
+                <Label htmlFor="contactName">Your Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactName"
                   name="contactName"
                   required
+                  placeholder="Enter your full name"
                   defaultValue={(user as any)?.name || (user as any)?.firstName || ''}
                 />
               </div>
 
               <div>
-                <Label htmlFor="contactEmail">Email *</Label>
+                <Label htmlFor="contactEmail">Email <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactEmail"
                   name="contactEmail"
                   type="email"
                   required
+                  placeholder="your.email@example.com"
                   defaultValue={(user as any)?.email || ''}
                 />
               </div>
 
               <div>
-                <Label htmlFor="contactPhone">Phone</Label>
+                <Label htmlFor="contactPhone">Phone <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactPhone"
                   name="contactPhone"
                   type="tel"
+                  required
                   placeholder="(555) 555-5555"
                 />
               </div>
