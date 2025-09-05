@@ -2274,7 +2274,7 @@ export default function CommunityDetail() {
                       <TourScheduler
                         communityId={community.id}
                         communityName={community.name}
-                        communityAddress={`${community.city}, ${community.state}`}
+                        communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zip || ''}`.trim() : `${community.city}, ${community.state}`}
                         communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
                         buttonText="Schedule In-Person Tour"
                         buttonVariant="default"

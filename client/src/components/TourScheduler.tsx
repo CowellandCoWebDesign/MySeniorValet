@@ -146,13 +146,17 @@ export function TourScheduler({
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Schedule a Tour</DialogTitle>
-            <DialogDescription>
-              {communityName}
+            <DialogDescription className="space-y-2">
+              <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {communityName}
+              </div>
               {communityAddress && (
-                <span className="flex items-center gap-1 mt-1">
-                  <MapPin className="h-3 w-3" />
-                  {communityAddress}
-                </span>
+                <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md">
+                  <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-blue-900 dark:text-blue-200 font-medium">
+                    {communityAddress}
+                  </span>
+                </div>
               )}
             </DialogDescription>
           </DialogHeader>
