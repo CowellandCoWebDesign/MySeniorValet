@@ -660,57 +660,85 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 })()}
                 
                 {/* Community-specific insights from web search */}
-                {(localVerificationReport?.consensus?.verifiedFacts?.length > 0 || 
-                  localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
-                  localVerificationReport?.verificationResults?.webIntelligence?.description) ? (
-                  <>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Information found about this specific community:
-                    </p>
-                    
-                    {/* Show description from web intelligence if available */}
-                    {localVerificationReport?.verificationResults?.webIntelligence?.description && (
-                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                          {localVerificationReport.verificationResults.webIntelligence.description}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {/* Show Perplexity search content if available */}
-                    {localVerificationReport?.verificationResults?.perplexityData?.searchContent && !localVerificationReport?.verificationResults?.webIntelligence?.description && (
-                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
-                        {/* Full unfiltered response in a structured format */}
-                        <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                          {localVerificationReport.verificationResults.perplexityData.searchContent}
+                {(() => {
+                  // Check all possible data paths for Perplexity content
+                  const perplexityContent = 
+                    localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
+                    localVerificationReport?.perplexityData?.searchContent ||
+                    localVerificationReport?.searchContent ||
+                    localVerificationReport?.content;
+                  
+                  const perplexitySources = 
+                    localVerificationReport?.verificationResults?.perplexityData?.sources ||
+                    localVerificationReport?.perplexityData?.sources ||
+                    localVerificationReport?.sources;
+                  
+                  const webIntelligenceDescription = localVerificationReport?.verificationResults?.webIntelligence?.description;
+                  const verifiedFacts = localVerificationReport?.consensus?.verifiedFacts;
+                  
+                  const hasAnyData = verifiedFacts?.length > 0 || perplexityContent || webIntelligenceDescription;
+                  
+                  return hasAnyData ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Information found about this specific community:
+                      </p>
+                      
+                      {/* Show description from web intelligence if available */}
+                      {webIntelligenceDescription && (
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {webIntelligenceDescription}
+                          </p>
                         </div>
-                        
-                        {/* Show sources */}
-                        {localVerificationReport?.verificationResults?.perplexityData?.sources?.length > 0 && (
-                          <div className="border-t pt-3">
-                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {localVerificationReport.verificationResults.perplexityData.sources.map((source: string, idx: number) => (
-                                <a 
-                                  key={idx}
-                                  href={source}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                  title={source}
-                                >
-                                  <ExternalLink className="w-3 h-3 inline mr-1" />
-                                  Source {idx + 1}
-                                </a>
-                              ))}
-                            </div>
+                      )}
+                      
+                      {/* Show Perplexity search content if available - try multiple data paths */}
+                      {perplexityContent && !webIntelligenceDescription && (
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
+                          {/* Full unfiltered response in a structured format */}
+                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                            {perplexityContent}
                           </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Show verified facts if available */}
-                    {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
+                          
+                          {/* Show sources if available */}
+                          {perplexitySources?.length > 0 && (
+                            <div className="border-t pt-3">
+                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {perplexitySources.map((source: string, idx: number) => (
+                                  <a 
+                                    key={idx}
+                                    href={source}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                    title={source}
+                                  >
+                                    <ExternalLink className="w-3 h-3 inline mr-1" />
+                                    Source {idx + 1}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Search temporarily unavailable
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        No public website or additional online information found for this specific community. Contact them directly for the most current information.
+                      </p>
+                    </div>
+                  );
+                })()}
+                
+                {/* Show verified facts if available */}
+                {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                       let factText = fact;
                       let isAddressCorrection = false;
                       let addressDetails = null;
@@ -824,7 +852,6 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                         </div>
                       );
                     }).filter(Boolean)}
-                  </>
                 ) : (
                   // Show "searching" or "no data" message
                   <div className="text-sm text-gray-600 dark:text-gray-400">
