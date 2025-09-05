@@ -1207,51 +1207,54 @@ export default function CommunityDirectory() {
       </section>
       
       {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
-      <section className="relative px-4 py-20 overflow-hidden">
-        {/* Premium Resort Courtyard Garden Background */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${resortGardenImage})`
-          }}
-        />
-        
-
-        <div className="relative z-10 max-w-7xl mx-auto">
-          {/* Ultra-Premium Header with Crown */}
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-6xl">👑</span>
+      <section className="px-4 py-20">
+        {/* Header Section with Premium Resort Background */}
+        <div className="relative overflow-hidden rounded-3xl mb-12">
+          {/* Premium Resort Courtyard Garden Background - Only for header */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${resortGardenImage})`,
+              minHeight: '500px'
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-950/70 via-amber-900/60 to-orange-950/80" />
+          
+          <div className="relative z-10 px-8 py-16">
+            {/* Ultra-Premium Header with Crown */}
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
+                  <span className="relative text-6xl">👑</span>
+                </div>
               </div>
-            </div>
+              
+              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+                <Star className="h-5 w-5 mr-2" />
+                THE GOLD STANDARD IN SENIOR LIVING
+                <Star className="h-5 w-5 ml-2" />
+              </Badge>
+              
+              <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                  Oakmont Senior Living
+                </span>
+              </div>
+              
+              <p className="text-2xl text-amber-100 mb-4 font-semibold">
+                Excellence Redefined Across 106 Premier Communities
+              </p>
+              
+              <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+                For over 25 years, Oakmont has set the industry standard with resort-style amenities, 
+                award-winning memory care, and unmatched dedication to resident wellness
+              </p>
             
-            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-              <Star className="h-5 w-5 mr-2" />
-              THE GOLD STANDARD IN SENIOR LIVING
-              <Star className="h-5 w-5 ml-2" />
-            </Badge>
-            
-            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                Oakmont Senior Living
-              </span>
-            </div>
-            
-            <p className="text-2xl text-amber-100 mb-4 font-semibold">
-              Excellence Redefined Across 106 Premier Communities
-            </p>
-            
-            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              For over 25 years, Oakmont has set the industry standard with resort-style amenities, 
-              award-winning memory care, and unmatched dedication to resident wellness
-            </p>
-            
-            <div className="flex flex-wrap gap-4 justify-center">
-              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
-                <Building className="h-4 w-4 mr-2" />
-                106 Luxury Communities
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                  <Building className="h-4 w-4 mr-2" />
+                  106 Luxury Communities
               </Badge>
               <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
                 <MapPin className="h-4 w-4 mr-2" />
@@ -1267,9 +1270,13 @@ export default function CommunityDirectory() {
               </Badge>
             </div>
           </div>
-
-          {/* Why Oakmont is The Gold Standard - NEW SECTION */}
-          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+        </div>
+      </div>
+      
+      {/* Main Content Section */}
+      <div className="max-w-7xl mx-auto">
+        {/* Why Oakmont is The Gold Standard - NEW SECTION */}
+        <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
                 <Award className="w-6 h-6 text-amber-300" />
@@ -1556,17 +1563,16 @@ export default function CommunityDirectory() {
             </div>
           )}
             
-            <div className="text-center mt-8">
-              <Link href="/search?brand=Oakmont">
-                <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
-                  Explore All 106 Oakmont Communities
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </div>
+        <div className="text-center mt-8">
+          <Link href="/search?brand=Oakmont">
+            <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+              Explore All 106 Oakmont Communities
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
         </div>
-      </section>
+      </div>
+    </section>
       
       {/* Hawaii Paradise Excellence - Premium Tropical Living */}
       <section ref={hawaiiSectionRef} className="relative px-4 py-16 overflow-hidden">
