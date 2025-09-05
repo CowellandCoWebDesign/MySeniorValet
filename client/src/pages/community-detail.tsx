@@ -1121,37 +1121,6 @@ export const HeroPhotoCarousel = ({
     fetchTours();
   }, [communityId]);
   
-  // Beautiful, high-quality senior living lifestyle images as fallback
-  const getPlaceholderPhotos = () => {
-    return [
-      {
-        url: 'https://images.pexels.com/photos/3768131/pexels-photo-3768131.jpeg?w=1600&h=900&fit=crop',
-        source: 'placeholder' as const,
-        attribution: 'Community Lifestyle'
-      },
-      {
-        url: 'https://images.pexels.com/photos/3824771/pexels-photo-3824771.jpeg?w=1600&h=900&fit=crop',
-        source: 'placeholder' as const,
-        attribution: 'Senior Living'
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=1600&h=900&fit=crop',
-        source: 'placeholder' as const,
-        attribution: 'Community Activities'
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1559234938-b60fff04894d?w=1600&h=900&fit=crop',
-        source: 'placeholder' as const,
-        attribution: 'Dining Experience'
-      },
-      {
-        url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1600&h=900&fit=crop',
-        source: 'placeholder' as const,
-        attribution: 'Modern Amenities'
-      }
-    ];
-  };
-
   // Dynamically get all available photos with source tracking
   const getAllPhotos = () => {
     console.log('🔍 [HeroPhotoCarousel] Getting all photos...');
@@ -1161,12 +1130,20 @@ export const HeroPhotoCarousel = ({
     const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder'; attribution?: string }[] = [];
     
     // Stock photo patterns to COMPLETELY EXCLUDE
-    // Be more selective - only filter out obvious commercial stock photo sites
     const stockPhotoPatterns = [
+      'unsplash.com',
+      'pixabay.com', 
+      'pexels.com',
+      'freepik.com',
       'shutterstock.com',
       'istockphoto.com',
       'gettyimages.com',
-      '123rf.com'
+      'stockvault.net',
+      'freeimages.com',
+      'burst.shopify.com',
+      'cdn.pixabay.com',
+      'images.unsplash.com',
+      'images.pexels.com'
     ];
     
     const isStockPhoto = (url: string) => {
@@ -1263,15 +1240,7 @@ export const HeroPhotoCarousel = ({
     
     console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
     
-    // If we have less than 3 real photos, add beautiful placeholders
-    if (uniquePhotos.length < 3) {
-      const placeholders = getPlaceholderPhotos();
-      const needed = Math.min(5, 3 - uniquePhotos.length);
-      uniquePhotos.push(...placeholders.slice(0, needed));
-      console.log(`➕ Added ${needed} placeholder photos for better presentation`);
-    }
-    
-    // Return unique photos (including placeholders if needed)
+    // Return unique photos only if they exist - don't use placeholders
     return uniquePhotos;
   };
   
@@ -2211,73 +2180,8 @@ export default function CommunityDetail() {
               );
             })()}
 
-            {/* Action Buttons - Above Tabs */}
-            <div className="flex gap-3 my-6">
-              <Button 
-                onClick={() => window.location.href = `tel:${community.phone || generatePhoneNumber(community.state, community.id)}`}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 transition-all shadow-lg hover:shadow-xl"
-              >
-                <Phone className="w-4 h-4 mr-2" />
-                Call Now
-              </Button>
-              
-              <Button 
-                onClick={() => setIsScheduleTourOpen(true)}
-                className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 transition-all shadow-lg hover:shadow-xl"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Schedule Tour
-              </Button>
-              
-              <Button
-                onClick={handleFavorite}
-                variant="outline"
-                className="px-4 border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 py-3 transition-all"
-              >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400'}`} />
-              </Button>
-            </div>
-
-            {/* Action Buttons - Above Tabs */}
-            <div className="flex flex-wrap gap-3 my-6">
-              <Button
-                size="lg"
-                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center gap-2"
-                onClick={() => {
-                  const phone = community.phone || generatePhoneNumber(community.state, community.id);
-                  window.location.href = `tel:${phone}`;
-                }}
-              >
-                <Phone className="w-5 h-5" />
-                Call Now
-              </Button>
-              
-              <ReservationDialog
-                community={community}
-                verificationReport={verificationReport}
-              >
-                <Button
-                  size="lg"
-                  className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg flex items-center gap-2"
-                >
-                  <Calendar className="w-5 h-5" />
-                  Schedule Tour
-                </Button>
-              </ReservationDialog>
-              
-              <Button
-                size="lg"
-                variant="outline"
-                className="shadow-lg flex items-center gap-2"
-                onClick={handleFavorite}
-              >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
-                {isFavorite ? 'Favorited' : 'Favorite'}
-              </Button>
-            </div>
-
             {/* Tabbed Content Section - Mobile Responsive */}
-            <Tabs defaultValue="market-data" className="w-full">
+            <Tabs defaultValue="market-data" className="w-full mt-4 sm:mt-6">
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
                 <TabsTrigger 
                   value="community-info" 
@@ -2310,11 +2214,10 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-2">
                     <Home className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Reservations & Pricing</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Reserve</span>
+                    <span className="text-xs sm:text-sm font-bold">Availability</span>
                   </div>
                   <span className="text-xs opacity-75 font-normal hidden sm:block">
-                    Reservations & Pricing
+                    Units & Pricing
                   </span>
                 </TabsTrigger>
                 <TabsTrigger 

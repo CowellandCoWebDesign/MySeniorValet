@@ -176,17 +176,23 @@ export class WebsiteScraperService {
         
         const imgLower = imgUrl.toLowerCase();
         
-        // Skip only obvious non-community images
+        // Skip marketing materials, logos, banners, and ads
         if (imgLower.includes('logo') || imgLower.includes('icon') || 
-            imgLower.includes('favicon') || imgLower.includes('.svg') ||
-            imgLower.includes('sprite') || imgLower.includes('button') ||
-            imgLower.includes('arrow') || imgLower.includes('_ad') ||
-            imgLower.includes('ad_')) {
+            imgLower.includes('favicon') || imgLower.includes('sprite') ||
+            imgLower.includes('.svg') || imgLower.includes('banner') ||
+            imgLower.includes('slider') || imgLower.includes('campaign') ||
+            imgLower.includes('ad_') || imgLower.includes('_ad') ||
+            imgLower.includes('promo') || imgLower.includes('podcast') ||
+            imgLower.includes('newsletter') || imgLower.includes('header') ||
+            imgLower.includes('footer') || imgLower.includes('background') ||
+            imgLower.includes('button') || imgLower.includes('arrow')) {
           continue;
         }
         
-        // Skip very small images (likely icons or ads)
-        if (imgLower.includes('width=250') || imgLower.includes('height=73')) {
+        // Skip images with marketing dimensions (likely ads)
+        if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
+            imgLower.includes('width=250') || imgLower.includes('width=540') ||
+            imgLower.includes('height=73') || imgLower.includes('height=450')) {
           continue;
         }
         
