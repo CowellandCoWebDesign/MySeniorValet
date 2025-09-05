@@ -62,6 +62,32 @@ export default function CommunityDirectory() {
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
   
+  // Brand-specific community queries for signature sliders
+  const discoveryQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', { company: 'Discovery Senior Living', limit: 12 }],
+    enabled: true
+  });
+  
+  const lcsQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', { company: 'Life Care Services', limit: 12 }],
+    enabled: true
+  });
+  
+  const atriaQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', { company: 'Atria Senior Living', limit: 12 }],
+    enabled: true
+  });
+  
+  const brookdaleQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', { company: 'Brookdale Senior Living', limit: 12 }],
+    enabled: true
+  });
+  
+  const oakmontQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', { company: 'Oakmont Management Group', limit: 12 }],
+    enabled: true
+  });
+  
   const careTypes = [
     { 
       id: 'hud', 
@@ -813,6 +839,22 @@ export default function CommunityDirectory() {
             </div>
           </div>
 
+          {/* Discovery Communities Signature Slider */}
+          {discoveryQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-cyan-300 mb-6">✨ Signature Discovery Communities</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {discoveryQuery.data.communities.slice(0, 8).map((community: any) => (
+                  <EnhancedCommunityCard
+                    key={community.id}
+                    community={community}
+                    isMapView={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <Button
             onClick={() => window.open('/search?company=Discovery Senior Living', '_self')}
             className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 text-lg shadow-xl"
@@ -890,6 +932,22 @@ export default function CommunityDirectory() {
               </p>
             </div>
           </div>
+
+          {/* LCS Communities Signature Slider */}
+          {lcsQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-green-300 mb-6">🏆 Award-Winning LCS Communities</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {lcsQuery.data.communities.slice(0, 8).map((community: any) => (
+                  <EnhancedCommunityCard
+                    key={community.id}
+                    community={community}
+                    isMapView={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <Button
             onClick={() => window.open('/search?company=LCS Life Care Services', '_self')}
@@ -969,6 +1027,22 @@ export default function CommunityDirectory() {
             </div>
           </div>
 
+          {/* Atria Communities Signature Slider */}
+          {atriaQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-purple-300 mb-6">💎 Luxury Atria Communities</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {atriaQuery.data.communities.slice(0, 8).map((community: any) => (
+                  <EnhancedCommunityCard
+                    key={community.id}
+                    community={community}
+                    isMapView={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           <Button
             onClick={() => window.open('/search?company=Atria Senior Living', '_self')}
             className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 text-lg shadow-xl"
@@ -1046,6 +1120,22 @@ export default function CommunityDirectory() {
               </p>
             </div>
           </div>
+
+          {/* Brookdale Communities Signature Slider */}
+          {brookdaleQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <h3 className="text-2xl font-bold text-red-300 mb-6">🏢 Leading Brookdale Communities</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {brookdaleQuery.data.communities.slice(0, 8).map((community: any) => (
+                  <EnhancedCommunityCard
+                    key={community.id}
+                    community={community}
+                    isMapView={false}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
 
           <Button
             onClick={() => window.open('/search?company=Brookdale Senior Living', '_self')}
