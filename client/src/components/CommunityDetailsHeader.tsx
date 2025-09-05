@@ -295,35 +295,6 @@ export function CommunityDetailsHeader({
               </div>
             </div>
             
-            {/* Action Buttons - Clean Design */}
-            <div className="flex gap-3 mb-6">
-              <Button 
-                onClick={() => window.location.href = `tel:${displayPhone}`}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 transition-all"
-              >
-                <Phone className="w-4 h-4 mr-2" />
-                Call Now
-              </Button>
-              
-              <Button 
-                variant="outline"
-                className="flex-1 border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white font-semibold py-3 transition-all"
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Schedule Tour
-              </Button>
-              
-              {onFavoriteToggle && (
-                <Button
-                  onClick={onFavoriteToggle}
-                  variant="outline"
-                  className="px-4 border-gray-600 hover:bg-gray-700 py-3 transition-all"
-                >
-                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
-                </Button>
-              )}
-            </div>
-            
             {/* Amenities Section - Clean Grid */}
             {amenities.length > 0 && (
               <div className="mb-6">

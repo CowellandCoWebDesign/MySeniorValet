@@ -2180,8 +2180,35 @@ export default function CommunityDetail() {
               );
             })()}
 
+            {/* Action Buttons - Above Tabs */}
+            <div className="flex gap-3 my-6">
+              <Button 
+                onClick={() => window.location.href = `tel:${community.phone || generatePhoneNumber(community.state, community.id)}`}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 transition-all shadow-lg hover:shadow-xl"
+              >
+                <Phone className="w-4 h-4 mr-2" />
+                Call Now
+              </Button>
+              
+              <Button 
+                onClick={() => setIsScheduleTourOpen(true)}
+                className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 transition-all shadow-lg hover:shadow-xl"
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Schedule Tour
+              </Button>
+              
+              <Button
+                onClick={handleFavorite}
+                variant="outline"
+                className="px-4 border-gray-400 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 py-3 transition-all"
+              >
+                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-600 dark:text-gray-400'}`} />
+              </Button>
+            </div>
+
             {/* Tabbed Content Section - Mobile Responsive */}
-            <Tabs defaultValue="market-data" className="w-full mt-4 sm:mt-6">
+            <Tabs defaultValue="market-data" className="w-full">
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
                 <TabsTrigger 
                   value="community-info" 
