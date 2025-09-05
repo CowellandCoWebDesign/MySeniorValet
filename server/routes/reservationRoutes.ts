@@ -18,7 +18,11 @@ router.post('/submit', async (req: Request, res: Response) => {
       careNeeds,
       budget,
       additionalNotes,
-      requestType = 'reservation'
+      requestType = 'reservation',
+      // Contact information from the form
+      name,
+      email,
+      phone
     } = req.body;
     
     // Check if user is authenticated using custom auth session
@@ -38,12 +42,19 @@ router.post('/submit', async (req: Request, res: Response) => {
       id: sessionUser?.id
     });
     
-    // Get user info from custom auth session
-    const userName = sessionUser?.firstName && sessionUser?.lastName 
+    // Log contact information from form
+    console.log('📞 Contact info from form:', {
+      name: name || 'Not provided',
+      email: email || 'Not provided', 
+      phone: phone || 'Not provided'
+    });
+    
+    // Get user info - prefer form data over session data since user may have updated it
+    const userName = name || (sessionUser?.firstName && sessionUser?.lastName 
       ? `${sessionUser.firstName} ${sessionUser.lastName}`
-      : sessionUser?.email?.split('@')[0] || 'Guest';
-    const userEmail = sessionUser?.email;
-    const userPhone = sessionUser?.phone || '';
+      : sessionUser?.email?.split('@')[0] || 'Guest');
+    const userEmail = email || sessionUser?.email;
+    const userPhone = phone || sessionUser?.phone || '';
     
     // Validate user email
     if (!userEmail) {

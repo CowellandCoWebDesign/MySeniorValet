@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CreditCard, Check, Loader } from 'lucide-react';
+import { CreditCard, Check, Loader, Phone, Mail, User } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface ReservationDialogProps {
   open: boolean;
@@ -17,6 +18,8 @@ interface ReservationDialogProps {
 }
 
 export function ReservationDialog({ open, onOpenChange, community }: ReservationDialogProps) {
+  const { user } = useAuth();
+  
   const [reservationForm, setReservationForm] = useState({
     unitType: '',
     moveInDate: '',
@@ -25,9 +28,35 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
     budget: '',
     additionalNotes: ''
   });
+  
+  const [contactInfo, setContactInfo] = useState({
+    name: '',
+    email: '',
+    phone: ''
+  });
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Initialize contact info from user data when dialog opens
+  useEffect(() => {
+    if (open && user) {
+      setContactInfo({
+        name: user?.firstName && user?.lastName 
+          ? `${user.firstName} ${user.lastName}` 
+          : user?.email?.split('@')[0] || '',
+        email: user?.email || '',
+        phone: user?.phone || ''
+      });
+    }
+  }, [open, user]);
 
   const handleSubmit = async () => {
+    // Validate contact information
+    if (!contactInfo.name || !contactInfo.email || !contactInfo.phone) {
+      alert('Please provide all contact information (name, email, and phone)');
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/reservations/submit', {
@@ -37,7 +66,8 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
         body: JSON.stringify({
           communityId: community.id,
           communityName: community.name,
-          ...reservationForm
+          ...reservationForm,
+          ...contactInfo
         })
       });
       
@@ -93,6 +123,11 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
           budget: '',
           additionalNotes: ''
         });
+        setContactInfo({
+          name: '',
+          email: '',
+          phone: ''
+        });
       } else {
         // Error from server
         alert(data.error || 'Failed to submit reservation. Please try again.');
@@ -128,6 +163,57 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
               <li>• No payment until move-in</li>
               <li>• Fully refundable if plans change</li>
             </ul>
+          </div>
+          
+          {/* Contact Information Confirmation */}
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-3 flex items-center">
+              <User className="h-5 w-5 mr-2" />
+              Confirm Your Contact Information
+            </h4>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="contactName">Full Name</Label>
+                <Input
+                  id="contactName"
+                  value={contactInfo.name}
+                  onChange={(e) => setContactInfo({...contactInfo, name: e.target.value})}
+                  placeholder="Enter your full name"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="contactEmail">
+                  <Mail className="h-4 w-4 inline mr-1" />
+                  Email Address
+                </Label>
+                <Input
+                  id="contactEmail"
+                  type="email"
+                  value={contactInfo.email}
+                  onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})}
+                  placeholder="your.email@example.com"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="contactPhone">
+                  <Phone className="h-4 w-4 inline mr-1" />
+                  Phone Number
+                </Label>
+                <Input
+                  id="contactPhone"
+                  type="tel"
+                  value={contactInfo.phone}
+                  onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})}
+                  placeholder="(555) 123-4567"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  The community will use this to contact you about your reservation
+                </p>
+              </div>
+            </div>
           </div>
           
           {/* Reservation Form */}
