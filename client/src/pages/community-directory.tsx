@@ -539,20 +539,15 @@ export default function CommunityDirectory() {
       
       {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
       <section className="relative px-4 py-20 overflow-hidden">
-        {/* Ultra-Premium Golden Radiance Background */}
-        <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-800 to-yellow-900 dark:from-amber-950 dark:via-orange-900 dark:to-yellow-950"></div>
-          <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.4) 0%, transparent 50%),
-                             radial-gradient(circle at 80% 80%, rgba(251, 146, 60, 0.3) 0%, transparent 50%),
-                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.3) 0%, transparent 40%),
-                             radial-gradient(circle at 60% 60%, rgba(255, 215, 0, 0.2) 0%, transparent 60%)`,
-          }}></div>
-          {/* Animated gold sparkles */}
-          <div className="absolute inset-0 animate-pulse" style={{
-            backgroundImage: `radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 30%),
-                             radial-gradient(circle at 70% 70%, rgba(255, 215, 0, 0.1) 0%, transparent 30%)`,
-          }}></div>
+        {/* Premium Resort Courtyard Garden Background */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('/attached_assets/generated_images/Resort_courtyard_garden_f7db92ce.png')`
+          }}
+        >
+          {/* Dark overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto">
@@ -560,12 +555,12 @@ export default function CommunityDirectory() {
           <div className="text-center mb-12">
             <div className="flex justify-center mb-4">
               <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
+                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
                 <span className="relative text-6xl">👑</span>
               </div>
             </div>
             
-            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold animate-shimmer">
+            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
               <Star className="h-5 w-5 mr-2" />
               THE GOLD STANDARD IN SENIOR LIVING
               <Star className="h-5 w-5 ml-2" />
