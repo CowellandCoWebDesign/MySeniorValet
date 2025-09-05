@@ -1865,7 +1865,7 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
-            {/* Senior Service Providers Directory */}
+            {/* Trusted Senior Service Providers - Enhanced Promotional Section */}
             <Link href="/senior-services">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Shopping Sign Image at top of card */}
@@ -1878,46 +1878,138 @@ export default function MySeniorValetHome() {
                   {/* Overlay elements on the image */}
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
                   <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg">
-                    <span className="text-3xl">🛍️</span>
+                    <span className="text-3xl">⭐</span>
                   </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1">
-                    SERVICES
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 animate-pulse">
+                    TRUSTED PARTNERS
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Trusted Senior Service Providers</CardTitle>
+                  <CardTitle className="text-2xl mb-2">⭐ Trusted Senior Service Providers</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Moving, Transportation, Equipment & More
+                    Premium Partners Serving Families Nationwide
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with 200+ verified national service providers for all your senior care needs
+                    🏆 Connect with 200+ verified & trusted national service providers - Our premium partners delivering excellence in senior care
                   </p>
                   
-                  {/* Provider highlights */}
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines, Allied, Mayflower</span>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Featured Partners */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Shield className="h-5 w-5 text-purple-500 animate-pulse" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Premium Partners</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Life Alert™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Guardian™</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health, Lyft Healthcare</span>
+                    
+                    {/* Right side - Service Categories Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🎯</span> Service Categories
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚚</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Moving & Relocation</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏥</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Transport</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💊</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pharmacy Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏠</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Home Care Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🍽️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Meal Delivery</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">⚖️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Legal Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">♿</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Equipment</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💰</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Financial Planning</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🌟</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Adult Day Care</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-purple-600 dark:text-purple-400 mt-2 font-medium">
+                        15+ Service Categories
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Pride Mobility, Life Alert, Medical Guardian</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels, Mom's Meals</span>
+                  </div>
+
+                  {/* Trust Indicators */}
+                  <div className="mb-4 p-3 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-lg">
+                    <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">✅ Why Choose Our Partners?</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Background Verified</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Licensed & Insured</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">24/7 Support</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Senior Discounts</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Quality Guaranteed</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white group-hover:shadow-lg transition-shadow">
-                    Browse All Services
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Star className="mr-2 h-4 w-4 animate-pulse" />
+                    <span className="font-semibold">Explore Trusted Partners</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>

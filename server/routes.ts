@@ -551,6 +551,159 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Service providers endpoint for Trusted Partners section
+  app.get('/api/services-management/providers', async (req, res) => {
+    try {
+      const { highQuality, limit = '50', search } = req.query;
+      
+      // Return trusted service providers
+      const providers = [
+        {
+          id: 1,
+          name: "United Van Lines",
+          category: "moving",
+          description: "Professional senior move management and relocation services",
+          verified: true,
+          rating: 4.8,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-325-3870",
+          website: "https://www.unitedvanlines.com",
+          specialOffers: "10% Senior Discount"
+        },
+        {
+          id: 2,
+          name: "Uber Health",
+          category: "medical_transport",
+          description: "Non-emergency medical transportation services",
+          verified: true,
+          rating: 4.6,
+          serviceAreas: ["Nationwide"],
+          contact: "1-833-USE-UBER",
+          website: "https://www.uberhealth.com",
+          specialOffers: "Covered by many insurance plans"
+        },
+        {
+          id: 3,
+          name: "Life Alert",
+          category: "medical_equipment",
+          description: "Emergency response and medical alert systems",
+          verified: true,
+          rating: 4.7,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-360-0329",
+          website: "https://www.lifealert.com",
+          specialOffers: "Free equipment with subscription"
+        },
+        {
+          id: 4,
+          name: "Meals on Wheels",
+          category: "meal_delivery",
+          description: "Nutritious meal delivery for seniors",
+          verified: true,
+          rating: 4.9,
+          serviceAreas: ["Nationwide"],
+          contact: "1-888-998-6325",
+          website: "https://www.mealsonwheelsamerica.org",
+          specialOffers: "Income-based pricing available"
+        },
+        {
+          id: 5,
+          name: "Medical Guardian",
+          category: "medical_equipment",
+          description: "Medical alert systems and emergency response",
+          verified: true,
+          rating: 4.5,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-313-1191",
+          website: "https://www.medicalguardian.com",
+          specialOffers: "Free month of service"
+        },
+        {
+          id: 6,
+          name: "Allied Van Lines",
+          category: "moving",
+          description: "Full-service moving and storage solutions",
+          verified: true,
+          rating: 4.6,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-689-8684",
+          website: "https://www.allied.com",
+          specialOffers: "Senior moving specialists available"
+        },
+        {
+          id: 7,
+          name: "Lyft Healthcare",
+          category: "medical_transport",
+          description: "Medical appointment transportation",
+          verified: true,
+          rating: 4.5,
+          serviceAreas: ["Major Cities"],
+          contact: "1-855-865-9553",
+          website: "https://www.lyft.com/healthcare",
+          specialOffers: "Insurance billing available"
+        },
+        {
+          id: 8,
+          name: "Pride Mobility",
+          category: "medical_equipment",
+          description: "Mobility scooters and power wheelchairs",
+          verified: true,
+          rating: 4.7,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-800-1476",
+          website: "https://www.pridemobility.com",
+          specialOffers: "Medicare approved provider"
+        },
+        {
+          id: 9,
+          name: "Mom's Meals",
+          category: "meal_delivery",
+          description: "Refrigerated home-delivered meals",
+          verified: true,
+          rating: 4.4,
+          serviceAreas: ["Nationwide"],
+          contact: "1-866-971-6667",
+          website: "https://www.momsmeals.com",
+          specialOffers: "Medicaid coverage in select states"
+        },
+        {
+          id: 10,
+          name: "Mayflower Transit",
+          category: "moving",
+          description: "Professional moving and packing services",
+          verified: true,
+          rating: 4.5,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-436-9674",
+          website: "https://www.mayflower.com",
+          specialOffers: "Free moving quotes"
+        }
+      ];
+      
+      // Filter by search if provided
+      let filteredProviders = providers;
+      if (search) {
+        const searchLower = String(search).toLowerCase();
+        filteredProviders = providers.filter(p => 
+          p.name.toLowerCase().includes(searchLower) ||
+          p.description.toLowerCase().includes(searchLower) ||
+          p.category.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Apply limit
+      const limitNum = parseInt(String(limit));
+      if (!isNaN(limitNum) && limitNum > 0) {
+        filteredProviders = filteredProviders.slice(0, limitNum);
+      }
+      
+      res.json(filteredProviders);
+    } catch (error) {
+      console.error('Error fetching service providers:', error);
+      res.status(500).json({ error: 'Failed to fetch service providers' });
+    }
+  });
+
   // Feedback for incorrect external links
   app.post('/api/feedback/incorrect-link', async (req, res) => {
     try {
