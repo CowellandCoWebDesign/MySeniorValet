@@ -330,7 +330,7 @@ export function CommunityDetailsHeader({
                   Top Amenities
                 </h3>
                 <div className="space-y-3">
-                  {amenities.map((amenity, idx) => (
+                  {amenities.map((amenity: string, idx: number) => (
                     <div key={idx} className="flex items-center gap-3 text-sm">
                       <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
                         {getAmenityIcon(amenity)}
@@ -348,7 +348,7 @@ export function CommunityDetailsHeader({
                   Why Featured
                 </h3>
                 <div className="space-y-3">
-                  {getWhyFeatured().map((reason, idx) => (
+                  {getWhyFeatured().map((reason: string, idx: number) => (
                     <div key={idx} className="flex items-center gap-3 text-sm">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/50 dark:to-orange-900/50 flex items-center justify-center">
                         <Star className="w-4 h-4 text-amber-600" />
