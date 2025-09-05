@@ -3064,7 +3064,7 @@ export default function CommunityDetail() {
                                 price: verificationReport?.verificationResults?.pricing?.studio || 
                                        (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : '$2,500-3,500'),
                                 features: '400-600 sq ft',
-                                floorPlanImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
                                 amenities: ['Kitchenette', 'Private Bath', 'Emergency Call System']
                               },
                               { 
@@ -3080,7 +3080,7 @@ export default function CommunityDetail() {
                                 price: verificationReport?.verificationResults?.pricing?.twoBedroom || 
                                        (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : '$4,000-6,000'),
                                 features: '800-1200 sq ft',
-                                floorPlanImage: 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=600&h=400&fit=crop',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
                                 amenities: ['Full Kitchen', '2 Bathrooms', 'Washer/Dryer Hookups']
                               }
                             ].map((unit) => (
