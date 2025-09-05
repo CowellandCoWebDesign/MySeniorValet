@@ -1218,89 +1218,158 @@ export default function CommunityDirectory() {
       </section>
 
 
-      {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
-      {/* New York Communities - EMPIRE STATE EXCELLENCE */}
-      <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background New York Skyline Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="New York skyline background"
-            className="w-full h-full object-cover opacity-75"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/40 to-blue-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+      {/* New York Empire State Excellence - Metropolitan Premium Living */}
+      <section ref={newYorkSectionRef} className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Metropolitan Skyline Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 dark:from-purple-950 dark:via-indigo-900 dark:to-blue-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(129, 140, 248, 0.2) 0%, transparent 40%)`,
+          }}></div>
         </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                🗽 New York Communities
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Empire State living</span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Metropolitan access</span>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">🗽</span>
+              <span className="bg-gradient-to-r from-purple-300 to-indigo-300 bg-clip-text text-transparent">
+                New York Empire Excellence
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              World-class senior living in the Empire State across {((newYorkCommunities as any)?.communities?.length || 0)} communities
+            </p>
+          </div>
+
+          {/* New York Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-purple-900/90 to-indigo-900/90 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-purple-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">NYC Metro Market Intelligence & Strategic Negotiation</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>Average cost: $4,500-$8,000/month (NYC metro premium)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>Upstate NY 40-60% less than NYC/Westchester</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>World-class healthcare access (NYC hospitals)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>Cultural amenities and metropolitan lifestyle</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">Manhattan Money-Saving Tactics</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Outer Borough Bargain:</strong> Brooklyn/Queens 25% less than Manhattan</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Winter Move Special:</strong> January-March saves $1000-2000/month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Hudson Valley Alternative:</strong> 1-hour north, 50% savings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Rent Control Awareness:</strong> Ask about stabilized units</span>
+                  </li>
+                </ul>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
-              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">New York State</div>
+            
+            <div className="mt-4 p-3 bg-purple-800/30 rounded-lg border border-purple-600/30">
+              <p className="text-sm text-purple-200">
+                <span className="font-semibold text-purple-300">NYC Pro Tip:</span> Manhattan communities have 3-24 month waitlists. 
+                Consider "bridge communities" in Westchester while waiting. Many offer shuttle service to NYC for cultural events.
+              </p>
             </div>
           </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {((newYorkCommunities as any)?.communities?.length || 0)} New York communities • 
-            Empire State senior living excellence
-          </p>
-        
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(newYorkSliderRef, 'left')}
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(newYorkSliderRef, 'right')}
-            >
-              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            
-            <div ref={newYorkSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 " style={{scrollBehavior: 'smooth'}}>
-              {/* Show New York communities */}
-            {newYorkLoading ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <div key={index} className="flex-shrink-0 w-72 h-[420px] bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
-                  <div className="h-48 bg-gradient-to-br from-purple-200 to-blue-200 dark:from-gray-700 dark:to-gray-800"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))
-            ) : ((newYorkCommunities as any)?.communities || []).length === 0 ? (
-              <div className="text-center text-gray-600 dark:text-gray-400 py-8 w-full">
-                <Building className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>No New York communities available at this time.</p>
-              </div>
-            ) : (
-              ((newYorkCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <FeaturedExcellenceCard community={community} index={index} compact />
 
-                </Link>
-              ))
-            )}
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Empire State Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premium metropolitan communities across New York</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2 text-lg font-bold">
+                {((newYorkCommunities as any)?.communities?.length || 0)} Featured
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div ref={newYorkSliderRef} className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400" style={{scrollBehavior: 'smooth'}}>
+              {(newYorkLoading || !newYorkCommunities || !(newYorkCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-xl border border-purple-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-purple-800/50 to-indigo-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-purple-800/50 rounded"></div>
+                      <div className="h-4 bg-purple-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((newYorkCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🏙️ Empire Living"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold shadow-lg">
+                          Metropolitan Elite
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/map-search?state=NY">
+                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All New York Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
