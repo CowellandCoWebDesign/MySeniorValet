@@ -50,6 +50,7 @@ import { ReservationSection } from "@/components/ReservationSection";
 import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
+import { ReservationDialog } from '@/components/ReservationDialog';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -1489,6 +1490,7 @@ export default function CommunityDetail() {
   const [, setLocation] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [waitlistName, setWaitlistName] = useState('');
@@ -2850,11 +2852,39 @@ export default function CommunityDetail() {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      {[
-                        { type: 'Studio', available: 5, price: '$2,500-3,500', features: '400-600 sq ft', color: 'purple' },
-                        { type: 'One Bedroom', available: 4, price: '$3,000-4,500', features: '600-800 sq ft', color: 'blue' },
-                        { type: 'Two Bedroom', available: 3, price: '$4,000-6,000', features: '800-1200 sq ft', color: 'green' }
-                      ].map((unit) => (
+                      {/* Use real pricing from verification report if available */}
+                      {(verificationReport?.verificationResults?.floorPlans && 
+                        verificationReport.verificationResults.floorPlans.length > 0) ? (
+                        verificationReport.verificationResults.floorPlans.map((unit: any, idx: number) => (
+                          <div key={idx} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                            <div className="flex justify-between items-start mb-3">
+                              <div>
+                                <h4 className="font-semibold text-gray-900 dark:text-gray-100">{unit.type || unit.name || 'Unit'}</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">{unit.size || 'Size varies'}</p>
+                              </div>
+                              <Badge className="bg-green-100 text-green-800">
+                                Available
+                              </Badge>
+                            </div>
+                            <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">
+                              {unit.price || 'Contact for pricing'}
+                            </p>
+                            <Button 
+                              size="sm" 
+                              className="w-full bg-green-600 hover:bg-green-700"
+                              onClick={() => setShowReservationDialog(true)}
+                            >
+                              Reserve Unit
+                            </Button>
+                          </div>
+                        ))
+                      ) : (
+                        /* Fallback to default units if no real data */
+                        [
+                          { type: 'Studio', available: 5, price: verificationReport?.verificationResults?.pricing?.studio || '$2,500-3,500', features: '400-600 sq ft', color: 'purple' },
+                          { type: 'One Bedroom', available: 4, price: verificationReport?.verificationResults?.pricing?.oneBedroom || '$3,000-4,500', features: '600-800 sq ft', color: 'blue' },
+                          { type: 'Two Bedroom', available: 3, price: verificationReport?.verificationResults?.pricing?.twoBedroom || '$4,000-6,000', features: '800-1200 sq ft', color: 'green' }
+                        ].map((unit) => (
                         <div key={unit.type} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                           <div className="flex justify-between items-start mb-3">
                             <div>
@@ -2869,12 +2899,13 @@ export default function CommunityDetail() {
                           <Button 
                             size="sm" 
                             className="w-full bg-green-600 hover:bg-green-700"
-                            onClick={() => setIsScheduleTourOpen(true)}
+                            onClick={() => setShowReservationDialog(true)}
                           >
                             Reserve Unit
                           </Button>
                         </div>
-                      ))}
+                      ))
+                      )}
                     </div>
                     
                     <Separator className="my-6" />
@@ -4414,6 +4445,15 @@ export default function CommunityDetail() {
       communityId={community?.id || 0}
       communityName={community?.name || ''}
       />
+      
+      {/* Reservation Dialog */}
+      {community && (
+        <ReservationDialog 
+          open={showReservationDialog}
+          onOpenChange={setShowReservationDialog}
+          community={community}
+        />
+      )}
     </div>
     </>
   );
