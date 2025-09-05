@@ -100,6 +100,34 @@ export function CommunityDetailsHeader({
     (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : '');
     
   const displayWebsite = community.website || verificationReport?.website;
+  
+  // Get all photos including web intelligence photos
+  const getAllPhotos = () => {
+    const allPhotos = [];
+    
+    // Add database photos if they exist
+    if (community.photos && community.photos.length > 0) {
+      allPhotos.push(...community.photos);
+    }
+    
+    // Add web intelligence photos - check both possible paths
+    const webImages = verificationReport?.webIntelligence?.images || 
+                      verificationReport?.verificationResults?.webIntelligence?.images;
+    
+    if (webImages && webImages.length > 0) {
+      const webPhotos = webImages.map((img: any) => {
+        if (typeof img === 'string') {
+          return img;
+        }
+        return img.image_url || img.url || img;
+      });
+      allPhotos.push(...webPhotos);
+    }
+    
+    return allPhotos;
+  };
+  
+  const allPhotos = getAllPhotos();
 
   return (
     <div className="space-y-0">
@@ -108,7 +136,7 @@ export function CommunityDetailsHeader({
         {/* Photo Carousel */}
         <div className="relative h-[300px] sm:h-[400px] md:h-[500px]">
           <HeroPhotoCarousel 
-            photos={community.photos || []} 
+            photos={allPhotos} 
             communityName={community.name}
             communityId={community.id}
             community={community}

@@ -1121,6 +1121,37 @@ export const HeroPhotoCarousel = ({
     fetchTours();
   }, [communityId]);
   
+  // Beautiful, high-quality senior living lifestyle images as fallback
+  const getPlaceholderPhotos = () => {
+    return [
+      {
+        url: 'https://images.pexels.com/photos/3768131/pexels-photo-3768131.jpeg?w=1600&h=900&fit=crop',
+        source: 'placeholder' as const,
+        attribution: 'Community Lifestyle'
+      },
+      {
+        url: 'https://images.pexels.com/photos/3824771/pexels-photo-3824771.jpeg?w=1600&h=900&fit=crop',
+        source: 'placeholder' as const,
+        attribution: 'Senior Living'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=1600&h=900&fit=crop',
+        source: 'placeholder' as const,
+        attribution: 'Community Activities'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1559234938-b60fff04894d?w=1600&h=900&fit=crop',
+        source: 'placeholder' as const,
+        attribution: 'Dining Experience'
+      },
+      {
+        url: 'https://images.unsplash.com/photo-1577495508048-b635879837f1?w=1600&h=900&fit=crop',
+        source: 'placeholder' as const,
+        attribution: 'Modern Amenities'
+      }
+    ];
+  };
+
   // Dynamically get all available photos with source tracking
   const getAllPhotos = () => {
     console.log('🔍 [HeroPhotoCarousel] Getting all photos...');
@@ -1130,20 +1161,12 @@ export const HeroPhotoCarousel = ({
     const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder'; attribution?: string }[] = [];
     
     // Stock photo patterns to COMPLETELY EXCLUDE
+    // Be more selective - only filter out obvious commercial stock photo sites
     const stockPhotoPatterns = [
-      'unsplash.com',
-      'pixabay.com', 
-      'pexels.com',
-      'freepik.com',
       'shutterstock.com',
       'istockphoto.com',
       'gettyimages.com',
-      'stockvault.net',
-      'freeimages.com',
-      'burst.shopify.com',
-      'cdn.pixabay.com',
-      'images.unsplash.com',
-      'images.pexels.com'
+      '123rf.com'
     ];
     
     const isStockPhoto = (url: string) => {
@@ -1240,7 +1263,15 @@ export const HeroPhotoCarousel = ({
     
     console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
     
-    // Return unique photos only if they exist - don't use placeholders
+    // If we have less than 3 real photos, add beautiful placeholders
+    if (uniquePhotos.length < 3) {
+      const placeholders = getPlaceholderPhotos();
+      const needed = Math.min(5, 3 - uniquePhotos.length);
+      uniquePhotos.push(...placeholders.slice(0, needed));
+      console.log(`➕ Added ${needed} placeholder photos for better presentation`);
+    }
+    
+    // Return unique photos (including placeholders if needed)
     return uniquePhotos;
   };
   
