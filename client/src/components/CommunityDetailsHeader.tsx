@@ -4,8 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Star, MapPin, Phone, Globe, Heart, Share2, 
-  Home, Activity, Users, Utensils, Car, Music, Book,
-  CheckCircle, XCircle, AlertCircle, DollarSign, Calendar
+  Activity, Users, Utensils, Car, Music, Book,
+  CheckCircle, XCircle, AlertCircle, DollarSign
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { HeroPhotoCarousel } from "@/pages/community-detail";
@@ -50,7 +50,7 @@ export function CommunityDetailsHeader({
     if (lowerAmenity.includes("music") || lowerAmenity.includes("entertain")) {
       return <Music className="w-3 h-3 text-gray-600 dark:text-gray-400 flex-shrink-0" />;
     }
-    return <Home className="w-3 h-3 text-gray-600 dark:text-gray-400 flex-shrink-0" />;
+    return <CheckCircle className="w-3 h-3 text-gray-600 dark:text-gray-400 flex-shrink-0" />;
   };
 
   // Generate "Why Featured" reasons
@@ -351,27 +351,23 @@ export function CommunityDetailsHeader({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => {
-                  // Open the availability tab - find and click the tab trigger
-                  const availabilityTab = document.querySelector('button[value="availability"]') as HTMLElement;
+                  // Open the availability tab - simplified selector
+                  const availabilityTab = document.querySelector('[value="availability"]') as HTMLElement;
                   if (availabilityTab) {
                     availabilityTab.click();
-                    // Give time for tab to activate then scroll to the tabs section
+                    // Smooth scroll to tabs after a brief delay
                     setTimeout(() => {
-                      // Scroll to the tabs container
-                      const tabsContainer = availabilityTab.closest('[role="tablist"]')?.parentElement;
-                      if (tabsContainer) {
-                        tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      const tabsSection = availabilityTab.closest('[role="tablist"]')?.parentElement;
+                      if (tabsSection) {
+                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }
-                    }, 100);
+                    }, 50);
                   }
                 }}
                 className="w-full py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               >
                 <div className="flex flex-col items-center justify-center gap-1">
-                  <div className="flex items-center gap-2">
-                    <Home className="w-6 h-6" />
-                    <span className="font-bold text-lg">🏠 Reserve Now</span>
-                  </div>
+                  <span className="font-bold text-lg">🏠 Reserve Now</span>
                   <span className="text-xs opacity-90 font-medium">
                     📊 See Vacancies/Rates
                   </span>
@@ -380,27 +376,23 @@ export function CommunityDetailsHeader({
               
               <button
                 onClick={() => {
-                  // Open the tours tab - find and click the tab trigger
-                  const toursTab = document.querySelector('button[value="tours"]') as HTMLElement;
+                  // Open the tours tab - simplified selector
+                  const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
                   if (toursTab) {
                     toursTab.click();
-                    // Give time for tab to activate then scroll to the tabs section
+                    // Smooth scroll to tabs after a brief delay
                     setTimeout(() => {
-                      // Scroll to the tabs container
-                      const tabsContainer = toursTab.closest('[role="tablist"]')?.parentElement;
-                      if (tabsContainer) {
-                        tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
+                      if (tabsSection) {
+                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                       }
-                    }, 100);
+                    }, 50);
                   }
                 }}
                 className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               >
                 <div className="flex flex-col items-center justify-center gap-1">
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-6 h-6" />
-                    <span className="font-bold text-lg">📅 Schedule Tour</span>
-                  </div>
+                  <span className="font-bold text-lg">📅 Schedule Tour</span>
                   <span className="text-xs opacity-90 font-medium">
                     🤝 Schedule with Tour Tracker & TourMate™
                   </span>
@@ -415,7 +407,7 @@ export function CommunityDetailsHeader({
               {/* Top Amenities - Full Width */}
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                  <Home className="w-4 h-4 text-blue-500" />
+                  <Star className="w-4 h-4 text-blue-500" />
                   Top Amenities
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
