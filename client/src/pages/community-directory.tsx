@@ -537,30 +537,73 @@ export default function CommunityDirectory() {
         </div>
       </section>
       
-      {/* Oakmont California Excellence - Premium West Coast Living */}
-      <section className="relative px-4 py-16 overflow-hidden">
-        {/* Premium California Golden Background */}
+      {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
+      <section className="relative px-4 py-20 overflow-hidden">
+        {/* Ultra-Premium Golden Radiance Background */}
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-800 to-yellow-900 dark:from-amber-950 dark:via-orange-900 dark:to-yellow-950"></div>
           <div className="absolute inset-0" style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
-                             radial-gradient(circle at 80% 80%, rgba(251, 146, 60, 0.2) 0%, transparent 50%),
-                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%)`,
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.4) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(251, 146, 60, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.3) 0%, transparent 40%),
+                             radial-gradient(circle at 60% 60%, rgba(255, 215, 0, 0.2) 0%, transparent 60%)`,
+          }}></div>
+          {/* Animated gold sparkles */}
+          <div className="absolute inset-0 animate-pulse" style={{
+            backgroundImage: `radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.1) 0%, transparent 30%),
+                             radial-gradient(circle at 70% 70%, rgba(255, 215, 0, 0.1) 0%, transparent 30%)`,
           }}></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto">
-          {/* Premium Header */}
-          <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
-              <span className="text-5xl">☀️</span>
-              <span className="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
-                Oakmont California Excellence
+          {/* Ultra-Premium Header with Crown */}
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40 animate-pulse"></div>
+                <span className="relative text-6xl">👑</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold animate-shimmer">
+              <Star className="h-5 w-5 mr-2" />
+              THE GOLD STANDARD IN SENIOR LIVING
+              <Star className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                Oakmont Senior Living
               </span>
             </div>
-            <p className="text-xl text-gray-200 mb-8">
-              106 premier communities across California, Nevada & Hawaii
+            
+            <p className="text-2xl text-amber-100 mb-4 font-semibold">
+              Excellence Redefined Across 106 Premier Communities
             </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              For over 25 years, Oakmont has set the industry standard with resort-style amenities, 
+              award-winning memory care, and unmatched dedication to resident wellness
+            </p>
+            
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <Building className="h-4 w-4 mr-2" />
+                106 Luxury Communities
+              </Badge>
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <MapPin className="h-4 w-4 mr-2" />
+                California • Nevada • Hawaii
+              </Badge>
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <Award className="h-4 w-4 mr-2" />
+                Industry Leader Since 1997
+              </Badge>
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <Star className="h-4 w-4 mr-2" />
+                4.8 Average Rating
+              </Badge>
+            </div>
           </div>
 
           {/* Oakmont Market Insights Box */}
