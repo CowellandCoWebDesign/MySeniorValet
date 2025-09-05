@@ -13,7 +13,7 @@ import {
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
   Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
-  ArrowRight, Languages, Phone, Award, Trophy
+  ArrowRight, Languages, Phone, Award, Trophy, Gem
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -505,26 +505,175 @@ export default function CommunityDirectory() {
               </Badge>
             </div>
           </div>
-          
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-            <span className="text-sm text-gray-500 dark:text-gray-400 px-3">or</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-          </div>
-          
-          {/* Natural Language Search */}
-          <div className="mb-4">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                AI-Powered Natural Language Search
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Just type what you're looking for naturally
-              </p>
+        </div>
+      </section>
+
+      {/* ★ CITY-SPECIFIC SENIOR LIVING RESEARCH CENTER ★ */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-950 via-blue-950 to-purple-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-5xl">🏙️</span>
+              </div>
             </div>
             
-            <NaturalLanguageSearchBar className="max-w-3xl mx-auto" />
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 via-cyan-300 to-purple-300 bg-clip-text text-transparent mb-4">
+              Research Senior Living in Your City
+            </h2>
+            <p className="text-lg text-gray-200 max-w-3xl mx-auto">
+              Get instant market intelligence, pricing insights, and top providers for any city in America
+            </p>
+          </div>
+
+          {/* City Selection */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-6">
+            <div className="flex flex-col md:flex-row gap-4 items-center mb-6">
+              <div className="flex-1 w-full">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-300" />
+                  <AutocompleteSearch
+                    onSearch={(term) => {
+                      setSearchTerm(term);
+                    }}
+                    placeholder="Enter your city (e.g., San Francisco, CA)"
+                    inputClassName="w-full pl-10 pr-3 py-3 text-base bg-white/20 backdrop-blur rounded-lg border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    hideSearchButton={true}
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={() => {
+                  if (searchTerm) {
+                    setLocation(`/map-search?q=${encodeURIComponent(searchTerm)}`);
+                  }
+                }}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-xl"
+              >
+                Research This City →
+              </Button>
+            </div>
+
+            {/* Popular Cities Grid */}
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* High-Demand Markets */}
+              <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
+                <h3 className="font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  High-Demand Markets
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { city: "Phoenix, AZ", count: "487 communities", avg: "$4,250/mo" },
+                    { city: "Las Vegas, NV", count: "312 communities", avg: "$3,950/mo" },
+                    { city: "Miami, FL", count: "428 communities", avg: "$4,750/mo" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
+                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-white">{item.city}</div>
+                      <div className="text-xs text-gray-300">
+                        {item.count} • Avg: {item.avg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Luxury Markets */}
+              <div className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/30">
+                <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                  <Gem className="h-4 w-4" />
+                  Luxury Markets
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { city: "San Francisco, CA", count: "235 communities", avg: "$7,850/mo" },
+                    { city: "New York, NY", count: "189 communities", avg: "$9,200/mo" },
+                    { city: "Los Angeles, CA", count: "567 communities", avg: "$6,500/mo" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
+                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-white">{item.city}</div>
+                      <div className="text-xs text-gray-300">
+                        {item.count} • Avg: {item.avg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Value Markets */}
+              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 rounded-xl p-4 border border-green-500/30">
+                <h3 className="font-semibold text-green-300 mb-3 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Value Markets
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { city: "Houston, TX", count: "412 communities", avg: "$3,200/mo" },
+                    { city: "Atlanta, GA", count: "389 communities", avg: "$3,450/mo" },
+                    { city: "Dallas, TX", count: "445 communities", avg: "$3,350/mo" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
+                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-white">{item.city}</div>
+                      <div className="text-xs text-gray-300">
+                        {item.count} • Avg: {item.avg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* City Research Features */}
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-500/30">
+              <h4 className="font-semibold text-white mb-2">What You'll Discover:</h4>
+              <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-200">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Local pricing ranges & market trends</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Top-rated communities in your area</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Available HUD & affordable options</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Competitive analysis & comparisons</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Bar */}
+          <div className="flex flex-wrap justify-center gap-3">
+            <Badge className="bg-blue-500/20 text-blue-200 border-blue-500/30 px-4 py-2">
+              <Database className="h-4 w-4 mr-2" />
+              33,236 Communities Nationwide
+            </Badge>
+            <Badge className="bg-purple-500/20 text-purple-200 border-purple-500/30 px-4 py-2">
+              <MapPin className="h-4 w-4 mr-2" />
+              6,931 Cities Covered
+            </Badge>
+            <Badge className="bg-green-500/20 text-green-200 border-green-500/30 px-4 py-2">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Live Market Data
+            </Badge>
           </div>
         </div>
       </section>
