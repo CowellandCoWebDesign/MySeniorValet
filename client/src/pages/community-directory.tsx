@@ -645,65 +645,158 @@ export default function CommunityDirectory() {
         </div>
       </section>
       
-      {/* Featured Communities Slider - Visual Break */}
-      <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🌺 Hawaii Communities
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Paradise living with world-class senior care in the Hawaiian Islands
+      {/* Hawaii Paradise Excellence - Premium Tropical Living */}
+      <section ref={hawaiiSectionRef} className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Tropical Paradise Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-900 via-teal-800 to-blue-900 dark:from-cyan-950 dark:via-teal-900 dark:to-blue-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(34, 211, 238, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">🌺</span>
+              <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                Hawaii Paradise Communities
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              Exceptional senior living in America's tropical paradise across {((hawaiiCommunities as any)?.communities?.length || 0)} communities
+            </p>
+          </div>
+
+          {/* Hawaii Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-blue-900/90 to-cyan-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-cyan-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Hawaii Market Intelligence & Negotiation Guide</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Average cost: $5,500-$9,000/month (highest in nation)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Limited availability due to geographic constraints</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Year-round perfect climate reduces seasonal pricing</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Strong multi-generational family presence common</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">Insider Negotiation Tips</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Kama'aina Discount:</strong> Ask about local resident discounts (10-15% off)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Off-Peak Move:</strong> June-August moves can save $500-1000/month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Outer Island Advantage:</strong> Big Island/Kauai 20-30% less than Oahu</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Ohana Plans:</strong> Multi-family member discounts available</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-cyan-800/30 rounded-lg border border-cyan-600/30">
+              <p className="text-sm text-cyan-200">
+                <span className="font-semibold text-cyan-300">Pro Tip:</span> Hawaii communities often have 6-12 month waitlists. 
+                Secure your spot with a deposit while negotiating terms. Many offer "preview stays" for 1-2 weeks at reduced rates.
               </p>
             </div>
-            <Link href="/map-search?state=HI">
-              <Button variant="outline" className="flex items-center gap-2">
-                View All Hawaii
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
           </div>
-          
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(hawaiiSliderRef, 'left')}
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(hawaiiSliderRef, 'right')}
-            >
-              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            
-            <div ref={hawaiiSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-              {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
-              Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
-                  <div className="h-48 bg-gradient-to-br from-blue-200 to-teal-200 dark:from-gray-700 dark:to-gray-800"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              ((hawaiiCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <FeaturedExcellenceCard community={community} index={index} compact />
 
-                </Link>
-              ))
-            )}
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-cyan-900/60 to-blue-900/60 backdrop-blur-sm rounded-xl p-4 border border-cyan-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Paradise Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premium island communities across Hawaii</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 text-lg font-bold">
+                {((hawaiiCommunities as any)?.communities?.length || 0)} Featured
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div ref={hawaiiSliderRef} className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400" style={{scrollBehavior: 'smooth'}}>
+              {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-cyan-900/50 to-blue-900/50 rounded-xl border border-cyan-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-cyan-800/50 to-blue-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-cyan-800/50 rounded"></div>
+                      <div className="h-4 bg-cyan-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((hawaiiCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🌴 Aloha Living"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold shadow-lg">
+                          Island Paradise
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/map-search?state=HI">
+                <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All Hawaii Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -725,70 +818,159 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
-      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              ⭐ Fort Worth, Texas Communities
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              Discover premier senior living options in the heart of Texas
+      {/* Fort Worth Texas Excellence - Lone Star Premium Living */}
+      <section ref={texasSectionRef} className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Texas Western Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900 via-red-800 to-amber-900 dark:from-orange-950 dark:via-red-900 dark:to-amber-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(251, 146, 60, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">⭐</span>
+              <span className="bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent">
+                Fort Worth Lone Star Excellence
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              Texas-sized luxury and authentic southern hospitality
             </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Badge className="bg-orange-600 text-white px-3 py-1">
-                Authentic Texas Hospitality
-              </Badge>
-              <Badge className="bg-red-600 text-white px-3 py-1">
-                Starting from $2,800/month
+          </div>
+
+          {/* Fort Worth Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-red-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-orange-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Fort Worth Market Intelligence & Texas-Sized Savings</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-orange-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>Average cost: $2,800-$4,500/month (30% below national average)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>No state income tax = More retirement savings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>Growing medical district with world-class healthcare</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>Cultural District access with museums and entertainment</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-orange-300 mb-3">Texas-Sized Negotiation Strategies</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Summer Special:</strong> July-August moves save 20-30% (heat advantage)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Veteran Benefits:</strong> Fort Worth military discounts 10-15% off</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Corporate Partnerships:</strong> Ask about employer/alumni discounts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Bundle & Save:</strong> Couples save $800-1200/month sharing units</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-orange-800/30 rounded-lg border border-orange-600/30">
+              <p className="text-sm text-orange-200">
+                <span className="font-semibold text-orange-300">Insider Secret:</span> Fort Worth communities compete heavily with Dallas. 
+                Mention you're comparing both markets for immediate 5-10% concessions. Best deals: May and September move-ins.
+              </p>
+            </div>
+          </div>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-orange-900/60 to-red-900/60 backdrop-blur-sm rounded-xl p-4 border border-orange-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Lone Star Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premium Texas hospitality in Fort Worth</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-lg font-bold">
+                {((texasCommunities as any)?.communities?.length || 0)} Featured
               </Badge>
             </div>
           </div>
           
-          {/* Fort Worth Communities Slider */}
+          {/* Premium Communities Display */}
           <div className="relative">
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(texasSliderRef, 'left')}
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(texasSliderRef, 'right')}
-            >
-              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            
-            {texasLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
-              </div>
-            ) : !(texasCommunities as any)?.communities?.length ? (
-              <div className="text-center text-gray-600 dark:text-gray-400">
-                <p>No Fort Worth communities available at this time.</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setLocation('/map-search?city=Fort Worth&state=Texas')}
-                >
-                  Search Fort Worth Communities
-                </Button>
-              </div>
-            ) : (
-              <div ref={texasSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 " style={{scrollBehavior: 'smooth'}}>
-                {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+            <div ref={texasSliderRef} className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400" style={{scrollBehavior: 'smooth'}}>
+              {(texasLoading || !texasCommunities || !(texasCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-orange-900/50 to-red-900/50 rounded-xl border border-orange-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-orange-800/50 to-red-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-orange-800/50 rounded"></div>
+                      <div className="h-4 bg-orange-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((texasCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🏜️ Texas Pride"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold shadow-lg">
+                          Lone Star Living
+                        </Badge>
+                      </div>
+                    </div>
                   </Link>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/map-search?city=Fort Worth&state=Texas">
+                <Button size="lg" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All Fort Worth Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
