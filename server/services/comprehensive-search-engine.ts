@@ -93,36 +93,27 @@ export class ComprehensiveSearchEngine {
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
     
-    // GRACEFUL FALLBACK: If we have filters but too few results, show location-only results
-    let fallbackApplied = false;
-    let fallbackMessage = '';
+    // DISCOVERY MODE: Use AI when results are limited
+    let discoveryMode = false;
+    let discoveryMessage = '';
+    let aiSuggestions: any = null;
     
-    if (hasFilters && totalResults < 5) {
-      console.log('Applying graceful fallback - too few results with filters');
+    // Activate Discovery Mode when we have few results
+    if (totalResults < 3 && query && query.trim() !== '') {
+      console.log(`🔍 Activating Discovery Mode for query: "${query}" (only ${totalResults} results found)`);
+      discoveryMode = true;
       
-      // Build location-only conditions
-      const locationOnlyConditions = await this.buildLocationConditions(query);
+      // Only keep the existing database results - don't add random locations
+      // AI suggestions will be provided separately
       
-      if (locationOnlyConditions.length > 0) {
-        // Re-run search with only location filters
-        let fallbackQuery = db.select().from(communities)
-          .where(and(...locationOnlyConditions));
-        
-        fallbackQuery = this.applySorting(fallbackQuery, 'location', query);
-        
-        results = await fallbackQuery
-          .limit(limit)
-          .offset(offset);
-        
-        // Get new count
-        const fallbackCountQuery = db.select({ count: sql`count(*)` }).from(communities)
-          .where(and(...locationOnlyConditions));
-        [{ count }] = await fallbackCountQuery;
-        totalResults = parseInt(count.toString());
-        
-        fallbackApplied = true;
-        fallbackMessage = "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area! Most detailed information (pricing, amenities, photos) becomes available when you click on a community through our live enrichment system.";
+      if (totalResults === 0) {
+        discoveryMessage = "🔮 Discovery Mode Activated: We're using AI to find communities that match your search. Click on any result to see live pricing and availability.";
+      } else {
+        discoveryMessage = `🔮 Discovery Mode Enhanced: Found ${totalResults} direct match${totalResults === 1 ? '' : 'es'}. Using AI to discover additional options for you.`;
       }
+      
+      // We'll integrate Perplexity AI suggestions later in the response
+      // This prevents random locations from appearing
     }
     
     // Build facets for filtering
@@ -145,6 +136,53 @@ export class ComprehensiveSearchEngine {
       healthcareTypeFacets = healthcareResults.facets;
     }
     
+    // DISCOVERY MODE AI INTEGRATION
+    if (discoveryMode) {
+      try {
+        // Import Perplexity service for Discovery Mode
+        const { perplexityService } = await import('../perplexity-ai-service');
+        
+        // Construct intelligent search query for AI
+        let aiQuery = `Find senior living communities `;
+        if (query.includes(',')) {
+          aiQuery += `in ${query}`;
+        } else {
+          aiQuery += `matching "${query}"`;
+        }
+        
+        // Add filter context to AI query
+        if (filters.careTypes && filters.careTypes.length > 0) {
+          aiQuery += ` offering ${filters.careTypes.join(' or ')}`;
+        }
+        if (filters.priceMin || filters.priceMax) {
+          if (filters.priceMin && filters.priceMax) {
+            aiQuery += ` with pricing between $${filters.priceMin} and $${filters.priceMax} per month`;
+          } else if (filters.priceMin) {
+            aiQuery += ` starting from $${filters.priceMin} per month`;
+          } else {
+            aiQuery += ` under $${filters.priceMax} per month`;
+          }
+        }
+        
+        aiQuery += '. Focus on communities in the United States only. Include contact information and websites when available.';
+        
+        console.log(`🤖 Discovery Mode Query: ${aiQuery}`);
+        
+        // Get AI-powered suggestions
+        const aiResponse = await perplexityService.searchRealTime(aiQuery);
+        aiSuggestions = {
+          summary: aiResponse.summary,
+          sources: aiResponse.sources,
+          images: aiResponse.images
+        };
+        
+        console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
+      } catch (error) {
+        console.error('Discovery Mode error:', error);
+        // Continue without AI suggestions if there's an error
+      }
+    }
+    
     return {
       communities: results,
       healthcareServices,
@@ -155,10 +193,9 @@ export class ComprehensiveSearchEngine {
         filters,
         processingTime: Date.now() - startTime,
         suggestions,
-
-        fallbackApplied,
-        fallbackMessage: fallbackApplied ? fallbackMessage : undefined,
-        originalFiltersRequested: fallbackApplied ? originalFilters : undefined,
+        discoveryMode: discoveryMode as any,
+        discoveryMessage: discoveryMode ? discoveryMessage : undefined as any,
+        aiSuggestions: discoveryMode ? aiSuggestions : undefined as any,
         includesHealthcare: isHealthcareSearch
       },
       facets: {
@@ -427,154 +464,84 @@ export class ComprehensiveSearchEngine {
   private async buildLocationConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     
+    // US States only - no Canadian provinces
+    const US_STATES = {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC', 'dc': 'DC'
+    };
+    
+    // Get valid US state codes
+    const validStateCodes = new Set(Object.values(US_STATES));
+    
     // Handle "City, State" format (e.g., "Miami, Florida" or "Miami, FL")
     if (query.includes(',')) {
       const [city, state] = query.split(',').map(s => s.trim());
       console.log(`🔍 Parsing location: city="${city}", state="${state}"`);
       
-      // Build condition for city and state - simplified approach
-      const stateUpper = state.toUpperCase();
+      // Check if it's a valid US state
+      const stateCode = (US_STATES as any)[state.toLowerCase()] || (validStateCodes.has(state.toUpperCase()) ? state.toUpperCase() : null);
       
-      // Use a single condition that works
-      conditions.push(
-        and(
-          ilike(communities.city, `%${city}%`),
-          eq(communities.state, stateUpper) // Most states in DB are uppercase abbreviations
-        )
-      );
-      
-      console.log(`🔍 Added city-state condition for "${city}" in state="${stateUpper}"`);
-      return conditions; // Return early to avoid adding extra conditions
+      if (stateCode) {
+        // Only add US locations
+        conditions.push(
+          and(
+            ilike(communities.city, `%${city}%`),
+            eq(communities.state, stateCode),
+            eq(communities.country, 'US') // Ensure US only
+          )
+        );
+        console.log(`🔍 Added US city-state condition for "${city}" in state="${stateCode}"`);
+      } else {
+        console.log(`⚠️ Invalid or non-US state: "${state}" - skipping location condition`);
+      }
+      return conditions;
     }
     // ZIP code
     else if (query.match(/^\d{5}/)) {
-      conditions.push(ilike(communities.zipCode, `${query}%`));
+      conditions.push(
+        and(
+          ilike(communities.zipCode, `${query}%`),
+          eq(communities.country, 'US') // US ZIP codes only
+        )
+      );
     }
-    // General location - be more inclusive
+    // General location - check if it's a US state or city
     else {
-      // Split query to handle multi-word locations better
-      const words = query.toLowerCase().split(/\s+/);
+      const queryLower = query.toLowerCase().trim();
       
-      // Check for state names and abbreviations
-      const stateAbbreviations: Record<string, string> = {
-        'alaska': 'AK', 'alabama': 'AL', 'arkansas': 'AR', 'arizona': 'AZ',
-        'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT',
-        'delaware': 'DE', 'florida': 'FL', 'georgia': 'GA',
-        'hawaii': 'HI', 'iowa': 'IA', 'idaho': 'ID', 'illinois': 'IL',
-        'indiana': 'IN', 'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA',
-        'massachusetts': 'MA', 'maryland': 'MD', 'maine': 'ME', 'michigan': 'MI',
-        'minnesota': 'MN', 'missouri': 'MO', 'mississippi': 'MS', 'montana': 'MT',
-        'north carolina': 'NC', 'north dakota': 'ND', 'nebraska': 'NE',
-        'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM',
-        'nevada': 'NV', 'new york': 'NY', 'ohio': 'OH', 'oklahoma': 'OK',
-        'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI',
-        'south carolina': 'SC', 'south dakota': 'SD', 'tennessee': 'TN',
-        'texas': 'TX', 'utah': 'UT', 'virginia': 'VA', 'vermont': 'VT',
-        'washington': 'WA', 'wisconsin': 'WI', 'west virginia': 'WV', 'wyoming': 'WY'
-      };
+      // Check if query is a US state
+      const stateCode = (US_STATES as any)[queryLower] || (validStateCodes.has(query.toUpperCase()) ? query.toUpperCase() : null);
       
-      // Check if query contains a state name
-      let stateCode = null;
-      let cityName = query;
-      
-      // Country mapping for international search (matches database format)
-      const countryMapping: Record<string, string> = {
-        'canada': 'CA',
-        'australia': 'AU', 
-        'mexico': 'Mexico',
-        'japan': 'Japan',
-        'united states': 'US',
-        'usa': 'US',
-        'us': 'US'
-      };
-      
-      // Check for countries first
-      let countryCode = null;
-      const lowerQuery = query.toLowerCase().trim();
-      for (const [countryName, code] of Object.entries(countryMapping)) {
-        if (lowerQuery === countryName) {
-          countryCode = code;
-          break;
-        }
-      }
-      
-      // If it's a country search, handle differently
-      if (countryCode) {
-        console.log(`🌍 Country search detected: "${query}" → "${countryCode}"`);
-        conditions.push(eq(communities.country, countryCode));
-        // Mark this as a specific country search to avoid general fallback
-        (conditions as any).__isCountrySearch = true;
-        return conditions;
-      }
-
-      // Check each state name
-      for (const [stateName, code] of Object.entries(stateAbbreviations)) {
-        if (query.toLowerCase().includes(stateName)) {
-          stateCode = code;
-          // Extract city name by removing state from query
-          cityName = query.toLowerCase().replace(stateName, '').trim();
-          break;
-        }
-      }
-      
-      // Build flexible conditions
-      const locationConditions = [];
-      
-      // If we have both city and state, search for that combination
-      if (stateCode && cityName) {
-        locationConditions.push(
+      if (stateCode) {
+        // State search - US only
+        conditions.push(
           and(
-            ilike(communities.city, `%${cityName}%`),
-            ilike(communities.state, stateCode)  // Use state abbreviation
+            eq(communities.state, stateCode),
+            eq(communities.country, 'US')
           )
         );
-        // Also add fallback to just search the city
-        locationConditions.push(ilike(communities.city, `%${cityName}%`));
-      }
-      
-      // Enhanced location search with international administrative divisions
-      locationConditions.push(
-        ilike(communities.city, `%${query}%`),
-        ilike(communities.state, `%${query}%`),
-        ilike(communities.name, `%${query}%`)  // Community names
-      );
-      
-      // Enhanced county/administrative division search
-      // Handle variations: "Harris County", "Orange County", "Cook County" etc.
-      const countyVariations = [
-        query,  // Exact query
-        query.replace(/\s+county$/i, ''),  // Remove "County" suffix
-        query.replace(/\s+parish$/i, ''),  // Remove "Parish" suffix (Louisiana)
-        query.replace(/\s+borough$/i, ''), // Remove "Borough" suffix (Alaska, NYC)
-        `${query.replace(/\s+(county|parish|borough)$/i, '')} County`, // Add County if missing
-      ];
-      
-      const countyConditions = countyVariations.map(variation => 
-        ilike(communities.county, `%${variation}%`)
-      );
-      locationConditions.push(or(...countyConditions));
-      
-      // International administrative divisions
-      // Canada: Provinces, Territories
-      // Australia: States, Territories  
-      // Mexico: States (Estados)
-      // Japan: Prefectures
-      if (query.toLowerCase().includes('province') || 
-          query.toLowerCase().includes('territory') || 
-          query.toLowerCase().includes('prefecture') ||
-          query.toLowerCase().includes('estado')) {
-        locationConditions.push(
-          ilike(communities.state, `%${query}%`),
-          ilike(communities.county, `%${query}%`)
+        console.log(`🔍 Added US state condition for state="${stateCode}"`);
+      } else {
+        // City search - must be in US
+        conditions.push(
+          and(
+            ilike(communities.city, `%${query}%`),
+            eq(communities.country, 'US') // Ensure US only
+          )
         );
+        console.log(`🔍 Added US city condition for "${query}"`);
       }
-      
-      // Add state abbreviation condition if we found one
-      if (stateCode) {
-        locationConditions.push(ilike(communities.state, stateCode));
-      }
-      
-      conditions.push(or(...locationConditions));
     }
     
     return conditions;
