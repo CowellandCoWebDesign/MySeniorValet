@@ -545,10 +545,8 @@ export default function CommunityDirectory() {
           style={{
             backgroundImage: `url('/attached_assets/generated_images/Resort_courtyard_garden_f7db92ce.png')`
           }}
-        >
-          {/* Dark overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
-        </div>
+        />
+        
 
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Ultra-Premium Header with Crown */}
