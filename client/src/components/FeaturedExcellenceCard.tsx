@@ -100,7 +100,9 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
   };
 
   // Calculate rating
-  const rating = community.rating || 4.5;
+  const rating = typeof community.rating === 'string' 
+    ? parseFloat(community.rating) || 4.5 
+    : community.rating || 4.5;
 
   return (
     <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 ${compact ? 'w-80 flex-shrink-0' : ''}`}>
@@ -174,7 +176,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
                   }`}
                 />
               ))}
-              <span className="text-xs ml-1 text-gray-700 dark:text-gray-300">({rating.toFixed(1)})</span>
+              <span className="text-xs ml-1 text-gray-700 dark:text-gray-300">({!isNaN(rating) ? rating.toFixed(1) : '4.5'})</span>
             </div>
           </div>
         </div>
