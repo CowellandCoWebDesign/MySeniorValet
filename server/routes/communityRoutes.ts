@@ -1224,7 +1224,8 @@ export function registerCommunityRoutes(app: Express) {
         communityHighlights: [] as string[],
         upcomingEvents: [] as string[],
         staffUpdates: [] as string[],
-        sources: [] as string[]
+        sources: [] as string[],
+        photos: [] as string[]  // Add photos from Perplexity search
       };
 
       // Only fetch real-time data if explicitly requested (to prevent 39-second delays)
@@ -1310,6 +1311,18 @@ export function registerCommunityRoutes(app: Express) {
             `Finding recent updates and market pricing for ${community.name}`
           );
 
+          // Query specifically for photos and visual content
+          const photosQuery = `Find photos, images, and visual content for ${communityDetails}. Include:
+          1. Interior photos of rooms, dining areas, common spaces
+          2. Exterior photos of the building and grounds
+          3. Photos of activities, amenities, and facilities
+          4. Any virtual tours or photo galleries available`;
+          
+          const photosResult = await perplexityService.searchRealTime(
+            photosQuery,
+            `Finding photos and visual content for ${community.name}`
+          );
+
           // Parse availability information
           if (availabilityResult.summary) {
             // Extract pricing information
@@ -1369,10 +1382,33 @@ export function registerCommunityRoutes(app: Express) {
             }
           }
 
+          // Collect all images from Perplexity searches
+          const allImages = [
+            ...(availabilityResult.images || []),
+            ...(newsResult.images || []),
+            ...(photosResult.images || [])
+          ].filter(Boolean);
+          
+          // Filter out placeholder images and deduplicate
+          realTimeData.photos = [...new Set(allImages)].filter(url => {
+            if (!url) return false;
+            const placeholderPatterns = [
+              '/api/placeholder/',
+              'placeholder.com',
+              'via.placeholder.com',
+              'placehold.it',
+              'placeimg.com',
+              'dummyimage.com',
+              'lorempixel.com'
+            ];
+            return !placeholderPatterns.some(pattern => url.toLowerCase().includes(pattern));
+          });
+
           // Combine sources
           realTimeData.sources = [
             ...availabilityResult.sources.slice(0, 2),
-            ...newsResult.sources.slice(0, 2)
+            ...newsResult.sources.slice(0, 2),
+            ...(photosResult.sources || []).slice(0, 2)
           ].filter(Boolean);
 
         } catch (perplexityError) {

@@ -96,7 +96,7 @@ export default function CommunityPage() {
   };
   
   const { data: community, isLoading } = useQuery<Community>({
-    queryKey: [`/api/communities/${params?.id}`],
+    queryKey: [`/api/communities/${params?.id}?realtime=true`],
     enabled: !!params?.id && params.id !== 'undefined',
   });
 
@@ -114,6 +114,13 @@ export default function CommunityPage() {
   // Get all photos from various sources
   const getAllPhotos = (community: Community) => {
     const photos: string[] = [];
+    
+    // First, add photos from Perplexity real-time search if available
+    if ((community as any).realTimeData?.photos && Array.isArray((community as any).realTimeData.photos)) {
+      photos.push(...(community as any).realTimeData.photos);
+    }
+    
+    // Then add existing photos from the database
     if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
       photos.push(...community.photos);
     }
@@ -123,7 +130,21 @@ export default function CommunityPage() {
     if (community.imageGallery && Array.isArray(community.imageGallery) && community.imageGallery.length > 0) {
       photos.push(...community.imageGallery);
     }
-    return Array.from(new Set(photos)); // Remove duplicates
+    
+    // Filter out placeholder images and remove duplicates
+    const validPhotos = Array.from(new Set(photos)).filter(url => {
+      if (!url) return false;
+      const placeholderPatterns = [
+        '/api/placeholder/',
+        'placeholder.com',
+        'via.placeholder.com',
+        'placehold.it'
+      ];
+      return !placeholderPatterns.some(pattern => url.toLowerCase().includes(pattern));
+    });
+    
+    // If no real photos found, return empty array (photo carousel will handle this)
+    return validPhotos;
   };
 
   const allPhotos = community ? getAllPhotos(community) : [];
@@ -413,6 +434,16 @@ export default function CommunityPage() {
                   communityName={community.name}
                   className="h-96 transform hover:scale-105 transition-transform duration-700"
                 />
+                
+                {/* Photo Source Indicator */}
+                {(community as any).realTimeData?.photos?.length > 0 && (
+                  <div className="absolute top-4 right-4 animate-in fade-in slide-in-from-top-4 duration-500 delay-300">
+                    <Badge className="bg-green-600 text-white">
+                      <Globe className="h-3 w-3 mr-1" />
+                      Live Photos from Web
+                    </Badge>
+                  </div>
+                )}
                 
                 {/* Virtual Tour Badge */}
                 {community.virtualTourUrl && (

@@ -41,12 +41,13 @@ export function PhotoCarousel({ photos, communityName, className = "", showSourc
 
   if (!photos || photos.length === 0) {
     return (
-      <div className={`bg-gray-100 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center text-gray-500 p-8">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 rounded-full flex items-center justify-center">
-            <ZoomIn className="w-8 h-8" />
+      <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center text-gray-500 dark:text-gray-400 p-8">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
-          <p className="text-sm">No photos available</p>
+          <p className="text-sm mb-2">Searching for photos...</p>
+          <p className="text-xs opacity-75">Fetching real photos from web sources</p>
         </div>
       </div>
     );
