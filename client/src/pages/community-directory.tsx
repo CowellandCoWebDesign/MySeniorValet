@@ -533,13 +533,11 @@ export default function CommunityDirectory() {
               <div className="flex-1 w-full">
                 <div className="relative">
                   <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-300" />
-                  <AutocompleteSearch
-                    onSearch={(term) => {
-                      setSearchTerm(term);
-                    }}
+                  <input
+                    type="text"
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Enter your city (e.g., San Francisco, CA)"
-                    inputClassName="w-full pl-10 pr-3 py-3 text-base bg-white/20 backdrop-blur rounded-lg border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    hideSearchButton={true}
+                    className="w-full pl-10 pr-3 py-3 text-base bg-white/20 backdrop-blur rounded-lg border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
               </div>
