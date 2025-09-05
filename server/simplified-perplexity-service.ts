@@ -759,13 +759,73 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
 
   private extractPhotos(content: string): string[] {
     const photos: string[] = [];
-    // Extract image URLs from the content
-    const imgPattern = /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp)/gi;
-    const matches = content.match(imgPattern);
-    if (matches) {
-      photos.push(...matches);
+    
+    // Multiple patterns to catch various image URL formats
+    const patterns = [
+      // Standard image URLs with extensions
+      /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)/gi,
+      // CDN URLs that may not have extensions
+      /https?:\/\/[^\s"'<>]*(?:cloudinary|imgur|cdn|images|photos|media|static|assets)[^\s"'<>]*\/[^\s"'<>\?]+/gi,
+      // Google Images and other services
+      /https?:\/\/(?:lh3\.googleusercontent\.com|images\.unsplash\.com|cdn\.pixabay\.com)[^\s"'<>]+/gi,
+      // Image service URLs with path indicators
+      /https?:\/\/[^\s"'<>]+\/(?:image|photo|picture|img|media|gallery|upload)\/[^\s"'<>\?]+/gi,
+      // S3 bucket URLs
+      /https?:\/\/[^\s"'<>]*s3[^\s"'<>]*amazonaws\.com[^\s"'<>]+/gi,
+      // Cloudfront CDN
+      /https?:\/\/[^\s"'<>]*cloudfront\.net[^\s"'<>]+/gi
+    ];
+    
+    // Extract URLs using all patterns
+    for (const pattern of patterns) {
+      const matches = content.match(pattern);
+      if (matches) {
+        for (const url of matches) {
+          // Filter out non-image URLs and placeholders
+          const isInvalid = [
+            'placeholder',
+            'default',
+            'no-image',
+            'coming-soon',
+            'not-found',
+            '.css',
+            '.js',
+            '.json',
+            '.xml',
+            '.html',
+            'favicon',
+            'logo-only',
+            'icon-'
+          ].some(term => url.toLowerCase().includes(term));
+          
+          if (!isInvalid) {
+            photos.push(url);
+          }
+        }
+      }
     }
-    return photos;
+    
+    // Also look for image URLs in markdown format ![alt](url)
+    const markdownPattern = /!\[[^\]]*\]\(([^)]+)\)/g;
+    let match;
+    while ((match = markdownPattern.exec(content)) !== null) {
+      if (match[1] && !match[1].includes('placeholder')) {
+        photos.push(match[1]);
+      }
+    }
+    
+    // Look for URLs in HTML img tags
+    const imgTagPattern = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    while ((match = imgTagPattern.exec(content)) !== null) {
+      if (match[1] && match[1].startsWith('http') && !match[1].includes('placeholder')) {
+        photos.push(match[1]);
+      }
+    }
+    
+    // Remove duplicates and limit to 25 photos for performance
+    const uniquePhotos = [...new Set(photos)];
+    console.log(`📸 Extracted ${uniquePhotos.length} unique photos from Perplexity response`);
+    return uniquePhotos.slice(0, 25);
   }
 
   /**

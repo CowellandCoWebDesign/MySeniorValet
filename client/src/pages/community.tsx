@@ -14,6 +14,7 @@ import { FlagListingDialog } from "@/components/flag-listing-dialog";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { FamilyShareButton } from "@/components/family-share-button";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { CommunityDetailsCard } from "@/components/CommunityDetailsCard";
 
 export default function CommunityPage() {
   const [, params] = useRoute("/community/:id");
@@ -497,6 +498,11 @@ export default function CommunityPage() {
               </div>
             )}
           </Card>
+        </div>
+
+        {/* ENRICHED COMMUNITY INFO CARD */}
+        <div className="mb-8 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+          <CommunityDetailsCard community={community} />
         </div>
 
         {/* MAIN CONTENT GRID */}
