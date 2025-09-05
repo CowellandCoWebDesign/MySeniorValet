@@ -26,6 +26,7 @@ import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
+import resortGardenImage from '@assets/generated_images/Resort_courtyard_garden_f7db92ce.png';
 
 // State abbreviation to full name mapping
 const stateNames: Record<string, string> = {
@@ -543,7 +544,7 @@ export default function CommunityDirectory() {
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url('/attached_assets/generated_images/Resort_courtyard_garden_f7db92ce.png')`
+            backgroundImage: `url(${resortGardenImage})`
           }}
         />
         
