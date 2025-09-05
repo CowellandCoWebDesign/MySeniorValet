@@ -901,8 +901,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       </div>
                     )}
                   </div>
-                )} 
-
+                )}
+                
                 {/* No specific information found */}
                 {(!localVerificationReport?.consensus?.verifiedFacts || 
                   localVerificationReport.consensus.verifiedFacts.filter((fact: any) => {
