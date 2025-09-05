@@ -1671,75 +1671,160 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Cuba Communities - CARIBBEAN HERITAGE */}
-      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 via-red-50 to-white dark:from-blue-950/30 dark:via-red-950/30 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🇨🇺 Cuba Communities
-              </h2>
+      {/* Cuba Caribbean Excellence - Vintage Paradise Living */}
+      <section className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Caribbean Vintage Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-red-800 to-amber-900 dark:from-blue-950 dark:via-red-900 dark:to-amber-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">🇨🇺</span>
+              <span className="bg-gradient-to-r from-blue-300 to-red-300 bg-clip-text text-transparent">
+                Cuba Caribbean Heritage
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              Authentic Caribbean retirement in the Pearl of the Antilles
+            </p>
+          </div>
+
+          {/* Cuba Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-blue-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-blue-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Cuba Expat Intelligence & Caribbean Living Guide</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-blue-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Average cost: $800-$2,000/month (most affordable Caribbean)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Rich cultural heritage and vibrant communities</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Year-round tropical climate (75-85°F)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Growing expat communities in Havana & Varadero</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-blue-300 mb-3">Caribbean Living Strategies</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Casa Particular:</strong> Private homes 40% less than hotels</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Havana vs Beach:</strong> Beach towns 30% more affordable</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Long-term Stays:</strong> 6+ months saves 20-25%</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Community Living:</strong> Shared amenities reduce costs</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-800/30 rounded-lg border border-blue-600/30">
+              <p className="text-sm text-blue-200">
+                <span className="font-semibold text-blue-300">Caribbean Pro Tip:</span> Cuba offers unique cultural immersion opportunities. 
+                Many communities include Spanish lessons, salsa dancing, and cultural exchanges as part of their programs.
+              </p>
+            </div>
+          </div>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-blue-900/60 to-red-900/60 backdrop-blur-sm rounded-xl p-4 border border-blue-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-red-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Caribbean Heritage Showcase</h3>
+                  <p className="text-sm text-gray-300">Authentic Cuban retirement communities</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-blue-500 to-red-500 text-white px-4 py-2 text-lg font-bold">
+                {((cubaCommunities as any)?.communities?.length || 0)} Featured
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400" style={{scrollBehavior: 'smooth'}}>
+              {(cubaLoading || !cubaCommunities || !(cubaCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-blue-900/50 to-red-900/50 rounded-xl border border-blue-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-blue-800/50 to-red-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-blue-800/50 rounded"></div>
+                      <div className="h-4 bg-blue-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((cubaCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`cuba-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🎭 Heritage Living"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-red-500 text-white font-bold shadow-lg">
+                          Caribbean Heritage
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
               <Link href="/search?location=Cuba">
-                <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
-                  View All Cuba
-                  <ArrowRight className="w-4 h-4" />
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All Cuba Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
-            <div className="flex items-center gap-6 mb-6">
-              <p className="text-gray-600 dark:text-gray-300">
-                Experience retirement in Havana, Varadero, and Trinidad with rich culture and warm hospitality
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">20+</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Communities<br/>Island-wide</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 flex-wrap">
-              <Badge className="bg-blue-600 text-white px-3 py-1">🏖️ Caribbean Island Living</Badge>
-              <Badge className="bg-red-600 text-white px-3 py-1">🎭 Rich Cultural Heritage</Badge>
-              <Badge className="bg-green-600 text-white px-3 py-1">💚 Warm Community Spirit</Badge>
-              <Badge className="bg-yellow-600 text-white px-3 py-1">☀️ Year-Round Sunshine</Badge>
-            </div>
           </div>
-          
-          {/* Cuba Communities Display */}
-          {cubaLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-            </div>
-          ) : !(cubaCommunities as any)?.communities?.length ? (
-            <div className="text-center text-gray-600 dark:text-gray-400">
-              <p>Loading Cuba communities...</p>
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => setLocation('/map-search?location=Cuba')}
-              >
-                Search All Cuba Communities
-              </Button>
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
-                {((cubaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`cu-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
-                  </Link>
-                ))}
-              </div>
-              
-              <div className="text-center mt-6">
-                <Button 
-                  variant="outline" 
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/map-search?location=Cuba')}
-                >
-                  Explore All Cuba Communities
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
