@@ -21,30 +21,33 @@ router.post('/submit', async (req: Request, res: Response) => {
       requestType = 'reservation'
     } = req.body;
     
-    // Check if user is authenticated
-    if (!req.user) {
+    // Check if user is authenticated using custom auth session
+    const sessionUser = (req.session as any)?.user;
+    if (!sessionUser) {
       return res.status(401).json({ 
         error: 'You must be logged in to place a reservation. Please create an account or sign in.' 
       });
     }
     
-    // Get user information from session
-    const user = req.user as any;
+    // Get user information from custom auth session
     console.log('🔐 User info from session:', { 
-      hasUser: !!user, 
-      email: user?.email, 
-      name: user?.name,
-      claims: user?.claims 
+      hasUser: !!sessionUser, 
+      email: sessionUser?.email, 
+      firstName: sessionUser?.firstName,
+      lastName: sessionUser?.lastName,
+      id: sessionUser?.id
     });
     
-    // Try to get user info from different possible locations
-    const userName = user?.name || user?.claims?.first_name || user?.claims?.email?.split('@')[0] || user?.email?.split('@')[0] || 'Guest';
-    const userEmail = user?.email || user?.claims?.email;
-    const userPhone = user?.phone || user?.claims?.phone || '';
+    // Get user info from custom auth session
+    const userName = sessionUser?.firstName && sessionUser?.lastName 
+      ? `${sessionUser.firstName} ${sessionUser.lastName}`
+      : sessionUser?.email?.split('@')[0] || 'Guest';
+    const userEmail = sessionUser?.email;
+    const userPhone = sessionUser?.phone || '';
     
     // Validate user email
     if (!userEmail) {
-      console.error('❌ No user email found in session:', user);
+      console.error('❌ No user email found in session:', sessionUser);
       return res.status(400).json({ 
         error: 'Unable to retrieve your email address. Please ensure you are logged in with an account that has a valid email.' 
       });

@@ -46,7 +46,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
         // User is not authenticated
         const confirmed = confirm('You need to sign in to place a reservation. Would you like to sign in now?');
         if (confirmed) {
-          window.location.href = '/api/login';
+          window.location.href = '/login';  // Changed to use the proper login page
         }
         setIsSubmitting(false);
         return;
