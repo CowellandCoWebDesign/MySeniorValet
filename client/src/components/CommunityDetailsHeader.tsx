@@ -323,13 +323,17 @@ export function CommunityDetailsHeader({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => {
-                  // Open the reservation/availability tab
-                  const reservationTab = document.querySelector('[value="availability"]') as HTMLButtonElement;
-                  if (reservationTab) {
-                    reservationTab.click();
+                  // Open the availability tab - find and click the tab trigger
+                  const availabilityTab = document.querySelector('button[value="availability"]');
+                  if (availabilityTab) {
+                    (availabilityTab as HTMLElement).click();
+                    // Give time for tab to activate then scroll to it
                     setTimeout(() => {
-                      reservationTab.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
+                      const availabilityContent = document.querySelector('[data-state="active"][value="availability"]');
+                      if (availabilityContent) {
+                        availabilityContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 200);
                   }
                 }}
                 className="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
@@ -340,13 +344,17 @@ export function CommunityDetailsHeader({
               
               <button
                 onClick={() => {
-                  // Open the tours tab
-                  const toursTab = document.querySelector('[value="tours"]') as HTMLButtonElement;
+                  // Open the tours tab - find and click the tab trigger
+                  const toursTab = document.querySelector('button[value="tours"]');
                   if (toursTab) {
-                    toursTab.click();
+                    (toursTab as HTMLElement).click();
+                    // Give time for tab to activate then scroll to it
                     setTimeout(() => {
-                      toursTab.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }, 100);
+                      const toursContent = document.querySelector('[data-state="active"][value="tours"]');
+                      if (toursContent) {
+                        toursContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
+                    }, 200);
                   }
                 }}
                 className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
