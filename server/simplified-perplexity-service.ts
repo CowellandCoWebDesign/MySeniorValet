@@ -764,10 +764,10 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     const patterns = [
       // Standard image URLs with extensions
       /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)/gi,
-      // CDN URLs that may not have extensions
+      // CDN URLs that may not have extensions (excluding stock photo sites)
       /https?:\/\/[^\s"'<>]*(?:cloudinary|imgur|cdn|images|photos|media|static|assets)[^\s"'<>]*\/[^\s"'<>\?]+/gi,
-      // Google Images and other services
-      /https?:\/\/(?:lh3\.googleusercontent\.com|images\.unsplash\.com|cdn\.pixabay\.com)[^\s"'<>]+/gi,
+      // Google Images services (but not stock photos)
+      /https?:\/\/(?:lh3\.googleusercontent\.com)[^\s"'<>]+/gi,
       // Image service URLs with path indicators
       /https?:\/\/[^\s"'<>]+\/(?:image|photo|picture|img|media|gallery|upload)\/[^\s"'<>\?]+/gi,
       // S3 bucket URLs
@@ -781,8 +781,20 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       const matches = content.match(pattern);
       if (matches) {
         for (const url of matches) {
-          // Filter out non-image URLs and placeholders
+          // Filter out stock photo sites and placeholders
           const isInvalid = [
+            // Stock photo sites - these provide fake images
+            'unsplash.com',
+            'pixabay.com',
+            'pexels.com',
+            'shutterstock.com',
+            'gettyimages.com',
+            'istockphoto.com',
+            'stocksy.com',
+            'dreamstime.com',
+            'freepik.com',
+            '123rf.com',
+            // Placeholder and invalid patterns
             'placeholder',
             'default',
             'no-image',
@@ -809,7 +821,8 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     const markdownPattern = /!\[[^\]]*\]\(([^)]+)\)/g;
     let match;
     while ((match = markdownPattern.exec(content)) !== null) {
-      if (match[1] && !match[1].includes('placeholder')) {
+      if (match[1] && !match[1].includes('placeholder') && 
+          !match[1].includes('unsplash.com') && !match[1].includes('pixabay.com')) {
         photos.push(match[1]);
       }
     }
@@ -817,14 +830,15 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     // Look for URLs in HTML img tags
     const imgTagPattern = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
     while ((match = imgTagPattern.exec(content)) !== null) {
-      if (match[1] && match[1].startsWith('http') && !match[1].includes('placeholder')) {
+      if (match[1] && match[1].startsWith('http') && !match[1].includes('placeholder') &&
+          !match[1].includes('unsplash.com') && !match[1].includes('pixabay.com')) {
         photos.push(match[1]);
       }
     }
     
     // Remove duplicates and limit to 25 photos for performance
     const uniquePhotos = [...new Set(photos)];
-    console.log(`📸 Extracted ${uniquePhotos.length} unique photos from Perplexity response`);
+    console.log(`📸 Extracted ${uniquePhotos.length} unique photos from Perplexity response (excluding stock photo sites)`);
     return uniquePhotos.slice(0, 25);
   }
 
