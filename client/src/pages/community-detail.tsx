@@ -1099,12 +1099,12 @@ export const HeroPhotoCarousel = ({
     console.log('📊 Community photos:', community?.photos);
     console.log('📊 Verification report:', verificationReport);
     
-    const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder' }[] = [];
+    const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder'; attribution?: string }[] = [];
     
-    // Stock photo patterns to identify and limit
+    // Stock photo patterns to COMPLETELY EXCLUDE
     const stockPhotoPatterns = [
       'unsplash.com',
-      'pixabay.com',
+      'pixabay.com', 
       'pexels.com',
       'freepik.com',
       'shutterstock.com',
@@ -1112,47 +1112,40 @@ export const HeroPhotoCarousel = ({
       'gettyimages.com',
       'stockvault.net',
       'freeimages.com',
-      'burst.shopify.com'
+      'burst.shopify.com',
+      'cdn.pixabay.com',
+      'images.unsplash.com',
+      'images.pexels.com'
     ];
     
     const isStockPhoto = (url: string) => {
       return stockPhotoPatterns.some(pattern => url.toLowerCase().includes(pattern));
     };
     
-    let hasAddedStockPhoto = false; // Track if we've already added one stock photo
-    
-    // Add database photos - but limit stock photos to just ONE across all sources
+    // Add database photos - EXCLUDE ALL STOCK PHOTOS
     if (community?.photos && community.photos.length > 0) {
       console.log(`📸 Found ${community.photos.length} database photos`);
       
-      const stockPhotos: any[] = [];
-      const realPhotos: any[] = [];
+      let realPhotoCount = 0;
+      let stockPhotoCount = 0;
       
-      // Separate stock photos from real photos
+      // Only add REAL photos, skip ALL stock photos
       community.photos.forEach((photo: any) => {
         const photoUrl = typeof photo === 'string' ? photo : photo.image_url || photo.url;
-        if (isStockPhoto(photoUrl)) {
-          stockPhotos.push({
+        if (!isStockPhoto(photoUrl)) {
+          allPhotos.push({
             url: photoUrl,
-            source: 'database' as const
+            source: 'database' as const,
+            attribution: 'Community Database'
           });
+          realPhotoCount++;
         } else {
-          realPhotos.push({
-            url: photoUrl,
-            source: 'database' as const
-          });
+          stockPhotoCount++;
         }
       });
       
-      // Add all real photos
-      allPhotos.push(...realPhotos);
-      
-      // Add only ONE stock photo if we haven't already
-      if (stockPhotos.length > 0 && !hasAddedStockPhoto) {
-        console.log(`🖼️ Adding 1 stock photo from database (found ${stockPhotos.length})`);
-        allPhotos.push(stockPhotos[0]);
-        hasAddedStockPhoto = true;
-      }
+      console.log(`✅ Added ${realPhotoCount} REAL photos from database`);
+      console.log(`🚫 Excluded ${stockPhotoCount} stock photos`);
     }
     
     // Add live web intelligence photos when they arrive - check all possible paths
@@ -1174,35 +1167,42 @@ export const HeroPhotoCarousel = ({
     if (webImages && webImages.length > 0) {
       console.log(`🎯 Processing ${webImages.length} web intelligence photos`);
       
-      // Separate web photos into stock and real
-      const webStockPhotos: any[] = [];
-      const webRealPhotos: any[] = [];
+      let realWebPhotoCount = 0;
+      let stockWebPhotoCount = 0;
       
+      // Only add REAL web photos, skip ALL stock photos
       webImages.forEach((img: any) => {
         const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
-        const photoObj = {
-          url: photoUrl,
-          source: 'web' as const
-        };
+        const photoSource = typeof img === 'object' ? img.source : 'web';
         
-        if (isStockPhoto(photoUrl)) {
-          webStockPhotos.push(photoObj);
+        if (!isStockPhoto(photoUrl)) {
+          // Determine attribution based on source
+          let attribution = 'Web Search';
+          if (photoSource === 'directory') {
+            attribution = 'Senior Living Directory';
+          } else if (photoUrl.includes('apartments.com')) {
+            attribution = 'Apartments.com';
+          } else if (photoUrl.includes('aplaceformom.com')) {
+            attribution = 'A Place for Mom';
+          } else if (photoUrl.includes('seniorliving.com')) {
+            attribution = 'SeniorLiving.com';
+          } else if (photoUrl.includes('caring.com')) {
+            attribution = 'Caring.com';
+          }
+          
+          allPhotos.push({
+            url: photoUrl,
+            source: 'web' as const,
+            attribution
+          });
+          realWebPhotoCount++;
         } else {
-          webRealPhotos.push(photoObj);
+          stockWebPhotoCount++;
         }
       });
       
-      // Add all real web photos
-      allPhotos.push(...webRealPhotos);
-      
-      // Only add web stock photo if we haven't already added one
-      if (webStockPhotos.length > 0 && !hasAddedStockPhoto) {
-        console.log(`🖼️ Adding 1 stock photo from web (found ${webStockPhotos.length})`);
-        allPhotos.push(webStockPhotos[0]);
-        hasAddedStockPhoto = true;
-      } else if (webStockPhotos.length > 0) {
-        console.log(`🚫 Skipping ${webStockPhotos.length} web stock photos - already have 1`);
-      }
+      console.log(`✅ Added ${realWebPhotoCount} REAL web photos`);
+      console.log(`🚫 Excluded ${stockWebPhotoCount} stock photos from web`);
     }
     
     // Remove duplicates based on URL
@@ -1468,12 +1468,12 @@ export const HeroPhotoCarousel = ({
                       target.src = '/hero-senior-community.svg';
                     }}
                   />
-                  {/* Attribution for web-sourced photos */}
-                  {photo.source === 'web' && (
+                  {/* Attribution for all photos */}
+                  {photo.attribution && (
                     <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
                       <div className="flex items-center gap-1">
                         <Globe className="w-3 h-3" />
-                        <span>Sourced from public web</span>
+                        <span>Source: {photo.attribution}</span>
                       </div>
                     </div>
                   )}
