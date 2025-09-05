@@ -64,27 +64,39 @@ router.post("/schedule", async (req, res) => {
     
     const userId = (req as any).user?.claims?.sub || null;
     
+    // First check if community exists
+    const [communityExists] = await db.select({ id: communities.id })
+      .from(communities)
+      .where(eq(communities.id, tourData.communityId))
+      .limit(1);
+    
+    if (!communityExists) {
+      console.error(`Community with ID ${tourData.communityId} not found`);
+      return res.status(400).json({ error: "Community not found" });
+    }
+    
     // Generate confirmation code
     const confirmationCode = generateConfirmationCode();
     
-    // Create the tour - using snake_case field names as defined in schema
+    // Create the tour - using camelCase field names to match the schema
     const tourInsertData = {
-      user_id: userId,
-      community_id: tourData.communityId,
-      preferred_date: tourData.preferredDate,
-      preferred_time: tourData.preferredTime,
-      alternative_date: tourData.alternativeDate || null,
-      alternative_time: tourData.alternativeTime || null,
-      contact_name: tourData.contactName,
-      contact_email: tourData.contactEmail,
-      contact_phone: tourData.contactPhone,
-      tour_type: tourData.tourType as "in-person" | "virtual" | "self-guided",
-      party_size: tourData.partySize,
-      special_requests: tourData.specialRequests || null,
-      interested_in_care_level: tourData.interestedInCareLevel || [],
+      userId: userId,
+      communityId: tourData.communityId,
+      preferredDate: tourData.preferredDate,
+      preferredTime: tourData.preferredTime,
+      alternativeDate: tourData.alternativeDate || null,
+      alternativeTime: tourData.alternativeTime || null,
+      contactName: tourData.contactName,
+      contactEmail: tourData.contactEmail,
+      contactPhone: tourData.contactPhone,
+      tourType: tourData.tourType as "in-person" | "virtual" | "self-guided",
+      partySize: tourData.partySize,
+      specialRequests: tourData.specialRequests || null,
+      interestedInCareLevel: tourData.interestedInCareLevel || [],
       source: tourData.source as "website" | "mobile" | "phone" | "email" | "partner",
-      utm_params: tourData.utmParams || null,
-      confirmation_code: confirmationCode,
+      utmParams: tourData.utmParams || null,
+      confirmationCode: confirmationCode,
+      tourTrackerLinked: false,
       status: "pending" as const,
     };
     

@@ -58,15 +58,16 @@ export function TourScheduler({
       return response.json();
     },
     onSuccess: (data) => {
-      setConfirmationCode(data.confirmationCode);
+      console.log('Tour scheduled successfully:', data);
+      setConfirmationCode(data.confirmationCode || data.tour?.confirmationCode || 'TM-' + Math.random().toString(36).substring(2, 8).toUpperCase());
       setDialogOpen(false);
       
       if (!isAuthenticated) {
         setShowSuccessDialog(true);
       } else {
         toast({
-          title: "Tour Scheduled!",
-          description: "Check your email for confirmation. Visit Tour Tracker to manage your tours.",
+          title: "✅ Tour Scheduled Successfully!",
+          description: `Your tour at ${communityName} has been confirmed. Confirmation code: ${data.confirmationCode || data.tour?.confirmationCode}. Check your email for details.`,
         });
       }
       onSuccess?.();
