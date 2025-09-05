@@ -2094,6 +2094,28 @@ export default function CommunityDetail() {
               getPricingBadgeInfo={getPricingBadgeInfo}
               formatCareType={formatCareType}
               generatePhoneNumber={generatePhoneNumber}
+              onReserveClick={() => {
+                // Open reservation dialog directly
+                setShowReservationDialog(true);
+              }}
+              onTourClick={() => {
+                // Navigate to tours tab and scroll
+                const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
+                if (toursTab) {
+                  toursTab.click();
+                  setTimeout(() => {
+                    const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
+                    if (tabsSection) {
+                      tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    // Also focus on the tour scheduler form
+                    const tourForm = document.querySelector('.tour-scheduler-form');
+                    if (tourForm) {
+                      tourForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }, 100);
+                }
+              }}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
 
@@ -2276,21 +2298,23 @@ export default function CommunityDetail() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <TourScheduler
-                        communityId={community.id}
-                        communityName={community.name}
-                        communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zip || ''}`.trim() : `${community.city}, ${community.state}`}
-                        communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
-                        buttonText="Schedule In-Person Tour"
-                        buttonVariant="default"
-                        hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
-                        onSuccess={() => {
-                          toast({
-                            title: "Tour Scheduled Successfully!",
-                            description: `Your tour at ${community.name} has been confirmed.`,
-                          });
-                        }}
-                      />
+                      <div className="tour-scheduler-form">
+                        <TourScheduler
+                          communityId={community.id}
+                          communityName={community.name}
+                          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zip || ''}`.trim() : `${community.city}, ${community.state}`}
+                          communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
+                          buttonText="Schedule In-Person Tour"
+                          buttonVariant="default"
+                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
+                          onSuccess={() => {
+                            toast({
+                              title: "Tour Scheduled Successfully!",
+                              description: `Your tour at ${community.name} has been confirmed.`,
+                            });
+                          }}
+                        />
+                      </div>
                       
                       {/* Virtual Tour Options */}
                       <div className="space-y-3">

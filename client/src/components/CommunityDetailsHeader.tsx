@@ -18,6 +18,8 @@ interface CommunityDetailsHeaderProps {
   getPricingBadgeInfo?: (community: any, verificationReport: any) => any;
   formatCareType?: (careTypes?: string[]) => string;
   generatePhoneNumber?: (state: string, id: number) => string;
+  onReserveClick?: () => void;
+  onTourClick?: () => void;
 }
 
 export function CommunityDetailsHeader({ 
@@ -27,7 +29,9 @@ export function CommunityDetailsHeader({
   onFavoriteToggle,
   getPricingBadgeInfo,
   formatCareType,
-  generatePhoneNumber
+  generatePhoneNumber,
+  onReserveClick,
+  onTourClick
 }: CommunityDetailsHeaderProps) {
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
@@ -351,17 +355,21 @@ export function CommunityDetailsHeader({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => {
-                  // Open the availability tab - simplified selector
-                  const availabilityTab = document.querySelector('[value="availability"]') as HTMLElement;
-                  if (availabilityTab) {
-                    availabilityTab.click();
-                    // Smooth scroll to tabs after a brief delay
-                    setTimeout(() => {
-                      const tabsSection = availabilityTab.closest('[role="tablist"]')?.parentElement;
-                      if (tabsSection) {
-                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 50);
+                  // If callback provided, trigger reservation dialog directly
+                  if (onReserveClick) {
+                    onReserveClick();
+                  } else {
+                    // Fallback to tab navigation
+                    const availabilityTab = document.querySelector('[value="availability"]') as HTMLElement;
+                    if (availabilityTab) {
+                      availabilityTab.click();
+                      setTimeout(() => {
+                        const tabsSection = availabilityTab.closest('[role="tablist"]')?.parentElement;
+                        if (tabsSection) {
+                          tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 50);
+                    }
                   }
                 }}
                 className="w-full py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
@@ -376,17 +384,21 @@ export function CommunityDetailsHeader({
               
               <button
                 onClick={() => {
-                  // Open the tours tab - simplified selector
-                  const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
-                  if (toursTab) {
-                    toursTab.click();
-                    // Smooth scroll to tabs after a brief delay
-                    setTimeout(() => {
-                      const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
-                      if (tabsSection) {
-                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                      }
-                    }, 50);
+                  // If callback provided, trigger tour scheduler directly
+                  if (onTourClick) {
+                    onTourClick();
+                  } else {
+                    // Fallback to tab navigation
+                    const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
+                    if (toursTab) {
+                      toursTab.click();
+                      setTimeout(() => {
+                        const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
+                        if (tabsSection) {
+                          tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }, 50);
+                    }
                   }
                 }}
                 className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
