@@ -164,7 +164,7 @@ export class ComprehensiveSearchEngine {
           }
         }
         
-        aiQuery += '. Focus on communities in the United States only. Include contact information and websites when available.';
+        aiQuery += '. 🌍 Search worldwide - include communities from any country (USA, Canada, Australia, UK, Europe, Asia, etc.). Include contact information, websites, and specify the country/location for each community found.';
         
         console.log(`🤖 Discovery Mode Query: ${aiQuery}`);
         
@@ -464,8 +464,9 @@ export class ComprehensiveSearchEngine {
   private async buildLocationConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     
-    // US States only - no Canadian provinces
-    const US_STATES = {
+    // 🌍 GLOBAL LOCATIONS - Support worldwide search
+    const GLOBAL_REGIONS = {
+      // US States
       'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
       'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
       'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
@@ -478,69 +479,101 @@ export class ComprehensiveSearchEngine {
       'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
       'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
       'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
-      'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC', 'dc': 'DC'
+      'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC', 'dc': 'DC',
+      // Canadian Provinces
+      'ontario': 'ON', 'quebec': 'QC', 'british columbia': 'BC', 'alberta': 'AB',
+      'manitoba': 'MB', 'saskatchewan': 'SK', 'nova scotia': 'NS', 'new brunswick': 'NB',
+      'newfoundland': 'NL', 'prince edward island': 'PE', 'northwest territories': 'NT',
+      'yukon': 'YT', 'nunavut': 'NU',
+      // Australian States
+      'new south wales': 'NSW', 'victoria': 'VIC', 'queensland': 'QLD', 
+      'western australia': 'WA', 'south australia': 'SA', 'tasmania': 'TAS',
+      'australian capital territory': 'ACT', 'northern territory': 'NT'
     };
     
-    // Get valid US state codes
-    const validStateCodes = new Set(Object.values(US_STATES));
+    // Country mappings for international search
+    const COUNTRY_CODES = {
+      'united states': 'US', 'usa': 'US', 'america': 'US',
+      'canada': 'CA', 'australia': 'AU', 'united kingdom': 'UK', 'uk': 'UK',
+      'mexico': 'MX', 'japan': 'JP', 'germany': 'DE', 'france': 'FR',
+      'italy': 'IT', 'spain': 'ES', 'netherlands': 'NL', 'belgium': 'BE',
+      'switzerland': 'CH', 'sweden': 'SE', 'norway': 'NO', 'denmark': 'DK',
+      'new zealand': 'NZ', 'singapore': 'SG', 'ireland': 'IE', 'israel': 'IL'
+    };
     
-    // Handle "City, State" format (e.g., "Miami, Florida" or "Miami, FL")
+    // Handle "City, State/Country" format (e.g., "Sydney, Australia" or "Miami, FL")
     if (query.includes(',')) {
-      const [city, state] = query.split(',').map(s => s.trim());
-      console.log(`🔍 Parsing location: city="${city}", state="${state}"`);
+      const [city, region] = query.split(',').map(s => s.trim());
+      console.log(`🌍 Parsing global location: city="${city}", region="${region}"`);
       
-      // Check if it's a valid US state
-      const stateCode = (US_STATES as any)[state.toLowerCase()] || (validStateCodes.has(state.toUpperCase()) ? state.toUpperCase() : null);
+      // Check if it's a state/province code
+      const regionCode = (GLOBAL_REGIONS as any)[region.toLowerCase()] || region.toUpperCase();
       
-      if (stateCode) {
-        // Only add US locations
+      // Check if it's a country
+      const countryCode = (COUNTRY_CODES as any)[region.toLowerCase()];
+      
+      if (countryCode) {
+        // City, Country search
         conditions.push(
           and(
             ilike(communities.city, `%${city}%`),
-            eq(communities.state, stateCode),
-            eq(communities.country, 'US') // Ensure US only
+            or(
+              eq(communities.country, countryCode),
+              ilike(communities.country, `%${region}%`)
+            )
           )
         );
-        console.log(`🔍 Added US city-state condition for "${city}" in state="${stateCode}"`);
+        console.log(`🌍 Added global city-country condition for "${city}" in "${region}"`);
       } else {
-        console.log(`⚠️ Invalid or non-US state: "${state}" - skipping location condition`);
+        // City, State/Province search
+        conditions.push(
+          or(
+            and(
+              ilike(communities.city, `%${city}%`),
+              ilike(communities.state, `%${regionCode}%`)
+            ),
+            and(
+              ilike(communities.city, `%${city}%`),
+              ilike(communities.state, `%${region}%`)
+            )
+          )
+        );
+        console.log(`🌍 Added global city-state condition for "${city}" in region="${region}"`);
       }
       return conditions;
     }
-    // ZIP code
-    else if (query.match(/^\d{5}/)) {
+    // Postal codes (ZIP, postcodes, etc.)
+    else if (query.match(/^[\d\w\s-]+$/) && query.length >= 3 && query.length <= 10) {
       conditions.push(
-        and(
-          ilike(communities.zipCode, `${query}%`),
-          eq(communities.country, 'US') // US ZIP codes only
-        )
+        ilike(communities.zipCode, `%${query}%`)
       );
+      console.log(`🌍 Added global postal code search for "${query}"`);
     }
-    // General location - check if it's a US state or city
+    // General location - could be city, state, or country anywhere in the world
     else {
       const queryLower = query.toLowerCase().trim();
       
-      // Check if query is a US state
-      const stateCode = (US_STATES as any)[queryLower] || (validStateCodes.has(query.toUpperCase()) ? query.toUpperCase() : null);
-      
-      if (stateCode) {
-        // State search - US only
+      // Check if it's a known country
+      const countryCode = (COUNTRY_CODES as any)[queryLower];
+      if (countryCode) {
         conditions.push(
-          and(
-            eq(communities.state, stateCode),
-            eq(communities.country, 'US')
+          or(
+            eq(communities.country, countryCode),
+            ilike(communities.country, `%${query}%`)
           )
         );
-        console.log(`🔍 Added US state condition for state="${stateCode}"`);
+        console.log(`🌍 Added country search for "${query}"`);
       } else {
-        // City search - must be in US
+        // Global search - could be city, state, or region anywhere
         conditions.push(
-          and(
+          or(
             ilike(communities.city, `%${query}%`),
-            eq(communities.country, 'US') // Ensure US only
+            ilike(communities.state, `%${query}%`),
+            ilike(communities.county, `%${query}%`),
+            ilike(communities.country, `%${query}%`)
           )
         );
-        console.log(`🔍 Added US city condition for "${query}"`);
+        console.log(`🌍 Added global location search for "${query}" (searching cities, states, counties, countries)`);
       }
     }
     
