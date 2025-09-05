@@ -2207,6 +2207,45 @@ export default function CommunityDetail() {
               </Button>
             </div>
 
+            {/* Action Buttons - Above Tabs */}
+            <div className="flex flex-wrap gap-3 my-6">
+              <Button
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg flex items-center gap-2"
+                onClick={() => {
+                  const phone = community.phone || generatePhoneNumber(community.state, community.id);
+                  window.location.href = `tel:${phone}`;
+                }}
+              >
+                <Phone className="w-5 h-5" />
+                Call Now
+              </Button>
+              
+              <ReservationDialog
+                community={community}
+                verificationReport={verificationReport}
+                userProfile={userProfile}
+              >
+                <Button
+                  size="lg"
+                  className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg flex items-center gap-2"
+                >
+                  <Calendar className="w-5 h-5" />
+                  Schedule Tour
+                </Button>
+              </ReservationDialog>
+              
+              <Button
+                size="lg"
+                variant="outline"
+                className="shadow-lg flex items-center gap-2"
+                onClick={handleFavorite}
+              >
+                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : ''}`} />
+                {isFavorite ? 'Favorited' : 'Favorite'}
+              </Button>
+            </div>
+
             {/* Tabbed Content Section - Mobile Responsive */}
             <Tabs defaultValue="market-data" className="w-full">
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
@@ -2241,7 +2280,7 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-2">
                     <Home className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Reservations</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Reservations & Pricing</span>
                     <span className="text-xs sm:text-sm font-bold sm:hidden">Reserve</span>
                   </div>
                   <span className="text-xs opacity-75 font-normal hidden sm:block">
