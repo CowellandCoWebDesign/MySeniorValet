@@ -537,110 +537,210 @@ export default function CommunityDirectory() {
         </div>
       </section>
       
-      {/* Excellence Showcase - Oakmont Senior Living */}
-      <section className="px-4 py-12 bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-2 mb-6 text-sm font-bold">
-                <Award className="h-4 w-4 mr-2" />
-                EXCELLENCE SHOWCASE
-              </Badge>
-              
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                Featured Communities by Oakmont Senior Living
-              </h2>
-              
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto">
-                Discover excellence in senior care with our featured partner communities across California
-              </p>
-              
-              <div className="flex flex-wrap gap-3 justify-center mb-8">
-                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
-                  <Building className="h-3 w-3 mr-1" />
-                  106 Communities
-                </Badge>
-                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  CA, NV, HI
-                </Badge>
-                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
-                  <Star className="h-3 w-3 mr-1" />
-                  Premium Care
-                </Badge>
+      {/* Oakmont California Excellence - Premium West Coast Living */}
+      <section className="relative px-4 py-16 overflow-hidden">
+        {/* Premium California Golden Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-orange-800 to-yellow-900 dark:from-amber-950 dark:via-orange-900 dark:to-yellow-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(251, 191, 36, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(251, 146, 60, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">☀️</span>
+              <span className="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
+                Oakmont California Excellence
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              106 premier communities across California, Nevada & Hawaii
+            </p>
+          </div>
+
+          {/* Oakmont Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-amber-300" />
               </div>
-            </motion.div>
-          </div>
-          
-          {/* Featured Oakmont Communities Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {/* Capriana at Brea */}
-            <EnhancedCommunityCard 
-              community={{
-                id: 75135,
-                name: "Capriana at Brea",
-                city: "Brea",
-                state: "CA",
-                address: "900 E Imperial Hwy",
-                careTypes: ["Assisted Living", "Memory Care"],
-                description: "Premier senior living community offering assisted living and memory care in the heart of Orange County. Experience luxury amenities and personalized care in a vibrant community setting.",
-                amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
-                rating: 4.8,
-                reviewCount: 45
-              }}
-              variant="featured"
-              index={0}
-            />
+              <h3 className="text-xl font-bold text-white">Oakmont Insider Intelligence & California Savings Guide</h3>
+            </div>
             
-            {/* Ivy Park at Alta Loma */}
-            <EnhancedCommunityCard 
-              community={{
-                id: 75125,
-                name: "Ivy Park at Alta Loma",
-                city: "Alta Loma",
-                state: "CA",
-                address: "9954 Foothill Blvd",
-                careTypes: ["Assisted Living", "Memory Care"],
-                description: "Nestled in the foothills of the San Gabriel Mountains, Ivy Park offers exceptional assisted living and memory care services with a focus on dignity, respect, and quality of life.",
-                amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
-                rating: 4.7,
-                reviewCount: 38
-              }}
-              variant="featured"
-              index={1}
-            />
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>Average cost: $3,500-$6,000/month (California standard)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>106 locations across CA, NV, and HI</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>Award-winning memory care programs</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>Luxury resort-style amenities standard</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">Oakmont Negotiation Strategies</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Multi-Community:</strong> Compare 3+ Oakmont locations for best rates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Off-Season Special:</strong> October-December moves save 10-15%</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Veterans Discount:</strong> 5-10% off monthly fees</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Respite-to-Resident:</strong> Try 2-week stay, get move-in credit</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
             
-            {/* Ivy Park at Bonita */}
-            <EnhancedCommunityCard 
-              community={{
-                id: 75128,
-                name: "Ivy Park at Bonita",
-                city: "Chula Vista",
-                state: "CA",
-                address: "3302 Bonita Rd",
-                careTypes: ["Assisted Living", "Memory Care"],
-                description: "Beautiful senior living community in San Diego County providing compassionate assisted living and specialized memory care in a warm, homelike environment.",
-                amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
-                rating: 4.6,
-                reviewCount: 42
-              }}
-              variant="featured"
-              index={2}
-            />
+            <div className="mt-4 p-3 bg-amber-800/30 rounded-lg border border-amber-600/30">
+              <p className="text-sm text-amber-200">
+                <span className="font-semibold text-amber-300">Oakmont Pro Tip:</span> Ask about the "California Care Package" - 
+                includes waived community fee ($2,500 value) plus first month's activity package free when touring 3+ locations.
+              </p>
+            </div>
           </div>
-          
-          {/* Call to Action */}
-          <div className="text-center">
-            <Link href="/search?brand=Oakmont">
-              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 text-lg font-semibold shadow-xl">
-                View All 106 Oakmont Communities
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-amber-900/60 to-orange-900/60 backdrop-blur-sm rounded-xl p-4 border border-amber-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">California Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premier Oakmont communities across the West Coast</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 text-lg font-bold">
+                106 Communities
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500 dark:scrollbar-thumb-amber-400" style={{scrollBehavior: 'smooth'}}>
+              {/* Featured Oakmont Communities */}
+              <div className="flex-shrink-0">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                  <div className="relative">
+                    <FeaturedExcellenceCard 
+                      community={{
+                        id: 75135,
+                        name: "Capriana at Brea",
+                        city: "Brea",
+                        state: "CA",
+                        address: "900 E Imperial Hwy",
+                        careTypes: ["Assisted Living", "Memory Care"],
+                        description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
+                        amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
+                        rating: 4.8,
+                        reviewCount: 45,
+                        badge: "🏆 Top Rated"
+                      }} 
+                      index={0} 
+                      compact 
+                    />
+                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
+                      Orange County
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                  <div className="relative">
+                    <FeaturedExcellenceCard 
+                      community={{
+                        id: 75125,
+                        name: "Ivy Park at Alta Loma",
+                        city: "Alta Loma",
+                        state: "CA",
+                        address: "9954 Foothill Blvd",
+                        careTypes: ["Assisted Living", "Memory Care"],
+                        description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
+                        amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
+                        rating: 4.7,
+                        reviewCount: 38,
+                        badge: "🌟 Mountain Views"
+                      }} 
+                      index={1} 
+                      compact 
+                    />
+                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
+                      San Bernardino
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-shrink-0">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                  <div className="relative">
+                    <FeaturedExcellenceCard 
+                      community={{
+                        id: 75128,
+                        name: "Ivy Park at Bonita",
+                        city: "Chula Vista",
+                        state: "CA",
+                        address: "3302 Bonita Rd",
+                        careTypes: ["Assisted Living", "Memory Care"],
+                        description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
+                        amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
+                        rating: 4.6,
+                        reviewCount: 42,
+                        badge: "🌴 San Diego"
+                      }} 
+                      index={2} 
+                      compact 
+                    />
+                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
+                      San Diego County
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/search?brand=Oakmont">
+                <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All 106 Oakmont Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
