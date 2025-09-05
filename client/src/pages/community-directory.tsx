@@ -565,7 +565,7 @@ export default function CommunityDirectory() {
               </div>
             </div>
             
-            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+            <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold animate-shimmer">
               <Star className="h-5 w-5 mr-2" />
               THE GOLD STANDARD IN SENIOR LIVING
               <Star className="h-5 w-5 ml-2" />
