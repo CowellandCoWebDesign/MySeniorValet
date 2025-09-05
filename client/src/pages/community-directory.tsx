@@ -600,6 +600,115 @@ export default function CommunityDirectory() {
             </div>
           </div>
 
+          {/* Why Oakmont is The Gold Standard - NEW SECTION */}
+          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Award className="w-6 h-6 text-amber-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Why Oakmont is The Gold Standard</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-4">
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🏆 Award-Winning Excellence</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>Best of Senior Living 2025 Winner</strong> - Top 1-2% nationwide</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>#12 Largest U.S. Operator</strong> - 8,000+ residents served</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>4.3/5 Average Rating</strong> - From 3,244+ family reviews</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>Forbes Yass Prize Finalist</strong> - $11M innovation award</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🎯 Signature Programs</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>Executive Chefs</strong> from top culinary schools & fine dining</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>Virtual Reality Therapy</strong> - Leading-edge Alzheimer's care</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>Traditions Memory Care</strong> - Specialized dementia neighborhoods</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>"Whole Living" Philosophy</strong> - Complete person care approach</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-amber-800/30 rounded-lg p-3 border border-amber-600/30">
+              <p className="text-amber-200 text-sm font-semibold text-center">
+                🌟 Oakmont Advantage: Resort-style communities with private movie theaters, spa services, concierge physicians, 
+                and $344M investment in new luxury communities (2024)
+              </p>
+            </div>
+          </div>
+          
+          {/* Industry Leadership Context */}
+          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-amber-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Oakmont vs. The Competition</h3>
+            </div>
+            
+            <div className="space-y-3 mb-4">
+              <div className="bg-amber-800/20 rounded-lg p-3">
+                <p className="text-amber-300 font-semibold mb-2">🥇 Top-Tier Luxury Leaders (2025)</p>
+                <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-200">
+                  <div>
+                    <strong className="text-amber-200">Atria Senior Living</strong> (#5 Largest)
+                    <br />• 25,045 units • Focus on hospitality
+                    <br />• Average: $6,000-8,000/month
+                  </div>
+                  <div>
+                    <strong className="text-amber-200">Oakmont Senior Living</strong> (#12 Largest)
+                    <br />• 8,000+ residents • Resort-style luxury
+                    <br />• Average: $7,548/month • Culinary excellence
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-amber-800/20 rounded-lg p-3">
+                <p className="text-amber-300 font-semibold mb-2">💎 What Sets Oakmont Apart</p>
+                <ul className="text-sm text-gray-200 space-y-1">
+                  <li>✓ <strong>West Coast Dominance:</strong> 106 premier locations in CA, NV, HI</li>
+                  <li>✓ <strong>Culinary Leadership:</strong> Only brand with executive chefs from top culinary schools</li>
+                  <li>✓ <strong>Tech Innovation:</strong> First to implement VR therapy for memory care</li>
+                  <li>✓ <strong>Resort Amenities:</strong> Private movie theaters, spa services standard</li>
+                  <li>✓ <strong>Financial Strength:</strong> $750M annual revenue, $344M recent expansion</li>
+                </ul>
+              </div>
+              
+              <div className="bg-gradient-to-r from-amber-600/30 to-orange-600/30 rounded-lg p-3 border border-amber-500/50">
+                <p className="text-amber-100 text-xs text-center">
+                  <strong>Industry Context:</strong> While Brookdale (#1) is the largest with 50,000+ units and Discovery (#2) has 33,692 units, 
+                  Oakmont leads in luxury West Coast markets with unmatched resort-style amenities and culinary programs.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Oakmont Market Insights Box */}
           <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
