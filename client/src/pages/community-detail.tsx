@@ -1099,14 +1099,55 @@ export const HeroPhotoCarousel = ({
     
     const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder' }[] = [];
     
-    // Add database photos first
+    // Stock photo patterns to identify and limit
+    const stockPhotoPatterns = [
+      'unsplash.com',
+      'pixabay.com',
+      'pexels.com',
+      'freepik.com',
+      'shutterstock.com',
+      'istockphoto.com',
+      'gettyimages.com',
+      'stockvault.net',
+      'freeimages.com',
+      'burst.shopify.com'
+    ];
+    
+    const isStockPhoto = (url: string) => {
+      return stockPhotoPatterns.some(pattern => url.toLowerCase().includes(pattern));
+    };
+    
+    // Add database photos - but limit stock photos to just ONE
     if (community?.photos && community.photos.length > 0) {
       console.log(`📸 Found ${community.photos.length} database photos`);
-      const dbPhotos = community.photos.map((photo: any) => ({
-        url: typeof photo === 'string' ? photo : photo.image_url || photo.url,
-        source: 'database' as const
-      }));
-      allPhotos.push(...dbPhotos);
+      
+      const stockPhotos: any[] = [];
+      const realPhotos: any[] = [];
+      
+      // Separate stock photos from real photos
+      community.photos.forEach((photo: any) => {
+        const photoUrl = typeof photo === 'string' ? photo : photo.image_url || photo.url;
+        if (isStockPhoto(photoUrl)) {
+          stockPhotos.push({
+            url: photoUrl,
+            source: 'database' as const
+          });
+        } else {
+          realPhotos.push({
+            url: photoUrl,
+            source: 'database' as const
+          });
+        }
+      });
+      
+      // Add all real photos
+      allPhotos.push(...realPhotos);
+      
+      // Add only ONE stock photo maximum
+      if (stockPhotos.length > 0) {
+        console.log(`🖼️ Limiting stock photos: found ${stockPhotos.length}, using only 1`);
+        allPhotos.push(stockPhotos[0]);
+      }
     }
     
     // Add live web intelligence photos when they arrive - check all possible paths
@@ -2914,35 +2955,90 @@ export default function CommunityDetail() {
                               </Button>
                             </div>
                           ) : (
-                            /* Default estimated pricing */
+                            /* Default estimated pricing with enhanced display */
                             [
-                              { type: 'Studio', price: '$2,500-3,500', features: '400-600 sq ft' },
-                              { type: 'One Bedroom', price: '$3,000-4,500', features: '600-800 sq ft' },
-                              { type: 'Two Bedroom', price: '$4,000-6,000', features: '800-1200 sq ft' }
+                              { 
+                                type: 'Studio', 
+                                price: verificationReport?.verificationResults?.pricing?.studio || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : '$2,500-3,500'),
+                                features: '400-600 sq ft',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=400&fit=crop',
+                                amenities: ['Kitchenette', 'Private Bath', 'Emergency Call System']
+                              },
+                              { 
+                                type: 'One Bedroom', 
+                                price: verificationReport?.verificationResults?.pricing?.oneBedroom || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : '$3,000-4,500'),
+                                features: '600-800 sq ft',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1565183997392-2f6f122e5912?w=600&h=400&fit=crop', 
+                                amenities: ['Full Kitchen', 'Living Area', 'Walk-in Closet']
+                              },
+                              { 
+                                type: 'Two Bedroom', 
+                                price: verificationReport?.verificationResults?.pricing?.twoBedroom || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : '$4,000-6,000'),
+                                features: '800-1200 sq ft',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1600607687644-aac4c3eac7f4?w=600&h=400&fit=crop',
+                                amenities: ['Full Kitchen', '2 Bathrooms', 'Washer/Dryer Hookups']
+                              }
                             ].map((unit) => (
-                              <div key={unit.type} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                                <div className="mb-3">
-                                  <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
-                                    {unit.type}
-                                  </h4>
-                                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                                    {unit.features}
-                                  </p>
+                              <div key={unit.type} className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                                {/* Floor Plan Image */}
+                                <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                                  <img 
+                                    src={unit.floorPlanImage} 
+                                    alt={`${unit.type} floor plan`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                    Floor Plan
+                                  </div>
                                 </div>
-                                <div className="mb-4">
-                                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                    {unit.price}
-                                  </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    per month (estimated)
-                                  </p>
+                                
+                                <div className="p-4">
+                                  <div className="mb-3">
+                                    <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                      {unit.type}
+                                    </h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      {unit.features}
+                                    </p>
+                                  </div>
+                                  
+                                  {/* Amenities */}
+                                  <div className="mb-3">
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Includes:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {unit.amenities.map((amenity, idx) => (
+                                        <Badge key={idx} variant="secondary" className="text-xs">
+                                          {amenity}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Pricing with clear "Estimated" label */}
+                                  <div className="mb-4">
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                                      Estimated Monthly Cost
+                                    </p>
+                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                      {unit.price}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                      {verificationReport?.verificationResults?.pricing ? 
+                                        'AI-verified pricing' : 
+                                        'Market estimate - contact for exact pricing'}
+                                    </p>
+                                  </div>
+                                  
+                                  <Button 
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                    onClick={() => setShowReservationDialog(true)}
+                                  >
+                                    Reserve Unit
+                                  </Button>
                                 </div>
-                                <Button 
-                                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                                  onClick={() => setShowReservationDialog(true)}
-                                >
-                                  Reserve Unit
-                                </Button>
                               </div>
                             ))
                           )}
