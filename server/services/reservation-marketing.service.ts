@@ -135,6 +135,13 @@ export class ReservationMarketingService {
               </div>
               ` : ''}
               
+              ${(request as any).lengthOfStay ? `
+              <div class="info-row">
+                <div class="info-label">Length of Stay:</div>
+                <div class="info-value"><span class="highlight">${this.formatLengthOfStay((request as any).lengthOfStay)}</span></div>
+              </div>
+              ` : ''}
+              
               ${request.unitType ? `
               <div class="info-row">
                 <div class="info-label">Unit Type:</div>
@@ -226,6 +233,7 @@ Reservation Details:
 - Deposit: $${request.depositAmount}
 - Payment: ${request.paymentTerms}
 ${request.moveInDate ? `- Move-in Date: ${request.moveInDate}` : ''}
+${(request as any).lengthOfStay ? `- Length of Stay: ${this.formatLengthOfStay((request as any).lengthOfStay)}` : ''}
 ${request.unitType ? `- Unit Type: ${request.unitType}` : ''}
 ${request.budget ? `- Budget: ${request.budget}` : ''}
 
@@ -257,6 +265,7 @@ Contact them immediately to convert this opportunity!
         <p><strong>Phone:</strong> ${request.userPhone || 'Not provided'}</p>
         <hr>
         <p><strong>Move-in Date:</strong> ${request.moveInDate || 'Flexible'}</p>
+        <p><strong>Length of Stay:</strong> ${(request as any).lengthOfStay ? this.formatLengthOfStay((request as any).lengthOfStay) : 'Not specified'}</p>
         <p><strong>Unit Type:</strong> ${request.unitType || 'Any available'}</p>
         <p><strong>Budget:</strong> ${request.budget || 'Not specified'}</p>
         <p><strong>Care Needs:</strong> ${request.careNeeds || 'Not specified'}</p>
@@ -398,6 +407,23 @@ Thank you for using MySeniorValet!`
     };
     
     return sgMail.send(msg);
+  }
+  
+  /**
+   * Format length of stay for display
+   */
+  private formatLengthOfStay(lengthOfStay: string): string {
+    const formats: Record<string, string> = {
+      '2-weeks': '2 Week Trial',
+      '1-month': '1 Month Trial',
+      '3-months': '3 Months (Standard)',
+      '6-months': '6 Months',
+      '1-year': '1 Year',
+      'permanent': 'Permanent Residency',
+      'flexible': 'Flexible/To Be Discussed'
+    };
+    
+    return formats[lengthOfStay] || lengthOfStay;
   }
 }
 

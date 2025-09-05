@@ -14,6 +14,7 @@ router.post('/submit', async (req: Request, res: Response) => {
       communityName,
       unitType,
       moveInDate,
+      lengthOfStay,
       careNeeds,
       budget,
       additionalNotes,
@@ -58,6 +59,7 @@ router.post('/submit', async (req: Request, res: Response) => {
       
       unitType,
       moveInDate,
+      lengthOfStay,
       careNeeds,
       budget,
       additionalNotes,

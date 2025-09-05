@@ -20,6 +20,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
   const [reservationForm, setReservationForm] = useState({
     unitType: '',
     moveInDate: '',
+    lengthOfStay: '',
     careNeeds: '',
     budget: '',
     additionalNotes: ''
@@ -32,6 +33,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
       const response = await fetch('/api/reservations/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include credentials for authentication
         body: JSON.stringify({
           communityId: community.id,
           communityName: community.name,
@@ -54,6 +56,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
         setReservationForm({
           unitType: '',
           moveInDate: '',
+          lengthOfStay: '',
           careNeeds: '',
           budget: '',
           additionalNotes: ''
@@ -118,6 +121,24 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
                 onChange={(e) => setReservationForm({...reservationForm, moveInDate: e.target.value})}
                 min={new Date().toISOString().split('T')[0]}
               />
+            </div>
+            
+            <div>
+              <Label htmlFor="lengthOfStay">Length of Stay</Label>
+              <Select value={reservationForm.lengthOfStay} onValueChange={(value) => setReservationForm({...reservationForm, lengthOfStay: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select length of stay" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2-weeks">2 Week Trial</SelectItem>
+                  <SelectItem value="1-month">1 Month Trial</SelectItem>
+                  <SelectItem value="3-months">3 Months (Standard)</SelectItem>
+                  <SelectItem value="6-months">6 Months</SelectItem>
+                  <SelectItem value="1-year">1 Year</SelectItem>
+                  <SelectItem value="permanent">Permanent Residency</SelectItem>
+                  <SelectItem value="flexible">Flexible/To Be Discussed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div>
