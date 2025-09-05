@@ -227,9 +227,35 @@ export class ComprehensiveSearchEngine {
         console.log(`🔍 Added company search conditions for "${normalizedQuery}"`);
       }
       
-      // CRITICAL FIX: Always search by community name to find specific communities
-      // This ensures searches like "Hilltop Estates" always work
-      const nameSearchCondition = ilike(communities.name, `%${normalizedQuery}%`);
+      // ENHANCED NAME SEARCH: Always prioritize community name searches
+      // This ensures partial matches like "Hilltop" find "Hilltop Estates"
+      const nameConditions = [];
+      
+      // 1. Exact match (highest priority)
+      nameConditions.push(ilike(communities.name, normalizedQuery));
+      
+      // 2. Starts with (high priority for partial searches)
+      nameConditions.push(ilike(communities.name, `${normalizedQuery}%`));
+      
+      // 3. Contains (catches all partial matches)
+      nameConditions.push(ilike(communities.name, `%${normalizedQuery}%`));
+      
+      // 4. Word boundary matching (for multi-word searches)
+      const queryWords = normalizedQuery.split(/\s+/);
+      if (queryWords.length > 1) {
+        // Match any community that contains all words (in any order)
+        const wordConditions = queryWords.map(word => 
+          ilike(communities.name, `%${word}%`)
+        );
+        nameConditions.push(and(...wordConditions));
+      } else if (queryWords.length === 1 && queryWords[0].length >= 3) {
+        // Single word search - also check if it's part of a word
+        // This helps "hill" find "Hilltop"
+        nameConditions.push(ilike(communities.name, `%${queryWords[0]}%`));
+      }
+      
+      // Always add name search as a primary condition with OR
+      const nameSearchCondition = or(...nameConditions);
       
       // If no specific intent detected strongly AND not a country search, use general search
       // BUT don't add general search if we already added location conditions
@@ -237,7 +263,7 @@ export class ComprehensiveSearchEngine {
       const hasCompanyConditions = intentScores.company > 0.3;
       
       if (!hasCompanyConditions) {
-        // Always include name search unless we already added it via company search
+        // Always include name search as primary search method
         if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
           // Full general search for low-intent queries
           conditions.push(
@@ -249,11 +275,11 @@ export class ComprehensiveSearchEngine {
               ilike(communities.address, `%${normalizedQuery}%`)
             )
           );
-          console.log(`🔍 Added general search conditions for "${normalizedQuery}"`);
+          console.log(`🔍 Added comprehensive general search conditions for "${normalizedQuery}"`);
         } else {
           // For high-intent queries, still add name search to ensure we find specific communities
           conditions.push(nameSearchCondition);
-          console.log(`🔍 Added name search condition for "${normalizedQuery}" to ensure specific communities are found`);
+          console.log(`🔍 Added enhanced name search conditions for "${normalizedQuery}" with partial matching`);
         }
       }
       
@@ -709,12 +735,48 @@ export class ComprehensiveSearchEngine {
   }
   
   private applySorting(query: any, searchType: string, searchQuery: string) {
+    // Normalize the search query for comparison
+    const normalizedSearch = searchQuery?.toLowerCase().trim() || '';
+    
+    // Enhanced sorting that prioritizes exact and prefix matches
+    if (normalizedSearch && searchType !== 'price') {
+      // Add relevance scoring based on how well the name matches the search
+      return query.orderBy(sql`
+        CASE 
+          -- Exact match (highest priority)
+          WHEN LOWER(${communities.name}) = LOWER(${normalizedSearch}) THEN 1
+          -- Starts with exact query (very high priority)
+          WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedSearch}) || '%' THEN 2
+          -- Contains the query as a whole word (high priority)
+          WHEN LOWER(${communities.name}) LIKE '% ' || LOWER(${normalizedSearch}) || '%' THEN 3
+          -- Contains the query anywhere (medium priority)
+          WHEN LOWER(${communities.name}) LIKE '%' || LOWER(${normalizedSearch}) || '%' THEN 4
+          -- Everything else (low priority)
+          ELSE 5
+        END,
+        -- Secondary sort by rating
+        ${communities.rating} DESC NULLS LAST,
+        -- Tertiary sort by name length (shorter names usually more relevant)
+        LENGTH(${communities.name}) ASC,
+        -- Final sort alphabetically
+        ${communities.name} ASC
+      `);
+    }
+    
+    // Default sorting for specific search types
     switch (searchType) {
       case 'price':
         // Order by price when price search is detected (numeric column)
         return query.orderBy(sql`COALESCE(${communities.rentPerMonth}, 999999) ASC`);
       case 'company':
-        return query.orderBy(asc(communities.name));
+        return query.orderBy(sql`
+          CASE 
+            WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedSearch}) || '%' THEN 1
+            WHEN LOWER(${communities.managementCompany}) LIKE LOWER(${normalizedSearch}) || '%' THEN 2
+            ELSE 3
+          END,
+          ${communities.name} ASC
+        `);
       case 'location':
         return query.orderBy(desc(communities.rating), asc(communities.city));
       case 'careType':
