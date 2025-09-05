@@ -256,8 +256,8 @@ export function CommunityDetailsHeader({
             </div>
             
             {/* Community Details - Full width minus price box */}
-            <div className="pr-0 md:pr-64">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3">
+            <div className="pr-0 md:pr-52 lg:pr-64">
+              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3 break-words">
                 {community.name}
               </h1>
               
@@ -268,13 +268,41 @@ export function CommunityDetailsHeader({
                 </span>
               </div>
               
-              <div className="flex flex-wrap gap-4">
+              {/* Contact Information Section */}
+              <div className="space-y-3 mb-4">
+                {/* Phone */}
+                <div className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                  <a 
+                    href={`tel:${displayPhone}`}
+                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                  >
+                    {displayPhone}
+                  </a>
+                </div>
+                
+                {/* Website */}
+                {displayWebsite && (
+                  <div className="flex items-center gap-3">
+                    <Globe className="w-5 h-5 text-purple-500 flex-shrink-0" />
+                    <ExternalLinkWarning
+                      href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium truncate max-w-xs sm:max-w-sm"
+                    >
+                      {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                    </ExternalLinkWarning>
+                  </div>
+                )}
+              </div>
+              
+              {/* Action Buttons for Contact */}
+              <div className="flex flex-wrap gap-3">
                 <a 
                   href={`tel:${displayPhone}`}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <Phone className="w-4 h-4" />
-                  <span className="font-medium">{displayPhone}</span>
+                  <span className="font-medium">Call Now</span>
                 </a>
                 
                 {displayWebsite && (
