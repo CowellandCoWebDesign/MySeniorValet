@@ -377,7 +377,7 @@ export function CommunityDetailsHeader({
               </div>
               
               {/* Why Featured and Key Services - Side by Side */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4">
                 {/* Why Featured */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
@@ -385,7 +385,7 @@ export function CommunityDetailsHeader({
                     Why Featured
                   </h3>
                   <div className="space-y-2">
-                    {getWhyFeatured().map((reason: string, idx: number) => (
+                    {getWhyFeatured().slice(0, 3).map((reason: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
                         <Star className="w-4 h-4 text-amber-500 flex-shrink-0" />
                         <span className="text-xs text-gray-600 dark:text-gray-400">{reason}</span>
@@ -401,7 +401,7 @@ export function CommunityDetailsHeader({
                     Key Services
                   </h3>
                   <div className="space-y-2">
-                    {getKeyServices().map((service, idx) => (
+                    {getKeyServices().slice(0, 3).map((service, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         {service.available ? (
                           <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
