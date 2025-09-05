@@ -118,6 +118,22 @@ router.post("/schedule", async (req, res) => {
           
           <p>The community will contact you within 24-48 hours to confirm your tour.</p>
           
+          <div style="background: #E0E7FF; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4F46E5;">
+            <p style="color: #312E81; margin: 0 0 10px 0;"><strong>📍 Track Your Tour Journey!</strong></p>
+            <p style="color: #312E81; margin: 0 0 10px 0;">Use our Tour Tracker™ to:</p>
+            <ul style="margin: 5px 0 10px 20px; color: #312E81;">
+              <li>View all your scheduled tours</li>
+              <li>Get reminders before your visit</li>
+              <li>Take notes and photos during your tour</li>
+              <li>Rate and review your experience</li>
+              <li>Share insights with family members</li>
+            </ul>
+            <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+               style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
+              Access Tour Tracker™
+            </a>
+          </div>
+          
           <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="color: #92400E; margin: 0;"><strong>Need to reschedule?</strong> Please reference your confirmation code when contacting the community.</p>
           </div>
@@ -163,6 +179,21 @@ router.post("/schedule", async (req, res) => {
             
             <div style="background: #DBEAFE; padding: 15px; border-radius: 8px; margin: 20px 0;">
               <p style="color: #1E40AF; margin: 0;"><strong>Action Required:</strong> Please contact this family within 24-48 hours to confirm their tour.</p>
+            </div>
+            
+            <div style="background: #F0FDF4; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981;">
+              <p style="color: #064E3B; margin: 0 0 10px 0;"><strong>💼 Community Dashboard Available</strong></p>
+              <p style="color: #064E3B; margin: 0 0 10px 0;">Track and manage all your tours in one place:</p>
+              <ul style="margin: 5px 0 10px 20px; color: #064E3B;">
+                <li>View upcoming scheduled tours</li>
+                <li>Update tour status and add notes</li>
+                <li>Track visitor engagement metrics</li>
+                <li>Export tour data for reporting</li>
+              </ul>
+              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/admin-mega-dashboard" 
+                 style="display: inline-block; background: #10B981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
+                Access Community Dashboard
+              </a>
             </div>
             
             <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
@@ -335,6 +366,22 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
             </div>
             
             ${communityResponse ? `<p><strong>Message from the community:</strong> ${communityResponse}</p>` : ''}
+            
+            <div style="background: #E0E7FF; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4F46E5;">
+              <p style="color: #312E81; margin: 0 0 10px 0;"><strong>🎯 Make the Most of Your Visit!</strong></p>
+              <p style="color: #312E81; margin: 0 0 10px 0;">Use Tour Tracker™ during and after your tour to:</p>
+              <ul style="margin: 5px 0 10px 20px; color: #312E81;">
+                <li>Take photos and notes during your visit</li>
+                <li>Rate different aspects (dining, activities, staff)</li>
+                <li>Compare communities side-by-side</li>
+                <li>Share your experience with family members</li>
+                <li>Create a decision journal for your search</li>
+              </ul>
+              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+                 style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
+                Open Tour Tracker™
+              </a>
+            </div>
             
             <p>We look forward to seeing you!</p>
           </div>
