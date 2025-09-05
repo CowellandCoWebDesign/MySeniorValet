@@ -88,6 +88,9 @@ export function TourScheduler({
     return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
+  const [tourType, setTourType] = useState('in-person');
+  const [contactPreference, setContactPreference] = useState('email');
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -95,17 +98,21 @@ export function TourScheduler({
     const tourTime = formData.get('tourTime') as string;
     const formattedTime = tourTime ? convertTo12HourFormat(tourTime) : '10:00 AM';
     
-    scheduleTourMutation.mutate({
+    const submitData = {
       communityId,
       preferredDate: formData.get('tourDate'),
       preferredTime: formattedTime,
-      tourType: formData.get('tourType') || 'in-person',
+      tourType: tourType, // Use state value instead of formData
       partySize: parseInt(formData.get('attendeeCount') as string) || 1,
       contactName: formData.get('contactName'),
       contactEmail: formData.get('contactEmail'),
       contactPhone: formData.get('contactPhone'),
       specialRequests: formData.get('specialRequests'),
-    });
+      contactPreference: contactPreference // Use state value
+    };
+    
+    console.log('Submitting tour data:', submitData);
+    scheduleTourMutation.mutate(submitData);
   };
 
   // Get tomorrow's date as minimum
@@ -140,10 +147,10 @@ export function TourScheduler({
           </DialogHeader>
           
           {!hasEmail && (
-            <Alert className="mt-4 border-blue-200 bg-blue-50">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
-              <AlertTitle className="text-blue-900">Platform-Facilitated Tour</AlertTitle>
-              <AlertDescription className="text-blue-800 mt-2">
+            <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700">
+              <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <AlertTitle className="text-blue-900 dark:text-blue-200">Platform-Facilitated Tour</AlertTitle>
+              <AlertDescription className="text-blue-800 dark:text-blue-300 mt-2">
                 <p className="text-sm">
                   This community hasn't claimed their listing yet, but don't worry! 
                   MySeniorValet will facilitate your tour request and ensure the community receives your information.
@@ -180,12 +187,12 @@ export function TourScheduler({
 
               <div>
                 <Label htmlFor="tourType">Tour Type</Label>
-                <Select name="tourType" defaultValue="in_person">
-                  <SelectTrigger>
+                <Select value={tourType} onValueChange={setTourType}>
+                  <SelectTrigger id="tourType">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="in_person">In Person</SelectItem>
+                    <SelectItem value="in-person">In Person</SelectItem>
                     <SelectItem value="virtual">Virtual</SelectItem>
                     <SelectItem value="group">Group Tour</SelectItem>
                     <SelectItem value="private">Private Tour</SelectItem>
@@ -242,8 +249,8 @@ export function TourScheduler({
 
               <div>
                 <Label htmlFor="contactPreference">Preferred Contact Method</Label>
-                <Select name="contactPreference" defaultValue="email">
-                  <SelectTrigger>
+                <Select value={contactPreference} onValueChange={setContactPreference}>
+                  <SelectTrigger id="contactPreference">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -264,17 +271,17 @@ export function TourScheduler({
                 />
               </div>
 
-              <Card className="bg-blue-50 border-blue-200">
+              <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
                 <CardContent className="pt-4">
-                  <h4 className="font-semibold text-sm mb-2">What to Expect:</h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                  <h4 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">What to Expect:</h4>
+                  <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                     <li>• Tour of facilities and available rooms</li>
                     <li>• Meet with community staff</li>
                     <li>• Learn about services and amenities</li>
                     <li>• Discuss pricing and availability</li>
                   </ul>
                   {!isAuthenticated && (
-                    <p className="text-xs text-gray-500 mt-3 border-t pt-2">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 border-t border-gray-200 dark:border-gray-600 pt-2">
                       💡 Tip: Create a free account after scheduling to track all your tours!
                     </p>
                   )}
@@ -301,21 +308,21 @@ export function TourScheduler({
             <DialogTitle className="text-green-600">✅ Tour Successfully Scheduled!</DialogTitle>
             <DialogDescription>
               <div className="space-y-4 mt-4">
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <p className="text-sm text-green-800">
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                  <p className="text-sm text-green-800 dark:text-green-200">
                     <strong>Confirmation Code:</strong> {confirmationCode}
                   </p>
-                  <p className="text-sm text-green-800 mt-2">
+                  <p className="text-sm text-green-800 dark:text-green-200 mt-2">
                     We've sent confirmation details to your email.
                   </p>
                 </div>
                 
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <h4 className="font-semibold text-blue-900 mb-2">🎯 Want to Track Your Tours?</h4>
-                  <p className="text-sm text-blue-800 mb-3">
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">🎯 Want to Track Your Tours?</h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
                     Create a free account to:
                   </p>
-                  <ul className="text-sm text-blue-800 space-y-1 mb-4">
+                  <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 mb-4">
                     <li>• Track all your scheduled tours in one place</li>
                     <li>• Get reminders before your visits</li>
                     <li>• Take notes and photos during tours</li>
