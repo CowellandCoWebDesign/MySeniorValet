@@ -48,15 +48,42 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
         if (confirmed) {
           window.location.href = '/api/login';
         }
+        setIsSubmitting(false);
         return;
       }
       
-      const data = await response.json();
+      // Parse the response
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        console.error('Failed to parse response:', parseError);
+        // If we can't parse the response but got a 200, assume success
+        if (response.ok) {
+          alert(`Success! Your reservation at ${community.name} has been submitted. The community will contact you within 24-48 hours.`);
+          onOpenChange(false);
+          setReservationForm({
+            unitType: '',
+            moveInDate: '',
+            lengthOfStay: '',
+            careNeeds: '',
+            budget: '',
+            additionalNotes: ''
+          });
+        } else {
+          alert('Failed to submit reservation. Please try again.');
+        }
+        setIsSubmitting(false);
+        return;
+      }
       
-      if (!response.ok) {
-        alert(data.error || 'Failed to submit reservation');
-      } else {
-        alert(`Success! Your reservation at ${community.name} has been submitted. The community will contact you within 24-48 hours.`);
+      if (response.ok && data.success) {
+        // Success - show confirmation message
+        const message = data.message || `Success! Your reservation at ${community.name} has been submitted.`;
+        const nextSteps = data.details?.nextSteps || 'The community will contact you within 24-48 hours.';
+        alert(`${message}\n\n${nextSteps}`);
+        
+        // Close dialog and reset form
         onOpenChange(false);
         setReservationForm({
           unitType: '',
@@ -66,6 +93,9 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
           budget: '',
           additionalNotes: ''
         });
+      } else {
+        // Error from server
+        alert(data.error || 'Failed to submit reservation. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting reservation:', error);
