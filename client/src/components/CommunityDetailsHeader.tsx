@@ -324,16 +324,24 @@ export function CommunityDetailsHeader({
               <button
                 onClick={() => {
                   // Open the availability tab - find and click the tab trigger
-                  const availabilityTab = document.querySelector('button[value="availability"]');
+                  const availabilityTab = document.querySelector('[role="tab"][data-value="availability"]') as HTMLElement;
                   if (availabilityTab) {
-                    (availabilityTab as HTMLElement).click();
-                    // Give time for tab to activate then scroll to it
+                    availabilityTab.click();
+                    // Give time for tab to activate then scroll to the tabs section
                     setTimeout(() => {
-                      const availabilityContent = document.querySelector('[data-state="active"][value="availability"]');
-                      if (availabilityContent) {
-                        availabilityContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      // Scroll to the tabs container
+                      const tabsContainer = availabilityTab.closest('[role="tablist"]')?.parentElement;
+                      if (tabsContainer) {
+                        tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }
-                    }, 200);
+                      // Also ensure the content is visible
+                      const availabilityContent = document.querySelector('[role="tabpanel"][data-value="availability"]');
+                      if (availabilityContent) {
+                        setTimeout(() => {
+                          availabilityContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 300);
+                      }
+                    }, 100);
                   }
                 }}
                 className="w-full py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
@@ -345,16 +353,24 @@ export function CommunityDetailsHeader({
               <button
                 onClick={() => {
                   // Open the tours tab - find and click the tab trigger
-                  const toursTab = document.querySelector('button[value="tours"]');
+                  const toursTab = document.querySelector('[role="tab"][data-value="tours"]') as HTMLElement;
                   if (toursTab) {
-                    (toursTab as HTMLElement).click();
-                    // Give time for tab to activate then scroll to it
+                    toursTab.click();
+                    // Give time for tab to activate then scroll to the tabs section
                     setTimeout(() => {
-                      const toursContent = document.querySelector('[data-state="active"][value="tours"]');
-                      if (toursContent) {
-                        toursContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      // Scroll to the tabs container
+                      const tabsContainer = toursTab.closest('[role="tablist"]')?.parentElement;
+                      if (tabsContainer) {
+                        tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                       }
-                    }, 200);
+                      // Also ensure the content is visible
+                      const toursContent = document.querySelector('[role="tabpanel"][data-value="tours"]');
+                      if (toursContent) {
+                        setTimeout(() => {
+                          toursContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 300);
+                      }
+                    }, 100);
                   }
                 }}
                 className="w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200 flex items-center justify-center gap-3"
