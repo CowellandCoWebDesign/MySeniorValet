@@ -42,6 +42,14 @@ router.post('/submit', async (req: Request, res: Response) => {
     const userEmail = user?.email || user?.claims?.email;
     const userPhone = user?.phone || user?.claims?.phone || '';
     
+    // Validate user email
+    if (!userEmail) {
+      console.error('❌ No user email found in session:', user);
+      return res.status(400).json({ 
+        error: 'Unable to retrieve your email address. Please ensure you are logged in with an account that has a valid email.' 
+      });
+    }
+    
     // Fetch community details from database
     const [community] = await db
       .select()

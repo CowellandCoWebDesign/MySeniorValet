@@ -75,7 +75,7 @@ import paymentTestRoutes from "./payment-test-routes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
-import reservationRoutes from "./reservations";
+import reservationRoutes from "./reservationRoutes";
 import financialRoutes from "./financial-api";
 import { registerLegalRoutes } from "./legal-api";
 import seniorServicesRoutes from "./senior-services";

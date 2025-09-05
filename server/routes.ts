@@ -12,7 +12,7 @@ import { registerRoutes as registerModularRoutes } from "./routes/index";
 // Import remaining services needed for middleware and specific routes
 import { setupAuth } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
-import reservationRoutes from "./routes/reservations";
+import reservationRoutes from "./routes/reservationRoutes";
 import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
