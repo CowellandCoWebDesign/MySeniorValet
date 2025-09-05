@@ -738,7 +738,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 })()}
                 
                 {/* Show verified facts if available */}
-                {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
+                {localVerificationReport?.consensus?.verifiedFacts?.length > 0 ? (
+                  localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                       let factText = fact;
                       let isAddressCorrection = false;
                       let addressDetails = null;
@@ -851,7 +852,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                           </div>
                         </div>
                       );
-                    }).filter(Boolean)}
+                    }).filter(Boolean)
                 ) : (
                   // Show "searching" or "no data" message
                   <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -901,7 +902,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       </div>
                     )}
                   </div>
-                )} 
+                )}
 
                 {/* No specific information found */}
                 {(!localVerificationReport?.consensus?.verifiedFacts || 
