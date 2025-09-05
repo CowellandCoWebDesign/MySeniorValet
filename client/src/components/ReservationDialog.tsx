@@ -41,15 +41,20 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
         })
       });
       
+      // Check if response is ok before trying to parse JSON
+      if (response.status === 401) {
+        // User is not authenticated
+        const confirmed = confirm('You need to sign in to place a reservation. Would you like to sign in now?');
+        if (confirmed) {
+          window.location.href = '/api/login';
+        }
+        return;
+      }
+      
       const data = await response.json();
       
       if (!response.ok) {
-        if (response.status === 401) {
-          alert('Please sign in to place a reservation');
-          window.location.href = '/api/login';
-        } else {
-          alert(data.error || 'Failed to submit reservation');
-        }
+        alert(data.error || 'Failed to submit reservation');
       } else {
         alert(`Success! Your reservation at ${community.name} has been submitted. The community will contact you within 24-48 hours.`);
         onOpenChange(false);
@@ -64,7 +69,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
       }
     } catch (error) {
       console.error('Error submitting reservation:', error);
-      alert('Failed to submit reservation. Please try again.');
+      alert('Failed to submit reservation. Please check your internet connection and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -215,9 +220,10 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
             Cancel
           </Button>
           <Button 
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || !reservationForm.unitType || !reservationForm.moveInDate || !reservationForm.lengthOfStay || !reservationForm.budget}
+            title={!reservationForm.unitType || !reservationForm.moveInDate || !reservationForm.lengthOfStay || !reservationForm.budget ? 'Please fill in all required fields' : ''}
           >
             {isSubmitting ? (
               <>
