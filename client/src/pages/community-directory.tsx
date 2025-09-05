@@ -842,14 +842,29 @@ export default function CommunityDirectory() {
           {/* Discovery Communities Signature Slider */}
           {discoveryQuery.data?.communities?.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-cyan-300 mb-6">✨ Signature Discovery Communities</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {discoveryQuery.data.communities.slice(0, 8).map((community: any) => (
-                  <EnhancedCommunityCard
-                    key={community.id}
-                    community={community}
-                    isMapView={false}
-                  />
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-cyan-300">✨ Signature Discovery Communities</h3>
+                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 font-bold">
+                  {discoveryQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-cyan-500" style={{scrollBehavior: 'smooth'}}>
+                {discoveryQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -936,14 +951,29 @@ export default function CommunityDirectory() {
           {/* LCS Communities Signature Slider */}
           {lcsQuery.data?.communities?.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-green-300 mb-6">🏆 Award-Winning LCS Communities</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {lcsQuery.data.communities.slice(0, 8).map((community: any) => (
-                  <EnhancedCommunityCard
-                    key={community.id}
-                    community={community}
-                    isMapView={false}
-                  />
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-green-300">🏆 Award-Winning LCS Communities</h3>
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 font-bold">
+                  {lcsQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-green-500" style={{scrollBehavior: 'smooth'}}>
+                {lcsQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🥇 J.D. Power #1" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1030,14 +1060,29 @@ export default function CommunityDirectory() {
           {/* Atria Communities Signature Slider */}
           {atriaQuery.data?.communities?.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-purple-300 mb-6">💎 Luxury Atria Communities</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {atriaQuery.data.communities.slice(0, 8).map((community: any) => (
-                  <EnhancedCommunityCard
-                    key={community.id}
-                    community={community}
-                    isMapView={false}
-                  />
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-purple-300">💎 Luxury Atria Communities</h3>
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 font-bold">
+                  {atriaQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500" style={{scrollBehavior: 'smooth'}}>
+                {atriaQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "💎 Luxury" : index === 1 ? "🌟 Hospitality" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1124,14 +1169,29 @@ export default function CommunityDirectory() {
           {/* Brookdale Communities Signature Slider */}
           {brookdaleQuery.data?.communities?.length > 0 && (
             <div className="mb-8">
-              <h3 className="text-2xl font-bold text-red-300 mb-6">🏢 Leading Brookdale Communities</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {brookdaleQuery.data.communities.slice(0, 8).map((community: any) => (
-                  <EnhancedCommunityCard
-                    key={community.id}
-                    community={community}
-                    isMapView={false}
-                  />
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-red-300">🏢 Leading Brookdale Communities</h3>
+                <Badge className="bg-gradient-to-r from-rose-500 to-red-500 text-white px-4 py-2 font-bold">
+                  {brookdaleQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-red-500" style={{scrollBehavior: 'smooth'}}>
+                {brookdaleQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🔴 Industry Leader" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>
@@ -1380,112 +1440,121 @@ export default function CommunityDirectory() {
             </div>
           </div>
 
-          {/* Excellence Showcase Header */}
-          <div className="mb-8 bg-gradient-to-r from-amber-900/60 to-orange-900/60 backdrop-blur-sm rounded-xl p-4 border border-amber-500/20">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-                  <Star className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">California Excellence Showcase</h3>
-                  <p className="text-sm text-gray-300">Premier Oakmont communities across the West Coast</p>
-                </div>
+          {/* Oakmont Communities Signature Slider */}
+          {oakmontQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                  {oakmontQuery.data.communities.length} Communities
+                </Badge>
               </div>
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 text-lg font-bold">
-                106 Communities
-              </Badge>
-            </div>
-          </div>
-
-          {/* Premium Communities Display */}
-          <div className="relative">
-            <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500 dark:scrollbar-thumb-amber-400" style={{scrollBehavior: 'smooth'}}>
-              {/* Featured Oakmont Communities */}
-              <div className="flex-shrink-0">
-                <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                  <div className="relative">
-                    <FeaturedExcellenceCard 
-                      community={{
-                        id: 75135,
-                        name: "Capriana at Brea",
-                        city: "Brea",
-                        state: "CA",
-                        address: "900 E Imperial Hwy",
-                        careTypes: ["Assisted Living", "Memory Care"],
-                        description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
-                        amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
-                        rating: 4.8,
-                        reviewCount: 45,
-                        badge: "🏆 Top Rated"
-                      }} 
-                      index={0} 
-                      compact 
-                    />
-                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
-                      Orange County
-                    </Badge>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
+                {oakmontQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "👑 Gold Standard" : index === 1 ? "🌟 Resort Style" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              <div className="flex-shrink-0">
-                <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                  <div className="relative">
-                    <FeaturedExcellenceCard 
-                      community={{
-                        id: 75125,
-                        name: "Ivy Park at Alta Loma",
-                        city: "Alta Loma",
-                        state: "CA",
-                        address: "9954 Foothill Blvd",
-                        careTypes: ["Assisted Living", "Memory Care"],
-                        description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
-                        amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
-                        rating: 4.7,
-                        reviewCount: 38,
-                        badge: "🌟 Mountain Views"
-                      }} 
-                      index={1} 
-                      compact 
-                    />
-                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
-                      San Bernardino
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-shrink-0">
-                <div className="relative group">
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                  <div className="relative">
-                    <FeaturedExcellenceCard 
-                      community={{
-                        id: 75128,
-                        name: "Ivy Park at Bonita",
-                        city: "Chula Vista",
-                        state: "CA",
-                        address: "3302 Bonita Rd",
-                        careTypes: ["Assisted Living", "Memory Care"],
-                        description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
-                        amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
-                        rating: 4.6,
-                        reviewCount: 42,
-                        badge: "🌴 San Diego"
-                      }} 
-                      index={2} 
-                      compact 
-                    />
-                    <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold shadow-lg">
-                      San Diego County
-                    </Badge>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
+          )}
+
+          {/* Keep Static Examples if no API data */}
+          {(!oakmontQuery.data || oakmontQuery.data.communities?.length === 0) && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                  106 Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                    <div className="relative">
+                      <FeaturedExcellenceCard 
+                        community={{
+                          id: 75135,
+                          name: "Capriana at Brea",
+                          city: "Brea",
+                          state: "CA",
+                          address: "900 E Imperial Hwy",
+                          careTypes: ["Assisted Living", "Memory Care"],
+                          description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
+                          amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
+                          rating: 4.8,
+                          badge: "👑 Gold Standard"
+                        }} 
+                        index={0} 
+                        compact 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                    <div className="relative">
+                      <FeaturedExcellenceCard 
+                        community={{
+                          id: 75125,
+                          name: "Ivy Park at Alta Loma",
+                          city: "Alta Loma",
+                          state: "CA",
+                          address: "9954 Foothill Blvd",
+                          careTypes: ["Assisted Living", "Memory Care"],
+                          description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
+                          amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
+                          rating: 4.7,
+                          badge: "🌟 Resort Style"
+                        }} 
+                        index={1} 
+                        compact 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                    <div className="relative">
+                      <FeaturedExcellenceCard 
+                        community={{
+                          id: 75128,
+                          name: "Ivy Park at Bonita",
+                          city: "Chula Vista",
+                          state: "CA",
+                          address: "3302 Bonita Rd",
+                          careTypes: ["Assisted Living", "Memory Care"],
+                          description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
+                          amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
+                          rating: 4.6,
+                          badge: "⭐ Featured"
+                        }} 
+                        index={2} 
+                        compact 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
             
             <div className="text-center mt-8">
               <Link href="/search?brand=Oakmont">
