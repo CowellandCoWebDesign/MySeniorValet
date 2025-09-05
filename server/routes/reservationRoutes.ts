@@ -25,13 +25,8 @@ router.post('/submit', async (req: Request, res: Response) => {
       phone
     } = req.body;
     
-    // Check if user is authenticated using custom auth session
+    // Get user session if authenticated (optional)
     const sessionUser = (req.session as any)?.user;
-    if (!sessionUser) {
-      return res.status(401).json({ 
-        error: 'You must be logged in to place a reservation. Please create an account or sign in.' 
-      });
-    }
     
     // Get user information from custom auth session
     console.log('🔐 User info from session:', { 
@@ -49,18 +44,18 @@ router.post('/submit', async (req: Request, res: Response) => {
       phone: phone || 'Not provided'
     });
     
-    // Get user info - prefer form data over session data since user may have updated it
+    // Get user info - require form data for all contact information
     const userName = name || (sessionUser?.firstName && sessionUser?.lastName 
       ? `${sessionUser.firstName} ${sessionUser.lastName}`
-      : sessionUser?.email?.split('@')[0] || 'Guest');
-    const userEmail = email || sessionUser?.email;
+      : '');
+    const userEmail = email || sessionUser?.email || '';
     const userPhone = phone || sessionUser?.phone || '';
     
-    // Validate user email
-    if (!userEmail) {
-      console.error('❌ No user email found in session:', sessionUser);
+    // Validate required contact information
+    if (!userName || !userEmail || !userPhone) {
+      console.error('❌ Missing required contact information');
       return res.status(400).json({ 
-        error: 'Unable to retrieve your email address. Please ensure you are logged in with an account that has a valid email.' 
+        error: 'Please provide all required contact information (name, email, and phone number).' 
       });
     }
     

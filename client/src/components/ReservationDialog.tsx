@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CreditCard, Check, Loader, Phone, Mail, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'wouter';
 
 interface ReservationDialogProps {
   open: boolean;
@@ -18,7 +19,9 @@ interface ReservationDialogProps {
 }
 
 export function ReservationDialog({ open, onOpenChange, community }: ReservationDialogProps) {
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [confirmationDetails, setConfirmationDetails] = useState<any>(null);
   
   const [reservationForm, setReservationForm] = useState({
     unitType: '',
@@ -73,11 +76,8 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
       
       // Check if response is ok before trying to parse JSON
       if (response.status === 401) {
-        // User is not authenticated
-        const confirmed = confirm('You need to sign in to place a reservation. Would you like to sign in now?');
-        if (confirmed) {
-          window.location.href = '/login';  // Changed to use the proper login page
-        }
+        // Should not happen now as we allow unauthenticated reservations
+        alert('An unexpected error occurred. Please try again.');
         setIsSubmitting(false);
         return;
       }
@@ -108,13 +108,26 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
       }
       
       if (response.ok && data.success) {
-        // Success - show confirmation message
-        const message = data.message || `Success! Your reservation at ${community.name} has been submitted.`;
-        const nextSteps = data.details?.nextSteps || 'The community will contact you within 24-48 hours.';
-        alert(`${message}\n\n${nextSteps}`);
-        
-        // Close dialog and reset form
+        // Success - close reservation dialog and show success dialog
         onOpenChange(false);
+        setConfirmationDetails({
+          message: data.message || `Success! Your reservation at ${community.name} has been submitted.`,
+          nextSteps: data.details?.nextSteps || 'The community will contact you within 24-48 hours.',
+          deposit: data.details?.deposit,
+          community: community.name
+        });
+        
+        if (!isAuthenticated) {
+          setShowSuccessDialog(true);
+        } else {
+          const details = {
+            message: data.message || `Success! Your reservation at ${community.name} has been submitted.`,
+            nextSteps: data.details?.nextSteps || 'The community will contact you within 24-48 hours.'
+          };
+          alert(`${details.message}\n\n${details.nextSteps}`);
+        }
+        
+        // Reset form
         setReservationForm({
           unitType: '',
           moveInDate: '',
@@ -141,6 +154,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
   };
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
@@ -173,7 +187,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
             </h4>
             <div className="space-y-3">
               <div>
-                <Label htmlFor="contactName">Full Name</Label>
+                <Label htmlFor="contactName">Full Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactName"
                   value={contactInfo.name}
@@ -185,7 +199,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
               <div>
                 <Label htmlFor="contactEmail">
                   <Mail className="h-4 w-4 inline mr-1" />
-                  Email Address
+                  Email Address <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="contactEmail"
@@ -199,7 +213,7 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
               <div>
                 <Label htmlFor="contactPhone">
                   <Phone className="h-4 w-4 inline mr-1" />
-                  Phone Number
+                  Phone Number <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="contactPhone"
@@ -338,8 +352,8 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
           <Button 
             className="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
             onClick={handleSubmit}
-            disabled={isSubmitting || !reservationForm.unitType || !reservationForm.moveInDate || !reservationForm.lengthOfStay || !reservationForm.budget}
-            title={!reservationForm.unitType || !reservationForm.moveInDate || !reservationForm.lengthOfStay || !reservationForm.budget ? 'Please fill in all required fields' : ''}
+            disabled={isSubmitting || !reservationForm.unitType || !reservationForm.moveInDate || !reservationForm.lengthOfStay || !reservationForm.budget || !contactInfo.name || !contactInfo.email || !contactInfo.phone}
+            title={!reservationForm.unitType || !reservationForm.moveInDate || !reservationForm.lengthOfStay || !reservationForm.budget || !contactInfo.name || !contactInfo.email || !contactInfo.phone ? 'Please fill in all required fields' : ''}
           >
             {isSubmitting ? (
               <>
@@ -356,5 +370,64 @@ export function ReservationDialog({ open, onOpenChange, community }: Reservation
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Success Dialog for Non-Authenticated Users */}
+    <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-green-600">✅ Reservation Successfully Submitted!</DialogTitle>
+          <DialogDescription>
+            <div className="space-y-4 mt-4">
+              <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+                <p className="text-sm text-green-800 font-semibold">
+                  {confirmationDetails?.community}
+                </p>
+                <p className="text-sm text-green-800 mt-2">
+                  {confirmationDetails?.message}
+                </p>
+                {confirmationDetails?.deposit && (
+                  <p className="text-sm text-green-800 mt-2">
+                    <strong>Deposit:</strong> ${confirmationDetails.deposit} (Pay at arrival)
+                  </p>
+                )}
+                <p className="text-sm text-green-800 mt-2">
+                  {confirmationDetails?.nextSteps}
+                </p>
+              </div>
+              
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <h4 className="font-semibold text-blue-900 mb-2">🎯 Want to Track Your Reservation?</h4>
+                <p className="text-sm text-blue-800 mb-3">
+                  Create a free account to:
+                </p>
+                <ul className="text-sm text-blue-800 space-y-1 mb-4">
+                  <li>• Track all your reservations and tours</li>
+                  <li>• Get priority status updates</li>
+                  <li>• Compare multiple communities</li>
+                  <li>• Share insights with family members</li>
+                  <li>• Access our Family Collaboration Center</li>
+                  <li>• Manage waitlist positions</li>
+                </ul>
+                
+                <div className="flex gap-2">
+                  <Link href="/api/login">
+                    <Button className="bg-blue-600 hover:bg-blue-700">
+                      Sign Up Free
+                    </Button>
+                  </Link>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowSuccessDialog(false)}
+                  >
+                    Maybe Later
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
