@@ -1057,13 +1057,15 @@ export const HeroPhotoCarousel = ({
   communityName, 
   communityId, 
   community,
-  verificationReport
+  verificationReport,
+  isVerifying = false
 }: { 
   photos: any[], 
   communityName: string, 
   communityId?: number,
   community?: Community,
-  verificationReport?: any
+  verificationReport?: any,
+  isVerifying?: boolean
 }) => {
   const [tours, setTours] = useState<any[]>([]);
   const [showTourModal, setShowTourModal] = useState(false);
@@ -1117,7 +1119,9 @@ export const HeroPhotoCarousel = ({
       return stockPhotoPatterns.some(pattern => url.toLowerCase().includes(pattern));
     };
     
-    // Add database photos - but limit stock photos to just ONE
+    let hasAddedStockPhoto = false; // Track if we've already added one stock photo
+    
+    // Add database photos - but limit stock photos to just ONE across all sources
     if (community?.photos && community.photos.length > 0) {
       console.log(`📸 Found ${community.photos.length} database photos`);
       
@@ -1143,10 +1147,11 @@ export const HeroPhotoCarousel = ({
       // Add all real photos
       allPhotos.push(...realPhotos);
       
-      // Add only ONE stock photo maximum
-      if (stockPhotos.length > 0) {
-        console.log(`🖼️ Limiting stock photos: found ${stockPhotos.length}, using only 1`);
+      // Add only ONE stock photo if we haven't already
+      if (stockPhotos.length > 0 && !hasAddedStockPhoto) {
+        console.log(`🖼️ Adding 1 stock photo from database (found ${stockPhotos.length})`);
         allPhotos.push(stockPhotos[0]);
+        hasAddedStockPhoto = true;
       }
     }
     
@@ -1167,12 +1172,37 @@ export const HeroPhotoCarousel = ({
     }
     
     if (webImages && webImages.length > 0) {
-      console.log(`🎯 Adding ${webImages.length} web intelligence photos to carousel`);
-      const webPhotos = webImages.map((img: any) => ({
-        url: typeof img === 'string' ? img : (img.image_url || img.url || img),
-        source: 'web' as const
-      }));
-      allPhotos.push(...webPhotos);
+      console.log(`🎯 Processing ${webImages.length} web intelligence photos`);
+      
+      // Separate web photos into stock and real
+      const webStockPhotos: any[] = [];
+      const webRealPhotos: any[] = [];
+      
+      webImages.forEach((img: any) => {
+        const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
+        const photoObj = {
+          url: photoUrl,
+          source: 'web' as const
+        };
+        
+        if (isStockPhoto(photoUrl)) {
+          webStockPhotos.push(photoObj);
+        } else {
+          webRealPhotos.push(photoObj);
+        }
+      });
+      
+      // Add all real web photos
+      allPhotos.push(...webRealPhotos);
+      
+      // Only add web stock photo if we haven't already added one
+      if (webStockPhotos.length > 0 && !hasAddedStockPhoto) {
+        console.log(`🖼️ Adding 1 stock photo from web (found ${webStockPhotos.length})`);
+        allPhotos.push(webStockPhotos[0]);
+        hasAddedStockPhoto = true;
+      } else if (webStockPhotos.length > 0) {
+        console.log(`🚫 Skipping ${webStockPhotos.length} web stock photos - already have 1`);
+      }
     }
     
     // Remove duplicates based on URL
@@ -1322,18 +1352,20 @@ export const HeroPhotoCarousel = ({
   // Check if we're still loading photos from web intelligence - check both possible paths
   const webImages = verificationReport?.webIntelligence?.images || 
                    verificationReport?.verificationResults?.webIntelligence?.images;
-  const isLoadingWebPhotos = false; // Photos load quickly enough that we don't need loading state
+  const isLoadingWebPhotos = isVerifying && !webImages; // Show loading if verification is in progress and no web images yet
   const hasNoRealPhotos = safePhotos.length === 0;
+  const showPhotoSearchMessage = isVerifying && safePhotos.length > 0; // Show message when we have some photos but still searching
   
   console.log('Photo loading state:', {
     isLoadingWebPhotos,
     hasNoRealPhotos,
     safePhotos,
-    verificationReport: !!verificationReport
+    verificationReport: !!verificationReport,
+    isVerifying
   });
 
   // Show The Thinker loading screen when no photos available or photos are loading
-  if (hasNoRealPhotos || isLoadingWebPhotos) {
+  if (hasNoRealPhotos && isLoadingWebPhotos) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
         <div className="scale-75 max-w-md">
@@ -1393,6 +1425,16 @@ export const HeroPhotoCarousel = ({
       >
       {/* Photo Carousel Container */}
       <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
+        {/* Photo Search Progress Indicator */}
+        {showPhotoSearchMessage && (
+          <div className="absolute top-2 left-2 right-2 z-20">
+            <div className="bg-black/70 text-white px-3 py-2 rounded-lg backdrop-blur-sm flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+              <span className="text-sm">Searching for more authentic photos...</span>
+            </div>
+          </div>
+        )}
+        
         <div className="w-full h-full overflow-hidden">
           <div 
             className="flex h-full"
@@ -1542,6 +1584,8 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
+  const [hasStartedVerification, setHasStartedVerification] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   // Store market analysis data to share with web intelligence
   const [marketAnalysisData, setMarketAnalysisData] = useState<any>(null);
   // Photos now stay in LiveWebIntelligence section only
@@ -1594,8 +1638,38 @@ export default function CommunityDetail() {
       setSelectedReservationUnit(null);
       setShowUpgradeModal(false);
       setUpgradeFeature('');
+      setHasStartedVerification(false);
+      setIsVerifying(false);
     }
   }, [id]);
+
+  // Trigger verification immediately when community loads
+  React.useEffect(() => {
+    if (community?.id && !hasStartedVerification && !verificationReport) {
+      console.log('🚀 Starting photo and data verification for community:', community.name);
+      setHasStartedVerification(true);
+      setIsVerifying(true);
+      
+      // Call verification endpoint
+      fetch(`/api/communities/${community.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ forceRefresh: false })
+      })
+      .then(res => res.json())
+      .then(report => {
+        console.log('✅ Verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
+        setVerificationReport(report);
+      })
+      .catch(error => {
+        console.error('❌ Verification error:', error);
+        setHasStartedVerification(false); // Allow retry on error
+      })
+      .finally(() => {
+        setIsVerifying(false);
+      });
+    }
+  }, [community?.id, hasStartedVerification, verificationReport]);
 
   // Navigate away if invalid ID (after all hooks have been called)
   React.useEffect(() => {
