@@ -241,53 +241,58 @@ export function CommunityDetailsHeader({
             <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
               {/* Community Details */}
               <div className="flex-1">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3">
-                  {community.name}
-                </h1>
-                
-                <div className="flex items-start gap-2 mb-3">
-                  <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <span className="text-gray-600 dark:text-gray-300">
-                    {enrichedContact?.address || community.address}, {community.city}, {community.state} {community.zipCode}
-                  </span>
-                </div>
-                
-                <div className="flex flex-wrap gap-4">
-                  <a 
-                    href={`tel:${displayPhone}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="font-medium">{displayPhone}</span>
-                  </a>
+                <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
+                  {/* Left: Name and Address */}
+                  <div className="flex-1">
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3">
+                      {community.name}
+                    </h1>
+                    
+                    <div className="flex items-start gap-2 mb-3">
+                      <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-gray-600 dark:text-gray-300">
+                        {enrichedContact?.address || community.address}, {community.city}, {community.state} {community.zipCode}
+                      </span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-4">
+                      <a 
+                        href={`tel:${displayPhone}`}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                      >
+                        <Phone className="w-4 h-4" />
+                        <span className="font-medium">{displayPhone}</span>
+                      </a>
+                      
+                      {displayWebsite && (
+                        <ExternalLinkWarning
+                          href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                        >
+                          <Globe className="w-4 h-4" />
+                          <span className="font-medium">Visit Website</span>
+                        </ExternalLinkWarning>
+                      )}
+                    </div>
+                  </div>
                   
-                  {displayWebsite && (
-                    <ExternalLinkWarning
-                      href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                      <Globe className="w-4 h-4" />
-                      <span className="font-medium">Visit Website</span>
-                    </ExternalLinkWarning>
-                  )}
+                  {/* Right: Premium Pricing Card - Now inline on desktop */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-5 border border-green-200 dark:border-green-800 shadow-lg lg:min-w-[250px]">
+                    <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Monthly Starting From</div>
+                    <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+                      {pricing.price}
+                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
+                      {pricing.verified ? "Per Month • Room & Board" : "Market Estimate"}
+                    </div>
+                    {pricing.verified && (
+                      <Badge className="mt-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        VERIFIED PRICING
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-              </div>
-              
-              {/* Premium Pricing Card */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-5 border border-green-200 dark:border-green-800 shadow-lg">
-                <div className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Monthly Starting From</div>
-                <div className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-2">
-                  {pricing.price}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {pricing.verified ? "Per Month • Room & Board" : "Market Estimate"}
-                </div>
-                {pricing.verified && (
-                  <Badge className="mt-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    VERIFIED PRICING
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
