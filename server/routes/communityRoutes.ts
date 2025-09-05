@@ -22,6 +22,7 @@ import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
 import { simpleEnrichmentService } from "../services/simple-enrichment-service";
+import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -71,7 +72,13 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(sql`CAST(${communities.rentPerMonth} AS DECIMAL) ASC`)
         .limit(8);
 
-      res.json(hudFeatured.map(community => eliminateCallForPricing(community)));
+      const enrichedHudFeatured = await Promise.all(
+        hudFeatured.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          return eliminateCallForPricing(enriched);
+        })
+      );
+      res.json(enrichedHudFeatured);
     } catch (error) {
       console.error("Error fetching HUD featured communities:", error);
       res.status(500).json({ error: "Failed to fetch HUD featured communities" });
@@ -88,7 +95,13 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
 
-      res.json(trending.map(community => eliminateCallForPricing(community)));
+      const enrichedTrending = await Promise.all(
+        trending.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          return eliminateCallForPricing(enriched);
+        })
+      );
+      res.json(enrichedTrending);
     } catch (error) {
       console.error("Error fetching trending communities:", error);
       res.status(500).json({ error: "Failed to fetch trending communities" });
@@ -176,7 +189,13 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(communities.rating))
         .limit(20);
 
-      res.json(coastal.map(community => eliminateCallForPricing(community)));
+      const enrichedCoastal = await Promise.all(
+        coastal.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          return eliminateCallForPricing(enriched);
+        })
+      );
+      res.json(enrichedCoastal);
     } catch (error) {
       console.error("Error fetching coastal communities:", error);
       res.status(500).json({ error: "Failed to fetch coastal communities" });
@@ -272,7 +291,14 @@ export function registerCommunityRoutes(app: Express) {
         .limit(parseInt(limit as string))
         .offset(parseInt(offset as string));
 
-      res.json(result);
+      // Enrich communities with stock photos if needed
+      const enrichedResults = await Promise.all(
+        result.map(async community => {
+          return await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+        })
+      );
+
+      res.json(enrichedResults);
     } catch (error) {
       console.error("Error fetching communities:", error);
       res.status(500).json({ error: "Failed to fetch communities" });
@@ -465,7 +491,14 @@ export function registerCommunityRoutes(app: Express) {
         locationCommunities = [...enhancedCommunities, ...remainingCommunities];
       }
 
-      res.json(locationCommunities.map(community => eliminateCallForPricing(community)));
+      // Enrich communities with stock photos if needed
+      const enrichedLocationCommunities = await Promise.all(
+        locationCommunities.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          return eliminateCallForPricing(enriched);
+        })
+      );
+      res.json(enrichedLocationCommunities);
     } catch (error) {
       console.error("Error fetching communities by location:", error);
       res.status(500).json({ error: "Failed to fetch communities by location" });
@@ -1417,10 +1450,16 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
 
+      // Enrich community photos if needed (but not if we have real-time photos)
+      let enrichedCommunity = community;
+      if (!realTimeData.photos || realTimeData.photos.length === 0) {
+        enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+      }
+      
       // Skip claimed community check for now - table doesn't exist
       
       res.json({
-        ...community,
+        ...enrichedCommunity,
         reviews: communityReviews,
         isClaimed: false,
         claimInfo: null,
