@@ -2099,21 +2099,24 @@ export default function CommunityDetail() {
                 setShowReservationDialog(true);
               }}
               onTourClick={() => {
-                // Navigate to tours tab and scroll
+                // Navigate to tours tab first
                 const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
                 if (toursTab) {
                   toursTab.click();
+                  // After tab switches, find and click the TourScheduler button
                   setTimeout(() => {
-                    const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
-                    if (tabsSection) {
-                      tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Find the TourScheduler button within the tour-scheduler-form div
+                    const tourSchedulerButton = document.querySelector('.tour-scheduler-form button') as HTMLElement;
+                    if (tourSchedulerButton) {
+                      tourSchedulerButton.click(); // This will open the dialog
+                    } else {
+                      // Fallback: scroll to the tours section
+                      const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
+                      if (tabsSection) {
+                        tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }
                     }
-                    // Also focus on the tour scheduler form
-                    const tourForm = document.querySelector('.tour-scheduler-form');
-                    if (tourForm) {
-                      tourForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }, 100);
+                  }, 200); // Give time for tab content to render
                 }
               }}
             />
@@ -2302,7 +2305,7 @@ export default function CommunityDetail() {
                         <TourScheduler
                           communityId={community.id}
                           communityName={community.name}
-                          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zip || ''}`.trim() : `${community.city}, ${community.state}`}
+                          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zipCode || ''}`.trim() : `${community.city}, ${community.state}`}
                           communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
                           buttonText="Schedule In-Person Tour"
                           buttonVariant="default"
