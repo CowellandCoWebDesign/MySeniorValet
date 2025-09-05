@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Clock, Users, MapPin, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, AlertCircle, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -93,13 +93,24 @@ export function TourScheduler({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!communityId) {
+      toast({
+        title: "Error",
+        description: "Community information is missing. Please refresh the page and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const formData = new FormData(e.currentTarget);
     
     const tourTime = formData.get('tourTime') as string;
     const formattedTime = tourTime ? convertTo12HourFormat(tourTime) : '10:00 AM';
     
     const submitData = {
-      communityId,
+      communityId: Number(communityId), // Ensure it's a number
+      communityName, // Add community name
       preferredDate: formData.get('tourDate'),
       preferredTime: formattedTime,
       tourType: tourType, // Use state value instead of formData
@@ -111,7 +122,7 @@ export function TourScheduler({
       contactPreference: contactPreference // Use state value
     };
     
-    console.log('Submitting tour data:', submitData);
+    console.log('Submitting tour data with communityId:', communityId, 'Full data:', submitData);
     scheduleTourMutation.mutate(submitData);
   };
 
@@ -293,8 +304,19 @@ export function TourScheduler({
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={scheduleTourMutation.isPending}>
-                {scheduleTourMutation.isPending ? 'Scheduling...' : 'Schedule Tour'}
+              <Button 
+                type="submit" 
+                disabled={scheduleTourMutation.isPending}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {scheduleTourMutation.isPending ? (
+                  <>
+                    <Loader className="h-4 w-4 mr-2 animate-spin" />
+                    Scheduling...
+                  </>
+                ) : (
+                  'Schedule Tour'
+                )}
               </Button>
             </div>
           </form>
