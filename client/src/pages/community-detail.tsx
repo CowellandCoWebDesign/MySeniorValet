@@ -2214,10 +2214,11 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-2">
                     <Home className="w-4 h-4 sm:w-5 sm:h-5" />
-                    <span className="text-xs sm:text-sm font-bold">Availability</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Reservations</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Reserve</span>
                   </div>
                   <span className="text-xs opacity-75 font-normal hidden sm:block">
-                    Units & Pricing
+                    Reservations & Pricing
                   </span>
                 </TabsTrigger>
                 <TabsTrigger 

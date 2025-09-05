@@ -223,19 +223,19 @@ export function CommunityDetailsHeader({
       <Card className="rounded-t-none rounded-b-xl shadow-xl border-0 bg-gradient-to-br from-gray-900 to-gray-800">
         <CardContent className="p-0">
         
-        {/* Community Info Section - Compact Card Style */}
-        <div className="bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-          {/* Header with Name and Location */}
-          <div className="p-6 pb-4">
-            {/* Community Name */}
-            <h2 className="text-2xl font-bold mb-2">
+        {/* Community Info Section - Clean Professional Style */}
+        <div className="bg-gradient-to-b from-slate-900 via-gray-900 to-slate-900">
+          <div className="p-6">
+            {/* Community Name - Prominent */}
+            <h1 className="text-3xl font-bold text-white mb-3">
               {community.name}
-            </h2>
+            </h1>
             
-            {/* Location with Rating and Pricing */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4">
-              <div className="flex items-center gap-1">
-                <MapPin className="w-4 h-4 text-gray-400" />
+            {/* Location and Rating Row */}
+            <div className="flex flex-wrap items-center gap-4 mb-6">
+              {/* Location */}
+              <div className="flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-blue-400" />
                 <span className="text-gray-300">
                   {community.city}, {community.state}
                 </span>
@@ -246,21 +246,20 @@ export function CommunityDetailsHeader({
                 {[...Array(5)].map((_, i) => (
                   <Star 
                     key={i} 
-                    className={`w-4 h-4 ${i < Math.floor(parseFloat(community.googleRating || '4.2')) ? 'text-yellow-400 fill-current' : 'text-gray-600'}`} 
+                    className={`w-4 h-4 ${i < Math.floor(parseFloat(community.googleRating || '4.2')) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-600'}`} 
                   />
                 ))}
                 <span className="ml-1 text-gray-300">({community.googleRating || '4.7'})</span>
               </div>
               
-              {/* Pricing Badge */}
+              {/* Pricing - Prominent Display */}
               {pricing.price && (
-                <div className="flex items-center gap-1">
-                  <DollarSign className="w-4 h-4 text-green-400" />
-                  <span className="text-green-400 font-semibold">
+                <div className="ml-auto">
+                  <span className="text-2xl font-bold text-green-400">
                     {pricing.price}/mo
                   </span>
                   {pricing.verified && (
-                    <Badge className="ml-1 bg-green-600/20 text-green-300 border border-green-600/30 text-xs px-2 py-0">
+                    <Badge className="ml-2 bg-green-500/20 text-green-300 border-0 text-xs">
                       Verified
                     </Badge>
                   )}
@@ -268,65 +267,49 @@ export function CommunityDetailsHeader({
               )}
             </div>
             
-            {/* Key Information Grid */}
-            <div className="grid grid-cols-2 gap-3 mb-4 text-sm">
-              {/* Phone */}
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-blue-400" />
-                <a href={`tel:${displayPhone}`} className="text-blue-400 hover:text-blue-300">
-                  {displayPhone}
-                </a>
-              </div>
+            {/* Contact Information Row */}
+            <div className="flex flex-wrap items-center gap-6 mb-6 text-sm">
+              <a 
+                href={`tel:${displayPhone}`} 
+                className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                <Phone className="w-4 h-4" />
+                <span>{displayPhone}</span>
+              </a>
               
-              {/* Website */}
               {displayWebsite && (
-                <div className="flex items-center gap-2">
-                  <Globe className="w-4 h-4 text-blue-400" />
-                  <a 
-                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-400 hover:text-blue-300 truncate"
-                  >
-                    Visit Website
-                  </a>
-                </div>
+                <a 
+                  href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span>Visit Website</span>
+                </a>
               )}
               
-              {/* Care Types */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-gray-400">
                 <Heart className="w-4 h-4 text-red-400" />
-                <span className="text-gray-300">
-                  {formatCareType ? formatCareType(community.careTypes) : "Senior Living"}
-                </span>
+                <span>{formatCareType ? formatCareType(community.careTypes) : "Senior Living"}</span>
               </div>
-              
-              {/* Capacity/Units */}
-              {community.totalUnits && (
-                <div className="flex items-center gap-2">
-                  <Home className="w-4 h-4 text-purple-400" />
-                  <span className="text-gray-300">
-                    {community.totalUnits} Units
-                  </span>
-                </div>
-              )}
             </div>
             
-            {/* Action Buttons Row */}
-            <div className="flex gap-2 mb-4">
+            {/* Action Buttons - Clean Design */}
+            <div className="flex gap-3 mb-6">
               <Button 
                 onClick={() => window.location.href = `tel:${displayPhone}`}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm py-2"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 transition-all"
               >
-                <Phone className="w-4 h-4 mr-1" />
+                <Phone className="w-4 h-4 mr-2" />
                 Call Now
               </Button>
               
               <Button 
                 variant="outline"
-                className="flex-1 border-orange-500 text-orange-400 hover:bg-orange-500/20 text-sm py-2"
+                className="flex-1 border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white font-semibold py-3 transition-all"
               >
-                <Calendar className="w-4 h-4 mr-1" />
+                <Calendar className="w-4 h-4 mr-2" />
                 Schedule Tour
               </Button>
               
@@ -334,149 +317,116 @@ export function CommunityDetailsHeader({
                 <Button
                   onClick={onFavoriteToggle}
                   variant="outline"
-                  className="px-3 border-gray-600 hover:bg-gray-700"
+                  className="px-4 border-gray-600 hover:bg-gray-700 py-3 transition-all"
                 >
-                  <Heart className={`w-4 h-4 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
+                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400'}`} />
                 </Button>
               )}
             </div>
             
-            {/* Amenities Section */}
-            <div className="mb-4">
-              <h3 className="text-sm font-semibold mb-2 text-gray-300">Amenities</h3>
-              <div className="space-y-2">
-                {amenities.slice(0, 3).map((amenity: string, idx: number) => (
-                  <div key={idx} className="flex items-center gap-2 text-sm text-gray-200">
-                    {amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('view') ? (
-                      <span className="text-blue-400">👁</span>
-                    ) : amenity.toLowerCase().includes('dining') || amenity.toLowerCase().includes('gourmet') ? (
-                      <span className="text-orange-400">🍴</span>
-                    ) : amenity.toLowerCase().includes('wellness') || amenity.toLowerCase().includes('fitness') ? (
-                      <span className="text-red-400">♥</span>
-                    ) : (
-                      <CheckCircle className="w-3 h-3 text-green-400" />
-                    )}
-                    {amenity}
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Why Featured Section */}
-            {community.brandId && (
-              <div className="mb-4">
-                <h3 className="text-sm font-semibold mb-2 text-gray-300">Why Featured</h3>
-                <div className="space-y-1">
-                  {getWhyFeatured().map((reason, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm text-yellow-400">
-                      <Star className="w-3 h-3" />
-                      <span className="text-gray-200">{reason}</span>
+            {/* Amenities Section - Clean Grid */}
+            {amenities.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-xs uppercase tracking-wider text-gray-400 mb-3 font-semibold">Amenities</h3>
+                <div className="grid grid-cols-1 gap-2">
+                  {amenities.slice(0, 3).map((amenity: string, idx: number) => (
+                    <div key={idx} className="flex items-center gap-3 text-sm">
+                      <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                        {amenity.toLowerCase().includes('pet') ? (
+                          <span className="text-xs">🐾</span>
+                        ) : amenity.toLowerCase().includes('dining') || amenity.toLowerCase().includes('meal') ? (
+                          <span className="text-xs">🍴</span>
+                        ) : amenity.toLowerCase().includes('wellness') || amenity.toLowerCase().includes('fitness') ? (
+                          <span className="text-xs">💪</span>
+                        ) : (
+                          <CheckCircle className="w-3 h-3 text-blue-400" />
+                        )}
+                      </div>
+                      <span className="text-gray-300">{amenity}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
             
-            {/* Service Tags and Key Features */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {community.careTypes?.includes('memory_care') && (
-                <Badge className="bg-purple-600/20 text-purple-300 border border-purple-600/30 text-xs">
-                  Memory Care
-                </Badge>
-              )}
-              {community.careTypes?.includes('assisted_living') && (
-                <Badge className="bg-blue-600/20 text-blue-300 border border-blue-600/30 text-xs">
-                  Assisted Living
-                </Badge>
-              )}
-              {community.careTypes?.includes('skilled_nursing') && (
-                <Badge className="bg-red-600/20 text-red-300 border border-red-600/30 text-xs">
-                  Skilled Nursing
-                </Badge>
-              )}
-              {community.hudPropertyId && (
-                <Badge className="bg-green-600/20 text-green-300 border border-green-600/30 text-xs">
-                  HUD Property • Subsidized
-                </Badge>
-              )}
-              {community.petFriendly && (
-                <Badge className="bg-yellow-600/20 text-yellow-300 border border-yellow-600/30 text-xs">
-                  🐾 Pet Friendly
-                </Badge>
-              )}
-              {verificationReport?.pricing?.verified && (
-                <Badge className="bg-emerald-600/20 text-emerald-300 border border-emerald-600/30 text-xs">
-                  ✓ Verified Pricing
-                </Badge>
-              )}
-            </div>
+            {/* Service Badges - Minimal and Clean */}
+            {(community.careTypes?.length > 0 || community.hudPropertyId || community.petFriendly) && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {community.careTypes?.includes('memory_care') && (
+                  <span className="px-3 py-1 bg-purple-500/10 text-purple-300 rounded-full text-xs font-medium">
+                    Memory Care
+                  </span>
+                )}
+                {community.careTypes?.includes('assisted_living') && (
+                  <span className="px-3 py-1 bg-blue-500/10 text-blue-300 rounded-full text-xs font-medium">
+                    Assisted Living
+                  </span>
+                )}
+                {community.careTypes?.includes('skilled_nursing') && (
+                  <span className="px-3 py-1 bg-red-500/10 text-red-300 rounded-full text-xs font-medium">
+                    Skilled Nursing
+                  </span>
+                )}
+                {community.hudPropertyId && (
+                  <span className="px-3 py-1 bg-green-500/10 text-green-300 rounded-full text-xs font-medium">
+                    HUD Property
+                  </span>
+                )}
+                {community.petFriendly && (
+                  <span className="px-3 py-1 bg-yellow-500/10 text-yellow-300 rounded-full text-xs font-medium">
+                    🐾 Pet Friendly
+                  </span>
+                )}
+              </div>
+            )}
             
-            {/* Quick Stats Bar */}
-            <div className="bg-gray-800/50 rounded-lg p-3 mb-4">
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                {/* Occupancy */}
+            {/* Quick Stats Bar - Professional Grid */}
+            <div className="bg-gray-800/40 rounded-xl p-4 mb-6">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-green-400">
+                  <div className="text-2xl font-bold text-green-400">
                     {community.occupancyPercentage || '92'}%
                   </div>
-                  <div className="text-gray-400">Occupancy</div>
+                  <div className="text-xs text-gray-500 mt-1">Occupancy</div>
                 </div>
                 
-                {/* Years in Business */}
                 <div className="text-center">
-                  <div className="text-lg font-bold text-blue-400">
+                  <div className="text-2xl font-bold text-blue-400">
                     {community.yearEstablished ? new Date().getFullYear() - community.yearEstablished : '15'}+
                   </div>
-                  <div className="text-gray-400">Years</div>
+                  <div className="text-xs text-gray-500 mt-1">Years</div>
                 </div>
                 
-                {/* Staff Ratio */}
                 <div className="text-center">
-                  <div className="text-lg font-bold text-purple-400">
+                  <div className="text-2xl font-bold text-purple-400">
                     1:6
                   </div>
-                  <div className="text-gray-400">Staff Ratio</div>
+                  <div className="text-xs text-gray-500 mt-1">Staff Ratio</div>
                 </div>
                 
-                {/* Reviews */}
                 <div className="text-center">
-                  <div className="text-lg font-bold text-yellow-400">
+                  <div className="text-2xl font-bold text-yellow-400">
                     {community.googleReviewCount || '47'}
                   </div>
-                  <div className="text-gray-400">Reviews</div>
+                  <div className="text-xs text-gray-500 mt-1">Reviews</div>
                 </div>
               </div>
             </div>
             
-            {/* Feature Pills - Dynamic based on actual data */}
-            <div className="flex flex-wrap gap-2 text-xs mb-5">
+            {/* Feature Tags - Clean Pills */}
+            <div className="flex flex-wrap gap-2">
               {verificationReport?.amenities?.extracted?.slice(0, 3).map((amenity: string, idx: number) => (
-                <span key={idx} className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full">
+                <span key={idx} className="px-3 py-1.5 bg-gray-700/50 text-gray-300 rounded-full text-xs">
                   {amenity}
                 </span>
               )) || (
                 <>
-                  <span className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full">24/7 Care</span>
-                  <span className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full">Activities Program</span>
-                  <span className="px-3 py-1 bg-gray-700 text-gray-200 rounded-full">Dining Services</span>
+                  <span className="px-3 py-1.5 bg-gray-700/50 text-gray-300 rounded-full text-xs">24/7 Care</span>
+                  <span className="px-3 py-1.5 bg-gray-700/50 text-gray-300 rounded-full text-xs">Activities Program</span>
+                  <span className="px-3 py-1.5 bg-gray-700/50 text-gray-300 rounded-full text-xs">Dining Services</span>
                 </>
               )}
             </div>
-            
-            {/* View Community Details Button */}
-            <Button 
-              className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3"
-              onClick={() => {
-                // Scroll to tabs or do nothing since we're already on detail page
-                const tabsElement = document.querySelector('[data-tab="market-data"]');
-                if (tabsElement) {
-                  tabsElement.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-            >
-              <Star className="w-4 h-4 mr-2" />
-              View Community Details
-            </Button>
           </div>
         </div>
       </CardContent>
