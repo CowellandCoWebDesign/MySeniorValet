@@ -2138,26 +2138,22 @@ export default function CommunityDetail() {
                     </h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {webIntel?.videoTour && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => window.open(webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`, '_blank')}
+                        <ExternalLinkWarning
+                          href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                         >
                           <span className="text-lg">🎥</span>
                           <span className="text-xs">Video Tour</span>
-                        </Button>
+                        </ExternalLinkWarning>
                       )}
                       {webIntel?.virtualTour && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => window.open(webIntel.virtualTour, '_blank')}
+                        <ExternalLinkWarning
+                          href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                         >
                           <span className="text-lg">🏠</span>
                           <span className="text-xs">3D Tour</span>
-                        </Button>
+                        </ExternalLinkWarning>
                       )}
                       {webIntel?.floorPlans?.length > 0 && (
                         <Dialog>
@@ -2189,15 +2185,13 @@ export default function CommunityDetail() {
                         </Dialog>
                       )}
                       {webIntel?.socialMedia && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => window.open(webIntel.socialMedia, '_blank')}
+                        <ExternalLinkWarning
+                          href={webIntel.socialMedia.includes('://') ? webIntel.socialMedia : `https://${webIntel.socialMedia}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                         >
                           <span className="text-lg">👥</span>
                           <span className="text-xs">Facebook</span>
-                        </Button>
+                        </ExternalLinkWarning>
                       )}
                     </div>
                   </CardContent>
@@ -2330,29 +2324,22 @@ export default function CommunityDetail() {
                               <>
                                 <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
                                 {webIntel?.videoTour && (
-                                  <Button
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => {
-                                      const videoUrl = webIntel.videoTour.includes('://') ? 
-                                        webIntel.videoTour : 
-                                        `https://${webIntel.videoTour}`;
-                                      window.open(videoUrl, '_blank');
-                                    }}
+                                  <ExternalLinkWarning
+                                    href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
+                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                   >
-                                    <span className="mr-2">🎥</span>
-                                    Watch Video Tour
-                                  </Button>
+                                    <span>🎥</span>
+                                    <span>Watch Video Tour</span>
+                                  </ExternalLinkWarning>
                                 )}
                                 {webIntel?.virtualTour && (
-                                  <Button
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => window.open(webIntel.virtualTour, '_blank')}
+                                  <ExternalLinkWarning
+                                    href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
+                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                   >
-                                    <span className="mr-2">🏠</span>
-                                    Take 3D Virtual Tour
-                                  </Button>
+                                    <span>🏠</span>
+                                    <span>Take 3D Virtual Tour</span>
+                                  </ExternalLinkWarning>
                                 )}
                               </>
                             );

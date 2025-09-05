@@ -65,12 +65,17 @@ export function ExternalLinkWarning({ href, children, className, domain }: Exter
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                You are about to visit an external website that is not operated by MySeniorValet.
+                You are about to leave MySeniorValet and visit an external website.
               </p>
-              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
                 <p className="text-sm font-medium mb-1">Destination:</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 break-all">
                   {getDomain(targetUrl)}
+                </p>
+              </div>
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-700">
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  <strong>Please Note:</strong> We expect this is the right website for this community, but we don't always get it right. We're learning and getting better every day!
                 </p>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
