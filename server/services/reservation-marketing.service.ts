@@ -42,35 +42,67 @@ export class ReservationMarketingService {
    */
   async processReservationRequest(request: ReservationRequest) {
     try {
+      // Check if SendGrid is configured
+      if (!process.env.SENDGRID_API_KEY) {
+        console.warn('⚠️ SendGrid API key not configured - emails will not be sent');
+        return { success: true, message: 'Reservation request processed (email disabled)' };
+      }
+      
       // Ensure deposit amount and payment terms are correct
       request.depositAmount = this.DEPOSIT_AMOUNT;
       request.paymentTerms = this.PAYMENT_TERMS;
       
+      console.log(`📧 Processing reservation emails for ${request.communityName}`);
+      console.log(`   Community Email: ${request.communityEmail || 'Not provided'}`);
+      console.log(`   User Email: ${request.userEmail}`);
+      
       // Send emails to all recipients
       const emailPromises = [];
+      const emailTargets = [];
       
       // 1. Email to Community
       if (request.communityEmail) {
+        console.log(`   ✉️ Sending to community: ${request.communityEmail}`);
         emailPromises.push(this.sendCommunityEmail(request));
+        emailTargets.push(`community (${request.communityEmail})`);
+      } else {
+        console.log(`   ⚠️ No community email available for ${request.communityName}`);
       }
       
       // 2. Email to Admin
+      console.log(`   ✉️ Sending to admin: admin@myseniorvalet.com`);
       emailPromises.push(this.sendAdminEmail(request));
+      emailTargets.push('admin@myseniorvalet.com');
       
       // 3. Email to Hello (Marketing)
+      console.log(`   ✉️ Sending to marketing: hello@myseniorvalet.com`);
       emailPromises.push(this.sendMarketingEmail(request));
+      emailTargets.push('hello@myseniorvalet.com');
       
       // 4. Confirmation to User
+      console.log(`   ✉️ Sending confirmation to user: ${request.userEmail}`);
       emailPromises.push(this.sendUserConfirmation(request));
+      emailTargets.push(`user (${request.userEmail})`);
       
       // Send all emails in parallel
-      await Promise.all(emailPromises);
+      const results = await Promise.allSettled(emailPromises);
       
-      console.log(`✅ Reservation marketing emails sent for ${request.communityName}`);
+      // Check results
+      const failedEmails = results.filter(r => r.status === 'rejected');
+      if (failedEmails.length > 0) {
+        console.error(`❌ Failed to send ${failedEmails.length} emails:`, failedEmails);
+        failedEmails.forEach((result, index) => {
+          if (result.status === 'rejected') {
+            console.error(`   Failed to send to ${emailTargets[index]}:`, result.reason);
+          }
+        });
+      }
+      
+      console.log(`✅ Successfully sent ${results.filter(r => r.status === 'fulfilled').length}/${results.length} reservation emails for ${request.communityName}`);
       return { success: true, message: 'Reservation request processed successfully' };
       
     } catch (error) {
-      console.error('Error processing reservation:', error);
+      console.error('❌ Error processing reservation:', error);
       return { success: false, error: 'Failed to process reservation request' };
     }
   }

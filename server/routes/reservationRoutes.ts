@@ -30,9 +30,17 @@ router.post('/submit', async (req: Request, res: Response) => {
     
     // Get user information from session
     const user = req.user as any;
-    const userName = user.name || user.email?.split('@')[0] || 'Guest';
-    const userEmail = user.email;
-    const userPhone = user.phone || '';
+    console.log('🔐 User info from session:', { 
+      hasUser: !!user, 
+      email: user?.email, 
+      name: user?.name,
+      claims: user?.claims 
+    });
+    
+    // Try to get user info from different possible locations
+    const userName = user?.name || user?.claims?.first_name || user?.claims?.email?.split('@')[0] || user?.email?.split('@')[0] || 'Guest';
+    const userEmail = user?.email || user?.claims?.email;
+    const userPhone = user?.phone || user?.claims?.phone || '';
     
     // Fetch community details from database
     const [community] = await db
@@ -44,6 +52,15 @@ router.post('/submit', async (req: Request, res: Response) => {
     if (!community) {
       return res.status(404).json({ error: 'Community not found' });
     }
+    
+    console.log('🏢 Community details:', {
+      id: community.id,
+      name: community.name,
+      hasEmail: !!community.email,
+      email: community.email,
+      hasPhone: !!community.phone,
+      phone: community.phone
+    });
     
     // Prepare reservation request
     const reservationRequest = {
