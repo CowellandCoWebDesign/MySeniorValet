@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'wouter';
 import { useResponsive } from '@/contexts/ResponsiveContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { ArrowLeft, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
+import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
