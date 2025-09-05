@@ -178,6 +178,55 @@ router.post("/schedule", async (req, res) => {
           html: communityEmailHtml,
         });
       }
+      
+      // Send notification to admin
+      const adminEmailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #4F46E5;">🎯 New Tour Scheduled!</h2>
+          
+          <div style="background: #F0F9FF; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3B82F6;">
+            <h3 style="color: #1F2937; margin-top: 0;">Community Details:</h3>
+            <p><strong>Community:</strong> ${community?.name}</p>
+            <p><strong>Address:</strong> ${community?.address}, ${community?.city}, ${community?.state}</p>
+            <p><strong>Community ID:</strong> ${community?.id}</p>
+          </div>
+          
+          <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1F2937; margin-top: 0;">Visitor Information:</h3>
+            <p><strong>Name:</strong> ${tourData.contactName}</p>
+            <p><strong>Email:</strong> ${tourData.contactEmail}</p>
+            <p><strong>Phone:</strong> ${tourData.contactPhone}</p>
+            <p><strong>Confirmation Code:</strong> ${confirmationCode}</p>
+          </div>
+          
+          <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1F2937; margin-top: 0;">Tour Details:</h3>
+            <p><strong>Preferred Date:</strong> ${format(parseISO(tourData.preferredDate), 'MMMM d, yyyy')}</p>
+            <p><strong>Preferred Time:</strong> ${tourData.preferredTime}</p>
+            ${tourData.alternativeDate ? `<p><strong>Alternative Date:</strong> ${format(parseISO(tourData.alternativeDate), 'MMMM d, yyyy')}</p>` : ''}
+            ${tourData.alternativeTime ? `<p><strong>Alternative Time:</strong> ${tourData.alternativeTime}</p>` : ''}
+            <p><strong>Tour Type:</strong> ${tourData.tourType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+            <p><strong>Party Size:</strong> ${tourData.partySize} ${tourData.partySize === 1 ? 'person' : 'people'}</p>
+            ${tourData.interestedInCareLevel?.length ? `<p><strong>Care Levels:</strong> ${tourData.interestedInCareLevel.join(', ')}</p>` : ''}
+            ${tourData.specialRequests ? `<p><strong>Special Requests:</strong> ${tourData.specialRequests}</p>` : ''}
+          </div>
+          
+          <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #92400E; margin: 0;"><strong>Platform Notification:</strong> This tour was scheduled through MySeniorValet. Community has ${community?.email ? 'been notified' : 'NOT been notified (no email on file)'}.</p>
+          </div>
+          
+          <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
+            TourMate™ System | MySeniorValet Platform
+          </p>
+        </div>
+      `;
+      
+      await sgMail.send({
+        to: ["admin@myseniorvalet.com", "William.cowell01@gmail.com"],
+        from: "hello@myseniorvalet.com",
+        subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
+        html: adminEmailHtml,
+      });
     }
     
     res.json({
