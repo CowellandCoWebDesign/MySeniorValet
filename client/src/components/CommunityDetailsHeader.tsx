@@ -8,7 +8,7 @@ import {
   CheckCircle, XCircle, AlertCircle, DollarSign
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
-import { HeroPhotoCarousel } from "@/pages/community-detail";
+import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 
 interface CommunityDetailsHeaderProps {
   community: any;
@@ -219,12 +219,13 @@ export function CommunityDetailsHeader({
       <CardContent className="p-0">
         {/* Photo Carousel - Reduced Height */}
         <div className="relative h-[150px] sm:h-[180px] md:h-[200px] lg:h-[220px]">
-          <HeroPhotoCarousel 
+          <EnhancedPhotoCarousel 
             photos={getCombinedPhotos()} 
             communityName={community.name}
             communityId={community.id}
             community={community}
             verificationReport={verificationReport}
+            className="w-full h-full"
           />
           
           {/* Featured Badge */}
