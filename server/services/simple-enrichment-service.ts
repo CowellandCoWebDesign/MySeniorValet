@@ -251,20 +251,12 @@ export class SimpleEnrichmentService {
   
   /**
    * Get stock photos based on care type
+   * DISABLED: We don't want stock photos overriding real ones
    */
   private getStockPhotos(careType: string): any[] {
-    // Pixabay stock photos based on care type
-    const stockUrls = [
-      'https://cdn.pixabay.com/photo/2016/11/29/03/53/house-1867187_1280.jpg',
-      'https://cdn.pixabay.com/photo/2017/08/06/02/32/people-2587896_1280.jpg',
-      'https://cdn.pixabay.com/photo/2015/07/11/23/00/elderly-841418_1280.jpg'
-    ];
-    
-    return stockUrls.map(url => ({
-      url,
-      source: 'pixabay' as const,
-      isAuthentic: false
-    }));
+    // Return empty array - no stock photos
+    // Real photos should come from Perplexity/directory sites
+    return [];
   }
   
   /**
@@ -277,7 +269,7 @@ export class SimpleEnrichmentService {
       verificationStatus: 'unverified',
       confidence: 0,
       lastUpdated: new Date().toISOString(),
-      photos: this.getStockPhotos(community.careType || 'senior living'),
+      photos: [], // No fallback photos - keep it real
       searchResults: {
         summary: 'Search temporarily unavailable',
         sources: []

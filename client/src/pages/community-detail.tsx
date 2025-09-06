@@ -1145,15 +1145,15 @@ export const HeroPhotoCarousel = ({
         .filter((img: any) => {
           const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
           
-          // Skip obvious generic/directory photos
+          // Skip only obvious logos and icons, but ALLOW directory site photos
           if (url.includes('logo') || url.includes('icon') || 
-              url.includes('seniorhomes.com') || 
-              url.includes('caring.com') ||
               url.includes('placeholder') ||
               url.includes('default') ||
               url.toLowerCase().includes('logo')) {
             return false;
           }
+          
+          // ALLOW caring.com and seniorhomes.com photos - these are real community photos!
           
           return true;
         })
