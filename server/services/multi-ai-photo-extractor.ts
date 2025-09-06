@@ -183,6 +183,17 @@ Be lenient - mark as authentic unless clearly stock photos.`
     // Define directory patterns and their photo URL structures
     const directoryPatterns = [
       { 
+        name: 'AffordableHousing.com', 
+        pattern: /affordablehousing\.com/i,
+        photoPatterns: [
+          'https://www.affordablehousing.com/images/community/exterior-main.jpg',
+          'https://www.affordablehousing.com/images/community/interior-lobby.jpg',
+          'https://www.affordablehousing.com/images/community/dining-area.jpg',
+          'https://www.affordablehousing.com/images/community/living-room.jpg',
+          'https://www.affordablehousing.com/images/community/bedroom.jpg'
+        ]
+      },
+      { 
         name: 'Caring.com', 
         pattern: /caring\.com/i,
         photoPatterns: [
@@ -207,6 +218,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
         photoPatterns: [
           'https://images.seniorly.com/communities/exterior-view.webp',
           'https://images.seniorly.com/communities/interior-common.webp'
+        ]
+      },
+      {
+        name: 'HollywoodHousing.org',
+        pattern: /hollywoodhousing\.org/i,
+        photoPatterns: [
+          'https://hollywoodhousing.org/wp-content/uploads/community-exterior.jpg',
+          'https://hollywoodhousing.org/wp-content/uploads/community-interior.jpg',
+          'https://hollywoodhousing.org/wp-content/uploads/community-amenities.jpg'
         ]
       }
     ];
@@ -382,6 +402,39 @@ Be lenient - mark as authentic unless clearly stock photos.`
    */
   private static isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
+    
+    const lowerUrl = url.toLowerCase();
+    
+    // Exclude UI elements and site assets
+    const excludePatterns = [
+      /logo/i,
+      /icon/i,
+      /button/i,
+      /banner/i,
+      /badge/i,
+      /poweredby/i,
+      /powered-by/i,
+      /btn/i,
+      /arrow/i,
+      /spinner/i,
+      /loading/i,
+      /placeholder/i,
+      /owner--img/i,
+      /signup-home/i,
+      /duplicate-img/i,
+      /back-btn/i,
+      /search-banner/i,
+      /opt-finish/i,
+      /assistant-qm/i,
+      /branded-/i
+    ];
+    
+    // Check if URL contains any exclude patterns
+    for (const pattern of excludePatterns) {
+      if (pattern.test(lowerUrl)) {
+        return false;
+      }
+    }
     
     // Check for image extensions
     const imageExtensions = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
