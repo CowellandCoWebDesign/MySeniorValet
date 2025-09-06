@@ -316,6 +316,12 @@ export class ComprehensiveSearchEngine {
         nameConditions.push(ilike(communities.name, `%${exactPhrase}%`));
       }
       
+      // 5. FUZZY MATCHING - Handle common typos (Fortune 500-level capability)
+      const fuzzyVariations = this.generateFuzzyVariations(normalizedQuery);
+      fuzzyVariations.forEach(variation => {
+        nameConditions.push(ilike(communities.name, `%${variation}%`));
+      });
+      
       // Check if we have name matches BEFORE applying other conditions
       const nameSearchCondition = or(...nameConditions);
       
@@ -466,6 +472,67 @@ export class ComprehensiveSearchEngine {
     const entries = Object.entries(scores);
     const dominant = entries.reduce((a, b) => a[1] > b[1] ? a : b);
     return dominant[0];
+  }
+  
+  /**
+   * Generate fuzzy variations to handle typos
+   * Fortune 500-level search capability for MySeniorValet
+   */
+  private generateFuzzyVariations(query: string): string[] {
+    const variations: string[] = [];
+    const lowerQuery = query.toLowerCase();
+    
+    // Common typo patterns for senior living companies and terms
+    const typoMappings: { [key: string]: string[] } = {
+      'atria': ['atrea', 'atira', 'atrya', 'artia'],
+      'brookdale': ['brookdal', 'brokdale', 'brookdail', 'brookdalle'],
+      'sunrise': ['sunrize', 'sun rise', 'sunris'],
+      'brightview': ['bright view', 'brightvue', 'brightviw'],
+      'arbor': ['arbour', 'arber'],
+      'oakmont': ['oakmount', 'oak mont'],
+      'hilltop': ['hill top', 'hiltop', 'hilltoop'],
+      'manor': ['manner', 'maner', 'mannor'],
+      'estates': ['estate', 'estetes', 'estats'],
+      'village': ['vilage', 'villege', 'villige'],
+      'residence': ['residance', 'residense'],
+      'senior': ['senoir', 'senor', 'seinor'],
+      'living': ['livng', 'livin', 'liveing'],
+      'assisted': ['assited', 'asisted', 'assistd'],
+      'memory': ['memry', 'memori', 'memmory'],
+      'care': ['kare', 'caire']
+    };
+    
+    // Check if query contains any of the mapped words
+    for (const [correct, typos] of Object.entries(typoMappings)) {
+      if (lowerQuery.includes(correct)) {
+        // Add variations with typos for testing
+        typos.forEach(typo => {
+          const variation = lowerQuery.replace(correct, typo);
+          if (variation !== lowerQuery) {
+            variations.push(variation);
+          }
+        });
+      } else {
+        // Check if query contains a typo and fix it
+        typos.forEach(typo => {
+          if (lowerQuery.includes(typo)) {
+            const corrected = lowerQuery.replace(typo, correct);
+            if (corrected !== lowerQuery) {
+              variations.push(corrected);
+            }
+          }
+        });
+      }
+    }
+    
+    // Remove duplicates and limit to 5 variations for performance
+    const uniqueVariations = [...new Set(variations)].slice(0, 5);
+    
+    if (uniqueVariations.length > 0) {
+      console.log(`🔍 Generated ${uniqueVariations.length} fuzzy variations for "${query}": ${uniqueVariations.join(', ')}`);
+    }
+    
+    return uniqueVariations;
   }
   
   private async isCompanySearch(query: string): Promise<boolean> {
