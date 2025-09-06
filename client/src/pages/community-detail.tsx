@@ -1348,7 +1348,7 @@ export const HeroPhotoCarousel = ({
     communityPhotos: community?.photos,
     webIntelligenceImages: verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images,
     safePhotos: safePhotos,
-    currentIndex,
+    photoCount: safePhotos.length,
     verificationReportExists: !!verificationReport,
     webIntelligenceExists: !!(verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images)
   });
