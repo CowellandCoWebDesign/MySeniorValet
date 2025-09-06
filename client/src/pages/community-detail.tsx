@@ -1472,11 +1472,23 @@ export const HeroPhotoCarousel = ({
             }}
           >
             {safePhotos.map((photo, index) => {
-              // Ensure proper URL handling for scraped photos
-              const photoUrl = photo.url.startsWith('http') ? photo.url : 
-                             photo.url.startsWith('//') ? `https:${photo.url}` :
-                             photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
-                             photo.url;
+              // Use proxy for external images to avoid CORS issues
+              let photoUrl = photo.url;
+              
+              // If it's an external URL (not from our domain), use the proxy
+              if (photo.source === 'web' && photoUrl.startsWith('http')) {
+                // Only proxy external URLs
+                const isExternal = !photoUrl.includes(window.location.hostname);
+                if (isExternal) {
+                  photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+                  console.log(`🔄 Proxying external image: ${photo.url}`);
+                }
+              } else if (!photoUrl.startsWith('http')) {
+                // Handle relative URLs
+                photoUrl = photoUrl.startsWith('//') ? `https:${photoUrl}` :
+                          photoUrl.startsWith('/') ? photoUrl : 
+                          photo.url;
+              }
               
               return (
                 <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
@@ -1487,10 +1499,10 @@ export const HeroPhotoCarousel = ({
                     draggable={false}
                     loading={index === 0 ? "eager" : "lazy"}
                     onLoad={() => {
-                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photo.url);
                     }}
                     onError={(e) => {
-                      console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                      console.log(`❌ Failed to load photo ${index + 1}:`, photo.url);
                       // Replace with working fallback image
                       const target = e.target as HTMLImageElement;
                       target.src = '/hero-senior-community.svg';

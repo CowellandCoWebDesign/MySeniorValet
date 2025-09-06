@@ -256,6 +256,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Community Features routes (Phase 5 - tier-based features)
   app.use('/api/community-features', communityFeaturesRoutes);
+  
+  // Register Image Proxy route (for CORS-free image loading)
+  const imageProxyRoutes = await import('./imageProxy');
+  app.use('/', imageProxyRoutes.default);
 
   return httpServer;
 }
