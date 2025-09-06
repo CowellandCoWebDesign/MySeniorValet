@@ -1972,7 +1972,7 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🏆 Connect with 200+ verified & trusted national service providers - Our premium partners delivering excellence in senior care
+                    🏆 Connect with 3,600+ verified service providers & vendors - Our comprehensive network delivering excellence in senior care
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
@@ -2122,7 +2122,7 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with verified hospitals, home care, therapy services, and medical professionals
+                    Connect with CMS-certified hospitals, home health agencies, therapy services, and specialized care providers
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
@@ -2131,12 +2131,12 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">6,800+</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Providers</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">36</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Care Categories</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">1,956 CMS Hospitals</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -2160,31 +2160,31 @@ export default function MySeniorValetHome() {
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS Hospitals (1,956)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care (561)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services (470)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🩺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services (191)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🔬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services (144)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🌿</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care (78)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs (707)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🦴</span>
