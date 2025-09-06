@@ -1141,41 +1141,19 @@ export const HeroPhotoCarousel = ({
     }
     
     if (webImages && webImages.length > 0) {
-      const realPhotos: any[] = [];
-      
-      webImages.forEach((img: any) => {
-        // Handle both string URLs and object format
-        const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
-        
-        // Filter out FAKE stock photo services (Pixabay, Unsplash, etc.)
-        const isFakeStockPhoto = 
-          photoUrl.includes('pixabay.com') ||
-          photoUrl.includes('unsplash.com') ||
-          photoUrl.includes('pexels.com') ||
-          photoUrl.includes('shutterstock.com') ||
-          photoUrl.includes('gettyimages.com') ||
-          photoUrl.includes('istockphoto.com') ||
-          photoUrl.includes('stockphoto.com') ||
-          photoUrl.includes('freepik.com') ||
-          photoUrl.includes('depositphotos.com');
-        
-        // Only include real community photos - skip all stock photo services
-        if (!isFakeStockPhoto) {
-          if (typeof img === 'string') {
-            realPhotos.push({ url: img });
-          } else {
-            realPhotos.push({
-              url: photoUrl,
-              origin_url: img.origin_url,
-              width: img.width,
-              height: img.height
-            });
-          }
+      const webPhotos = webImages.map((img: any) => {
+        // Handle both string URLs and object format - SAME AS WORKING SECTION
+        if (typeof img === 'string') {
+          return { url: img };
         }
+        return {
+          url: img.image_url || img.url || img,
+          origin_url: img.origin_url,
+          width: img.width,
+          height: img.height
+        };
       });
-      
-      console.log(`🔍 Filtered out ${webImages.length - realPhotos.length} fake stock photos, keeping ${realPhotos.length} authentic photos`);
-      photos.push(...realPhotos);
+      photos.push(...webPhotos);
     }
     
     // Return photos - KEEP IT SIMPLE  
@@ -1362,10 +1340,10 @@ export const HeroPhotoCarousel = ({
             )}
           </div>
         ) : safePhotos.length > 0 ? (
-          // Multiple photos - show masonry grid to display up to 30 photos
-          <div className="grid grid-cols-6 gap-1 h-full">
-            {/* Featured photo - spans 3 columns */}
-            <div className="col-span-3 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
+          // 3+ photos - featured + grid
+          <div className="grid grid-cols-3 gap-1 h-full">
+            {/* Featured photo - spans 2 columns */}
+            <div className="col-span-2 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
               <img
                 src={safePhotos[0].url}
                 alt={`${communityName} - Featured Photo`}
@@ -1385,34 +1363,27 @@ export const HeroPhotoCarousel = ({
               )}
             </div>
             
-            {/* Grid of more photos - right 3 columns, show up to 11 more photos */}
-            <div className="col-span-3 grid grid-cols-3 grid-rows-4 gap-1">
-              {safePhotos.slice(1, 13).map((photo, index) => (
+            {/* Small photos - right column */}
+            <div className="grid grid-rows-2 gap-1">
+              {safePhotos.slice(1, 3).map((photo, index) => (
                 <div key={index + 1} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index + 1)}>
                   <img
                     src={photo.url}
-                    alt={`${communityName} - Photo ${index + 2}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/hero-senior-community.svg';
-                    }}
-                  />
-                  {photo.attribution && (
-                    <div className="absolute bottom-1 right-1 bg-black/70 text-white p-1 rounded text-xs">
-                      <Globe className="w-2 h-2" />
-                    </div>
-                  )}
-                  {/* Show "+X more" on the last visible photo if there are more */}
-                  {index === 11 && safePhotos.length > 13 && (
-                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                      <div className="text-white text-sm font-semibold">
-                        +{safePhotos.length - 13} more
+                      alt={`${communityName} - Photo ${index + 2}`}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/hero-senior-community.svg';
+                      }}
+                    />
+                    {photo.attribution && (
+                      <div className="absolute bottom-1 right-1 bg-black/70 text-white p-1 rounded">
+                        <Globe className="w-3 h-3" />
                       </div>
-                    </div>
-                  )}
-                </div>
-              ))}
+                    )}
+                  </div>
+                )
+              )}
             </div>
           </div>
         ) : (
