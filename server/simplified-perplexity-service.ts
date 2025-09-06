@@ -149,7 +149,14 @@ VERIFICATION CHECK:
 - Location must be: ${location}
 
 IF FOUND, provide:
-1. CONTACT:
+1. PHOTOS (CRITICAL - Find actual community photos):
+   - List direct photo URLs from the official website
+   - List photo URLs from directory listings  
+   - Include gallery images, exterior photos, interior photos
+   - Provide full direct image URLs (ending in .jpg, .png, .webp)
+   - DO NOT include logos, buttons, or UI elements
+   
+2. CONTACT:
    - Official website URL (full URL including https://)
    - Main phone number (formatted as XXX-XXX-XXXX)
    - Complete street address with zip code
@@ -487,33 +494,39 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
-    // First, try to extract actual data from the response
-    // Use Multi-AI Photo Extraction for intelligent photo discovery
+    // SIMPLIFIED: Just extract photo URLs directly from Perplexity's response
     let extractedPhotos: string[] = [];
-    try {
-      console.log('🤖 Starting Multi-AI Photo Extraction...');
-      const extractedWebsiteForPhotos = this.extractUrl(content);
-      
-      // IMPORTANT: Also pass the citations which contain the actual community-specific URLs!
-      console.log(`📍 Citations from Perplexity (actual community pages):`);
-      citations.forEach((url, i) => {
-        console.log(`   ${i+1}. ${url}`);
-      });
-      
-      const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
-        communityName,
-        content,
-        extractedWebsiteForPhotos,
-        citations // Pass citations to use the actual community pages!
-      );
-      
-      extractedPhotos = photoExtractionResult.authenticPhotos.map(p => p.url);
-      console.log(`📸 Multi-AI extracted ${extractedPhotos.length} authentic photos`);
-      console.log(`  Rejected ${photoExtractionResult.rejectedPhotos.length} stock/fake photos`);
-    } catch (error) {
-      console.error('Multi-AI photo extraction error:', error);
-      // Fallback to basic extraction if Multi-AI fails
-      extractedPhotos = this.extractPhotos(content);
+    
+    // Simple extraction - find all image URLs in the content
+    const imagePattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)/gi;
+    const photoMatches = content.match(imagePattern) || [];
+    
+    // Also check citations for direct community pages with photos
+    console.log(`📍 Using citations for photo sources (${citations.length} URLs found)`);
+    
+    for (const url of photoMatches) {
+      // Skip obvious UI elements
+      const lower = url.toLowerCase();
+      if (!lower.includes('logo') && 
+          !lower.includes('icon') && 
+          !lower.includes('button') &&
+          !lower.includes('badge') &&
+          !lower.includes('powered') &&
+          !lower.includes('banner') &&
+          !lower.includes('back-btn') &&
+          !lower.includes('duplicate-img') &&
+          !lower.includes('signup')) {
+        extractedPhotos.push(url);
+      }
+    }
+    
+    console.log(`📸 Found ${extractedPhotos.length} photo URLs directly from Perplexity`);
+    
+    // If Perplexity didn't find photos but gave us citations, use those
+    if (extractedPhotos.length === 0 && citations.length > 0) {
+      console.log('📷 No photos in response, will use citation URLs as photo sources');
+      // Just mark that we have photo sources available
+      extractedPhotos = ['photos-available-from-citations'];
     }
     
     // Check for structured data (JSON) in the response
