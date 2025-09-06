@@ -229,12 +229,14 @@ export class SimpleEnrichmentService {
           continue;
         }
         
-        // Only ensure it's a valid image format, return ALL photos
+        // Skip logos, icons, and ensure it's a valid image format
         const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
         const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
         
-        // Return ALL images except SVGs (which are usually icons)
-        if (!imgUrl.includes('.svg') && hasValidExtension) {
+        if (!imgUrl.includes('logo') && 
+            !imgUrl.includes('icon') && 
+            !imgUrl.includes('.svg') &&
+            hasValidExtension) {
           photos.push(imgUrl);
         }
       }

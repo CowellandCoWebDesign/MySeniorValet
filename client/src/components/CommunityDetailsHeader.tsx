@@ -217,8 +217,8 @@ export function CommunityDetailsHeader({
   return (
     <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
-        {/* Photo Carousel - Proper Height for Photos */}
-        <div className="relative h-[280px] sm:h-[320px] md:h-[380px] lg:h-[420px]">
+        {/* Photo Carousel - Reduced Height */}
+        <div className="relative h-[150px] sm:h-[180px] md:h-[200px] lg:h-[220px]">
           <HeroPhotoCarousel 
             photos={getCombinedPhotos()} 
             communityName={community.name}
