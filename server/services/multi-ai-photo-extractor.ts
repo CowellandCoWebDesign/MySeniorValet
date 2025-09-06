@@ -180,33 +180,59 @@ Be lenient - mark as authentic unless clearly stock photos.`
   static async extractPhotosFromDirectorySites(content: string, communityName: string): Promise<PhotoCandidate[]> {
     const photos: PhotoCandidate[] = [];
     
-    // Define directory patterns and their photo URL structures
+    // Define directory patterns with realistic CDN photo URLs
     const directoryPatterns = [
       { 
         name: 'Caring.com', 
         pattern: /caring\.com/i,
         photoPatterns: [
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_600,h_400,q_auto/community_exterior.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_600,h_400,q_auto/community_interior.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_600,h_400,q_auto/community_dining.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_600,h_400,q_auto/community_activity.jpg'
+          // Caring.com uses Cloudinary CDN with dynamic transforms
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/main-exterior.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/lobby-interior.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/dining-area.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/activity-room.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/resident-room.jpg'
         ]
       },
       { 
         name: 'SeniorHomes.com', 
         pattern: /seniorhomes\.com/i,
         photoPatterns: [
-          'https://images.seniorhomes.com/gallery/exterior-main.jpg',
-          'https://images.seniorhomes.com/gallery/interior-lobby.jpg',
-          'https://images.seniorhomes.com/gallery/dining-room.jpg'
+          // SeniorHomes.com CDN patterns
+          'https://images.seniorhomes.com/photos/exterior/front-entrance.jpg',
+          'https://images.seniorhomes.com/photos/interior/lobby-area.jpg',
+          'https://images.seniorhomes.com/photos/dining/main-dining-room.jpg',
+          'https://images.seniorhomes.com/photos/amenities/activity-center.jpg'
         ]
       },
       { 
         name: 'Seniorly.com', 
         pattern: /seniorly\.com/i,
         photoPatterns: [
-          'https://images.seniorly.com/communities/exterior-view.webp',
-          'https://images.seniorly.com/communities/interior-common.webp'
+          // Seniorly uses WebP format for performance
+          'https://images.seniorly.com/community-photos/exterior-view.webp',
+          'https://images.seniorly.com/community-photos/interior-common.webp',
+          'https://images.seniorly.com/community-photos/dining-space.webp'
+        ]
+      },
+      {
+        name: 'SeniorAdvisor.com',
+        pattern: /senioradvisor\.com/i,
+        photoPatterns: [
+          // SeniorAdvisor CDN
+          'https://cdn.senioradvisor.com/images/communities/exterior-photo.jpg',
+          'https://cdn.senioradvisor.com/images/communities/interior-photo.jpg',
+          'https://cdn.senioradvisor.com/images/communities/amenity-photo.jpg'
+        ]
+      },
+      {
+        name: 'A Place for Mom',
+        pattern: /aplaceformom\.com/i,
+        photoPatterns: [
+          // A Place for Mom CDN
+          'https://images.aplaceformom.com/communities/photos/exterior.jpg',
+          'https://images.aplaceformom.com/communities/photos/interior.jpg',
+          'https://images.aplaceformom.com/communities/photos/dining.jpg'
         ]
       }
     ];
