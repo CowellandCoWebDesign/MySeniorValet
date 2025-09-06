@@ -282,7 +282,7 @@ export function CommunityDetailsHeader({
               )}
               
               <div className="flex items-start gap-2 mb-3">
-                <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                <span className="text-xl flex-shrink-0 mt-0.5">📌</span>
                 <span className="text-gray-600 dark:text-gray-300">
                   {enrichedContact?.address || community.address}, {community.city}, {community.state} {community.zipCode}
                 </span>
@@ -292,7 +292,7 @@ export function CommunityDetailsHeader({
               <div className="space-y-3 mb-4">
                 {/* Phone */}
                 <div className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-blue-500 flex-shrink-0" />
+                  <span className="text-xl flex-shrink-0">☎️</span>
                   <a 
                     href={`tel:${displayPhone}`}
                     className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
