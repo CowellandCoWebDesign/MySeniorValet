@@ -279,7 +279,8 @@ Be lenient - mark as authentic unless clearly stock photos.`
   static async findAuthenticPhotos(
     communityName: string,
     perplexityContent: string,
-    websiteUrl?: string
+    websiteUrl?: string,
+    citations?: string[]
   ): Promise<PhotoExtractionResult> {
     console.log(`🚀 Enhanced Photo Extraction for ${communityName} (No OpenAI)`);
     
@@ -310,8 +311,50 @@ Be lenient - mark as authentic unless clearly stock photos.`
       }
     }
     
-    // Step 2: Extract photos from directory site URLs found by Perplexity
-    console.log('📷 Step 2: Extract photos from directory URLs in citations...');
+    // Step 2: Extract photos from actual citation URLs (the community-specific pages!)
+    if (citations && citations.length > 0) {
+      console.log('📷 Step 2A: Extract photos from ACTUAL citation URLs (community pages)...');
+      for (const citationUrl of citations.slice(0, 5)) { // Limit to first 5 to avoid overwhelming
+        console.log(`   🔗 Checking citation: ${citationUrl}`);
+        
+        // Check if this is a community-specific page
+        const lowerUrl = citationUrl.toLowerCase();
+        const isRelevantPage = lowerUrl.includes('portfolio-item') ||
+                               lowerUrl.includes('community') ||
+                               lowerUrl.includes('senior') ||
+                               lowerUrl.includes('living') ||
+                               lowerUrl.includes('allesandro') ||
+                               lowerUrl.includes('apartment');
+        
+        if (isRelevantPage) {
+          try {
+            // Try to fetch HTML from this specific page
+            const response = await fetch(citationUrl, {
+              headers: { 'User-Agent': 'Mozilla/5.0 (compatible; MySeniorValet/1.0)' }
+            }).catch(() => null);
+            
+            if (response && response.ok) {
+              const html = await response.text();
+              const citationPhotos = this.extractPhotosFromContent(html, communityName);
+              console.log(`      ✅ Found ${citationPhotos.length} photos from ${new URL(citationUrl).hostname}`);
+              
+              // Mark these as high confidence since they're from the actual community page
+              citationPhotos.forEach(photo => {
+                photo.confidence = Math.min(0.95, photo.confidence * 1.3);
+                photo.source = `Citation: ${new URL(citationUrl).hostname}`;
+              });
+              
+              allPhotoCandidates.push(...citationPhotos);
+            }
+          } catch (error: any) {
+            console.log(`      ⚠️ Could not fetch citation URL: ${error.message}`);
+          }
+        }
+      }
+    }
+    
+    // Step 2B: Extract photos from directory site URLs found by Perplexity
+    console.log('📷 Step 2B: Extract photos from directory URLs mentioned in content...');
     const directoryPhotos = await this.extractPhotosFromDirectorySites(perplexityContent, communityName);
     allPhotoCandidates.push(...directoryPhotos);
     console.log(`  ✅ Extracted ${directoryPhotos.length} photos from directory sites`);
@@ -406,7 +449,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
     const lowerUrl = url.toLowerCase();
     
     // Exclude UI elements and site assets
-    const excludePatterns = [
+    const uiExcludePatterns = [
       /logo/i,
       /icon/i,
       /button/i,
@@ -430,7 +473,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
     ];
     
     // Check if URL contains any exclude patterns
-    for (const pattern of excludePatterns) {
+    for (const pattern of uiExcludePatterns) {
       if (pattern.test(lowerUrl)) {
         return false;
       }

@@ -493,10 +493,18 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     try {
       console.log('🤖 Starting Multi-AI Photo Extraction...');
       const extractedWebsiteForPhotos = this.extractUrl(content);
+      
+      // IMPORTANT: Also pass the citations which contain the actual community-specific URLs!
+      console.log(`📍 Citations from Perplexity (actual community pages):`);
+      citations.forEach((url, i) => {
+        console.log(`   ${i+1}. ${url}`);
+      });
+      
       const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
         communityName,
         content,
-        extractedWebsiteForPhotos
+        extractedWebsiteForPhotos,
+        citations // Pass citations to use the actual community pages!
       );
       
       extractedPhotos = photoExtractionResult.authenticPhotos.map(p => p.url);
