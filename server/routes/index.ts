@@ -60,6 +60,7 @@ import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import nlpSearchRoutes from "./nlpSearchRoutes";
 import comprehensiveSearchRoutes from "./comprehensiveSearchRoutes";
 import categorySearchRoutes from "./categorySearchRoutes";
+import testPhotoExtractionRoutes from "./testPhotoExtraction";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
@@ -210,6 +211,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register NLP Analytics Routes - THE KRAKEN'S NEURAL NETWORK
   const nlpAnalyticsRoutes = await import('./nlpAnalyticsRoutes');
   app.use('/api/nlp/analytics', nlpAnalyticsRoutes.default);
+  
+  // Test photo extraction routes (for testing super-powered AI)
+  app.use(testPhotoExtractionRoutes);
   
   // Register Canadian community routes
   const canadianRoutes = await import('./canadianRoutes');

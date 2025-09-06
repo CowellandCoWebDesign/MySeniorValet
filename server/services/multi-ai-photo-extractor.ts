@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
+import { playwrightPhotoScraper } from './playwright-photo-scraper';
 
 /**
  * Multi-AI Photo Extraction Service
@@ -78,8 +79,8 @@ Return JSON format:
           }
         ],
         response_format: { type: "json_object" },
-        temperature: 0.3,
-        max_tokens: 2000
+        // GPT-5 only supports temperature 1.0 (default)
+        max_completion_tokens: 2000
       });
 
       const result = JSON.parse(response.choices[0].message.content || '{"photos":[]}');
@@ -108,7 +109,7 @@ Return JSON format:
       
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL,
-        max_tokens: 1024,
+        max_completion_tokens: 1024,
         messages: [{
           role: 'user',
           content: `Analyze these photo URLs and determine which are AUTHENTIC facility photos vs stock photos.
@@ -161,23 +162,51 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
   }
 
   /**
-   * Step 4: Enhanced photo search using all three AIs
+   * Step 4: SUPER-POWERED photo search using Playwright + Three AIs
    */
   static async findAuthenticPhotos(
     communityName: string,
     perplexityContent: string,
     websiteUrl?: string
   ): Promise<PhotoExtractionResult> {
-    console.log(`🎯 Multi-AI Photo Extraction for ${communityName}`);
+    console.log(`🔥 SUPER-POWERED Multi-AI + Playwright Photo Extraction for ${communityName}`);
     
-    // Step 1: Extract photo URLs using GPT-5
-    console.log('📸 Step 1: GPT-5 extracting photos from content...');
-    const gptPhotos = await this.extractPhotosWithGPT5(perplexityContent, communityName);
-    console.log(`  Found ${gptPhotos.length} potential photos`);
+    let allPhotoCandidates: PhotoCandidate[] = [];
     
-    // Step 2: If we have a website URL, try to get more photos
+    // Step 1: Use Playwright to scrape photos directly from the website
     if (websiteUrl) {
-      console.log(`🌐 Step 2: Searching for photos on ${websiteUrl}`);
+      console.log('🚀 Step 1: Playwright scraping photos from actual website...');
+      try {
+        const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+          websiteUrl,
+          communityName
+        );
+        
+        // Convert scraped photos to candidates
+        const playwrightCandidates = scrapedPhotos.map(photo => ({
+          url: photo.url,
+          source: `Playwright: ${photo.context}`,
+          confidence: photo.isGallery ? 0.9 : 0.8,
+          isAuthentic: true,
+          reason: `Scraped from ${photo.isGallery ? 'gallery' : 'website'}`
+        }));
+        
+        allPhotoCandidates.push(...playwrightCandidates);
+        console.log(`  🔥 Playwright found ${playwrightCandidates.length} photos directly from website`);
+      } catch (error) {
+        console.error('Playwright scraping error:', error);
+      }
+    }
+    
+    // Step 2: Extract photo URLs using GPT-5 from Perplexity content
+    console.log('📸 Step 2: GPT-5 extracting photos from Perplexity content...');
+    const gptPhotos = await this.extractPhotosWithGPT5(perplexityContent, communityName);
+    allPhotoCandidates.push(...gptPhotos);
+    console.log(`  Found ${gptPhotos.length} potential photos from content`);
+    
+    // Step 3: If we have a website URL and GPT-5 needs more photos
+    if (websiteUrl && allPhotoCandidates.length < 10) {
+      console.log(`🌐 Step 3: GPT-5 searching for more photos on ${websiteUrl}`);
       const websiteSearchPrompt = `Find all authentic facility photos on the website ${websiteUrl} for ${communityName}. Look for photo galleries, virtual tours, and facility images.`;
       
       try {
@@ -189,24 +218,24 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
               content: websiteSearchPrompt
             }
           ],
-          max_tokens: 1000
+          max_completion_tokens: 4000
         });
         
         const additionalPhotos = await this.extractPhotosWithGPT5(
           websiteResponse.choices[0].message.content || '',
           communityName
         );
-        gptPhotos.push(...additionalPhotos);
+        allPhotoCandidates.push(...additionalPhotos);
       } catch (error) {
         console.error('Website photo search error:', error);
       }
     }
     
-    // Step 3: Verify all photos with Claude
-    console.log('🔍 Step 3: Claude verifying photo authenticity...');
-    const verifiedPhotos = await this.verifyPhotosWithClaude(gptPhotos);
+    // Step 4: Verify all photos with Claude
+    console.log('🔍 Step 4: Claude verifying photo authenticity...');
+    const verifiedPhotos = await this.verifyPhotosWithClaude(allPhotoCandidates);
     
-    // Step 4: Filter and categorize results
+    // Step 5: Filter and categorize results
     const authenticPhotos = verifiedPhotos.filter(p => 
       p.isAuthentic && 
       p.confidence > 0.7 &&
@@ -225,7 +254,7 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
       authenticPhotos: authenticPhotos.slice(0, 15), // Limit to 15 best photos
       rejectedPhotos,
       sources: [...new Set(verifiedPhotos.map(p => p.source))],
-      summary: `Found ${authenticPhotos.length} authentic facility photos using Multi-AI verification (Perplexity → GPT-5 → Claude)`
+      summary: `🔥 SUPER-POWERED: Found ${authenticPhotos.length} authentic facility photos using Playwright + Multi-AI verification (Playwright → Perplexity → GPT-5 → Claude)`
     };
   }
 
