@@ -223,17 +223,19 @@ export class ComprehensiveSearchEngine {
       console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
       
       // Check if this looks like a specific community name BEFORE applying location logic
-      // Community names often contain city names (e.g., "San Diego Senior Manor")
-      const looksLikeCommunityName = normalizedQuery.includes('manor') || 
-                                     normalizedQuery.includes('estates') ||
-                                     normalizedQuery.includes('village') ||
-                                     normalizedQuery.includes('residence') ||
-                                     normalizedQuery.includes('living') ||
-                                     normalizedQuery.includes('senior') ||
-                                     normalizedQuery.includes('care') ||
-                                     normalizedQuery.includes('home') ||
-                                     normalizedQuery.includes('center') ||
-                                     normalizedQuery.includes('community');
+      // Community names often contain city names (e.g., "San Diego Senior Manor", "Redwood Lodge - Fremont, CA")
+      const communityNameKeywords = [
+        'manor', 'estates', 'village', 'residence', 'living', 'senior', 'care', 
+        'home', 'center', 'community', 'lodge', 'plaza', 'terrace', 'gardens',
+        'court', 'place', 'park', 'villa', 'oaks', 'pines', 'meadows', 'ridge',
+        'haven', 'house', 'assisted', 'memory', 'nursing', 'retirement', 'heights',
+        'grove', 'pointe', 'crossing', 'commons', 'towers', 'square', 'club'
+      ];
+      
+      // Check if query contains community name keywords OR has specific patterns
+      const looksLikeCommunityName = communityNameKeywords.some(keyword => normalizedQuery.includes(keyword)) ||
+                                     normalizedQuery.includes(' - ') || // Common pattern: "Name - City, State"
+                                     /^[A-Z]/.test(query); // Starts with capital letter (proper noun)
       
       // Apply conditions based on ALL detected intents (not just dominant)
       let isCountrySearch = false;
@@ -293,17 +295,27 @@ export class ComprehensiveSearchEngine {
       // This is the most important search - users often search for specific communities
       const nameConditions = [];
       
+      // Check if query follows "Name - City, State" pattern
+      let searchQuery = normalizedQuery;
+      let extractedLocation = null;
+      if (normalizedQuery.includes(' - ')) {
+        const parts = normalizedQuery.split(' - ');
+        searchQuery = parts[0].trim(); // Extract just the community name part
+        extractedLocation = parts[1]?.trim(); // Extract the location part
+        console.log(`🔍 Extracted community name: "${searchQuery}" from location format: "${normalizedQuery}"`);
+      }
+      
       // 1. Exact match (highest priority)
-      nameConditions.push(ilike(communities.name, normalizedQuery));
+      nameConditions.push(ilike(communities.name, searchQuery));
       
       // 2. Starts with (high priority for partial searches)
-      nameConditions.push(ilike(communities.name, `${normalizedQuery}%`));
+      nameConditions.push(ilike(communities.name, `${searchQuery}%`));
       
       // 3. Contains (catches all partial matches)
-      nameConditions.push(ilike(communities.name, `%${normalizedQuery}%`));
+      nameConditions.push(ilike(communities.name, `%${searchQuery}%`));
       
       // 4. Word boundary matching (for multi-word searches)
-      const queryWords = normalizedQuery.split(/\s+/);
+      const queryWords = searchQuery.split(/\s+/);
       if (queryWords.length > 1) {
         // Match any community that contains all words (in any order)
         const wordConditions = queryWords.map(word => 
@@ -316,35 +328,53 @@ export class ComprehensiveSearchEngine {
         nameConditions.push(ilike(communities.name, `%${exactPhrase}%`));
       }
       
+      // If we extracted a location, add it as an additional filter
+      if (extractedLocation) {
+        const locationParts = extractedLocation.split(',').map(part => part.trim());
+        const cityName = locationParts[0];
+        const stateName = locationParts[1];
+        
+        if (cityName) {
+          nameConditions.push(
+            and(
+              ilike(communities.name, `%${searchQuery}%`),
+              ilike(communities.city, `%${cityName}%`)
+            )
+          );
+        }
+        
+        if (stateName) {
+          nameConditions.push(
+            and(
+              ilike(communities.name, `%${searchQuery}%`),
+              or(
+                ilike(communities.state, stateName),
+                ilike(communities.state, `%${stateName}%`)
+              )
+            )
+          );
+        }
+      }
+      
       // Check if we have name matches BEFORE applying other conditions
       const nameSearchCondition = or(...nameConditions);
       
-      // PRIORITY: If no strong intent detected OR searching for a specific community name
-      // Apply name search as the PRIMARY search method
-      const hasLocationConditions = intentScores.location >= 0.3;
+      // PRIORITY: ALWAYS add name search, especially if it looks like a community name
       const hasCompanyConditions = intentScores.company > 0.3;
-      const hasCareTypeConditions = intentScores.careType > 0.3;
-      const hasPriceConditions = intentScores.price > 0.3;
       
-      // If no strong intent OR it looks like a community name search
-      const maxIntentScore = Math.max(...Object.values(intentScores));
-      const isLikelyCommunityName = maxIntentScore < 0.4 || 
-                                    (!hasLocationConditions && !hasCareTypeConditions && !hasPriceConditions);
-      
-      if (isLikelyCommunityName && !hasCompanyConditions) {
-        // ALWAYS add name search first for likely community name searches
+      // If it looks like a community name OR no other strong intent, prioritize name search
+      if (looksLikeCommunityName || !hasCompanyConditions) {
+        // ALWAYS add name search first for community searches
         conditions.push(
           or(
             nameSearchCondition,
-            // Also search in city/state/management company as fallback
-            ilike(communities.city, `%${normalizedQuery}%`),
-            ilike(communities.state, `%${normalizedQuery}%`),
+            // Also search in management company as fallback
             ilike(communities.managementCompany, `%${normalizedQuery}%`)
           )
         );
         console.log(`🔍 Added PRIMARY name search for potential community: "${normalizedQuery}"`);
       } else if (!hasCompanyConditions) {
-        // Even for high-intent queries, add name search to catch specific communities
+        // Even for other queries, add name search to catch specific communities
         conditions.push(nameSearchCondition);
         console.log(`🔍 Added supplementary name search for "${normalizedQuery}"`);
       }
