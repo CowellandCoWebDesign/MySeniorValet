@@ -93,28 +93,55 @@ export class ComprehensiveSearchEngine {
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
     
+    // If it's a location search with no specific results, broaden the search to the city/state
+    if (totalResults === 0 && query && query.includes(',')) {
+      console.log(`🔄 No exact matches, broadening search to location area: ${query}`);
+      const locationParts = query.split(',').map(p => p.trim());
+      const city = locationParts[0];
+      const state = locationParts[1];
+      
+      // Search for communities in the same city or state
+      const broadConditions = [];
+      if (city) {
+        broadConditions.push(ilike(communities.city, `%${city}%`));
+      }
+      if (state) {
+        broadConditions.push(or(
+          ilike(communities.state, `%${state}%`),
+          eq(communities.state, state.toUpperCase())
+        ));
+      }
+      
+      if (broadConditions.length > 0) {
+        const broadQuery = db.select().from(communities)
+          .where(and(...broadConditions))
+          .limit(20); // Get up to 20 from the area
+        
+        results = await broadQuery;
+        totalResults = results.length;
+        console.log(`📍 Found ${totalResults} communities in ${city}, ${state} area`);
+      }
+    }
+    
     // DISCOVERY MODE: Use AI only when NO results are found
     let discoveryMode = false;
     let discoveryMessage = '';
     let aiSuggestions: any = null;
     
-    // Activate Discovery Mode ONLY when we have ZERO results
-    // Don't trigger for valid searches that found 1-2 specific communities
-    if (totalResults === 0 && query && query.trim() !== '') {
-      console.log(`🔍 Activating Discovery Mode for query: "${query}" (no results found)`);
+    // Activate Discovery Mode for enhanced search (0 results OR location searches)
+    // For location searches, first get database results, then enhance with Discovery
+    const isLocationSearch = query && (query.includes(',') || 
+                                       query.match(/\b(CA|California|city|town)\b/i));
+    
+    if ((totalResults === 0 || isLocationSearch) && query && query.trim() !== '') {
+      console.log(`🔍 Activating Discovery Mode for query: "${query}" (${totalResults} database results)`);
       discoveryMode = true;
-      
-      // Only keep the existing database results - don't add random locations
-      // AI suggestions will be provided separately
       
       if (totalResults === 0) {
         discoveryMessage = "🔮 Discovery Mode Activated: We're using AI to find communities that match your search. Click on any result to see live pricing and availability.";
       } else {
-        discoveryMessage = `🔮 Discovery Mode Enhanced: Found ${totalResults} direct match${totalResults === 1 ? '' : 'es'}. Using AI to discover additional options for you.`;
+        discoveryMessage = `🔮 Discovery Mode Enhanced: Found ${totalResults} communities in our database. Using AI to discover additional options for you.`;
       }
-      
-      // We'll integrate Perplexity AI suggestions later in the response
-      // This prevents random locations from appearing
     }
     
     // Build facets for filtering
@@ -183,8 +210,10 @@ export class ComprehensiveSearchEngine {
         const discoveredCommunities = this.parseDiscoveryModeResults(aiResponse.summary, query);
         if (discoveredCommunities.length > 0) {
           console.log(`🏘️ Discovery Mode parsed ${discoveredCommunities.length} communities from AI response`);
-          results = discoveredCommunities;
-          totalResults = discoveredCommunities.length;
+          // ADD discovered communities to existing database results, don't replace
+          results = [...results, ...discoveredCommunities];
+          totalResults = results.length;
+          console.log(`📊 Total results after Discovery: ${totalResults} (${results.length - discoveredCommunities.length} from database, ${discoveredCommunities.length} from AI)`);
         }
       } catch (error) {
         console.error('Discovery Mode error:', error);
