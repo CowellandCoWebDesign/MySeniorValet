@@ -185,13 +185,42 @@ export function CommunityDetailsHeader({
     ? extractedAmenities.slice(0, 6) // Show up to 6 amenities
     : ["24-Hour Care", "Dining Services", "Activities", "Transportation", "Housekeeping", "Social Programs"];
 
+  // Get combined photos from database and web intelligence
+  const getCombinedPhotos = () => {
+    const photos = [];
+    
+    // Add database photos first (if not stock)
+    if (community.photos && community.photos.length > 0) {
+      photos.push(...community.photos);
+    }
+    
+    // Add web intelligence photos
+    const webImages = webIntel?.images || [];
+    if (webImages.length > 0) {
+      const webPhotos = webImages.map((img: any) => {
+        if (typeof img === 'string') {
+          return { image_url: img };
+        }
+        return {
+          image_url: img.image_url || img.url || img,
+          origin_url: img.origin_url,
+          width: img.width,
+          height: img.height
+        };
+      });
+      photos.push(...webPhotos);
+    }
+    
+    return photos;
+  };
+
   return (
     <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
         {/* Photo Carousel */}
         <div className="relative h-[200px] sm:h-[280px] md:h-[320px] lg:h-[400px]">
           <HeroPhotoCarousel 
-            photos={community.photos || []} 
+            photos={getCombinedPhotos()} 
             communityName={community.name}
             communityId={community.id}
             community={community}
