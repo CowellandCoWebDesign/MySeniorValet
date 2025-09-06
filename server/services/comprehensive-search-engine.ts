@@ -422,7 +422,7 @@ export class ComprehensiveSearchEngine {
     
     // Location intent patterns
     const locationPatterns = [
-      /^[a-zA-Z\s]+,\s*[A-Z]{2}$/,     // "Sacramento, CA" - ONLY if it has comma and state
+      /^[a-zA-Z\s]+,\s*[A-Za-z]{2,}$/i,  // "Sacramento, CA" or "Toronto, Ontario" - City, State/Province
       /^\d{5}(-\d{4})?$/,              // ZIP codes
       /\b(in|near|around)\s+/,         // "memory care in Sacramento"
       /\b(city|state|county|zip)\b/,
