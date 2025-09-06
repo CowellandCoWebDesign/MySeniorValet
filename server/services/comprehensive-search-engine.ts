@@ -178,6 +178,14 @@ export class ComprehensiveSearchEngine {
         };
         
         console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
+        
+        // Parse Discovery Mode results into community objects
+        const discoveredCommunities = this.parseDiscoveryModeResults(aiResponse.summary, query);
+        if (discoveredCommunities.length > 0) {
+          console.log(`🏘️ Discovery Mode parsed ${discoveredCommunities.length} communities from AI response`);
+          results = discoveredCommunities;
+          totalResults = discoveredCommunities.length;
+        }
       } catch (error) {
         console.error('Discovery Mode error:', error);
         // Continue without AI suggestions if there's an error
@@ -1350,6 +1358,146 @@ export class ComprehensiveSearchEngine {
     suggestions.push('🌍 Try Discovery Mode for worldwide search');
     
     return suggestions.slice(0, 10);
+  }
+
+  // Parse Discovery Mode AI results into community objects
+  private parseDiscoveryModeResults(summary: string, originalQuery: string): any[] {
+    const communities: any[] = [];
+    
+    try {
+      // Split the summary into sections for each community
+      const lines = summary.split('\n');
+      let currentCommunity: any = null;
+      let currentSection = '';
+      
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        // Check for community names (usually in bold or starting with a dash/bullet)
+        if (trimmedLine.match(/^[-•]\s*(.+?)(?:\s*[-–:]|$)/) || 
+            trimmedLine.match(/^\*\*(.+?)\*\*/) ||
+            trimmedLine.match(/^(\d+\.\s)?([A-Z][A-Za-z\s]+(?:Manor|Village|Living|Care|Residence|Estate|Home|Center|Community|Place))(?:\s*[-–:]|$)/)) {
+          
+          // Save previous community if exists
+          if (currentCommunity && currentCommunity.name) {
+            communities.push(currentCommunity);
+          }
+          
+          // Extract community name
+          let name = trimmedLine
+            .replace(/^[-•]\s*/, '')
+            .replace(/^\*\*(.+?)\*\*.*/, '$1')
+            .replace(/^\d+\.\s/, '')
+            .replace(/\s*[-–:].*/, '')
+            .trim();
+          
+          // Create new community object
+          currentCommunity = {
+            id: `discovery-${Date.now()}-${communities.length}`,
+            name: name,
+            city: '',
+            state: '',
+            address: '',
+            description: '',
+            care_type_provided: [],
+            phone: '',
+            website: '',
+            isDiscovered: true,
+            discoverySource: 'AI Discovery Mode',
+            pricing_information: 'Contact for pricing'
+          };
+        }
+        
+        // Parse address and location
+        if (currentCommunity && trimmedLine.match(/\d+\s+[A-Za-z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Place|Pl|Court|Ct)/i)) {
+          currentCommunity.address = trimmedLine.replace(/[-–].*/, '').trim();
+          
+          // Extract city and state from address if present
+          const addressMatch = trimmedLine.match(/,\s*([A-Za-z\s]+),\s*([A-Z]{2})\s*\d{5}/);
+          if (addressMatch) {
+            currentCommunity.city = addressMatch[1].trim();
+            currentCommunity.state = addressMatch[2].trim();
+          }
+        }
+        
+        // Parse phone number
+        if (currentCommunity && trimmedLine.match(/Phone:|Tel:|Call:/i)) {
+          const phoneMatch = trimmedLine.match(/(\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4})/);
+          if (phoneMatch) {
+            currentCommunity.phone = phoneMatch[1];
+          }
+        }
+        
+        // Parse care types
+        if (currentCommunity && (trimmedLine.match(/Care Levels:|Services:|Care Types:|Offers:/i) || 
+            trimmedLine.match(/(Independent Living|Assisted Living|Memory Care|Nursing|Skilled Nursing)/i))) {
+          const careTypes = [];
+          if (trimmedLine.match(/Independent Living/i)) careTypes.push('Independent Living');
+          if (trimmedLine.match(/Assisted Living/i)) careTypes.push('Assisted Living');
+          if (trimmedLine.match(/Memory Care/i)) careTypes.push('Memory Care');
+          if (trimmedLine.match(/Nursing|Skilled Nursing/i)) careTypes.push('Skilled Nursing');
+          
+          if (careTypes.length > 0) {
+            currentCommunity.care_type_provided = [...new Set([...currentCommunity.care_type_provided, ...careTypes])];
+          }
+        }
+        
+        // Parse pricing if mentioned
+        if (currentCommunity && trimmedLine.match(/\$[\d,]+|Pricing:|Rates:|Cost:/i)) {
+          const priceMatch = trimmedLine.match(/\$[\d,]+/);
+          if (priceMatch) {
+            currentCommunity.pricing_information = trimmedLine;
+          }
+        }
+        
+        // Collect description text
+        if (currentCommunity && trimmedLine && !trimmedLine.match(/^[-•*]|\*\*|Phone:|Address:|Pricing:|Care Levels:/)) {
+          currentCommunity.description += (currentCommunity.description ? ' ' : '') + trimmedLine;
+        }
+      }
+      
+      // Save last community
+      if (currentCommunity && currentCommunity.name) {
+        communities.push(currentCommunity);
+      }
+      
+      // If no structured parsing worked, try to extract any mentioned community names
+      if (communities.length === 0) {
+        const namePatterns = [
+          /([A-Z][A-Za-z\s]+(?:Manor|Village|Living|Care|Residence|Estate|Home|Center|Community|Place))/g,
+          /\*\*([^*]+)\*\*/g
+        ];
+        
+        for (const pattern of namePatterns) {
+          const matches = summary.matchAll(pattern);
+          for (const match of matches) {
+            const name = match[1].trim();
+            if (name && name.length > 3 && !communities.some(c => c.name === name)) {
+              communities.push({
+                id: `discovery-${Date.now()}-${communities.length}`,
+                name: name,
+                city: originalQuery.includes(',') ? originalQuery.split(',')[0].trim() : '',
+                state: originalQuery.includes(',') && originalQuery.split(',')[1] ? originalQuery.split(',')[1].trim() : '',
+                address: '',
+                description: `Discovered through AI search for "${originalQuery}"`,
+                care_type_provided: ['Senior Living'],
+                phone: '',
+                website: '',
+                isDiscovered: true,
+                discoverySource: 'AI Discovery Mode',
+                pricing_information: 'Contact for pricing'
+              });
+            }
+          }
+        }
+      }
+      
+      console.log(`📋 Parsed ${communities.length} communities from Discovery Mode response`);
+      return communities;
+    } catch (error) {
+      console.error('Error parsing Discovery Mode results:', error);
+      return [];
+    }
   }
 }
 
