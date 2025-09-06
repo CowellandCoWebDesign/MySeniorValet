@@ -13,6 +13,7 @@ interface PhotoCarouselProps {
   className?: string;
   showValidation?: boolean;
   showSourceIndicator?: boolean;
+  isLoading?: boolean;
 }
 
 interface PhotoValidationResult {
@@ -31,11 +32,14 @@ export function EnhancedPhotoCarousel({
   communityName, 
   className = "", 
   showValidation = false,
-  showSourceIndicator = true 
+  showSourceIndicator = true,
+  isLoading = false 
 }: PhotoCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [photoValidation, setPhotoValidation] = useState<Record<string, PhotoValidationResult>>({});
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [showValidationReport, setShowValidationReport] = useState(false);
 
   // Get photo validation report if validation is enabled and community ID is provided
@@ -117,7 +121,27 @@ export function EnhancedPhotoCarousel({
     }
   }, [photos, showValidation]);
 
-  if (!photos || photos.length === 0) {
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center text-gray-500 p-8">
+          <div className="w-16 h-16 mx-auto mb-4">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 dark:border-gray-600 border-t-primary"></div>
+          </div>
+          <p className="text-sm font-medium">Searching for authentic photos...</p>
+          <p className="text-xs text-gray-400 mt-2">
+            Checking directory sites and official sources
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Filter out broken images
+  const validPhotos = photos.filter(photo => !imageErrors.has(photo));
+
+  if (!validPhotos || validPhotos.length === 0) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">
@@ -125,6 +149,11 @@ export function EnhancedPhotoCarousel({
             <ZoomIn className="w-8 h-8" />
           </div>
           <p className="text-sm">No photos available</p>
+          {photos.length > 0 && imageErrors.size > 0 && (
+            <p className="text-xs text-orange-500 mt-2">
+              {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be loaded
+            </p>
+          )}
           {showValidation && (
             <p className="text-xs text-gray-400 mt-2">
               Consider adding authentic photos from verified sources
@@ -136,18 +165,18 @@ export function EnhancedPhotoCarousel({
   }
 
   const nextPhoto = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
+    setCurrentIndex((prev) => (prev + 1) % validPhotos.length);
   };
 
   const prevPhoto = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
+    setCurrentIndex((prev) => (prev - 1 + validPhotos.length) % validPhotos.length);
   };
 
   const goToPhoto = (index: number) => {
     setCurrentIndex(index);
   };
 
-  const currentPhoto = photos[currentIndex];
+  const currentPhoto = validPhotos[Math.min(currentIndex, validPhotos.length - 1)];
   const currentPhotoValidation = photoValidation[currentPhoto];
 
   // Check if current photo has validation issues
@@ -183,16 +212,43 @@ export function EnhancedPhotoCarousel({
         )}
 
         {/* Main Photo */}
-        <div className="relative aspect-video">
+        <div className="relative aspect-video bg-gray-100 dark:bg-gray-800">
+          {/* Loading indicator for individual image */}
+          {!loadedImages.has(currentPhoto) && !imageErrors.has(currentPhoto) && (
+            <div className="absolute inset-0 flex items-center justify-center z-10">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-primary mx-auto"></div>
+                <p className="text-sm text-gray-500 mt-2">Loading photo...</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Error state for broken image */}
+          {imageErrors.has(currentPhoto) && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+              <div className="text-center text-gray-500">
+                <AlertTriangle className="w-12 h-12 mx-auto mb-2 text-orange-500" />
+                <p className="text-sm">Photo unavailable</p>
+                <p className="text-xs text-gray-400 mt-1">The image could not be loaded</p>
+              </div>
+            </div>
+          )}
+          
           <img
             src={currentPhoto}
             alt={`${communityName} - Photo ${currentIndex + 1}`}
-            className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+            className={`w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity ${
+              loadedImages.has(currentPhoto) ? 'opacity-100' : 'opacity-0'
+            }`}
             onClick={() => setShowFullscreen(true)}
+            onLoad={(e) => {
+              setLoadedImages(prev => new Set([...prev, currentPhoto]));
+            }}
             onError={(e) => {
               // Handle broken images gracefully
-              const img = e.target as HTMLImageElement;
-              img.style.display = 'none';
+              setImageErrors(prev => new Set([...prev, currentPhoto]));
+              console.log(`Failed to load image: ${currentPhoto}`);
+              
               if (showValidation) {
                 setPhotoValidation(prev => ({
                   ...prev,
@@ -204,12 +260,22 @@ export function EnhancedPhotoCarousel({
                   }
                 }));
               }
+              
+              // Try to move to next photo if available
+              if (validPhotos.length > 1) {
+                setTimeout(nextPhoto, 500);
+              }
             }}
           />
 
           {/* Photo Count Badge */}
-          <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm">
-            {currentIndex + 1} of {photos.length}
+          <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm z-20">
+            {Math.min(currentIndex + 1, validPhotos.length)} of {validPhotos.length}
+            {imageErrors.size > 0 && (
+              <span className="text-xs text-orange-300 ml-1">
+                ({imageErrors.size} failed)
+              </span>
+            )}
           </div>
 
           {/* Photo Quality Badge */}

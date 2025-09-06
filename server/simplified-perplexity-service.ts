@@ -487,18 +487,16 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
-    // SIMPLIFIED PHOTO EXTRACTION - Use citations to find directory sites
+    // SIMPLIFIED PHOTO EXTRACTION - Extract real URLs from content only
     let extractedPhotos: string[] = [];
     
-    // Check citations for directory sites and generate appropriate photos
-    const directoryPhotos = this.extractPhotosFromCitations(citations, communityName);
-    if (directoryPhotos.length > 0) {
-      extractedPhotos = directoryPhotos;
-      console.log(`📸 Found ${extractedPhotos.length} photos from directory citations`);
+    // Extract actual photo URLs from the content (not fake generated ones)
+    extractedPhotos = this.extractPhotos(content);
+    
+    if (extractedPhotos.length > 0) {
+      console.log(`📸 Extracted ${extractedPhotos.length} photos from Perplexity content`);
     } else {
-      // Fallback to extracting from content if no directory citations
-      extractedPhotos = this.extractPhotos(content);
-      console.log(`📸 Extracted ${extractedPhotos.length} photos from content`);
+      console.log(`📸 No photos found in Perplexity response`);
     }
     
     // Check for structured data (JSON) in the response
@@ -791,47 +789,12 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
 
   /**
    * Extract photos from directory site citations
+   * Note: Only extract photos from content, not generate fake URLs
    */
   private extractPhotosFromCitations(citations: string[], communityName: string): string[] {
-    const photos: string[] = [];
-    const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    
-    // Check each citation for directory sites
-    for (const citation of citations) {
-      const lowerCitation = citation.toLowerCase();
-      
-      if (lowerCitation.includes('caring.com')) {
-        // Caring.com uses Cloudinary CDN
-        photos.push(
-          `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/${communitySlug}-exterior.jpg`,
-          `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/${communitySlug}-interior.jpg`,
-          `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/${communitySlug}-dining.jpg`
-        );
-      } else if (lowerCitation.includes('seniorhomes.com')) {
-        photos.push(
-          `https://images.seniorhomes.com/photos/${communitySlug}/exterior.jpg`,
-          `https://images.seniorhomes.com/photos/${communitySlug}/interior.jpg`
-        );
-      } else if (lowerCitation.includes('seniorly.com')) {
-        photos.push(
-          `https://images.seniorly.com/communities/${communitySlug}/exterior.webp`,
-          `https://images.seniorly.com/communities/${communitySlug}/interior.webp`
-        );
-      } else if (lowerCitation.includes('aplaceformom.com')) {
-        photos.push(
-          `https://images.aplaceformom.com/communities/${communitySlug}/exterior.jpg`,
-          `https://images.aplaceformom.com/communities/${communitySlug}/interior.jpg`
-        );
-      } else if (lowerCitation.includes('senioradvisor.com')) {
-        photos.push(
-          `https://cdn.senioradvisor.com/images/communities/${communitySlug}/exterior.jpg`,
-          `https://cdn.senioradvisor.com/images/communities/${communitySlug}/interior.jpg`
-        );
-      }
-    }
-    
-    // Remove duplicates
-    return [...new Set(photos)];
+    // Don't generate fake directory URLs - they don't actually exist
+    // Instead, return empty array and let the content extraction handle it
+    return [];
   }
   
   private extractPhotos(content: string): string[] {
