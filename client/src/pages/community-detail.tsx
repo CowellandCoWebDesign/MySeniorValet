@@ -1336,8 +1336,8 @@ export const HeroPhotoCarousel = ({
                     </div>
                   )}
                 </div>
-              );
-            })}
+              )
+            )}
           </div>
         ) : safePhotos.length > 0 ? (
           // 3+ photos - featured + grid
@@ -1382,8 +1382,8 @@ export const HeroPhotoCarousel = ({
                       </div>
                     )}
                   </div>
-                );
-              })}
+                )
+              )}
             </div>
           </div>
         ) : (
