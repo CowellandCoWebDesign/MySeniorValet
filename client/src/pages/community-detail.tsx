@@ -1145,30 +1145,13 @@ export const HeroPhotoCarousel = ({
         .filter((img: any) => {
           const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
           
-          // Skip logos, badges, and obvious non-community photos
-          const lowerUrl = url.toLowerCase();
-          
-          // Skip app store badges and download buttons
-          if (lowerUrl.includes('badge') || 
-              lowerUrl.includes('google-badge') ||
-              lowerUrl.includes('apple-badge') ||
-              lowerUrl.includes('amazon-badge') ||
-              lowerUrl.includes('app-store') ||
-              lowerUrl.includes('google-play') ||
-              lowerUrl.includes('download')) {
-            return false;
-          }
-          
-          // Skip stock images
-          if (lowerUrl.includes('stock-image') || 
-              lowerUrl.includes('stock_image') ||
-              lowerUrl.includes('questions-to-ask') ||
-              lowerUrl.includes('seniorliving.org/app/themes')) {
-            return false;
-          }
-          
-          // Skip MapQuest static media
-          if (url.includes('mapquest.com/_next/static')) {
+          // Skip obvious generic/directory photos
+          if (url.includes('logo') || url.includes('icon') || 
+              url.includes('seniorhomes.com') || 
+              url.includes('caring.com') ||
+              url.includes('placeholder') ||
+              url.includes('default') ||
+              url.toLowerCase().includes('logo')) {
             return false;
           }
           
