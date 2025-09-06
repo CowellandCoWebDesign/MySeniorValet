@@ -724,7 +724,6 @@ function HeroSectionWithTransformingSearch() {
                   )}
                   
                   {/* Regular Search Results List */}
-                <>
                   {/* Regular Results Header - Glass Morphism */}
                   <div className="">
                     <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
