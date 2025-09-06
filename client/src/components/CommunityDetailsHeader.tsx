@@ -270,8 +270,8 @@ export function CommunityDetailsHeader({
           </div>
         </div>
         
-        {/* Community Info Section with Premium Styling */}
-        <div className="bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-850 dark:to-gray-800">
+        {/* Community Info Section with Premium Styling - SEPARATED FROM PHOTOS */}
+        <div className="bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-850 dark:to-gray-800 mt-0 relative z-0">
           {/* Header Section with Enhanced Design */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700 relative">
             {/* Price positioned at absolute top right */}

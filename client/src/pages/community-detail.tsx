@@ -1141,19 +1141,38 @@ export const HeroPhotoCarousel = ({
     }
     
     if (webImages && webImages.length > 0) {
-      const webPhotos = webImages.map((img: any) => {
-        // Handle both string URLs and object format - SAME AS WORKING SECTION
-        if (typeof img === 'string') {
-          return { url: img };
-        }
-        return {
-          url: img.image_url || img.url || img,
-          origin_url: img.origin_url,
-          width: img.width,
-          height: img.height
-        };
-      });
-      photos.push(...webPhotos);
+      const webPhotos = webImages
+        .filter((img: any) => {
+          const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
+          
+          // Skip obvious generic/directory photos
+          if (url.includes('logo') || url.includes('icon') || 
+              url.includes('seniorhomes.com') || 
+              url.includes('caring.com') ||
+              url.includes('placeholder') ||
+              url.includes('default') ||
+              url.toLowerCase().includes('logo')) {
+            return false;
+          }
+          
+          return true;
+        })
+        .map((img: any) => {
+          // Handle both string URLs and object format
+          if (typeof img === 'string') {
+            return { url: img };
+          }
+          return {
+            url: img.image_url || img.url || img,
+            origin_url: img.origin_url,
+            width: img.width,
+            height: img.height
+          };
+        });
+      
+      if (webPhotos.length > 0) {
+        photos.push(...webPhotos);
+      }
     }
     
     // Return photos - KEEP IT SIMPLE  
