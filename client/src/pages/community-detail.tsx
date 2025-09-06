@@ -2099,47 +2099,64 @@ export default function CommunityDetail() {
                 setShowReservationDialog(true);
               }}
               onTourClick={() => {
-                // Navigate to tours tab first - use more specific selector
-                const toursTab = document.querySelector('button[role="tab"][value="tours"]') as HTMLElement;
+                // Find the tours tab using the most specific selector
+                let toursTab = document.querySelector('button[role="tab"][value="tours"]') as HTMLElement;
+                
+                // If not found, try finding in the tabs list specifically
                 if (!toursTab) {
-                  // Try alternative selector
-                  const allTabs = document.querySelectorAll('button[role="tab"]');
-                  allTabs.forEach(tab => {
-                    if (tab.textContent?.includes('Tours')) {
-                      (tab as HTMLElement).click();
-                      return;
-                    }
-                  });
+                  const tabsList = document.querySelector('[role="tablist"]');
+                  if (tabsList) {
+                    // Find all buttons and check each one
+                    const buttons = tabsList.querySelectorAll('button');
+                    buttons.forEach(btn => {
+                      // Check both the value attribute and the text content
+                      if (btn.getAttribute('value') === 'tours' || 
+                          (btn.textContent && btn.textContent.includes('🗓️') && btn.textContent.includes('Tours'))) {
+                        toursTab = btn as HTMLElement;
+                      }
+                    });
+                  }
                 }
                 
                 if (toursTab) {
+                  // Click the tours tab to switch to it
                   toursTab.click();
                   
-                  // After tab switches, scroll to section and open scheduler
+                  // Wait a moment for the tab content to render
                   setTimeout(() => {
-                    // First scroll to the tabs section
-                    const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
-                    if (tabsSection) {
-                      tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Scroll to the tabs section first
+                    const tabsContainer = document.querySelector('[role="tablist"]')?.parentElement;
+                    if (tabsContainer) {
+                      tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     }
                     
-                    // Then find and click the TourScheduler button to open the dialog
+                    // Then try to open the tour scheduler dialog
                     setTimeout(() => {
-                      // Look for the Schedule In-Person Tour button specifically
-                      const buttons = document.querySelectorAll('.tour-scheduler-form button');
-                      buttons.forEach(button => {
-                        if (button.textContent?.includes('Schedule In-Person Tour')) {
-                          (button as HTMLElement).click();
-                          return;
+                      // Find the Schedule In-Person Tour button
+                      const schedulerButtons = document.querySelectorAll('.tour-scheduler-form button');
+                      let targetButton: HTMLElement | null = null;
+                      
+                      schedulerButtons.forEach(btn => {
+                        if (btn.textContent?.includes('Schedule In-Person Tour')) {
+                          targetButton = btn as HTMLElement;
                         }
                       });
                       
-                      // Alternative: try any button in the tour scheduler form
-                      if (buttons.length > 0) {
-                        (buttons[0] as HTMLElement).click();
+                      // Click the button if found
+                      if (targetButton) {
+                        targetButton.click();
+                      } else if (schedulerButtons.length > 0) {
+                        // Fallback: click the first button in the scheduler form
+                        (schedulerButtons[0] as HTMLElement).click();
                       }
-                    }, 300); // Extra delay for smooth scroll to complete
+                    }, 500); // Give time for smooth scroll
                   }, 200); // Give time for tab content to render
+                } else {
+                  // If we still can't find the tab, just scroll to the tabs section
+                  const tabsSection = document.querySelector('[role="tablist"]');
+                  if (tabsSection && tabsSection.parentElement) {
+                    tabsSection.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
                 }
               }}
             />
