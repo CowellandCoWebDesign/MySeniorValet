@@ -8,7 +8,6 @@ import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
 import { ScalableCache } from '../infrastructure/cache';
-import { multiAIPhotoExtractor } from './multi-ai-photo-extractor';
 
 // 7-day cache (like Google) for web enrichment data with proper attribution
 const enrichmentCache = new ScalableCache(1000, 7 * 24 * 60 * 60 * 1000);
@@ -92,15 +91,8 @@ export class SimpleEnrichmentService {
     // Step 4: Extract information from search results
     const extractedInfo = this.extractInformation(searchResults);
     
-    // Step 5: Get photos - using enhanced multi-AI extraction with fallbacks
-    const photos = await this.getPhotos(
-      extractedInfo.website, 
-      community.name,
-      community.city,
-      community.state,
-      searchResults.sources || [],
-      community.careType
-    );
+    // Step 5: Get photos (try website first, fallback to stock)
+    const photos = await this.getPhotos(extractedInfo.website, community.careType);
     
     // Step 6: Build simple result
     const result: SimpleEnrichmentResult = {
@@ -172,79 +164,31 @@ export class SimpleEnrichmentService {
   }
   
   /**
-   * Get photos - Use enhanced multi-AI photo extraction
+   * Get photos - try website scraping, fallback to stock
    */
-  private async getPhotos(
-    website: string | null, 
-    communityName: string,
-    city: string,
-    state: string,
-    sources: string[],
-    careType: string
-  ): Promise<any[]> {
+  private async getPhotos(website: string | null, careType: string): Promise<any[]> {
     const photos = [];
     
-    // First try the enhanced multi-AI photo extractor for comprehensive results
-    try {
-      console.log(`🎨 Using enhanced multi-AI photo extraction for ${communityName}...`);
-      
-      // Use website if available, otherwise try directory sites from sources
-      let targetUrl = website;
-      if (!targetUrl && sources.length > 0) {
-        // Try to find a directory listing page from sources
-        const directoryUrls = sources.filter(url => 
-          url.includes('caring.com') || 
-          url.includes('seniorliving.org') || 
-          url.includes('aplaceformom.com') ||
-          url.includes('seniorly.com')
-        );
-        targetUrl = directoryUrls[0] || sources[0];
-      }
-      
-      // If still no URL, construct a search URL
-      if (!targetUrl) {
-        const searchQuery = encodeURIComponent(`${communityName} ${city} ${state} senior living photos`);
-        targetUrl = `https://www.google.com/search?q=${searchQuery}&tbm=isch`;
-      }
-      
-      const extractedPhotos = await multiAIPhotoExtractor.extractPhotosMultiAI(
-        targetUrl,
-        50, // Extract up to 50 photos
-        3000 // 3 second timeout
-      );
-      
-      if (extractedPhotos && extractedPhotos.length > 0) {
-        photos.push(...extractedPhotos.map(url => ({
-          url,
-          source: 'multi-ai' as const,
-          isAuthentic: true
-        })));
-        console.log(`✅ Multi-AI extracted ${extractedPhotos.length} photos`);
-      }
-    } catch (error) {
-      console.log('Multi-AI photo extraction failed, trying direct scraping...');
-    }
-    
-    // Fallback to simple website scraping if multi-AI didn't get enough photos
-    if (website && photos.length < 10) {
+    // Try to scrape website if we have one
+    if (website) {
       try {
         const websitePhotos = await this.scrapeWebsitePhotos(website);
-        const uniquePhotos = websitePhotos.filter(
-          url => !photos.some(p => p.url === url)
-        );
-        photos.push(...uniquePhotos.map(url => ({
+        photos.push(...websitePhotos.map(url => ({
           url,
           source: 'website' as const,
           isAuthentic: true
         })));
-        console.log(`✅ Direct scraping added ${uniquePhotos.length} more photos`);
       } catch (error) {
-        console.log('Direct website scraping also failed');
+        console.log('Website scraping failed, no photos available');
       }
     }
     
     // DISABLED: Never add stock photos - only real photos from web
     // We want authentic photos only, not stock images
+    // if (photos.length === 0) {
+    //   const stockPhotos = this.getStockPhotos(careType);
+    //   photos.push(...stockPhotos);
+    // }
     
     return photos;
   }
@@ -257,28 +201,12 @@ export class SimpleEnrichmentService {
       const response = await fetch(url);
       const html = await response.text();
       
-      // Enhanced image extraction with multiple patterns
+      // Simple image extraction
+      const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
       const photos: string[] = [];
-      const seenUrls = new Set<string>();
+      let match;
       
-      // Multiple regex patterns for comprehensive extraction
-      const patterns = [
-        /<img[^>]+src=["']([^"']+)["']/gi,
-        /<img[^>]+data-src=["']([^"']+)["']/gi,
-        /<img[^>]+data-lazy-src=["']([^"']+)["']/gi,
-        /background-image:\s*url\(['"]?([^'"\)]+)['"]?\)/gi,
-        /data-background-image=["']([^"']+)["']/gi,
-        /<source[^>]+srcset=["']([^"']+)["']/gi,
-        /"image_url"\s*:\s*"([^"]+)"/gi,
-        /"url"\s*:\s*"([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi
-      ];
-      
-      // Extract from all patterns
-      for (const pattern of patterns) {
-        let match;
-        pattern.lastIndex = 0; // Reset regex
-      
-      while ((match = imgRegex.exec(html)) !== null && photos.length < 30) {
+      while ((match = imgRegex.exec(html)) !== null && photos.length < 10) {
         let imgUrl = match[1];
         
         // Skip invalid URLs like JavaScript variables or placeholders
@@ -306,26 +234,13 @@ export class SimpleEnrichmentService {
         const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
         const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
         
-        // Check if it's likely a real community photo
-        const isLikelyRealPhoto = !imgUrl.includes('logo') && 
+        if (!imgUrl.includes('logo') && 
             !imgUrl.includes('icon') && 
             !imgUrl.includes('.svg') &&
-            !imgUrl.includes('placeholder') &&
-            !imgUrl.includes('default') &&
-            !imgUrl.includes('spinner') &&
-            !imgUrl.includes('loading') &&
-            hasValidExtension;
-        
-        if (isLikelyRealPhoto && !seenUrls.has(imgUrl)) {
-          seenUrls.add(imgUrl);
+            hasValidExtension) {
           photos.push(imgUrl);
         }
-        
-        // Stop if we have enough photos
-        if (photos.length >= 30) break;
       }
-      if (photos.length >= 30) break;
-    }
       
       console.log(`📸 Scraped ${photos.length} valid photos from ${url}`);
       return photos;

@@ -187,7 +187,7 @@ router.put('/:communityId/units/:unitId',
 // Get tour analytics
 router.get('/:communityId/analytics/tours',
   apiLimiter,
-  requireAuth,
+
   async (req: Request, res: Response) => {
     try {
       const analytics = {
