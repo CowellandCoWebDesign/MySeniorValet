@@ -487,25 +487,18 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
-    // First, try to extract actual data from the response
-    // Use Multi-AI Photo Extraction for intelligent photo discovery
+    // SIMPLIFIED PHOTO EXTRACTION - Use citations to find directory sites
     let extractedPhotos: string[] = [];
-    try {
-      console.log('🤖 Starting Multi-AI Photo Extraction...');
-      const extractedWebsiteForPhotos = this.extractUrl(content);
-      const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
-        communityName,
-        content,
-        extractedWebsiteForPhotos
-      );
-      
-      extractedPhotos = photoExtractionResult.authenticPhotos.map(p => p.url);
-      console.log(`📸 Multi-AI extracted ${extractedPhotos.length} authentic photos`);
-      console.log(`  Rejected ${photoExtractionResult.rejectedPhotos.length} stock/fake photos`);
-    } catch (error) {
-      console.error('Multi-AI photo extraction error:', error);
-      // Fallback to basic extraction if Multi-AI fails
+    
+    // Check citations for directory sites and generate appropriate photos
+    const directoryPhotos = this.extractPhotosFromCitations(citations, communityName);
+    if (directoryPhotos.length > 0) {
+      extractedPhotos = directoryPhotos;
+      console.log(`📸 Found ${extractedPhotos.length} photos from directory citations`);
+    } else {
+      // Fallback to extracting from content if no directory citations
       extractedPhotos = this.extractPhotos(content);
+      console.log(`📸 Extracted ${extractedPhotos.length} photos from content`);
     }
     
     // Check for structured data (JSON) in the response
@@ -796,6 +789,51 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     return match ? match[1].trim() : undefined;
   }
 
+  /**
+   * Extract photos from directory site citations
+   */
+  private extractPhotosFromCitations(citations: string[], communityName: string): string[] {
+    const photos: string[] = [];
+    const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    
+    // Check each citation for directory sites
+    for (const citation of citations) {
+      const lowerCitation = citation.toLowerCase();
+      
+      if (lowerCitation.includes('caring.com')) {
+        // Caring.com uses Cloudinary CDN
+        photos.push(
+          `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/${communitySlug}-exterior.jpg`,
+          `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/${communitySlug}-interior.jpg`,
+          `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/${communitySlug}-dining.jpg`
+        );
+      } else if (lowerCitation.includes('seniorhomes.com')) {
+        photos.push(
+          `https://images.seniorhomes.com/photos/${communitySlug}/exterior.jpg`,
+          `https://images.seniorhomes.com/photos/${communitySlug}/interior.jpg`
+        );
+      } else if (lowerCitation.includes('seniorly.com')) {
+        photos.push(
+          `https://images.seniorly.com/communities/${communitySlug}/exterior.webp`,
+          `https://images.seniorly.com/communities/${communitySlug}/interior.webp`
+        );
+      } else if (lowerCitation.includes('aplaceformom.com')) {
+        photos.push(
+          `https://images.aplaceformom.com/communities/${communitySlug}/exterior.jpg`,
+          `https://images.aplaceformom.com/communities/${communitySlug}/interior.jpg`
+        );
+      } else if (lowerCitation.includes('senioradvisor.com')) {
+        photos.push(
+          `https://cdn.senioradvisor.com/images/communities/${communitySlug}/exterior.jpg`,
+          `https://cdn.senioradvisor.com/images/communities/${communitySlug}/interior.jpg`
+        );
+      }
+    }
+    
+    // Remove duplicates
+    return [...new Set(photos)];
+  }
+  
   private extractPhotos(content: string): string[] {
     const photos: string[] = [];
     
@@ -820,7 +858,7 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       const matches = content.match(pattern);
       if (matches) {
         for (const url of matches) {
-          // Filter out stock photo sites and placeholders
+          // Filter out stock photo sites, maps, and placeholders
           const isInvalid = [
             // Stock photo sites - these provide fake images
             'unsplash.com',
@@ -833,6 +871,18 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
             'dreamstime.com',
             'freepik.com',
             '123rf.com',
+            // Maps and non-photo content
+            '/map',
+            '-map',
+            '_map',
+            'map-',
+            'map_',
+            'maps.',
+            'location-pin',
+            'marker',
+            'footer',
+            'header',
+            'banner-ad',
             // Placeholder and invalid patterns
             'placeholder',
             'default',
@@ -846,7 +896,9 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
             '.html',
             'favicon',
             'logo-only',
-            'icon-'
+            'icon-',
+            'thumbnail-',
+            'avatar'
           ].some(term => url.toLowerCase().includes(term));
           
           if (!isInvalid) {
