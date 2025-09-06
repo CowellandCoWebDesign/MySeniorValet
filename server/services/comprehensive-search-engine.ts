@@ -225,23 +225,33 @@ export class ComprehensiveSearchEngine {
       let isCountrySearch = false;
       
       if (intentScores.location >= 0.3) {
-        const locationConditions = await this.buildLocationConditions(normalizedQuery);
-        console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+        // Check if this is an international location query first
+        const isInternational = this.detectInternationalQuery(normalizedQuery);
         
-        // Only add location conditions if they exist
-        if (locationConditions.length > 0) {
-          // Combine multiple location conditions with OR, not AND
-          if (locationConditions.length > 1) {
-            conditions.push(or(...locationConditions));
-            console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
-          } else {
-            conditions.push(...locationConditions);
-            console.log(`🔍 Added single location condition`);
+        if (isInternational) {
+          // For international queries, add a condition that won't match to trigger Discovery Mode
+          conditions.push(eq(communities.country, 'TRIGGER_DISCOVERY_MODE'));
+          console.log(`🌍 International location detected, triggering Discovery Mode for: ${normalizedQuery}`);
+          searchType = 'international';
+        } else {
+          const locationConditions = await this.buildLocationConditions(normalizedQuery);
+          console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+          
+          // Only add location conditions if they exist
+          if (locationConditions.length > 0) {
+            // Combine multiple location conditions with OR, not AND
+            if (locationConditions.length > 1) {
+              conditions.push(or(...locationConditions));
+              console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
+            } else {
+              conditions.push(...locationConditions);
+              console.log(`🔍 Added single location condition`);
+            }
           }
+          // Check if this was a country search
+          isCountrySearch = (locationConditions as any).__isCountrySearch;
+          console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
         }
-        // Check if this was a country search
-        isCountrySearch = (locationConditions as any).__isCountrySearch;
-        console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
       }
       
       if (intentScores.careType > 0.3) {
@@ -357,6 +367,27 @@ export class ComprehensiveSearchEngine {
       /\b(california|texas|florida|new york|illinois|ohio|pennsylvania|arizona|georgia|north carolina|michigan|new jersey|virginia|washington|massachusetts|indiana|tennessee|missouri|maryland|wisconsin|minnesota|colorado|alabama|south carolina|louisiana|kentucky|oregon|oklahoma|connecticut|iowa|mississippi|arkansas|utah|kansas|nevada|new mexico|nebraska|west virginia|idaho|hawaii|maine|new hampshire|rhode island|montana|delaware|south dakota|alaska|north dakota|vermont|wyoming)\b/i,  // State names
       /\b(sacramento|los angeles|san francisco|san diego|chicago|houston|phoenix|philadelphia|san antonio|dallas|san jose|austin|jacksonville|columbus|charlotte|detroit|el paso|memphis|seattle|denver|washington|boston|nashville|baltimore|oklahoma city|louisville|portland|las vegas|milwaukee|albuquerque|tucson|fresno|mesa|atlanta|kansas city|colorado springs|miami|raleigh|omaha|long beach|virginia beach|oakland|minneapolis|tulsa|arlington|tampa|new orleans)\b/i  // Major cities
     ];
+    
+    // Check for international locations separately with higher priority
+    const internationalLocationPatterns = [
+      /\b(sydney|melbourne|brisbane|perth|adelaide|auckland|wellington|christchurch)\b/i, // Australia/NZ cities
+      /\b(london|manchester|birmingham|liverpool|edinburgh|glasgow|cardiff|belfast)\b/i, // UK cities
+      /\b(toronto|vancouver|montreal|calgary|ottawa|edmonton|winnipeg|quebec)\b/i, // Canadian cities
+      /\b(cancun|mexico city|guadalajara|monterrey|tijuana|puerto vallarta|cabo)\b/i, // Mexican cities
+      /\b(paris|marseille|lyon|toulouse|nice|bordeaux|strasbourg)\b/i, // French cities
+      /\b(tokyo|osaka|kyoto|yokohama|nagoya|sapporo|kobe|fukuoka)\b/i, // Japanese cities
+      /\b(beijing|shanghai|guangzhou|shenzhen|hong kong|taipei|singapore)\b/i, // Asian cities
+      /\b(moscow|st petersburg|dubai|abu dhabi|tel aviv|jerusalem|cairo)\b/i, // Other international
+      /\b(berlin|munich|hamburg|cologne|frankfurt|stuttgart|dusseldorf)\b/i, // German cities
+      /\b(madrid|barcelona|valencia|seville|bilbao|malaga)\b/i, // Spanish cities
+      /\b(rome|milan|naples|turin|florence|venice|bologna)\b/i, // Italian cities
+      /\b(amsterdam|rotterdam|brussels|zurich|vienna|stockholm|oslo|copenhagen)\b/i // European cities
+    ];
+    
+    // Check international locations first (higher priority)
+    internationalLocationPatterns.forEach(pattern => {
+      if (pattern.test(query)) scores.location += 0.6; // Higher score for international cities
+    });
     
     // Care type intent patterns  
     const careTypePatterns = [
