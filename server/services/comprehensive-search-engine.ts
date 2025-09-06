@@ -66,27 +66,12 @@ export class ComprehensiveSearchEngine {
     console.log(`🔍 Total conditions built: ${conditions.length}, searchType: ${searchType}, isHealthcare: ${isHealthcareSearch}`);
     
 
-    // CRITICAL: Add filter to exclude contaminated non-senior living entries
-    // These are tech companies, financial services, etc. that got mixed into the database
-    const contaminationFilter = and(
-      not(sql`${communities.careTypes}::text LIKE '%Tech Company%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Financial Services%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Software Development%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Logistics%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Environmental Services%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Medical Devices%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Hardware%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Entertainment%'`),
-      not(sql`${communities.careTypes}::text LIKE '%City Discovery%'`),
-      not(sql`${communities.careTypes}::text LIKE '%Consulting%'`)
-    );
+    // CRITICAL: Only show active communities (excludes contaminated/fake entries)
+    // All fake entries have been marked as is_active = false in the database
+    const activeFilter = sql`is_active = true`;
     
-    // Add contamination filter to existing conditions
-    if (conditions.length > 0) {
-      conditions.push(contaminationFilter);
-    } else {
-      conditions = [contaminationFilter];
-    }
+    // Add active filter to existing conditions
+    conditions.push(activeFilter);
     
     // Execute main search
     let searchQuery = db.select().from(communities);
