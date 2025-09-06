@@ -5,6 +5,8 @@
  * Then use official sources only for photos
  */
 
+import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
+
 interface PerplexityResponse {
   id: string;
   model: string;
@@ -241,7 +243,7 @@ IMPORTANT:
       console.log(`  📚 Received ${citations.length} citations from Perplexity`);
 
       // Enhanced parsing with better extraction patterns
-      return this.parseEnhancedResponse(content, citations, communityName);
+      return await this.parseEnhancedResponse(content, citations, communityName);
     } catch (error) {
       console.error('Perplexity query failed:', error);
       return {
@@ -460,11 +462,11 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
   /**
    * Parse and format Perplexity's response comprehensively
    */
-  private parseEnhancedResponse(
+  private async parseEnhancedResponse(
     content: string, 
     citations: string[],
     communityName: string
-  ): CommunityIntelligence {
+  ): Promise<CommunityIntelligence> {
     // Simplified logging - show only key extracted data
     console.log('\n🔍 PERPLEXITY SEARCH RESULTS:');
     console.log(`🏢 Community: ${communityName}`);
@@ -486,7 +488,25 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     const lowerCommunityName = communityName.toLowerCase();
     
     // First, try to extract actual data from the response
-    const extractedPhotos = this.extractPhotos(content);
+    // Use Multi-AI Photo Extraction for intelligent photo discovery
+    let extractedPhotos: string[] = [];
+    try {
+      console.log('🤖 Starting Multi-AI Photo Extraction...');
+      const extractedWebsiteForPhotos = this.extractUrl(content);
+      const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+        communityName,
+        content,
+        extractedWebsiteForPhotos
+      );
+      
+      extractedPhotos = photoExtractionResult.authenticPhotos.map(p => p.url);
+      console.log(`📸 Multi-AI extracted ${extractedPhotos.length} authentic photos`);
+      console.log(`  Rejected ${photoExtractionResult.rejectedPhotos.length} stock/fake photos`);
+    } catch (error) {
+      console.error('Multi-AI photo extraction error:', error);
+      // Fallback to basic extraction if Multi-AI fails
+      extractedPhotos = this.extractPhotos(content);
+    }
     
     // Check for structured data (JSON) in the response
     const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
