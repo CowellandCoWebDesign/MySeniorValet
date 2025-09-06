@@ -14,7 +14,6 @@ import {
 } from '@shared/schema';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
-import { apiLimiter } from '../infrastructure/rateLimiter';
 
 const router = Router();
 
@@ -22,7 +21,6 @@ const router = Router();
 
 // Get marketing dashboard data
 router.get('/:communityId/dashboard', 
-  apiLimiter,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -106,7 +104,6 @@ router.get('/:communityId/dashboard',
 
 // Get available units for families
 router.get('/:communityId/available-units',
-  apiLimiter,
   async (req: Request, res: Response) => {
     try {
       // Public endpoint - no auth required
@@ -160,7 +157,6 @@ router.get('/:communityId/available-units',
 
 // Update unit status
 router.put('/:communityId/units/:unitId',
-  apiLimiter,
   requireAuth,
   async (req: Request, res: Response) => {
     try {
@@ -186,8 +182,6 @@ router.put('/:communityId/units/:unitId',
 
 // Get tour analytics
 router.get('/:communityId/analytics/tours',
-  apiLimiter,
-
   async (req: Request, res: Response) => {
     try {
       const analytics = {

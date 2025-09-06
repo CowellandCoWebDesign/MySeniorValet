@@ -490,7 +490,7 @@ function HeroSectionWithTransformingSearch() {
                 <div className="flex flex-col items-start leading-tight">
                   <span className="hidden sm:inline">Senior Living Communities</span>
                   <span className="sm:hidden">Communities</span>
-                  <span className="text-[8px] opacity-75">35,000+</span>
+                  <span className="text-[8px] opacity-75">33,200+</span>
                 </div>
               </button>
               <button
@@ -509,7 +509,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Services</span>
-                  <span className="text-[8px] opacity-75">1,000+</span>
+                  <span className="text-[8px] opacity-75">7,500+</span>
                 </div>
               </button>
               <button
@@ -528,7 +528,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75">10,000+</span>
+                  <span className="text-[8px] opacity-75">2,000+</span>
                 </div>
               </button>
               <button
@@ -547,7 +547,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-sm">📚</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Resources</span>
-                  <span className="text-[8px] opacity-75">500+</span>
+                  <span className="text-[8px] opacity-75">119</span>
                 </div>
               </button>
             </div>
