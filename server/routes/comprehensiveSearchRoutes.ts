@@ -152,6 +152,33 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   const normalizedQuery = query.toLowerCase().trim();
   const queryWords = normalizedQuery.split(/\s+/);
   
+  // 🌍 INTERNATIONAL CITIES - Add global city suggestions first
+  const INTERNATIONAL_CITIES = [
+    // Major Australian Cities
+    'Sydney, Australia', 'Melbourne, Australia', 'Brisbane, Australia', 'Perth, Australia', 'Adelaide, Australia',
+    // Major UK Cities
+    'London, UK', 'Manchester, UK', 'Birmingham, UK', 'Edinburgh, UK', 'Glasgow, UK',
+    // Major Canadian Cities
+    'Toronto, Canada', 'Vancouver, Canada', 'Montreal, Canada', 'Calgary, Canada', 'Ottawa, Canada',
+    // Major European Cities
+    'Paris, France', 'Berlin, Germany', 'Rome, Italy', 'Madrid, Spain', 'Amsterdam, Netherlands',
+    'Brussels, Belgium', 'Vienna, Austria', 'Zurich, Switzerland', 'Stockholm, Sweden', 'Copenhagen, Denmark',
+    // Major Asian Cities
+    'Tokyo, Japan', 'Singapore', 'Hong Kong', 'Seoul, South Korea', 'Bangkok, Thailand',
+    'Mumbai, India', 'Delhi, India', 'Shanghai, China', 'Beijing, China', 'Dubai, UAE',
+    // Other Major Cities
+    'Mexico City, Mexico', 'São Paulo, Brazil', 'Buenos Aires, Argentina', 'Tel Aviv, Israel', 'Cairo, Egypt'
+  ];
+  
+  // Check for international city matches
+  const internationalMatches = INTERNATIONAL_CITIES.filter(city => 
+    city.toLowerCase().includes(normalizedQuery)
+  ).slice(0, 3);
+  
+  internationalMatches.forEach(city => {
+    suggestions.push(`${city} senior living`);
+  });
+  
   // REAL DATABASE-DRIVEN SUGGESTIONS - NO HARDCODED OPTIONS
   
   try {
