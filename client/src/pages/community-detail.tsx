@@ -1141,19 +1141,41 @@ export const HeroPhotoCarousel = ({
     }
     
     if (webImages && webImages.length > 0) {
-      const webPhotos = webImages.map((img: any) => {
-        // Handle both string URLs and object format - SAME AS WORKING SECTION
-        if (typeof img === 'string') {
-          return { url: img };
+      const realPhotos: any[] = [];
+      
+      webImages.forEach((img: any) => {
+        // Handle both string URLs and object format
+        const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
+        
+        // Filter out FAKE stock photo services (Pixabay, Unsplash, etc.)
+        const isFakeStockPhoto = 
+          photoUrl.includes('pixabay.com') ||
+          photoUrl.includes('unsplash.com') ||
+          photoUrl.includes('pexels.com') ||
+          photoUrl.includes('shutterstock.com') ||
+          photoUrl.includes('gettyimages.com') ||
+          photoUrl.includes('istockphoto.com') ||
+          photoUrl.includes('stockphoto.com') ||
+          photoUrl.includes('freepik.com') ||
+          photoUrl.includes('depositphotos.com');
+        
+        // Only include real community photos - skip all stock photo services
+        if (!isFakeStockPhoto) {
+          if (typeof img === 'string') {
+            realPhotos.push({ url: img });
+          } else {
+            realPhotos.push({
+              url: photoUrl,
+              origin_url: img.origin_url,
+              width: img.width,
+              height: img.height
+            });
+          }
         }
-        return {
-          url: img.image_url || img.url || img,
-          origin_url: img.origin_url,
-          width: img.width,
-          height: img.height
-        };
       });
-      photos.push(...webPhotos);
+      
+      console.log(`🔍 Filtered out ${webImages.length - realPhotos.length} fake stock photos, keeping ${realPhotos.length} authentic photos`);
+      photos.push(...realPhotos);
     }
     
     // Return photos - KEEP IT SIMPLE  
