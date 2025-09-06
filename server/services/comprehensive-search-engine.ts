@@ -943,13 +943,27 @@ export class ComprehensiveSearchEngine {
     const normalizedQuery = query.toLowerCase().trim();
     const suggestions: string[] = [];
     
-    // Don't provide suggestions for very short queries
-    if (normalizedQuery.length < 2) {
+    // Provide suggestions even for single character (more responsive predictive text)
+    if (normalizedQuery.length < 1) {
       return [];
     }
     
     try {
+      // Enhanced fuzzy matching for typos and variations
+      const fuzzyQuery = this.generateFuzzyVariations(normalizedQuery);
+      
       // 1. Search for actual community names (highest priority)
+      // Include fuzzy matching for better typo tolerance
+      const communityNameConditions = [
+        ilike(communities.name, `${normalizedQuery}%`),  // Exact prefix match
+        ilike(communities.name, `%${normalizedQuery}%`), // Contains
+      ];
+      
+      // Add fuzzy variations for typo tolerance
+      fuzzyQuery.forEach(variant => {
+        communityNameConditions.push(ilike(communities.name, `%${variant}%`));
+      });
+      
       const communityNameResults = await db
         .select({
           name: communities.name,
@@ -957,29 +971,38 @@ export class ComprehensiveSearchEngine {
           state: communities.state
         })
         .from(communities)
-        .where(
-          or(
-            ilike(communities.name, `${normalizedQuery}%`),  // Starts with
-            ilike(communities.name, `%${normalizedQuery}%`)  // Contains
-          )
-        )
+        .where(or(...communityNameConditions))
         .orderBy(sql`
           CASE 
             WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedQuery}) || '%' THEN 1
-            ELSE 2
+            WHEN LOWER(${communities.name}) LIKE '%' || LOWER(${normalizedQuery}) || '%' THEN 2
+            ELSE 3
           END,
           LENGTH(${communities.name})
         `)
-        .limit(5);
+        .limit(8);
       
-      // Add community names to suggestions
+      // Add community names to suggestions with location context
       communityNameResults.forEach(community => {
-        if (!suggestions.includes(community.name)) {
-          suggestions.push(community.name);
+        const fullName = community.city && community.state 
+          ? `${community.name} - ${community.city}, ${community.state}`
+          : community.name;
+        if (!suggestions.includes(fullName) && !suggestions.includes(community.name)) {
+          suggestions.push(fullName);
         }
       });
       
-      // 2. Search for cities that match
+      // 2. Enhanced city search with fuzzy matching
+      const cityConditions = [
+        ilike(communities.city, `${normalizedQuery}%`),  // Starts with
+        ilike(communities.city, `%${normalizedQuery}%`), // Contains
+      ];
+      
+      // Add fuzzy variations for cities
+      fuzzyQuery.forEach(variant => {
+        cityConditions.push(ilike(communities.city, `%${variant}%`));
+      });
+      
       const cityResults = await db
         .select({
           city: communities.city,
@@ -987,13 +1010,11 @@ export class ComprehensiveSearchEngine {
           count: sql<number>`COUNT(*)::int`.as('count')
         })
         .from(communities)
-        .where(
-          ilike(communities.city, `${normalizedQuery}%`)  // Cities starting with query
-        )
+        .where(or(...cityConditions))
         .groupBy(communities.city, communities.state)
         .having(sql`COUNT(*) > 0`)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(3);
+        .limit(5);
       
       // Add city suggestions
       cityResults.forEach(location => {
@@ -1003,24 +1024,34 @@ export class ComprehensiveSearchEngine {
         }
       });
       
-      // 3. Search for states (if query is 2+ chars)
-      if (normalizedQuery.length >= 2) {
+      // 3. Enhanced state search with abbreviation support
+      if (normalizedQuery.length >= 1) {
+        // Map common state abbreviations and names
+        const stateMapping = this.getStateMapping();
+        const matchedStates = Object.entries(stateMapping)
+          .filter(([name, abbr]) => 
+            name.toLowerCase().includes(normalizedQuery) || 
+            abbr.toLowerCase().includes(normalizedQuery)
+          )
+          .map(([name, abbr]) => abbr);
+        
+        const stateConditions = [
+          ilike(communities.state, `${normalizedQuery}%`),
+          ilike(communities.state, `%${normalizedQuery}%`),
+          ...matchedStates.map(state => eq(communities.state, state))
+        ];
+        
         const stateResults = await db
           .select({
             state: communities.state,
             count: sql<number>`COUNT(*)::int`.as('count')
           })
           .from(communities)
-          .where(
-            or(
-              ilike(communities.state, `${normalizedQuery}%`),  // State abbreviation
-              ilike(communities.state, `%${normalizedQuery}%`)  // State name contains
-            )
-          )
+          .where(or(...stateConditions))
           .groupBy(communities.state)
           .having(sql`COUNT(*) > 0`)
           .orderBy(desc(sql`COUNT(*)`))
-          .limit(2);
+          .limit(3);
         
         stateResults.forEach(state => {
           if (!suggestions.includes(state.state)) {
@@ -1029,7 +1060,17 @@ export class ComprehensiveSearchEngine {
         });
       }
       
-      // 4. Search for management companies
+      // 4. Enhanced company search with fuzzy matching
+      const companyConditions = [
+        ilike(communities.managementCompany, `${normalizedQuery}%`),  // Starts with
+        ilike(communities.managementCompany, `%${normalizedQuery}%`), // Contains
+      ];
+      
+      // Add fuzzy variations for companies
+      fuzzyQuery.forEach(variant => {
+        companyConditions.push(ilike(communities.managementCompany, `%${variant}%`));
+      });
+      
       const companyResults = await db
         .select({
           managementCompany: communities.managementCompany,
@@ -1038,15 +1079,14 @@ export class ComprehensiveSearchEngine {
         .from(communities)
         .where(
           and(
-            ilike(communities.managementCompany, `%${normalizedQuery}%`),
+            or(...companyConditions),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`
           )
         )
         .groupBy(communities.managementCompany)
-        .having(sql`COUNT(*) > 0`)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(2);
+        .limit(3);
       
       companyResults.forEach(company => {
         if (company.managementCompany && !suggestions.includes(company.managementCompany)) {
@@ -1056,16 +1096,86 @@ export class ComprehensiveSearchEngine {
       
     } catch (error) {
       console.error('Database suggestion error:', error);
-      // Return basic fallback suggestions if database fails
-      return [
-        `${query} senior living`,
-        `${query} communities`,
-        `senior living near ${query}`
-      ].slice(0, 5);
+      // Return smart fallback suggestions if database fails
+      const fallbackSuggestions = [];
+      if (query.length > 2) {
+        fallbackSuggestions.push(
+          `${query} senior living`,
+          `${query} assisted living`,
+          `senior living near ${query}`,
+          `memory care ${query}`,
+          `${query} retirement communities`
+        );
+      }
+      return fallbackSuggestions.slice(0, 5);
     }
     
-    // Remove duplicates and limit to 8 suggestions
-    return [...new Set(suggestions)].slice(0, 8);
+    // Remove duplicates and limit to 10 suggestions for better predictive text
+    return [...new Set(suggestions)].slice(0, 10);
+  }
+  
+  // Generate fuzzy variations for typo tolerance
+  private generateFuzzyVariations(query: string): string[] {
+    const variations: string[] = [];
+    
+    // Skip very short queries
+    if (query.length < 3) {
+      return variations;
+    }
+    
+    // Common typo patterns
+    const typoPatterns = [
+      // Double letters (brookdale -> brokdale)
+      query.replace(/(.)\1/g, '$1'),
+      // Missing letters (atlanta -> atlnta)
+      query.substring(0, query.length - 1),
+      // Swapped adjacent letters (atlanta -> atlnata)
+      query.length > 2 ? query.substring(0, query.length - 2) + query[query.length - 1] + query[query.length - 2] : query,
+    ];
+    
+    // Add common phonetic variations
+    const phoneticReplacements = [
+      { from: 'ph', to: 'f' },
+      { from: 'f', to: 'ph' },
+      { from: 'k', to: 'c' },
+      { from: 'c', to: 'k' },
+      { from: 's', to: 'c' },
+      { from: 'z', to: 's' },
+    ];
+    
+    phoneticReplacements.forEach(({ from, to }) => {
+      if (query.includes(from)) {
+        variations.push(query.replace(from, to));
+      }
+    });
+    
+    // Add typo patterns
+    typoPatterns.forEach(pattern => {
+      if (pattern && pattern !== query && pattern.length > 0) {
+        variations.push(pattern);
+      }
+    });
+    
+    return [...new Set(variations)].slice(0, 3); // Limit variations
+  }
+  
+  // Get state name to abbreviation mapping
+  private getStateMapping(): Record<string, string> {
+    return {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC'
+    };
   }
 }
 
