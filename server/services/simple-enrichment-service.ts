@@ -229,12 +229,26 @@ export class SimpleEnrichmentService {
           continue;
         }
         
-        // Skip logos, icons, and ensure it's a valid image format
+        // Skip logos, icons, UI elements, and ensure it's a valid image format
         const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
         const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
         
-        if (!imgUrl.includes('logo') && 
-            !imgUrl.includes('icon') && 
+        const lowerUrl = imgUrl.toLowerCase();
+        const isUIElement = lowerUrl.includes('logo') ||
+                           lowerUrl.includes('icon') ||
+                           lowerUrl.includes('button') ||
+                           lowerUrl.includes('badge') ||
+                           lowerUrl.includes('banner') ||
+                           lowerUrl.includes('powered') ||
+                           lowerUrl.includes('owner--img') ||
+                           lowerUrl.includes('back-btn') ||
+                           lowerUrl.includes('duplicate-img') ||
+                           lowerUrl.includes('signup') ||
+                           lowerUrl.includes('assistant-qm') ||
+                           lowerUrl.includes('opt-finish') ||
+                           lowerUrl.includes('branded-');
+        
+        if (!isUIElement && 
             !imgUrl.includes('.svg') &&
             hasValidExtension) {
           photos.push(imgUrl);
