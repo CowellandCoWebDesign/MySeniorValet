@@ -229,28 +229,12 @@ export class SimpleEnrichmentService {
           continue;
         }
         
-        // Skip logos, icons, UI elements, and ensure it's a valid image format
+        // Only ensure it's a valid image format, return ALL photos
         const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
         const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
         
-        const lowerUrl = imgUrl.toLowerCase();
-        const isUIElement = lowerUrl.includes('logo') ||
-                           lowerUrl.includes('icon') ||
-                           lowerUrl.includes('button') ||
-                           lowerUrl.includes('badge') ||
-                           lowerUrl.includes('banner') ||
-                           lowerUrl.includes('powered') ||
-                           lowerUrl.includes('owner--img') ||
-                           lowerUrl.includes('back-btn') ||
-                           lowerUrl.includes('duplicate-img') ||
-                           lowerUrl.includes('signup') ||
-                           lowerUrl.includes('assistant-qm') ||
-                           lowerUrl.includes('opt-finish') ||
-                           lowerUrl.includes('branded-');
-        
-        if (!isUIElement && 
-            !imgUrl.includes('.svg') &&
-            hasValidExtension) {
+        // Return ALL images except SVGs (which are usually icons)
+        if (!imgUrl.includes('.svg') && hasValidExtension) {
           photos.push(imgUrl);
         }
       }
