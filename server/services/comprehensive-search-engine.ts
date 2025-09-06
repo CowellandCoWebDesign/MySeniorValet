@@ -948,6 +948,14 @@ export class ComprehensiveSearchEngine {
       return [];
     }
     
+    // Check for international query patterns
+    const isInternational = this.detectInternationalQuery(normalizedQuery);
+    
+    if (isInternational) {
+      // For international queries, provide smart suggestions
+      return this.generateInternationalSuggestions(normalizedQuery);
+    }
+    
     try {
       // Enhanced fuzzy matching for typos and variations
       const fuzzyQuery = this.generateFuzzyVariations(normalizedQuery);
@@ -1176,6 +1184,55 @@ export class ComprehensiveSearchEngine {
       'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
       'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC'
     };
+  }
+  
+  // Detect if query contains international location
+  private detectInternationalQuery(query: string): boolean {
+    const internationalPatterns = [
+      // Countries
+      /\b(mexico|canada|uk|united kingdom|england|france|spain|italy|germany|japan|china|australia|brazil|russia|india|dubai|uae|thailand|singapore|philippines|indonesia|malaysia|vietnam|korea|taiwan|israel|turkey|greece|portugal|netherlands|belgium|switzerland|austria|sweden|norway|denmark|finland|poland|czech|romania|hungary|croatia|serbia|bulgaria|ukraine|belarus|latvia|lithuania|estonia|iceland|ireland|scotland|wales)\b/i,
+      // International cities
+      /\b(cancun|playa del carmen|puerto vallarta|cabo|tijuana|toronto|vancouver|montreal|calgary|ottawa|london|paris|barcelona|madrid|rome|milan|berlin|munich|tokyo|osaka|kyoto|beijing|shanghai|sydney|melbourne|brisbane|auckland|dubai|abu dhabi|bangkok|singapore|manila|jakarta|kuala lumpur|hanoi|seoul|taipei|tel aviv|istanbul|athens|lisbon|amsterdam|brussels|zurich|vienna|stockholm|oslo|copenhagen|helsinki|warsaw|prague|bucharest|budapest|zagreb|belgrade|sofia|kiev|minsk|riga|vilnius|tallinn|reykjavik|dublin|edinburgh|cardiff)\b/i,
+      // Common international phrases
+      /\b(outside us|outside usa|outside united states|international|abroad|overseas|expat|emigrate)\b/i
+    ];
+    
+    return internationalPatterns.some(pattern => pattern.test(query));
+  }
+  
+  // Generate suggestions for international queries
+  private generateInternationalSuggestions(query: string): string[] {
+    const suggestions: string[] = [];
+    
+    // Parse city and country if present
+    const parts = query.split(',').map(p => p.trim());
+    const city = parts[0];
+    const country = parts[1];
+    
+    if (country) {
+      // If country is specified, provide targeted suggestions
+      suggestions.push(
+        `${city}, ${country} senior living`,
+        `retirement communities in ${city}, ${country}`,
+        `expat retirement ${city}`,
+        `${country} senior care options`,
+        `international retirement ${city}`
+      );
+    } else {
+      // Generic international suggestions
+      suggestions.push(
+        `${query} senior living`,
+        `${query} retirement communities`,
+        `${query} expat communities`,
+        `international senior living ${query}`,
+        `retire abroad ${query}`
+      );
+    }
+    
+    // Add Discovery Mode hint
+    suggestions.push('🌍 Try Discovery Mode for worldwide search');
+    
+    return suggestions.slice(0, 10);
   }
 }
 
