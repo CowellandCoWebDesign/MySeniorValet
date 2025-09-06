@@ -201,12 +201,28 @@ export class SimpleEnrichmentService {
       const response = await fetch(url);
       const html = await response.text();
       
-      // Simple image extraction
-      const imgRegex = /<img[^>]+src=["']([^"']+)["']/gi;
+      // Enhanced image extraction with multiple patterns
       const photos: string[] = [];
-      let match;
+      const seenUrls = new Set<string>();
       
-      while ((match = imgRegex.exec(html)) !== null && photos.length < 10) {
+      // Multiple regex patterns for comprehensive extraction
+      const patterns = [
+        /<img[^>]+src=["']([^"']+)["']/gi,
+        /<img[^>]+data-src=["']([^"']+)["']/gi,
+        /<img[^>]+data-lazy-src=["']([^"']+)["']/gi,
+        /background-image:\s*url\(['"]?([^'"\)]+)['"]?\)/gi,
+        /data-background-image=["']([^"']+)["']/gi,
+        /<source[^>]+srcset=["']([^"']+)["']/gi,
+        /"image_url"\s*:\s*"([^"]+)"/gi,
+        /"url"\s*:\s*"([^"]+\.(?:jpg|jpeg|png|webp)[^"]*)"/gi
+      ];
+      
+      // Extract from all patterns
+      for (const pattern of patterns) {
+        let match;
+        pattern.lastIndex = 0; // Reset regex
+      
+      while ((match = imgRegex.exec(html)) !== null && photos.length < 30) {
         let imgUrl = match[1];
         
         // Skip invalid URLs like JavaScript variables or placeholders
@@ -234,13 +250,26 @@ export class SimpleEnrichmentService {
         const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
         const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
         
-        if (!imgUrl.includes('logo') && 
+        // Check if it's likely a real community photo
+        const isLikelyRealPhoto = !imgUrl.includes('logo') && 
             !imgUrl.includes('icon') && 
             !imgUrl.includes('.svg') &&
-            hasValidExtension) {
+            !imgUrl.includes('placeholder') &&
+            !imgUrl.includes('default') &&
+            !imgUrl.includes('spinner') &&
+            !imgUrl.includes('loading') &&
+            hasValidExtension;
+        
+        if (isLikelyRealPhoto && !seenUrls.has(imgUrl)) {
+          seenUrls.add(imgUrl);
           photos.push(imgUrl);
         }
+        
+        // Stop if we have enough photos
+        if (photos.length >= 30) break;
       }
+      if (photos.length >= 30) break;
+    }
       
       console.log(`📸 Scraped ${photos.length} valid photos from ${url}`);
       return photos;
