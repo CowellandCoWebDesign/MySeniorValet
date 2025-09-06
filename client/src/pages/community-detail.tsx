@@ -1141,19 +1141,73 @@ export const HeroPhotoCarousel = ({
     }
     
     if (webImages && webImages.length > 0) {
-      const webPhotos = webImages.map((img: any) => {
-        // Handle both string URLs and object format - SAME AS WORKING SECTION
-        if (typeof img === 'string') {
-          return { url: img };
+      const filteredPhotos: any[] = [];
+      
+      webImages.forEach((img: any) => {
+        // Handle both string URLs and object format
+        const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
+        
+        // Filter out marketing banners and promotional graphics
+        const isMarketingBanner = 
+          photoUrl.toLowerCase().includes('slider') ||
+          photoUrl.toLowerCase().includes('banner') ||
+          photoUrl.toLowerCase().includes('ad_') ||
+          photoUrl.toLowerCase().includes('marketing') ||
+          photoUrl.toLowerCase().includes('podcast') ||
+          photoUrl.toLowerCase().includes('promo') ||
+          photoUrl.toLowerCase().includes('logo') ||
+          photoUrl.toLowerCase().includes('_white.png') ||
+          photoUrl.toLowerCase().includes('_logo_') ||
+          photoUrl.includes('1200%20x%201000') || // Common banner dimensions
+          photoUrl.includes('_1200_x_1000') ||
+          photoUrl.toLowerCase().includes('digital') ||
+          photoUrl.toLowerCase().includes('weather') ||
+          photoUrl.toLowerCase().includes('moments') ||
+          photoUrl.toLowerCase().includes('disappearing') ||
+          photoUrl.toLowerCase().includes('mind') ||
+          photoUrl.toLowerCase().includes('veterans') ||
+          photoUrl.toLowerCase().includes('half_off');
+        
+        // Only include facility photos (buildings, rooms, amenities) or JPGs that aren't banners
+        const isFacilityPhoto = 
+          photoUrl.toLowerCase().includes('community') ||
+          photoUrl.toLowerCase().includes('building') ||
+          photoUrl.toLowerCase().includes('interior') ||
+          photoUrl.toLowerCase().includes('exterior') ||
+          photoUrl.toLowerCase().includes('apartment') ||
+          photoUrl.toLowerCase().includes('room') ||
+          photoUrl.toLowerCase().includes('dining') ||
+          photoUrl.toLowerCase().includes('lobby') ||
+          photoUrl.toLowerCase().includes('courtyard') ||
+          photoUrl.toLowerCase().includes('garden') ||
+          photoUrl.toLowerCase().includes('amenity') ||
+          photoUrl.toLowerCase().includes('facility') ||
+          photoUrl.toLowerCase().includes('residence') ||
+          photoUrl.toLowerCase().includes('living') ||
+          photoUrl.toLowerCase().includes('kitchen') ||
+          photoUrl.toLowerCase().includes('bedroom') ||
+          photoUrl.toLowerCase().includes('bathroom') ||
+          photoUrl.toLowerCase().includes('floor') ||
+          photoUrl.toLowerCase().includes('unit') ||
+          (photoUrl.includes('.jpg') && !isMarketingBanner); // Most facility photos are JPG
+        
+        // Skip marketing banners, include facility photos or general photos that aren't banners
+        if (!isMarketingBanner && isFacilityPhoto) {
+          if (typeof img === 'string') {
+            filteredPhotos.push({ url: img });
+          } else {
+            filteredPhotos.push({
+              url: photoUrl,
+              origin_url: img.origin_url,
+              width: img.width,
+              height: img.height
+            });
+          }
         }
-        return {
-          url: img.image_url || img.url || img,
-          origin_url: img.origin_url,
-          width: img.width,
-          height: img.height
-        };
       });
-      photos.push(...webPhotos);
+      
+      console.log(`🔍 Filtered ${webImages.length} photos down to ${filteredPhotos.length} facility photos (removed marketing banners)`);
+      photos.push(...filteredPhotos);
     }
     
     // Return photos - KEEP IT SIMPLE  
@@ -1282,7 +1336,7 @@ export const HeroPhotoCarousel = ({
       )}
       
       {/* Simple Grid Photo Display - BULLETPROOF APPROACH */}
-      <div className="absolute inset-0">
+      <div className="relative w-full h-80 sm:h-96 overflow-hidden">
         <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
         {/* Photo Search Progress Indicator */}
         {showPhotoSearchMessage && (
@@ -1340,10 +1394,10 @@ export const HeroPhotoCarousel = ({
             )}
           </div>
         ) : safePhotos.length > 0 ? (
-          // 3+ photos - show main photo + grid of more photos
-          <div className="grid grid-cols-4 gap-1 h-full">
-            {/* Featured photo - spans 2 columns */}
-            <div className="col-span-2 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
+          // Multiple photos - show masonry grid to display up to 30 photos
+          <div className="grid grid-cols-6 gap-1 h-full">
+            {/* Featured photo - spans 3 columns */}
+            <div className="col-span-3 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
               <img
                 src={safePhotos[0].url}
                 alt={`${communityName} - Featured Photo`}
@@ -1363,9 +1417,9 @@ export const HeroPhotoCarousel = ({
               )}
             </div>
             
-            {/* Grid of more photos - right 2 columns, show up to 6 more photos */}
-            <div className="col-span-2 grid grid-cols-2 grid-rows-3 gap-1">
-              {safePhotos.slice(1, 7).map((photo, index) => (
+            {/* Grid of more photos - right 3 columns, show up to 11 more photos */}
+            <div className="col-span-3 grid grid-cols-3 grid-rows-4 gap-1">
+              {safePhotos.slice(1, 13).map((photo, index) => (
                 <div key={index + 1} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index + 1)}>
                   <img
                     src={photo.url}
@@ -1382,10 +1436,10 @@ export const HeroPhotoCarousel = ({
                     </div>
                   )}
                   {/* Show "+X more" on the last visible photo if there are more */}
-                  {index === 5 && safePhotos.length > 7 && (
+                  {index === 11 && safePhotos.length > 13 && (
                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                       <div className="text-white text-sm font-semibold">
-                        +{safePhotos.length - 7} more
+                        +{safePhotos.length - 13} more
                       </div>
                     </div>
                   )}
