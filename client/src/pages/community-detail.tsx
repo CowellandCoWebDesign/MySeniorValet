@@ -1145,13 +1145,22 @@ export const HeroPhotoCarousel = ({
         .filter((img: any) => {
           const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
           
-          // Skip obvious generic/directory photos
-          if (url.includes('logo') || url.includes('icon') || 
+          // Skip obvious generic/directory/stock photos
+          const lowerUrl = url.toLowerCase();
+          if (lowerUrl.includes('logo') || 
+              lowerUrl.includes('icon') || 
+              lowerUrl.includes('stock-image') || 
+              lowerUrl.includes('stock_image') ||
+              lowerUrl.includes('placeholder') ||
+              lowerUrl.includes('default') ||
+              lowerUrl.includes('badge') ||
+              lowerUrl.includes('banner') ||
+              lowerUrl.includes('great-place-to-work') ||
+              lowerUrl.includes('questions-to-ask') ||
+              lowerUrl.includes('fs_logo') ||
               url.includes('seniorhomes.com') || 
               url.includes('caring.com') ||
-              url.includes('placeholder') ||
-              url.includes('default') ||
-              url.toLowerCase().includes('logo')) {
+              url.includes('seniorliving.org/app/themes')) {
             return false;
           }
           
