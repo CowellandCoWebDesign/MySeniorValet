@@ -1156,7 +1156,25 @@ export const HeroPhotoCarousel = ({
     ];
     
     const isStockPhoto = (url: string) => {
-      return stockPhotoPatterns.some(pattern => url.toLowerCase().includes(pattern));
+      const lowerUrl = url.toLowerCase();
+      
+      // Check for obvious stock photo indicators in the URL path
+      // Be more specific to avoid false positives
+      if (lowerUrl.includes('stock-photo') || 
+          lowerUrl.includes('stock-image') ||
+          lowerUrl.includes('stockphoto') ||
+          lowerUrl.includes('placeholder') || 
+          lowerUrl.includes('default-image') ||
+          lowerUrl.includes('no-image') ||
+          lowerUrl.includes('coming-soon') ||
+          lowerUrl.includes('/stock/') ||  // Stock folder
+          lowerUrl.includes('-stock-') ||  // Stock in filename
+          lowerUrl.includes('fa-stock-images')) {  // Specific pattern we saw
+        return true;
+      }
+      
+      // Check against known stock photo domains
+      return stockPhotoPatterns.some(pattern => lowerUrl.includes(pattern));
     };
     
     // Add database photos - EXCLUDE ALL STOCK PHOTOS
@@ -1223,7 +1241,14 @@ export const HeroPhotoCarousel = ({
         const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
         const photoSource = typeof img === 'object' ? img.source : 'web';
         
-        if (!isStockPhoto(photoUrl)) {
+        // Debug logging
+        const isStock = isStockPhoto(photoUrl);
+        if (photoUrl.includes('elderlife') || photoUrl.includes('fa-stock')) {
+          console.log(`🔍 Checking photo: ${photoUrl}`);
+          console.log(`   Is stock photo? ${isStock}`);
+        }
+        
+        if (!isStock) {
           // Determine attribution and priority based on source
           let attribution = 'Web Search';
           let priority = 'other';
