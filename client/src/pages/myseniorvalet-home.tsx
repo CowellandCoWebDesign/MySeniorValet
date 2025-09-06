@@ -256,13 +256,13 @@ function HeroSectionWithTransformingSearch() {
         });
 
       } else {
-        // Regular search for list/map view - use NLP search as primary
-        const response = await fetch('/api/nlp/search', {
+        // Use ENHANCED COMPREHENSIVE SEARCH - Fortune 500-level capabilities
+        const response = await fetch('/api/search/comprehensive', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query: query,
-            limit: 50,
+            limit: 100,
             category: searchCategory
           })
         });
@@ -272,13 +272,16 @@ function HeroSectionWithTransformingSearch() {
           await handleUnifiedSearch(query);
         } else {
           const data = await response.json();
-          const communities = data.results?.map((r: any) => r.data || r) || [];
+          // Handle comprehensive search response format
+          const communities = data.communities || data.results?.map((r: any) => r.data || r) || [];
           setSearchResults({ 
             results: communities, 
             metadata: {
-              intent: data.intent,
+              intent: data.searchMetadata?.searchType || data.intent,
               facets: data.facets,
-              suggestions: data.suggestions
+              suggestions: data.searchMetadata?.suggestions || data.suggestions,
+              totalResults: data.totalResults || communities.length,
+              searchType: data.searchMetadata?.searchType
             }
           });
         }
