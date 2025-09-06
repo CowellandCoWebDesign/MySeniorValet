@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw, Search, Camera, Globe } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface PhotoCarouselProps {
@@ -48,6 +48,18 @@ export function EnhancedPhotoCarousel({
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [showValidationReport, setShowValidationReport] = useState(false);
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
+  const [searchMessageIndex, setSearchMessageIndex] = useState(0);
+  
+  // Rotating search messages
+  const searchMessages = [
+    "Checking official website...",
+    "Scanning directory sites...",
+    "Finding virtual tours...",
+    "Searching for gallery photos...",
+    "Extracting authentic images...",
+    "Verifying photo quality...",
+    "Looking for recent photos..."
+  ];
   
   // Get all photos from database and web intelligence  
   const getAllPhotos = () => {
@@ -206,18 +218,95 @@ export function EnhancedPhotoCarousel({
   // Show loading state with web intelligence check
   const isLoadingWebPhotos = isVerifying || isLoading;
   const hasNoRealPhotos = safePhotos.length === 0;
+  const totalPhotosFound = processedPhotos.length;
+  
+  // Rotate search messages when loading
+  useEffect(() => {
+    if (isLoadingWebPhotos && hasNoRealPhotos) {
+      const interval = setInterval(() => {
+        setSearchMessageIndex(prev => (prev + 1) % searchMessages.length);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isLoadingWebPhotos, hasNoRealPhotos, searchMessages.length]);
   
   if (hasNoRealPhotos && isLoadingWebPhotos) {
     return (
-      <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center text-gray-500 p-8">
-          <div className="w-16 h-16 mx-auto mb-4">
-            <div className="animate-spin rounded-full h-16 w-16 border-4 border-gray-300 dark:border-gray-600 border-t-primary"></div>
+      <div className={`bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center p-12">
+          {/* Valet Mascot */}
+          <div className="relative w-24 h-24 mx-auto mb-6">
+            <img 
+              src="/valet-mascot.png" 
+              alt="MySeniorValet" 
+              className="w-full h-full object-contain rounded-full border-4 border-white shadow-xl"
+              onError={(e) => {
+                // Fallback to animated icon if mascot image fails
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = '<div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse"><svg class="w-12 h-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>';
+                }
+              }}
+            />
+            {/* Animated search indicator */}
+            <div className="absolute -bottom-1 -right-1">
+              <div className="relative">
+                <Search className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-bounce" />
+                <div className="absolute inset-0 bg-blue-600 dark:bg-blue-400 rounded-full animate-ping opacity-30"></div>
+              </div>
+            </div>
           </div>
-          <p className="text-sm font-medium">Searching for authentic photos...</p>
-          <p className="text-xs text-gray-400 mt-2">
-            Checking directory sites and official sources
+          
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">
+            🔍 Finding Real Photos for You
+          </h3>
+          
+          {/* Progress indicator */}
+          <div className="mb-4">
+            <div className="flex items-center justify-center space-x-2">
+              <Globe className="w-4 h-4 text-blue-500 animate-spin" />
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {searchMessages[searchMessageIndex]}
+              </p>
+            </div>
+          </div>
+          
+          {/* Photo counter if any found during loading */}
+          {totalPhotosFound > 0 && (
+            <div className="mb-3">
+              <Badge variant="secondary" className="px-3 py-1">
+                <Camera className="w-3 h-3 mr-1" />
+                Found {totalPhotosFound} photo{totalPhotosFound > 1 ? 's' : ''} so far...
+              </Badge>
+            </div>
+          )}
+          
+          {/* Loading bar */}
+          <div className="w-full max-w-xs mx-auto mb-4">
+            <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse" 
+                   style={{ width: '60%', animation: 'slideProgress 2s ease-in-out infinite' }}>
+              </div>
+            </div>
+          </div>
+          
+          {/* Info message */}
+          <p className="text-xs text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
+            Searching multiple sources for authentic {communityName} photos.
+            This typically takes 10-15 seconds.
           </p>
+          
+          {/* Time estimate */}
+          <div className="mt-4 flex items-center justify-center space-x-2 text-xs text-gray-400">
+            <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse"></div>
+            <span>Checking official website</span>
+            <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse delay-75"></div>
+            <span>Directory sites</span>
+            <div className="w-1 h-1 bg-gray-400 rounded-full animate-pulse delay-150"></div>
+            <span>Virtual tours</span>
+          </div>
         </div>
       </div>
     );
@@ -225,21 +314,55 @@ export function EnhancedPhotoCarousel({
 
   // Check if we have any photos to display
   if (!safePhotos || safePhotos.length === 0) {
+    // Show an engaging "still searching" message instead of "no photos"
     return (
-      <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center text-gray-500 p-8">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-            <ZoomIn className="w-8 h-8" />
+      <div className={`bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center ${className}`}>
+        <div className="text-center p-8">
+          <div className="w-20 h-20 mx-auto mb-4 relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full animate-pulse"></div>
+            <div className="relative w-full h-full rounded-full flex items-center justify-center">
+              <Camera className="w-10 h-10 text-gray-400 dark:text-gray-500" />
+            </div>
           </div>
-          <p className="text-sm">No photos available</p>
-          {photos.length > 0 && imageErrors.size > 0 && (
-            <p className="text-xs text-orange-500 mt-2">
-              {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be loaded
-            </p>
+          
+          <h3 className="text-base font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Photo Search Complete
+          </h3>
+          
+          {photos.length > 0 && imageErrors.size > 0 ? (
+            <>
+              <p className="text-sm text-orange-600 dark:text-orange-400">
+                {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} couldn't be displayed
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                The images may have been moved or removed from their source
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                No photos found yet for {communityName}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-500 mt-3 max-w-xs mx-auto">
+                Photos typically appear within 15-20 seconds. If none appear, this community may not have photos available online.
+              </p>
+              
+              {/* Suggest refresh if it's been a while */}
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-4"
+                onClick={() => window.location.reload()}
+              >
+                <RefreshCw className="w-3 h-3 mr-2" />
+                Try Again
+              </Button>
+            </>
           )}
+          
           {showValidation && (
-            <p className="text-xs text-gray-400 mt-2">
-              Consider adding authentic photos from verified sources
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-4">
+              💡 Tip: Communities with official websites typically have more photos available
             </p>
           )}
         </div>
