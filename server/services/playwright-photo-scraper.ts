@@ -77,6 +77,42 @@ export class PlaywrightPhotoScraper {
       // Wait for images to load
       await page.waitForTimeout(2000);
       
+      // Special handling for directory sites
+      const isDirectorySite = websiteUrl.includes('caring.com') || 
+                             websiteUrl.includes('seniorliving.org') || 
+                             websiteUrl.includes('aplaceformom.com') ||
+                             websiteUrl.includes('seniorhomes.com') ||
+                             websiteUrl.includes('seniorly.com');
+      
+      if (isDirectorySite) {
+        console.log('🏢 Detected directory site - using specialized extraction');
+        
+        // Try to find and click on photo gallery buttons/links
+        try {
+          const gallerySelectors = [
+            'a[href*="gallery"]',
+            'a[href*="photos"]',
+            'button:has-text("View Photos")',
+            'button:has-text("Gallery")',
+            'button:has-text("Photos")',
+            '.photo-gallery-link',
+            '.view-photos-btn'
+          ];
+          
+          for (const selector of gallerySelectors) {
+            const galleryLink = await page.$(selector);
+            if (galleryLink) {
+              console.log(`  📷 Found gallery link with selector: ${selector}`);
+              await galleryLink.click();
+              await page.waitForTimeout(1500);
+              break;
+            }
+          }
+        } catch (e) {
+          console.log('  No gallery link found, continuing with main page');
+        }
+      }
+      
       console.log('📸 Extracting all images from the page...');
       
       // Extract all <img> tags

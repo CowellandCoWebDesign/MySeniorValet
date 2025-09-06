@@ -361,7 +361,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
     console.log(`✅ Results: ${authenticPhotos.length} authentic, ${rejectedPhotos.length} rejected`);
     
     return {
-      authenticPhotos: authenticPhotos.slice(0, 25), // Increased to 25 photos
+      authenticPhotos: authenticPhotos.slice(0, 50), // Increased to 50 photos to ensure 20+ quality photos
       rejectedPhotos,
       sources: [...new Set(verifiedPhotos.map(p => p.source))],
       summary: `🚀 Found ${authenticPhotos.length} authentic photos using Playwright + Pattern Extraction (No OpenAI)`

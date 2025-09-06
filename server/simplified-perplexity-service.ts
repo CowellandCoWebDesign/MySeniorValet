@@ -174,7 +174,15 @@ IF FOUND, provide:
    - Pet policy
    - Room types (studio, 1-bedroom, 2-bedroom)
 
-5. FACILITY DETAILS:
+5. PHOTOS & GALLERIES (CRITICAL - provide all found):
+   - Direct photo URLs from the official website
+   - Gallery page URLs (e.g., /gallery, /photos, /virtual-tour)
+   - Photo URLs from directory sites (caring.com, seniorliving.org, aplaceformom.com)
+   - Virtual tour links if available
+   - List at least 20-30 photo URLs if available
+   - Include photo URLs from ALL sources found
+
+6. FACILITY DETAILS:
    - Year established
    - Number of units/beds
    - Accreditations or certifications
@@ -185,6 +193,8 @@ ALSO INCLUDE:
 - List of 5-10 comparable communities in the area with their pricing
 - Average market rates for different care levels
 - Market trends and insights
+- Photo galleries and virtual tours from directory sites
+- All image URLs found from caring.com, seniorliving.org, aplaceformom.com pages about this community
 
 If "${communityName}" is not found exactly, still provide all the market data and comparable communities.`;
 
@@ -209,7 +219,13 @@ IMPORTANT:
 3. Include ALL senior living communities found in the specified location
 4. Provide actual pricing ranges, not just "Contact for pricing"
 5. Extract real data from your sources - websites, phone numbers, addresses
-6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://`
+6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://
+7. CRITICAL: Extract and list ALL photo URLs from:
+   - Official community website galleries
+   - Directory site listings (caring.com, seniorliving.org, aplaceformom.com)
+   - Virtual tour pages
+   - Include direct image URLs (ending in .jpg, .png, .webp)
+   - Aim for 20-30 photo URLs per community`
             },
             {
               role: 'user',
@@ -890,10 +906,10 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       }
     }
     
-    // Remove duplicates and limit to 25 photos for performance
+    // Remove duplicates and get more photos
     const uniquePhotos = [...new Set(photos)];
     console.log(`📸 Extracted ${uniquePhotos.length} unique photos from Perplexity response (excluding stock photo sites)`);
-    return uniquePhotos.slice(0, 25);
+    return uniquePhotos.slice(0, 50); // Increased limit to get more photos
   }
 
   /**
