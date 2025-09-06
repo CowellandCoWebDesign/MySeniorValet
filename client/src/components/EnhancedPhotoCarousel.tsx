@@ -217,7 +217,7 @@ export function EnhancedPhotoCarousel({
   
   // Show loading state with web intelligence check
   const isLoadingWebPhotos = isVerifying || isLoading;
-  const hasNoRealPhotos = safePhotos.length === 0;
+  const hasNoRealPhotos = safePhotos.length === 0 && processedPhotos.length === 0;
   const totalPhotosFound = processedPhotos.length;
   
   // Rotate search messages when loading
@@ -230,26 +230,16 @@ export function EnhancedPhotoCarousel({
     }
   }, [isLoadingWebPhotos, hasNoRealPhotos, searchMessages.length]);
   
-  if (hasNoRealPhotos && isLoadingWebPhotos) {
+  // Only show loading if we're actually loading AND have no photos at all
+  if (isLoadingWebPhotos && hasNoRealPhotos && photos.length === 0) {
     return (
       <div className={`bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center p-12">
-          {/* Valet Mascot */}
+          {/* Simple loading icon instead of valet mascot */}
           <div className="relative w-24 h-24 mx-auto mb-6">
-            <img 
-              src="/valet-mascot.png" 
-              alt="MySeniorValet" 
-              className="w-full h-full object-contain rounded-full border-4 border-white shadow-xl"
-              onError={(e) => {
-                // Fallback to animated icon if mascot image fails
-                const target = e.target as HTMLImageElement;
-                target.style.display = 'none';
-                const parent = target.parentElement;
-                if (parent) {
-                  parent.innerHTML = '<div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse"><svg class="w-12 h-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>';
-                }
-              }}
-            />
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
+              <Camera className="w-12 h-12 text-white" />
+            </div>
             {/* Animated search indicator */}
             <div className="absolute -bottom-1 -right-1">
               <div className="relative">
@@ -313,8 +303,8 @@ export function EnhancedPhotoCarousel({
   }
 
   // Check if we have any photos to display
-  if (!safePhotos || safePhotos.length === 0) {
-    // Show an engaging "still searching" message instead of "no photos"
+  if ((!safePhotos || safePhotos.length === 0) && !isLoadingWebPhotos) {
+    // Only show "no photos" if we're not loading
     return (
       <div className={`bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center p-8">
