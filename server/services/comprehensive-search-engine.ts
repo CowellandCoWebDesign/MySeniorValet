@@ -233,9 +233,12 @@ export class ComprehensiveSearchEngine {
       ];
       
       // Check if query contains community name keywords OR has specific patterns
-      const looksLikeCommunityName = communityNameKeywords.some(keyword => normalizedQuery.includes(keyword)) ||
-                                     normalizedQuery.includes(' - ') || // Common pattern: "Name - City, State"
-                                     /^[A-Z]/.test(query); // Starts with capital letter (proper noun)
+      // Don't treat simple "City, State" patterns as community names
+      const isCityStatePattern = /^[a-zA-Z\s]+,\s*[A-Z]{2}$/i.test(query.trim());
+      const looksLikeCommunityName = !isCityStatePattern && (
+        communityNameKeywords.some(keyword => normalizedQuery.includes(keyword)) ||
+        normalizedQuery.includes(' - ') // Common pattern: "Name - City, State"
+      );
       
       // Apply conditions based on ALL detected intents (not just dominant)
       let isCountrySearch = false;
@@ -359,12 +362,16 @@ export class ComprehensiveSearchEngine {
       // Check if we have name matches BEFORE applying other conditions
       const nameSearchCondition = or(...nameConditions);
       
-      // PRIORITY: ALWAYS add name search, especially if it looks like a community name
+      // PRIORITY: Only add name search if it looks like a community name or isn't clearly a location
       const hasCompanyConditions = intentScores.company > 0.3;
+      const hasLocationConditions = intentScores.location >= 0.3 && !looksLikeCommunityName;
       
-      // If it looks like a community name OR no other strong intent, prioritize name search
-      if (looksLikeCommunityName || !hasCompanyConditions) {
-        // ALWAYS add name search first for community searches
+      // Only add name search if:
+      // 1. It looks like a community name
+      // 2. OR it's not clearly a location search
+      // 3. OR no other conditions were added
+      if (looksLikeCommunityName) {
+        // This looks like a community name, prioritize name search
         conditions.push(
           or(
             nameSearchCondition,
@@ -373,10 +380,10 @@ export class ComprehensiveSearchEngine {
           )
         );
         console.log(`🔍 Added PRIMARY name search for potential community: "${normalizedQuery}"`);
-      } else if (!hasCompanyConditions) {
-        // Even for other queries, add name search to catch specific communities
+      } else if (!hasLocationConditions && !hasCompanyConditions && conditions.length === 0) {
+        // No other clear intent and no conditions added, add name search as fallback
         conditions.push(nameSearchCondition);
-        console.log(`🔍 Added supplementary name search for "${normalizedQuery}"`);
+        console.log(`🔍 Added fallback name search for "${normalizedQuery}"`);
       }
       
       searchType = dominantIntent;
@@ -622,8 +629,8 @@ export class ComprehensiveSearchEngine {
       }
       return conditions;
     }
-    // Postal codes (ZIP, postcodes, etc.)
-    else if (query.match(/^[\d\w\s-]+$/) && query.length >= 3 && query.length <= 10) {
+    // Postal codes (ZIP, postcodes, etc.) - Must contain at least one digit
+    else if (query.match(/^\d{5}(-\d{4})?$/) || (query.match(/\d/) && query.match(/^[\d\w\s-]+$/) && query.length >= 3 && query.length <= 10)) {
       conditions.push(
         ilike(communities.zipCode, `%${query}%`)
       );
