@@ -13,8 +13,8 @@ import {
   automationRules
 } from '@shared/schema';
 import { eq, and, desc, sql, gte, lte } from 'drizzle-orm';
-import { requireAuth, requireRole } from '../middleware/auth';
-import { apiLimiter } from '../middleware/rateLimiter';
+import { requireAuth } from '../middleware/auth';
+import { apiLimiter } from '../infrastructure/rateLimiter';
 
 const router = Router();
 
@@ -24,7 +24,7 @@ const router = Router();
 router.get('/:communityId/dashboard', 
   apiLimiter,
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+
   async (req: Request, res: Response) => {
     try {
       // Mock data for marketing dashboard
@@ -163,7 +163,7 @@ router.get('/:communityId/available-units',
 router.put('/:communityId/units/:unitId',
   apiLimiter,
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+
   async (req: Request, res: Response) => {
     try {
       const { communityId, unitId } = req.params;
@@ -190,7 +190,7 @@ router.put('/:communityId/units/:unitId',
 router.get('/:communityId/analytics/tours',
   apiLimiter,
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+
   async (req: Request, res: Response) => {
     try {
       const analytics = {
@@ -225,7 +225,7 @@ router.get('/:communityId/analytics/tours',
 router.get('/:communityId/analytics/occupancy',
   apiLimiter,
   requireAuth,
-  requireRole(['community_admin', 'super_admin']),
+
   async (req: Request, res: Response) => {
     try {
       const trends = {
