@@ -1144,13 +1144,12 @@ export const HeroPhotoCarousel = ({
       'cdn.pixabay.com',
       'images.unsplash.com',
       'images.pexels.com',
-      // Generic senior living magazine/blog sites (not specific community photos)
-      'assistedlivingmagazine.com',
-      'seniorliving.org',
-      'seniorhousingnews.com',
-      'mcknights.com',
-      'seniorcare.com',
-      'aging.com',
+      // Generic senior living blog/news sites (exclude only their generic content)
+      'seniorliving.org/news',
+      'seniorhousingnews.com/news',
+      'mcknights.com/news',
+      'seniorcare.com/articles',
+      'aging.com/blog',
       'aplaceformom.com/blog',
       'caring.com/senior-living/articles'
     ];
@@ -1241,11 +1240,21 @@ export const HeroPhotoCarousel = ({
         const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
         const photoSource = typeof img === 'object' ? img.source : 'web';
         
+        // Smart detection: Allow photos that contain the community name (they're likely specific photos)
+        const communityNameParts = (communityName || '').toLowerCase().split(' ').filter(part => 
+          part.length > 3 && !['senior', 'living', 'care', 'home', 'center', 'community'].includes(part)
+        );
+        
+        const isLikelyCommunitySpecific = communityNameParts.some(part => 
+          photoUrl.toLowerCase().includes(part)
+        );
+        
         // Debug logging
-        const isStock = isStockPhoto(photoUrl);
-        if (photoUrl.includes('elderlife') || photoUrl.includes('fa-stock')) {
+        const isStock = isStockPhoto(photoUrl) && !isLikelyCommunitySpecific;
+        if (photoUrl.includes('elderlife') || photoUrl.includes('fa-stock') || photoUrl.includes('assistedliving')) {
           console.log(`🔍 Checking photo: ${photoUrl}`);
           console.log(`   Is stock photo? ${isStock}`);
+          console.log(`   Community specific? ${isLikelyCommunitySpecific}`);
         }
         
         if (!isStock) {
@@ -1254,11 +1263,17 @@ export const HeroPhotoCarousel = ({
           let priority = 'other';
           
           // Check if photo is from community's official website
-          if (communityDomain && photoUrl.includes(communityDomain)) {
+          // BUT exclude known directory/listing sites that aren't actual community websites
+          const isDirectorySite = photoUrl.includes('elderlifefinancial.com') || 
+                                 photoUrl.includes('seniorliving.com') ||
+                                 photoUrl.includes('caring.com') ||
+                                 photoUrl.includes('aplaceformom.com');
+          
+          if (communityDomain && photoUrl.includes(communityDomain) && !isDirectorySite) {
             attribution = 'Official Website';
             priority = 'official';
             officialPhotoCount++;
-          } else if (photoSource === 'directory' || photoUrl.includes('apartments.com')) {
+          } else if (photoSource === 'directory' || photoUrl.includes('apartments.com') || isDirectorySite) {
             attribution = photoUrl.includes('apartments.com') ? 'Apartments.com' : 'Senior Living Directory';
             priority = 'directory';
           } else if (photoUrl.includes('aplaceformom.com')) {
