@@ -42,7 +42,8 @@ router.get('/api/image-proxy', async (req, res) => {
     });
     
     // Stream the image directly to the response
-    const buffer = await response.buffer();
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     res.send(buffer);
     
     console.log(`✅ Successfully proxied image from ${new URL(imageUrl).hostname}`);

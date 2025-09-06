@@ -1578,6 +1578,8 @@ export const HeroPhotoCarousel = ({
                           photo.url;
               }
               
+              console.log(`🖼️ Rendering photo ${index + 1} with URL:`, photoUrl);
+              
               return (
                 <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
                   <img
@@ -1586,11 +1588,14 @@ export const HeroPhotoCarousel = ({
                     className="w-full h-full object-cover select-none"
                     draggable={false}
                     loading={index === 0 ? "eager" : "lazy"}
-                    onLoad={() => {
-                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photo.url);
+                    onLoad={(e) => {
+                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
+                      const imgElement = e.target as HTMLImageElement;
+                      console.log(`📐 Image dimensions: ${imgElement.naturalWidth}x${imgElement.naturalHeight}`);
                     }}
                     onError={(e) => {
-                      console.log(`❌ Failed to load photo ${index + 1}:`, photo.url);
+                      console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
+                      console.error('Image load error:', e);
                       // Replace with working fallback image
                       const target = e.target as HTMLImageElement;
                       target.src = '/hero-senior-community.svg';
