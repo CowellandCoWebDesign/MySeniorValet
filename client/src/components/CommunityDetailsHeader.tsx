@@ -177,10 +177,13 @@ export function CommunityDetailsHeader({
                        (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : "1-855-287-5093");
   const displayWebsite = enrichedContact?.website || community.website;
   
-  // Get amenities
-  const amenities = verificationReport?.amenities?.extracted?.slice(0, 3) || 
-                   community.amenities?.slice(0, 3) || 
-                   ["24-Hour Care", "Dining Services", "Activities"];
+  // Get amenities from various sources
+  const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
+  const extractedAmenities = webIntel?.amenities || verificationReport?.amenities?.extracted || community.amenities;
+  
+  const amenities = extractedAmenities?.length > 0 
+    ? extractedAmenities.slice(0, 6) // Show up to 6 amenities
+    : ["24-Hour Care", "Dining Services", "Activities", "Transportation", "Housekeeping", "Social Programs"];
 
   return (
     <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
@@ -264,6 +267,19 @@ export function CommunityDetailsHeader({
               <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3 break-words">
                 {community.name}
               </h1>
+              
+              {/* Website URL at the top with crystal ball emoji */}
+              {displayWebsite && (
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xl">🔮</span>
+                  <ExternalLinkWarning
+                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600"
+                  >
+                    {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </ExternalLinkWarning>
+                </div>
+              )}
               
               <div className="flex items-start gap-2 mb-3">
                 <MapPin className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
@@ -442,12 +458,18 @@ export function CommunityDetailsHeader({
                   Top Amenities
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                  {amenities.map((amenity: string, idx: number) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-600 dark:text-gray-400">{amenity}</span>
+                  {amenities && amenities.length > 0 ? (
+                    amenities.map((amenity: string, idx: number) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 dark:text-gray-400">{amenity}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="col-span-full text-sm text-gray-500 dark:text-gray-400 italic">
+                      Loading amenities...
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
               
