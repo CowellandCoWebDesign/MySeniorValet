@@ -1340,8 +1340,8 @@ export const HeroPhotoCarousel = ({
             )}
           </div>
         ) : safePhotos.length > 0 ? (
-          // 3+ photos - featured + grid
-          <div className="grid grid-cols-3 gap-1 h-full">
+          // 3+ photos - show main photo + grid of more photos
+          <div className="grid grid-cols-4 gap-1 h-full">
             {/* Featured photo - spans 2 columns */}
             <div className="col-span-2 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
               <img
@@ -1363,27 +1363,34 @@ export const HeroPhotoCarousel = ({
               )}
             </div>
             
-            {/* Small photos - right column */}
-            <div className="grid grid-rows-2 gap-1">
-              {safePhotos.slice(1, 3).map((photo, index) => (
+            {/* Grid of more photos - right 2 columns, show up to 6 more photos */}
+            <div className="col-span-2 grid grid-cols-2 grid-rows-3 gap-1">
+              {safePhotos.slice(1, 7).map((photo, index) => (
                 <div key={index + 1} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index + 1)}>
                   <img
                     src={photo.url}
-                      alt={`${communityName} - Photo ${index + 2}`}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/hero-senior-community.svg';
-                      }}
-                    />
-                    {photo.attribution && (
-                      <div className="absolute bottom-1 right-1 bg-black/70 text-white p-1 rounded">
-                        <Globe className="w-3 h-3" />
+                    alt={`${communityName} - Photo ${index + 2}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/hero-senior-community.svg';
+                    }}
+                  />
+                  {photo.attribution && (
+                    <div className="absolute bottom-1 right-1 bg-black/70 text-white p-1 rounded text-xs">
+                      <Globe className="w-2 h-2" />
+                    </div>
+                  )}
+                  {/* Show "+X more" on the last visible photo if there are more */}
+                  {index === 5 && safePhotos.length > 7 && (
+                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                      <div className="text-white text-sm font-semibold">
+                        +{safePhotos.length - 7} more
                       </div>
-                    )}
-                  </div>
-                )
-              )}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         ) : (
