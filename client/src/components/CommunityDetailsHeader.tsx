@@ -388,8 +388,19 @@ export function CommunityDetailsHeader({
                   if (onTourClick) {
                     onTourClick();
                   } else {
-                    // Fallback to tab navigation
-                    const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
+                    // Improved fallback to tab navigation
+                    let toursTab = document.querySelector('button[role="tab"][value="tours"]') as HTMLElement;
+                    
+                    // Try alternative selectors if first one fails
+                    if (!toursTab) {
+                      const allTabs = document.querySelectorAll('button[role="tab"]');
+                      allTabs.forEach(tab => {
+                        if (tab.textContent?.includes('Tours')) {
+                          toursTab = tab as HTMLElement;
+                        }
+                      });
+                    }
+                    
                     if (toursTab) {
                       toursTab.click();
                       setTimeout(() => {
@@ -397,6 +408,14 @@ export function CommunityDetailsHeader({
                         if (tabsSection) {
                           tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
                         }
+                        
+                        // Also try to click the tour scheduler button
+                        setTimeout(() => {
+                          const schedulerButton = document.querySelector('.tour-scheduler-form button');
+                          if (schedulerButton) {
+                            (schedulerButton as HTMLElement).click();
+                          }
+                        }, 300);
                       }, 50);
                     }
                   }
