@@ -820,7 +820,7 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       const matches = content.match(pattern);
       if (matches) {
         for (const url of matches) {
-          // Filter out stock photo sites and placeholders
+          // Filter out stock photo sites, badges, and placeholders
           const isInvalid = [
             // Stock photo sites - these provide fake images
             'unsplash.com',
@@ -833,6 +833,16 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
             'dreamstime.com',
             'freepik.com',
             '123rf.com',
+            // App store badges and buttons
+            'badge',
+            'google-badge',
+            'apple-badge',
+            'amazon-badge',
+            'app-store',
+            'google-play',
+            'download-button',
+            // MapQuest static media (badges)
+            'mapquest.com/_next/static',
             // Placeholder and invalid patterns
             'placeholder',
             'default',
