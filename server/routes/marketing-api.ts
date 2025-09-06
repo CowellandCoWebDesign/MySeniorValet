@@ -24,7 +24,6 @@ const router = Router();
 router.get('/:communityId/dashboard', 
   apiLimiter,
   requireAuth,
-
   async (req: Request, res: Response) => {
     try {
       // Mock data for marketing dashboard
@@ -163,7 +162,6 @@ router.get('/:communityId/available-units',
 router.put('/:communityId/units/:unitId',
   apiLimiter,
   requireAuth,
-
   async (req: Request, res: Response) => {
     try {
       const { communityId, unitId } = req.params;
@@ -189,7 +187,6 @@ router.put('/:communityId/units/:unitId',
 // Get tour analytics
 router.get('/:communityId/analytics/tours',
   apiLimiter,
-  requireAuth,
 
   async (req: Request, res: Response) => {
     try {
@@ -223,7 +220,6 @@ router.get('/:communityId/analytics/tours',
 
 // Get occupancy trends
 router.get('/:communityId/analytics/occupancy',
-  apiLimiter,
   requireAuth,
 
   async (req: Request, res: Response) => {

@@ -1074,13 +1074,6 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
 // The HeroPhotoCarousel has been successfully consolidated into EnhancedPhotoCarousel
 // which is now used in CommunityDetailsHeader
 
-const REMOVED_HeroPhotoCarousel_START = ({ 
-  photos, 
-  communityName, 
-    </>
-  );
-};
-
 // Calculate composite rating from tour data and external reviews
 const calculateCompositeRating = (community: Community): string => {
   // Weight factors for different rating sources
