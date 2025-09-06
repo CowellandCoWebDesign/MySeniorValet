@@ -387,17 +387,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Live Web Intelligence - NEW Simplified Perplexity-powered section */}
-        {community && (
-          <LiveWebIntelligence 
-            communityId={community.id}
-            communityName={community.name}
-            city={community.city}
-            state={community.state}
-            verificationReport={localVerificationReport}
-            autoLoad={true}
-          />
-        )}
+        {/* Live Web Intelligence moved to avoid duplicate photo display */}
+        {/* Content moved to tabs section to prevent competing carousels */}
         
         {/* Show sections even without real-time data - will populate when loaded */}
         {(
