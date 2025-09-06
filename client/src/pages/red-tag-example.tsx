@@ -13,6 +13,7 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
+import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { useToast } from "@/hooks/use-toast";
 
 // Mock data for red tag examples (same as before)
@@ -167,106 +168,16 @@ const redTagExamples = {
   }
 };
 
-// Hero Photo Carousel Component (same as authentic page)
-const HeroPhotoCarousel = ({ photos, communityName }: { photos: string[], communityName: string }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
+// Red Tag Badge Overlay Component to add on top of the carousel
+const RedTagBadgeOverlay = () => (
+  <div className="absolute top-4 left-4 z-10">
+    <Badge className="bg-red-600 text-white text-sm font-semibold px-3 py-1">
+      <Tag className="w-4 h-4 mr-1" />
+      RED TAG SPECIAL
+    </Badge>
+  </div>
+);
 
-  const nextPhoto = () => {
-    setCurrentIndex((prev) => (prev + 1) % photos.length);
-  };
-
-  const prevPhoto = () => {
-    setCurrentIndex((prev) => (prev - 1 + photos.length) % photos.length);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > 50;
-    const isRightSwipe = distance < -50;
-
-    if (isLeftSwipe) {
-      nextPhoto();
-    }
-    if (isRightSwipe) {
-      prevPhoto();
-    }
-  };
-
-  return (
-    <div className="relative">
-      <div 
-        className="w-full h-80 lg:h-96 relative overflow-hidden rounded-xl shadow-lg"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        <img
-          src={photos[currentIndex]}
-          alt={`${communityName} - Photo ${currentIndex + 1}`}
-          className="w-full h-full object-cover transition-opacity duration-300"
-        />
-        
-        {/* Navigation arrows */}
-        {photos.length > 1 && (
-          <>
-            <button
-              onClick={prevPhoto}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <button
-              onClick={nextPhoto}
-              className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all"
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </>
-        )}
-
-        {/* Photo indicators */}
-        {photos.length > 1 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
-            {photos.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex ? 'bg-white' : 'bg-white/50'
-                }`}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* Red Tag Badge Overlay */}
-        <div className="absolute top-4 left-4">
-          <Badge className="bg-red-600 text-white text-sm font-semibold px-3 py-1">
-            <Tag className="w-4 h-4 mr-1" />
-            RED TAG SPECIAL
-          </Badge>
-        </div>
-
-        {/* Photo count */}
-        <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-          {currentIndex + 1} / {photos.length}
-        </div>
-      </div>
-    </div>
-  );
-};
 
 export default function RedTagExamplePage() {
   const [, params] = useRoute('/red-tag-example/:communitySlug');
@@ -339,7 +250,13 @@ export default function RedTagExamplePage() {
           {/* Left Column - Community Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Hero Photo Gallery */}
-            <HeroPhotoCarousel photos={community.photos} communityName={community.name} />
+            <div className="relative">
+              <EnhancedPhotoCarousel 
+                photos={community.photos.map(url => ({ url, source: 'mock' }))} 
+                communityName={community.name} 
+              />
+              <RedTagBadgeOverlay />
+            </div>
 
             {/* Community Header */}
             <Card>
