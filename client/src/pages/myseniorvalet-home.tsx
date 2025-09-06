@@ -91,7 +91,7 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('discover');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -294,7 +294,10 @@ function HeroSectionWithTransformingSearch() {
               facets: data.facets,
               suggestions: data.searchMetadata?.suggestions || data.suggestions,
               totalResults: data.totalResults || communities.length,
-              searchType: data.searchMetadata?.searchType
+              searchType: data.searchMetadata?.searchType,
+              aiSuggestions: data.searchMetadata?.aiSuggestions,
+              discoveryMode: data.searchMetadata?.discoveryMode,
+              discoveryMessage: data.searchMetadata?.discoveryMessage
             }
           });
         }
@@ -592,19 +595,19 @@ function HeroSectionWithTransformingSearch() {
               }`}>
                 <button
                   type="button"
-                  onClick={() => setViewMode('list')}
+                  onClick={() => setViewMode('discover')}
                   className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'list' 
+                    viewMode === 'discover' 
                       ? isSearchActive
-                        ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400'
-                        : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg border border-purple-300'
+                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400 animate-pulse'
+                        : 'bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 text-white shadow-lg border border-purple-300'
                       : isSearchActive
                         ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
                         : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">📋</span>
-                  <span>List</span>
+                  <span className="text-xs sm:text-sm">🧠</span>
+                  <span>Enhanced Discovery</span>
                 </button>
                 <button
                   type="button"
@@ -622,29 +625,13 @@ function HeroSectionWithTransformingSearch() {
                   <span className="text-xs sm:text-sm">🗺️</span>
                   <span>Map</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('discover')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'discover' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400 animate-pulse'
-                        : 'bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 text-white shadow-lg border border-purple-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
-                >
-                  <span className="text-xs sm:text-sm">🧠</span>
-                  <span>🌍 Discovery mode</span>
-                </button>
               </div>
             </div>
           </div>
         </div>
           
-          {/* Search Results - Premium Glass Design */}
-          {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
+          {/* Search Results - Enhanced Discovery Mode */}
+          {isSearchActive && viewMode === 'discover' && (
             <div className="w-full max-w-2xl mx-auto mt-4 mb-8">
               {/* Show AI Response directly in results area for Research mode */}
               {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
@@ -689,31 +676,77 @@ function HeroSectionWithTransformingSearch() {
                 </>
               )}
               
-              {/* Results Content with premium glass design - Only show for non-Research mode */}
+              {/* Enhanced Discovery Mode Content - Shows AI Discovery Info + Community List */}
               {!searchResults?.metadata?.isResearchMode && (
-                <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
-                  {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-300">Searching...</span>
-                  </div>
-                ) : (
-                  <>
-                    {/* Scroll indicator for more results - Outside scrollable area */}
-                    {searchResults?.results && searchResults.results.length > 3 && (
-                      <div className="absolute bottom-2 right-2 z-10 text-xs text-purple-400 bg-black/70 px-3 py-1 rounded-full animate-pulse flex items-center gap-1">
-                        <span>↓</span>
-                        <span>{searchResults.results.length - 3} more</span>
+                <>
+                  {/* Show Discovery Mode AI Response if available */}
+                  {searchResults?.metadata?.aiSuggestions && (
+                    <div className="mt-3 mb-4 bg-gradient-to-br from-purple-900/20 to-blue-900/20 backdrop-blur-lg rounded-xl border border-purple-500/30 shadow-2xl shadow-purple-500/20">
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <span className="text-2xl">🧠</span>
+                          <h3 className="text-lg font-semibold text-white">AI Discovery Intelligence</h3>
+                          <span className="ml-auto text-xs text-purple-400 bg-purple-900/50 px-2 py-1 rounded-full">
+                            {searchResults.metadata.aiSuggestions.sources?.length || 0} sources analyzed
+                          </span>
+                        </div>
+                        
+                        {/* Full Unfiltered AI Response */}
+                        <div className="bg-black/30 rounded-lg p-4 max-h-[400px] overflow-y-auto">
+                          <div className="prose prose-invert prose-sm max-w-none">
+                            <div className="whitespace-pre-wrap text-gray-200 text-sm">
+                              {searchResults.metadata.aiSuggestions.summary}
+                            </div>
+                          </div>
+                          
+                          {/* Sources */}
+                          {searchResults.metadata.aiSuggestions.sources && searchResults.metadata.aiSuggestions.sources.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-purple-500/30">
+                              <p className="text-xs text-purple-400 mb-2">Sources:</p>
+                              <div className="space-y-1">
+                                {searchResults.metadata.aiSuggestions.sources.map((source: string, idx: number) => (
+                                  <a 
+                                    key={idx}
+                                    href={source}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-blue-400 hover:text-blue-300 block truncate"
+                                  >
+                                    [{idx + 1}] {source}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    
-                    <div 
-                      className="space-y-3 p-4 max-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-transparent" 
-                      style={{ 
-                        willChange: 'auto',
-                        scrollbarWidth: 'thin',
-                        scrollbarColor: '#9333ea transparent'
-                      }}>
+                    </div>
+                  )}
+                  
+                  {/* Community List Results */}
+                  <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
+                    {isLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
+                      <span className="ml-3 text-gray-300">Searching...</span>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Scroll indicator for more results - Outside scrollable area */}
+                      {searchResults?.results && searchResults.results.length > 3 && (
+                        <div className="absolute bottom-2 right-2 z-10 text-xs text-purple-400 bg-black/70 px-3 py-1 rounded-full animate-pulse flex items-center gap-1">
+                          <span>↓</span>
+                          <span>{searchResults.results.length - 3} more</span>
+                        </div>
+                      )}
+                      
+                      <div 
+                        className="space-y-3 p-4 max-h-[450px] overflow-y-auto scrollbar-thin scrollbar-thumb-purple-600 scrollbar-track-transparent" 
+                        style={{ 
+                          willChange: 'auto',
+                          scrollbarWidth: 'thin',
+                          scrollbarColor: '#9333ea transparent'
+                        }}>
                       {/* Graceful Fallback Message */}
                       {searchResults?.metadata?.fallbackApplied && (
                         <GracefulFallbackMessage
@@ -913,10 +946,11 @@ function HeroSectionWithTransformingSearch() {
                   </>
                 )}
               </div>
-            )}
-          </div>
-        )}
+            </>
+          )}
         </div>
+      )}
+      </div>
         
         {/* Back to Top Button - appears when there are many results */}
         {searchResults?.results?.length > 10 && (
