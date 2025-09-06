@@ -564,16 +564,35 @@ export class ComprehensiveSearchEngine {
         );
         console.log(`🌍 Added country search for "${query}"`);
       } else {
-        // Global search - could be city, state, or region anywhere
-        conditions.push(
-          or(
-            ilike(communities.city, `%${query}%`),
-            ilike(communities.state, `%${query}%`),
-            ilike(communities.county, `%${query}%`),
-            ilike(communities.country, `%${query}%`)
-          )
-        );
-        console.log(`🌍 Added global location search for "${query}" (searching cities, states, counties, countries)`);
+        // Global search - prioritize exact city matches first
+        // For city searches like "Atlanta", we want communities IN Atlanta, not with Atlanta in the name
+        const stateCode = (GLOBAL_REGIONS as any)[queryLower];
+        
+        if (stateCode) {
+          // It's a state/province search
+          conditions.push(
+            ilike(communities.state, `%${stateCode}%`)
+          );
+          console.log(`🌍 Added state/province search for "${query}" (${stateCode})`);
+        } else {
+          // It's likely a city name - be more specific
+          // Prioritize exact city matches, not partial name matches
+          conditions.push(
+            or(
+              // Exact city match (highest priority)
+              ilike(communities.city, query),
+              // City starts with query
+              ilike(communities.city, `${query}%`),
+              // City contains query (but not in community name)
+              and(
+                ilike(communities.city, `%${query}%`),
+                // Exclude results where it's just in the community name
+                sql`${communities.city} IS NOT NULL AND ${communities.city} != ''`
+              )
+            )
+          );
+          console.log(`🌍 Added specific city search for "${query}"`);
+        }
       }
     }
     
