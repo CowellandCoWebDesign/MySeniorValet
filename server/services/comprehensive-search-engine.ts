@@ -93,14 +93,15 @@ export class ComprehensiveSearchEngine {
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
     
-    // DISCOVERY MODE: Use AI when results are limited
+    // DISCOVERY MODE: Use AI only when NO results are found
     let discoveryMode = false;
     let discoveryMessage = '';
     let aiSuggestions: any = null;
     
-    // Activate Discovery Mode when we have few results
-    if (totalResults < 3 && query && query.trim() !== '') {
-      console.log(`🔍 Activating Discovery Mode for query: "${query}" (only ${totalResults} results found)`);
+    // Activate Discovery Mode ONLY when we have ZERO results
+    // Don't trigger for valid searches that found 1-2 specific communities
+    if (totalResults === 0 && query && query.trim() !== '') {
+      console.log(`🔍 Activating Discovery Mode for query: "${query}" (no results found)`);
       discoveryMode = true;
       
       // Only keep the existing database results - don't add random locations
@@ -221,10 +222,24 @@ export class ComprehensiveSearchEngine {
       
       console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
       
+      // Check if this looks like a specific community name BEFORE applying location logic
+      // Community names often contain city names (e.g., "San Diego Senior Manor")
+      const looksLikeCommunityName = normalizedQuery.includes('manor') || 
+                                     normalizedQuery.includes('estates') ||
+                                     normalizedQuery.includes('village') ||
+                                     normalizedQuery.includes('residence') ||
+                                     normalizedQuery.includes('living') ||
+                                     normalizedQuery.includes('senior') ||
+                                     normalizedQuery.includes('care') ||
+                                     normalizedQuery.includes('home') ||
+                                     normalizedQuery.includes('center') ||
+                                     normalizedQuery.includes('community');
+      
       // Apply conditions based on ALL detected intents (not just dominant)
       let isCountrySearch = false;
       
-      if (intentScores.location >= 0.3) {
+      // Only apply location search if it doesn't look like a community name
+      if (intentScores.location >= 0.3 && !looksLikeCommunityName) {
         // Check if this is an international location query first
         const isInternational = this.detectInternationalQuery(normalizedQuery);
         
@@ -274,8 +289,8 @@ export class ComprehensiveSearchEngine {
         console.log(`🔍 Added company search conditions for "${normalizedQuery}"`);
       }
       
-      // ENHANCED NAME SEARCH: Always prioritize community name searches
-      // This ensures partial matches like "Hilltop" find "Hilltop Estates"
+      // PRIORITY 1: ALWAYS check for exact or partial community name matches FIRST
+      // This is the most important search - users often search for specific communities
       const nameConditions = [];
       
       // 1. Exact match (highest priority)
@@ -295,39 +310,43 @@ export class ComprehensiveSearchEngine {
           ilike(communities.name, `%${word}%`)
         );
         nameConditions.push(and(...wordConditions));
-      } else if (queryWords.length === 1 && queryWords[0].length >= 3) {
-        // Single word search - also check if it's part of a word
-        // This helps "hill" find "Hilltop"
-        nameConditions.push(ilike(communities.name, `%${queryWords[0]}%`));
+        
+        // Also search for the exact phrase in community names
+        const exactPhrase = queryWords.join(' ');
+        nameConditions.push(ilike(communities.name, `%${exactPhrase}%`));
       }
       
-      // Always add name search as a primary condition with OR
+      // Check if we have name matches BEFORE applying other conditions
       const nameSearchCondition = or(...nameConditions);
       
-      // If no specific intent detected strongly AND not a country search, use general search
-      // BUT don't add general search if we already added location conditions
+      // PRIORITY: If no strong intent detected OR searching for a specific community name
+      // Apply name search as the PRIMARY search method
       const hasLocationConditions = intentScores.location >= 0.3;
       const hasCompanyConditions = intentScores.company > 0.3;
+      const hasCareTypeConditions = intentScores.careType > 0.3;
+      const hasPriceConditions = intentScores.price > 0.3;
       
-      if (!hasCompanyConditions) {
-        // Always include name search as primary search method
-        if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
-          // Full general search for low-intent queries
-          conditions.push(
-            or(
-              nameSearchCondition,
-              ilike(communities.city, `%${normalizedQuery}%`),
-              ilike(communities.state, `%${normalizedQuery}%`),
-              ilike(communities.managementCompany, `%${normalizedQuery}%`),
-              ilike(communities.address, `%${normalizedQuery}%`)
-            )
-          );
-          console.log(`🔍 Added comprehensive general search conditions for "${normalizedQuery}"`);
-        } else {
-          // For high-intent queries, still add name search to ensure we find specific communities
-          conditions.push(nameSearchCondition);
-          console.log(`🔍 Added enhanced name search conditions for "${normalizedQuery}" with partial matching`);
-        }
+      // If no strong intent OR it looks like a community name search
+      const maxIntentScore = Math.max(...Object.values(intentScores));
+      const isLikelyCommunityName = maxIntentScore < 0.4 || 
+                                    (!hasLocationConditions && !hasCareTypeConditions && !hasPriceConditions);
+      
+      if (isLikelyCommunityName && !hasCompanyConditions) {
+        // ALWAYS add name search first for likely community name searches
+        conditions.push(
+          or(
+            nameSearchCondition,
+            // Also search in city/state/management company as fallback
+            ilike(communities.city, `%${normalizedQuery}%`),
+            ilike(communities.state, `%${normalizedQuery}%`),
+            ilike(communities.managementCompany, `%${normalizedQuery}%`)
+          )
+        );
+        console.log(`🔍 Added PRIMARY name search for potential community: "${normalizedQuery}"`);
+      } else if (!hasCompanyConditions) {
+        // Even for high-intent queries, add name search to catch specific communities
+        conditions.push(nameSearchCondition);
+        console.log(`🔍 Added supplementary name search for "${normalizedQuery}"`);
       }
       
       searchType = dominantIntent;
