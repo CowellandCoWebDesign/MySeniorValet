@@ -1129,7 +1129,7 @@ export const HeroPhotoCarousel = ({
     
     const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder'; attribution?: string }[] = [];
     
-    // Stock photo patterns to COMPLETELY EXCLUDE
+    // Stock photo patterns and generic sites to COMPLETELY EXCLUDE
     const stockPhotoPatterns = [
       'unsplash.com',
       'pixabay.com', 
@@ -1143,7 +1143,16 @@ export const HeroPhotoCarousel = ({
       'burst.shopify.com',
       'cdn.pixabay.com',
       'images.unsplash.com',
-      'images.pexels.com'
+      'images.pexels.com',
+      // Generic senior living magazine/blog sites (not specific community photos)
+      'assistedlivingmagazine.com',
+      'seniorliving.org',
+      'seniorhousingnews.com',
+      'mcknights.com',
+      'seniorcare.com',
+      'aging.com',
+      'aplaceformom.com/blog',
+      'caring.com/senior-living/articles'
     ];
     
     const isStockPhoto = (url: string) => {
@@ -1197,6 +1206,17 @@ export const HeroPhotoCarousel = ({
       
       let realWebPhotoCount = 0;
       let stockWebPhotoCount = 0;
+      let officialPhotoCount = 0;
+      
+      // Get community's official website domain for prioritization
+      const communityWebsite = community?.website || '';
+      const communityDomain = communityWebsite ? 
+        new URL(communityWebsite.startsWith('http') ? communityWebsite : `https://${communityWebsite}`).hostname.replace('www.', '') : '';
+      
+      // Prioritize photos: Official website first, then directories, then others
+      const officialPhotos: any[] = [];
+      const directoryPhotos: any[] = [];
+      const otherPhotos: any[] = [];
       
       // Only add REAL web photos, skip ALL stock photos
       webImages.forEach((img: any) => {
@@ -1204,32 +1224,60 @@ export const HeroPhotoCarousel = ({
         const photoSource = typeof img === 'object' ? img.source : 'web';
         
         if (!isStockPhoto(photoUrl)) {
-          // Determine attribution based on source
+          // Determine attribution and priority based on source
           let attribution = 'Web Search';
-          if (photoSource === 'directory') {
-            attribution = 'Senior Living Directory';
-          } else if (photoUrl.includes('apartments.com')) {
-            attribution = 'Apartments.com';
+          let priority = 'other';
+          
+          // Check if photo is from community's official website
+          if (communityDomain && photoUrl.includes(communityDomain)) {
+            attribution = 'Official Website';
+            priority = 'official';
+            officialPhotoCount++;
+          } else if (photoSource === 'directory' || photoUrl.includes('apartments.com')) {
+            attribution = photoUrl.includes('apartments.com') ? 'Apartments.com' : 'Senior Living Directory';
+            priority = 'directory';
           } else if (photoUrl.includes('aplaceformom.com')) {
             attribution = 'A Place for Mom';
+            priority = 'directory';
           } else if (photoUrl.includes('seniorliving.com')) {
             attribution = 'SeniorLiving.com';
+            priority = 'directory';
           } else if (photoUrl.includes('caring.com')) {
             attribution = 'Caring.com';
+            priority = 'directory';
+          } else if (photoUrl.includes('olera.care')) {
+            attribution = 'Olera Senior Living';
+            priority = 'directory';
           }
           
-          allPhotos.push({
+          const photoData = {
             url: photoUrl,
             source: 'web' as const,
             attribution
-          });
+          };
+          
+          // Sort into priority buckets
+          if (priority === 'official') {
+            officialPhotos.push(photoData);
+          } else if (priority === 'directory') {
+            directoryPhotos.push(photoData);
+          } else {
+            otherPhotos.push(photoData);
+          }
+          
           realWebPhotoCount++;
         } else {
           stockWebPhotoCount++;
         }
       });
       
+      // Add photos in priority order: Official first, then directories, then others
+      allPhotos.push(...officialPhotos, ...directoryPhotos, ...otherPhotos);
+      
       console.log(`✅ Added ${realWebPhotoCount} REAL web photos`);
+      if (officialPhotoCount > 0) {
+        console.log(`🌟 Including ${officialPhotoCount} photos from OFFICIAL WEBSITE`);
+      }
       console.log(`🚫 Excluded ${stockWebPhotoCount} stock photos from web`);
     }
     
