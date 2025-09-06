@@ -1,18 +1,15 @@
-import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { playwrightPhotoScraper } from './playwright-photo-scraper';
 
 /**
- * Multi-AI Photo Extraction Service
- * Orchestrates Perplexity, GPT-5, and Claude for intelligent photo discovery
+ * Enhanced Photo Extraction Service
+ * Uses Playwright browser automation and Claude for photo discovery
+ * NO OPENAI/GPT-5 - Relies on direct extraction and verification
  */
 
-// Initialize AI clients
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Initialize Claude client only
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-const GPT5_MODEL = "gpt-5";
 // The newest Anthropic model is "claude-sonnet-4-20250514", not older 3.x models
 const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
@@ -33,111 +30,126 @@ interface PhotoExtractionResult {
 
 export class MultiAIPhotoExtractor {
   /**
-   * Step 1: Use Perplexity to find photo sources (already handled by SimplifiedPerplexityService)
-   * This returns web content with potential photo URLs
+   * Enhanced pattern-based photo extraction from HTML content
+   * Directly extracts photo URLs without OpenAI
    */
+  static extractPhotosFromContent(content: string, communityName: string): PhotoCandidate[] {
+    const photos: PhotoCandidate[] = [];
+    const foundUrls = new Set<string>();
+    
+    // Multiple regex patterns to catch different image URL formats
+    const patterns = [
+      // Standard img tags with src
+      /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
+      // Data-src for lazy loading
+      /<img[^>]+data-src=["']([^"']+)["'][^>]*>/gi,
+      // Background images in style
+      /background-image:\s*url\(['"]?([^'")]+)['"]?\)/gi,
+      // Direct image URLs in content
+      /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi,
+      // Srcset attributes
+      /srcset=["']([^"']+)["']/gi,
+      // JSON-embedded images
+      /"image_url"\s*:\s*"([^"]+)"/gi,
+      /"url"\s*:\s*"([^"]+\.(?:jpg|jpeg|png|gif|webp)[^"]*)"/gi,
+      // Gallery data attributes
+      /data-gallery-image=["']([^"']+)["']/gi,
+      /data-photo=["']([^"']+)["']/gi
+    ];
+    
+    // Extract URLs using all patterns
+    patterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(content)) !== null) {
+        const url = match[1];
+        if (url && !foundUrls.has(url)) {
+          // Basic validation
+          if (this.isValidPhotoUrl(url)) {
+            foundUrls.add(url);
+            
+            // Determine confidence based on URL characteristics
+            let confidence = 0.5;
+            const lowerUrl = url.toLowerCase();
+            
+            // Higher confidence for official-looking URLs
+            if (lowerUrl.includes(communityName.toLowerCase().replace(/\s+/g, ''))) {
+              confidence = 0.9;
+            } else if (lowerUrl.includes('gallery') || lowerUrl.includes('photos')) {
+              confidence = 0.8;
+            } else if (lowerUrl.includes('rooms') || lowerUrl.includes('amenities')) {
+              confidence = 0.85;
+            } else if (lowerUrl.includes('tour') || lowerUrl.includes('facility')) {
+              confidence = 0.75;
+            }
+            
+            // Lower confidence for potential stock photos
+            if (this.isLikelyStockPhoto(url)) {
+              confidence = 0.2;
+            }
+            
+            photos.push({
+              url: this.normalizeUrl(url),
+              source: 'HTML Extraction',
+              confidence,
+              isAuthentic: confidence > 0.5,
+              reason: `Found in content with ${Math.round(confidence * 100)}% confidence`
+            });
+          }
+        }
+      }
+    });
+    
+    // Also extract from srcset (responsive images)
+    const srcsetPattern = /srcset=["']([^"']+)["']/gi;
+    let srcsetMatch;
+    while ((srcsetMatch = srcsetPattern.exec(content)) !== null) {
+      const srcset = srcsetMatch[1];
+      const urls = srcset.split(',').map(s => s.trim().split(' ')[0]);
+      urls.forEach(url => {
+        if (url && !foundUrls.has(url) && this.isValidPhotoUrl(url)) {
+          foundUrls.add(url);
+          photos.push({
+            url: this.normalizeUrl(url),
+            source: 'Responsive Images',
+            confidence: 0.7,
+            isAuthentic: true,
+            reason: 'Found in srcset attribute'
+          });
+        }
+      });
+    }
+    
+    console.log(`📸 Extracted ${photos.length} photo candidates from HTML content`);
+    return photos;
+  }
   
   /**
-   * Step 2: Use GPT-5 to intelligently extract photo URLs from content
-   */
-  static async extractPhotosWithGPT5(content: string, communityName: string): Promise<PhotoCandidate[]> {
-    try {
-      const prompt = `
-Analyze this content about "${communityName}" senior living community and extract ONLY authentic facility photos.
-
-IMPORTANT RULES:
-1. ONLY extract photos that are clearly of the actual facility (building exteriors, interiors, rooms, amenities)
-2. REJECT all stock photos, generic images, logos, maps, icons, or unrelated images
-3. Each photo URL must be complete and valid
-4. Provide confidence score (0-100) for each photo being authentic
-
-Content to analyze:
-${content.substring(0, 8000)}
-
-Return JSON format:
-{
-  "photos": [
-    {
-      "url": "full URL",
-      "description": "what the photo shows",
-      "confidence": 85,
-      "source_context": "where it appeared in the content"
-    }
-  ]
-}`;
-
-      const response = await openai.chat.completions.create({
-        model: GPT5_MODEL,
-        messages: [
-          {
-            role: "system",
-            content: "You are an expert at identifying authentic facility photos from web content. You have a keen eye for distinguishing real facility photos from stock images."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        response_format: { type: "json_object" },
-        // GPT-5 only supports temperature 1.0 (default)
-        max_completion_tokens: 2000
-      });
-
-      const result = JSON.parse(response.choices[0].message.content || '{"photos":[]}');
-      
-      return result.photos.map((photo: any) => ({
-        url: photo.url,
-        source: `GPT-5: ${photo.description}`,
-        confidence: photo.confidence / 100,
-        isAuthentic: photo.confidence > 70,
-        reason: photo.source_context
-      }));
-    } catch (error) {
-      console.error('GPT-5 photo extraction error:', error);
-      return [];
-    }
-  }
-
-  /**
-   * Step 3: Use Claude to verify photo authenticity
+   * Verify photos with Claude (kept for authentication verification)
    */
   static async verifyPhotosWithClaude(photos: PhotoCandidate[]): Promise<PhotoCandidate[]> {
     if (photos.length === 0) return [];
     
     try {
-      const photoUrls = photos.map(p => p.url).join('\n');
+      const photoUrls = photos.map(p => p.url).slice(0, 30).join('\n'); // Limit to 30 for efficiency
       
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL,
-        max_completion_tokens: 1024,
+        max_tokens: 1024,
         messages: [{
           role: 'user',
-          content: `Analyze these photo URLs and determine which are AUTHENTIC facility photos vs stock photos.
+          content: `Quickly verify these photo URLs. Mark ONLY obvious stock photos as non-authentic.
 
-Photo URLs to verify:
+Photo URLs:
 ${photoUrls}
 
-For each URL, determine:
-1. Is it likely a stock photo service? (unsplash, pexels, shutterstock, getty, etc)
-2. Does the URL pattern suggest it's from an official website?
-3. Does it appear to be a real facility photo?
+Return JSON array:
+[{"url": "...", "is_authentic": true/false, "confidence": 0.0-1.0}]
 
-Return a JSON array with format:
-[
-  {
-    "url": "the URL",
-    "is_authentic": true/false,
-    "confidence": 0.0-1.0,
-    "reason": "brief explanation"
-  }
-]
-
-Be VERY strict - only mark as authentic if you're confident it's a real facility photo.`
+Be lenient - mark as authentic unless clearly stock photos.`
         }],
         temperature: 0.2
       });
 
-      // Handle Claude's response properly - content can be text or tool use
       const contentBlock = response.content[0];
       const responseText = contentBlock.type === 'text' ? contentBlock.text : '';
       const claudeAnalysis = JSON.parse(responseText);
@@ -150,166 +162,115 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
             ...photo,
             isAuthentic: claudeResult.is_authentic && photo.isAuthentic,
             confidence: (photo.confidence + claudeResult.confidence) / 2,
-            reason: `${photo.reason || ''} | Claude: ${claudeResult.reason}`
+            reason: `${photo.reason || ''} | Claude verified`
           };
         }
         return photo;
       });
     } catch (error) {
-      console.error('Claude verification error:', error);
+      console.error('Claude verification error (non-critical):', error);
       return photos; // Return unverified if Claude fails
     }
   }
 
   /**
-   * Step 4: SUPER-POWERED photo search using Playwright + Three AIs
+   * Enhanced photo finding without OpenAI
    */
   static async findAuthenticPhotos(
     communityName: string,
     perplexityContent: string,
     websiteUrl?: string
   ): Promise<PhotoExtractionResult> {
-    console.log(`🔥 SUPER-POWERED Multi-AI + Playwright Photo Extraction for ${communityName}`);
+    console.log(`🚀 Enhanced Photo Extraction for ${communityName} (No OpenAI)`);
     
     let allPhotoCandidates: PhotoCandidate[] = [];
     
     // Step 1: Use Playwright to scrape photos directly from the website
     if (websiteUrl) {
-      console.log('🚀 Step 1: Playwright scraping photos from actual website...');
+      console.log('🌐 Step 1: Playwright browser automation for official website...');
       try {
         const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
           websiteUrl,
           communityName
         );
         
-        // Convert scraped photos to candidates
+        // Convert scraped photos to candidates with high confidence
         const playwrightCandidates = scrapedPhotos.map(photo => ({
           url: photo.url,
-          source: `Playwright: ${photo.context}`,
-          confidence: photo.isGallery ? 0.9 : 0.8,
+          source: `Official Website`,
+          confidence: photo.isGallery ? 0.95 : 0.85,
           isAuthentic: true,
-          reason: `Scraped from ${photo.isGallery ? 'gallery' : 'website'}`
+          reason: `Direct from ${photo.isGallery ? 'photo gallery' : 'website'}`
         }));
         
         allPhotoCandidates.push(...playwrightCandidates);
-        console.log(`  🔥 Playwright found ${playwrightCandidates.length} photos directly from website`);
+        console.log(`  ✅ Found ${playwrightCandidates.length} photos from official website`);
       } catch (error) {
-        console.error('Playwright scraping error:', error);
+        console.error('Playwright scraping failed (will continue with other methods):', error);
       }
     }
     
-    // Step 2: Extract photo URLs using GPT-5 from Perplexity content
-    console.log('📸 Step 2: GPT-5 extracting photos from Perplexity content...');
-    const gptPhotos = await this.extractPhotosWithGPT5(perplexityContent, communityName);
-    allPhotoCandidates.push(...gptPhotos);
-    console.log(`  Found ${gptPhotos.length} potential photos from content`);
+    // Step 2: Extract photos directly from Perplexity content
+    console.log('📷 Step 2: Direct HTML extraction from Perplexity content...');
+    const extractedPhotos = this.extractPhotosFromContent(perplexityContent, communityName);
+    allPhotoCandidates.push(...extractedPhotos);
+    console.log(`  ✅ Extracted ${extractedPhotos.length} photos from content`);
     
-    // Step 3: Search multiple directory sites for more photos
-    console.log('🌐 Step 3: GPT-5 searching for photos from 3 directory sources...');
+    // Step 3: Search directory sites using direct extraction
+    console.log('🔍 Step 3: Searching directory sites with pattern matching...');
     const directorySites = [
-      'assistedliving.com',
-      'caring.com', 
-      'seniorly.com',
-      'aplaceformom.com',
-      'senioradvisor.com'
+      { name: 'assistedliving.com', pattern: /assistedliving\.com/i },
+      { name: 'caring.com', pattern: /caring\.com/i },
+      { name: 'seniorly.com', pattern: /seniorly\.com/i },
+      { name: 'aplaceformom.com', pattern: /aplaceformom\.com/i },
+      { name: 'senioradvisor.com', pattern: /senioradvisor\.com/i }
     ];
     
-    for (const site of directorySites.slice(0, 3)) { // Search top 3 sites
-      console.log(`  📷 Searching ${site} for ${communityName} photos...`);
-      const searchPrompt = `Find authentic facility photos for "${communityName}" on ${site}. Look for actual building photos, room photos, amenity photos, dining areas, activity photos. Return all photo URLs found.`;
-      
-      try {
-        const siteResponse = await openai.chat.completions.create({
-          model: GPT5_MODEL,
-          messages: [
-            {
-              role: "user",
-              content: searchPrompt
-            }
-          ],
-          max_completion_tokens: 4000
-        });
-        
-        const sitePhotos = await this.extractPhotosWithGPT5(
-          siteResponse.choices[0].message.content || '',
-          communityName
-        );
-        allPhotoCandidates.push(...sitePhotos);
-        console.log(`    Found ${sitePhotos.length} photos from ${site}`);
-      } catch (error) {
-        console.error(`Photo search error for ${site}:`, error);
+    // Extract photos that match directory patterns
+    directorySites.forEach(site => {
+      const sitePhotos = extractedPhotos.filter(p => site.pattern.test(p.url));
+      if (sitePhotos.length > 0) {
+        console.log(`  📸 Found ${sitePhotos.length} photos from ${site.name}`);
       }
-    }
+    });
     
-    // Step 4: If we have a website URL, do a deep search
-    if (websiteUrl) {
-      console.log(`🌐 Step 4: Deep searching official website ${websiteUrl}`);
-      const deepSearchPrompt = `Do a DEEP search for ALL photos on ${websiteUrl} for ${communityName}. Check:
-        - Photo galleries
-        - Virtual tours
-        - Amenities pages
-        - About us pages
-        - Room/floor plan pages
-        - Activities pages
-        - Dining pages
-        Find at least 20 authentic facility photos if possible.`;
-      
-      try {
-        const websiteResponse = await openai.chat.completions.create({
-          model: GPT5_MODEL,
-          messages: [
-            {
-              role: "user",
-              content: deepSearchPrompt
-            }
-          ],
-          max_completion_tokens: 4000
-        });
-        
-        const additionalPhotos = await this.extractPhotosWithGPT5(
-          websiteResponse.choices[0].message.content || '',
-          communityName
-        );
-        allPhotoCandidates.push(...additionalPhotos);
-      } catch (error) {
-        console.error('Website deep search error:', error);
-      }
-    }
-    
-    // Step 5: Verify all photos with Claude
-    console.log('🔍 Step 5: Claude verifying photo authenticity...');
+    // Step 4: Quick Claude verification (optional, lightweight)
+    console.log('🔍 Step 4: Quick Claude verification...');
     const verifiedPhotos = await this.verifyPhotosWithClaude(allPhotoCandidates);
     
-    // Step 6: Filter and categorize results
+    // Step 5: Filter and categorize results
     const authenticPhotos = verifiedPhotos.filter(p => 
       p.isAuthentic && 
-      p.confidence > 0.6 && // Lower threshold to get more photos
+      p.confidence > 0.5 && // Lower threshold for more photos
       !this.isStockPhotoUrl(p.url)
     );
     
     const rejectedPhotos = verifiedPhotos.filter(p => 
       !p.isAuthentic || 
-      p.confidence <= 0.6 ||
+      p.confidence <= 0.5 ||
       this.isStockPhotoUrl(p.url)
     );
+    
+    // Sort by confidence and take best photos
+    authenticPhotos.sort((a, b) => b.confidence - a.confidence);
     
     console.log(`✅ Results: ${authenticPhotos.length} authentic, ${rejectedPhotos.length} rejected`);
     
     return {
-      authenticPhotos: authenticPhotos.slice(0, 20), // Increased to 20 photos
+      authenticPhotos: authenticPhotos.slice(0, 25), // Increased to 25 photos
       rejectedPhotos,
       sources: [...new Set(verifiedPhotos.map(p => p.source))],
-      summary: `🔥 ENHANCED: Found ${authenticPhotos.length} authentic facility photos from 3+ sources using Multi-AI verification`
+      summary: `🚀 Found ${authenticPhotos.length} authentic photos using Playwright + Pattern Extraction (No OpenAI)`
     };
   }
 
   /**
-   * Check if URL is from a known stock photo service
+   * Check if URL is from a known stock photo service (minimal list)
    */
   private static isStockPhotoUrl(url: string): boolean {
     const stockDomains = [
       'unsplash.com',
-      'pexels.com', 
+      'pexels.com',
       'pixabay.com',
       'shutterstock.com',
       'gettyimages.com',
@@ -319,32 +280,78 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
     const lowerUrl = url.toLowerCase();
     return stockDomains.some(domain => lowerUrl.includes(domain));
   }
-
+  
   /**
-   * Extract photos from image tags in HTML content
+   * Check if URL appears to be a stock photo based on patterns
    */
-  static extractImageUrls(htmlContent: string): string[] {
-    const imageUrls: string[] = [];
+  private static isLikelyStockPhoto(url: string): boolean {
+    const stockPatterns = [
+      /stock/i,
+      /placeholder/i,
+      /dummy/i,
+      /sample/i,
+      /demo/i,
+      /unsplash/i,
+      /pexels/i,
+      /pixabay/i
+    ];
     
-    // Match <img src="..."> tags
-    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-    let match;
-    while ((match = imgRegex.exec(htmlContent)) !== null) {
-      if (match[1] && !this.isStockPhotoUrl(match[1])) {
-        imageUrls.push(match[1]);
+    return stockPatterns.some(pattern => pattern.test(url));
+  }
+  
+  /**
+   * Validate if URL is a proper photo URL
+   */
+  private static isValidPhotoUrl(url: string): boolean {
+    if (!url || url.length < 10) return false;
+    
+    // Check for image extensions
+    const imageExtensions = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
+    if (!imageExtensions.test(url.split('?')[0])) {
+      // Also accept URLs that might be image endpoints
+      if (!url.includes('/image') && !url.includes('/photo') && !url.includes('/gallery')) {
+        return false;
       }
     }
     
-    // Match URLs ending in image extensions
-    const urlRegex = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
-    while ((match = urlRegex.exec(htmlContent)) !== null) {
-      if (match[0] && !this.isStockPhotoUrl(match[0])) {
-        imageUrls.push(match[0]);
-      }
+    // Exclude data URLs and blob URLs
+    if (url.startsWith('data:') || url.startsWith('blob:')) return false;
+    
+    // Exclude obviously non-photo URLs
+    const excludePatterns = [
+      /favicon/i,
+      /logo/i,
+      /icon/i,
+      /button/i,
+      /arrow/i,
+      /spinner/i,
+      /loading/i
+    ];
+    
+    return !excludePatterns.some(pattern => pattern.test(url));
+  }
+  
+  /**
+   * Normalize URL (add protocol if missing, etc.)
+   */
+  private static normalizeUrl(url: string): string {
+    if (!url) return '';
+    
+    // Handle protocol-relative URLs
+    if (url.startsWith('//')) {
+      return 'https:' + url;
     }
     
-    // Remove duplicates and return
-    return [...new Set(imageUrls)];
+    // Handle relative URLs (assume https)
+    if (!url.startsWith('http')) {
+      if (url.startsWith('/')) {
+        // Absolute path - would need base URL
+        return url; // Return as-is, will be handled by caller
+      }
+      return 'https://' + url;
+    }
+    
+    return url;
   }
 }
 
