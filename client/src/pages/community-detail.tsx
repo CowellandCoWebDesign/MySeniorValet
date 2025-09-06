@@ -2176,6 +2176,18 @@ export default function CommunityDetail() {
 
       <div className="container-responsive py-responsive">
         <div className="space-y-4 sm:space-y-6">
+          {/* Hero Photo Carousel - Full Width */}
+          <div className="w-full h-[400px] sm:h-[500px] lg:h-[600px] rounded-lg overflow-hidden shadow-lg">
+            <HeroPhotoCarousel
+              photos={getCombinedPhotos()}
+              communityName={community?.name || ""}
+              communityId={community?.id}
+              community={community}
+              verificationReport={verificationReport}
+              isVerifying={isVerifying}
+            />
+          </div>
+          
           {/* Main Content - Full Width */}
           <div className="space-y-6">
             {/* Main Community Card - Premium Featured Excellence Design */}
