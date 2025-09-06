@@ -1439,8 +1439,8 @@ export const HeroPhotoCarousel = ({
       )}
       
       {/* Simple Grid Photo Display - BULLETPROOF APPROACH */}
-      {/* Photo Carousel Container */}
-      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
+      <div className="absolute inset-0">
+        <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
         {/* Photo Search Progress Indicator */}
         {showPhotoSearchMessage && (
           <div className="absolute top-2 left-2 right-2 z-20">
@@ -1622,6 +1622,7 @@ export const HeroPhotoCarousel = ({
           </Button>
         </div>
       )}
+      </div>
     </>
   );
 };
@@ -2197,7 +2198,7 @@ export default function CommunityDetail() {
                       
                       // Click the button if found
                       if (targetButton) {
-                        targetButton.click();
+                        (targetButton as HTMLButtonElement).click();
                       } else if (schedulerButtons.length > 0) {
                         // Fallback: click the first button in the scheduler form
                         (schedulerButtons[0] as HTMLElement).click();
