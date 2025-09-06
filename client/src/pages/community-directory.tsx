@@ -64,27 +64,77 @@ export default function CommunityDirectory() {
   
   // Brand-specific community queries for signature sliders
   const discoveryQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', { company: 'Discovery Senior Living', limit: 12 }],
+    queryKey: ['/api/search/comprehensive', 'Discovery Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Discovery', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Discovery communities');
+      return await response.json();
+    },
     enabled: true
   });
   
   const lcsQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', { company: 'Life Care Services', limit: 12 }],
+    queryKey: ['/api/search/comprehensive', 'Life Care Services'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Life Care', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch LCS communities');
+      return await response.json();
+    },
     enabled: true
   });
   
   const atriaQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', { company: 'Atria Senior Living', limit: 12 }],
+    queryKey: ['/api/search/comprehensive', 'Atria Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Atria', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Atria communities');
+      return await response.json();
+    },
     enabled: true
   });
   
   const brookdaleQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', { company: 'Brookdale Senior Living', limit: 12 }],
+    queryKey: ['/api/search/comprehensive', 'Brookdale Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Brookdale', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Brookdale communities');
+      return await response.json();
+    },
     enabled: true
   });
   
   const oakmontQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', { company: 'Oakmont Management Group', limit: 12 }],
+    queryKey: ['/api/search/comprehensive', 'Oakmont Management Group'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Oakmont', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Oakmont communities');
+      return await response.json();
+    },
     enabled: true
   });
   
