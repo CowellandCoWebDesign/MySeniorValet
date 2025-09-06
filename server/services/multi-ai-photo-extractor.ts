@@ -444,65 +444,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
    * Validate if URL is a proper photo URL
    */
   private static isValidPhotoUrl(url: string): boolean {
-    if (!url || url.length < 10) return false;
+    // Return ALL photos - NO FILTERING!
+    // Only check if URL exists
+    if (!url || url.length < 5) return false;
     
-    const lowerUrl = url.toLowerCase();
-    
-    // Exclude UI elements and site assets
-    const uiExcludePatterns = [
-      /logo/i,
-      /icon/i,
-      /button/i,
-      /banner/i,
-      /badge/i,
-      /poweredby/i,
-      /powered-by/i,
-      /btn/i,
-      /arrow/i,
-      /spinner/i,
-      /loading/i,
-      /placeholder/i,
-      /owner--img/i,
-      /signup-home/i,
-      /duplicate-img/i,
-      /back-btn/i,
-      /search-banner/i,
-      /opt-finish/i,
-      /assistant-qm/i,
-      /branded-/i
-    ];
-    
-    // Check if URL contains any exclude patterns
-    for (const pattern of uiExcludePatterns) {
-      if (pattern.test(lowerUrl)) {
-        return false;
-      }
-    }
-    
-    // Check for image extensions
-    const imageExtensions = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
-    if (!imageExtensions.test(url.split('?')[0])) {
-      // Also accept URLs that might be image endpoints
-      if (!url.includes('/image') && !url.includes('/photo') && !url.includes('/gallery')) {
-        return false;
-      }
-    }
-    
-    // Exclude data URLs and blob URLs
+    // Exclude only data/blob URLs which aren't real photos
     if (url.startsWith('data:') || url.startsWith('blob:')) return false;
     
-    // Exclude obviously non-photo URLs
-    const excludePatterns = [
-      /favicon/i,
-      /logo/i,
-      /icon/i,
-      /button/i,
-      /arrow/i,
-      /spinner/i,
-      /loading/i
-    ];
-    
-    return !excludePatterns.some(pattern => pattern.test(url));
+    // RETURN EVERYTHING ELSE - NO FILTERING!
+    return true;
   }
   
   /**

@@ -97,9 +97,9 @@ export class PlaywrightPhotoScraper {
         }));
       });
       
-      // Add img photos
+      // Add img photos - NO FILTERING!
       for (const photo of imgPhotos) {
-        if (this.isValidPhotoUrl(photo.url) && !this.isStockPhoto(photo.url)) {
+        if (this.isValidPhotoUrl(photo.url)) {
           photos.push({
             ...photo,
             context: `IMG: ${photo.alt || 'facility photo'}`,
@@ -136,9 +136,9 @@ export class PlaywrightPhotoScraper {
         return bgImages;
       });
       
-      // Add background photos
+      // Add background photos - NO FILTERING!
       for (const photo of bgPhotos) {
-        if (this.isValidPhotoUrl(photo.url) && !this.isStockPhoto(photo.url)) {
+        if (this.isValidPhotoUrl(photo.url)) {
           photos.push(photo);
         }
       }
@@ -279,7 +279,7 @@ export class PlaywrightPhotoScraper {
       });
       
       for (const photo of metaPhotos) {
-        if (photo.url && this.isValidPhotoUrl(photo.url) && !this.isStockPhoto(photo.url)) {
+        if (photo.url && this.isValidPhotoUrl(photo.url)) {
           photos.push(photo);
         }
       }
@@ -315,22 +315,12 @@ export class PlaywrightPhotoScraper {
    * Check if URL is a valid photo URL
    */
   private isValidPhotoUrl(url: string): boolean {
-    if (!url || url.length < 10) return false;
+    // Return ALL photos - NO FILTERING!
+    // Only check if URL exists
+    if (!url || url.length < 5) return false;
     
-    // Check for image extensions or image-like patterns
-    const imagePatterns = [
-      /\.(jpg|jpeg|png|gif|webp|bmp|svg)/i,
-      /\/image\//i,
-      /\/photo\//i,
-      /\/media\//i,
-      /\/upload\//i,
-      /\/gallery\//i,
-      /cloudinary\.com/i,
-      /amazonaws\.com/i,
-      /googleusercontent\.com/i
-    ];
-    
-    return imagePatterns.some(pattern => pattern.test(url));
+    // RETURN EVERYTHING - NO FILTERING!
+    return true;
   }
   
   /**
