@@ -214,7 +214,7 @@ export class PlaywrightPhotoScraper {
             
             links.forEach(link => {
               photos.push({
-                url: link.href,
+                url: (link as HTMLAnchorElement).href,
                 context: 'gallery-link'
               });
             });
