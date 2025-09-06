@@ -1182,6 +1182,8 @@ export const HeroPhotoCarousel = ({
   
   // Force update when verification report changes
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
+  const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   
   // Watch for verification report changes and force re-render
   useEffect(() => {
@@ -1193,7 +1195,9 @@ export const HeroPhotoCarousel = ({
     }
   }, [verificationReport]);
   
-  const safePhotos = getAllPhotos();
+  const allPhotos = getAllPhotos();
+  // Filter out broken images
+  const safePhotos = allPhotos.filter(photo => !imageErrors.has(photo.url));
   
   // Simple state for photo gallery modal
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null);
@@ -1250,6 +1254,24 @@ export const HeroPhotoCarousel = ({
               "Organizing visual content library"
             ]}
           />
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message if all photos failed to load
+  if (safePhotos.length === 0 && imageErrors.size > 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="text-center text-gray-500 p-8">
+          <AlertTriangle className="w-16 h-16 mx-auto mb-4 text-orange-500" />
+          <p className="text-lg font-medium mb-2">Unable to Load Photos</p>
+          <p className="text-sm text-gray-400">
+            {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be displayed
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            This may be due to network issues or source restrictions
+          </p>
         </div>
       </div>
     );
@@ -1317,13 +1339,29 @@ export const HeroPhotoCarousel = ({
         {safePhotos.length === 1 ? (
           // Single photo - show full size
           <div className="w-full h-full relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
+            {/* Loading indicator for main photo */}
+            {!loadedImages.has(safePhotos[0].url) && !imageErrors.has(safePhotos[0].url) && (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 z-10">
+                <div className="text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-primary mx-auto"></div>
+                  <p className="text-sm text-gray-500 mt-2">Loading photo...</p>
+                </div>
+              </div>
+            )}
             <img
               src={safePhotos[0].url}
               alt={`${communityName} - Community Photo`}
-              className="w-full h-full object-cover"
+              className={`w-full h-full object-cover transition-opacity duration-300 ${
+                loadedImages.has(safePhotos[0].url) ? 'opacity-100' : 'opacity-0'
+              }`}
+              onLoad={() => {
+                setLoadedImages(prev => new Set([...prev, safePhotos[0].url]));
+              }}
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = '/hero-senior-community.svg';
+                // Add to error set to filter it out
+                setImageErrors(prev => new Set([...prev, safePhotos[0].url]));
+                console.log(`Failed to load image: ${safePhotos[0].url}`);
               }}
             />
             {safePhotos[0].attribution && (
@@ -1340,13 +1378,26 @@ export const HeroPhotoCarousel = ({
           <div className="grid grid-cols-2 gap-1 h-full">
             {safePhotos.map((photo, index) => (
               <div key={index} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index)}>
+                {/* Loading indicator for grid photos */}
+                {!loadedImages.has(photo.url) && !imageErrors.has(photo.url) && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 z-10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-gray-300 dark:border-gray-600 border-t-primary"></div>
+                  </div>
+                )}
                 <img
                   src={photo.url}
                     alt={`${communityName} - Photo ${index + 1}`}
-                    className="w-full h-full object-cover"
+                    className={`w-full h-full object-cover transition-opacity duration-300 ${
+                      loadedImages.has(photo.url) ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    onLoad={() => {
+                      setLoadedImages(prev => new Set([...prev, photo.url]));
+                    }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = '/hero-senior-community.svg';
+                      // Add to error set to filter it out
+                      setImageErrors(prev => new Set([...prev, photo.url]));
+                      console.log(`Failed to load image: ${photo.url}`);
                     }}
                   />
                   {photo.attribution && (
@@ -1363,13 +1414,29 @@ export const HeroPhotoCarousel = ({
           <div className="grid grid-cols-3 gap-1 h-full">
             {/* Featured photo - spans 2 columns */}
             <div className="col-span-2 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
+              {/* Loading indicator for featured photo */}
+              {!loadedImages.has(safePhotos[0].url) && !imageErrors.has(safePhotos[0].url) && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 z-10">
+                  <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-primary mx-auto"></div>
+                    <p className="text-sm text-gray-500 mt-2">Loading photo...</p>
+                  </div>
+                </div>
+              )}
               <img
                 src={safePhotos[0].url}
                 alt={`${communityName} - Featured Photo`}
-                className="w-full h-full object-cover"
+                className={`w-full h-full object-cover transition-opacity duration-300 ${
+                  loadedImages.has(safePhotos[0].url) ? 'opacity-100' : 'opacity-0'
+                }`}
+                onLoad={() => {
+                  setLoadedImages(prev => new Set([...prev, safePhotos[0].url]));
+                }}
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = '/hero-senior-community.svg';
+                  // Add to error set to filter it out
+                  setImageErrors(prev => new Set([...prev, safePhotos[0].url]));
+                  console.log(`Failed to load image: ${safePhotos[0].url}`);
                 }}
               />
               {safePhotos[0].attribution && (
