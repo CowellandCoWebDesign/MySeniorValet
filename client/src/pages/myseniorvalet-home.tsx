@@ -256,31 +256,53 @@ function HeroSectionWithTransformingSearch() {
         });
 
       } else {
-        // Regular search for list/map view - use NLP search as primary
-        const response = await fetch('/api/nlp/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            limit: 50,
-            category: searchCategory
-          })
-        });
-
-        if (!response.ok) {
-          // Fallback to unified search
-          await handleUnifiedSearch(query);
+        // Regular search for list/map view - use comprehensive search for communities
+        if (searchCategory === 'communities') {
+          // Use the comprehensive search endpoint for community searches
+          const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
+          
+          if (!response.ok) {
+            // Fallback to unified search
+            await handleUnifiedSearch(query);
+          } else {
+            const data = await response.json();
+            const communities = data.communities || [];
+            setSearchResults({ 
+              results: communities, 
+              metadata: {
+                total: data.total,
+                searchMetadata: data.searchMetadata,
+                suggestions: data.suggestions
+              }
+            });
+          }
         } else {
-          const data = await response.json();
-          const communities = data.results?.map((r: any) => r.data || r) || [];
-          setSearchResults({ 
-            results: communities, 
-            metadata: {
-              intent: data.intent,
-              facets: data.facets,
-              suggestions: data.suggestions
-            }
+          // Use NLP search for other categories (services, healthcare, resources)
+          const response = await fetch('/api/nlp/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query: query,
+              limit: 50,
+              category: searchCategory
+            })
           });
+
+          if (!response.ok) {
+            // Fallback to unified search
+            await handleUnifiedSearch(query);
+          } else {
+            const data = await response.json();
+            const results = data.results?.map((r: any) => r.data || r) || [];
+            setSearchResults({ 
+              results: results, 
+              metadata: {
+                intent: data.intent,
+                facets: data.facets,
+                suggestions: data.suggestions
+              }
+            });
+          }
         }
       }
     } catch (error) {
