@@ -1458,11 +1458,9 @@ export const HeroPhotoCarousel = ({
             <img
               src={(() => {
                 let photoUrl = safePhotos[0].url;
-                if (safePhotos[0].source === 'web' && photoUrl.startsWith('http')) {
-                  const isExternal = !photoUrl.includes(window.location.hostname);
-                  if (isExternal) {
-                    photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                  }
+                // Always use proxy for external URLs to avoid CORS issues
+                if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
+                  photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
                 }
                 return photoUrl;
               })()}
@@ -1487,11 +1485,9 @@ export const HeroPhotoCarousel = ({
           <div className="grid grid-cols-2 gap-1 h-full">
             {safePhotos.map((photo, index) => {
               let photoUrl = photo.url;
-              if (photo.source === 'web' && photoUrl.startsWith('http')) {
-                const isExternal = !photoUrl.includes(window.location.hostname);
-                if (isExternal) {
-                  photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                }
+              // Always use proxy for external URLs to avoid CORS issues
+              if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
+                photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
               }
               return (
                 <div key={index} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index)}>
@@ -1521,11 +1517,9 @@ export const HeroPhotoCarousel = ({
               <img
                 src={(() => {
                   let photoUrl = safePhotos[0].url;
-                  if (safePhotos[0].source === 'web' && photoUrl.startsWith('http')) {
-                    const isExternal = !photoUrl.includes(window.location.hostname);
-                    if (isExternal) {
-                      photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                    }
+                  // Always use proxy for external URLs to avoid CORS issues
+                  if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
+                    photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
                   }
                   return photoUrl;
                 })()}
@@ -1550,11 +1544,9 @@ export const HeroPhotoCarousel = ({
             <div className="grid grid-rows-2 gap-1">
               {safePhotos.slice(1, 3).map((photo, index) => {
                 let photoUrl = photo.url;
-                if (photo.source === 'web' && photoUrl.startsWith('http')) {
-                  const isExternal = !photoUrl.includes(window.location.hostname);
-                  if (isExternal) {
-                    photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                  }
+                // Always use proxy for external URLs to avoid CORS issues
+                if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
+                  photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
                 }
                 return (
                   <div key={index + 1} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index + 1)}>
