@@ -695,7 +695,7 @@ function HeroSectionWithTransformingSearch() {
                         <div className="bg-black/30 rounded-xl p-4 max-h-96 overflow-y-auto">
                           <div className="prose prose-invert prose-sm max-w-none">
                             <div className="text-gray-300 whitespace-pre-wrap">
-                              {searchResults.metadata.aiSuggestions.content}
+                              {searchResults.metadata.aiSuggestions.summary || searchResults.metadata.aiSuggestions.content}
                             </div>
                             
                             {/* Sources */}
