@@ -441,14 +441,14 @@ export function CommunityDetailsHeader({
               {/* Top Amenities - Full Width */}
               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                 <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                  <Star className="w-4 h-4 text-blue-500" />
+                  <span className="text-sm">⭐</span>
                   Top Amenities
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                   {amenities && amenities.length > 0 ? (
                     amenities.map((amenity: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
-                        <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                        <span className="text-sm">✅</span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">{amenity}</span>
                       </div>
                     ))
@@ -465,13 +465,13 @@ export function CommunityDetailsHeader({
                 {/* Why Featured */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <Star className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm">⭐</span>
                     Why Featured
                   </h3>
                   <div className="space-y-2">
                     {getWhyFeatured().slice(0, 3).map((reason: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                        <span className="text-sm">⭐</span>
                         <span className="text-xs text-gray-600 dark:text-gray-400">{reason}</span>
                       </div>
                     ))}
@@ -481,16 +481,16 @@ export function CommunityDetailsHeader({
                 {/* Key Services */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                   <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm">⚡</span>
                     Key Services
                   </h3>
                   <div className="space-y-2">
                     {getKeyServices().slice(0, 3).map((service, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         {service.available ? (
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          <span className="text-sm">✅</span>
                         ) : (
-                          <XCircle className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          <span className="text-sm">❌</span>
                         )}
                         <span className={`text-xs ${
                           service.available 
