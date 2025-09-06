@@ -1121,202 +1121,45 @@ export const HeroPhotoCarousel = ({
     fetchTours();
   }, [communityId]);
   
-  // Dynamically get all available photos with source tracking
+  // SIMPLE - EXACT SAME LOGIC AS WORKING BOTTOM SECTION
   const getAllPhotos = () => {
-    console.log('🔍 [HeroPhotoCarousel] Getting all photos...');
-    console.log('📊 Community photos:', community?.photos);
-    console.log('📊 Verification report:', verificationReport);
+    const photos = [];
     
-    const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder'; attribution?: string }[] = [];
-    
-    // Stock photo patterns and generic sites to COMPLETELY EXCLUDE
-    const stockPhotoPatterns = [
-      'unsplash.com',
-      'pixabay.com', 
-      'pexels.com',
-      'freepik.com',
-      'shutterstock.com',
-      'istockphoto.com',
-      'gettyimages.com',
-      'stockvault.net',
-      'freeimages.com',
-      'burst.shopify.com',
-      'cdn.pixabay.com',
-      'images.unsplash.com',
-      'images.pexels.com',
-      // Generic senior living blog/news sites (exclude only their generic content)
-      'seniorliving.org/news',
-      'seniorhousingnews.com/news',
-      'mcknights.com/news',
-      'seniorcare.com/articles',
-      'aging.com/blog',
-      'aplaceformom.com/blog',
-      'caring.com/senior-living/articles'
-    ];
-    
-    const isStockPhoto = (url: string) => {
-      const lowerUrl = url.toLowerCase();
-      
-      // Only block the most obvious stock photo sites
-      if (lowerUrl.includes('unsplash.com') ||
-          lowerUrl.includes('pexels.com') ||
-          lowerUrl.includes('pixabay.com') ||
-          lowerUrl.includes('shutterstock.com') ||
-          lowerUrl.includes('gettyimages.com') ||
-          lowerUrl.includes('istockphoto.com')) {
-        return true;
-      }
-      
-      return false;
-    };
-    
-    // Add database photos if they exist (filtering out obvious stock photos)
+    // Add database photos first  
     if (community?.photos && community.photos.length > 0) {
-      console.log(`📷 Found ${community.photos.length} database photos`);
-      let acceptedDbPhotos = 0;
-      community.photos.forEach((photo: any) => {
-        const photoUrl = typeof photo === 'string' ? photo : (photo.image_url || photo.url);
-        if (photoUrl && !isStockPhoto(photoUrl)) {
-          allPhotos.push({
-            url: photoUrl,
-            source: 'database',
-            attribution: 'Community Database'
-          });
-          acceptedDbPhotos++;
-        }
-      });
-      console.log(`✅ Accepted ${acceptedDbPhotos} database photos after filtering`);
+      photos.push(...community.photos);
     }
     
-    // Add live web intelligence photos when they arrive - check all possible paths
+    // Add live web intelligence photos - EXACT SAME LOGIC AS WORKING SECTION
     let webImages = null;
-    
-    // Check multiple paths where photos might be stored
     if (verificationReport?.webIntelligence?.images) {
       // Direct from LiveWebIntelligence component
       webImages = verificationReport.webIntelligence.images;
-      console.log('✅ Found web intelligence images at verificationReport.webIntelligence.images:', webImages);
     } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
       // From multi-AI verification
       webImages = verificationReport.verificationResults.webIntelligence.images;
-      console.log('✅ Found web intelligence images at verificationReport.verificationResults.webIntelligence.images:', webImages);
-    } else {
-      console.log('❌ No web intelligence images found in verification report');
     }
     
     if (webImages && webImages.length > 0) {
-      console.log(`🎯 Processing ${webImages.length} web intelligence photos`);
-      
-      let realWebPhotoCount = 0;
-      let stockWebPhotoCount = 0;
-      let officialPhotoCount = 0;
-      
-      // Get community's official website domain for prioritization
-      const communityWebsite = community?.website || '';
-      const communityDomain = communityWebsite ? 
-        new URL(communityWebsite.startsWith('http') ? communityWebsite : `https://${communityWebsite}`).hostname.replace('www.', '') : '';
-      
-      // Prioritize photos: Official website first, then directories, then others
-      const officialPhotos: any[] = [];
-      const directoryPhotos: any[] = [];
-      const otherPhotos: any[] = [];
-      
-      // Only add REAL web photos, skip ALL stock photos
-      webImages.forEach((img: any) => {
-        const photoUrl = typeof img === 'string' ? img : (img.image_url || img.url || img);
-        const photoSource = typeof img === 'object' ? img.source : 'web';
-        
-        // Smart detection: Allow photos that contain the community name (they're likely specific photos)
-        const communityNameParts = (communityName || '').toLowerCase().split(' ').filter(part => 
-          part.length > 3 && !['senior', 'living', 'care', 'home', 'center', 'community'].includes(part)
-        );
-        
-        const isLikelyCommunitySpecific = communityNameParts.some(part => 
-          photoUrl.toLowerCase().includes(part)
-        );
-        
-        // Debug logging
-        const isStock = isStockPhoto(photoUrl) && !isLikelyCommunitySpecific;
-        if (photoUrl.includes('elderlife') || photoUrl.includes('fa-stock') || photoUrl.includes('assistedliving')) {
-          console.log(`🔍 Checking photo: ${photoUrl}`);
-          console.log(`   Is stock photo? ${isStock}`);
-          console.log(`   Community specific? ${isLikelyCommunitySpecific}`);
+      const webPhotos = webImages.map((img: any) => {
+        // Handle both string URLs and object format - SAME AS WORKING SECTION
+        if (typeof img === 'string') {
+          return { url: img };
         }
-        
-        if (!isStock) {
-          // Determine attribution and priority based on source
-          let attribution = 'Web Search';
-          let priority = 'other';
-          
-          // Check if photo is from community's official website
-          // BUT exclude known directory/listing sites that aren't actual community websites
-          const isDirectorySite = photoUrl.includes('elderlifefinancial.com') || 
-                                 photoUrl.includes('seniorliving.com') ||
-                                 photoUrl.includes('caring.com') ||
-                                 photoUrl.includes('aplaceformom.com');
-          
-          if (communityDomain && photoUrl.includes(communityDomain) && !isDirectorySite) {
-            attribution = 'Official Website';
-            priority = 'official';
-            officialPhotoCount++;
-          } else if (photoSource === 'directory' || photoUrl.includes('apartments.com') || isDirectorySite) {
-            attribution = photoUrl.includes('apartments.com') ? 'Apartments.com' : 'Senior Living Directory';
-            priority = 'directory';
-          } else if (photoUrl.includes('aplaceformom.com')) {
-            attribution = 'A Place for Mom';
-            priority = 'directory';
-          } else if (photoUrl.includes('seniorliving.com')) {
-            attribution = 'SeniorLiving.com';
-            priority = 'directory';
-          } else if (photoUrl.includes('caring.com')) {
-            attribution = 'Caring.com';
-            priority = 'directory';
-          } else if (photoUrl.includes('olera.care')) {
-            attribution = 'Olera Senior Living';
-            priority = 'directory';
-          }
-          
-          const photoData = {
-            url: photoUrl,
-            source: 'web' as const,
-            attribution
-          };
-          
-          // Sort into priority buckets
-          if (priority === 'official') {
-            officialPhotos.push(photoData);
-          } else if (priority === 'directory') {
-            directoryPhotos.push(photoData);
-          } else {
-            otherPhotos.push(photoData);
-          }
-          
-          realWebPhotoCount++;
-        } else {
-          stockWebPhotoCount++;
-        }
+        return {
+          url: img.image_url || img.url || img,
+          origin_url: img.origin_url,
+          width: img.width,
+          height: img.height
+        };
       });
-      
-      // Add photos in priority order: Official first, then directories, then others
-      allPhotos.push(...officialPhotos, ...directoryPhotos, ...otherPhotos);
-      
-      console.log(`✅ Added ${realWebPhotoCount} REAL web photos`);
-      if (officialPhotoCount > 0) {
-        console.log(`🌟 Including ${officialPhotoCount} photos from OFFICIAL WEBSITE`);
-      }
-      console.log(`🚫 Excluded ${stockWebPhotoCount} stock photos from web`);
+      photos.push(...webPhotos);
     }
     
-    // Remove duplicates based on URL
-    const uniquePhotos = allPhotos.filter((photo, index, self) =>
-      index === self.findIndex((p) => p.url === photo.url)
-    );
-    
-    console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
-    
-    // Return unique photos only if they exist - don't use placeholders
-    return uniquePhotos;
+    // Return photos - KEEP IT SIMPLE  
+    return photos;
   };
+  
   
   // Force update when verification report changes
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
@@ -1456,14 +1299,7 @@ export const HeroPhotoCarousel = ({
           // Single photo - show full size
           <div className="w-full h-full relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
             <img
-              src={(() => {
-                let photoUrl = safePhotos[0].url;
-                // Always use proxy for external URLs to avoid CORS issues
-                if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
-                  photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                }
-                return photoUrl;
-              })()}
+              src={safePhotos[0].url}
               alt={`${communityName} - Community Photo`}
               className="w-full h-full object-cover"
               onError={(e) => {
@@ -1483,16 +1319,10 @@ export const HeroPhotoCarousel = ({
         ) : safePhotos.length === 2 ? (
           // Two photos - show side by side
           <div className="grid grid-cols-2 gap-1 h-full">
-            {safePhotos.map((photo, index) => {
-              let photoUrl = photo.url;
-              // Always use proxy for external URLs to avoid CORS issues
-              if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
-                photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-              }
-              return (
-                <div key={index} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index)}>
-                  <img
-                    src={photoUrl}
+            {safePhotos.map((photo, index) => (
+              <div key={index} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index)}>
+                <img
+                  src={photo.url}
                     alt={`${communityName} - Photo ${index + 1}`}
                     className="w-full h-full object-cover"
                     onError={(e) => {
@@ -1515,14 +1345,7 @@ export const HeroPhotoCarousel = ({
             {/* Featured photo - spans 2 columns */}
             <div className="col-span-2 relative cursor-pointer" onClick={() => setSelectedPhotoIndex(0)}>
               <img
-                src={(() => {
-                  let photoUrl = safePhotos[0].url;
-                  // Always use proxy for external URLs to avoid CORS issues
-                  if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
-                    photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                  }
-                  return photoUrl;
-                })()}
+                src={safePhotos[0].url}
                 alt={`${communityName} - Featured Photo`}
                 className="w-full h-full object-cover"
                 onError={(e) => {
@@ -1542,16 +1365,10 @@ export const HeroPhotoCarousel = ({
             
             {/* Small photos - right column */}
             <div className="grid grid-rows-2 gap-1">
-              {safePhotos.slice(1, 3).map((photo, index) => {
-                let photoUrl = photo.url;
-                // Always use proxy for external URLs to avoid CORS issues
-                if (photoUrl.startsWith('http') && !photoUrl.includes(window.location.hostname)) {
-                  photoUrl = `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                }
-                return (
-                  <div key={index + 1} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index + 1)}>
-                    <img
-                      src={photoUrl}
+              {safePhotos.slice(1, 3).map((photo, index) => (
+                <div key={index + 1} className="relative cursor-pointer" onClick={() => setSelectedPhotoIndex(index + 1)}>
+                  <img
+                    src={photo.url}
                       alt={`${communityName} - Photo ${index + 2}`}
                       className="w-full h-full object-cover"
                       onError={(e) => {
