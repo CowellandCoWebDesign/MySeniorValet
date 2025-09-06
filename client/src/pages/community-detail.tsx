@@ -1282,7 +1282,7 @@ export const HeroPhotoCarousel = ({
       )}
       
       {/* Simple Grid Photo Display - BULLETPROOF APPROACH */}
-      <div className="absolute inset-0">
+      <div className="relative w-full h-full">
         <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
         {/* Photo Search Progress Indicator */}
         {showPhotoSearchMessage && (
