@@ -267,12 +267,20 @@ function HeroSectionWithTransformingSearch() {
           } else {
             const data = await response.json();
             const communities = data.communities || [];
+            
+            // Extract Discovery Mode data from searchMetadata
+            const metadata = data.searchMetadata || {};
+            
             setSearchResults({ 
               results: communities, 
               metadata: {
                 total: data.total,
-                searchMetadata: data.searchMetadata,
-                suggestions: data.suggestions
+                searchMetadata: metadata,
+                suggestions: data.suggestions,
+                // Discovery Mode specific data
+                discoveryMode: metadata.discoveryMode,
+                discoveryMessage: metadata.discoveryMessage,
+                aiSuggestions: metadata.aiSuggestions
               }
             });
           }
@@ -665,6 +673,57 @@ function HeroSectionWithTransformingSearch() {
                   />
                 </div>
               ) : (
+                <>
+                  {/* Discovery Mode Section - Show Perplexity AI Response When No Results Found */}
+                  {searchResults?.metadata?.discoveryMode && searchResults?.metadata?.aiSuggestions && (
+                    <div className="mb-6 animate-fade-in">
+                      <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 backdrop-blur-xl rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">Discovery Mode Activated</h3>
+                        </div>
+                        
+                        {searchResults.metadata.discoveryMessage && (
+                          <p className="text-purple-300 text-sm mb-4">{searchResults.metadata.discoveryMessage}</p>
+                        )}
+                        
+                        {/* AI-Generated Content Section */}
+                        <div className="bg-black/30 rounded-xl p-4 max-h-96 overflow-y-auto">
+                          <div className="prose prose-invert prose-sm max-w-none">
+                            <div className="text-gray-300 whitespace-pre-wrap">
+                              {searchResults.metadata.aiSuggestions.content}
+                            </div>
+                            
+                            {/* Sources */}
+                            {searchResults.metadata.aiSuggestions.sources && searchResults.metadata.aiSuggestions.sources.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-purple-500/30">
+                                <p className="text-xs text-purple-400 font-semibold mb-2">Sources:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {searchResults.metadata.aiSuggestions.sources.map((source: string, idx: number) => (
+                                    <a
+                                      key={idx}
+                                      href={source}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                                    >
+                                      [{idx + 1}]
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Regular Search Results List */}
                 <>
                   {/* Regular Results Header - Glass Morphism */}
                   <div className="">
