@@ -300,19 +300,6 @@ export function CommunityDetailsHeader({
                     {displayPhone}
                   </a>
                 </div>
-                
-                {/* Website */}
-                {displayWebsite && (
-                  <div className="flex items-center gap-3">
-                    <Globe className="w-5 h-5 text-purple-500 flex-shrink-0" />
-                    <ExternalLinkWarning
-                      href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                      className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors font-medium truncate max-w-xs sm:max-w-sm"
-                    >
-                      {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                    </ExternalLinkWarning>
-                  </div>
-                )}
               </div>
               
               {/* Action Buttons for Contact */}
