@@ -45,7 +45,6 @@ interface UnifiedSearchProps {
   showDropdownResults?: boolean;
   placeholder?: string;
   className?: string;
-  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
 }
 
 export function UnifiedSearch({ 
@@ -54,8 +53,7 @@ export function UnifiedSearch({
   autoFocus = false,
   showDropdownResults = true,
   placeholder = "Search by city, state, community name, or ask a question...",
-  className = "",
-  searchCategory = 'communities'
+  className = ""
 }: UnifiedSearchProps = {}) {
   const [query, setQuery] = useState(initialQuery);
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -128,17 +126,13 @@ export function UnifiedSearch({
                             queryToSearch.toLowerCase().includes('near') ||
                             queryToSearch.toLowerCase().includes('?');
       
-      // USE ENHANCED COMPREHENSIVE SEARCH - Fortune 500-level capabilities
-      const endpoint = '/api/search/comprehensive';
+      // THE KRAKEN NLP SYSTEM - Always use NLP for intelligent search
+      const endpoint = '/api/nlp/search';
       
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          query: queryToSearch,
-          limit: 100,
-          category: searchCategory || 'communities'
-        })
+        body: JSON.stringify({ query: queryToSearch })
       });
 
       if (!response.ok) {
@@ -261,7 +255,7 @@ export function UnifiedSearch({
             <div className="animate-spin h-5 w-5 border-2 border-purple-500 border-t-transparent rounded-full" />
           ) : (
             <Button
-              onClick={() => performSearch()}
+              onClick={performSearch}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg px-4 py-2"
             >
               <Search className="h-4 w-4 mr-1" />

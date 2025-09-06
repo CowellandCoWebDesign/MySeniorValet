@@ -256,13 +256,13 @@ function HeroSectionWithTransformingSearch() {
         });
 
       } else {
-        // Use ENHANCED COMPREHENSIVE SEARCH - Fortune 500-level capabilities
-        const response = await fetch('/api/search/comprehensive', {
+        // Regular search for list/map view - use NLP search as primary
+        const response = await fetch('/api/nlp/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query: query,
-            limit: 100,
+            limit: 50,
             category: searchCategory
           })
         });
@@ -272,29 +272,13 @@ function HeroSectionWithTransformingSearch() {
           await handleUnifiedSearch(query);
         } else {
           const data = await response.json();
-          console.log('🔍 Comprehensive search response:', {
-            success: data.success,
-            communitiesLength: data.communities?.length,
-            totalResults: data.totalResults,
-            firstCommunity: data.communities?.[0]?.name
-          });
-          
-          // Handle comprehensive search response format
-          const communities = data.communities || data.results?.map((r: any) => r.data || r) || [];
-          
-          console.log('📦 Setting search results:', {
-            resultsCount: communities.length,
-            firstResult: communities[0]?.name
-          });
-          
+          const communities = data.results?.map((r: any) => r.data || r) || [];
           setSearchResults({ 
             results: communities, 
             metadata: {
-              intent: data.searchMetadata?.searchType || data.intent,
+              intent: data.intent,
               facets: data.facets,
-              suggestions: data.searchMetadata?.suggestions || data.suggestions,
-              totalResults: data.totalResults || communities.length,
-              searchType: data.searchMetadata?.searchType
+              suggestions: data.suggestions
             }
           });
         }
