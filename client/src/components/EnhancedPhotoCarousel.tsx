@@ -7,9 +7,12 @@ import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircl
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface PhotoCarouselProps {
-  photos: string[];
+  photos?: any[];
   communityId?: number;
   communityName: string;
+  community?: any;
+  verificationReport?: any;
+  isVerifying?: boolean;
   className?: string;
   showValidation?: boolean;
   showSourceIndicator?: boolean;
@@ -27,9 +30,12 @@ interface PhotoValidationResult {
 }
 
 export function EnhancedPhotoCarousel({ 
-  photos, 
+  photos = [], 
   communityId,
-  communityName, 
+  communityName,
+  community,
+  verificationReport,
+  isVerifying = false, 
   className = "", 
   showValidation = false,
   showSourceIndicator = true,
@@ -41,6 +47,68 @@ export function EnhancedPhotoCarousel({
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [showValidationReport, setShowValidationReport] = useState(false);
+  const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
+  
+  // Get all photos from database and web intelligence  
+  const getAllPhotos = () => {
+    const allPhotos = [];
+    
+    // Add database photos first  
+    if (community?.photos && community.photos.length > 0) {
+      allPhotos.push(...community.photos.map((p: any) => ({
+        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
+        source: 'database'
+      })));
+    }
+    
+    // Add passed photos prop
+    if (photos && photos.length > 0) {
+      allPhotos.push(...photos.map((p: any) => ({
+        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
+        source: 'prop'
+      })));
+    }
+    
+    // Add web intelligence photos
+    let webImages = null;
+    if (verificationReport?.webIntelligence?.images) {
+      webImages = verificationReport.webIntelligence.images;
+    } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
+      webImages = verificationReport.verificationResults.webIntelligence.images;
+    }
+    
+    if (webImages && webImages.length > 0) {
+      const webPhotos = webImages
+        .filter((img: any) => {
+          const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
+          
+          // Skip logos and icons
+          if (url.includes('logo') || url.includes('icon') || 
+              url.includes('placeholder') || url.includes('default')) {
+            return false;
+          }
+          
+          return true;
+        })
+        .map((img: any) => {
+          if (typeof img === 'string') {
+            return { url: img, source: 'web' };
+          }
+          return {
+            url: img.image_url || img.url || img,
+            source: 'web',
+            isAuthentic: img.isAuthentic
+          };
+        });
+      allPhotos.push(...webPhotos);
+    }
+    
+    // Remove duplicates
+    const uniquePhotos = Array.from(new Map(allPhotos.map(p => [p.url, p])).values());
+    return uniquePhotos;
+  };
+  
+  const processedPhotos = getAllPhotos();
 
   // Get photo validation report if validation is enabled and community ID is provided
   const { data: validationReport, isLoading: validationLoading } = useQuery<{
@@ -85,18 +153,29 @@ export function EnhancedPhotoCarousel({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [showFullscreen, photos.length]);
 
+  // Watch for verification report changes and force re-render
+  useEffect(() => {
+    const webImages = verificationReport?.webIntelligence?.images || 
+                     verificationReport?.verificationResults?.webIntelligence?.images;
+    if (webImages && webImages.length > 0) {
+      console.log('🎉 Forcing carousel update with new web photos:', webImages.length);
+      setPhotoUpdateKey(prev => prev + 1);
+    }
+  }, [verificationReport]);
+  
   // Validate individual photos on load for quality checking
   useEffect(() => {
-    if (showValidation && photos.length > 0) {
+    if (showValidation && processedPhotos.length > 0) {
       const validatePhotos = async () => {
-        for (const photo of photos.slice(0, 3)) { // Validate first 3 photos for performance
-          if (!photoValidation[photo]) {
+        for (const photo of processedPhotos.slice(0, 3)) { // Validate first 3 photos for performance
+          const photoUrl = photo.url;
+          if (!photoValidation[photoUrl]) {
             try {
-              const response = await fetch(photo, { method: 'HEAD' });
+              const response = await fetch(photoUrl, { method: 'HEAD' });
               setPhotoValidation(prev => ({
                 ...prev,
-                [photo]: {
-                  url: photo,
+                [photoUrl]: {
+                  url: photoUrl,
                   isValid: response.ok,
                   status: response.status,
                   lastChecked: new Date()
@@ -105,8 +184,8 @@ export function EnhancedPhotoCarousel({
             } catch (error) {
               setPhotoValidation(prev => ({
                 ...prev,
-                [photo]: {
-                  url: photo,
+                [photoUrl]: {
+                  url: photoUrl,
                   isValid: false,
                   error: 'Network error',
                   lastChecked: new Date()
@@ -119,10 +198,16 @@ export function EnhancedPhotoCarousel({
 
       validatePhotos();
     }
-  }, [photos, showValidation]);
+  }, [processedPhotos, showValidation]);
 
-  // Show loading state
-  if (isLoading) {
+  // Filter out broken images
+  const safePhotos = processedPhotos.filter(photo => !imageErrors.has(photo.url));
+  
+  // Show loading state with web intelligence check
+  const isLoadingWebPhotos = isVerifying || isLoading;
+  const hasNoRealPhotos = safePhotos.length === 0;
+  
+  if (hasNoRealPhotos && isLoadingWebPhotos) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">
@@ -138,10 +223,8 @@ export function EnhancedPhotoCarousel({
     );
   }
 
-  // Filter out broken images
-  const validPhotos = photos.filter(photo => !imageErrors.has(photo));
-
-  if (!validPhotos || validPhotos.length === 0) {
+  // Check if we have any photos to display
+  if (!safePhotos || safePhotos.length === 0) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">
@@ -165,19 +248,19 @@ export function EnhancedPhotoCarousel({
   }
 
   const nextPhoto = () => {
-    setCurrentIndex((prev) => (prev + 1) % validPhotos.length);
+    setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
   };
 
   const prevPhoto = () => {
-    setCurrentIndex((prev) => (prev - 1 + validPhotos.length) % validPhotos.length);
+    setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
   };
 
   const goToPhoto = (index: number) => {
     setCurrentIndex(index);
   };
 
-  const currentPhoto = validPhotos[Math.min(currentIndex, validPhotos.length - 1)];
-  const currentPhotoValidation = photoValidation[currentPhoto];
+  const currentPhoto = safePhotos[Math.min(currentIndex, safePhotos.length - 1)];
+  const currentPhotoValidation = photoValidation[currentPhoto?.url];
 
   // Check if current photo has validation issues
   const hasValidationIssue = showValidation && currentPhotoValidation && !currentPhotoValidation.isValid;
@@ -214,7 +297,7 @@ export function EnhancedPhotoCarousel({
         {/* Main Photo */}
         <div className="relative aspect-video bg-gray-100 dark:bg-gray-800">
           {/* Loading indicator for individual image */}
-          {!loadedImages.has(currentPhoto) && !imageErrors.has(currentPhoto) && (
+          {currentPhoto && !loadedImages.has(currentPhoto.url) && !imageErrors.has(currentPhoto.url) && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-primary mx-auto"></div>
@@ -224,7 +307,7 @@ export function EnhancedPhotoCarousel({
           )}
           
           {/* Error state for broken image */}
-          {imageErrors.has(currentPhoto) && (
+          {currentPhoto && imageErrors.has(currentPhoto.url) && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
               <div className="text-center text-gray-500">
                 <AlertTriangle className="w-12 h-12 mx-auto mb-2 text-orange-500" />
@@ -234,43 +317,45 @@ export function EnhancedPhotoCarousel({
             </div>
           )}
           
-          <img
-            src={currentPhoto}
-            alt={`${communityName} - Photo ${currentIndex + 1}`}
-            className={`w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity ${
-              loadedImages.has(currentPhoto) ? 'opacity-100' : 'opacity-0'
-            }`}
-            onClick={() => setShowFullscreen(true)}
-            onLoad={(e) => {
-              setLoadedImages(prev => new Set([...prev, currentPhoto]));
-            }}
-            onError={(e) => {
-              // Handle broken images gracefully
-              setImageErrors(prev => new Set([...prev, currentPhoto]));
-              console.log(`Failed to load image: ${currentPhoto}`);
-              
-              if (showValidation) {
-                setPhotoValidation(prev => ({
-                  ...prev,
-                  [currentPhoto]: {
-                    url: currentPhoto,
-                    isValid: false,
-                    error: 'Failed to load image',
-                    lastChecked: new Date()
-                  }
-                }));
-              }
-              
-              // Try to move to next photo if available
-              if (validPhotos.length > 1) {
-                setTimeout(nextPhoto, 500);
-              }
-            }}
-          />
+          {currentPhoto && (
+            <img
+              src={currentPhoto.url}
+              alt={`${communityName} - Photo ${currentIndex + 1}`}
+              className={`w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity ${
+                loadedImages.has(currentPhoto.url) ? 'opacity-100' : 'opacity-0'
+              }`}
+              onClick={() => setShowFullscreen(true)}
+              onLoad={(e) => {
+                setLoadedImages(prev => new Set([...prev, currentPhoto.url]));
+              }}
+              onError={(e) => {
+                // Handle broken images gracefully
+                setImageErrors(prev => new Set([...prev, currentPhoto.url]));
+                console.log(`Failed to load image: ${currentPhoto.url}`);
+                
+                if (showValidation) {
+                  setPhotoValidation(prev => ({
+                    ...prev,
+                    [currentPhoto.url]: {
+                      url: currentPhoto.url,
+                      isValid: false,
+                      error: 'Failed to load image',
+                      lastChecked: new Date()
+                    }
+                  }));
+                }
+                
+                // Try to move to next photo if available
+                if (safePhotos.length > 1) {
+                  setTimeout(nextPhoto, 500);
+                }
+              }}
+            />
+          )}
 
           {/* Photo Count Badge */}
           <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm font-medium backdrop-blur-sm z-20">
-            {Math.min(currentIndex + 1, validPhotos.length)} of {validPhotos.length}
+            {Math.min(currentIndex + 1, safePhotos.length)} of {safePhotos.length}
             {imageErrors.size > 0 && (
               <span className="text-xs text-orange-300 ml-1">
                 ({imageErrors.size} failed)
@@ -397,11 +482,13 @@ export function EnhancedPhotoCarousel({
       <Dialog open={showFullscreen} onOpenChange={setShowFullscreen}>
         <DialogContent className="max-w-full max-h-full p-0 bg-black/95">
           <div className="relative w-full h-[90vh] flex items-center justify-center">
-            <img
-              src={currentPhoto}
-              alt={`${communityName} - Photo ${currentIndex + 1}`}
-              className="max-w-full max-h-full object-contain"
-            />
+            {currentPhoto && (
+              <img
+                src={currentPhoto.url}
+                alt={`${communityName} - Photo ${currentIndex + 1}`}
+                className="max-w-full max-h-full object-contain"
+              />
+            )}
 
             {/* Close Button */}
             <Button
