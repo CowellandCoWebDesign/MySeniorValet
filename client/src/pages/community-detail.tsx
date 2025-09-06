@@ -1145,13 +1145,30 @@ export const HeroPhotoCarousel = ({
         .filter((img: any) => {
           const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
           
-          // Only skip VERY obvious stock/fake photos
+          // Skip logos, badges, and obvious non-community photos
           const lowerUrl = url.toLowerCase();
+          
+          // Skip app store badges and download buttons
+          if (lowerUrl.includes('badge') || 
+              lowerUrl.includes('google-badge') ||
+              lowerUrl.includes('apple-badge') ||
+              lowerUrl.includes('amazon-badge') ||
+              lowerUrl.includes('app-store') ||
+              lowerUrl.includes('google-play') ||
+              lowerUrl.includes('download')) {
+            return false;
+          }
+          
+          // Skip stock images
           if (lowerUrl.includes('stock-image') || 
               lowerUrl.includes('stock_image') ||
               lowerUrl.includes('questions-to-ask') ||
-              lowerUrl.includes('great-place-to-work-badge') ||
-              lowerUrl.includes('seniorliving.org/app/themes/senior-living/dist/refactor/assets/images/directory/listing-stock-images')) {
+              lowerUrl.includes('seniorliving.org/app/themes')) {
+            return false;
+          }
+          
+          // Skip MapQuest static media
+          if (url.includes('mapquest.com/_next/static')) {
             return false;
           }
           
