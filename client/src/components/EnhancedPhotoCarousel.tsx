@@ -217,29 +217,40 @@ export function EnhancedPhotoCarousel({
   
   // Show loading state with web intelligence check
   const isLoadingWebPhotos = isVerifying || isLoading;
-  const hasNoRealPhotos = safePhotos.length === 0 && processedPhotos.length === 0;
+  const hasPhotosToShow = safePhotos.length > 0;
   const totalPhotosFound = processedPhotos.length;
   
   // Rotate search messages when loading
   useEffect(() => {
-    if (isLoadingWebPhotos && hasNoRealPhotos) {
+    if (isLoadingWebPhotos && !hasPhotosToShow) {
       const interval = setInterval(() => {
         setSearchMessageIndex(prev => (prev + 1) % searchMessages.length);
       }, 2000);
       return () => clearInterval(interval);
     }
-  }, [isLoadingWebPhotos, hasNoRealPhotos, searchMessages.length]);
+  }, [isLoadingWebPhotos, hasPhotosToShow, searchMessages.length]);
   
-  // Only show loading if we're actually loading AND have no photos at all
-  if (isLoadingWebPhotos && hasNoRealPhotos && photos.length === 0) {
+  // Show valet loading state only when actually loading and no photos yet
+  if (isLoadingWebPhotos && !hasPhotosToShow) {
     return (
       <div className={`bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center p-12">
-          {/* Simple loading icon instead of valet mascot */}
+          {/* Valet Mascot with proper fallback */}
           <div className="relative w-24 h-24 mx-auto mb-6">
-            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse">
-              <Camera className="w-12 h-12 text-white" />
-            </div>
+            <img 
+              src="/valet-mascot.png" 
+              alt="MySeniorValet" 
+              className="w-full h-full object-contain rounded-full border-4 border-white shadow-xl"
+              onError={(e) => {
+                // Fallback to animated icon if mascot image fails
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                const parent = target.parentElement;
+                if (parent) {
+                  parent.innerHTML = '<div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center animate-pulse"><svg class="w-12 h-12 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>';
+                }
+              }}
+            />
             {/* Animated search indicator */}
             <div className="absolute -bottom-1 -right-1">
               <div className="relative">
@@ -302,9 +313,9 @@ export function EnhancedPhotoCarousel({
     );
   }
 
-  // Check if we have any photos to display
-  if ((!safePhotos || safePhotos.length === 0) && !isLoadingWebPhotos) {
-    // Only show "no photos" if we're not loading
+  // If still loading, don't show "no photos" message
+  if (!hasPhotosToShow && !isLoadingWebPhotos) {
+    // Only show "no photos" after loading completes
     return (
       <div className={`bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center p-8">
@@ -409,14 +420,9 @@ export function EnhancedPhotoCarousel({
 
         {/* Main Photo */}
         <div className="relative aspect-video bg-gray-100 dark:bg-gray-800">
-          {/* Loading indicator for individual image */}
+          {/* Minimal loading for smooth transition */}
           {currentPhoto && !loadedImages.has(currentPhoto.url) && !imageErrors.has(currentPhoto.url) && (
-            <div className="absolute inset-0 flex items-center justify-center z-10">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-primary mx-auto"></div>
-                <p className="text-sm text-gray-500 mt-2">Loading photo...</p>
-              </div>
-            </div>
+            <div className="absolute inset-0 bg-gray-100 dark:bg-gray-800 animate-pulse"></div>
           )}
           
           {/* Error state for broken image */}
@@ -434,12 +440,13 @@ export function EnhancedPhotoCarousel({
             <img
               src={currentPhoto.url}
               alt={`${communityName} - Photo ${currentIndex + 1}`}
-              className={`w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity ${
-                loadedImages.has(currentPhoto.url) ? 'opacity-100' : 'opacity-0'
-              }`}
+              className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity duration-200"
               onClick={() => setShowFullscreen(true)}
               onLoad={(e) => {
                 setLoadedImages(prev => new Set([...prev, currentPhoto.url]));
+                // Ensure photo shows immediately
+                const img = e.target as HTMLImageElement;
+                img.style.opacity = '1';
               }}
               onError={(e) => {
                 // Handle broken images gracefully
