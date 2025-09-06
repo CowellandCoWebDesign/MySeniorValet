@@ -272,8 +272,21 @@ function HeroSectionWithTransformingSearch() {
           await handleUnifiedSearch(query);
         } else {
           const data = await response.json();
+          console.log('🔍 Comprehensive search response:', {
+            success: data.success,
+            communitiesLength: data.communities?.length,
+            totalResults: data.totalResults,
+            firstCommunity: data.communities?.[0]?.name
+          });
+          
           // Handle comprehensive search response format
           const communities = data.communities || data.results?.map((r: any) => r.data || r) || [];
+          
+          console.log('📦 Setting search results:', {
+            resultsCount: communities.length,
+            firstResult: communities[0]?.name
+          });
+          
           setSearchResults({ 
             results: communities, 
             metadata: {
