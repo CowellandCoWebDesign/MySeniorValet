@@ -1157,18 +1157,24 @@ export const HeroPhotoCarousel = ({
     const isStockPhoto = (url: string) => {
       const lowerUrl = url.toLowerCase();
       
-      // Check for obvious stock photo indicators in the URL path
-      // Be more specific to avoid false positives
-      if (lowerUrl.includes('stock-photo') || 
-          lowerUrl.includes('stock-image') ||
-          lowerUrl.includes('stockphoto') ||
+      // COMPLETELY BLOCK ALL STOCK PHOTOS - NO EXCEPTIONS
+      // Any URL with these patterns is automatically blocked
+      if (lowerUrl.includes('unsplash') ||
+          lowerUrl.includes('pexels') ||
+          lowerUrl.includes('pixabay') ||
+          lowerUrl.includes('stock') || 
           lowerUrl.includes('placeholder') || 
           lowerUrl.includes('default-image') ||
           lowerUrl.includes('no-image') ||
           lowerUrl.includes('coming-soon') ||
-          lowerUrl.includes('/stock/') ||  // Stock folder
-          lowerUrl.includes('-stock-') ||  // Stock in filename
-          lowerUrl.includes('fa-stock-images')) {  // Specific pattern we saw
+          lowerUrl.includes('shutterstock') ||
+          lowerUrl.includes('getty') ||
+          lowerUrl.includes('istock') ||
+          lowerUrl.includes('dreamstime') ||
+          lowerUrl.includes('depositphoto') ||
+          lowerUrl.includes('123rf') ||
+          lowerUrl.includes('freepik') ||
+          lowerUrl.includes('rawpixel')) {
         return true;
       }
       
@@ -1176,30 +1182,12 @@ export const HeroPhotoCarousel = ({
       return stockPhotoPatterns.some(pattern => lowerUrl.includes(pattern));
     };
     
-    // Add database photos - EXCLUDE ALL STOCK PHOTOS
+    // NEVER use database photos - they're ALL stock photos that must be removed
     if (community?.photos && community.photos.length > 0) {
-      console.log(`📸 Found ${community.photos.length} database photos`);
-      
-      let realPhotoCount = 0;
-      let stockPhotoCount = 0;
-      
-      // Only add REAL photos, skip ALL stock photos
-      community.photos.forEach((photo: any) => {
-        const photoUrl = typeof photo === 'string' ? photo : photo.image_url || photo.url;
-        if (!isStockPhoto(photoUrl)) {
-          allPhotos.push({
-            url: photoUrl,
-            source: 'database' as const,
-            attribution: 'Community Database'
-          });
-          realPhotoCount++;
-        } else {
-          stockPhotoCount++;
-        }
-      });
-      
-      console.log(`✅ Added ${realPhotoCount} REAL photos from database`);
-      console.log(`🚫 Excluded ${stockPhotoCount} stock photos`);
+      console.log(`⛔ Found ${community.photos.length} database photos - ALL BLOCKED`);
+      console.log(`💡 Only real web-scraped photos from official sources will be shown`);
+      // DO NOT add any database photos to allPhotos array
+      // They are all Unsplash/stock photos that must be excluded
     }
     
     // Add live web intelligence photos when they arrive - check all possible paths
