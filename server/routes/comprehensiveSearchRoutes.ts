@@ -196,15 +196,27 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       })
       .from(communities)
       .where(
-        ilike(communities.name, `${normalizedQuery}%`)  // Starts with (highest priority)
+        and(
+          ilike(communities.name, `${normalizedQuery}%`),  // Starts with (highest priority)
+          // Filter out bad data - require valid state and exclude "Unknown"
+          ne(communities.state, 'Unknown'),
+          sql`${communities.state} IS NOT NULL`,
+          sql`${communities.state} != ''`,
+          // Exclude obvious non-senior living names
+          sql`${communities.name} NOT ILIKE '%restaurant%'`,
+          sql`${communities.name} NOT ILIKE '%fish & chips%'`,
+          sql`${communities.name} NOT ILIKE '%pavillon%'`,
+          sql`${communities.name} NOT ILIKE '%rive gauche%'`
+        )
       )
       .orderBy(sql`LENGTH(${communities.name})`)  // Shorter names first (more likely exact matches)
       .limit(5);
     
     exactMatches.forEach(community => {
-      // Add the full community name
-      if (!suggestions.includes(community.name)) {
-        suggestions.push(community.name);
+      // Add community name with city/state for clarity
+      const communityStr = `${community.name} - ${community.city}, ${community.state}`;
+      if (!suggestions.includes(communityStr)) {
+        suggestions.push(communityStr);
       }
     });
     
@@ -220,6 +232,15 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .where(
           and(
             ilike(communities.name, `%${normalizedQuery}%`),  // Contains
+            // Filter out bad data
+            ne(communities.state, 'Unknown'),
+            sql`${communities.state} IS NOT NULL`,
+            sql`${communities.state} != ''`,
+            // Exclude obvious non-senior living names
+            sql`${communities.name} NOT ILIKE '%restaurant%'`,
+            sql`${communities.name} NOT ILIKE '%fish & chips%'`,
+            sql`${communities.name} NOT ILIKE '%pavillon%'`,
+            sql`${communities.name} NOT ILIKE '%rive gauche%'`,
             // Exclude already found exact matches
             ...(exactMatches.length > 0 ? [
               ne(communities.name, sql`ANY(ARRAY[${sql.join(exactMatches.map(m => sql`${m.name}`), sql`, `)}])`)
@@ -230,8 +251,9 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .limit(5 - suggestions.length);
       
       containsMatches.forEach(community => {
-        if (!suggestions.includes(community.name)) {
-          suggestions.push(community.name);
+        const communityStr = `${community.name} - ${community.city}, ${community.state}`;
+        if (!suggestions.includes(communityStr)) {
+          suggestions.push(communityStr);
         }
       });
     }
