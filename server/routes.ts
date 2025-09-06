@@ -92,6 +92,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const analyticsIntelligenceRoutes = await import('./routes/analytics-intelligence-routes');
   app.use(analyticsIntelligenceRoutes.default);
   
+  // Register image proxy for CORS handling
+  const imageProxyRoutes = await import('./routes/imageProxy');
+  app.use(imageProxyRoutes.default);
+  
   // Register photo validation routes
   const photoValidationRoutes = await import('./routes/photoValidationRoutes');
   app.use('/api', photoValidationRoutes.default);

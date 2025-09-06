@@ -22,8 +22,8 @@ router.get('/api/image-proxy', async (req, res) => {
       headers: {
         'User-Agent': 'MySeniorValet/1.0 (compatible; photo-verification)',
         'Accept': 'image/*'
-      },
-      timeout: 10000 // 10 second timeout
+      }
+      // Note: timeout handled by AbortController if needed
     });
     
     if (!response.ok) {
