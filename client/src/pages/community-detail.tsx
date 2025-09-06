@@ -1157,37 +1157,35 @@ export const HeroPhotoCarousel = ({
     const isStockPhoto = (url: string) => {
       const lowerUrl = url.toLowerCase();
       
-      // COMPLETELY BLOCK ALL STOCK PHOTOS - NO EXCEPTIONS
-      // Any URL with these patterns is automatically blocked
-      if (lowerUrl.includes('unsplash') ||
-          lowerUrl.includes('pexels') ||
-          lowerUrl.includes('pixabay') ||
-          lowerUrl.includes('stock') || 
-          lowerUrl.includes('placeholder') || 
-          lowerUrl.includes('no-image') ||
-          lowerUrl.includes('noimage') ||
-          lowerUrl.includes('coming-soon') ||
-          lowerUrl.includes('shutterstock') ||
-          lowerUrl.includes('getty') ||
-          lowerUrl.includes('istock') ||
-          lowerUrl.includes('dreamstime') ||
-          lowerUrl.includes('depositphoto') ||
-          lowerUrl.includes('123rf') ||
-          lowerUrl.includes('freepik') ||
-          lowerUrl.includes('rawpixel')) {
+      // Only block the most obvious stock photo sites
+      if (lowerUrl.includes('unsplash.com') ||
+          lowerUrl.includes('pexels.com') ||
+          lowerUrl.includes('pixabay.com') ||
+          lowerUrl.includes('shutterstock.com') ||
+          lowerUrl.includes('gettyimages.com') ||
+          lowerUrl.includes('istockphoto.com')) {
         return true;
       }
       
-      // Check against known stock photo domains
-      return stockPhotoPatterns.some(pattern => lowerUrl.includes(pattern));
+      return false;
     };
     
-    // NEVER use database photos - they're ALL stock photos that must be removed
+    // Add database photos if they exist (filtering out obvious stock photos)
     if (community?.photos && community.photos.length > 0) {
-      console.log(`⛔ Found ${community.photos.length} database photos - ALL BLOCKED`);
-      console.log(`💡 Only real web-scraped photos from official sources will be shown`);
-      // DO NOT add any database photos to allPhotos array
-      // They are all Unsplash/stock photos that must be excluded
+      console.log(`📷 Found ${community.photos.length} database photos`);
+      let acceptedDbPhotos = 0;
+      community.photos.forEach((photo: any) => {
+        const photoUrl = typeof photo === 'string' ? photo : (photo.image_url || photo.url);
+        if (photoUrl && !isStockPhoto(photoUrl)) {
+          allPhotos.push({
+            url: photoUrl,
+            source: 'database',
+            attribution: 'Community Database'
+          });
+          acceptedDbPhotos++;
+        }
+      });
+      console.log(`✅ Accepted ${acceptedDbPhotos} database photos after filtering`);
     }
     
     // Add live web intelligence photos when they arrive - check all possible paths

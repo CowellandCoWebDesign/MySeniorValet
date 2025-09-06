@@ -204,10 +204,55 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
     allPhotoCandidates.push(...gptPhotos);
     console.log(`  Found ${gptPhotos.length} potential photos from content`);
     
-    // Step 3: If we have a website URL and GPT-5 needs more photos
-    if (websiteUrl && allPhotoCandidates.length < 10) {
-      console.log(`🌐 Step 3: GPT-5 searching for more photos on ${websiteUrl}`);
-      const websiteSearchPrompt = `Find all authentic facility photos on the website ${websiteUrl} for ${communityName}. Look for photo galleries, virtual tours, and facility images.`;
+    // Step 3: Search multiple directory sites for more photos
+    console.log('🌐 Step 3: GPT-5 searching for photos from 3 directory sources...');
+    const directorySites = [
+      'assistedliving.com',
+      'caring.com', 
+      'seniorly.com',
+      'aplaceformom.com',
+      'senioradvisor.com'
+    ];
+    
+    for (const site of directorySites.slice(0, 3)) { // Search top 3 sites
+      console.log(`  📷 Searching ${site} for ${communityName} photos...`);
+      const searchPrompt = `Find authentic facility photos for "${communityName}" on ${site}. Look for actual building photos, room photos, amenity photos, dining areas, activity photos. Return all photo URLs found.`;
+      
+      try {
+        const siteResponse = await openai.chat.completions.create({
+          model: GPT5_MODEL,
+          messages: [
+            {
+              role: "user",
+              content: searchPrompt
+            }
+          ],
+          max_completion_tokens: 4000
+        });
+        
+        const sitePhotos = await this.extractPhotosWithGPT5(
+          siteResponse.choices[0].message.content || '',
+          communityName
+        );
+        allPhotoCandidates.push(...sitePhotos);
+        console.log(`    Found ${sitePhotos.length} photos from ${site}`);
+      } catch (error) {
+        console.error(`Photo search error for ${site}:`, error);
+      }
+    }
+    
+    // Step 4: If we have a website URL, do a deep search
+    if (websiteUrl) {
+      console.log(`🌐 Step 4: Deep searching official website ${websiteUrl}`);
+      const deepSearchPrompt = `Do a DEEP search for ALL photos on ${websiteUrl} for ${communityName}. Check:
+        - Photo galleries
+        - Virtual tours
+        - Amenities pages
+        - About us pages
+        - Room/floor plan pages
+        - Activities pages
+        - Dining pages
+        Find at least 20 authentic facility photos if possible.`;
       
       try {
         const websiteResponse = await openai.chat.completions.create({
@@ -215,7 +260,7 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
           messages: [
             {
               role: "user",
-              content: websiteSearchPrompt
+              content: deepSearchPrompt
             }
           ],
           max_completion_tokens: 4000
@@ -227,34 +272,34 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
         );
         allPhotoCandidates.push(...additionalPhotos);
       } catch (error) {
-        console.error('Website photo search error:', error);
+        console.error('Website deep search error:', error);
       }
     }
     
-    // Step 4: Verify all photos with Claude
-    console.log('🔍 Step 4: Claude verifying photo authenticity...');
+    // Step 5: Verify all photos with Claude
+    console.log('🔍 Step 5: Claude verifying photo authenticity...');
     const verifiedPhotos = await this.verifyPhotosWithClaude(allPhotoCandidates);
     
-    // Step 5: Filter and categorize results
+    // Step 6: Filter and categorize results
     const authenticPhotos = verifiedPhotos.filter(p => 
       p.isAuthentic && 
-      p.confidence > 0.7 &&
+      p.confidence > 0.6 && // Lower threshold to get more photos
       !this.isStockPhotoUrl(p.url)
     );
     
     const rejectedPhotos = verifiedPhotos.filter(p => 
       !p.isAuthentic || 
-      p.confidence <= 0.7 ||
+      p.confidence <= 0.6 ||
       this.isStockPhotoUrl(p.url)
     );
     
     console.log(`✅ Results: ${authenticPhotos.length} authentic, ${rejectedPhotos.length} rejected`);
     
     return {
-      authenticPhotos: authenticPhotos.slice(0, 15), // Limit to 15 best photos
+      authenticPhotos: authenticPhotos.slice(0, 20), // Increased to 20 photos
       rejectedPhotos,
       sources: [...new Set(verifiedPhotos.map(p => p.source))],
-      summary: `🔥 SUPER-POWERED: Found ${authenticPhotos.length} authentic facility photos using Playwright + Multi-AI verification (Playwright → Perplexity → GPT-5 → Claude)`
+      summary: `🔥 ENHANCED: Found ${authenticPhotos.length} authentic facility photos from 3+ sources using Multi-AI verification`
     };
   }
 
@@ -264,20 +309,11 @@ Be VERY strict - only mark as authentic if you're confident it's a real facility
   private static isStockPhotoUrl(url: string): boolean {
     const stockDomains = [
       'unsplash.com',
-      'pexels.com',
+      'pexels.com', 
       'pixabay.com',
       'shutterstock.com',
       'gettyimages.com',
-      'istockphoto.com',
-      'depositphotos.com',
-      'stock.adobe.com',
-      'freepik.com',
-      'stocksnap.io',
-      'burst.shopify.com',
-      'placeholder.com',
-      'picsum.photos',
-      'lorem.picsum',
-      'via.placeholder.com'
+      'istockphoto.com'
     ];
     
     const lowerUrl = url.toLowerCase();
