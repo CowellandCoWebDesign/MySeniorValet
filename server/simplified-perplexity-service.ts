@@ -124,9 +124,17 @@ export class SimplifiedPerplexityService {
     location: string
   ): Promise<CommunityIntelligence> {
     console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
-
-    // Enhanced query with STRICT name matching to prevent confusion
-    const query = `Find information about senior living community named EXACTLY "${communityName}" in ${location}.
+    
+    // Try to construct likely official website URL
+    const possibleDomain = communityName.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '')
+      .trim();
+    
+    // Enhanced query with official website targeting
+    const query = `First, check site:${possibleDomain}.com OR site:${possibleDomain}seniorliving.com
+    
+Then find information about senior living community named EXACTLY "${communityName}" in ${location}.
 
 CRITICAL ACCURACY REQUIREMENT:
 ⚠️ ONLY provide information if the community name is EXACTLY "${communityName}"
@@ -457,16 +465,27 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     citations: string[],
     communityName: string
   ): CommunityIntelligence {
-    console.log('\n=== PERPLEXITY RAW RESPONSE ===');
-    console.log(content.substring(0, 2000));
-    console.log('=== END PERPLEXITY RESPONSE ===\n');
+    // Simplified logging - show only key extracted data
+    console.log('\n🔍 PERPLEXITY SEARCH RESULTS:');
+    console.log(`🏢 Community: ${communityName}`);
+    console.log(`📚 Sources Found: ${citations.length}`);
+    
+    // Log key extracted data
+    const extractedWebsite = this.extractUrl(content);
+    const extractedPhone = this.extractPhone(content);
+    if (extractedWebsite) console.log(`🌐 Website: ${extractedWebsite}`);
+    if (extractedPhone) console.log(`📞 Phone: ${extractedPhone}`);
+    
+    // Log pricing if found
+    const pricingMatch = content.match(/\$[\d,]+/g);
+    if (pricingMatch && pricingMatch.length > 0) {
+      console.log(`💰 Pricing Found: ${pricingMatch.slice(0, 3).join(', ')}`);
+    }
     
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
     // First, try to extract actual data from the response
-    const extractedWebsite = this.extractUrl(content);
-    const extractedPhone = this.extractPhone(content);
     const extractedPhotos = this.extractPhotos(content);
     
     // Check for structured data (JSON) in the response
@@ -678,7 +697,7 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       result.careLevels = careLevels.length > 0 ? careLevels : undefined;
 
       // Extract amenities
-      const amenities = [];
+      const amenities: string[] = [];
       const amenityKeywords = [
         'dining', 'fitness', 'pool', 'salon', 'library', 'garden',
         'transportation', 'activities', 'pet', 'wifi', 'laundry'
@@ -1004,8 +1023,8 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
         ? `Found ${nearbyOptions.length} senior living communities in the area with market data`
         : 'No specific communities found in this search',
       sources: citations,
-      // RAW PERPLEXITY CONTENT - THE USER DESERVES TO SEE IT ALL
-      content: content
+      // Store a note about the search results
+      notes: content.substring(0, 500)
     };
   }
 }
