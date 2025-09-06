@@ -179,15 +179,16 @@ export class SimpleEnrichmentService {
           isAuthentic: true
         })));
       } catch (error) {
-        console.log('Website scraping failed, using stock photos');
+        console.log('Website scraping failed, no photos available');
       }
     }
     
-    // If no photos found, add stock photos
-    if (photos.length === 0) {
-      const stockPhotos = this.getStockPhotos(careType);
-      photos.push(...stockPhotos);
-    }
+    // DISABLED: Never add stock photos - only real photos from web
+    // We want authentic photos only, not stock images
+    // if (photos.length === 0) {
+    //   const stockPhotos = this.getStockPhotos(careType);
+    //   photos.push(...stockPhotos);
+    // }
     
     return photos;
   }
