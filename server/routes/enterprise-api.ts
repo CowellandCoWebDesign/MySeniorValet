@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { communities, communitySubscriptions, users, billingStatements, careCoordination, dailyLifeActivities, staffMembers, marketingLeads } from '@shared/schema';
+import { communities, communitySubscriptions, users } from '@shared/schema';
 import { eq, and, inArray, gte, lte, desc, sql } from 'drizzle-orm';
 import { requireAuth } from '../auth';
 
@@ -22,15 +22,15 @@ router.get('/portfolio/:corporateId', requireAuth, async (req, res) => {
         state: communities.state,
         totalUnits: communities.totalUnits,
         occupiedUnits: communities.occupiedUnits,
-        monthlyRevenue: sql<number>`COALESCE(SUM(${billingStatements.amount}), 0)`,
-        staffCount: sql<number>`COUNT(DISTINCT ${staffMembers.id})`,
+        monthlyRevenue: sql<number>`0`, // Billing data not yet implemented
+        staffCount: sql<number>`0`, // Staff data not yet implemented
         satisfactionScore: communities.averageRating,
         subscriptionTier: communitySubscriptions.tierLevel
       })
       .from(communities)
       .leftJoin(communitySubscriptions, eq(communities.id, communitySubscriptions.communityId))
-      .leftJoin(billingStatements, eq(communities.id, billingStatements.communityId))
-      .leftJoin(staffMembers, eq(communities.id, staffMembers.communityId))
+      // Billing joins will be added when billing table is implemented
+      // Staff joins will be added when staff table is implemented
       .where(eq(communities.corporateId, corporateId))
       .groupBy(
         communities.id,
@@ -271,20 +271,15 @@ router.get('/portfolio/:corporateId/comparison', requireAuth, async (req, res) =
         id: communities.id,
         name: communities.name,
         occupancy: sql<number>`ROUND((${communities.occupiedUnits}::numeric / NULLIF(${communities.totalUnits}, 0)) * 100, 1)`,
-        revenue: sql<number>`COALESCE(SUM(${billingStatements.amount}), 0)`,
+        revenue: sql<number>`0`, // Billing data not yet implemented
         satisfaction: communities.averageRating,
-        staffCount: sql<number>`COUNT(DISTINCT ${staffMembers.id})`,
-        leadConversion: sql<number>`
-          ROUND(
-            (COUNT(DISTINCT CASE WHEN ${marketingLeads.status} = 'converted' THEN ${marketingLeads.id} END)::numeric / 
-            NULLIF(COUNT(DISTINCT ${marketingLeads.id}), 0)) * 100, 1
-          )
-        `
+        staffCount: sql<number>`0`, // Staff data not yet implemented
+        leadConversion: sql<number>`0` // Marketing data not yet implemented
       })
       .from(communities)
-      .leftJoin(billingStatements, eq(communities.id, billingStatements.communityId))
-      .leftJoin(staffMembers, eq(communities.id, staffMembers.communityId))
-      .leftJoin(marketingLeads, eq(communities.id, marketingLeads.communityId))
+      // Billing joins will be added when billing table is implemented
+      // Staff joins will be added when staff table is implemented
+      // Marketing joins will be added when marketing table is implemented
       .where(eq(communities.corporateId, corporateId))
       .groupBy(communities.id, communities.name, communities.occupiedUnits, communities.totalUnits, communities.averageRating);
 
