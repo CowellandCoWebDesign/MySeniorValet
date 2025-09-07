@@ -10,6 +10,45 @@ const geographyPoint = customType<{ data: { lat: number; lng: number } }>({
   },
 });
 
+// Non-Community Services table (meal delivery, home care, etc. that were incorrectly in communities)
+export const nonCommunityServices = pgTable("non_community_services", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  service_type: text("service_type").notNull(), // 'meal_delivery', 'home_care', 'medical_equipment', 'transportation', etc.
+  description: text("description"),
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zip: text("zip"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  service_areas: text("service_areas").array().default([]), // Cities/states they serve
+  pricing_info: text("pricing_info"),
+  hours_of_operation: jsonb("hours_of_operation").$type<Record<string, string>>(),
+  features: text("features").array().default([]),
+  certifications: text("certifications").array().default([]),
+  is_nationwide: boolean("is_nationwide").default(false),
+  is_verified: boolean("is_verified").default(false),
+  verification_date: timestamp("verification_date"),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  review_count: integer("review_count").default(0),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  migrated_from_communities: boolean("migrated_from_communities").default(true), // Track if migrated from communities table
+  original_community_id: integer("original_community_id"), // Reference to original ID if migrated
+  created_at: timestamp("created_at").defaultNow(),
+  updated_at: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_non_community_services_type").on(table.service_type),
+  index("idx_non_community_services_city_state").on(table.city, table.state),
+  index("idx_non_community_services_verified").on(table.is_verified),
+]);
+
+export const insertNonCommunityServiceSchema = createInsertSchema(nonCommunityServices)
+  .omit({ id: true, created_at: true, updated_at: true });
+export type InsertNonCommunityService = z.infer<typeof insertNonCommunityServiceSchema>;
+export type SelectNonCommunityService = typeof nonCommunityServices.$inferSelect;
+
 // Educational Resources table for senior care guides and information
 export const educationalResources = pgTable("educational_resources", {
   id: serial("id").primaryKey(),
