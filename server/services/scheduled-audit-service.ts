@@ -243,7 +243,7 @@ export class ScheduledAuditService {
       const result = await db
         .update(communities)
         .set({
-          enrichment_status: 'failed',
+          enrichmentStatus: 'failed',
           updated_at: new Date()
         })
         .where(sql`id = ANY(ARRAY[${sql.join(idsToDeactivate, sql`, `)}])`);

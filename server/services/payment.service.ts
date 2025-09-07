@@ -26,12 +26,12 @@ const stripe = process.env.STRIPE_SECRET_KEY
     })
   : null;
 
-// Subscription tier pricing (monthly)
+// Subscription tier pricing (monthly) - aligned with database schema
 export const TIER_PRICING = {
-  starter: {
+  verified: {
     price: 99,
-    stripeProductId: 'prod_starter',
-    stripePriceId: process.env.STRIPE_PRICE_STARTER || 'price_starter',
+    stripeProductId: 'prod_verified',
+    stripePriceId: process.env.STRIPE_PRICE_VERIFIED || 'price_verified',
     features: {
       listings: 1,
       photos: 10,
@@ -40,10 +40,10 @@ export const TIER_PRICING = {
       support: 'email'
     }
   },
-  growth: {
+  standard: {
     price: 299,
-    stripeProductId: 'prod_growth',
-    stripePriceId: process.env.STRIPE_PRICE_GROWTH || 'price_growth',
+    stripeProductId: 'prod_standard',
+    stripePriceId: process.env.STRIPE_PRICE_STANDARD || 'price_standard',
     features: {
       listings: 5,
       photos: 50,
@@ -52,10 +52,10 @@ export const TIER_PRICING = {
       support: 'priority'
     }
   },
-  professional: {
+  featured: {
     price: 999,
-    stripeProductId: 'prod_professional',
-    stripePriceId: process.env.STRIPE_PRICE_PROFESSIONAL || 'price_professional',
+    stripeProductId: 'prod_featured',
+    stripePriceId: process.env.STRIPE_PRICE_FEATURED || 'price_featured',
     features: {
       listings: 25,
       photos: 250,
@@ -64,34 +64,31 @@ export const TIER_PRICING = {
       support: 'phone'
     }
   },
-  premium: {
+  platinum: {
     price: 1999,
-    stripeProductId: 'prod_premium',
-    stripePriceId: process.env.STRIPE_PRICE_PREMIUM || 'price_premium',
+    stripeProductId: 'prod_platinum',
+    stripePriceId: process.env.STRIPE_PRICE_PLATINUM || 'price_platinum',
     features: {
       listings: 100,
       photos: 1000,
       tours: 'unlimited',
       analytics: 'enterprise',
-      support: 'dedicated'
-    }
-  },
-  enterprise: {
-    price: 3999,
-    stripeProductId: 'prod_enterprise',
-    stripePriceId: process.env.STRIPE_PRICE_ENTERPRISE || 'price_enterprise',
-    features: {
-      listings: 'unlimited',
-      photos: 'unlimited',
-      tours: 'unlimited',
-      analytics: 'enterprise',
-      support: 'white_glove',
+      support: 'dedicated',
       whiteLabel: true,
       apiAccess: true,
       customIntegrations: true
     }
   }
 };
+
+// Map old tier names to new ones for backward compatibility
+export const TIER_MAPPING = {
+  starter: 'verified',
+  growth: 'standard',
+  professional: 'featured',
+  premium: 'platinum',
+  enterprise: 'platinum' // Map enterprise to platinum as highest tier
+} as const;
 
 // Add-on features pricing
 export const ADDON_PRICING = {
