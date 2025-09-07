@@ -4,6 +4,7 @@ import { communities, users } from '../../shared/schema';
 import { eq, like, and, or, sql, desc, asc } from 'drizzle-orm';
 import cookieParser from 'cookie-parser';
 import { DataIntegrityValidator } from '../services/data-integrity-validator';
+import { ScheduledAuditService } from '../services/scheduled-audit-service';
 
 const router = Router();
 
@@ -295,6 +296,56 @@ router.post('/admin/communities/:id/verify', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error verifying community:', error);
     res.status(500).json({ message: 'Failed to verify community' });
+  }
+});
+
+// Run manual data integrity audit
+router.post('/admin/audit/run', requireAdmin, async (req, res) => {
+  try {
+    console.log('🔍 Manual audit requested by admin');
+    const report = await ScheduledAuditService.manualAudit();
+    
+    res.json({
+      message: 'Audit completed successfully',
+      report: {
+        timestamp: report.timestamp,
+        totalCommunities: report.totalCommunities,
+        duplicatesFound: report.duplicatesFound,
+        testDataFound: report.testDataFound,
+        deactivated: report.deactivated,
+        warnings: report.warnings,
+        details: report.details
+      }
+    });
+  } catch (error) {
+    console.error('Error running manual audit:', error);
+    res.status(500).json({ message: 'Failed to run audit' });
+  }
+});
+
+// Get last audit report
+router.get('/admin/audit/last-report', requireAdmin, async (req, res) => {
+  try {
+    const report = ScheduledAuditService.getLastAuditReport();
+    
+    if (!report) {
+      return res.json({ message: 'No audit report available yet' });
+    }
+    
+    res.json({
+      report: {
+        timestamp: report.timestamp,
+        totalCommunities: report.totalCommunities,
+        duplicatesFound: report.duplicatesFound,
+        testDataFound: report.testDataFound,
+        deactivated: report.deactivated,
+        warnings: report.warnings,
+        details: report.details
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching audit report:', error);
+    res.status(500).json({ message: 'Failed to fetch audit report' });
   }
 });
 
