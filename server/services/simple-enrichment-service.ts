@@ -8,6 +8,7 @@ import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
 import { ScalableCache } from '../infrastructure/cache';
+import { MultiAIPhotoExtractor } from './multi-ai-photo-extractor';
 
 // 7-day cache (like Google) for web enrichment data with proper attribution
 const enrichmentCache = new ScalableCache(1000, 7 * 24 * 60 * 60 * 1000);
@@ -91,10 +92,15 @@ export class SimpleEnrichmentService {
     // Step 4: Extract information from search results
     const extractedInfo = this.extractInformation(searchResults);
     
-    // Step 5: Get photos (try website first, fallback to stock)
-    const photos = await this.getPhotos(extractedInfo.website, community.careType);
+    // Step 5: Get photos using enhanced MultiAI photo extractor
+    const photos = await this.getEnhancedPhotos(
+      community.name,
+      searchResults.summary || '',
+      extractedInfo.website,
+      searchResults.sources || []
+    );
     
-    // Step 6: Build simple result
+    // Step 6: Build simple result with enhanced photo sources
     const result: SimpleEnrichmentResult = {
       communityId: community.id,
       communityName: community.name,
@@ -107,7 +113,7 @@ export class SimpleEnrichmentService {
       photos,
       searchResults: {
         summary: searchResults.summary || '',
-        sources: searchResults.sources || []
+        sources: searchResults.sources || [] // Keep the original Perplexity sources for display
       }
     };
     
@@ -164,33 +170,55 @@ export class SimpleEnrichmentService {
   }
   
   /**
-   * Get photos - try website scraping, fallback to stock
+   * Get photos using enhanced MultiAI photo extractor
    */
-  private async getPhotos(website: string | null, careType: string): Promise<any[]> {
-    const photos = [];
-    
-    // Try to scrape website if we have one
-    if (website) {
-      try {
-        const websitePhotos = await this.scrapeWebsitePhotos(website);
-        photos.push(...websitePhotos.map(url => ({
-          url,
-          source: 'website' as const,
-          isAuthentic: true
-        })));
-      } catch (error) {
-        console.log('Website scraping failed, no photos available');
+  private async getEnhancedPhotos(
+    communityName: string,
+    perplexityContent: string,
+    website: string | null,
+    citations: string[]
+  ): Promise<any[]> {
+    try {
+      // Use the enhanced MultiAIPhotoExtractor that searches multiple websites
+      const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+        communityName,
+        perplexityContent,
+        website || undefined,
+        citations // Pass citations for multiple website searching
+      );
+      
+      // Transform to simple format but keep the source website names
+      return photoResult.authenticPhotos.map(photo => ({
+        url: photo.url,
+        source: photo.source, // This will now have actual website names
+        isAuthentic: photo.isAuthentic
+      }));
+    } catch (error) {
+      console.error('Enhanced photo extraction failed:', error);
+      // Fallback to simple scraping if enhanced extraction fails
+      if (website) {
+        try {
+          const websitePhotos = await this.scrapeWebsitePhotos(website);
+          // Extract domain name for source
+          let sourceName = 'website';
+          try {
+            const url = new URL(website);
+            sourceName = url.hostname.replace('www.', '');
+          } catch (e) {
+            // Keep default if URL parsing fails
+          }
+          
+          return websitePhotos.map(url => ({
+            url,
+            source: sourceName,
+            isAuthentic: true
+          }));
+        } catch (scrapeError) {
+          console.log('Fallback website scraping also failed');
+        }
       }
+      return [];
     }
-    
-    // DISABLED: Never add stock photos - only real photos from web
-    // We want authentic photos only, not stock images
-    // if (photos.length === 0) {
-    //   const stockPhotos = this.getStockPhotos(careType);
-    //   photos.push(...stockPhotos);
-    // }
-    
-    return photos;
   }
   
   /**

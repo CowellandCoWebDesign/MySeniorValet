@@ -285,13 +285,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
   static async findAuthenticPhotos(
     communityName: string,
     perplexityContent: string,
-    websiteUrl?: string
+    websiteUrl?: string,
+    perplexityCitations?: string[]
   ): Promise<PhotoExtractionResult> {
     console.log(`🚀 Enhanced Photo Extraction for ${communityName} (No OpenAI)`);
     
     let allPhotoCandidates: PhotoCandidate[] = [];
+    const websiteSources: string[] = [];
     
-    // Step 1: Use Playwright to scrape photos directly from the website
+    // Step 1: Use Playwright to scrape photos directly from the official website
     if (websiteUrl) {
       console.log('🌐 Step 1: Playwright browser automation for official website...');
       try {
@@ -300,43 +302,100 @@ Be lenient - mark as authentic unless clearly stock photos.`
           communityName
         );
         
+        // Extract domain name for source
+        let websiteName = 'Official Website';
+        try {
+          const url = new URL(websiteUrl);
+          websiteName = url.hostname.replace('www.', '');
+        } catch (e) {
+          // Keep default if URL parsing fails
+        }
+        
         // Convert scraped photos to candidates with high confidence
         const playwrightCandidates = scrapedPhotos.map(photo => ({
           url: photo.url,
-          source: `Official Website`,
+          source: websiteName,
           confidence: photo.isGallery ? 0.95 : 0.85,
           isAuthentic: true,
           reason: `Direct from ${photo.isGallery ? 'photo gallery' : 'website'}`
         }));
         
         allPhotoCandidates.push(...playwrightCandidates);
-        console.log(`  ✅ Found ${playwrightCandidates.length} photos from official website`);
+        websiteSources.push(websiteUrl);
+        console.log(`  ✅ Found ${playwrightCandidates.length} photos from ${websiteName}`);
       } catch (error) {
         console.error('Playwright scraping failed (will continue with other methods):', error);
       }
     }
     
-    // Step 2: Extract photos from directory site URLs found by Perplexity
-    console.log('📷 Step 2: Extract photos from directory URLs in citations...');
-    const directoryPhotos = await this.extractPhotosFromDirectorySites(perplexityContent, communityName);
-    allPhotoCandidates.push(...directoryPhotos);
-    console.log(`  ✅ Extracted ${directoryPhotos.length} photos from directory sites`);
+    // Step 2: Search at least 3 websites specifically mentioning the community
+    console.log('📷 Step 2: Searching multiple websites for photos...');
     
-    // Step 3: Log directory photo breakdown
-    console.log('🔍 Step 3: Directory photo breakdown...');
-    const directorySites = [
-      { name: 'caring.com', pattern: /caring\.com/i },
-      { name: 'seniorhomes.com', pattern: /seniorhomes\.com/i },
-      { name: 'seniorly.com', pattern: /seniorly\.com/i }
-    ];
+    // Get citations from Perplexity that specifically mention the community
+    const relevantCitations = perplexityCitations || [];
+    const communitySpecificSites: string[] = [];
     
-    // Log photos that match directory patterns from our extracted photos
-    directorySites.forEach(site => {
-      const sitePhotos = allPhotoCandidates.filter((p: PhotoCandidate) => site.pattern.test(p.url));
-      if (sitePhotos.length > 0) {
-        console.log(`  📸 Found ${sitePhotos.length} photos from ${site.name}`);
+    // Search for sites that specifically mention the community name
+    for (const citation of relevantCitations) {
+      try {
+        const url = new URL(citation);
+        const hostname = url.hostname.replace('www.', '');
+        
+        // Check if this citation likely mentions the community
+        if (!websiteSources.includes(citation) && communitySpecificSites.length < 3) {
+          console.log(`  🔍 Checking ${hostname} for community-specific photos...`);
+          
+          try {
+            const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+              citation,
+              communityName
+            );
+            
+            if (scrapedPhotos.length > 0) {
+              const siteCandidates = scrapedPhotos.map(photo => ({
+                url: photo.url,
+                source: hostname,
+                confidence: 0.75,
+                isAuthentic: true,
+                reason: `Found on ${hostname} page about ${communityName}`
+              }));
+              
+              allPhotoCandidates.push(...siteCandidates);
+              websiteSources.push(citation);
+              communitySpecificSites.push(hostname);
+              console.log(`    ✅ Found ${scrapedPhotos.length} photos from ${hostname}`);
+            }
+          } catch (error) {
+            console.log(`    ⚠️ Could not scrape ${hostname}:`, error instanceof Error ? error.message : 'Unknown error');
+          }
+        }
+      } catch (e) {
+        // Invalid URL, skip
       }
-    });
+    }
+    
+    // Step 3: Extract photos from directory sites if we haven't found enough
+    if (allPhotoCandidates.length < 10) {
+      console.log('📷 Step 3: Supplementing with directory site photos...');
+      const directoryPhotos = await this.extractPhotosFromDirectorySites(perplexityContent, communityName);
+      
+      // Add source information to directory photos
+      const enhancedDirectoryPhotos = directoryPhotos.map(photo => {
+        // Extract website name from the source field
+        const sourceSite = photo.source.replace(' Gallery', '').toLowerCase();
+        return {
+          ...photo,
+          source: sourceSite.includes('caring') ? 'caring.com' :
+                  sourceSite.includes('seniorhomes') ? 'seniorhomes.com' :
+                  sourceSite.includes('seniorly') ? 'seniorly.com' :
+                  sourceSite.includes('senioradvisor') ? 'senioradvisor.com' :
+                  sourceSite.includes('aplaceformom') ? 'aplaceformom.com' : photo.source
+        };
+      });
+      
+      allPhotoCandidates.push(...enhancedDirectoryPhotos);
+      console.log(`  ✅ Added ${directoryPhotos.length} photos from directory sites`);
+    }
     
     // Step 4: Quick Claude verification (optional, lightweight)
     console.log('🔍 Step 4: Quick Claude verification...');
@@ -360,11 +419,30 @@ Be lenient - mark as authentic unless clearly stock photos.`
     
     console.log(`✅ Results: ${authenticPhotos.length} authentic, ${rejectedPhotos.length} rejected`);
     
+    // Build proper source URLs for frontend display
+    const sourceUrls = websiteSources.length > 0 ? websiteSources : 
+                       [...new Set(verifiedPhotos.map(p => {
+                         // Convert source names to URLs where possible
+                         const source = p.source.toLowerCase();
+                         if (source.includes('.com') || source.includes('.org')) {
+                           return `https://${source}`;
+                         } else if (source === 'official website' && websiteUrl) {
+                           return websiteUrl;
+                         } else {
+                           return `https://${source.replace(/\s+/g, '')}.com`;
+                         }
+                       }))];
+    
+    console.log(`✅ Photo extraction complete:`);
+    console.log(`   - ${authenticPhotos.length} authentic photos found`);
+    console.log(`   - ${sourceUrls.length} sources checked`);
+    console.log(`   - Sources: ${sourceUrls.join(', ')}`);
+    
     return {
       authenticPhotos: authenticPhotos.slice(0, 25), // Increased to 25 photos
       rejectedPhotos,
-      sources: [...new Set(verifiedPhotos.map(p => p.source))],
-      summary: `🚀 Found ${authenticPhotos.length} authentic photos using Playwright + Pattern Extraction (No OpenAI)`
+      sources: sourceUrls,
+      summary: `🚀 Found ${authenticPhotos.length} authentic photos from ${sourceUrls.length} websites`
     };
   }
 
