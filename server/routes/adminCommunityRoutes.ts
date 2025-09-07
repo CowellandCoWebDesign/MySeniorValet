@@ -5,6 +5,8 @@ import { eq, like, and, or, sql, desc, asc } from 'drizzle-orm';
 import cookieParser from 'cookie-parser';
 import { DataIntegrityValidator } from '../services/data-integrity-validator';
 import { ScheduledAuditService } from '../services/scheduled-audit-service';
+import { batchVerifier } from '../services/batch-perplexity-verifier';
+import { cityBatchVerifier } from '../services/city-batch-verifier';
 
 const router = Router();
 
@@ -346,6 +348,96 @@ router.get('/admin/audit/last-report', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error fetching audit report:', error);
     res.status(500).json({ message: 'Failed to fetch audit report' });
+  }
+});
+
+// Run batch Perplexity verification
+router.post('/admin/verify/batch', requireAdmin, async (req, res) => {
+  try {
+    const { limit = 50 } = req.body;
+    
+    console.log(`🚀 Starting batch verification for ${limit} communities...`);
+    
+    // Start the verification process in the background
+    batchVerifier.runVerificationProcess(limit).catch(error => {
+      console.error('Batch verification failed:', error);
+    });
+    
+    res.json({
+      message: `Batch verification started for up to ${limit} communities`,
+      status: 'processing',
+      note: 'Check server logs for progress'
+    });
+  } catch (error) {
+    console.error('Error starting batch verification:', error);
+    res.status(500).json({ message: 'Failed to start batch verification' });
+  }
+});
+
+// Get verification statistics
+router.get('/admin/verify/stats', requireAdmin, async (req, res) => {
+  try {
+    const stats = await batchVerifier.getVerificationStats();
+    
+    res.json({
+      total: stats.total,
+      verified: stats.verified || 0,
+      needsVerification: stats.needs_verification || 0,
+      fake: stats.fake || 0,
+      international: stats.international || 0,
+      percentVerified: stats.total > 0 ? 
+        Math.round((stats.verified || 0) / stats.total * 100) : 0
+    });
+  } catch (error) {
+    console.error('Error fetching verification stats:', error);
+    res.status(500).json({ message: 'Failed to fetch verification stats' });
+  }
+});
+
+// City-based batch verification - MUCH MORE EFFICIENT!
+router.post('/admin/verify/cities', requireAdmin, async (req, res) => {
+  try {
+    const { cities, limit = 100 } = req.body;
+    
+    let targetCities = cities;
+    
+    // If no cities provided, get top unverified cities
+    if (!targetCities || targetCities.length === 0) {
+      targetCities = await cityBatchVerifier.getTopUnverifiedCities(10);
+      console.log(`🏙️ Auto-selected top ${targetCities.length} cities with unverified communities`);
+    }
+    
+    console.log(`🚀 Starting city-based verification for ${targetCities.length} cities...`);
+    
+    // Start verification in background
+    cityBatchVerifier.verifyCitiesBatch(targetCities, limit).catch(error => {
+      console.error('City batch verification failed:', error);
+    });
+    
+    res.json({
+      message: `City-based verification started for ${targetCities.length} cities`,
+      cities: targetCities,
+      status: 'processing'
+    });
+  } catch (error) {
+    console.error('Error starting city verification:', error);
+    res.status(500).json({ message: 'Failed to start city verification' });
+  }
+});
+
+// Get cities with most unverified communities
+router.get('/admin/verify/top-cities', requireAdmin, async (req, res) => {
+  try {
+    const { limit = 20 } = req.query;
+    const topCities = await cityBatchVerifier.getTopUnverifiedCities(Number(limit));
+    
+    res.json({
+      cities: topCities,
+      total: topCities.reduce((sum, c) => sum + c.count, 0)
+    });
+  } catch (error) {
+    console.error('Error fetching top cities:', error);
+    res.status(500).json({ message: 'Failed to fetch top cities' });
   }
 });
 
