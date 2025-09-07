@@ -82,8 +82,7 @@ export class ScheduledAuditService {
       // 1. Count total active communities
       const totalResult = await db
         .select({ count: sql<number>`COUNT(*)` })
-        .from(communities)
-        .where(eq(communities.is_active, true));
+        .from(communities);
       
       report.totalCommunities = Number(totalResult[0]?.count || 0);
 
@@ -145,7 +144,6 @@ export class ScheduledAuditService {
           LOWER(city) as lower_city,
           COUNT(*) as duplicate_count
         FROM communities
-        WHERE is_active = true
         GROUP BY LOWER(name), LOWER(address), LOWER(city)
         HAVING COUNT(*) > 1
       )
@@ -161,7 +159,6 @@ export class ScheduledAuditService {
         AND LOWER(c.address) = d.lower_address 
         AND LOWER(c.city) = d.lower_city
       )
-      WHERE c.is_active = true
       ORDER BY d.lower_name, c.id
     `);
 
@@ -180,8 +177,7 @@ export class ScheduledAuditService {
         city,
         state
       FROM communities
-      WHERE is_active = true
-        AND (
+      WHERE (
           -- Test addresses
           address ILIKE '123 Main St%'
           OR address ILIKE '2123 Main St%'
@@ -247,7 +243,6 @@ export class ScheduledAuditService {
       const result = await db
         .update(communities)
         .set({
-          is_active: false,
           enrichment_status: 'failed',
           updated_at: new Date()
         })
