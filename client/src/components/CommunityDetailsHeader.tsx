@@ -154,7 +154,7 @@ export function CommunityDetailsHeader({
       return { price: `$${community.rentPerMonth}`, verified: false };
     }
     
-    // Market estimates
+    // Market estimates based on national averages
     if (community.communitySubtype === 'hud_senior_housing') {
       return { price: "$200", verified: false };
     }
@@ -167,7 +167,17 @@ export function CommunityDetailsHeader({
     if (community.careTypes?.includes('independent_living')) {
       return { price: "$2,500", verified: false };
     }
-    return { price: "$2,000", verified: false };
+    
+    // Dynamic fallback based on state/location averages
+    const stateAverages: { [key: string]: number } = {
+      'CA': 4500, 'NY': 5500, 'FL': 3800, 'TX': 3500, 
+      'IL': 4000, 'PA': 3900, 'OH': 3600, 'MI': 3700,
+      'NC': 3400, 'GA': 3500, 'VA': 4200, 'WA': 4800,
+      'AZ': 3600, 'MA': 5200, 'NJ': 5000, 'CO': 4100
+    };
+    
+    const stateAvg = stateAverages[community.state] || 3800;
+    return { price: `$${stateAvg.toLocaleString()}`, verified: false };
   };
 
   const pricing = getPricing();
@@ -217,8 +227,8 @@ export function CommunityDetailsHeader({
   return (
     <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
-        {/* Photo Carousel - Reduced Height */}
-        <div className="relative h-[150px] sm:h-[180px] md:h-[200px] lg:h-[220px]">
+        {/* Photo Carousel - Full Height Without Overlays */}
+        <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
           <EnhancedPhotoCarousel 
             photos={getCombinedPhotos()} 
             communityName={community.name}
@@ -227,23 +237,26 @@ export function CommunityDetailsHeader({
             verificationReport={verificationReport}
             className="w-full h-full"
           />
-          
+        </div>
+        
+        {/* Featured Badge and Action Buttons - Moved Below Carousel */}
+        <div className="flex justify-between items-center px-6 py-3 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
           {/* Featured Badge */}
-          {community.brandId && (
-            <div className="absolute top-4 left-4 z-10">
-              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white text-sm font-bold px-4 py-2 shadow-lg backdrop-blur-sm bg-opacity-90">
+          <div>
+            {community.brandId && (
+              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white text-sm font-bold px-4 py-2 shadow-lg">
                 <Star className="w-4 h-4 mr-2" />
                 FEATURED EXCELLENCE
               </Badge>
-            </div>
-          )}
+            )}
+          </div>
           
           {/* Action Buttons */}
-          <div className="absolute top-4 right-4 flex space-x-3 z-10">
+          <div className="flex space-x-3">
             {onFavoriteToggle && (
               <button
                 onClick={onFavoriteToggle}
-                className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200"
+                className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
               >
                 <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700 dark:text-gray-300'}`} />
               </button>
@@ -264,7 +277,7 @@ export function CommunityDetailsHeader({
                   navigator.clipboard.writeText(shareUrl);
                 }
               }}
-              className="p-3 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-full shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-200"
+              className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
             >
               <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
@@ -275,10 +288,10 @@ export function CommunityDetailsHeader({
         <div className="bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-850 dark:to-gray-800 mt-0 relative z-0">
           {/* Header Section with Enhanced Design */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700 relative">
-            {/* Price positioned at absolute top right */}
-            <div className="absolute top-6 right-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800 shadow-lg">
+            {/* Price positioned at absolute top right with proper spacing */}
+            <div className="absolute top-6 right-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800 shadow-lg min-w-[140px] sm:min-w-[160px]">
               <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Monthly Starting From</div>
-              <div className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              <div className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                 {pricing.price}
               </div>
               <div className="text-xs text-gray-500 dark:text-gray-400">
@@ -292,8 +305,8 @@ export function CommunityDetailsHeader({
               )}
             </div>
             
-            {/* Community Details - Full width minus price box */}
-            <div className="pr-0 md:pr-52 lg:pr-64">
+            {/* Community Details - Full width minus price box with better spacing */}
+            <div className="pr-0 sm:pr-48 md:pr-56 lg:pr-64">
               <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3 break-words">
                 {community.name}
               </h1>
