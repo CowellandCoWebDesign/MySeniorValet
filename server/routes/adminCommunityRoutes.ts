@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities, users } from '../../shared/schema';
 import { eq, like, and, or, sql, desc, asc } from 'drizzle-orm';
 import cookieParser from 'cookie-parser';
+import { DataIntegrityValidator } from '../services/data-integrity-validator';
 
 const router = Router();
 
@@ -198,10 +199,39 @@ router.put('/admin/communities/:id', requireAdmin, async (req, res) => {
     delete updates.id;
     delete updates.created_at;
 
+    // Validate the community data for test patterns and integrity issues
+    const validationResult = await DataIntegrityValidator.performFullValidation({
+      id: communityId,
+      name: updates.name || '',
+      address: updates.address,
+      city: updates.city,
+      state: updates.state,
+      phone: updates.phone,
+      website: updates.website,
+      description: updates.description
+    });
+
+    // If validation fails, return errors
+    if (!validationResult.isValid) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validationResult.errors,
+        warnings: validationResult.warnings
+      });
+    }
+
+    // Log warnings but still proceed with update
+    if (validationResult.warnings.length > 0) {
+      console.warn('Community update warnings:', validationResult.warnings);
+    }
+
+    // Sanitize the data before updating
+    const sanitizedUpdates = DataIntegrityValidator.sanitizeCommunityData(updates);
+
     // Update the community
     const [updatedCommunity] = await db.update(communities)
       .set({
-        ...updates,
+        ...sanitizedUpdates,
         updated_at: new Date()
       })
       .where(eq(communities.id, communityId))
