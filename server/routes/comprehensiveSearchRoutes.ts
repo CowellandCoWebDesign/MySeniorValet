@@ -152,6 +152,33 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   const normalizedQuery = query.toLowerCase().trim();
   const queryWords = normalizedQuery.split(/\s+/);
   
+  // 🌍 INTERNATIONAL CITIES - Add global city suggestions first
+  const INTERNATIONAL_CITIES = [
+    // Major Australian Cities
+    'Sydney, Australia', 'Melbourne, Australia', 'Brisbane, Australia', 'Perth, Australia', 'Adelaide, Australia',
+    // Major UK Cities
+    'London, UK', 'Manchester, UK', 'Birmingham, UK', 'Edinburgh, UK', 'Glasgow, UK',
+    // Major Canadian Cities
+    'Toronto, Canada', 'Vancouver, Canada', 'Montreal, Canada', 'Calgary, Canada', 'Ottawa, Canada',
+    // Major European Cities
+    'Paris, France', 'Berlin, Germany', 'Rome, Italy', 'Madrid, Spain', 'Amsterdam, Netherlands',
+    'Brussels, Belgium', 'Vienna, Austria', 'Zurich, Switzerland', 'Stockholm, Sweden', 'Copenhagen, Denmark',
+    // Major Asian Cities
+    'Tokyo, Japan', 'Singapore', 'Hong Kong', 'Seoul, South Korea', 'Bangkok, Thailand',
+    'Mumbai, India', 'Delhi, India', 'Shanghai, China', 'Beijing, China', 'Dubai, UAE',
+    // Other Major Cities
+    'Mexico City, Mexico', 'São Paulo, Brazil', 'Buenos Aires, Argentina', 'Tel Aviv, Israel', 'Cairo, Egypt'
+  ];
+  
+  // Check for international city matches
+  const internationalMatches = INTERNATIONAL_CITIES.filter(city => 
+    city.toLowerCase().includes(normalizedQuery)
+  ).slice(0, 3);
+  
+  internationalMatches.forEach(city => {
+    suggestions.push(`${city} senior living`);
+  });
+  
   // REAL DATABASE-DRIVEN SUGGESTIONS - NO HARDCODED OPTIONS
   
   try {
@@ -169,15 +196,27 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       })
       .from(communities)
       .where(
-        ilike(communities.name, `${normalizedQuery}%`)  // Starts with (highest priority)
+        and(
+          ilike(communities.name, `${normalizedQuery}%`),  // Starts with (highest priority)
+          // Filter out bad data - require valid state and exclude "Unknown"
+          ne(communities.state, 'Unknown'),
+          sql`${communities.state} IS NOT NULL`,
+          sql`${communities.state} != ''`,
+          // Exclude obvious non-senior living names
+          sql`${communities.name} NOT ILIKE '%restaurant%'`,
+          sql`${communities.name} NOT ILIKE '%fish & chips%'`,
+          sql`${communities.name} NOT ILIKE '%pavillon%'`,
+          sql`${communities.name} NOT ILIKE '%rive gauche%'`
+        )
       )
       .orderBy(sql`LENGTH(${communities.name})`)  // Shorter names first (more likely exact matches)
       .limit(5);
     
     exactMatches.forEach(community => {
-      // Add the full community name
-      if (!suggestions.includes(community.name)) {
-        suggestions.push(community.name);
+      // Add community name with city/state for clarity
+      const communityStr = `${community.name} - ${community.city}, ${community.state}`;
+      if (!suggestions.includes(communityStr)) {
+        suggestions.push(communityStr);
       }
     });
     
@@ -193,6 +232,15 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .where(
           and(
             ilike(communities.name, `%${normalizedQuery}%`),  // Contains
+            // Filter out bad data
+            ne(communities.state, 'Unknown'),
+            sql`${communities.state} IS NOT NULL`,
+            sql`${communities.state} != ''`,
+            // Exclude obvious non-senior living names
+            sql`${communities.name} NOT ILIKE '%restaurant%'`,
+            sql`${communities.name} NOT ILIKE '%fish & chips%'`,
+            sql`${communities.name} NOT ILIKE '%pavillon%'`,
+            sql`${communities.name} NOT ILIKE '%rive gauche%'`,
             // Exclude already found exact matches
             ...(exactMatches.length > 0 ? [
               ne(communities.name, sql`ANY(ARRAY[${sql.join(exactMatches.map(m => sql`${m.name}`), sql`, `)}])`)
@@ -203,8 +251,9 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .limit(5 - suggestions.length);
       
       containsMatches.forEach(community => {
-        if (!suggestions.includes(community.name)) {
-          suggestions.push(community.name);
+        const communityStr = `${community.name} - ${community.city}, ${community.state}`;
+        if (!suggestions.includes(communityStr)) {
+          suggestions.push(communityStr);
         }
       });
     }

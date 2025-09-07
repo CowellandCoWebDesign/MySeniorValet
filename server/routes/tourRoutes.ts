@@ -64,27 +64,39 @@ router.post("/schedule", async (req, res) => {
     
     const userId = (req as any).user?.claims?.sub || null;
     
+    // First check if community exists
+    const [communityExists] = await db.select({ id: communities.id })
+      .from(communities)
+      .where(eq(communities.id, tourData.communityId))
+      .limit(1);
+    
+    if (!communityExists) {
+      console.error(`Community with ID ${tourData.communityId} not found`);
+      return res.status(400).json({ error: "Community not found" });
+    }
+    
     // Generate confirmation code
     const confirmationCode = generateConfirmationCode();
     
-    // Create the tour - using snake_case field names as defined in schema
+    // Create the tour - using camelCase field names to match the schema
     const tourInsertData = {
-      user_id: userId,
-      community_id: tourData.communityId,
-      preferred_date: tourData.preferredDate,
-      preferred_time: tourData.preferredTime,
-      alternative_date: tourData.alternativeDate || null,
-      alternative_time: tourData.alternativeTime || null,
-      contact_name: tourData.contactName,
-      contact_email: tourData.contactEmail,
-      contact_phone: tourData.contactPhone,
-      tour_type: tourData.tourType as "in-person" | "virtual" | "self-guided",
-      party_size: tourData.partySize,
-      special_requests: tourData.specialRequests || null,
-      interested_in_care_level: tourData.interestedInCareLevel || [],
+      userId: userId,
+      communityId: tourData.communityId,
+      preferredDate: tourData.preferredDate,
+      preferredTime: tourData.preferredTime,
+      alternativeDate: tourData.alternativeDate || null,
+      alternativeTime: tourData.alternativeTime || null,
+      contactName: tourData.contactName,
+      contactEmail: tourData.contactEmail,
+      contactPhone: tourData.contactPhone,
+      tourType: tourData.tourType as "in-person" | "virtual" | "self-guided",
+      partySize: tourData.partySize,
+      specialRequests: tourData.specialRequests || null,
+      interestedInCareLevel: tourData.interestedInCareLevel || [],
       source: tourData.source as "website" | "mobile" | "phone" | "email" | "partner",
-      utm_params: tourData.utmParams || null,
-      confirmation_code: confirmationCode,
+      utmParams: tourData.utmParams || null,
+      confirmationCode: confirmationCode,
+      tourTrackerLinked: false,
       status: "pending" as const,
     };
     
@@ -117,6 +129,22 @@ router.post("/schedule", async (req, res) => {
           </div>
           
           <p>The community will contact you within 24-48 hours to confirm your tour.</p>
+          
+          <div style="background: #E0E7FF; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4F46E5;">
+            <p style="color: #312E81; margin: 0 0 10px 0;"><strong>📍 Track Your Tour Journey!</strong></p>
+            <p style="color: #312E81; margin: 0 0 10px 0;">Use our Tour Tracker™ to:</p>
+            <ul style="margin: 5px 0 10px 20px; color: #312E81;">
+              <li>View all your scheduled tours</li>
+              <li>Get reminders before your visit</li>
+              <li>Take notes and photos during your tour</li>
+              <li>Rate and review your experience</li>
+              <li>Share insights with family members</li>
+            </ul>
+            <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+               style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
+              Access Tour Tracker™
+            </a>
+          </div>
           
           <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">
             <p style="color: #92400E; margin: 0;"><strong>Need to reschedule?</strong> Please reference your confirmation code when contacting the community.</p>
@@ -165,6 +193,21 @@ router.post("/schedule", async (req, res) => {
               <p style="color: #1E40AF; margin: 0;"><strong>Action Required:</strong> Please contact this family within 24-48 hours to confirm their tour.</p>
             </div>
             
+            <div style="background: #F0FDF4; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981;">
+              <p style="color: #064E3B; margin: 0 0 10px 0;"><strong>💼 Community Dashboard Available</strong></p>
+              <p style="color: #064E3B; margin: 0 0 10px 0;">Track and manage all your tours in one place:</p>
+              <ul style="margin: 5px 0 10px 20px; color: #064E3B;">
+                <li>View upcoming scheduled tours</li>
+                <li>Update tour status and add notes</li>
+                <li>Track visitor engagement metrics</li>
+                <li>Export tour data for reporting</li>
+              </ul>
+              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/admin-mega-dashboard" 
+                 style="display: inline-block; background: #10B981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
+                Access Community Dashboard
+              </a>
+            </div>
+            
             <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
               This tour request was submitted through MySeniorValet's TourMate™ system.
             </p>
@@ -178,6 +221,60 @@ router.post("/schedule", async (req, res) => {
           html: communityEmailHtml,
         });
       }
+      
+      // Send notification to admin
+      const adminEmailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #4F46E5;">🎯 New Tour Scheduled!</h2>
+          
+          <div style="background: #F0F9FF; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3B82F6;">
+            <h3 style="color: #1F2937; margin-top: 0;">Community Details:</h3>
+            <p><strong>Community:</strong> ${community?.name}</p>
+            <p><strong>Address:</strong> ${community?.address}, ${community?.city}, ${community?.state}</p>
+            <p><strong>Community ID:</strong> ${community?.id}</p>
+          </div>
+          
+          <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1F2937; margin-top: 0;">Visitor Information:</h3>
+            <p><strong>Name:</strong> ${tourData.contactName}</p>
+            <p><strong>Email:</strong> ${tourData.contactEmail}</p>
+            <p><strong>Phone:</strong> ${tourData.contactPhone}</p>
+            <p><strong>Confirmation Code:</strong> ${confirmationCode}</p>
+          </div>
+          
+          <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3 style="color: #1F2937; margin-top: 0;">Tour Details:</h3>
+            <p><strong>Preferred Date:</strong> ${format(parseISO(tourData.preferredDate), 'MMMM d, yyyy')}</p>
+            <p><strong>Preferred Time:</strong> ${tourData.preferredTime}</p>
+            ${tourData.alternativeDate ? `<p><strong>Alternative Date:</strong> ${format(parseISO(tourData.alternativeDate), 'MMMM d, yyyy')}</p>` : ''}
+            ${tourData.alternativeTime ? `<p><strong>Alternative Time:</strong> ${tourData.alternativeTime}</p>` : ''}
+            <p><strong>Tour Type:</strong> ${tourData.tourType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
+            <p><strong>Party Size:</strong> ${tourData.partySize} ${tourData.partySize === 1 ? 'person' : 'people'}</p>
+            ${tourData.interestedInCareLevel?.length ? `<p><strong>Care Levels:</strong> ${tourData.interestedInCareLevel.join(', ')}</p>` : ''}
+            ${tourData.specialRequests ? `<p><strong>Special Requests:</strong> ${tourData.specialRequests}</p>` : ''}
+          </div>
+          
+          <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p style="color: #92400E; margin: 0;"><strong>Platform Notification:</strong> This tour was scheduled through MySeniorValet.</p>
+            ${community?.email ? 
+              `<p style="color: #92400E; margin: 5px 0 0 0;">✅ Community has been notified via email.</p>` : 
+              `<p style="color: #92400E; margin: 5px 0 0 0;">⚠️ <strong>ACTION REQUIRED:</strong> Community has NOT been notified (no email on file).</p>
+               <p style="color: #92400E; margin: 5px 0 0 0;">Please contact the community at ${community?.phone || 'their listed phone number'} to inform them of this tour request.</p>`
+            }
+          </div>
+          
+          <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
+            TourMate™ System | MySeniorValet Platform
+          </p>
+        </div>
+      `;
+      
+      await sgMail.send({
+        to: ["admin@myseniorvalet.com", "William.cowell01@gmail.com"],
+        from: "hello@myseniorvalet.com",
+        subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
+        html: adminEmailHtml,
+      });
     }
     
     res.json({
@@ -286,6 +383,22 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
             </div>
             
             ${communityResponse ? `<p><strong>Message from the community:</strong> ${communityResponse}</p>` : ''}
+            
+            <div style="background: #E0E7FF; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4F46E5;">
+              <p style="color: #312E81; margin: 0 0 10px 0;"><strong>🎯 Make the Most of Your Visit!</strong></p>
+              <p style="color: #312E81; margin: 0 0 10px 0;">Use Tour Tracker™ during and after your tour to:</p>
+              <ul style="margin: 5px 0 10px 20px; color: #312E81;">
+                <li>Take photos and notes during your visit</li>
+                <li>Rate different aspects (dining, activities, staff)</li>
+                <li>Compare communities side-by-side</li>
+                <li>Share your experience with family members</li>
+                <li>Create a decision journal for your search</li>
+              </ul>
+              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+                 style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
+                Open Tour Tracker™
+              </a>
+            </div>
             
             <p>We look forward to seeing you!</p>
           </div>

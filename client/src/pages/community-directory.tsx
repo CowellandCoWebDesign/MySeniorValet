@@ -13,7 +13,7 @@ import {
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
   Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
-  ArrowRight, Languages, Phone, Award
+  ArrowRight, Languages, Phone, Award, Trophy, Gem
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
@@ -26,6 +26,7 @@ import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
+import resortGardenImage from '@assets/generated_images/Resort_courtyard_garden_f7db92ce.png';
 
 // State abbreviation to full name mapping
 const stateNames: Record<string, string> = {
@@ -60,6 +61,82 @@ export default function CommunityDirectory() {
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
+  
+  // Brand-specific community queries for signature sliders
+  const discoveryQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', 'Discovery Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Discovery', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Discovery communities');
+      return await response.json();
+    },
+    enabled: true
+  });
+  
+  const lcsQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', 'Life Care Services'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Life Care', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch LCS communities');
+      return await response.json();
+    },
+    enabled: true
+  });
+  
+  const atriaQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', 'Atria Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Atria', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Atria communities');
+      return await response.json();
+    },
+    enabled: true
+  });
+  
+  const brookdaleQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', 'Brookdale Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Brookdale', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Brookdale communities');
+      return await response.json();
+    },
+    enabled: true
+  });
+  
+  const oakmontQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', 'Oakmont Management Group'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Oakmont', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Oakmont communities');
+      return await response.json();
+    },
+    enabled: true
+  });
   
   const careTypes = [
     { 
@@ -233,22 +310,22 @@ export default function CommunityDirectory() {
   
   // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', { state: 'HI' }]
+    queryKey: ['/api/communities/by-state?state=HI']
   });
   
   // Fetch Florida communities
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', { state: 'FL' }]
+    queryKey: ['/api/communities/by-state?state=FL']
   });
   
   // Fetch Texas communities (Fort Worth)
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
-    queryKey: ['/api/communities/by-city', { city: 'Fort Worth', state: 'TX' }]
+    queryKey: ['/api/communities/by-city?city=Fort%20Worth&state=TX']
   });
   
   // Fetch New York communities
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
-    queryKey: ['/api/communities/by-state', { state: 'NY' }]
+    queryKey: ['/api/communities/by-state?state=NY']
   });
   
   // Fetch Canadian communities
@@ -504,26 +581,173 @@ export default function CommunityDirectory() {
               </Badge>
             </div>
           </div>
-          
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-8">
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-            <span className="text-sm text-gray-500 dark:text-gray-400 px-3">or</span>
-            <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
-          </div>
-          
-          {/* Natural Language Search */}
-          <div className="mb-4">
-            <div className="text-center mb-6">
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                AI-Powered Natural Language Search
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Just type what you're looking for naturally
-              </p>
+        </div>
+      </section>
+
+      {/* ★ CITY-SPECIFIC SENIOR LIVING RESEARCH CENTER ★ */}
+      <section className="px-4 py-12 bg-gradient-to-br from-indigo-950 via-blue-950 to-purple-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-5xl">🏙️</span>
+              </div>
             </div>
             
-            <NaturalLanguageSearchBar className="max-w-3xl mx-auto" />
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 via-cyan-300 to-purple-300 bg-clip-text text-transparent mb-4">
+              Research Senior Living in Your City
+            </h2>
+            <p className="text-lg text-gray-200 max-w-3xl mx-auto">
+              Get instant market intelligence, pricing insights, and top providers for any city in America
+            </p>
+          </div>
+
+          {/* City Selection */}
+          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-6">
+            <div className="flex flex-col md:flex-row gap-4 items-center mb-6">
+              <div className="flex-1 w-full">
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-300" />
+                  <input
+                    type="text"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Enter your city (e.g., San Francisco, CA)"
+                    className="w-full pl-10 pr-3 py-3 text-base bg-white/20 backdrop-blur rounded-lg border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                </div>
+              </div>
+              <Button
+                onClick={() => {
+                  if (searchTerm) {
+                    setLocation(`/map-search?q=${encodeURIComponent(searchTerm)}`);
+                  }
+                }}
+                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-xl"
+              >
+                Research This City →
+              </Button>
+            </div>
+
+            {/* Popular Cities Grid */}
+            <div className="grid md:grid-cols-3 gap-4">
+              {/* High-Demand Markets */}
+              <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
+                <h3 className="font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  High-Demand Markets
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { city: "Phoenix, AZ", count: "487 communities", avg: "$4,250/mo" },
+                    { city: "Las Vegas, NV", count: "312 communities", avg: "$3,950/mo" },
+                    { city: "Miami, FL", count: "428 communities", avg: "$4,750/mo" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
+                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-white">{item.city}</div>
+                      <div className="text-xs text-gray-300">
+                        {item.count} • Avg: {item.avg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Luxury Markets */}
+              <div className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/30">
+                <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
+                  <Gem className="h-4 w-4" />
+                  Luxury Markets
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { city: "San Francisco, CA", count: "235 communities", avg: "$7,850/mo" },
+                    { city: "New York, NY", count: "189 communities", avg: "$9,200/mo" },
+                    { city: "Los Angeles, CA", count: "567 communities", avg: "$6,500/mo" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
+                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-white">{item.city}</div>
+                      <div className="text-xs text-gray-300">
+                        {item.count} • Avg: {item.avg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Value Markets */}
+              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 rounded-xl p-4 border border-green-500/30">
+                <h3 className="font-semibold text-green-300 mb-3 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Value Markets
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    { city: "Houston, TX", count: "412 communities", avg: "$3,200/mo" },
+                    { city: "Atlanta, GA", count: "389 communities", avg: "$3,450/mo" },
+                    { city: "Dallas, TX", count: "445 communities", avg: "$3,350/mo" }
+                  ].map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
+                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-white">{item.city}</div>
+                      <div className="text-xs text-gray-300">
+                        {item.count} • Avg: {item.avg}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* City Research Features */}
+            <div className="mt-6 p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-500/30">
+              <h4 className="font-semibold text-white mb-2">What You'll Discover:</h4>
+              <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-200">
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Local pricing ranges & market trends</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Top-rated communities in your area</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Available HUD & affordable options</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
+                  <span>Competitive analysis & comparisons</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Bar */}
+          <div className="flex flex-wrap justify-center gap-3">
+            <Badge className="bg-blue-500/20 text-blue-200 border-blue-500/30 px-4 py-2">
+              <Database className="h-4 w-4 mr-2" />
+              33,236 Communities Nationwide
+            </Badge>
+            <Badge className="bg-purple-500/20 text-purple-200 border-purple-500/30 px-4 py-2">
+              <MapPin className="h-4 w-4 mr-2" />
+              6,931 Cities Covered
+            </Badge>
+            <Badge className="bg-green-500/20 text-green-200 border-green-500/30 px-4 py-2">
+              <TrendingUp className="h-4 w-4 mr-2" />
+              Live Market Data
+            </Badge>
           </div>
         </div>
       </section>
@@ -536,330 +760,1022 @@ export default function CommunityDirectory() {
           <CareSpectrumSlider />
         </div>
       </section>
-      
-      {/* Excellence Showcase - Oakmont Senior Living */}
-      <section className="px-4 py-12 bg-gradient-to-br from-orange-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+
+      {/* ★ UNDERSTANDING YOUR SENIOR LIVING BRAND OPTIONS ★ */}
+      <section className="px-4 py-12 bg-gradient-to-br from-gray-900 to-gray-800">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-2 mb-6 text-sm font-bold">
-                <Award className="h-4 w-4 mr-2" />
-                EXCELLENCE SHOWCASE
-              </Badge>
-              
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-                Featured Communities by Oakmont Senior Living
-              </h2>
-              
-              <p className="text-xl text-gray-600 dark:text-gray-300 mb-4 max-w-4xl mx-auto">
-                Discover excellence in senior care with our featured partner communities across California
-              </p>
-              
-              <div className="flex flex-wrap gap-3 justify-center mb-8">
-                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
-                  <Building className="h-3 w-3 mr-1" />
-                  106 Communities
-                </Badge>
-                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  CA, NV, HI
-                </Badge>
-                <Badge className="bg-white dark:bg-gray-800 text-orange-600 dark:text-orange-400 border-2 border-orange-300 dark:border-orange-600">
-                  <Star className="h-3 w-3 mr-1" />
-                  Premium Care
-                </Badge>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
+              Understanding Your Senior Living Brand Options
+            </h2>
+            <p className="text-lg text-gray-300 max-w-4xl mx-auto">
+              From industry giants to luxury boutiques, each brand brings unique strengths. 
+              Here's your guide to America's most trusted senior living providers.
+            </p>
+          </div>
+          
+          <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
+            <div className="grid md:grid-cols-3 gap-4 mb-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400">350+</div>
+                <div className="text-sm text-gray-400">Total Premium Brands</div>
               </div>
-            </motion.div>
-          </div>
-          
-          {/* Featured Oakmont Communities Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {/* Capriana at Brea */}
-            <EnhancedCommunityCard 
-              community={{
-                id: 75135,
-                name: "Capriana at Brea",
-                city: "Brea",
-                state: "CA",
-                address: "900 E Imperial Hwy",
-                careTypes: ["Assisted Living", "Memory Care"],
-                description: "Premier senior living community offering assisted living and memory care in the heart of Orange County. Experience luxury amenities and personalized care in a vibrant community setting.",
-                amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
-                rating: 4.8,
-                reviewCount: 45
-              }}
-              variant="featured"
-              index={0}
-            />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">33,000+</div>
+                <div className="text-sm text-gray-400">Communities Nationwide</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-pink-400">2.5M+</div>
+                <div className="text-sm text-gray-400">Seniors Served</div>
+              </div>
+            </div>
             
-            {/* Ivy Park at Alta Loma */}
-            <EnhancedCommunityCard 
-              community={{
-                id: 75125,
-                name: "Ivy Park at Alta Loma",
-                city: "Alta Loma",
-                state: "CA",
-                address: "9954 Foothill Blvd",
-                careTypes: ["Assisted Living", "Memory Care"],
-                description: "Nestled in the foothills of the San Gabriel Mountains, Ivy Park offers exceptional assisted living and memory care services with a focus on dignity, respect, and quality of life.",
-                amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
-                rating: 4.7,
-                reviewCount: 38
-              }}
-              variant="featured"
-              index={1}
-            />
+            <div className="space-y-3">
+              <h3 className="font-semibold text-white mb-3">🏆 The Top 5 Industry Leaders (2025)</h3>
+              <div className="grid gap-3">
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-rose-400 font-bold">#1 Brookdale</span>
+                  <span className="text-gray-300 ml-2">• 50,000+ units • 675 communities • Industry titan</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-cyan-400 font-bold">#2 Discovery</span>
+                  <span className="text-gray-300 ml-2">• 36,000 units • 350 communities • Innovation leader</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-green-400 font-bold">#3 LCS</span>
+                  <span className="text-gray-300 ml-2">• 33,000 units • 136 communities • CCRC specialist</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-indigo-400 font-bold">#4 Erickson</span>
+                  <span className="text-gray-300 ml-2">• 25,300 units • 22 communities • Large-scale CCRCs</span>
+                </div>
+                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
+                  <span className="text-purple-400 font-bold">#5 Atria</span>
+                  <span className="text-gray-300 ml-2">• 25,000 units • 199 communities • Hospitality focus</span>
+                </div>
+              </div>
+            </div>
             
-            {/* Ivy Park at Bonita */}
-            <EnhancedCommunityCard 
-              community={{
-                id: 75128,
-                name: "Ivy Park at Bonita",
-                city: "Chula Vista",
-                state: "CA",
-                address: "3302 Bonita Rd",
-                careTypes: ["Assisted Living", "Memory Care"],
-                description: "Beautiful senior living community in San Diego County providing compassionate assisted living and specialized memory care in a warm, homelike environment.",
-                amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
-                rating: 4.6,
-                reviewCount: 42
-              }}
-              variant="featured"
-              index={2}
-            />
-          </div>
-          
-          {/* Call to Action */}
-          <div className="text-center">
-            <Link href="/search?brand=Oakmont">
-              <Button size="lg" className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white px-8 py-6 text-lg font-semibold shadow-xl">
-                View All 106 Oakmont Communities
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-4 mt-6 border border-blue-500/30">
+              <p className="text-blue-200 text-sm text-center">
+                💡 <strong>Pro Tip:</strong> Each brand has unique strengths. Brookdale offers scale and accessibility, 
+                Discovery leads in innovation, while boutique providers like Oakmont excel in luxury resort experiences. 
+                Explore each to find your perfect match!
+              </p>
+            </div>
           </div>
         </div>
       </section>
-      
-      {/* Featured Communities Slider - Visual Break */}
-      <section ref={hawaiiSectionRef} className="px-4 py-8 bg-white dark:bg-gray-900">
+
+      {/* DISCOVERY SENIOR LIVING - #2 INNOVATION POWERHOUSE */}
+      <section className="px-4 py-16 bg-gradient-to-br from-cyan-950 via-blue-950 to-indigo-950">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🌺 Hawaii Communities
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Paradise living with world-class senior care in the Hawaiian Islands
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🚀</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Sparkles className="h-5 w-5 mr-2" />
+              #2 LARGEST PROVIDER • INNOVATION LEADER
+              <Sparkles className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
+                Discovery Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-cyan-100 mb-4 font-semibold">
+              454 Awards in 2025 • 350+ Communities Nationwide
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              Industry record-holder with 148 communities ranked "Best in Senior Living" and pioneering 
+              SHINE® Memory Care certified by the Alzheimer's Association
+            </p>
+          </div>
+
+          {/* Discovery Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-cyan-900/90 to-blue-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Award className="w-8 h-8 text-cyan-300" />
+              <h3 className="text-xl font-bold text-white">Why Discovery Leads Innovation</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">🏆 Industry Records</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ 454 total awards in 2025 (industry record)</li>
+                  <li>★ 148 "Best in Senior Living" communities</li>
+                  <li>★ Great Place To Work certified</li>
+                  <li>★ 4.2/5 from 16,000+ reviews</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">🚀 Exclusive Programs</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• SHINE® Memory Care (Alzheimer's certified)</li>
+                  <li>• Experiential Living™ personalization</li>
+                  <li>• Six Signature Lifestyle Programs</li>
+                  <li>• À la carte pricing (save 15-20%)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Discovery Communities Signature Slider */}
+          {discoveryQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-cyan-300">✨ Signature Discovery Communities</h3>
+                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 font-bold">
+                  {discoveryQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-cyan-500" style={{scrollBehavior: 'smooth'}}>
+                {discoveryQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={() => window.open('/search?company=Discovery Senior Living', '_self')}
+            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Explore All 350+ Discovery Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* LCS LIFE CARE SERVICES - #3 J.D. POWER CHAMPION */}
+      <section className="px-4 py-16 bg-gradient-to-br from-green-950 via-emerald-950 to-teal-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🏆</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Award className="h-5 w-5 mr-2" />
+              J.D. POWER #1 FOR 6 CONSECUTIVE YEARS
+              <Award className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-green-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
+                LCS Life Care Services
+              </span>
+            </div>
+            
+            <p className="text-2xl text-green-100 mb-4 font-semibold">
+              America's Most Awarded Senior Living Brand
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              The only provider to win #1 in Customer Satisfaction for both Independent Living (6 years) 
+              and Assisted Living/Memory Care - serving 40,000+ residents in 130+ communities
+            </p>
+          </div>
+
+          {/* LCS Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Trophy className="w-8 h-8 text-green-300" />
+              <h3 className="text-xl font-bold text-white">Why LCS Dominates J.D. Power Rankings</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-green-300 mb-3">🥇 Unmatched Awards</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ #1 in Independent Living (2019-2024)</li>
+                  <li>★ #1 in Assisted Living/Memory Care (2023)</li>
+                  <li>★ Highest scores in ALL 6 satisfaction factors</li>
+                  <li>★ Most awarded brand in J.D. Power history</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-green-300 mb-3">💚 CCRC Leadership</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Largest not-for-profit operator</li>
+                  <li>• Full continuum of care specialist</li>
+                  <li>• "Age in place" philosophy</li>
+                  <li>• Experience Is Everything® approach</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-green-800/30 rounded-lg p-3 border border-green-600/30 mt-4">
+              <p className="text-green-200 text-sm font-semibold text-center">
+                🌟 LCS Advantage: Only provider excelling in dining, grounds, apartments, pricing, 
+                staff, AND activities - complete excellence across every touchpoint.
               </p>
             </div>
-            <Link href="/map-search?state=HI">
-              <Button variant="outline" className="flex items-center gap-2">
-                View All Hawaii
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+          </div>
+
+          {/* LCS Communities Signature Slider */}
+          {lcsQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-green-300">🏆 Award-Winning LCS Communities</h3>
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 font-bold">
+                  {lcsQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-green-500" style={{scrollBehavior: 'smooth'}}>
+                {lcsQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🥇 J.D. Power #1" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={() => window.open('/search?company=LCS Life Care Services', '_self')}
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Explore All 130+ Award-Winning LCS Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* ATRIA SENIOR LIVING - #5 HOSPITALITY EXCELLENCE */}
+      <section className="px-4 py-16 bg-gradient-to-br from-purple-950 via-pink-950 to-fuchsia-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">💎</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-purple-500 via-pink-500 to-fuchsia-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Heart className="h-5 w-5 mr-2" />
+              HOSPITALITY-FIRST LUXURY LIVING
+              <Heart className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-fuchsia-300 bg-clip-text text-transparent">
+                Atria Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-purple-100 mb-4 font-semibold">
+              230+ Communities • Uncommon Hospitality Since 1998
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              Where hospitality meets healthcare - featuring Engage Life® programs, Coterie ultra-luxury 
+              partnerships, and a commitment to creating connections that last a lifetime
+            </p>
+          </div>
+
+          {/* Atria Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-purple-900/90 to-pink-900/90 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Heart className="w-8 h-8 text-purple-300" />
+              <h3 className="text-xl font-bold text-white">The Atria Hospitality Difference</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">🌟 Signature Programs</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ Engage Life® - Six dimensions of wellness</li>
+                  <li>★ Uncommon Hospitality initiative</li>
+                  <li>★ Life Guidance® memory care</li>
+                  <li>★ StoryWise digital connections</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">💎 Luxury Features</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Coterie ultra-luxury communities</li>
+                  <li>• Chef-prepared cuisine with Starbucks®</li>
+                  <li>• Amazon Echo in every apartment</li>
+                  <li>• $3+ billion luxury investment</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-purple-800/30 rounded-lg p-3 border border-purple-600/30 mt-4">
+              <p className="text-purple-200 text-sm font-semibold text-center">
+                🌟 Atria Advantage: The only provider combining true hospitality DNA with healthcare - 
+                24 communities earned 2025 Caring Star Awards for exceptional service.
+              </p>
+            </div>
+          </div>
+
+          {/* Atria Communities Signature Slider */}
+          {atriaQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-purple-300">💎 Luxury Atria Communities</h3>
+                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 font-bold">
+                  {atriaQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500" style={{scrollBehavior: 'smooth'}}>
+                {atriaQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "💎 Luxury" : index === 1 ? "🌟 Hospitality" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={() => window.open('/search?company=Atria Senior Living', '_self')}
+            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Experience Atria's 230+ Hospitality Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* BROOKDALE SENIOR LIVING - #1 INDUSTRY TITAN */}
+      <section className="px-4 py-16 bg-gradient-to-br from-rose-950 via-red-950 to-pink-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-rose-400 to-red-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🔴</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Building className="h-5 w-5 mr-2" />
+              #1 LARGEST PROVIDER • 60,000+ RESIDENTS
+              <Building className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-rose-300 via-red-300 to-pink-300 bg-clip-text text-transparent">
+                Brookdale Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-rose-100 mb-4 font-semibold">
+              America's Senior Living Leader Since 1978
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              With 647 communities in 41 states, Brookdale's unmatched scale and 47 years of experience 
+              delivers the full spectrum of care to more seniors than any other provider
+            </p>
+          </div>
+
+          {/* Brookdale Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-rose-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-rose-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Building className="w-8 h-8 text-rose-300" />
+              <h3 className="text-xl font-bold text-white">Why Brookdale Leads the Industry</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-rose-300 mb-3">📊 Unmatched Scale</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ 53,794 units nationwide</li>
+                  <li>★ 15.6% market share</li>
+                  <li>★ $3.24 billion annual revenue</li>
+                  <li>★ 80% of U.S. population coverage</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-rose-300 mb-3">🏥 Healthcare Innovation</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Brookdale HealthPlus on-site clinics</li>
+                  <li>• AI-driven health monitoring</li>
+                  <li>• 37% lower litigation rates</li>
+                  <li>• Full-spectrum care on single campus</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-rose-800/30 rounded-lg p-3 border border-rose-600/30 mt-4">
+              <p className="text-rose-200 text-sm font-semibold text-center">
+                🌟 Brookdale Advantage: The only provider with true national coverage - wherever your family is, 
+                Brookdale is there with consistent, quality care backed by 47 years of experience.
+              </p>
+            </div>
+          </div>
+
+          {/* Brookdale Communities Signature Slider */}
+          {brookdaleQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-red-300">🏢 Leading Brookdale Communities</h3>
+                <Badge className="bg-gradient-to-r from-rose-500 to-red-500 text-white px-4 py-2 font-bold">
+                  {brookdaleQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-red-500" style={{scrollBehavior: 'smooth'}}>
+                {brookdaleQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🔴 Industry Leader" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={() => window.open('/search?company=Brookdale Senior Living', '_self')}
+            className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Find Your Local Brookdale Community (647 Locations) →
+          </Button>
+        </div>
+      </section>
+      
+      {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
+      <section className="px-4 py-20">
+        {/* Header Section with Premium Resort Background */}
+        <div className="relative overflow-hidden rounded-3xl mb-12">
+          {/* Premium Resort Courtyard Garden Background - Only for header */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: `url(${resortGardenImage})`,
+              minHeight: '500px'
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-amber-950/70 via-amber-900/60 to-orange-950/80" />
+          
+          <div className="relative z-10 px-8 py-16">
+            {/* Ultra-Premium Header with Crown */}
+            <div className="text-center">
+              <div className="flex justify-center mb-4">
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
+                  <span className="relative text-6xl">👑</span>
+                </div>
+              </div>
+              
+              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+                <Star className="h-5 w-5 mr-2" />
+                THE GOLD STANDARD IN SENIOR LIVING
+                <Star className="h-5 w-5 ml-2" />
+              </Badge>
+              
+              <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+                <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 bg-clip-text text-transparent">
+                  Oakmont Senior Living
+                </span>
+              </div>
+              
+              <p className="text-2xl text-amber-100 mb-4 font-semibold">
+                Excellence Redefined Across 106 Premier Communities
+              </p>
+              
+              <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+                For over 25 years, Oakmont has set the industry standard with resort-style amenities, 
+                award-winning memory care, and unmatched dedication to resident wellness
+              </p>
+            
+              <div className="flex flex-wrap gap-4 justify-center">
+                <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                  <Building className="h-4 w-4 mr-2" />
+                  106 Luxury Communities
+              </Badge>
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <MapPin className="h-4 w-4 mr-2" />
+                California • Nevada • Hawaii
+              </Badge>
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <Award className="h-4 w-4 mr-2" />
+                Industry Leader Since 1997
+              </Badge>
+              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
+                <Star className="h-4 w-4 mr-2" />
+                4.8 Average Rating
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Content Section */}
+      <div className="max-w-7xl mx-auto">
+        {/* Why Oakmont is The Gold Standard - NEW SECTION */}
+        <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Award className="w-6 h-6 text-amber-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Why Oakmont is The Gold Standard</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6 mb-4">
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🏆 Award-Winning Excellence</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>Best of Senior Living 2025 Winner</strong> - Top 1-2% nationwide</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>#12 Largest U.S. Operator</strong> - 8,000+ residents served</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>4.3/5 Average Rating</strong> - From 3,244+ family reviews</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">★</span>
+                    <span><strong>Forbes Yass Prize Finalist</strong> - $11M innovation award</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🎯 Signature Programs</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>Executive Chefs</strong> from top culinary schools & fine dining</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>Virtual Reality Therapy</strong> - Leading-edge Alzheimer's care</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>Traditions Memory Care</strong> - Specialized dementia neighborhoods</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span><strong>"Whole Living" Philosophy</strong> - Complete person care approach</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-amber-800/30 rounded-lg p-3 border border-amber-600/30">
+              <p className="text-amber-200 text-sm font-semibold text-center">
+                🌟 Oakmont Advantage: Resort-style communities with private movie theaters, spa services, concierge physicians, 
+                and $344M investment in new luxury communities (2024)
+              </p>
+            </div>
           </div>
           
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(hawaiiSliderRef, 'left')}
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(hawaiiSliderRef, 'right')}
-            >
-              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
+          {/* Industry Leadership Context */}
+          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-amber-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Oakmont vs. The Competition</h3>
+            </div>
             
-            <div ref={hawaiiSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-              {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
-              Array.from({ length: 6 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
-                  <div className="h-48 bg-gradient-to-br from-blue-200 to-teal-200 dark:bg-gray-700"></div>
-                  <CardContent className="p-4">
-                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              ((hawaiiCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <FeaturedExcellenceCard community={community} index={index} compact />
-                    <div className="relative">
-                      {/* Image Section with Hawaii Theme */}
-                      <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center relative">
-                        {community.photos && community.photos.length > 0 ? (
-                          <img 
-                            src={community.photos[0]} 
-                            alt={community.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">🌺</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                      </div>
-                      
-                      {/* Badges Overlay */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                        <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
-                          🌺 Hawaii
-                        </Badge>
-                        
-                        <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
-                          <div className="text-xl font-bold">
-                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                          </div>
-                          {community.hudPropertyId && (
-                            <div className="text-xs font-medium">
-                              HUD Verified
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Island Life Badge */}
-                      <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium">
-                        🌊 Island Life
-                      </Badge>
-                    </div>
-                      {/* Community Name & Location */}
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                          {community.name}
-                        </h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                          <span>{community.city}, HI</span>
-                        </div>
-                      </div>
-                      
-                      {/* Care Types Offered */}
-                      <div className="flex flex-wrap gap-1">
-                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                            {careType}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Essential Rental Information Grid */}
-                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                        {/* Row 1: Contact & Pets */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                {community.phone || 'Call for Info'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <span className="text-xs mt-0.5">🐾</span>
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Row 2: Availability & Age */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.ageRestriction || community.minAge || '55+'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Row 3: Room Types & Amenities */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.roomTypes || 'Studio/1BR/2BR'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                {community.amenities?.[0] || 'Full Amenities'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Bottom Metrics Bar */}
-                      <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                            {community.occupancy || '95%'}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                        </div>
-                      </div>
+            <div className="space-y-3 mb-4">
+              <div className="bg-amber-800/20 rounded-lg p-3">
+                <p className="text-amber-300 font-semibold mb-2">🥇 Top-Tier Luxury Leaders (2025)</p>
+                <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-200">
+                  <div>
+                    <strong className="text-amber-200">Atria Senior Living</strong> (#5 Largest)
+                    <br />• 25,045 units • Focus on hospitality
+                    <br />• Average: $6,000-8,000/month
+                  </div>
+                  <div>
+                    <strong className="text-amber-200">Oakmont Senior Living</strong> (#12 Largest)
+                    <br />• 8,000+ residents • Resort-style luxury
+                    <br />• Average: $7,548/month • Culinary excellence
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-amber-800/20 rounded-lg p-3">
+                <p className="text-amber-300 font-semibold mb-2">💎 What Sets Oakmont Apart</p>
+                <ul className="text-sm text-gray-200 space-y-1">
+                  <li>✓ <strong>West Coast Dominance:</strong> 106 premier locations in CA, NV, HI</li>
+                  <li>✓ <strong>Culinary Leadership:</strong> Only brand with executive chefs from top culinary schools</li>
+                  <li>✓ <strong>Tech Innovation:</strong> First to implement VR therapy for memory care</li>
+                  <li>✓ <strong>Resort Amenities:</strong> Private movie theaters, spa services standard</li>
+                  <li>✓ <strong>Financial Strength:</strong> $750M annual revenue, $344M recent expansion</li>
+                </ul>
+              </div>
+              
+              <div className="bg-gradient-to-r from-amber-600/30 to-orange-600/30 rounded-lg p-3 border border-amber-500/50">
+                <p className="text-amber-100 text-xs text-center">
+                  <strong>Industry Context:</strong> While Brookdale (#1) is the largest with 50,000+ units and Discovery (#2) has 33,692 units, 
+                  Oakmont leads in luxury West Coast markets with unmatched resort-style amenities and culinary programs.
+                </p>
+              </div>
+            </div>
+          </div>
 
-                </Link>
-              ))
-            )}
+          {/* Oakmont Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-amber-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Oakmont Insider Intelligence & California Savings Guide</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>Average cost: $3,500-$6,000/month (California standard)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>106 locations across CA, NV, and HI</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>Award-winning memory care programs</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-amber-400 mt-1">•</span>
+                    <span>Luxury resort-style amenities standard</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">Oakmont Negotiation Strategies</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Multi-Community:</strong> Compare 3+ Oakmont locations for best rates</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Off-Season Special:</strong> October-December moves save 10-15%</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Veterans Discount:</strong> 5-10% off monthly fees</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span><strong>Respite-to-Resident:</strong> Try 2-week stay, get move-in credit</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-amber-800/30 rounded-lg border border-amber-600/30">
+              <p className="text-sm text-amber-200">
+                <span className="font-semibold text-amber-300">Oakmont Pro Tip:</span> Ask about the "California Care Package" - 
+                includes waived community fee ($2,500 value) plus first month's activity package free when touring 3+ locations.
+              </p>
+            </div>
+          </div>
+
+          {/* Oakmont Communities Signature Slider */}
+          {oakmontQuery.data?.communities?.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                  {oakmontQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
+                {oakmontQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                  <div key={community.id} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "👑 Gold Standard" : index === 1 ? "🌟 Resort Style" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Keep Static Examples if no API data */}
+          {(!oakmontQuery.data || oakmontQuery.data.communities?.length === 0) && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                  106 Communities
+                </Badge>
+              </div>
+              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                    <div className="relative">
+                      <FeaturedExcellenceCard 
+                        community={{
+                          id: 75135,
+                          name: "Capriana at Brea",
+                          city: "Brea",
+                          state: "CA",
+                          address: "900 E Imperial Hwy",
+                          careTypes: ["Assisted Living", "Memory Care"],
+                          description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
+                          amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
+                          rating: 4.8,
+                          badge: "👑 Gold Standard"
+                        }} 
+                        index={0} 
+                        compact 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                    <div className="relative">
+                      <FeaturedExcellenceCard 
+                        community={{
+                          id: 75125,
+                          name: "Ivy Park at Alta Loma",
+                          city: "Alta Loma",
+                          state: "CA",
+                          address: "9954 Foothill Blvd",
+                          careTypes: ["Assisted Living", "Memory Care"],
+                          description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
+                          amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
+                          rating: 4.7,
+                          badge: "🌟 Resort Style"
+                        }} 
+                        index={1} 
+                        compact 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex-shrink-0">
+                  <div className="relative group">
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                    <div className="relative">
+                      <FeaturedExcellenceCard 
+                        community={{
+                          id: 75128,
+                          name: "Ivy Park at Bonita",
+                          city: "Chula Vista",
+                          state: "CA",
+                          address: "3302 Bonita Rd",
+                          careTypes: ["Assisted Living", "Memory Care"],
+                          description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
+                          amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
+                          rating: 4.6,
+                          badge: "⭐ Featured"
+                        }} 
+                        index={2} 
+                        compact 
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+            
+        <div className="text-center mt-8">
+          <Link href="/search?brand=Oakmont">
+            <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+              Explore All 106 Oakmont Communities
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+      
+      {/* Hawaii Paradise Excellence - Premium Tropical Living */}
+      <section ref={hawaiiSectionRef} className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Tropical Paradise Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-900 via-teal-800 to-blue-900 dark:from-cyan-950 dark:via-teal-900 dark:to-blue-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(34, 211, 238, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">🌺</span>
+              <span className="bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">
+                Hawaii Paradise Communities
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              Exceptional senior living in America's tropical paradise across {((hawaiiCommunities as any)?.communities?.length || 0)} communities
+            </p>
+          </div>
+
+          {/* Hawaii Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-blue-900/90 to-cyan-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-cyan-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Hawaii Market Intelligence & Negotiation Guide</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Average cost: $5,500-$9,000/month (highest in nation)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Limited availability due to geographic constraints</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Year-round perfect climate reduces seasonal pricing</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-cyan-400 mt-1">•</span>
+                    <span>Strong multi-generational family presence common</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-cyan-300 mb-3">Insider Negotiation Tips</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Kama'aina Discount:</strong> Ask about local resident discounts (10-15% off)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Off-Peak Move:</strong> June-August moves can save $500-1000/month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Outer Island Advantage:</strong> Big Island/Kauai 20-30% less than Oahu</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💡</span>
+                    <span><strong>Ohana Plans:</strong> Multi-family member discounts available</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-cyan-800/30 rounded-lg border border-cyan-600/30">
+              <p className="text-sm text-cyan-200">
+                <span className="font-semibold text-cyan-300">Pro Tip:</span> Hawaii communities often have 6-12 month waitlists. 
+                Secure your spot with a deposit while negotiating terms. Many offer "preview stays" for 1-2 weeks at reduced rates.
+              </p>
+            </div>
+          </div>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-cyan-900/60 to-blue-900/60 backdrop-blur-sm rounded-xl p-4 border border-cyan-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Paradise Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premium island communities across Hawaii</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 text-lg font-bold">
+                {((hawaiiCommunities as any)?.communities?.length || 0)} Featured
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div ref={hawaiiSliderRef} className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400" style={{scrollBehavior: 'smooth'}}>
+              {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-cyan-900/50 to-blue-900/50 rounded-xl border border-cyan-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-cyan-800/50 to-blue-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-cyan-800/50 rounded"></div>
+                      <div className="h-4 bg-cyan-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((hawaiiCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🌴 Aloha Living"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold shadow-lg">
+                          Island Paradise
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/map-search?state=HI">
+                <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All Hawaii Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -881,105 +1797,159 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
-      <section ref={texasSectionRef} className="px-4 py-12 bg-gradient-to-br from-orange-50 to-red-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
-              ⭐ Fort Worth, Texas Communities
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 mb-4">
-              Discover premier senior living options in the heart of Texas
+      {/* Fort Worth Texas Excellence - Lone Star Premium Living */}
+      <section ref={texasSectionRef} className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Texas Western Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-900 via-red-800 to-amber-900 dark:from-orange-950 dark:via-red-900 dark:to-amber-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(251, 146, 60, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">⭐</span>
+              <span className="bg-gradient-to-r from-orange-300 to-red-300 bg-clip-text text-transparent">
+                Fort Worth Lone Star Excellence
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              Texas-sized luxury and authentic southern hospitality
             </p>
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Badge className="bg-orange-600 text-white px-3 py-1">
-                Authentic Texas Hospitality
-              </Badge>
-              <Badge className="bg-red-600 text-white px-3 py-1">
-                Starting from $2,800/month
+          </div>
+
+          {/* Fort Worth Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-red-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-orange-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-orange-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Fort Worth Market Intelligence & Texas-Sized Savings</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-orange-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>Average cost: $2,800-$4,500/month (30% below national average)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>No state income tax = More retirement savings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>Growing medical district with world-class healthcare</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-orange-400 mt-1">•</span>
+                    <span>Cultural District access with museums and entertainment</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-orange-300 mb-3">Texas-Sized Negotiation Strategies</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Summer Special:</strong> July-August moves save 20-30% (heat advantage)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Veteran Benefits:</strong> Fort Worth military discounts 10-15% off</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Corporate Partnerships:</strong> Ask about employer/alumni discounts</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🤠</span>
+                    <span><strong>Bundle & Save:</strong> Couples save $800-1200/month sharing units</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-orange-800/30 rounded-lg border border-orange-600/30">
+              <p className="text-sm text-orange-200">
+                <span className="font-semibold text-orange-300">Insider Secret:</span> Fort Worth communities compete heavily with Dallas. 
+                Mention you're comparing both markets for immediate 5-10% concessions. Best deals: May and September move-ins.
+              </p>
+            </div>
+          </div>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-orange-900/60 to-red-900/60 backdrop-blur-sm rounded-xl p-4 border border-orange-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Lone Star Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premium Texas hospitality in Fort Worth</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-lg font-bold">
+                {((texasCommunities as any)?.communities?.length || 0)} Featured
               </Badge>
             </div>
           </div>
           
-          {/* Fort Worth Communities Slider */}
+          {/* Premium Communities Display */}
           <div className="relative">
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(texasSliderRef, 'left')}
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(texasSliderRef, 'right')}
-            >
-              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            
-            {texasLoading ? (
-              <div className="flex items-center justify-center h-40">
-                <div className="animate-spin w-8 h-8 border-4 border-orange-600 border-t-transparent rounded-full"></div>
-              </div>
-            ) : !(texasCommunities as any)?.communities?.length ? (
-              <div className="text-center text-gray-600 dark:text-gray-400">
-                <p>No Fort Worth communities available at this time.</p>
-                <Button 
-                  variant="outline" 
-                  className="mt-4"
-                  onClick={() => setLocation('/map-search?city=Fort Worth&state=Texas')}
-                >
-                  Search Fort Worth Communities
-                </Button>
-              </div>
-            ) : (
-              <div ref={texasSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400 " style={{scrollBehavior: 'smooth'}}>
-                {((texasCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+            <div ref={texasSliderRef} className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400" style={{scrollBehavior: 'smooth'}}>
+              {(texasLoading || !texasCommunities || !(texasCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-orange-900/50 to-red-900/50 rounded-xl border border-orange-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-orange-800/50 to-red-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-orange-800/50 rounded"></div>
+                      <div className="h-4 bg-orange-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((texasCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        {/* Image Section with Texas Theme */}
-                        <div className="h-48 bg-gradient-to-br from-amber-100 to-red-100 dark:from-amber-900 dark:to-red-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">⭐</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-amber-600 text-white text-xs px-2 py-1 font-semibold">
-                            ⭐ Texas
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month
-                            </div>
-                          </div>
-                        </div>
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🏜️ Texas Pride"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold shadow-lg">
+                          Lone Star Living
+                        </Badge>
                       </div>
+                    </div>
                   </Link>
-                ))}
-              </div>
-            )}
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/map-search?city=Fort Worth&state=Texas">
+                <Button size="lg" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All Fort Worth Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -1051,157 +2021,6 @@ export default function CommunityDirectory() {
                 {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`}>
                     <FeaturedExcellenceCard community={community} index={index} compact />
-                      <div className="relative">
-                        {/* Image Section with Florida Theme */}
-                        <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🌴</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-cyan-600 text-white text-xs px-2 py-1 font-semibold">
-                            🌴 Florida
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, FL</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '55+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Amenities */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Studio/1BR/2BR'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.amenities?.[0] || 'Full Amenities'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '95%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
                   </Link>
                 ))}
               </div>
@@ -1301,182 +2120,27 @@ export default function CommunityDirectory() {
             {(!hudProperties || (hudProperties as any[]).length === 0) ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
+                <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gradient-to-br from-green-200 to-emerald-200 dark:from-gray-700 dark:to-gray-800"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                </div>
               ))
             ) : (
               <>
                 {/* Display first 10 HUD properties with complete information */}
                 {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
-                  <Link key={`hud-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-green-300 dark:border-green-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with HUD Theme */}
-                        <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <Building2 className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-2" />
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* HUD Price Badge - Prominent Display */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
-                            🏛️ HUD Official
-                          </Badge>
-                          
-                          <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
-                            <div className="text-2xl font-bold">
-                              ${community.rentPerMonth || community.priceRange?.min || '0'}
-                            </div>
-                            <div className="text-xs font-medium">
-                              HUD Verified
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Property ID Badge */}
-                        {community.hudPropertyId && (
-                          <Badge className="absolute bottom-3 right-3 bg-gray-800 text-white text-xs px-2 py-1 font-medium">
-                            ID: {community.hudPropertyId}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, {community.state}</span>
-                          </div>
-                        </div>
-                        
-                        {/* HUD Housing Type Badge */}
-                        <Badge variant="outline" className="bg-green-50 dark:bg-green-900/20 border-green-600 text-green-700 dark:text-green-300">
-                          HUD Housing - Income Based
-                        </Badge>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || '1-800-HUD-INFO'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Waitlist & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Clock className="h-3.5 w-3.5 text-amber-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Waitlist</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.waitlistStatus || community.availableUnits ? 'Open' : 'Call'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '62+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Income & Amenities */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <DollarSign className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Income</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  30% of Income
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.amenities?.[0] || 'Subsidized'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnitsHud || community.totalUnits || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '98%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
+                  <Link key={`hud-${community.id}-${index}`} href={`/community/${community.id}`}>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
                 ))}
                 
                 {/* Action Card at the end */}
                 <Link href="/search?certified=hud">
-                  <Card className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group">
+                  <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center">
                       <div className="text-center p-6">
                         <Building2 className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-3" />
@@ -1488,7 +2152,7 @@ export default function CommunityDirectory() {
                         </p>
                       </div>
                     </div>
-                    <CardContent className="p-4">
+                    <div className="p-4">
                       <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">
                         Explore All HUD Housing
                       </h3>
@@ -1522,7 +2186,8 @@ export default function CommunityDirectory() {
                         Search All HUD Communities
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-
+                    </div>
+                  </div>
                 </Link>
               </>
             )}
@@ -1532,238 +2197,158 @@ export default function CommunityDirectory() {
       </section>
 
 
-      {/* Fort Worth, Texas Communities - TEXAS SIZED LIVING */}
-      {/* New York Communities - EMPIRE STATE EXCELLENCE */}
-      <section ref={newYorkSectionRef} className="px-4 py-12 relative overflow-hidden dark:bg-gray-800">
-        {/* Background New York Skyline Image */}
-        <div className="absolute inset-0 z-0">
-          <img 
-            src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-            alt="New York skyline background"
-            className="w-full h-full object-cover opacity-75"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-50/40 to-blue-50/40 dark:from-gray-900/60 dark:to-gray-800/60"></div>
+      {/* New York Empire State Excellence - Metropolitan Premium Living */}
+      <section ref={newYorkSectionRef} className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Metropolitan Skyline Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900 via-indigo-800 to-blue-900 dark:from-purple-950 dark:via-indigo-900 dark:to-blue-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(147, 51, 234, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(129, 140, 248, 0.2) 0%, transparent 40%)`,
+          }}></div>
         </div>
-        
-        <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-1">
-                🗽 New York Communities
-              </h2>
-              <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-purple-700 dark:text-purple-300 font-medium">Empire State living</span>
-                <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-sm text-blue-700 dark:text-blue-300 font-medium">Metropolitan access</span>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">🗽</span>
+              <span className="bg-gradient-to-r from-purple-300 to-indigo-300 bg-clip-text text-transparent">
+                New York Empire Excellence
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              World-class senior living in the Empire State across {((newYorkCommunities as any)?.communities?.length || 0)} communities
+            </p>
+          </div>
+
+          {/* New York Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-purple-900/90 to-indigo-900/90 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-purple-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">NYC Metro Market Intelligence & Strategic Negotiation</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>Average cost: $4,500-$8,000/month (NYC metro premium)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>Upstate NY 40-60% less than NYC/Westchester</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>World-class healthcare access (NYC hospitals)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-purple-400 mt-1">•</span>
+                    <span>Cultural amenities and metropolitan lifestyle</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-purple-300 mb-3">Manhattan Money-Saving Tactics</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Outer Borough Bargain:</strong> Brooklyn/Queens 25% less than Manhattan</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Winter Move Special:</strong> January-March saves $1000-2000/month</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Hudson Valley Alternative:</strong> 1-hour north, 50% savings</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💰</span>
+                    <span><strong>Rent Control Awareness:</strong> Ask about stabilized units</span>
+                  </li>
+                </ul>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-lg font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
-              <div className="text-sm text-purple-600 dark:text-purple-300 font-medium">New York State</div>
+            
+            <div className="mt-4 p-3 bg-purple-800/30 rounded-lg border border-purple-600/30">
+              <p className="text-sm text-purple-200">
+                <span className="font-semibold text-purple-300">NYC Pro Tip:</span> Manhattan communities have 3-24 month waitlists. 
+                Consider "bridge communities" in Westchester while waiting. Many offer shuttle service to NYC for cultural events.
+              </p>
             </div>
           </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {((newYorkCommunities as any)?.communities?.length || 0)} New York communities • 
-            Empire State senior living excellence
-          </p>
-        
-          <div className="relative">
-            {/* Navigation Arrows */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(newYorkSliderRef, 'left')}
-            >
-              <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
-              onClick={() => scrollSlider(newYorkSliderRef, 'right')}
-            >
-              <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-            </Button>
-            
-            <div ref={newYorkSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400 " style={{scrollBehavior: 'smooth'}}>
-              {/* Show New York communities */}
-            {newYorkLoading ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : ((newYorkCommunities as any)?.communities || []).length === 0 ? (
-              <div className="text-center text-gray-600 dark:text-gray-400 py-8 w-full">
-                <Building className="w-16 h-16 mx-auto mb-4 opacity-50" />
-                <p>No New York communities available at this time.</p>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 backdrop-blur-sm rounded-xl p-4 border border-purple-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Empire State Excellence Showcase</h3>
+                  <p className="text-sm text-gray-300">Premium metropolitan communities across New York</p>
+                </div>
               </div>
-            ) : (
-              ((newYorkCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <FeaturedExcellenceCard community={community} index={index} compact />
-                    <div className="relative">
-                      {/* Image Section with New York Theme */}
-                      <div className="h-48 bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900 dark:to-blue-900 flex items-center justify-center relative">
-                        {community.photos && community.photos.length > 0 ? (
-                          <img 
-                            src={community.photos[0]} 
-                            alt={community.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">🗽</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                      </div>
-                      
-                      {/* Badges Overlay */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                        <Badge className="bg-purple-600 text-white text-xs px-2 py-1 font-semibold">
-                          🗽 New York
+              <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white px-4 py-2 text-lg font-bold">
+                {((newYorkCommunities as any)?.communities?.length || 0)} Featured
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div ref={newYorkSliderRef} className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400" style={{scrollBehavior: 'smooth'}}>
+              {(newYorkLoading || !newYorkCommunities || !(newYorkCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-xl border border-purple-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-purple-800/50 to-indigo-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-purple-800/50 rounded"></div>
+                      <div className="h-4 bg-purple-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((newYorkCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🏙️ Empire Living"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold shadow-lg">
+                          Metropolitan Elite
                         </Badge>
-                        
-                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                          <div className="text-lg font-bold text-gray-900 dark:text-white">
-                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                            per month
-                          </div>
-                        </div>
                       </div>
                     </div>
-                      {/* Community Name & Location */}
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                          {community.name}
-                        </h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                          <span>{community.city}, NY</span>
-                        </div>
-                      </div>
-                      
-                      {/* Care Types Offered */}
-                      <div className="flex flex-wrap gap-1">
-                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                            {careType}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Essential Rental Information Grid */}
-                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                        {/* Row 1: Contact & Pets */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                {community.phone || 'Call for Info'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <span className="text-xs mt-0.5">🐾</span>
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Row 2: Availability & Age */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.ageRestriction || community.minAge || '55+'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Row 3: Room Types & Amenities */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.roomTypes || 'Studio/1BR/2BR'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                {community.amenities?.[0] || 'Full Amenities'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Bottom Metrics Bar */}
-                      <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                            {community.occupancy || '96%'}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                        </div>
-                      </div>
-
-                </Link>
-              ))
-            )}
+                  </Link>
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
+              <Link href="/map-search?state=NY">
+                <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All New York Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -1840,21 +2425,20 @@ export default function CommunityDirectory() {
             {canadianLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-72 h-[420px] border border-gray-200 animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
+                <div key={index} className="flex-shrink-0 w-72 h-[420px] bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gradient-to-br from-purple-200 to-blue-200 dark:from-gray-700 dark:to-gray-800"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                </div>
               ))
             ) : ((canadianCommunities as any)?.communities || []).length === 0 ? (
               <>
                 {/* Show promotional card when no communities available */}
                 <Link href="/search?location=canada">
-                  <Card className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group">
+                  <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-900 flex items-center justify-center">
                       <div className="text-center p-6">
                         <Flag className="w-16 h-16 text-red-600 dark:text-red-400 mx-auto mb-3" />
@@ -1866,7 +2450,7 @@ export default function CommunityDirectory() {
                         </p>
                       </div>
                     </div>
-                    <CardContent className="p-4">
+                    <div className="p-4">
                       <h3 className="font-bold text-lg mb-2 text-gray-900 dark:text-gray-100">
                         {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
                       </h3>
@@ -1902,169 +2486,14 @@ export default function CommunityDirectory() {
                         {language === 'en' ? 'Explore Canadian Communities' : 'Explorer les communautés'}
                         <ChevronRight className="ml-2 h-4 w-4" />
                       </Button>
-
+                    </div>
+                  </div>
                 </Link>
               </>
             ) : (
               ((canadianCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                 <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
-                    <div className="relative">
-                      {/* Image Section with Canadian Theme */}
-                      <div className="h-48 bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-800 flex items-center justify-center relative">
-                        {community.photos && community.photos.length > 0 ? (
-                          <img 
-                            src={community.photos[0]} 
-                            alt={community.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">🍁</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                      </div>
-                      
-                      {/* Badges Overlay */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                        <Badge className="bg-red-600 text-white text-xs px-2 py-1 font-semibold">
-                          🍁 {community.state || 'Canada'}
-                        </Badge>
-                        
-                        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                          <div className="text-lg font-bold text-gray-900 dark:text-white">
-                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()} CAD` : 
-                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()} CAD+` : 'Contact'}
-                          </div>
-                          <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                            per month
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Bilingual Badge if applicable */}
-                      {['QC', 'NB', 'ON'].includes(community.state) && (
-                        <Badge className="absolute bottom-3 right-3 bg-blue-600 text-white text-xs px-2 py-1 font-medium flex items-center gap-1">
-                          <Languages className="w-3 h-3" />
-                          {language === 'en' ? 'Bilingual' : 'Bilingue'}
-                        </Badge>
-                      )}
-                    </div>
-                      {/* Community Name & Location */}
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                          {community.name}
-                        </h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                          <span>{community.city}, {community.state}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Care Types Offered */}
-                      <div className="flex flex-wrap gap-1">
-                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                            {careType}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Essential Rental Information Grid */}
-                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                        {/* Row 1: Contact & Pets */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                {community.phone || 'Call for Info'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <span className="text-xs mt-0.5">🐾</span>
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Row 2: Availability & Age */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.ageRestriction || community.minAge || '55+'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Row 3: Room Types & Amenities */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="flex items-start gap-1">
-                            <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                {community.roomTypes || 'Studio/1BR/2BR'}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-start gap-1">
-                            <Sparkles className="h-3.5 w-3.5 text-yellow-600 flex-shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Features</div>
-                              <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                {community.amenities?.[0] || 'Full Amenities'}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Bottom Metrics Bar */}
-                      <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                            {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                            {community.occupancy || '93%'}
-                          </div>
-                          <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                        </div>
-                      </div>
+                  <FeaturedExcellenceCard community={community} index={index} compact />
 
                 </Link>
               ))
@@ -2127,166 +2556,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-cyan-300 dark:border-cyan-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Puerto Rico Theme */}
-                        <div className="h-48 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900 dark:to-blue-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🌴</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-cyan-600 text-white text-xs px-2 py-1 font-semibold">
-                            🌴 Puerto Rico
-                          </Badge>
-                          
-                          <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
-                            <div className="text-xl font-bold">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            {community.hudPropertyId && (
-                              <div className="text-xs font-medium">
-                                HUD Verified
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Caribbean Paradise Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-teal-600 text-white text-xs px-2 py-1 font-medium">
-                          🏝️ Caribbean Living
-                        </Badge>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, PR</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          ))}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '55+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Languages */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Studio/1BR/2BR'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Languages className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Languages</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  English/Español
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '92%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
                 ))}
               </div>
@@ -2361,169 +2631,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
                 {((peruCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Peru Theme */}
-                        <div className="h-48 bg-gradient-to-br from-red-100 to-yellow-100 dark:from-red-900 dark:to-yellow-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🇵🇪</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-red-600 text-white text-xs px-2 py-1 font-semibold">
-                            🇵🇪 Peru
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month USD
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Andean Living Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-yellow-600 text-white text-xs px-2 py-1 font-medium">
-                          🏞️ Andean Living
-                        </Badge>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, Peru</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          )) || (
-                            <>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">24/7 Care</Badge>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">English Staff</Badge>
-                            </>
-                          )}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '60+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Languages */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Private/Shared'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Languages className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Languages</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  Spanish/English
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '88%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
                 ))}
               </div>
@@ -2542,237 +2650,160 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* Cuba Communities - CARIBBEAN HERITAGE */}
-      <section className="px-4 py-8 bg-gradient-to-br from-blue-50 via-red-50 to-white dark:from-blue-950/30 dark:via-red-950/30 dark:to-gray-900">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                🇨🇺 Cuba Communities
-              </h2>
+      {/* Cuba Caribbean Excellence - Vintage Paradise Living */}
+      <section className="relative px-4 py-16 overflow-hidden">
+        {/* Premium Caribbean Vintage Background */}
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-red-800 to-amber-900 dark:from-blue-950 dark:via-red-900 dark:to-amber-950"></div>
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.3) 0%, transparent 50%),
+                             radial-gradient(circle at 80% 80%, rgba(220, 38, 38, 0.2) 0%, transparent 50%),
+                             radial-gradient(circle at 40% 20%, rgba(245, 158, 11, 0.2) 0%, transparent 40%)`,
+          }}></div>
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
+          {/* Premium Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+              <span className="text-5xl">🇨🇺</span>
+              <span className="bg-gradient-to-r from-blue-300 to-red-300 bg-clip-text text-transparent">
+                Cuba Caribbean Heritage
+              </span>
+            </div>
+            <p className="text-xl text-gray-200 mb-8">
+              Authentic Caribbean retirement in the Pearl of the Antilles
+            </p>
+          </div>
+
+          {/* Cuba Market Insights Box */}
+          <div className="mb-10 bg-gradient-to-br from-blue-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-blue-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Cuba Expat Intelligence & Caribbean Living Guide</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-blue-300 mb-3">Market Overview</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Average cost: $800-$2,000/month (most affordable Caribbean)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Rich cultural heritage and vibrant communities</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Year-round tropical climate (75-85°F)</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-blue-400 mt-1">•</span>
+                    <span>Growing expat communities in Havana & Varadero</span>
+                  </li>
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-blue-300 mb-3">Caribbean Living Strategies</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Casa Particular:</strong> Private homes 40% less than hotels</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Havana vs Beach:</strong> Beach towns 30% more affordable</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Long-term Stays:</strong> 6+ months saves 20-25%</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">🌴</span>
+                    <span><strong>Community Living:</strong> Shared amenities reduce costs</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-800/30 rounded-lg border border-blue-600/30">
+              <p className="text-sm text-blue-200">
+                <span className="font-semibold text-blue-300">Caribbean Pro Tip:</span> Cuba offers unique cultural immersion opportunities. 
+                Many communities include Spanish lessons, salsa dancing, and cultural exchanges as part of their programs.
+              </p>
+            </div>
+          </div>
+
+          {/* Excellence Showcase Header */}
+          <div className="mb-8 bg-gradient-to-r from-blue-900/60 to-red-900/60 backdrop-blur-sm rounded-xl p-4 border border-blue-500/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-red-500 flex items-center justify-center">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white">Caribbean Heritage Showcase</h3>
+                  <p className="text-sm text-gray-300">Authentic Cuban retirement communities</p>
+                </div>
+              </div>
+              <Badge className="bg-gradient-to-r from-blue-500 to-red-500 text-white px-4 py-2 text-lg font-bold">
+                {((cubaCommunities as any)?.communities?.length || 0)} Featured
+              </Badge>
+            </div>
+          </div>
+
+          {/* Premium Communities Display */}
+          <div className="relative">
+            <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400" style={{scrollBehavior: 'smooth'}}>
+              {(cubaLoading || !cubaCommunities || !(cubaCommunities as any)?.communities?.length) ? (
+                Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-gradient-to-br from-blue-900/50 to-red-900/50 rounded-xl border border-blue-500/30 overflow-hidden animate-pulse">
+                    <div className="h-48 bg-gradient-to-br from-blue-800/50 to-red-800/50"></div>
+                    <div className="p-4 space-y-3">
+                      <div className="h-5 bg-blue-800/50 rounded"></div>
+                      <div className="h-4 bg-blue-800/50 rounded w-3/4"></div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                ((cubaCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`cuba-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <div className="relative group">
+                      <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
+                      <div className="relative">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: "🎭 Heritage Living"
+                          }} 
+                          index={index} 
+                          compact 
+                        />
+                        {/* Premium Badge Overlay */}
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-red-500 text-white font-bold shadow-lg">
+                          Caribbean Heritage
+                        </Badge>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
+            
+            <div className="text-center mt-8">
               <Link href="/search?location=Cuba">
-                <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
-                  View All Cuba
-                  <ArrowRight className="w-4 h-4" />
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All Cuba Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
             </div>
-            <div className="flex items-center gap-6 mb-6">
-              <p className="text-gray-600 dark:text-gray-300">
-                Experience retirement in Havana, Varadero, and Trinidad with rich culture and warm hospitality
-              </p>
-              <div className="flex items-center gap-2">
-                <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">20+</div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">Communities<br/>Island-wide</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4 flex-wrap">
-              <Badge className="bg-blue-600 text-white px-3 py-1">🏖️ Caribbean Island Living</Badge>
-              <Badge className="bg-red-600 text-white px-3 py-1">🎭 Rich Cultural Heritage</Badge>
-              <Badge className="bg-green-600 text-white px-3 py-1">💚 Warm Community Spirit</Badge>
-              <Badge className="bg-yellow-600 text-white px-3 py-1">☀️ Year-Round Sunshine</Badge>
-            </div>
           </div>
-          
-          {/* Cuba Communities Display */}
-          {cubaLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <div className="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-            </div>
-          ) : !(cubaCommunities as any)?.communities?.length ? (
-            <div className="text-center text-gray-600 dark:text-gray-400">
-              <p>Loading Cuba communities...</p>
-              <Button 
-                variant="outline" 
-                className="mt-4"
-                onClick={() => setLocation('/map-search?location=Cuba')}
-              >
-                Search All Cuba Communities
-              </Button>
-            </div>
-          ) : (
-            <div className="relative">
-              <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
-                {((cubaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
-                  <Link key={`cu-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Cuba Theme */}
-                        <div className="h-48 bg-gradient-to-br from-blue-100 to-red-100 dark:from-blue-900 dark:to-red-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🇨🇺</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-blue-600 text-white text-xs px-2 py-1 font-semibold">
-                            🇨🇺 Cuba
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month USD
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Caribbean Heritage Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
-                          🎭 Cultural Heritage
-                        </Badge>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, Cuba</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          )) || (
-                            <>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">Healthcare</Badge>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">Cultural Activities</Badge>
-                            </>
-                          )}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '60+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Languages */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Private/Shared'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Languages className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Languages</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  Spanish/English
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '91%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
-                  </Link>
-                ))}
-              </div>
-              
-              <div className="text-center mt-6">
-                <Button 
-                  variant="outline" 
-                  className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/map-search?location=Cuba')}
-                >
-                  Explore All Cuba Communities
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
       </section>
 
@@ -2825,169 +2856,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
                 {((costaRicaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-green-300 dark:border-green-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Costa Rica Theme */}
-                        <div className="h-48 bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🇨🇷</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
-                            🇨🇷 Costa Rica
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month USD
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Paradise Living Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-green-600 text-white text-xs px-2 py-1 font-medium">
-                          🌴 Paradise Living
-                        </Badge>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, Costa Rica</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          )) || (
-                            <>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">Healthcare</Badge>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">Expat Community</Badge>
-                            </>
-                          )}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '55+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Languages */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Studio/1BR/2BR'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Languages className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Languages</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  Spanish/English
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '95%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
                 ))}
               </div>
@@ -3055,169 +2924,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
                 {((panamaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                   <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-blue-300 dark:border-blue-600 rounded-xl h-[520px]">
-                      <div className="relative">
-                        {/* Image Section with Panama Theme */}
-                        <div className="h-48 bg-gradient-to-br from-blue-100 to-red-100 dark:from-blue-900 dark:to-red-900 flex items-center justify-center relative">
-                          {community.photos && community.photos.length > 0 ? (
-                            <img 
-                              src={community.photos[0]} 
-                              alt={community.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="text-center">
-                              <div className="text-4xl mb-2">🇵🇦</div>
-                              <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                              <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                            </div>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                        </div>
-                        
-                        {/* Badges Overlay */}
-                        <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                          <Badge className="bg-blue-600 text-white text-xs px-2 py-1 font-semibold">
-                            🇵🇦 Panama
-                          </Badge>
-                          
-                          <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg border border-gray-200 dark:border-gray-700">
-                            <div className="text-lg font-bold text-gray-900 dark:text-white">
-                              {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                               community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                            </div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                              per month USD
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Pensionado Paradise Badge */}
-                        <Badge className="absolute bottom-3 right-3 bg-orange-600 text-white text-xs px-2 py-1 font-medium">
-                          🏝️ Pensionado Paradise
-                        </Badge>
-                      </div>
-                      
-                      {/* Standardized Card Body with Essential Rental Information */}
-                      <CardContent className="p-4 space-y-3">
-                        {/* Community Name & Location */}
-                        <div>
-                          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                            {community.name}
-                          </h3>
-                          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                            <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                            <span>{community.city}, Panama</span>
-                          </div>
-                        </div>
-                        
-                        {/* Care Types Offered */}
-                        <div className="flex flex-wrap gap-1">
-                          {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                            <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                              {careType}
-                            </Badge>
-                          )) || (
-                            <>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">Healthcare</Badge>
-                              <Badge variant="outline" className="text-xs px-2 py-0.5">US Standards</Badge>
-                            </>
-                          )}
-                        </div>
-                        
-                        {/* Essential Rental Information Grid */}
-                        <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                          {/* Row 1: Contact & Pets */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Phone className="h-3.5 w-3.5 text-blue-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Contact</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium truncate">
-                                  {community.phone || 'Call for Info'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <span className="text-xs mt-0.5">🐾</span>
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Pets</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.petPolicy || community.petsAllowed ? 'Allowed' : community.petPolicy === false ? 'No Pets' : 'Ask'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 2: Availability & Age */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <CheckCircle className="h-3.5 w-3.5 text-green-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Available</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.availableUnits ? `${community.availableUnits} Units` : 'Contact'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <UserCheck className="h-3.5 w-3.5 text-purple-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Age</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.ageRestriction || community.minAge || '55+'}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          {/* Row 3: Room Types & Languages */}
-                          <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-start gap-1">
-                              <Hotel className="h-3.5 w-3.5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Room Types</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  {community.roomTypes || 'Private/Shared'}
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-start gap-1">
-                              <Languages className="h-3.5 w-3.5 text-cyan-600 flex-shrink-0 mt-0.5" />
-                              <div className="flex-1">
-                                <div className="text-[10px] font-semibold text-gray-600 dark:text-gray-400">Languages</div>
-                                <div className="text-xs text-gray-900 dark:text-white font-medium">
-                                  Spanish/English
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Bottom Metrics Bar */}
-                        <div className="grid grid-cols-3 gap-2 py-2 border-t border-gray-100 dark:border-gray-800">
-                          <div className="text-center">
-                            <div className="flex items-center justify-center">
-                              <Star className="h-3.5 w-3.5 text-yellow-500 mr-0.5" />
-                              <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                                {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                              </div>
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Rating</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Total Units</div>
-                          </div>
-                          <div className="text-center">
-                            <div className="text-xs font-semibold text-gray-900 dark:text-white">
-                              {community.occupancy || '94%'}
-                            </div>
-                            <div className="text-[10px] text-gray-500 dark:text-gray-400">Occupancy</div>
-                          </div>
-                        </div>
+                    <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
                 ))}
               </div>
@@ -3273,144 +2980,19 @@ export default function CommunityDirectory() {
             {mexicoLoading ? (
               // Loading skeleton cards
               Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden flex-shrink-0 w-80 h-[520px] border border-gray-200 animate-pulse">
-                  <div className="h-48 bg-gray-200"></div>
-                  <CardContent className="p-3">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
+                <div key={index} className="flex-shrink-0 w-80 h-[520px] bg-white dark:bg-gray-900 rounded-xl border-2 border-gray-200 dark:border-gray-700 overflow-hidden animate-pulse">
+                  <div className="h-48 bg-gradient-to-br from-green-200 to-emerald-200 dark:from-gray-700 dark:to-gray-800"></div>
+                  <div className="p-4 space-y-3">
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+                  </div>
+                </div>
               ))
             ) : (
               ((mexicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
                 <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <Card className="w-80 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border-2 border-red-300 dark:border-red-600 rounded-xl h-[520px]">
-                    <div className="relative">
-                      {/* Image Section with Mexico Theme */}
-                      <div className="h-48 bg-gradient-to-br from-green-100 to-red-100 dark:from-green-900 dark:to-red-900 flex items-center justify-center relative">
-                        {community.photos && community.photos.length > 0 ? (
-                          <img 
-                            src={community.photos[0]} 
-                            alt={community.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="text-center">
-                            <div className="text-4xl mb-2">🌵</div>
-                            <div className="text-sm font-medium text-gray-800 dark:text-gray-200">Photos Coming Soon</div>
-                            <div className="text-xs text-gray-600 dark:text-gray-400">Verifying authentic images</div>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
-                      </div>
-                      
-                      {/* Badges Overlay */}
-                      <div className="absolute top-3 left-3 right-3 flex justify-between items-start">
-                        <Badge className="bg-green-600 text-white text-xs px-2 py-1 font-semibold">
-                          🌵 {community.state || 'Mexico'}
-                        </Badge>
-                        
-                        <div className="bg-blue-700 text-white rounded-lg px-4 py-2 shadow-lg">
-                          <div className="text-xl font-bold">
-                            {community.rentPerMonth ? `$${Number(community.rentPerMonth).toLocaleString()}` : 
-                             community.priceRange?.min ? `$${Number(community.priceRange.min).toLocaleString()}+` : 'Contact'}
-                          </div>
-                          {community.hudPropertyId && (
-                            <div className="text-xs font-medium">
-                              HUD Verified
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* Expat Paradise Badge */}
-                      <Badge className="absolute bottom-3 right-3 bg-red-600 text-white text-xs px-2 py-1 font-medium">
-                        ✨ Expat Paradise
-                      </Badge>
-                    </div>
-                    
-                    {/* Card Body with Critical Information */}
-                    <CardContent className="p-4 space-y-3">
-                      <div>
-                        <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-1 mb-1">
-                          {community.name}
-                        </h3>
-                        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                          <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                          <span>{community.city}, {community.state || 'MX'}</span>
-                        </div>
-                      </div>
-                      
-                      {/* Care Types */}
-                      <div className="flex flex-wrap gap-1">
-                        {community.careTypes?.slice(0, 2).map((careType: string, idx: number) => (
-                          <Badge key={idx} variant="outline" className="text-xs px-2 py-0.5">
-                            {careType}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      {/* Critical Information */}
-                      <div className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
-                        {/* Phone Number */}
-                        <div className="flex items-start gap-2">
-                          <svg className="h-4 w-4 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                          </svg>
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Contact:</div>
-                            <div className="text-sm text-gray-900 dark:text-white font-medium">
-                              {community.phone || 'Call for Info'}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Language Support */}
-                        <div className="flex items-start gap-2">
-                          <Languages className="h-4 w-4 text-red-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Languages:</div>
-                            <div className="text-sm text-gray-900 dark:text-white font-medium">
-                              English / Español
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Cost of Living Advantage */}
-                        <div className="flex items-start gap-2">
-                          <DollarSign className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
-                          <div className="flex-1">
-                            <div className="text-xs font-semibold text-gray-700 dark:text-gray-300">Cost Advantage:</div>
-                            <div className="text-sm text-gray-900 dark:text-white font-medium">
-                              30-50% Lower Cost
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Key Metrics */}
-                      <div className="grid grid-cols-2 gap-3 py-2 border-t border-gray-100 dark:border-gray-800">
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Star className="h-4 w-4 text-yellow-500 mr-1" />
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {community.rating ? parseFloat(community.rating).toFixed(1) : 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Rating</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="flex items-center justify-center">
-                            <Building className="h-4 w-4 text-blue-500 mr-1" />
-                            <div className="text-sm font-semibold text-gray-900 dark:text-white">
-                              {community.totalUnits || community.totalUnitsHud || 'N/A'}
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-500 dark:text-gray-400">Units</div>
-                        </div>
-                      </div>
+                  <FeaturedExcellenceCard community={community} index={index} compact />
 
                 </Link>
               ))

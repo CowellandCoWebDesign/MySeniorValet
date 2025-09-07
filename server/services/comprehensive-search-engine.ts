@@ -5,7 +5,7 @@
 
 import { db } from '../db';
 import { communities, healthcareServiceTypes } from '@shared/schema';
-import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull } from 'drizzle-orm';
+import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull, not } from 'drizzle-orm';
 
 export interface SearchFilters {
   careTypes?: string[];
@@ -66,6 +66,12 @@ export class ComprehensiveSearchEngine {
     console.log(`🔍 Total conditions built: ${conditions.length}, searchType: ${searchType}, isHealthcare: ${isHealthcareSearch}`);
     
 
+    // CRITICAL: Only show active communities (excludes contaminated/fake entries)
+    // All fake entries have been marked as is_active = false in the database
+    const activeFilter = sql`is_active = true`;
+    
+    // Add active filter to existing conditions
+    conditions.push(activeFilter);
     
     // Execute main search
     let searchQuery = db.select().from(communities);
@@ -93,36 +99,28 @@ export class ComprehensiveSearchEngine {
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
     
-    // GRACEFUL FALLBACK: If we have filters but too few results, show location-only results
-    let fallbackApplied = false;
-    let fallbackMessage = '';
+    // DISCOVERY MODE: Use AI only when NO results are found
+    let discoveryMode = false;
+    let discoveryMessage = '';
+    let aiSuggestions: any = null;
     
-    if (hasFilters && totalResults < 5) {
-      console.log('Applying graceful fallback - too few results with filters');
+    // Activate Discovery Mode ONLY when we have ZERO results
+    // Don't trigger for valid searches that found 1-2 specific communities
+    if (totalResults === 0 && query && query.trim() !== '') {
+      console.log(`🔍 Activating Discovery Mode for query: "${query}" (no results found)`);
+      discoveryMode = true;
       
-      // Build location-only conditions
-      const locationOnlyConditions = await this.buildLocationConditions(query);
+      // Only keep the existing database results - don't add random locations
+      // AI suggestions will be provided separately
       
-      if (locationOnlyConditions.length > 0) {
-        // Re-run search with only location filters
-        let fallbackQuery = db.select().from(communities)
-          .where(and(...locationOnlyConditions));
-        
-        fallbackQuery = this.applySorting(fallbackQuery, 'location', query);
-        
-        results = await fallbackQuery
-          .limit(limit)
-          .offset(offset);
-        
-        // Get new count
-        const fallbackCountQuery = db.select({ count: sql`count(*)` }).from(communities)
-          .where(and(...locationOnlyConditions));
-        [{ count }] = await fallbackCountQuery;
-        totalResults = parseInt(count.toString());
-        
-        fallbackApplied = true;
-        fallbackMessage = "Oh no! We didn't find many communities matching all your filters, but here's what we found in your area! Most detailed information (pricing, amenities, photos) becomes available when you click on a community through our live enrichment system.";
+      if (totalResults === 0) {
+        discoveryMessage = "🔮 Discovery Mode Activated: We're using AI to find communities that match your search. Click on any result to see live pricing and availability.";
+      } else {
+        discoveryMessage = `🔮 Discovery Mode Enhanced: Found ${totalResults} direct match${totalResults === 1 ? '' : 'es'}. Using AI to discover additional options for you.`;
       }
+      
+      // We'll integrate Perplexity AI suggestions later in the response
+      // This prevents random locations from appearing
     }
     
     // Build facets for filtering
@@ -145,6 +143,53 @@ export class ComprehensiveSearchEngine {
       healthcareTypeFacets = healthcareResults.facets;
     }
     
+    // DISCOVERY MODE AI INTEGRATION
+    if (discoveryMode) {
+      try {
+        // Import Perplexity service for Discovery Mode
+        const { perplexityService } = await import('../perplexity-ai-service');
+        
+        // Construct intelligent search query for AI
+        let aiQuery = `Find senior living communities `;
+        if (query.includes(',')) {
+          aiQuery += `in ${query}`;
+        } else {
+          aiQuery += `matching "${query}"`;
+        }
+        
+        // Add filter context to AI query
+        if (filters.careTypes && filters.careTypes.length > 0) {
+          aiQuery += ` offering ${filters.careTypes.join(' or ')}`;
+        }
+        if (filters.priceMin || filters.priceMax) {
+          if (filters.priceMin && filters.priceMax) {
+            aiQuery += ` with pricing between $${filters.priceMin} and $${filters.priceMax} per month`;
+          } else if (filters.priceMin) {
+            aiQuery += ` starting from $${filters.priceMin} per month`;
+          } else {
+            aiQuery += ` under $${filters.priceMax} per month`;
+          }
+        }
+        
+        aiQuery += '. 🌍 Search worldwide - include communities from any country (USA, Canada, Australia, UK, Europe, Asia, etc.). Include contact information, websites, and specify the country/location for each community found.';
+        
+        console.log(`🤖 Discovery Mode Query: ${aiQuery}`);
+        
+        // Get AI-powered suggestions
+        const aiResponse = await perplexityService.searchRealTime(aiQuery);
+        aiSuggestions = {
+          summary: aiResponse.summary,
+          sources: aiResponse.sources,
+          images: aiResponse.images
+        };
+        
+        console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
+      } catch (error) {
+        console.error('Discovery Mode error:', error);
+        // Continue without AI suggestions if there's an error
+      }
+    }
+    
     return {
       communities: results,
       healthcareServices,
@@ -155,10 +200,9 @@ export class ComprehensiveSearchEngine {
         filters,
         processingTime: Date.now() - startTime,
         suggestions,
-
-        fallbackApplied,
-        fallbackMessage: fallbackApplied ? fallbackMessage : undefined,
-        originalFiltersRequested: fallbackApplied ? originalFilters : undefined,
+        discoveryMode: discoveryMode as any,
+        discoveryMessage: discoveryMode ? discoveryMessage : undefined as any,
+        aiSuggestions: discoveryMode ? aiSuggestions : undefined as any,
         includesHealthcare: isHealthcareSearch
       },
       facets: {
@@ -184,27 +228,56 @@ export class ComprehensiveSearchEngine {
       
       console.log(`Query: "${query}" | Intent scores:`, intentScores, `| Dominant: ${dominantIntent}`);
       
+      // Check if this looks like a specific community name BEFORE applying location logic
+      // Community names often contain city names (e.g., "San Diego Senior Manor", "Redwood Lodge - Fremont, CA")
+      const communityNameKeywords = [
+        'manor', 'estates', 'village', 'residence', 'living', 'senior', 'care', 
+        'home', 'center', 'community', 'lodge', 'plaza', 'terrace', 'gardens',
+        'court', 'place', 'park', 'villa', 'oaks', 'pines', 'meadows', 'ridge',
+        'haven', 'house', 'assisted', 'memory', 'nursing', 'retirement', 'heights',
+        'grove', 'pointe', 'crossing', 'commons', 'towers', 'square', 'club'
+      ];
+      
+      // Check if query contains community name keywords OR has specific patterns
+      // Don't treat simple "City, State" patterns as community names
+      const isCityStatePattern = /^[a-zA-Z\s]+,\s*[A-Z]{2}$/i.test(query.trim());
+      const looksLikeCommunityName = !isCityStatePattern && (
+        communityNameKeywords.some(keyword => normalizedQuery.includes(keyword)) ||
+        normalizedQuery.includes(' - ') // Common pattern: "Name - City, State"
+      );
+      
       // Apply conditions based on ALL detected intents (not just dominant)
       let isCountrySearch = false;
       
-      if (intentScores.location >= 0.3) {
-        const locationConditions = await this.buildLocationConditions(normalizedQuery);
-        console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+      // Only apply location search if it doesn't look like a community name
+      if (intentScores.location >= 0.3 && !looksLikeCommunityName) {
+        // Check if this is an international location query first
+        const isInternational = this.detectInternationalQuery(normalizedQuery);
         
-        // Only add location conditions if they exist
-        if (locationConditions.length > 0) {
-          // Combine multiple location conditions with OR, not AND
-          if (locationConditions.length > 1) {
-            conditions.push(or(...locationConditions));
-            console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
-          } else {
-            conditions.push(...locationConditions);
-            console.log(`🔍 Added single location condition`);
+        if (isInternational) {
+          // For international queries, add a condition that won't match to trigger Discovery Mode
+          conditions.push(eq(communities.country, 'TRIGGER_DISCOVERY_MODE'));
+          console.log(`🌍 International location detected, triggering Discovery Mode for: ${normalizedQuery}`);
+          searchType = 'international';
+        } else {
+          const locationConditions = await this.buildLocationConditions(normalizedQuery);
+          console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+          
+          // Only add location conditions if they exist
+          if (locationConditions.length > 0) {
+            // Combine multiple location conditions with OR, not AND
+            if (locationConditions.length > 1) {
+              conditions.push(or(...locationConditions));
+              console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
+            } else {
+              conditions.push(...locationConditions);
+              console.log(`🔍 Added single location condition`);
+            }
           }
+          // Check if this was a country search
+          isCountrySearch = (locationConditions as any).__isCountrySearch;
+          console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
         }
-        // Check if this was a country search
-        isCountrySearch = (locationConditions as any).__isCountrySearch;
-        console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
       }
       
       if (intentScores.careType > 0.3) {
@@ -227,34 +300,96 @@ export class ComprehensiveSearchEngine {
         console.log(`🔍 Added company search conditions for "${normalizedQuery}"`);
       }
       
-      // CRITICAL FIX: Always search by community name to find specific communities
-      // This ensures searches like "Hilltop Estates" always work
-      const nameSearchCondition = ilike(communities.name, `%${normalizedQuery}%`);
+      // PRIORITY 1: ALWAYS check for exact or partial community name matches FIRST
+      // This is the most important search - users often search for specific communities
+      const nameConditions = [];
       
-      // If no specific intent detected strongly AND not a country search, use general search
-      // BUT don't add general search if we already added location conditions
-      const hasLocationConditions = intentScores.location >= 0.3;
-      const hasCompanyConditions = intentScores.company > 0.3;
+      // Check if query follows "Name - City, State" pattern
+      let searchQuery = normalizedQuery;
+      let extractedLocation = null;
+      if (normalizedQuery.includes(' - ')) {
+        const parts = normalizedQuery.split(' - ');
+        searchQuery = parts[0].trim(); // Extract just the community name part
+        extractedLocation = parts[1]?.trim(); // Extract the location part
+        console.log(`🔍 Extracted community name: "${searchQuery}" from location format: "${normalizedQuery}"`);
+      }
       
-      if (!hasCompanyConditions) {
-        // Always include name search unless we already added it via company search
-        if (Math.max(...Object.values(intentScores)) < 0.4 && !isCountrySearch && !hasLocationConditions) {
-          // Full general search for low-intent queries
-          conditions.push(
-            or(
-              nameSearchCondition,
-              ilike(communities.city, `%${normalizedQuery}%`),
-              ilike(communities.state, `%${normalizedQuery}%`),
-              ilike(communities.managementCompany, `%${normalizedQuery}%`),
-              ilike(communities.address, `%${normalizedQuery}%`)
+      // 1. Exact match (highest priority)
+      nameConditions.push(ilike(communities.name, searchQuery));
+      
+      // 2. Starts with (high priority for partial searches)
+      nameConditions.push(ilike(communities.name, `${searchQuery}%`));
+      
+      // 3. Contains (catches all partial matches)
+      nameConditions.push(ilike(communities.name, `%${searchQuery}%`));
+      
+      // 4. Word boundary matching (for multi-word searches)
+      const queryWords = searchQuery.split(/\s+/);
+      if (queryWords.length > 1) {
+        // Match any community that contains all words (in any order)
+        const wordConditions = queryWords.map(word => 
+          ilike(communities.name, `%${word}%`)
+        );
+        nameConditions.push(and(...wordConditions));
+        
+        // Also search for the exact phrase in community names
+        const exactPhrase = queryWords.join(' ');
+        nameConditions.push(ilike(communities.name, `%${exactPhrase}%`));
+      }
+      
+      // If we extracted a location, add it as an additional filter
+      if (extractedLocation) {
+        const locationParts = extractedLocation.split(',').map(part => part.trim());
+        const cityName = locationParts[0];
+        const stateName = locationParts[1];
+        
+        if (cityName) {
+          nameConditions.push(
+            and(
+              ilike(communities.name, `%${searchQuery}%`),
+              ilike(communities.city, `%${cityName}%`)
             )
           );
-          console.log(`🔍 Added general search conditions for "${normalizedQuery}"`);
-        } else {
-          // For high-intent queries, still add name search to ensure we find specific communities
-          conditions.push(nameSearchCondition);
-          console.log(`🔍 Added name search condition for "${normalizedQuery}" to ensure specific communities are found`);
         }
+        
+        if (stateName) {
+          nameConditions.push(
+            and(
+              ilike(communities.name, `%${searchQuery}%`),
+              or(
+                ilike(communities.state, stateName),
+                ilike(communities.state, `%${stateName}%`)
+              )
+            )
+          );
+        }
+      }
+      
+      // Check if we have name matches BEFORE applying other conditions
+      const nameSearchCondition = or(...nameConditions);
+      
+      // PRIORITY: Only add name search if it looks like a community name or isn't clearly a location
+      const hasCompanyConditions = intentScores.company > 0.3;
+      const hasLocationConditions = intentScores.location >= 0.3 && !looksLikeCommunityName;
+      
+      // Only add name search if:
+      // 1. It looks like a community name
+      // 2. OR it's not clearly a location search
+      // 3. OR no other conditions were added
+      if (looksLikeCommunityName) {
+        // This looks like a community name, prioritize name search
+        conditions.push(
+          or(
+            nameSearchCondition,
+            // Also search in management company as fallback
+            ilike(communities.managementCompany, `%${normalizedQuery}%`)
+          )
+        );
+        console.log(`🔍 Added PRIMARY name search for potential community: "${normalizedQuery}"`);
+      } else if (!hasLocationConditions && !hasCompanyConditions && conditions.length === 0) {
+        // No other clear intent and no conditions added, add name search as fallback
+        conditions.push(nameSearchCondition);
+        console.log(`🔍 Added fallback name search for "${normalizedQuery}"`);
       }
       
       searchType = dominantIntent;
@@ -287,13 +422,34 @@ export class ComprehensiveSearchEngine {
     
     // Location intent patterns
     const locationPatterns = [
-      /^[a-zA-Z\s]+,\s*[A-Z]{2}$/,     // "Sacramento, CA" - ONLY if it has comma and state
+      /^[a-zA-Z\s]+,\s*[A-Za-z]{2,}$/i,  // "Sacramento, CA" or "Toronto, Ontario" - City, State/Province
       /^\d{5}(-\d{4})?$/,              // ZIP codes
       /\b(in|near|around)\s+/,         // "memory care in Sacramento"
       /\b(city|state|county|zip)\b/,
       /\b(california|texas|florida|new york|illinois|ohio|pennsylvania|arizona|georgia|north carolina|michigan|new jersey|virginia|washington|massachusetts|indiana|tennessee|missouri|maryland|wisconsin|minnesota|colorado|alabama|south carolina|louisiana|kentucky|oregon|oklahoma|connecticut|iowa|mississippi|arkansas|utah|kansas|nevada|new mexico|nebraska|west virginia|idaho|hawaii|maine|new hampshire|rhode island|montana|delaware|south dakota|alaska|north dakota|vermont|wyoming)\b/i,  // State names
       /\b(sacramento|los angeles|san francisco|san diego|chicago|houston|phoenix|philadelphia|san antonio|dallas|san jose|austin|jacksonville|columbus|charlotte|detroit|el paso|memphis|seattle|denver|washington|boston|nashville|baltimore|oklahoma city|louisville|portland|las vegas|milwaukee|albuquerque|tucson|fresno|mesa|atlanta|kansas city|colorado springs|miami|raleigh|omaha|long beach|virginia beach|oakland|minneapolis|tulsa|arlington|tampa|new orleans)\b/i  // Major cities
     ];
+    
+    // Check for international locations separately with higher priority
+    const internationalLocationPatterns = [
+      /\b(sydney|melbourne|brisbane|perth|adelaide|auckland|wellington|christchurch)\b/i, // Australia/NZ cities
+      /\b(london|manchester|birmingham|liverpool|edinburgh|glasgow|cardiff|belfast)\b/i, // UK cities
+      /\b(toronto|vancouver|montreal|calgary|ottawa|edmonton|winnipeg|quebec)\b/i, // Canadian cities
+      /\b(cancun|mexico city|guadalajara|monterrey|tijuana|puerto vallarta|cabo)\b/i, // Mexican cities
+      /\b(paris|marseille|lyon|toulouse|nice|bordeaux|strasbourg)\b/i, // French cities
+      /\b(tokyo|osaka|kyoto|yokohama|nagoya|sapporo|kobe|fukuoka)\b/i, // Japanese cities
+      /\b(beijing|shanghai|guangzhou|shenzhen|hong kong|taipei|singapore)\b/i, // Asian cities
+      /\b(moscow|st petersburg|dubai|abu dhabi|tel aviv|jerusalem|cairo)\b/i, // Other international
+      /\b(berlin|munich|hamburg|cologne|frankfurt|stuttgart|dusseldorf)\b/i, // German cities
+      /\b(madrid|barcelona|valencia|seville|bilbao|malaga)\b/i, // Spanish cities
+      /\b(rome|milan|naples|turin|florence|venice|bologna)\b/i, // Italian cities
+      /\b(amsterdam|rotterdam|brussels|zurich|vienna|stockholm|oslo|copenhagen)\b/i // European cities
+    ];
+    
+    // Check international locations first (higher priority)
+    internationalLocationPatterns.forEach(pattern => {
+      if (pattern.test(query)) scores.location += 0.6; // Higher score for international cities
+    });
     
     // Care type intent patterns  
     const careTypePatterns = [
@@ -401,154 +557,136 @@ export class ComprehensiveSearchEngine {
   private async buildLocationConditions(query: string): Promise<any[]> {
     const conditions: any[] = [];
     
-    // Handle "City, State" format (e.g., "Miami, Florida" or "Miami, FL")
+    // 🌍 GLOBAL LOCATIONS - Support worldwide search
+    const GLOBAL_REGIONS = {
+      // US States
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC', 'dc': 'DC',
+      // Canadian Provinces
+      'ontario': 'ON', 'quebec': 'QC', 'british columbia': 'BC', 'alberta': 'AB',
+      'manitoba': 'MB', 'saskatchewan': 'SK', 'nova scotia': 'NS', 'new brunswick': 'NB',
+      'newfoundland': 'NL', 'prince edward island': 'PE', 'northwest territories': 'NT',
+      'yukon': 'YT', 'nunavut': 'NU',
+      // Australian States
+      'new south wales': 'NSW', 'victoria': 'VIC', 'queensland': 'QLD', 
+      'western australia': 'WA', 'south australia': 'SA', 'tasmania': 'TAS',
+      'australian capital territory': 'ACT', 'northern territory': 'NT'
+    };
+    
+    // Country mappings for international search
+    const COUNTRY_CODES = {
+      'united states': 'US', 'usa': 'US', 'america': 'US',
+      'canada': 'CA', 'australia': 'AU', 'united kingdom': 'UK', 'uk': 'UK',
+      'mexico': 'MX', 'japan': 'JP', 'germany': 'DE', 'france': 'FR',
+      'italy': 'IT', 'spain': 'ES', 'netherlands': 'NL', 'belgium': 'BE',
+      'switzerland': 'CH', 'sweden': 'SE', 'norway': 'NO', 'denmark': 'DK',
+      'new zealand': 'NZ', 'singapore': 'SG', 'ireland': 'IE', 'israel': 'IL'
+    };
+    
+    // Handle "City, State/Country" format (e.g., "Sydney, Australia" or "Miami, FL")
     if (query.includes(',')) {
-      const [city, state] = query.split(',').map(s => s.trim());
-      console.log(`🔍 Parsing location: city="${city}", state="${state}"`);
+      const [city, region] = query.split(',').map(s => s.trim());
+      console.log(`🌍 Parsing global location: city="${city}", region="${region}"`);
       
-      // Build condition for city and state - simplified approach
-      const stateUpper = state.toUpperCase();
+      // Check if it's a state/province code
+      const regionCode = (GLOBAL_REGIONS as any)[region.toLowerCase()] || region.toUpperCase();
       
-      // Use a single condition that works
-      conditions.push(
-        and(
-          ilike(communities.city, `%${city}%`),
-          eq(communities.state, stateUpper) // Most states in DB are uppercase abbreviations
-        )
-      );
+      // Check if it's a country
+      const countryCode = (COUNTRY_CODES as any)[region.toLowerCase()];
       
-      console.log(`🔍 Added city-state condition for "${city}" in state="${stateUpper}"`);
-      return conditions; // Return early to avoid adding extra conditions
-    }
-    // ZIP code
-    else if (query.match(/^\d{5}/)) {
-      conditions.push(ilike(communities.zipCode, `${query}%`));
-    }
-    // General location - be more inclusive
-    else {
-      // Split query to handle multi-word locations better
-      const words = query.toLowerCase().split(/\s+/);
-      
-      // Check for state names and abbreviations
-      const stateAbbreviations: Record<string, string> = {
-        'alaska': 'AK', 'alabama': 'AL', 'arkansas': 'AR', 'arizona': 'AZ',
-        'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT',
-        'delaware': 'DE', 'florida': 'FL', 'georgia': 'GA',
-        'hawaii': 'HI', 'iowa': 'IA', 'idaho': 'ID', 'illinois': 'IL',
-        'indiana': 'IN', 'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA',
-        'massachusetts': 'MA', 'maryland': 'MD', 'maine': 'ME', 'michigan': 'MI',
-        'minnesota': 'MN', 'missouri': 'MO', 'mississippi': 'MS', 'montana': 'MT',
-        'north carolina': 'NC', 'north dakota': 'ND', 'nebraska': 'NE',
-        'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM',
-        'nevada': 'NV', 'new york': 'NY', 'ohio': 'OH', 'oklahoma': 'OK',
-        'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI',
-        'south carolina': 'SC', 'south dakota': 'SD', 'tennessee': 'TN',
-        'texas': 'TX', 'utah': 'UT', 'virginia': 'VA', 'vermont': 'VT',
-        'washington': 'WA', 'wisconsin': 'WI', 'west virginia': 'WV', 'wyoming': 'WY'
-      };
-      
-      // Check if query contains a state name
-      let stateCode = null;
-      let cityName = query;
-      
-      // Country mapping for international search (matches database format)
-      const countryMapping: Record<string, string> = {
-        'canada': 'CA',
-        'australia': 'AU', 
-        'mexico': 'Mexico',
-        'japan': 'Japan',
-        'united states': 'US',
-        'usa': 'US',
-        'us': 'US'
-      };
-      
-      // Check for countries first
-      let countryCode = null;
-      const lowerQuery = query.toLowerCase().trim();
-      for (const [countryName, code] of Object.entries(countryMapping)) {
-        if (lowerQuery === countryName) {
-          countryCode = code;
-          break;
-        }
-      }
-      
-      // If it's a country search, handle differently
       if (countryCode) {
-        console.log(`🌍 Country search detected: "${query}" → "${countryCode}"`);
-        conditions.push(eq(communities.country, countryCode));
-        // Mark this as a specific country search to avoid general fallback
-        (conditions as any).__isCountrySearch = true;
-        return conditions;
-      }
-
-      // Check each state name
-      for (const [stateName, code] of Object.entries(stateAbbreviations)) {
-        if (query.toLowerCase().includes(stateName)) {
-          stateCode = code;
-          // Extract city name by removing state from query
-          cityName = query.toLowerCase().replace(stateName, '').trim();
-          break;
-        }
-      }
-      
-      // Build flexible conditions
-      const locationConditions = [];
-      
-      // If we have both city and state, search for that combination
-      if (stateCode && cityName) {
-        locationConditions.push(
+        // City, Country search
+        conditions.push(
           and(
-            ilike(communities.city, `%${cityName}%`),
-            ilike(communities.state, stateCode)  // Use state abbreviation
+            ilike(communities.city, `%${city}%`),
+            or(
+              eq(communities.country, countryCode),
+              ilike(communities.country, `%${region}%`)
+            )
           )
         );
-        // Also add fallback to just search the city
-        locationConditions.push(ilike(communities.city, `%${cityName}%`));
-      }
-      
-      // Enhanced location search with international administrative divisions
-      locationConditions.push(
-        ilike(communities.city, `%${query}%`),
-        ilike(communities.state, `%${query}%`),
-        ilike(communities.name, `%${query}%`)  // Community names
-      );
-      
-      // Enhanced county/administrative division search
-      // Handle variations: "Harris County", "Orange County", "Cook County" etc.
-      const countyVariations = [
-        query,  // Exact query
-        query.replace(/\s+county$/i, ''),  // Remove "County" suffix
-        query.replace(/\s+parish$/i, ''),  // Remove "Parish" suffix (Louisiana)
-        query.replace(/\s+borough$/i, ''), // Remove "Borough" suffix (Alaska, NYC)
-        `${query.replace(/\s+(county|parish|borough)$/i, '')} County`, // Add County if missing
-      ];
-      
-      const countyConditions = countyVariations.map(variation => 
-        ilike(communities.county, `%${variation}%`)
-      );
-      locationConditions.push(or(...countyConditions));
-      
-      // International administrative divisions
-      // Canada: Provinces, Territories
-      // Australia: States, Territories  
-      // Mexico: States (Estados)
-      // Japan: Prefectures
-      if (query.toLowerCase().includes('province') || 
-          query.toLowerCase().includes('territory') || 
-          query.toLowerCase().includes('prefecture') ||
-          query.toLowerCase().includes('estado')) {
-        locationConditions.push(
-          ilike(communities.state, `%${query}%`),
-          ilike(communities.county, `%${query}%`)
+        console.log(`🌍 Added global city-country condition for "${city}" in "${region}"`);
+      } else {
+        // City, State/Province search
+        conditions.push(
+          or(
+            and(
+              ilike(communities.city, `%${city}%`),
+              ilike(communities.state, `%${regionCode}%`)
+            ),
+            and(
+              ilike(communities.city, `%${city}%`),
+              ilike(communities.state, `%${region}%`)
+            )
+          )
         );
+        console.log(`🌍 Added global city-state condition for "${city}" in region="${region}"`);
       }
+      return conditions;
+    }
+    // Postal codes (ZIP, postcodes, etc.) - Must contain at least one digit
+    else if (query.match(/^\d{5}(-\d{4})?$/) || (query.match(/\d/) && query.match(/^[\d\w\s-]+$/) && query.length >= 3 && query.length <= 10)) {
+      conditions.push(
+        ilike(communities.zipCode, `%${query}%`)
+      );
+      console.log(`🌍 Added global postal code search for "${query}"`);
+    }
+    // General location - could be city, state, or country anywhere in the world
+    else {
+      const queryLower = query.toLowerCase().trim();
       
-      // Add state abbreviation condition if we found one
-      if (stateCode) {
-        locationConditions.push(ilike(communities.state, stateCode));
+      // Check if it's a known country
+      const countryCode = (COUNTRY_CODES as any)[queryLower];
+      if (countryCode) {
+        conditions.push(
+          or(
+            eq(communities.country, countryCode),
+            ilike(communities.country, `%${query}%`)
+          )
+        );
+        console.log(`🌍 Added country search for "${query}"`);
+      } else {
+        // Global search - prioritize exact city matches first
+        // For city searches like "Atlanta", we want communities IN Atlanta, not with Atlanta in the name
+        const stateCode = (GLOBAL_REGIONS as any)[queryLower];
+        
+        if (stateCode) {
+          // It's a state/province search
+          conditions.push(
+            ilike(communities.state, `%${stateCode}%`)
+          );
+          console.log(`🌍 Added state/province search for "${query}" (${stateCode})`);
+        } else {
+          // It's likely a city name - be more specific
+          // Prioritize exact city matches, not partial name matches
+          conditions.push(
+            or(
+              // Exact city match (highest priority)
+              ilike(communities.city, query),
+              // City starts with query
+              ilike(communities.city, `${query}%`),
+              // City contains query (but not in community name)
+              and(
+                ilike(communities.city, `%${query}%`),
+                // Exclude results where it's just in the community name
+                sql`${communities.city} IS NOT NULL AND ${communities.city} != ''`
+              )
+            )
+          );
+          console.log(`🌍 Added specific city search for "${query}"`);
+        }
       }
-      
-      conditions.push(or(...locationConditions));
     }
     
     return conditions;
@@ -709,12 +847,48 @@ export class ComprehensiveSearchEngine {
   }
   
   private applySorting(query: any, searchType: string, searchQuery: string) {
+    // Normalize the search query for comparison
+    const normalizedSearch = searchQuery?.toLowerCase().trim() || '';
+    
+    // Enhanced sorting that prioritizes exact and prefix matches
+    if (normalizedSearch && searchType !== 'price') {
+      // Add relevance scoring based on how well the name matches the search
+      return query.orderBy(sql`
+        CASE 
+          -- Exact match (highest priority)
+          WHEN LOWER(${communities.name}) = LOWER(${normalizedSearch}) THEN 1
+          -- Starts with exact query (very high priority)
+          WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedSearch}) || '%' THEN 2
+          -- Contains the query as a whole word (high priority)
+          WHEN LOWER(${communities.name}) LIKE '% ' || LOWER(${normalizedSearch}) || '%' THEN 3
+          -- Contains the query anywhere (medium priority)
+          WHEN LOWER(${communities.name}) LIKE '%' || LOWER(${normalizedSearch}) || '%' THEN 4
+          -- Everything else (low priority)
+          ELSE 5
+        END,
+        -- Secondary sort by rating
+        ${communities.rating} DESC NULLS LAST,
+        -- Tertiary sort by name length (shorter names usually more relevant)
+        LENGTH(${communities.name}) ASC,
+        -- Final sort alphabetically
+        ${communities.name} ASC
+      `);
+    }
+    
+    // Default sorting for specific search types
     switch (searchType) {
       case 'price':
         // Order by price when price search is detected (numeric column)
         return query.orderBy(sql`COALESCE(${communities.rentPerMonth}, 999999) ASC`);
       case 'company':
-        return query.orderBy(asc(communities.name));
+        return query.orderBy(sql`
+          CASE 
+            WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedSearch}) || '%' THEN 1
+            WHEN LOWER(${communities.managementCompany}) LIKE LOWER(${normalizedSearch}) || '%' THEN 2
+            ELSE 3
+          END,
+          ${communities.name} ASC
+        `);
       case 'location':
         return query.orderBy(desc(communities.rating), asc(communities.city));
       case 'careType':
@@ -862,13 +1036,35 @@ export class ComprehensiveSearchEngine {
     const normalizedQuery = query.toLowerCase().trim();
     const suggestions: string[] = [];
     
-    // Don't provide suggestions for very short queries
-    if (normalizedQuery.length < 2) {
+    // Provide suggestions even for single character (more responsive predictive text)
+    if (normalizedQuery.length < 1) {
       return [];
     }
     
+    // Check for international query patterns
+    const isInternational = this.detectInternationalQuery(normalizedQuery);
+    
+    if (isInternational) {
+      // For international queries, provide smart suggestions
+      return this.generateInternationalSuggestions(normalizedQuery);
+    }
+    
     try {
+      // Enhanced fuzzy matching for typos and variations
+      const fuzzyQuery = this.generateFuzzyVariations(normalizedQuery);
+      
       // 1. Search for actual community names (highest priority)
+      // Include fuzzy matching for better typo tolerance
+      const communityNameConditions = [
+        ilike(communities.name, `${normalizedQuery}%`),  // Exact prefix match
+        ilike(communities.name, `%${normalizedQuery}%`), // Contains
+      ];
+      
+      // Add fuzzy variations for typo tolerance
+      fuzzyQuery.forEach(variant => {
+        communityNameConditions.push(ilike(communities.name, `%${variant}%`));
+      });
+      
       const communityNameResults = await db
         .select({
           name: communities.name,
@@ -876,29 +1072,38 @@ export class ComprehensiveSearchEngine {
           state: communities.state
         })
         .from(communities)
-        .where(
-          or(
-            ilike(communities.name, `${normalizedQuery}%`),  // Starts with
-            ilike(communities.name, `%${normalizedQuery}%`)  // Contains
-          )
-        )
+        .where(or(...communityNameConditions))
         .orderBy(sql`
           CASE 
             WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedQuery}) || '%' THEN 1
-            ELSE 2
+            WHEN LOWER(${communities.name}) LIKE '%' || LOWER(${normalizedQuery}) || '%' THEN 2
+            ELSE 3
           END,
           LENGTH(${communities.name})
         `)
-        .limit(5);
+        .limit(8);
       
-      // Add community names to suggestions
+      // Add community names to suggestions with location context
       communityNameResults.forEach(community => {
-        if (!suggestions.includes(community.name)) {
-          suggestions.push(community.name);
+        const fullName = community.city && community.state 
+          ? `${community.name} - ${community.city}, ${community.state}`
+          : community.name;
+        if (!suggestions.includes(fullName) && !suggestions.includes(community.name)) {
+          suggestions.push(fullName);
         }
       });
       
-      // 2. Search for cities that match
+      // 2. Enhanced city search with fuzzy matching
+      const cityConditions = [
+        ilike(communities.city, `${normalizedQuery}%`),  // Starts with
+        ilike(communities.city, `%${normalizedQuery}%`), // Contains
+      ];
+      
+      // Add fuzzy variations for cities
+      fuzzyQuery.forEach(variant => {
+        cityConditions.push(ilike(communities.city, `%${variant}%`));
+      });
+      
       const cityResults = await db
         .select({
           city: communities.city,
@@ -906,13 +1111,11 @@ export class ComprehensiveSearchEngine {
           count: sql<number>`COUNT(*)::int`.as('count')
         })
         .from(communities)
-        .where(
-          ilike(communities.city, `${normalizedQuery}%`)  // Cities starting with query
-        )
+        .where(or(...cityConditions))
         .groupBy(communities.city, communities.state)
         .having(sql`COUNT(*) > 0`)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(3);
+        .limit(5);
       
       // Add city suggestions
       cityResults.forEach(location => {
@@ -922,24 +1125,34 @@ export class ComprehensiveSearchEngine {
         }
       });
       
-      // 3. Search for states (if query is 2+ chars)
-      if (normalizedQuery.length >= 2) {
+      // 3. Enhanced state search with abbreviation support
+      if (normalizedQuery.length >= 1) {
+        // Map common state abbreviations and names
+        const stateMapping = this.getStateMapping();
+        const matchedStates = Object.entries(stateMapping)
+          .filter(([name, abbr]) => 
+            name.toLowerCase().includes(normalizedQuery) || 
+            abbr.toLowerCase().includes(normalizedQuery)
+          )
+          .map(([name, abbr]) => abbr);
+        
+        const stateConditions = [
+          ilike(communities.state, `${normalizedQuery}%`),
+          ilike(communities.state, `%${normalizedQuery}%`),
+          ...matchedStates.map(state => eq(communities.state, state))
+        ];
+        
         const stateResults = await db
           .select({
             state: communities.state,
             count: sql<number>`COUNT(*)::int`.as('count')
           })
           .from(communities)
-          .where(
-            or(
-              ilike(communities.state, `${normalizedQuery}%`),  // State abbreviation
-              ilike(communities.state, `%${normalizedQuery}%`)  // State name contains
-            )
-          )
+          .where(or(...stateConditions))
           .groupBy(communities.state)
           .having(sql`COUNT(*) > 0`)
           .orderBy(desc(sql`COUNT(*)`))
-          .limit(2);
+          .limit(3);
         
         stateResults.forEach(state => {
           if (!suggestions.includes(state.state)) {
@@ -948,7 +1161,17 @@ export class ComprehensiveSearchEngine {
         });
       }
       
-      // 4. Search for management companies
+      // 4. Enhanced company search with fuzzy matching
+      const companyConditions = [
+        ilike(communities.managementCompany, `${normalizedQuery}%`),  // Starts with
+        ilike(communities.managementCompany, `%${normalizedQuery}%`), // Contains
+      ];
+      
+      // Add fuzzy variations for companies
+      fuzzyQuery.forEach(variant => {
+        companyConditions.push(ilike(communities.managementCompany, `%${variant}%`));
+      });
+      
       const companyResults = await db
         .select({
           managementCompany: communities.managementCompany,
@@ -957,15 +1180,14 @@ export class ComprehensiveSearchEngine {
         .from(communities)
         .where(
           and(
-            ilike(communities.managementCompany, `%${normalizedQuery}%`),
+            or(...companyConditions),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`
           )
         )
         .groupBy(communities.managementCompany)
-        .having(sql`COUNT(*) > 0`)
         .orderBy(desc(sql`COUNT(*)`))
-        .limit(2);
+        .limit(3);
       
       companyResults.forEach(company => {
         if (company.managementCompany && !suggestions.includes(company.managementCompany)) {
@@ -975,16 +1197,135 @@ export class ComprehensiveSearchEngine {
       
     } catch (error) {
       console.error('Database suggestion error:', error);
-      // Return basic fallback suggestions if database fails
-      return [
-        `${query} senior living`,
-        `${query} communities`,
-        `senior living near ${query}`
-      ].slice(0, 5);
+      // Return smart fallback suggestions if database fails
+      const fallbackSuggestions = [];
+      if (query.length > 2) {
+        fallbackSuggestions.push(
+          `${query} senior living`,
+          `${query} assisted living`,
+          `senior living near ${query}`,
+          `memory care ${query}`,
+          `${query} retirement communities`
+        );
+      }
+      return fallbackSuggestions.slice(0, 5);
     }
     
-    // Remove duplicates and limit to 8 suggestions
-    return [...new Set(suggestions)].slice(0, 8);
+    // Remove duplicates and limit to 10 suggestions for better predictive text
+    return [...new Set(suggestions)].slice(0, 10);
+  }
+  
+  // Generate fuzzy variations for typo tolerance
+  private generateFuzzyVariations(query: string): string[] {
+    const variations: string[] = [];
+    
+    // Skip very short queries
+    if (query.length < 3) {
+      return variations;
+    }
+    
+    // Common typo patterns
+    const typoPatterns = [
+      // Double letters (brookdale -> brokdale)
+      query.replace(/(.)\1/g, '$1'),
+      // Missing letters (atlanta -> atlnta)
+      query.substring(0, query.length - 1),
+      // Swapped adjacent letters (atlanta -> atlnata)
+      query.length > 2 ? query.substring(0, query.length - 2) + query[query.length - 1] + query[query.length - 2] : query,
+    ];
+    
+    // Add common phonetic variations
+    const phoneticReplacements = [
+      { from: 'ph', to: 'f' },
+      { from: 'f', to: 'ph' },
+      { from: 'k', to: 'c' },
+      { from: 'c', to: 'k' },
+      { from: 's', to: 'c' },
+      { from: 'z', to: 's' },
+    ];
+    
+    phoneticReplacements.forEach(({ from, to }) => {
+      if (query.includes(from)) {
+        variations.push(query.replace(from, to));
+      }
+    });
+    
+    // Add typo patterns
+    typoPatterns.forEach(pattern => {
+      if (pattern && pattern !== query && pattern.length > 0) {
+        variations.push(pattern);
+      }
+    });
+    
+    return [...new Set(variations)].slice(0, 3); // Limit variations
+  }
+  
+  // Get state name to abbreviation mapping
+  private getStateMapping(): Record<string, string> {
+    return {
+      'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+      'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+      'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+      'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+      'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+      'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+      'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+      'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+      'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+      'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+      'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+      'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+      'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC'
+    };
+  }
+  
+  // Detect if query contains international location
+  private detectInternationalQuery(query: string): boolean {
+    const internationalPatterns = [
+      // Countries
+      /\b(mexico|canada|uk|united kingdom|england|france|spain|italy|germany|japan|china|australia|brazil|russia|india|dubai|uae|thailand|singapore|philippines|indonesia|malaysia|vietnam|korea|taiwan|israel|turkey|greece|portugal|netherlands|belgium|switzerland|austria|sweden|norway|denmark|finland|poland|czech|romania|hungary|croatia|serbia|bulgaria|ukraine|belarus|latvia|lithuania|estonia|iceland|ireland|scotland|wales)\b/i,
+      // International cities
+      /\b(cancun|playa del carmen|puerto vallarta|cabo|tijuana|toronto|vancouver|montreal|calgary|ottawa|london|paris|barcelona|madrid|rome|milan|berlin|munich|tokyo|osaka|kyoto|beijing|shanghai|sydney|melbourne|brisbane|auckland|dubai|abu dhabi|bangkok|singapore|manila|jakarta|kuala lumpur|hanoi|seoul|taipei|tel aviv|istanbul|athens|lisbon|amsterdam|brussels|zurich|vienna|stockholm|oslo|copenhagen|helsinki|warsaw|prague|bucharest|budapest|zagreb|belgrade|sofia|kiev|minsk|riga|vilnius|tallinn|reykjavik|dublin|edinburgh|cardiff)\b/i,
+      // Common international phrases
+      /\b(outside us|outside usa|outside united states|international|abroad|overseas|expat|emigrate)\b/i
+    ];
+    
+    return internationalPatterns.some(pattern => pattern.test(query));
+  }
+  
+  // Generate suggestions for international queries
+  private generateInternationalSuggestions(query: string): string[] {
+    const suggestions: string[] = [];
+    
+    // Parse city and country if present
+    const parts = query.split(',').map(p => p.trim());
+    const city = parts[0];
+    const country = parts[1];
+    
+    if (country) {
+      // If country is specified, provide targeted suggestions
+      suggestions.push(
+        `${city}, ${country} senior living`,
+        `retirement communities in ${city}, ${country}`,
+        `expat retirement ${city}`,
+        `${country} senior care options`,
+        `international retirement ${city}`
+      );
+    } else {
+      // Generic international suggestions
+      suggestions.push(
+        `${query} senior living`,
+        `${query} retirement communities`,
+        `${query} expat communities`,
+        `international senior living ${query}`,
+        `retire abroad ${query}`
+      );
+    }
+    
+    // Add Discovery Mode hint
+    suggestions.push('🌍 Try Discovery Mode for worldwide search');
+    
+    return suggestions.slice(0, 10);
   }
 }
 

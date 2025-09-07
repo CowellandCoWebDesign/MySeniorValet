@@ -5,6 +5,8 @@
  * Then use official sources only for photos
  */
 
+import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
+
 interface PerplexityResponse {
   id: string;
   model: string;
@@ -124,9 +126,17 @@ export class SimplifiedPerplexityService {
     location: string
   ): Promise<CommunityIntelligence> {
     console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
-
-    // Enhanced query with STRICT name matching to prevent confusion
-    const query = `Find information about senior living community named EXACTLY "${communityName}" in ${location}.
+    
+    // Try to construct likely official website URL
+    const possibleDomain = communityName.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '')
+      .trim();
+    
+    // Enhanced query with official website targeting
+    const query = `First, check site:${possibleDomain}.com OR site:${possibleDomain}seniorliving.com
+    
+Then find information about senior living community named EXACTLY "${communityName}" in ${location}.
 
 CRITICAL ACCURACY REQUIREMENT:
 ⚠️ ONLY provide information if the community name is EXACTLY "${communityName}"
@@ -233,7 +243,7 @@ IMPORTANT:
       console.log(`  📚 Received ${citations.length} citations from Perplexity`);
 
       // Enhanced parsing with better extraction patterns
-      return this.parseEnhancedResponse(content, citations, communityName);
+      return await this.parseEnhancedResponse(content, citations, communityName);
     } catch (error) {
       console.error('Perplexity query failed:', error);
       return {
@@ -452,22 +462,42 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
   /**
    * Parse and format Perplexity's response comprehensively
    */
-  private parseEnhancedResponse(
+  private async parseEnhancedResponse(
     content: string, 
     citations: string[],
     communityName: string
-  ): CommunityIntelligence {
-    console.log('\n=== PERPLEXITY RAW RESPONSE ===');
-    console.log(content.substring(0, 2000));
-    console.log('=== END PERPLEXITY RESPONSE ===\n');
+  ): Promise<CommunityIntelligence> {
+    // Simplified logging - show only key extracted data
+    console.log('\n🔍 PERPLEXITY SEARCH RESULTS:');
+    console.log(`🏢 Community: ${communityName}`);
+    console.log(`📚 Sources Found: ${citations.length}`);
+    
+    // Log key extracted data
+    const extractedWebsite = this.extractUrl(content);
+    const extractedPhone = this.extractPhone(content);
+    if (extractedWebsite) console.log(`🌐 Website: ${extractedWebsite}`);
+    if (extractedPhone) console.log(`📞 Phone: ${extractedPhone}`);
+    
+    // Log pricing if found
+    const pricingMatch = content.match(/\$[\d,]+/g);
+    if (pricingMatch && pricingMatch.length > 0) {
+      console.log(`💰 Pricing Found: ${pricingMatch.slice(0, 3).join(', ')}`);
+    }
     
     const lowerContent = content.toLowerCase();
     const lowerCommunityName = communityName.toLowerCase();
     
-    // First, try to extract actual data from the response
-    const extractedWebsite = this.extractUrl(content);
-    const extractedPhone = this.extractPhone(content);
-    const extractedPhotos = this.extractPhotos(content);
+    // SIMPLIFIED PHOTO EXTRACTION - Extract real URLs from content only
+    let extractedPhotos: string[] = [];
+    
+    // Extract actual photo URLs from the content (not fake generated ones)
+    extractedPhotos = this.extractPhotos(content);
+    
+    if (extractedPhotos.length > 0) {
+      console.log(`📸 Extracted ${extractedPhotos.length} photos from Perplexity content`);
+    } else {
+      console.log(`📸 No photos found in Perplexity response`);
+    }
     
     // Check for structured data (JSON) in the response
     const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) || 
@@ -678,7 +708,7 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
       result.careLevels = careLevels.length > 0 ? careLevels : undefined;
 
       // Extract amenities
-      const amenities = [];
+      const amenities: string[] = [];
       const amenityKeywords = [
         'dining', 'fitness', 'pool', 'salon', 'library', 'garden',
         'transportation', 'activities', 'pet', 'wifi', 'laundry'
@@ -757,15 +787,113 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
     return match ? match[1].trim() : undefined;
   }
 
+  /**
+   * Extract photos from directory site citations
+   * Note: Only extract photos from content, not generate fake URLs
+   */
+  private extractPhotosFromCitations(citations: string[], communityName: string): string[] {
+    // Don't generate fake directory URLs - they don't actually exist
+    // Instead, return empty array and let the content extraction handle it
+    return [];
+  }
+  
   private extractPhotos(content: string): string[] {
     const photos: string[] = [];
-    // Extract image URLs from the content
-    const imgPattern = /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp)/gi;
-    const matches = content.match(imgPattern);
-    if (matches) {
-      photos.push(...matches);
+    
+    // Multiple patterns to catch various image URL formats
+    const patterns = [
+      // Standard image URLs with extensions
+      /https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)/gi,
+      // CDN URLs that may not have extensions (excluding stock photo sites)
+      /https?:\/\/[^\s"'<>]*(?:cloudinary|imgur|cdn|images|photos|media|static|assets)[^\s"'<>]*\/[^\s"'<>\?]+/gi,
+      // Google Images services (but not stock photos)
+      /https?:\/\/(?:lh3\.googleusercontent\.com)[^\s"'<>]+/gi,
+      // Image service URLs with path indicators
+      /https?:\/\/[^\s"'<>]+\/(?:image|photo|picture|img|media|gallery|upload)\/[^\s"'<>\?]+/gi,
+      // S3 bucket URLs
+      /https?:\/\/[^\s"'<>]*s3[^\s"'<>]*amazonaws\.com[^\s"'<>]+/gi,
+      // Cloudfront CDN
+      /https?:\/\/[^\s"'<>]*cloudfront\.net[^\s"'<>]+/gi
+    ];
+    
+    // Extract URLs using all patterns
+    for (const pattern of patterns) {
+      const matches = content.match(pattern);
+      if (matches) {
+        for (const url of matches) {
+          // Filter out stock photo sites, maps, and placeholders
+          const isInvalid = [
+            // Stock photo sites - these provide fake images
+            'unsplash.com',
+            'pixabay.com',
+            'pexels.com',
+            'shutterstock.com',
+            'gettyimages.com',
+            'istockphoto.com',
+            'stocksy.com',
+            'dreamstime.com',
+            'freepik.com',
+            '123rf.com',
+            // Maps and non-photo content
+            '/map',
+            '-map',
+            '_map',
+            'map-',
+            'map_',
+            'maps.',
+            'location-pin',
+            'marker',
+            'footer',
+            'header',
+            'banner-ad',
+            // Placeholder and invalid patterns
+            'placeholder',
+            'default',
+            'no-image',
+            'coming-soon',
+            'not-found',
+            '.css',
+            '.js',
+            '.json',
+            '.xml',
+            '.html',
+            'favicon',
+            'logo-only',
+            'icon-',
+            'thumbnail-',
+            'avatar'
+          ].some(term => url.toLowerCase().includes(term));
+          
+          if (!isInvalid) {
+            photos.push(url);
+          }
+        }
+      }
     }
-    return photos;
+    
+    // Also look for image URLs in markdown format ![alt](url)
+    const markdownPattern = /!\[[^\]]*\]\(([^)]+)\)/g;
+    let match;
+    while ((match = markdownPattern.exec(content)) !== null) {
+      if (match[1] && !match[1].includes('placeholder') && 
+          !match[1].includes('unsplash.com') && !match[1].includes('pixabay.com')) {
+        photos.push(match[1]);
+      }
+    }
+    
+    // Look for URLs in HTML img tags
+    const imgTagPattern = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    while ((match = imgTagPattern.exec(content)) !== null) {
+      if (match[1] && match[1].startsWith('http') && !match[1].includes('placeholder') &&
+          !match[1].includes('unsplash.com') && !match[1].includes('pixabay.com')) {
+        photos.push(match[1]);
+      }
+    }
+    
+    // Remove duplicates and limit to 25 photos for performance
+    const uniquePhotos = [...new Set(photos)];
+    console.log(`📸 Extracted ${uniquePhotos.length} unique photos from Perplexity response (excluding stock photo sites)`);
+    return uniquePhotos.slice(0, 25);
   }
 
   /**
@@ -930,8 +1058,8 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
         ? `Found ${nearbyOptions.length} senior living communities in the area with market data`
         : 'No specific communities found in this search',
       sources: citations,
-      // RAW PERPLEXITY CONTENT - THE USER DESERVES TO SEE IT ALL
-      content: content
+      // Store a note about the search results
+      notes: content.substring(0, 500)
     };
   }
 }

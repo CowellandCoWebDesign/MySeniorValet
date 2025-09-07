@@ -102,6 +102,8 @@ CRITICAL INSTRUCTIONS:
           temperature: 0.2,
           top_p: 0.9,
           return_images: true,  // Include images from search results
+          return_related_questions: false,
+          search_domain_filter: [],  // Search all domains for maximum photo coverage
           search_recency_filter: undefined,  // No time restriction - get all available data for transparency
           stream: false
         },

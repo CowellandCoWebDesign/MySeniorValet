@@ -256,31 +256,61 @@ function HeroSectionWithTransformingSearch() {
         });
 
       } else {
-        // Regular search for list/map view - use NLP search as primary
-        const response = await fetch('/api/nlp/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            limit: 50,
-            category: searchCategory
-          })
-        });
-
-        if (!response.ok) {
-          // Fallback to unified search
-          await handleUnifiedSearch(query);
+        // Regular search for list/map view - use comprehensive search for communities
+        if (searchCategory === 'communities') {
+          // Use the comprehensive search endpoint for community searches
+          const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
+          
+          if (!response.ok) {
+            // Fallback to unified search
+            await handleUnifiedSearch(query);
+          } else {
+            const data = await response.json();
+            const communities = data.communities || [];
+            
+            // Extract Discovery Mode data from searchMetadata
+            const metadata = data.searchMetadata || {};
+            
+            setSearchResults({ 
+              results: communities, 
+              metadata: {
+                total: data.total,
+                searchMetadata: metadata,
+                suggestions: data.suggestions,
+                // Discovery Mode specific data
+                discoveryMode: metadata.discoveryMode,
+                discoveryMessage: metadata.discoveryMessage,
+                aiSuggestions: metadata.aiSuggestions
+              }
+            });
+          }
         } else {
-          const data = await response.json();
-          const communities = data.results?.map((r: any) => r.data || r) || [];
-          setSearchResults({ 
-            results: communities, 
-            metadata: {
-              intent: data.intent,
-              facets: data.facets,
-              suggestions: data.suggestions
-            }
+          // Use NLP search for other categories (services, healthcare, resources)
+          const response = await fetch('/api/nlp/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query: query,
+              limit: 50,
+              category: searchCategory
+            })
           });
+
+          if (!response.ok) {
+            // Fallback to unified search
+            await handleUnifiedSearch(query);
+          } else {
+            const data = await response.json();
+            const results = data.results?.map((r: any) => r.data || r) || [];
+            setSearchResults({ 
+              results: results, 
+              metadata: {
+                intent: data.intent,
+                facets: data.facets,
+                suggestions: data.suggestions
+              }
+            });
+          }
         }
       }
     } catch (error) {
@@ -460,7 +490,7 @@ function HeroSectionWithTransformingSearch() {
                 <div className="flex flex-col items-start leading-tight">
                   <span className="hidden sm:inline">Senior Living Communities</span>
                   <span className="sm:hidden">Communities</span>
-                  <span className="text-[8px] opacity-75">35,000+</span>
+                  <span className="text-[8px] opacity-75">33,200+</span>
                 </div>
               </button>
               <button
@@ -479,7 +509,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Services</span>
-                  <span className="text-[8px] opacity-75">1,000+</span>
+                  <span className="text-[8px] opacity-75">7,500+</span>
                 </div>
               </button>
               <button
@@ -498,7 +528,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75">10,000+</span>
+                  <span className="text-[8px] opacity-75">2,000+</span>
                 </div>
               </button>
               <button
@@ -517,7 +547,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-sm">📚</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Resources</span>
-                  <span className="text-[8px] opacity-75">500+</span>
+                  <span className="text-[8px] opacity-75">119</span>
                 </div>
               </button>
             </div>
@@ -644,6 +674,56 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               ) : (
                 <>
+                  {/* Discovery Mode Section - Show Perplexity AI Response When No Results Found */}
+                  {searchResults?.metadata?.discoveryMode && searchResults?.metadata?.aiSuggestions && (
+                    <div className="mb-6 animate-fade-in">
+                      <div className="bg-gradient-to-r from-purple-900/30 to-blue-900/30 backdrop-blur-xl rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="p-2 bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-lg font-semibold text-white">Discovery Mode Activated</h3>
+                        </div>
+                        
+                        {searchResults.metadata.discoveryMessage && (
+                          <p className="text-purple-300 text-sm mb-4">{searchResults.metadata.discoveryMessage}</p>
+                        )}
+                        
+                        {/* AI-Generated Content Section */}
+                        <div className="bg-black/30 rounded-xl p-4 max-h-96 overflow-y-auto">
+                          <div className="prose prose-invert prose-sm max-w-none">
+                            <div className="text-gray-300 whitespace-pre-wrap">
+                              {searchResults.metadata.aiSuggestions.summary || searchResults.metadata.aiSuggestions.content}
+                            </div>
+                            
+                            {/* Sources */}
+                            {searchResults.metadata.aiSuggestions.sources && searchResults.metadata.aiSuggestions.sources.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-purple-500/30">
+                                <p className="text-xs text-purple-400 font-semibold mb-2">Sources:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {searchResults.metadata.aiSuggestions.sources.map((source: string, idx: number) => (
+                                    <a
+                                      key={idx}
+                                      href={source}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                                    >
+                                      [{idx + 1}]
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Regular Search Results List */}
                   {/* Regular Results Header - Glass Morphism */}
                   <div className="">
                     <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
@@ -1865,7 +1945,7 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
-            {/* Senior Service Providers Directory */}
+            {/* Trusted Senior Service Providers - Enhanced Promotional Section */}
             <Link href="/senior-services">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Shopping Sign Image at top of card */}
@@ -1878,46 +1958,138 @@ export default function MySeniorValetHome() {
                   {/* Overlay elements on the image */}
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
                   <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg">
-                    <span className="text-3xl">🛍️</span>
+                    <span className="text-3xl">⭐</span>
                   </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1">
-                    SERVICES
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 animate-pulse">
+                    TRUSTED PARTNERS
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Trusted Senior Service Providers</CardTitle>
+                  <CardTitle className="text-2xl mb-2">⭐ Trusted Senior Service Providers</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Moving, Transportation, Equipment & More
+                    Premium Partners Serving Families Nationwide
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with 200+ verified national service providers for all your senior care needs
+                    🏆 Connect with 3,600+ verified service providers & vendors - Our comprehensive network delivering excellence in senior care
                   </p>
                   
-                  {/* Provider highlights */}
-                  <div className="space-y-2 mb-6">
-                    <div className="flex items-center gap-2">
-                      <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines, Allied, Mayflower</span>
+                  {/* Flex container for side-by-side layout */}
+                  <div className="flex gap-3 mb-6">
+                    {/* Left side - Featured Partners */}
+                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Shield className="h-5 w-5 text-purple-500 animate-pulse" />
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Premium Partners</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Life Alert™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels™</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-purple-500 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Guardian™</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health, Lyft Healthcare</span>
+                    
+                    {/* Right side - Service Categories Preview */}
+                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
+                      <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                        <span>🎯</span> Service Categories
+                      </p>
+                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-600 scrollbar-track-transparent">
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🚚</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Moving & Relocation</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏥</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Transport</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💊</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pharmacy Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🏠</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Home Care Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🍽️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Meal Delivery</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">⚖️</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Legal Services</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">♿</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Equipment</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">💰</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Financial Planning</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <span className="text-xs">🌟</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Adult Day Care</p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-center text-purple-600 dark:text-purple-400 mt-2 font-medium">
+                        15+ Service Categories
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Pride Mobility, Life Alert, Medical Guardian</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels, Mom's Meals</span>
+                  </div>
+
+                  {/* Trust Indicators */}
+                  <div className="mb-4 p-3 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-lg">
+                    <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">✅ Why Choose Our Partners?</p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Background Verified</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Licensed & Insured</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">24/7 Support</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Senior Discounts</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <CheckSquare className="h-3 w-3 text-green-500" />
+                        <span className="text-gray-700 dark:text-gray-300">Quality Guaranteed</span>
+                      </div>
                     </div>
                   </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white group-hover:shadow-lg transition-shadow">
-                    Browse All Services
-                    <ArrowRight className="ml-2 h-4 w-4" />
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Star className="mr-2 h-4 w-4 animate-pulse" />
+                    <span className="font-semibold">Explore Trusted Partners</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
@@ -1950,7 +2122,7 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with verified hospitals, home care, therapy services, and medical professionals
+                    Connect with CMS-certified hospitals, home health agencies, therapy services, and specialized care providers
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
@@ -1959,12 +2131,12 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <TrendingUp className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">6,800+</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Providers</span>
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">36</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Care Categories</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">1,956 CMS Hospitals</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -1988,31 +2160,31 @@ export default function MySeniorValetHome() {
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS Hospitals (1,956)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care (561)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services (470)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🩺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services (191)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🔬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services (144)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🌿</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care (78)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs (707)</p>
+                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
                           <span className="text-xs">🦴</span>

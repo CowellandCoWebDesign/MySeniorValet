@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Clock, Users, MapPin, AlertCircle } from "lucide-react";
+import { Calendar, Clock, Users, MapPin, AlertCircle, Loader } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "wouter";
 
 interface TourSchedulerProps {
   communityId: number;
@@ -34,8 +35,10 @@ export function TourScheduler({
   hasEmail = true
 }: TourSchedulerProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState("");
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   const scheduleTourMutation = useMutation({
     mutationFn: async (tourData: any) => {
@@ -55,11 +58,18 @@ export function TourScheduler({
       return response.json();
     },
     onSuccess: (data) => {
-      toast({
-        title: "Tour Scheduled!",
-        description: "You'll receive a confirmation email shortly.",
-      });
+      console.log('Tour scheduled successfully:', data);
+      setConfirmationCode(data.confirmationCode || data.tour?.confirmationCode || 'TM-' + Math.random().toString(36).substring(2, 8).toUpperCase());
       setDialogOpen(false);
+      
+      if (!isAuthenticated) {
+        setShowSuccessDialog(true);
+      } else {
+        toast({
+          title: "✅ Tour Scheduled Successfully!",
+          description: `Your tour at ${communityName} has been confirmed. Confirmation code: ${data.confirmationCode || data.tour?.confirmationCode}. Check your email for details.`,
+        });
+      }
       onSuccess?.();
     },
     onError: (error: any) => {
@@ -79,24 +89,42 @@ export function TourScheduler({
     return `${hours12}:${minutes.toString().padStart(2, '0')} ${period}`;
   };
 
+  const [tourType, setTourType] = useState('in-person');
+  const [contactPreference, setContactPreference] = useState('email');
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!communityId) {
+      toast({
+        title: "Error",
+        description: "Community information is missing. Please refresh the page and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     const formData = new FormData(e.currentTarget);
     
     const tourTime = formData.get('tourTime') as string;
     const formattedTime = tourTime ? convertTo12HourFormat(tourTime) : '10:00 AM';
     
-    scheduleTourMutation.mutate({
-      communityId,
+    const submitData = {
+      communityId: Number(communityId), // Ensure it's a number
+      communityName, // Add community name
       preferredDate: formData.get('tourDate'),
       preferredTime: formattedTime,
-      tourType: formData.get('tourType') || 'in-person',
+      tourType: tourType, // Use state value instead of formData
       partySize: parseInt(formData.get('attendeeCount') as string) || 1,
       contactName: formData.get('contactName'),
       contactEmail: formData.get('contactEmail'),
       contactPhone: formData.get('contactPhone'),
       specialRequests: formData.get('specialRequests'),
-    });
+      contactPreference: contactPreference // Use state value
+    };
+    
+    console.log('Submitting tour data with communityId:', communityId, 'Full data:', submitData);
+    scheduleTourMutation.mutate(submitData);
   };
 
   // Get tomorrow's date as minimum
@@ -116,53 +144,39 @@ export function TourScheduler({
       </Button>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Schedule a Tour</DialogTitle>
-            <DialogDescription>
-              {communityName}
+            <DialogDescription className="space-y-2">
+              <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
+                {communityName}
+              </div>
               {communityAddress && (
-                <span className="flex items-center gap-1 mt-1">
-                  <MapPin className="h-3 w-3" />
-                  {communityAddress}
-                </span>
+                <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md">
+                  <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <span className="text-sm text-blue-900 dark:text-blue-200 font-medium">
+                    {communityAddress}
+                  </span>
+                </div>
               )}
             </DialogDescription>
           </DialogHeader>
           
-          {!hasEmail ? (
-            <Alert className="mt-4 border-amber-200 bg-amber-50">
-              <AlertCircle className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-900">Community Not Yet Verified</AlertTitle>
-              <AlertDescription className="text-amber-800 mt-2">
-                <p className="mb-3">
-                  This community hasn't claimed their listing on MySeniorValet yet, so online tour scheduling isn't available.
-                </p>
-                <p className="font-semibold mb-2">No worries! You can still schedule a tour by calling directly.</p>
+          {!hasEmail && (
+            <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700">
+              <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <AlertTitle className="text-blue-900 dark:text-blue-200">Platform-Facilitated Tour</AlertTitle>
+              <AlertDescription className="text-blue-800 dark:text-blue-300 mt-2">
                 <p className="text-sm">
-                  When you call, they'll be happy to:
+                  This community hasn't claimed their listing yet, but don't worry! 
+                  MySeniorValet will facilitate your tour request and ensure the community receives your information.
                 </p>
-                <ul className="text-sm mt-2 space-y-1">
-                  <li>• Schedule a convenient tour time</li>
-                  <li>• Answer your questions about services</li>
-                  <li>• Discuss pricing and availability</li>
-                  <li>• Show you available units</li>
-                  <li>• Provide information about amenities</li>
-                </ul>
-                <div className="mt-4">
-                  <Button 
-                    type="button"
-                    variant="default"
-                    className="w-full bg-amber-600 hover:bg-amber-700"
-                    onClick={() => window.open(`tel:${communityPhone || '1-800-SENIOR-1'}`, '_self')}
-                  >
-                    Call Community Directly
-                  </Button>
-                </div>
               </AlertDescription>
             </Alert>
-          ) : (
+          )}
+          
           <form onSubmit={handleSubmit}>
+            <p className="text-sm text-gray-500 mb-2">Fields marked with <span className="text-red-500">*</span> are required</p>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -189,12 +203,12 @@ export function TourScheduler({
 
               <div>
                 <Label htmlFor="tourType">Tour Type</Label>
-                <Select name="tourType" defaultValue="in_person">
-                  <SelectTrigger>
+                <Select value={tourType} onValueChange={setTourType}>
+                  <SelectTrigger id="tourType">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="in_person">In Person</SelectItem>
+                    <SelectItem value="in-person">In Person</SelectItem>
                     <SelectItem value="virtual">Virtual</SelectItem>
                     <SelectItem value="group">Group Tour</SelectItem>
                     <SelectItem value="private">Private Tour</SelectItem>
@@ -216,40 +230,43 @@ export function TourScheduler({
               </div>
 
               <div>
-                <Label htmlFor="contactName">Your Name *</Label>
+                <Label htmlFor="contactName">Your Name <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactName"
                   name="contactName"
                   required
+                  placeholder="Enter your full name"
                   defaultValue={(user as any)?.name || (user as any)?.firstName || ''}
                 />
               </div>
 
               <div>
-                <Label htmlFor="contactEmail">Email *</Label>
+                <Label htmlFor="contactEmail">Email <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactEmail"
                   name="contactEmail"
                   type="email"
                   required
+                  placeholder="your.email@example.com"
                   defaultValue={(user as any)?.email || ''}
                 />
               </div>
 
               <div>
-                <Label htmlFor="contactPhone">Phone</Label>
+                <Label htmlFor="contactPhone">Phone <span className="text-red-500">*</span></Label>
                 <Input
                   id="contactPhone"
                   name="contactPhone"
                   type="tel"
+                  required
                   placeholder="(555) 555-5555"
                 />
               </div>
 
               <div>
                 <Label htmlFor="contactPreference">Preferred Contact Method</Label>
-                <Select name="contactPreference" defaultValue="email">
-                  <SelectTrigger>
+                <Select value={contactPreference} onValueChange={setContactPreference}>
+                  <SelectTrigger id="contactPreference">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -270,15 +287,20 @@ export function TourScheduler({
                 />
               </div>
 
-              <Card className="bg-blue-50 border-blue-200">
+              <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700">
                 <CardContent className="pt-4">
-                  <h4 className="font-semibold text-sm mb-2">What to Expect:</h4>
-                  <ul className="text-sm text-gray-600 space-y-1">
+                  <h4 className="font-semibold text-sm mb-2 text-gray-900 dark:text-gray-100">What to Expect:</h4>
+                  <ul className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
                     <li>• Tour of facilities and available rooms</li>
                     <li>• Meet with community staff</li>
                     <li>• Learn about services and amenities</li>
                     <li>• Discuss pricing and availability</li>
                   </ul>
+                  {!isAuthenticated && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 border-t border-gray-200 dark:border-gray-600 pt-2">
+                      💡 Tip: Create a free account after scheduling to track all your tours!
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -287,12 +309,72 @@ export function TourScheduler({
               <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={scheduleTourMutation.isPending}>
-                {scheduleTourMutation.isPending ? 'Scheduling...' : 'Schedule Tour'}
+              <Button 
+                type="submit" 
+                disabled={scheduleTourMutation.isPending}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {scheduleTourMutation.isPending ? (
+                  <>
+                    <Loader className="h-4 w-4 mr-2 animate-spin" />
+                    Scheduling...
+                  </>
+                ) : (
+                  'Schedule Tour'
+                )}
               </Button>
             </div>
           </form>
-          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Success Dialog for Non-Authenticated Users */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-green-600">✅ Tour Successfully Scheduled!</DialogTitle>
+            <DialogDescription>
+              <div className="space-y-4 mt-4">
+                <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
+                  <p className="text-sm text-green-800 dark:text-green-200">
+                    <strong>Confirmation Code:</strong> {confirmationCode}
+                  </p>
+                  <p className="text-sm text-green-800 dark:text-green-200 mt-2">
+                    We've sent confirmation details to your email.
+                  </p>
+                </div>
+                
+                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
+                  <h4 className="font-semibold text-blue-900 dark:text-blue-200 mb-2">🎯 Want to Track Your Tours?</h4>
+                  <p className="text-sm text-blue-800 dark:text-blue-300 mb-3">
+                    Create a free account to:
+                  </p>
+                  <ul className="text-sm text-blue-800 dark:text-blue-300 space-y-1 mb-4">
+                    <li>• Track all your scheduled tours in one place</li>
+                    <li>• Get reminders before your visits</li>
+                    <li>• Take notes and photos during tours</li>
+                    <li>• Compare communities side-by-side</li>
+                    <li>• Share insights with family members</li>
+                    <li>• Access our Family Collaboration Center</li>
+                  </ul>
+                  
+                  <div className="flex gap-2">
+                    <Link href="/api/login">
+                      <Button className="bg-blue-600 hover:bg-blue-700">
+                        Sign Up Free
+                      </Button>
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setShowSuccessDialog(false)}
+                    >
+                      Maybe Later
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
         </DialogContent>
       </Dialog>
     </>

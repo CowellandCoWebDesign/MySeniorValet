@@ -248,6 +248,14 @@ if (process.env.NODE_ENV === 'development') {
     console.error('Failed to initialize cache service:', error);
   });
 
+  // Initialize Scheduled Audit Service for data integrity
+  import('./services/scheduled-audit-service').then(({ ScheduledAuditService }) => {
+    ScheduledAuditService.startScheduledAudits();
+    console.log('📊 Scheduled Audit Service initialized - Monthly integrity checks activated');
+  }).catch(error => {
+    console.error('Failed to initialize scheduled audit service:', error);
+  });
+
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

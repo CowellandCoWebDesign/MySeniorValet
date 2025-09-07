@@ -50,6 +50,7 @@ import { ReservationSection } from "@/components/ReservationSection";
 import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
+import { ReservationDialog } from '@/components/ReservationDialog';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -386,17 +387,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Live Web Intelligence - NEW Simplified Perplexity-powered section */}
-        {community && (
-          <LiveWebIntelligence 
-            communityId={community.id}
-            communityName={community.name}
-            city={community.city}
-            state={community.state}
-            verificationReport={localVerificationReport}
-            autoLoad={true}
-          />
-        )}
+        {/* Live Web Intelligence moved to avoid duplicate photo display */}
+        {/* Content moved to tabs section to prevent competing carousels */}
         
         {/* Show sections even without real-time data - will populate when loaded */}
         {(
@@ -659,57 +651,86 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 })()}
                 
                 {/* Community-specific insights from web search */}
-                {(localVerificationReport?.consensus?.verifiedFacts?.length > 0 || 
-                  localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
-                  localVerificationReport?.verificationResults?.webIntelligence?.description) ? (
-                  <>
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Information found about this specific community:
-                    </p>
-                    
-                    {/* Show description from web intelligence if available */}
-                    {localVerificationReport?.verificationResults?.webIntelligence?.description && (
-                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                          {localVerificationReport.verificationResults.webIntelligence.description}
-                        </p>
-                      </div>
-                    )}
-                    
-                    {/* Show Perplexity search content if available */}
-                    {localVerificationReport?.verificationResults?.perplexityData?.searchContent && !localVerificationReport?.verificationResults?.webIntelligence?.description && (
-                      <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
-                        {/* Full unfiltered response in a structured format */}
-                        <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                          {localVerificationReport.verificationResults.perplexityData.searchContent}
+                {(() => {
+                  // Check all possible data paths for Perplexity content
+                  const perplexityContent = 
+                    localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
+                    localVerificationReport?.perplexityData?.searchContent ||
+                    localVerificationReport?.searchContent ||
+                    localVerificationReport?.content;
+                  
+                  const perplexitySources = 
+                    localVerificationReport?.verificationResults?.perplexityData?.sources ||
+                    localVerificationReport?.perplexityData?.sources ||
+                    localVerificationReport?.sources;
+                  
+                  const webIntelligenceDescription = localVerificationReport?.verificationResults?.webIntelligence?.description;
+                  const verifiedFacts = localVerificationReport?.consensus?.verifiedFacts;
+                  
+                  const hasAnyData = verifiedFacts?.length > 0 || perplexityContent || webIntelligenceDescription;
+                  
+                  return hasAnyData ? (
+                    <>
+                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Information found about this specific community:
+                      </p>
+                      
+                      {/* Show description from web intelligence if available */}
+                      {webIntelligenceDescription && (
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            {webIntelligenceDescription}
+                          </p>
                         </div>
-                        
-                        {/* Show sources */}
-                        {localVerificationReport?.verificationResults?.perplexityData?.sources?.length > 0 && (
-                          <div className="border-t pt-3">
-                            <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {localVerificationReport.verificationResults.perplexityData.sources.map((source: string, idx: number) => (
-                                <a 
-                                  key={idx}
-                                  href={source}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                  title={source}
-                                >
-                                  <ExternalLink className="w-3 h-3 inline mr-1" />
-                                  Source {idx + 1}
-                                </a>
-                              ))}
-                            </div>
+                      )}
+                      
+                      {/* Show Perplexity search content if available - try multiple data paths */}
+                      {perplexityContent && !webIntelligenceDescription && (
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
+                          {/* Full unfiltered response in a structured format */}
+                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                            {perplexityContent}
                           </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {/* Show verified facts if available */}
-                    {localVerificationReport?.consensus?.verifiedFacts?.length > 0 && localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
+                          
+                          {/* Show sources if available */}
+                          {perplexitySources?.length > 0 && (
+                            <div className="border-t pt-3">
+                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
+                              <div className="flex flex-wrap gap-2">
+                                {perplexitySources.map((source: string, idx: number) => (
+                                  <a 
+                                    key={idx}
+                                    href={source}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                    title={source}
+                                  >
+                                    <ExternalLink className="w-3 h-3 inline mr-1" />
+                                    Source {idx + 1}
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        Search temporarily unavailable
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        No public website or additional online information found for this specific community. Contact them directly for the most current information.
+                      </p>
+                    </div>
+                  );
+                })()}
+                
+                {/* Show verified facts if available */}
+                {localVerificationReport?.consensus?.verifiedFacts?.length > 0 ? (
+                  localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                       let factText = fact;
                       let isAddressCorrection = false;
                       let addressDetails = null;
@@ -822,8 +843,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                           </div>
                         </div>
                       );
-                    }).filter(Boolean)}
-                  </>
+                    }).filter(Boolean)
                 ) : (
                   // Show "searching" or "no data" message
                   <div className="text-sm text-gray-600 dark:text-gray-400">
@@ -874,7 +894,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     )}
                   </div>
                 )}
-                
+
                 {/* No specific information found */}
                 {(!localVerificationReport?.consensus?.verifiedFacts || 
                   localVerificationReport.consensus.verifiedFacts.filter((fact: any) => {
@@ -1050,416 +1070,9 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
   return { show: false, icon: null, text: '', bgColor: '' };
 };
 
-// Hero Photo Carousel Component with Touch Support
-export const HeroPhotoCarousel = ({ 
-  photos, 
-  communityName, 
-  communityId, 
-  community,
-  verificationReport
-}: { 
-  photos: any[], 
-  communityName: string, 
-  communityId?: number,
-  community?: Community,
-  verificationReport?: any
-}) => {
-  const [tours, setTours] = useState<any[]>([]);
-  const [showTourModal, setShowTourModal] = useState(false);
-  const [selectedTour, setSelectedTour] = useState<any>(null);
-  const [toursLoading, setToursLoading] = useState(false);
-  
-  // Fetch 3D tours for this community
-  useEffect(() => {
-    const fetchTours = async () => {
-      if (!communityId) return;
-      setToursLoading(true);
-      try {
-        const response = await fetch(`/api/communities/${communityId}/tours`);
-        if (response.ok) {
-          const data = await response.json();
-          setTours(data.tours || []);
-        }
-      } catch (error) {
-        console.error('Failed to fetch tours:', error);
-      } finally {
-        setToursLoading(false);
-      }
-    };
-    
-    fetchTours();
-  }, [communityId]);
-  
-  // Dynamically get all available photos with source tracking
-  const getAllPhotos = () => {
-    console.log('🔍 [HeroPhotoCarousel] Getting all photos...');
-    console.log('📊 Community photos:', community?.photos);
-    console.log('📊 Verification report:', verificationReport);
-    
-    const allPhotos: { url: string; source: 'database' | 'web' | 'placeholder' }[] = [];
-    
-    // Add database photos first
-    if (community?.photos && community.photos.length > 0) {
-      console.log(`📸 Found ${community.photos.length} database photos`);
-      const dbPhotos = community.photos.map((photo: any) => ({
-        url: typeof photo === 'string' ? photo : photo.image_url || photo.url,
-        source: 'database' as const
-      }));
-      allPhotos.push(...dbPhotos);
-    }
-    
-    // Add live web intelligence photos when they arrive - check all possible paths
-    let webImages = null;
-    
-    // Check multiple paths where photos might be stored
-    if (verificationReport?.webIntelligence?.images) {
-      // Direct from LiveWebIntelligence component
-      webImages = verificationReport.webIntelligence.images;
-      console.log('✅ Found web intelligence images at verificationReport.webIntelligence.images:', webImages);
-    } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
-      // From multi-AI verification
-      webImages = verificationReport.verificationResults.webIntelligence.images;
-      console.log('✅ Found web intelligence images at verificationReport.verificationResults.webIntelligence.images:', webImages);
-    } else {
-      console.log('❌ No web intelligence images found in verification report');
-    }
-    
-    if (webImages && webImages.length > 0) {
-      console.log(`🎯 Adding ${webImages.length} web intelligence photos to carousel`);
-      const webPhotos = webImages.map((img: any) => ({
-        url: typeof img === 'string' ? img : (img.image_url || img.url || img),
-        source: 'web' as const
-      }));
-      allPhotos.push(...webPhotos);
-    }
-    
-    // Remove duplicates based on URL
-    const uniquePhotos = allPhotos.filter((photo, index, self) =>
-      index === self.findIndex((p) => p.url === photo.url)
-    );
-    
-    console.log(`📷 Total unique photos: ${uniquePhotos.length}`);
-    
-    // Return unique photos only if they exist - don't use placeholders
-    return uniquePhotos;
-  };
-  
-  // Force update when verification report changes
-  const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
-  
-  // Watch for verification report changes and force re-render
-  useEffect(() => {
-    const webImages = verificationReport?.webIntelligence?.images || 
-                     verificationReport?.verificationResults?.webIntelligence?.images;
-    if (webImages && webImages.length > 0) {
-      console.log('🎉 Forcing carousel update with new web photos:', webImages.length);
-      setPhotoUpdateKey(prev => prev + 1);
-    }
-  }, [verificationReport]);
-  
-  const safePhotos = getAllPhotos();
-  
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [translateX, setTranslateX] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  // Reset to first photo when photos change
-  useEffect(() => {
-    if (safePhotos.length > 0) {
-      console.log(`📷 Carousel now has ${safePhotos.length} photos to display`);
-      if (currentIndex >= safePhotos.length) {
-        setCurrentIndex(0);
-      }
-    }
-  }, [safePhotos.length, photoUpdateKey]);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const nextPhoto = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
-    setTimeout(() => setIsTransitioning(false), 300);
-  };
-
-  const prevPhoto = () => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
-    setTimeout(() => setIsTransitioning(false), 300);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-    setIsDragging(true);
-    setIsTransitioning(false);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const currentX = e.targetTouches[0].clientX;
-    setTouchEnd(currentX);
-    const diff = currentX - touchStart;
-    setTranslateX(diff);
-  };
-
-  const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) {
-      setTranslateX(0);
-      setIsDragging(false);
-      return;
-    }
-
-    const distance = touchStart - touchEnd;
-    const threshold = 50;
-
-    if (Math.abs(distance) > threshold && safePhotos.length > 1) {
-      if (distance > 0) {
-        nextPhoto();
-      } else {
-        prevPhoto();
-      }
-    }
-
-    setTranslateX(0);
-    setIsDragging(false);
-    setIsTransitioning(true);
-    setTimeout(() => setIsTransitioning(false), 300);
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
-    setTouchStart(e.clientX);
-    setIsDragging(true);
-    setIsTransitioning(false);
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const currentX = e.clientX;
-    setTouchEnd(currentX);
-    const diff = currentX - touchStart;
-    setTranslateX(diff);
-  };
-
-  const handleMouseUp = () => {
-    if (!touchStart || !touchEnd) {
-      setTranslateX(0);
-      setIsDragging(false);
-      return;
-    }
-
-    const distance = touchStart - touchEnd;
-    const threshold = 50;
-
-    if (Math.abs(distance) > threshold && safePhotos.length > 1) {
-      if (distance > 0) {
-        nextPhoto();
-      } else {
-        prevPhoto();
-      }
-    }
-
-    setTranslateX(0);
-    setIsDragging(false);
-    setIsTransitioning(true);
-    setTimeout(() => setIsTransitioning(false), 300);
-  };
-
-  // Debug logging - check both paths
-  console.log('HeroPhotoCarousel debug:', {
-    communityPhotos: community?.photos,
-    webIntelligenceImages: verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images,
-    safePhotos: safePhotos,
-    currentIndex,
-    verificationReportExists: !!verificationReport,
-    webIntelligenceExists: !!(verificationReport?.webIntelligence?.images || verificationReport?.verificationResults?.webIntelligence?.images)
-  });
-
-  // Check if we're still loading photos from web intelligence - check both possible paths
-  const webImages = verificationReport?.webIntelligence?.images || 
-                   verificationReport?.verificationResults?.webIntelligence?.images;
-  const isLoadingWebPhotos = false; // Photos load quickly enough that we don't need loading state
-  const hasNoRealPhotos = safePhotos.length === 0;
-  
-  console.log('Photo loading state:', {
-    isLoadingWebPhotos,
-    hasNoRealPhotos,
-    safePhotos,
-    verificationReport: !!verificationReport
-  });
-
-  // Show The Thinker loading screen when no photos available or photos are loading
-  if (hasNoRealPhotos || isLoadingWebPhotos) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-        <div className="scale-75 max-w-md">
-          <MascotLoadingDisplay 
-            title="Deep in Thought..."
-            subtitle={`Gathering authentic photos for ${communityName}`}
-            showProgress={true}
-            progressDuration={10}
-            factRotationSpeed={3000}
-            compact={true}
-            processStages={[
-              "Searching official website for photos",
-              "Scanning social media and listings",
-              "Analyzing image quality and authenticity",
-              "Verifying photo sources and ownership",
-              "Organizing visual content library"
-            ]}
-          />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      {/* 3D Tour Modal */}
-      {selectedTour && (
-        <Dialog open={showTourModal} onOpenChange={setShowTourModal}>
-          <DialogContent className="max-w-6xl w-full h-[80vh] p-0">
-            <DialogHeader className="p-4 pb-0">
-              <DialogTitle>{selectedTour.title || '3D Virtual Tour'}</DialogTitle>
-              {selectedTour.description && (
-                <DialogDescription>{selectedTour.description}</DialogDescription>
-              )}
-            </DialogHeader>
-            <div className="relative w-full h-full p-4">
-              <iframe
-                src={selectedTour.embedUrl}
-                className="w-full h-full rounded-lg"
-                allowFullScreen
-                frameBorder="0"
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-      
-      <div 
-        className="absolute inset-0 group cursor-grab active:cursor-grabbing"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-      {/* Photo Carousel Container */}
-      <div className="w-full h-full bg-gray-100 dark:bg-gray-800 relative">
-        <div className="w-full h-full overflow-hidden">
-          <div 
-            className="flex h-full"
-            style={{
-              transform: `translateX(calc(-${currentIndex * 100}% + ${translateX}px))`,
-              transition: isTransitioning || !isDragging ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
-            }}
-          >
-            {safePhotos.map((photo, index) => {
-              // Ensure proper URL handling for scraped photos
-              const photoUrl = photo.url.startsWith('http') ? photo.url : 
-                             photo.url.startsWith('//') ? `https:${photo.url}` :
-                             photo.url.startsWith('/') ? `https://example.com${photo.url}` : 
-                             photo.url;
-              
-              return (
-                <div key={`photo-${index}-${photoUpdateKey}`} className="relative w-full h-full flex-shrink-0">
-                  <img
-                    src={photoUrl}
-                    alt={`${communityName} - ${photo.source === 'web' ? 'Web Scraped' : 'Community'} Photo ${index + 1}`}
-                    className="w-full h-full object-cover select-none"
-                    draggable={false}
-                    loading={index === 0 ? "eager" : "lazy"}
-                    onLoad={() => {
-                      console.log(`✅ Successfully loaded photo ${index + 1}:`, photoUrl);
-                    }}
-                    onError={(e) => {
-                      console.log(`❌ Failed to load photo ${index + 1}:`, photoUrl);
-                      // Replace with working fallback image
-                      const target = e.target as HTMLImageElement;
-                      target.src = '/hero-senior-community.svg';
-                    }}
-                  />
-                  {/* Attribution for web-sourced photos */}
-                  {photo.source === 'web' && (
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs backdrop-blur-sm">
-                      <div className="flex items-center gap-1">
-                        <Globe className="w-3 h-3" />
-                        <span>Sourced from public web</span>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation arrows - only show if more than 1 photo */}
-      {safePhotos.length > 1 && (
-        <>
-          <button
-            onClick={prevPhoto}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          >
-            <ChevronLeft className="w-6 h-6 text-gray-900 dark:text-gray-100" />
-          </button>
-          <button
-            onClick={nextPhoto}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
-          >
-            <ChevronRight className="w-6 h-6 text-gray-900 dark:text-gray-100" />
-          </button>
-
-          {/* Photo indicator dots - fixed size to prevent stretching */}
-          <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex gap-1.5 z-10">
-            {safePhotos.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`block w-2 h-2 min-w-[8px] min-h-[8px] max-w-[8px] max-h-[8px] rounded-full transition-colors ${
-                  index === currentIndex ? 'bg-white' : 'bg-white/50'
-                }`}
-                aria-label={`Go to photo ${index + 1}`}
-              />
-            ))}
-          </div>
-
-          {/* Photo counter and 3D Tour button */}
-          <div className="absolute top-4 left-4 flex gap-2 z-10">
-            <div className="bg-black/50 text-white px-3 py-1 rounded-full text-sm">
-              {currentIndex + 1} / {safePhotos.length}
-            </div>
-            {tours.length > 0 && (
-              <Button
-                onClick={() => {
-                  setSelectedTour(tours[0]);
-                  setShowTourModal(true);
-                }}
-                className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 text-sm font-medium flex items-center gap-1"
-                size="sm"
-              >
-                <Camera className="w-3 h-3" />
-                3D Tour
-              </Button>
-            )}
-          </div>
-
-          {/* Swipe instruction on mobile - now properly at the bottom */}
-          <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-black/50 text-white px-3 py-1 rounded-full text-xs opacity-70 md:hidden z-10">
-            Swipe to browse photos
-          </div>
-        </>
-      )}
-      </div>
-    </>
-  );
-};
+// HeroPhotoCarousel component removed - now using EnhancedPhotoCarousel from components
+// The HeroPhotoCarousel has been successfully consolidated into EnhancedPhotoCarousel
+// which is now used in CommunityDetailsHeader
 
 // Calculate composite rating from tour data and external reviews
 const calculateCompositeRating = (community: Community): string => {
@@ -1489,6 +1102,7 @@ export default function CommunityDetail() {
   const [, setLocation] = useLocation();
   const [isFavorite, setIsFavorite] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
+  const [showReservationDialog, setShowReservationDialog] = useState(false);
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [waitlistName, setWaitlistName] = useState('');
@@ -1499,6 +1113,8 @@ export default function CommunityDetail() {
   const [expandedUnits, setExpandedUnits] = useState<Set<string>>(new Set());
   // Track verification report to show live pricing data from Market Data tab
   const [verificationReport, setVerificationReport] = useState<any>(null);
+  const [hasStartedVerification, setHasStartedVerification] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   // Store market analysis data to share with web intelligence
   const [marketAnalysisData, setMarketAnalysisData] = useState<any>(null);
   // Photos now stay in LiveWebIntelligence section only
@@ -1551,8 +1167,38 @@ export default function CommunityDetail() {
       setSelectedReservationUnit(null);
       setShowUpgradeModal(false);
       setUpgradeFeature('');
+      setHasStartedVerification(false);
+      setIsVerifying(false);
     }
   }, [id]);
+
+  // Trigger verification immediately when community loads
+  React.useEffect(() => {
+    if (community?.id && !hasStartedVerification && !verificationReport) {
+      console.log('🚀 Starting photo and data verification for community:', community.name);
+      setHasStartedVerification(true);
+      setIsVerifying(true);
+      
+      // Call verification endpoint
+      fetch(`/api/communities/${community.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ forceRefresh: false })
+      })
+      .then(res => res.json())
+      .then(report => {
+        console.log('✅ Verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
+        setVerificationReport(report);
+      })
+      .catch(error => {
+        console.error('❌ Verification error:', error);
+        setHasStartedVerification(false); // Allow retry on error
+      })
+      .finally(() => {
+        setIsVerifying(false);
+      });
+    }
+  }, [community?.id, hasStartedVerification, verificationReport]);
 
   // Navigate away if invalid ID (after all hooks have been called)
   React.useEffect(() => {
@@ -1949,6 +1595,71 @@ export default function CommunityDetail() {
               getPricingBadgeInfo={getPricingBadgeInfo}
               formatCareType={formatCareType}
               generatePhoneNumber={generatePhoneNumber}
+              onReserveClick={() => {
+                // Open reservation dialog directly
+                setShowReservationDialog(true);
+              }}
+              onTourClick={() => {
+                // Find the tours tab using the most specific selector
+                let toursTab = document.querySelector('button[role="tab"][value="tours"]') as HTMLElement;
+                
+                // If not found, try finding in the tabs list specifically
+                if (!toursTab) {
+                  const tabsList = document.querySelector('[role="tablist"]');
+                  if (tabsList) {
+                    // Find all buttons and check each one
+                    const buttons = tabsList.querySelectorAll('button');
+                    buttons.forEach(btn => {
+                      // Check both the value attribute and the text content
+                      if (btn.getAttribute('value') === 'tours' || 
+                          (btn.textContent && btn.textContent.includes('🗓️') && btn.textContent.includes('Tours'))) {
+                        toursTab = btn as HTMLElement;
+                      }
+                    });
+                  }
+                }
+                
+                if (toursTab) {
+                  // Click the tours tab to switch to it
+                  toursTab.click();
+                  
+                  // Wait a moment for the tab content to render
+                  setTimeout(() => {
+                    // Scroll to the tabs section first
+                    const tabsContainer = document.querySelector('[role="tablist"]')?.parentElement;
+                    if (tabsContainer) {
+                      tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                    
+                    // Then try to open the tour scheduler dialog
+                    setTimeout(() => {
+                      // Find the Schedule In-Person Tour button
+                      const schedulerButtons = document.querySelectorAll('.tour-scheduler-form button');
+                      let targetButton: HTMLElement | null = null;
+                      
+                      schedulerButtons.forEach(btn => {
+                        if (btn.textContent?.includes('Schedule In-Person Tour')) {
+                          targetButton = btn as HTMLElement;
+                        }
+                      });
+                      
+                      // Click the button if found
+                      if (targetButton) {
+                        (targetButton as HTMLButtonElement).click();
+                      } else if (schedulerButtons.length > 0) {
+                        // Fallback: click the first button in the scheduler form
+                        (schedulerButtons[0] as HTMLElement).click();
+                      }
+                    }, 500); // Give time for smooth scroll
+                  }, 200); // Give time for tab content to render
+                } else {
+                  // If we still can't find the tab, just scroll to the tabs section
+                  const tabsSection = document.querySelector('[role="tablist"]');
+                  if (tabsSection && tabsSection.parentElement) {
+                    tabsSection.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }
+                }
+              }}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
 
@@ -1968,26 +1679,22 @@ export default function CommunityDetail() {
                     </h3>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {webIntel?.videoTour && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => window.open(webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`, '_blank')}
+                        <ExternalLinkWarning
+                          href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                         >
                           <span className="text-lg">🎥</span>
                           <span className="text-xs">Video Tour</span>
-                        </Button>
+                        </ExternalLinkWarning>
                       )}
                       {webIntel?.virtualTour && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => window.open(webIntel.virtualTour, '_blank')}
+                        <ExternalLinkWarning
+                          href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                         >
                           <span className="text-lg">🏠</span>
                           <span className="text-xs">3D Tour</span>
-                        </Button>
+                        </ExternalLinkWarning>
                       )}
                       {webIntel?.floorPlans?.length > 0 && (
                         <Dialog>
@@ -2019,15 +1726,13 @@ export default function CommunityDetail() {
                         </Dialog>
                       )}
                       {webIntel?.socialMedia && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="flex items-center gap-2"
-                          onClick={() => window.open(webIntel.socialMedia, '_blank')}
+                        <ExternalLinkWarning
+                          href={webIntel.socialMedia.includes('://') ? webIntel.socialMedia : `https://${webIntel.socialMedia}`}
+                          className="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 text-sm"
                         >
                           <span className="text-lg">👥</span>
                           <span className="text-xs">Facebook</span>
-                        </Button>
+                        </ExternalLinkWarning>
                       )}
                     </div>
                   </CardContent>
@@ -2037,78 +1742,83 @@ export default function CommunityDetail() {
 
             {/* Tabbed Content Section - Mobile Responsive */}
             <Tabs defaultValue="market-data" className="w-full mt-4 sm:mt-6">
-              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-0.5 sm:p-1 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600 gap-0.5 sm:gap-1">
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-1 sm:p-1.5 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-600 gap-1 sm:gap-1.5">
                 <TabsTrigger 
                   value="community-info" 
-                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-blue-100 !to-indigo-100 dark:!from-blue-800 dark:!to-indigo-800 border border-blue-200 dark:border-blue-500 shadow-md hover:shadow-lg hover:!from-blue-200 hover:!to-indigo-200 dark:hover:!from-blue-700 dark:hover:!to-indigo-700 hover:border-blue-300 dark:hover:border-blue-400 text-blue-700 dark:text-blue-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-blue-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-blue-400 data-[state=active]:!font-bold"
+                  className="relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-500 text-gray-600 dark:text-gray-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-blue-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
-                  <div className="flex items-center gap-2">
-                    <Building className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg sm:text-xl">🏘️</span>
                     <span className="text-xs sm:text-sm font-bold hidden sm:inline">Community Info</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Community</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Info</span>
                   </div>
-                  <span className="text-xs opacity-75 font-normal hidden sm:block">
+                  <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
                     Details & Overview
                   </span>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tours" 
-                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-teal-100 !to-cyan-100 dark:!from-teal-800 dark:!to-cyan-800 border border-teal-200 dark:border-teal-500 shadow-md hover:shadow-lg hover:!from-teal-200 hover:!to-cyan-200 dark:hover:!from-teal-700 dark:hover:!to-cyan-700 hover:border-teal-300 dark:hover:border-teal-400 text-teal-700 dark:text-teal-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-teal-600 data-[state=active]:!to-cyan-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-teal-400 data-[state=active]:!font-bold"
+                  className="relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-teal-300 dark:hover:border-teal-500 text-gray-600 dark:text-gray-400 font-medium hover:text-teal-600 dark:hover:text-teal-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-teal-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
-                  <div className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg sm:text-xl">🗓️</span>
                     <span className="text-xs sm:text-sm font-bold">Tours</span>
                   </div>
-                  <span className="text-xs opacity-75 font-normal hidden sm:block">
+                  <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
                     Schedule Visit
                   </span>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/10 to-cyan-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-green-100 !to-emerald-100 dark:!from-green-800 dark:!to-emerald-800 border border-green-200 dark:border-green-500 shadow-md hover:shadow-lg hover:!from-green-200 hover:!to-emerald-200 dark:hover:!from-green-700 dark:hover:!to-emerald-700 hover:border-green-300 dark:hover:border-green-400 text-green-700 dark:text-green-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-green-600 data-[state=active]:!to-emerald-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-green-400 data-[state=active]:!font-bold"
+                  className="relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-green-300 dark:hover:border-green-500 text-gray-600 dark:text-gray-400 font-medium hover:text-green-600 dark:hover:text-green-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-green-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
-                  <div className="flex items-center gap-2">
-                    <Home className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg sm:text-xl">🏠</span>
                     <span className="text-xs sm:text-sm font-bold">Availability</span>
                   </div>
-                  <span className="text-xs opacity-75 font-normal hidden sm:block">
+                  <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
                     Units & Pricing
                   </span>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-purple-100 !to-indigo-100 dark:!from-purple-800 dark:!to-indigo-800 border border-purple-200 dark:border-purple-500 shadow-md hover:shadow-lg hover:!from-purple-200 hover:!to-indigo-200 dark:hover:!from-purple-700 dark:hover:!to-indigo-700 hover:border-purple-300 dark:hover:border-purple-400 text-purple-700 dark:text-purple-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-purple-600 data-[state=active]:!to-indigo-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-purple-400 data-[state=active]:!font-bold"
+                  className="relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
-                  <div className="flex items-center gap-2">
-                    <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg sm:text-xl">📊</span>
                     <span className="text-xs sm:text-sm font-bold hidden sm:inline">Market Data</span>
                     <span className="text-xs sm:text-sm font-bold sm:hidden">Market</span>
                     {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse ml-1"></div>
                     )}
                   </div>
-                  <span className="text-xs opacity-75 font-normal">
+                  <span className="text-[10px] sm:text-xs opacity-75 font-normal">
                     {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
                       "Live Intelligence" : 
                       "Market Analysis"
                     }
                   </span>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
-                  className="flex flex-col items-center gap-0.5 sm:gap-1 py-2 sm:py-3 px-1 sm:px-3 rounded-lg transition-all duration-300 !bg-gradient-to-br !from-orange-100 !to-amber-100 dark:!from-orange-800 dark:!to-amber-800 border border-orange-200 dark:border-orange-500 shadow-md hover:shadow-lg hover:!from-orange-200 hover:!to-amber-200 dark:hover:!from-orange-700 dark:hover:!to-amber-700 hover:border-orange-300 dark:hover:border-orange-400 text-orange-700 dark:text-orange-200 font-semibold data-[state=active]:!bg-gradient-to-br data-[state=active]:!from-orange-600 data-[state=active]:!to-amber-600 data-[state=active]:!text-white data-[state=active]:!shadow-xl data-[state=active]:!scale-105 data-[state=active]:!border-orange-400 data-[state=active]:!font-bold"
+                  className="relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-500 text-gray-600 dark:text-gray-400 font-medium hover:text-orange-600 dark:hover:text-orange-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-orange-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-lg sm:text-xl">⭐</span>
                     <span className="text-xs sm:text-sm font-bold">Reviews</span>
                     {(community.googleRating || community.yelpRating || (community as any).compositeRating) && (
                       <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse ml-1"></div>
                     )}
                   </div>
-                  <span className="text-xs opacity-75 font-normal">
+                  <span className="text-[10px] sm:text-xs opacity-75 font-normal">
                     Ratings & Feedback
                   </span>
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-orange-500/10 to-amber-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
               </TabsList>
 
@@ -2126,21 +1836,23 @@ export default function CommunityDetail() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <TourScheduler
-                        communityId={community.id}
-                        communityName={community.name}
-                        communityAddress={`${community.city}, ${community.state}`}
-                        communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
-                        buttonText="Schedule In-Person Tour"
-                        buttonVariant="default"
-                        hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
-                        onSuccess={() => {
-                          toast({
-                            title: "Tour Scheduled Successfully!",
-                            description: `Your tour at ${community.name} has been confirmed.`,
-                          });
-                        }}
-                      />
+                      <div className="tour-scheduler-form">
+                        <TourScheduler
+                          communityId={community.id}
+                          communityName={community.name}
+                          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zipCode || ''}`.trim() : `${community.city}, ${community.state}`}
+                          communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
+                          buttonText="Schedule In-Person Tour"
+                          buttonVariant="default"
+                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
+                          onSuccess={() => {
+                            toast({
+                              title: "Tour Scheduled Successfully!",
+                              description: `Your tour at ${community.name} has been confirmed.`,
+                            });
+                          }}
+                        />
+                      </div>
                       
                       {/* Virtual Tour Options */}
                       <div className="space-y-3">
@@ -2153,29 +1865,22 @@ export default function CommunityDetail() {
                               <>
                                 <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
                                 {webIntel?.videoTour && (
-                                  <Button
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => {
-                                      const videoUrl = webIntel.videoTour.includes('://') ? 
-                                        webIntel.videoTour : 
-                                        `https://${webIntel.videoTour}`;
-                                      window.open(videoUrl, '_blank');
-                                    }}
+                                  <ExternalLinkWarning
+                                    href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
+                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                   >
-                                    <span className="mr-2">🎥</span>
-                                    Watch Video Tour
-                                  </Button>
+                                    <span>🎥</span>
+                                    <span>Watch Video Tour</span>
+                                  </ExternalLinkWarning>
                                 )}
                                 {webIntel?.virtualTour && (
-                                  <Button
-                                    variant="outline"
-                                    className="w-full"
-                                    onClick={() => window.open(webIntel.virtualTour, '_blank')}
+                                  <ExternalLinkWarning
+                                    href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
+                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                                   >
-                                    <span className="mr-2">🏠</span>
-                                    Take 3D Virtual Tour
-                                  </Button>
+                                    <span>🏠</span>
+                                    <span>Take 3D Virtual Tour</span>
+                                  </ExternalLinkWarning>
                                 )}
                               </>
                             );
@@ -2837,588 +2542,249 @@ export default function CommunityDetail() {
               {/* Availability Tab */}
               <TabsContent value="availability" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
                 
-                {/* Real-Time Unit Availability */}
-                <Card className="border-2 border-green-200 dark:border-green-800 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20">
+                {/* Available Units & Pricing */}
+                <Card>
                   <CardHeader>
-                    <CardTitle className="text-xl font-bold flex items-center text-green-800 dark:text-green-200">
+                    <CardTitle className="text-xl font-bold flex items-center">
                       <Home className="w-5 h-5 mr-2" />
-                      Real-Time Unit Availability
+                      Available Units & Pricing
                     </CardTitle>
-                    <CardDescription className="text-green-700 dark:text-green-300">
-                      Current available units and reservation status
+                    <CardDescription>
+                      {verificationReport?.verificationResults?.floorPlans ? 
+                        'Floor plans and pricing from verified sources' : 
+                        'Estimated pricing based on market analysis'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                      {[
-                        { type: 'Studio', available: 5, price: '$2,500-3,500', features: '400-600 sq ft', color: 'purple' },
-                        { type: 'One Bedroom', available: 4, price: '$3,000-4,500', features: '600-800 sq ft', color: 'blue' },
-                        { type: 'Two Bedroom', available: 3, price: '$4,000-6,000', features: '800-1200 sq ft', color: 'green' }
-                      ].map((unit) => (
-                        <div key={unit.type} className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <h4 className="font-semibold text-gray-900 dark:text-gray-100">{unit.type}</h4>
-                              <p className="text-sm text-gray-600 dark:text-gray-400">{unit.features}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {/* Use real pricing from verification report if available */}
+                      {(verificationReport?.verificationResults?.floorPlans && 
+                        verificationReport.verificationResults.floorPlans.length > 0) ? (
+                        verificationReport.verificationResults.floorPlans.map((unit: any, idx: number) => (
+                          <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                            <div className="mb-3">
+                              <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                {unit.type || unit.name || 'Unit Type'}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {unit.size || 'Contact for details'}
+                              </p>
                             </div>
-                            <Badge className={`bg-${unit.color}-100 text-${unit.color}-800`}>
-                              {unit.available} available
-                            </Badge>
+                            <div className="mb-4">
+                              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                {unit.price || 'Contact for pricing'}
+                              </p>
+                              {unit.available && (
+                                <Badge className="mt-2 bg-green-100 text-green-800">
+                                  Available Now
+                                </Badge>
+                              )}
+                            </div>
+                            <Button 
+                              className="w-full bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => setShowReservationDialog(true)}
+                            >
+                              Reserve This Unit
+                            </Button>
                           </div>
-                          <p className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-3">{unit.price}/mo</p>
-                          <Button 
-                            size="sm" 
-                            className="w-full bg-green-600 hover:bg-green-700"
-                            onClick={() => setIsScheduleTourOpen(true)}
-                          >
-                            Reserve Unit
-                          </Button>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        /* Show pricing from Perplexity data or estimates */
+                        <>
+                          {verificationReport?.verificationResults?.pricing?.monthly ? (
+                            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                              <div className="mb-3">
+                                <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                  Monthly Rate
+                                </h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                  Base monthly pricing
+                                </p>
+                              </div>
+                              <div className="mb-4">
+                                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                  {verificationReport.verificationResults.pricing.monthly}
+                                </p>
+                                <Badge className="mt-2 bg-green-100 text-green-800">
+                                  Verified Pricing
+                                </Badge>
+                              </div>
+                              <Button 
+                                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                onClick={() => setShowReservationDialog(true)}
+                              >
+                                Reserve Unit
+                              </Button>
+                            </div>
+                          ) : (
+                            /* Default estimated pricing with enhanced display */
+                            [
+                              { 
+                                type: 'Studio', 
+                                price: verificationReport?.verificationResults?.pricing?.studio || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : '$2,500-3,500'),
+                                features: '400-600 sq ft',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
+                                amenities: ['Kitchenette', 'Private Bath', 'Emergency Call System']
+                              },
+                              { 
+                                type: 'One Bedroom', 
+                                price: verificationReport?.verificationResults?.pricing?.oneBedroom || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : '$3,000-4,500'),
+                                features: '600-800 sq ft',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1565183997392-2f6f122e5912?w=600&h=400&fit=crop', 
+                                amenities: ['Full Kitchen', 'Living Area', 'Walk-in Closet']
+                              },
+                              { 
+                                type: 'Two Bedroom', 
+                                price: verificationReport?.verificationResults?.pricing?.twoBedroom || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : '$4,000-6,000'),
+                                features: '800-1200 sq ft',
+                                floorPlanImage: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
+                                amenities: ['Full Kitchen', '2 Bathrooms', 'Washer/Dryer Hookups']
+                              }
+                            ].map((unit) => (
+                              <div key={unit.type} className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                                {/* Floor Plan Image */}
+                                <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                                  <img 
+                                    src={unit.floorPlanImage} 
+                                    alt={`${unit.type} floor plan`}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                    Floor Plan
+                                  </div>
+                                </div>
+                                
+                                <div className="p-4">
+                                  <div className="mb-3">
+                                    <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                      {unit.type}
+                                    </h4>
+                                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                                      {unit.features}
+                                    </p>
+                                  </div>
+                                  
+                                  {/* Amenities */}
+                                  <div className="mb-3">
+                                    <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Includes:</p>
+                                    <div className="flex flex-wrap gap-1">
+                                      {unit.amenities.map((amenity, idx) => (
+                                        <Badge key={idx} variant="secondary" className="text-xs">
+                                          {amenity}
+                                        </Badge>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Pricing with clear "Estimated" label */}
+                                  <div className="mb-4">
+                                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
+                                      Estimated Monthly Cost
+                                    </p>
+                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                      {unit.price}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                      {verificationReport?.verificationResults?.pricing ? 
+                                        'AI-verified pricing' : 
+                                        'Market estimate - contact for exact pricing'}
+                                    </p>
+                                  </div>
+                                  
+                                  <Button 
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                    onClick={() => setShowReservationDialog(true)}
+                                  >
+                                    Reserve Unit
+                                  </Button>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </>
+                      )}
                     </div>
-                    
-                    <Separator className="my-6" />
-                    
-                    {/* Move-In Cost Calculator Integration */}
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">Estimate Your Move-In Costs</h3>
-                      <ReservationSection community={community} />
+
+                    {/* Pricing Note */}
+                    <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                      <div className="flex items-start gap-3">
+                        <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+                        <div className="flex-1">
+                          <p className="text-sm text-blue-800 dark:text-blue-200 font-medium">
+                            About Our Pricing
+                          </p>
+                          <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
+                            {verificationReport?.verificationResults?.pricing ? 
+                              `Pricing verified from ${verificationReport.verificationResults.webIntelligence?.sources?.[0] || 'official sources'}. Contact community for current availability and specials.` :
+                              'Pricing shown is based on market analysis. Contact the community directly for exact rates and current specials.'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-                
+
+                {/* Reservation Information */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center">
+                      <Clock className="w-5 h-5 mr-2" />
+                      How to Reserve
+                    </CardTitle>
+                    <CardDescription>
+                      Simple steps to secure your unit with our $500 pay-at-arrival deposit
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
+                          1
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">Choose Your Unit</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Select from available units above</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
+                          2
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">Register on MySeniorValet</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Create your free account to access reservation features</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
+                          3
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 dark:text-gray-100">Reserve with $500 Deposit</p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Pay your deposit upon arrival at the community</p>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
+                          <span className="font-semibold text-green-800 dark:text-green-200">Pay-at-Arrival Deposit</span>
+                        </div>
+                        <p className="text-sm text-green-700 dark:text-green-300">
+                          Your $500 deposit is due when you arrive at the community, not online. This secures your unit and demonstrates your serious interest.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* Healthcare Partnerships Section */}
                 <HealthcarePartnerships community={community} isAdminView={false} />
-                
-                {/* Community Management Live Updates */}
-                <Card className="border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold flex items-center text-blue-800 dark:text-blue-200">
-                      <Lock className="w-5 h-5 mr-2" />
-                      Live Pricing & Availability Updates
-                    </CardTitle>
-                    <CardDescription className="text-blue-700 dark:text-blue-300">
-                      For community management to update real-time pricing and availability
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-blue-200 dark:border-blue-700">
-                      <div className="flex items-center justify-between mb-4">
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100">Community Access Portal</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Update your community's pricing, availability, and unit information in real-time
-                          </p>
-                        </div>
-                        <Badge variant="outline" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                          Staff Only
-                        </Badge>
-                      </div>
-                      
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                          <div className="flex items-center mb-2">
-                            <DollarSign className="w-4 h-4 text-green-600 mr-2" />
-                            <span className="text-sm font-medium text-green-800 dark:text-green-200">Live Pricing Updates</span>
-                          </div>
-                          <p className="text-xs text-green-700 dark:text-green-300">
-                            Update current rental rates, move-in specials, and incentives
-                          </p>
-                        </div>
-                        
-                        <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-                          <div className="flex items-center mb-2">
-                            <Home className="w-4 h-4 text-purple-600 mr-2" />
-                            <span className="text-sm font-medium text-purple-800 dark:text-purple-200">Unit Availability</span>
-                          </div>
-                          <p className="text-xs text-purple-700 dark:text-purple-300">
-                            Update available units, waitlist status, and move-in dates
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <Button 
-                          className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
-                          onClick={() => window.open(`/community-portal/${community.id}`, '_blank')}
-                        >
-                          <Lock className="w-4 h-4 mr-2" />
-                          Access Management Portal
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                          onClick={() => window.open(`mailto:hello@myseniorvalet.com?subject=Portal Access Request - ${community.name}&body=Hello! I need access to the management portal for ${community.name} to update pricing and availability.`, '_blank')}
-                        >
-                          <Mail className="w-4 h-4 mr-2" />
-                          Request Access
-                        </Button>
-                      </div>
-                    </div>
-                    
-                    <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                        <span className="text-sm font-medium text-amber-800 dark:text-amber-200">Important Note</span>
-                      </div>
-                      <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                        Pricing and availability shown below are estimates based on market analysis. Contact the community directly for current rates and availability.
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                {/* Available Units Section - Mobile Responsive */}
-                <Card>
-              <CardHeader className="p-4 sm:p-6">
-                <CardTitle className="text-responsive-lg flex items-center">
-                  <Home className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                  Available Units & Floor Plans
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Availability Notice */}
-                <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <Info className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
-                    <div className="flex-1">
-                      <p className="text-sm text-amber-800 dark:text-amber-200 font-medium">
-                        Live availability numbers pending community verification
-                      </p>
-                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                        Pricing shown is market estimates. Contact community for current availability and exact pricing.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Enhanced Unit Types Grid - Mobile Responsive */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-                  {/* Studio Units */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-800">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
-                          <Home className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Studio Apartment</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Efficiency Living</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-                        Most Affordable
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Square Footage</span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">400-500 sq ft</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
-                        <span className="font-semibold text-xl text-purple-600 dark:text-purple-400">
-                          ${community.communitySubtype === 'hud_senior_housing' ? '0-500' : '2,500-3,500'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUnitType('Studio');
-                            setIsWaitlistOpen(true);
-                          }}
-                          className="text-purple-600 hover:text-purple-700 p-0 h-auto font-medium"
-                        >
-                          Join Waitlist →
-                        </Button>
-                      </div>
-                      
-                      <Separator className="my-2" />
-                      
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
-                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Kitchenette with microwave & mini-fridge
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Private bathroom with safety features
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Emergency call system
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* One Bedroom */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-blue-50 to-white dark:from-blue-900/10 dark:to-gray-800">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                          <Home className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">One Bedroom</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Private & Comfortable</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
-                        Most Popular
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Square Footage</span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">550-700 sq ft</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
-                        <span className="font-semibold text-xl text-blue-600 dark:text-blue-400">
-                          ${community.communitySubtype === 'hud_senior_housing' ? '100-600' : '3,000-4,500'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUnitType('One Bedroom');
-                            setIsWaitlistOpen(true);
-                          }}
-                          className="text-blue-600 hover:text-blue-700 p-0 h-auto font-medium"
-                        >
-                          Join Waitlist →
-                        </Button>
-                      </div>
-                      
-                      <Separator className="my-2" />
-                      
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
-                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Full kitchen with appliances
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Separate bedroom with closet
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Living room area
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Patio or balcony (select units)
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Two Bedroom */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-green-50 to-white dark:from-green-900/10 dark:to-gray-800">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
-                          <Home className="w-6 h-6 text-green-600 dark:text-green-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Two Bedroom</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Spacious Living</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
-                        Premium Space
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Square Footage</span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">800-1,000 sq ft</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
-                        <span className="font-semibold text-xl text-green-600 dark:text-green-400">
-                          ${community.communitySubtype === 'hud_senior_housing' ? '200-800' : '4,000-5,500'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUnitType('Two Bedroom');
-                            setIsWaitlistOpen(true);
-                          }}
-                          className="text-green-600 hover:text-green-700 p-0 h-auto font-medium"
-                        >
-                          Join Waitlist →
-                        </Button>
-                      </div>
-                      
-                      <Separator className="my-2" />
-                      
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
-                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Two full bedrooms
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            1.5 or 2 bathrooms
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Full kitchen & dining area
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            In-unit washer/dryer hookups
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Companion Suite */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-orange-50 to-white dark:from-orange-900/10 dark:to-gray-800">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                          <Users className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Companion Suite</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Shared Living Option</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300">
-                        Best Value
-                      </Badge>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Room Type</span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">Semi-Private</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
-                        <span className="font-semibold text-xl text-orange-600 dark:text-orange-400">
-                          ${community.communitySubtype === 'hud_senior_housing' ? '0-300' : '2,000-3,000'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600 dark:text-gray-400">Availability</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setSelectedUnitType('Companion Suite');
-                            setIsWaitlistOpen(true);
-                          }}
-                          className="text-orange-600 hover:text-orange-700 p-0 h-auto font-medium"
-                        >
-                          Join Waitlist →
-                        </Button>
-                      </div>
-                      
-                      <Separator className="my-2" />
-                      
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Includes:</p>
-                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Private bedroom area
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Shared living spaces
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Companion matching service
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Cost-effective care option
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Memory Care Suite */}
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 hover:shadow-lg transition-all bg-gradient-to-br from-pink-50 to-white dark:from-pink-900/10 dark:to-gray-800 md:col-span-2">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 rounded-lg flex items-center justify-center">
-                          <Heart className="w-6 h-6 text-pink-600 dark:text-pink-400" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-lg">Memory Care Suite</h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">Specialized Dementia & Alzheimer's Care</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300">
-                        Specialized Care
-                      </Badge>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Room Type</span>
-                          <span className="font-medium text-gray-900 dark:text-gray-100">Private or Semi-Private</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Est. Monthly Cost</span>
-                          <span className="font-semibold text-xl text-pink-600 dark:text-pink-400">$5,000-8,000</span>
-                        </div>
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-gray-600 dark:text-gray-400">Availability</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedUnitType('Memory Care');
-                              setIsWaitlistOpen(true);
-                            }}
-                            className="text-pink-600 hover:text-pink-700 p-0 h-auto font-medium"
-                          >
-                            Join Waitlist →
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <p className="text-xs font-medium text-gray-700 dark:text-gray-300">Special Features:</p>
-                        <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            24/7 specialized staff supervision
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Secure unit with controlled access
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Structured daily activities program
-                          </li>
-                          <li className="flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3 text-green-500" />
-                            Specialized dining programs
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Important Notes Section */}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 space-y-3">
-                  <h4 className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    Important Information
-                  </h4>
-                  <ul className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
-                    <li className="flex items-start gap-2">
-                      <span className="text-gray-400">•</span>
-                      <span>Pricing shown includes base rent and typical care services. Additional fees may apply for enhanced care levels.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-gray-400">•</span>
-                      <span>Most communities require a one-time community fee ranging from $1,000-$5,000.</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-gray-400">•</span>
-                      <span>Pet deposits typically range from $300-$500 for pet-friendly units.</span>
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Contact CTA */}
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-6">
-                  <div className="flex items-center justify-between flex-wrap gap-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-                        Ready to Check Availability?
-                      </h4>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Speak with a community advisor for current pricing and availability
-                      </p>
-                    </div>
-                    <Button
-                      onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
-                      <Phone className="w-4 h-4 mr-2" />
-                      {community.phone || generatePhoneNumber(community.state, community.id)}
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* "How We're Different" Section */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center">
-                  <Award className="w-5 h-5 mr-2" />
-                  How We're Different
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                    <div className="flex items-center mb-2">
-                      <Shield className="w-5 h-5 text-blue-600 mr-2" />
-                      <span className="font-medium text-blue-900">Certified Excellence</span>
-                    </div>
-                    <p className="text-sm text-blue-800">State-licensed facility with 5-star safety rating</p>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                    <div className="flex items-center mb-2">
-                      <CheckCircle className="w-5 h-5 text-green-600 mr-2" />
-                      <span className="font-medium text-green-900">24/7 Care Available</span>
-                    </div>
-                    <p className="text-sm text-green-800">Round-the-clock professional nursing staff</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <div className="flex items-center mb-2">
-                      <Users className="w-5 h-5 text-purple-600 mr-2" />
-                      <span className="font-medium text-purple-900">Family-Centered</span>
-                    </div>
-                    <p className="text-sm text-purple-800">Regular family events and open visitation</p>
-                  </div>
-                  <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                    <div className="flex items-center mb-2">
-                      <Sparkles className="w-5 h-5 text-orange-600 mr-2" />
-                      <span className="font-medium text-orange-900">Resort-Style Living</span>
-                    </div>
-                    <p className="text-sm text-orange-800">Luxury amenities and gourmet dining</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
               </TabsContent>
 
               {/* Live Market Data Tab */}
@@ -4414,6 +3780,15 @@ export default function CommunityDetail() {
       communityId={community?.id || 0}
       communityName={community?.name || ''}
       />
+      
+      {/* Reservation Dialog */}
+      {community && (
+        <ReservationDialog 
+          open={showReservationDialog}
+          onOpenChange={setShowReservationDialog}
+          community={community}
+        />
+      )}
     </div>
     </>
   );

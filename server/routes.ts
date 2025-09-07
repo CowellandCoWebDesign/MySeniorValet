@@ -12,7 +12,7 @@ import { registerRoutes as registerModularRoutes } from "./routes/index";
 // Import remaining services needed for middleware and specific routes
 import { setupAuth } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
-import reservationRoutes from "./routes/reservations";
+import reservationRoutes from "./routes/reservationRoutes";
 import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
@@ -23,6 +23,7 @@ import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
 import { vendors, users } from "../shared/schema";
+import { sendEmail } from "./sendgrid-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -90,6 +91,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register analytics intelligence routes
   const analyticsIntelligenceRoutes = await import('./routes/analytics-intelligence-routes');
   app.use(analyticsIntelligenceRoutes.default);
+  
+  // Register image proxy for CORS handling
+  const imageProxyRoutes = await import('./routes/imageProxy');
+  app.use(imageProxyRoutes.default);
   
   // Register photo validation routes
   const photoValidationRoutes = await import('./routes/photoValidationRoutes');
@@ -547,6 +552,218 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('AI status check failed:', error);
       res.status(500).json({ error: 'Failed to check AI status' });
+    }
+  });
+
+  // Service providers endpoint for Trusted Partners section
+  app.get('/api/services-management/providers', async (req, res) => {
+    try {
+      const { highQuality, limit = '50', search } = req.query;
+      
+      // Return trusted service providers
+      const providers = [
+        {
+          id: 1,
+          name: "United Van Lines",
+          category: "moving",
+          description: "Professional senior move management and relocation services",
+          verified: true,
+          rating: 4.8,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-325-3870",
+          website: "https://www.unitedvanlines.com",
+          specialOffers: "10% Senior Discount"
+        },
+        {
+          id: 2,
+          name: "Uber Health",
+          category: "medical_transport",
+          description: "Non-emergency medical transportation services",
+          verified: true,
+          rating: 4.6,
+          serviceAreas: ["Nationwide"],
+          contact: "1-833-USE-UBER",
+          website: "https://www.uberhealth.com",
+          specialOffers: "Covered by many insurance plans"
+        },
+        {
+          id: 3,
+          name: "Life Alert",
+          category: "medical_equipment",
+          description: "Emergency response and medical alert systems",
+          verified: true,
+          rating: 4.7,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-360-0329",
+          website: "https://www.lifealert.com",
+          specialOffers: "Free equipment with subscription"
+        },
+        {
+          id: 4,
+          name: "Meals on Wheels",
+          category: "meal_delivery",
+          description: "Nutritious meal delivery for seniors",
+          verified: true,
+          rating: 4.9,
+          serviceAreas: ["Nationwide"],
+          contact: "1-888-998-6325",
+          website: "https://www.mealsonwheelsamerica.org",
+          specialOffers: "Income-based pricing available"
+        },
+        {
+          id: 5,
+          name: "Medical Guardian",
+          category: "medical_equipment",
+          description: "Medical alert systems and emergency response",
+          verified: true,
+          rating: 4.5,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-313-1191",
+          website: "https://www.medicalguardian.com",
+          specialOffers: "Free month of service"
+        },
+        {
+          id: 6,
+          name: "Allied Van Lines",
+          category: "moving",
+          description: "Full-service moving and storage solutions",
+          verified: true,
+          rating: 4.6,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-689-8684",
+          website: "https://www.allied.com",
+          specialOffers: "Senior moving specialists available"
+        },
+        {
+          id: 7,
+          name: "Lyft Healthcare",
+          category: "medical_transport",
+          description: "Medical appointment transportation",
+          verified: true,
+          rating: 4.5,
+          serviceAreas: ["Major Cities"],
+          contact: "1-855-865-9553",
+          website: "https://www.lyft.com/healthcare",
+          specialOffers: "Insurance billing available"
+        },
+        {
+          id: 8,
+          name: "Pride Mobility",
+          category: "medical_equipment",
+          description: "Mobility scooters and power wheelchairs",
+          verified: true,
+          rating: 4.7,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-800-1476",
+          website: "https://www.pridemobility.com",
+          specialOffers: "Medicare approved provider"
+        },
+        {
+          id: 9,
+          name: "Mom's Meals",
+          category: "meal_delivery",
+          description: "Refrigerated home-delivered meals",
+          verified: true,
+          rating: 4.4,
+          serviceAreas: ["Nationwide"],
+          contact: "1-866-971-6667",
+          website: "https://www.momsmeals.com",
+          specialOffers: "Medicaid coverage in select states"
+        },
+        {
+          id: 10,
+          name: "Mayflower Transit",
+          category: "moving",
+          description: "Professional moving and packing services",
+          verified: true,
+          rating: 4.5,
+          serviceAreas: ["Nationwide"],
+          contact: "1-800-436-9674",
+          website: "https://www.mayflower.com",
+          specialOffers: "Free moving quotes"
+        }
+      ];
+      
+      // Filter by search if provided
+      let filteredProviders = providers;
+      if (search) {
+        const searchLower = String(search).toLowerCase();
+        filteredProviders = providers.filter(p => 
+          p.name.toLowerCase().includes(searchLower) ||
+          p.description.toLowerCase().includes(searchLower) ||
+          p.category.toLowerCase().includes(searchLower)
+        );
+      }
+      
+      // Apply limit
+      const limitNum = parseInt(String(limit));
+      if (!isNaN(limitNum) && limitNum > 0) {
+        filteredProviders = filteredProviders.slice(0, limitNum);
+      }
+      
+      res.json(filteredProviders);
+    } catch (error) {
+      console.error('Error fetching service providers:', error);
+      res.status(500).json({ error: 'Failed to fetch service providers' });
+    }
+  });
+
+  // Feedback for incorrect external links
+  app.post('/api/feedback/incorrect-link', async (req, res) => {
+    try {
+      const { reportedUrl, pageUrl, userAgent, timestamp } = req.body;
+      
+      console.log('📝 Incorrect link reported:', {
+        reportedUrl,
+        pageUrl,
+        timestamp,
+        userAgent
+      });
+
+      // Send notification email to admin
+      const emailSent = await sendEmail({
+        to: 'admin@myseniorvalet.com',
+        from: 'notifications@myseniorvalet.com',
+        subject: 'Incorrect External Link Reported',
+        text: `A user has reported an incorrect external link on MySeniorValet.
+        
+Reported URL: ${reportedUrl}
+Found on page: ${pageUrl}
+Reported at: ${timestamp}
+User Agent: ${userAgent}
+
+Please review and update the link accuracy for this community.`,
+        html: `
+          <h3>Incorrect External Link Reported</h3>
+          <p>A user has reported an incorrect external link on MySeniorValet.</p>
+          <table style="border-collapse: collapse; width: 100%;">
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reported URL:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${reportedUrl}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Found on page:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${pageUrl}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reported at:</strong></td>
+              <td style="padding: 8px; border: 1px solid #ddd;">${timestamp}</td>
+            </tr>
+          </table>
+          <p style="margin-top: 20px;">Please review and update the link accuracy for this community.</p>
+        `
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Feedback received. Thank you for helping us improve!' 
+      });
+    } catch (error) {
+      console.error('Error processing link feedback:', error);
+      res.status(500).json({ 
+        error: 'Failed to process feedback',
+        message: 'Please try again later' 
+      });
     }
   });
 

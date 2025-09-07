@@ -170,8 +170,8 @@ export function validateInput(schema: z.ZodSchema) {
 
 // SQL injection protection
 export function sqlInjectionProtection(req: Request, res: Response, next: NextFunction) {
-  // Skip photo proxy endpoint - Google photo references are legitimate
-  if (req.path === '/api/images/photo-proxy') {
+  // Skip photo proxy endpoints - External photo references are legitimate
+  if (req.path === '/api/images/photo-proxy' || req.path === '/api/image-proxy') {
     return next();
   }
   

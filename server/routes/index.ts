@@ -60,6 +60,7 @@ import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import nlpSearchRoutes from "./nlpSearchRoutes";
 import comprehensiveSearchRoutes from "./comprehensiveSearchRoutes";
 import categorySearchRoutes from "./categorySearchRoutes";
+import testPhotoExtractionRoutes from "./testPhotoExtraction";
 import { registerPlatformRoutes } from "./platformRoutes";
 import { registerCommunityOnboardingRoutes } from "./communityOnboardingRoutes";
 import { registerCRMIntegrationRoutes } from "./crmIntegrationRoutes";
@@ -75,7 +76,7 @@ import paymentTestRoutes from "./payment-test-routes";
 
 // Import existing routers
 import { quizRouter } from "./quiz";
-import reservationRoutes from "./reservations";
+import reservationRoutes from "./reservationRoutes";
 import financialRoutes from "./financial-api";
 import { registerLegalRoutes } from "./legal-api";
 import seniorServicesRoutes from "./senior-services";
@@ -211,6 +212,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const nlpAnalyticsRoutes = await import('./nlpAnalyticsRoutes');
   app.use('/api/nlp/analytics', nlpAnalyticsRoutes.default);
   
+  // Test photo extraction routes (for testing super-powered AI)
+  app.use(testPhotoExtractionRoutes);
+  
   // Register Canadian community routes
   const canadianRoutes = await import('./canadianRoutes');
   app.use('/api/communities', canadianRoutes.default);
@@ -256,6 +260,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register Community Features routes (Phase 5 - tier-based features)
   app.use('/api/community-features', communityFeaturesRoutes);
+  
+  // Register Image Proxy route (for CORS-free image loading)
+  const imageProxyRoutes = await import('./imageProxy');
+  app.use('/', imageProxyRoutes.default);
 
   return httpServer;
 }

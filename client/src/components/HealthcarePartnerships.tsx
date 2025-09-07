@@ -34,82 +34,162 @@ interface HealthcarePartner {
 export function HealthcarePartnerships({ community, isAdminView = false }: HealthcarePartnershipsProps) {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Fetch healthcare partnerships data
-  const { data: partnerships, isLoading } = useQuery({
-    queryKey: ['/api/communities', community?.id, 'healthcare-partners'],
-    enabled: !!community?.id,
+  // Calculate search area around community (10 mile radius)
+  const getSearchBounds = () => {
+    if (!community?.latitude || !community?.longitude) return null;
+    const lat = parseFloat(community.latitude);
+    const lng = parseFloat(community.longitude);
+    const radiusMiles = 10;
+    const latDegrees = radiusMiles / 69; // ~69 miles per degree latitude
+    const lngDegrees = radiusMiles / (69 * Math.cos(lat * Math.PI / 180));
+    
+    return {
+      north: lat + latDegrees,
+      south: lat - latDegrees,
+      east: lng + lngDegrees,
+      west: lng - lngDegrees,
+      centerLat: lat,
+      centerLng: lng
+    };
+  };
+
+  // Fetch real hospitals from healthcare directory
+  const { data: hospitalsData, isLoading: hospitalsLoading } = useQuery({
+    queryKey: ['/api/healthcare/hospitals-map', community?.id, community?.latitude, community?.longitude],
+    queryFn: async () => {
+      const bounds = getSearchBounds();
+      if (!bounds) return { hospitals: [] };
+      
+      const params = new URLSearchParams({
+        north: bounds.north.toString(),
+        south: bounds.south.toString(),
+        east: bounds.east.toString(),
+        west: bounds.west.toString(),
+        limit: '20'
+      });
+      
+      const response = await fetch(`/api/healthcare/hospitals-map?${params}`);
+      if (!response.ok) throw new Error('Failed to fetch hospitals');
+      return response.json();
+    },
+    enabled: !!community?.latitude && !!community?.longitude,
   });
 
-  // Mock data for demonstration - replace with actual API data
-  const healthcarePartners: HealthcarePartner[] = partnerships || [
-    {
-      id: '1',
-      name: 'St. Mary\'s Medical Center',
-      type: 'hospital',
-      specialty: 'Full-Service Hospital',
-      distance: '2.3 miles',
-      rating: 4.8,
-      services: ['Emergency Care', 'Surgery', 'Cardiology', 'Oncology'],
-      availability: '24/7',
-      phone: '(555) 123-4567',
-      address: '123 Medical Center Dr',
-      isPreferred: true,
-      responseTime: '< 10 min'
+  // Fetch other healthcare providers from services API
+  const { data: servicesData, isLoading: servicesLoading } = useQuery({
+    queryKey: ['/api/services/discover', community?.latitude, community?.longitude],
+    queryFn: async () => {
+      if (!community?.latitude || !community?.longitude) return { services: [] };
+      
+      const params = new URLSearchParams({
+        lat: community.latitude,
+        lng: community.longitude,
+        radius: '10',
+        category: 'healthcare'
+      });
+      
+      const response = await fetch(`/api/services/discover?${params}`);
+      if (!response.ok) return { services: [] };
+      return response.json();
     },
-    {
-      id: '2',
-      name: 'Comfort Care Home Health',
-      type: 'home-health',
-      specialty: 'Home Health Services',
-      distance: 'On-site',
-      rating: 4.9,
-      services: ['Nursing Care', 'Physical Therapy', 'Wound Care', 'Medication Management'],
-      availability: 'Daily visits',
-      phone: '(555) 234-5678',
-      address: 'On-site service',
-      isPreferred: true
-    },
-    {
-      id: '3',
-      name: 'Valley Rehabilitation Center',
-      type: 'rehabilitation',
-      specialty: 'Physical & Occupational Therapy',
-      distance: '1.5 miles',
-      rating: 4.7,
-      services: ['Physical Therapy', 'Occupational Therapy', 'Speech Therapy', 'Aquatic Therapy'],
-      availability: 'Mon-Sat',
-      phone: '(555) 345-6789',
-      address: '456 Rehab Way',
-      isPreferred: false
-    },
-    {
-      id: '4',
-      name: 'Senior Wellness Pharmacy',
-      type: 'pharmacy',
-      specialty: 'Geriatric Pharmacy',
-      distance: '0.8 miles',
-      rating: 4.6,
-      services: ['Prescription Delivery', 'Medication Counseling', 'Vaccine Services', 'Compounding'],
-      availability: 'Mon-Sun 8am-9pm',
-      phone: '(555) 456-7890',
-      address: '789 Pharmacy Blvd',
-      isPreferred: true
-    },
-    {
-      id: '5',
-      name: 'MindCare Senior Mental Health',
-      type: 'mental-health',
-      specialty: 'Geriatric Psychiatry',
-      distance: 'Virtual & On-site',
-      rating: 4.8,
-      services: ['Depression Treatment', 'Memory Care', 'Counseling', 'Support Groups'],
-      availability: 'By appointment',
-      phone: '(555) 567-8901',
-      address: 'Telehealth available',
-      isPreferred: true
-    }
-  ];
+    enabled: !!community?.latitude && !!community?.longitude,
+  });
 
+  // Calculate distance between two points (in miles)
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number) => {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  // Transform hospital data into healthcare partner format
+  const transformHospitalsToPartners = (hospitals: any[]): HealthcarePartner[] => {
+    if (!hospitals || !Array.isArray(hospitals)) return [];
+    
+    const communityLat = parseFloat(community?.latitude || '0');
+    const communityLng = parseFloat(community?.longitude || '0');
+    
+    return hospitals.map((hospital, index) => {
+      const distance = hospital.latitude && hospital.longitude
+        ? calculateDistance(communityLat, communityLng, hospital.latitude, hospital.longitude)
+        : 0;
+      
+      // Determine services based on hospital type
+      const services = [];
+      if (hospital.emergencyServices === 'Yes') services.push('Emergency Care');
+      if (hospital.hospitalType?.includes('General')) services.push('General Medicine');
+      if (hospital.hospitalType?.includes('Children')) services.push('Pediatrics');
+      if (hospital.hospitalType?.includes('Psychiatric')) services.push('Mental Health');
+      if (hospital.hospitalType?.includes('Rehabilitation')) services.push('Rehabilitation');
+      if (hospital.hospitalType?.includes('Critical')) services.push('Critical Care');
+      
+      // Default services if none specified
+      if (services.length === 0) {
+        services.push('Emergency Care', 'General Medicine', 'Surgery', 'Diagnostics');
+      }
+      
+      return {
+        id: hospital.id?.toString() || `hospital-${index}`,
+        name: hospital.name || hospital.facilityName || 'Healthcare Facility',
+        type: 'hospital',
+        specialty: hospital.hospitalType || 'General Hospital',
+        distance: distance < 0.1 ? 'On-site' : `${distance.toFixed(1)} miles`,
+        rating: hospital.overallRating ? parseFloat(hospital.overallRating) : 4.5,
+        services,
+        availability: hospital.emergencyServices === 'Yes' ? '24/7 Emergency' : 'By appointment',
+        phone: hospital.phoneNumber || hospital.phone || '(Call for info)',
+        address: hospital.address || `${hospital.city}, ${hospital.state}`,
+        isPreferred: distance < 3, // Mark as preferred if within 3 miles
+        responseTime: hospital.emergencyServices === 'Yes' ? '< 15 min' : undefined
+      };
+    });
+  };
+
+  // Transform service providers to healthcare partners
+  const transformServicesToPartners = (services: any[]): HealthcarePartner[] => {
+    if (!services || !Array.isArray(services)) return [];
+    
+    return services
+      .filter((service: any) => 
+        service.category === 'healthcare' || 
+        service.category === 'pharmacy' ||
+        service.category === 'home_health' ||
+        service.category === 'mental_health'
+      )
+      .map((service: any, index: number) => ({
+        id: service.id?.toString() || `service-${index}`,
+        name: service.name,
+        type: service.category === 'healthcare' ? 'home-health' : service.category,
+        specialty: service.description || 'Healthcare Services',
+        distance: service.distance || '5.0 miles',
+        rating: service.rating || 4.3,
+        services: service.services || ['General Care'],
+        availability: 'By appointment',
+        phone: service.phone || '(Call for info)',
+        address: service.address || `${community?.city}, ${community?.state}`,
+        isPreferred: false,
+        responseTime: undefined
+      }));
+  };
+
+  // Combine and sort healthcare partners
+  const healthcarePartners: HealthcarePartner[] = [
+    ...transformHospitalsToPartners(hospitalsData?.hospitals || []),
+    ...transformServicesToPartners(servicesData?.services || [])
+  ].sort((a, b) => {
+    // Sort by distance (closest first)
+    const distA = parseFloat(a.distance.split(' ')[0]) || 999;
+    const distB = parseFloat(b.distance.split(' ')[0]) || 999;
+    return distA - distB;
+  });
+
+  const isLoading = hospitalsLoading || servicesLoading;
+  
   // Filter partners by category
   const filteredPartners = selectedCategory === 'all' 
     ? healthcarePartners 
@@ -172,7 +252,16 @@ export function HealthcarePartnerships({ community, isAdminView = false }: Healt
           </TabsList>
         </Tabs>
 
+        {/* Loading State */}
+        {isLoading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-3 text-gray-600 dark:text-gray-400">Loading healthcare providers...</span>
+          </div>
+        )}
+
         {/* Healthcare Partners Grid */}
+        {!isLoading && filteredPartners.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredPartners.map((partner) => (
             <div 
@@ -278,6 +367,20 @@ export function HealthcarePartnerships({ community, isAdminView = false }: Healt
             </div>
           ))}
         </div>
+        )}
+
+        {/* No Partners Found */}
+        {!isLoading && filteredPartners.length === 0 && (
+          <div className="text-center py-8">
+            <Stethoscope className="w-12 h-12 mx-auto text-gray-400 mb-3" />
+            <p className="text-gray-600 dark:text-gray-400">
+              No healthcare providers found in this area.
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-500 mt-2">
+              Contact the community for more information about local healthcare partnerships.
+            </p>
+          </div>
+        )}
 
         {/* Healthcare Benefits Info */}
         <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
