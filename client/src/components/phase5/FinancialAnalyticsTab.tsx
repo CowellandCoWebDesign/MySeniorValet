@@ -10,8 +10,9 @@ import {
 } from 'recharts';
 import { 
   TrendingUp, TrendingDown, DollarSign, CreditCard, 
-  ShoppingCart, Receipt, AlertCircle, Brain
+  ShoppingCart, Receipt, AlertCircle, Brain, TestTube
 } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -19,6 +20,7 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 
 export function FinancialAnalyticsTab() {
   const [timeRange, setTimeRange] = useState('30d');
+  const [, navigate] = useLocation();
   
   // Fetch REAL financial data from database
   const { data: financialMetrics, isLoading: metricsLoading } = useQuery({
@@ -84,6 +86,13 @@ export function FinancialAnalyticsTab() {
               <SelectItem value="1y">Last year</SelectItem>
             </SelectContent>
           </Select>
+          <Button 
+            onClick={() => navigate('/test-payment')}
+            className="bg-green-600 hover:bg-green-700 text-white"
+          >
+            <TestTube className="h-4 w-4 mr-2" />
+            Test Payments
+          </Button>
           <Button variant="outline">Export Report</Button>
         </div>
       </div>
