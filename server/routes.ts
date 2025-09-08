@@ -445,6 +445,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register admin AI metrics routes
   const adminAIMetricsRoutes = await import('./routes/adminAIMetricsRoutes');
   app.use('/api/admin/ai', adminAIMetricsRoutes.default);
+  
+  // Register Stripe webhook routes (must be before body parsing middleware)
+  const stripeWebhookRoutes = await import('./routes/stripeWebhookRoutes');
+  app.use('/api/stripe', stripeWebhookRoutes.default);
 
   // Admin: Get all users
   app.get('/api/admin/users', async (req, res) => {
