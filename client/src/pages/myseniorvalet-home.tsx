@@ -457,16 +457,30 @@ function HeroSectionWithTransformingSearch() {
         {/* Hero Title - Positioned at Very Top */}
         <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
           <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-4 md:px-5 py-3 sm:py-2.5 max-w-[95vw] sm:max-w-none">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-3">
+              AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place.
+            </h1>
+            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-3">
               Search Without the Spam.<br className="sm:hidden" />
               <span className="sm:ml-2">Move Without the Stress.</span>
-            </h1>
-            <div className="text-xs sm:text-sm md:text-base text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-2 px-2 sm:px-0 space-y-1">
-              <p>AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place.</p>
-              <p>💸 No more hidden costs</p>
-              <p>📱 No more "Call for Pricing", complete transparency of what's online and where</p>
-              <p>🔥 Search on your terms without spam calls, texts, emails</p>
-              <p>🛡️ Free for Families forever</p>
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm md:text-base text-white font-medium max-w-2xl mx-auto">
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                <span className="mr-2">💸</span>
+                <span>No more hidden costs</span>
+              </div>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                <span className="mr-2">📱</span>
+                <span>No more "Call for Pricing", complete transparency</span>
+              </div>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                <span className="mr-2">🔥</span>
+                <span>Search without spam calls, texts, emails</span>
+              </div>
+              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
+                <span className="mr-2">🛡️</span>
+                <span>Free for Families forever</span>
+              </div>
             </div>
           </div>
         </div>
