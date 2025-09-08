@@ -97,7 +97,6 @@ import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import PaymentDemo from "@/pages/payment-demo";
-import TestPaymentPage from "@/pages/test-payment";
 import WeaviateTest from "@/pages/weaviate-test";
 import DataQualityDashboard from "@/pages/data-quality-dashboard";
 import DatabaseTest from "@/pages/database-test";
@@ -394,7 +393,6 @@ function Router() {
       <Route path="/competitive-analysis" component={CompetitiveAnalysis} />
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/payment-demo" component={PaymentDemo} />
-      <Route path="/test-payment" component={TestPaymentPage} />
       <Route path="/test-community-cards" component={TestCommunityCards} />
       <Route path="/enhanced-card-test" component={EnhancedCardTest} />
       <Route path="/perplexity-test" component={PerplexityTest} />
