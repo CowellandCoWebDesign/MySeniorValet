@@ -1122,7 +1122,7 @@ export function registerPaymentRoutes(app: Express) {
         await db
           .update(users)
           .set({ stripeCustomerId: customerId })
-          .where(eq(users.id, userId));
+          .where(eq(users.id, parseInt(userId)));
       }
 
       const paymentMethod = await stripePaymentService.attachPaymentMethod(
@@ -1169,7 +1169,7 @@ export function registerPaymentRoutes(app: Express) {
           stripeCustomerId: users.stripeCustomerId
         })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeSubscriptionId) {
@@ -1195,7 +1195,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select({ stripeSubscriptionId: users.stripeSubscriptionId })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeSubscriptionId) {
@@ -1211,7 +1211,7 @@ export function registerPaymentRoutes(app: Express) {
           stripeSubscriptionId: null,
           updatedAt: new Date()
         })
-        .where(eq(users.id, userId));
+        .where(eq(users.id, parseInt(userId)));
 
       res.json({ subscription });
     } catch (error) {
