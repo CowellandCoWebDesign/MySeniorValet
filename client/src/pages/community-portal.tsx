@@ -212,6 +212,12 @@ export default function CommunityPortal() {
     try {
       // Map plan names to product IDs
       const productIdMap: Record<string, string> = {
+        'Starter': 'starter',
+        'Growth': 'growth',
+        'Professional': 'professional',
+        'Premium': 'premium',
+        'Enterprise': 'enterprise',
+        // Keep legacy names for backward compatibility
         'Verified Listing': 'verified',
         'Standard': 'standard', 
         'Featured': 'featured',

@@ -12,6 +12,90 @@ import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/c
 import { useAuth } from '@/hooks/useAuth';
 
 const TIER_DETAILS = {
+  starter: {
+    name: 'Starter',
+    price: 99,
+    icon: CheckCircle2,
+    color: 'bg-green-100 text-green-800',
+    features: [
+      '💬 Live messaging with families',
+      'Basic profile with 5 photos',
+      'Pricing & availability display',
+      'Contact information',
+      'Analytics dashboard',
+      'Tour scheduling',
+      'Standard search placement',
+      'Monthly performance report'
+    ]
+  },
+  growth: {
+    name: 'Growth',
+    price: 299,
+    icon: Trophy,
+    color: 'bg-blue-100 text-blue-800',
+    features: [
+      'Everything in Starter, plus:',
+      '📅 Reservation Management',
+      '🏠 3D tour embed capability',
+      'Enhanced listing with 20 photos',
+      'Featured search ranking',
+      'TourMate™ advanced scheduling',
+      'Lead tracking & CRM exports',
+      'Priority phone support'
+    ]
+  },
+  professional: {
+    name: 'Professional',
+    price: 999,
+    icon: Star,
+    color: 'bg-purple-100 text-purple-800',
+    features: [
+      'Everything in Growth, plus:',
+      '⭐ Manage up to 5 properties',
+      '🤖 AI lease generation',
+      '🛡️ Rental insurance tracking',
+      'Advanced lead tracking',
+      'RMS integration',
+      'Move-in cost calculator',
+      'Unlimited photos & videos',
+      'Dedicated success manager'
+    ]
+  },
+  premium: {
+    name: 'Premium',
+    price: 1999,
+    icon: Shield,
+    color: 'bg-indigo-100 text-indigo-800',
+    features: [
+      'Everything in Professional, plus:',
+      '💎 Manage up to 10 properties',
+      '💳 Payment & deposit processing',
+      '🏥 Healthcare integrations',
+      'AI-powered insights',
+      'Medicare eligibility verification',
+      'Financial reporting suite',
+      'Compliance monitoring',
+      'Quarterly business reviews'
+    ]
+  },
+  enterprise: {
+    name: 'Enterprise',
+    price: 3999,
+    icon: Crown,
+    color: 'bg-yellow-100 text-yellow-800',
+    features: [
+      'Everything in Premium, plus:',
+      '🚀 Manage up to 25 properties',
+      '👥 Full Resident Management',
+      'White-label platform options',
+      'Full API access & webhooks',
+      'Custom domain & branding',
+      'Dedicated infrastructure',
+      'SLA guarantees',
+      'Executive partnership team'
+    ]
+  },
+  // Keep legacy tiers for backward compatibility
   standard: {
     name: 'Standard',
     price: 149,
