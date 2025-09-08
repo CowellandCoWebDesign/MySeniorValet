@@ -456,15 +456,16 @@ function HeroSectionWithTransformingSearch() {
         <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
         {/* Hero Title - Positioned at Very Top */}
         <div className="w-full text-center pt-1 sm:pt-2">
-          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none">
-            {/* Main Tagline */}
+          <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
+            {/* Main Tagline - Single Line */}
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3">
-              Search Without the Spam.<br/>
-              Move Without the Stress.
+              <span className="inline-block animate-slide-in-left">Search Without the Spam</span>
+              <span className="mx-2">•</span>
+              <span className="inline-block animate-slide-in-right">Move Without the Stress</span>
             </h1>
             
-            {/* Platform Description */}
-            <p className="text-xs sm:text-sm md:text-base text-blue-100 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto">
+            {/* Platform Description - Larger and More Readable */}
+            <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
             
