@@ -238,8 +238,8 @@ export const COMMUNITY_TIERS: KrakenTier[] = [
       
       // Advanced Tools
       tour_scheduler: true,
-      messaging_center: false, // Moved to Enterprise tier
-      directCommunityMessaging: false, // Available in Enterprise only
+      messaging_center: true, // Available in Premium and above
+      directCommunityMessaging: true, // Available in Premium and above
       lead_management: true,
       
       // Analytics
