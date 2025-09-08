@@ -1423,7 +1423,20 @@ Communities Created: ${details.stats.communitiesCreated}`;
                         ))}
                       </ul>
                       <div className="pt-2 flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            // Show edit dialog for subscription plan
+                            const newPrice = prompt(`Enter new price for ${plan.name} (current: $${plan.price}):`, plan.price.toString());
+                            if (newPrice && !isNaN(Number(newPrice))) {
+                              updatePlanMutation.mutate({
+                                planId: plan.id,
+                                updates: { price: Number(newPrice) }
+                              });
+                            }
+                          }}
+                        >
                           <Edit className="h-3 w-3 mr-1" />
                           Edit
                         </Button>

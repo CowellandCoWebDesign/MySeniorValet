@@ -27,29 +27,40 @@ router.get('/comprehensive', async (req, res) => {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     
-    // Get revenue data from payments table
+    // Get revenue data from community and vendor subscriptions
     const [monthlyRevenue] = await db.execute(sql`
       SELECT 
-        COALESCE(SUM(amount), 0) as revenue,
+        COALESCE(SUM(price_amount), 0) as revenue,
         COUNT(*) as transaction_count
-      FROM payments 
-      WHERE created_at >= ${startOfMonth} 
-        AND status = 'completed'
+      FROM (
+        SELECT price_amount, created_at FROM community_subscriptions 
+        WHERE created_at >= ${startOfMonth} AND status = 'active'
+        UNION ALL
+        SELECT price_amount, created_at FROM vendor_subscriptions 
+        WHERE created_at >= ${startOfMonth} AND status = 'active'
+      ) combined
     `);
     
     const [lastMonthRevenue] = await db.execute(sql`
-      SELECT COALESCE(SUM(amount), 0) as revenue
-      FROM payments 
-      WHERE created_at >= ${startOfLastMonth}
-        AND created_at < ${startOfMonth}
-        AND status = 'completed'
+      SELECT COALESCE(SUM(price_amount), 0) as revenue
+      FROM (
+        SELECT price_amount FROM community_subscriptions 
+        WHERE created_at >= ${startOfLastMonth} AND created_at < ${startOfMonth} AND status = 'active'
+        UNION ALL
+        SELECT price_amount FROM vendor_subscriptions 
+        WHERE created_at >= ${startOfLastMonth} AND created_at < ${startOfMonth} AND status = 'active'
+      ) combined
     `);
     
     const [yearlyRevenue] = await db.execute(sql`
-      SELECT COALESCE(SUM(amount), 0) as revenue
-      FROM payments 
-      WHERE created_at >= ${startOfYear}
-        AND status = 'completed'
+      SELECT COALESCE(SUM(price_amount), 0) as revenue
+      FROM (
+        SELECT price_amount FROM community_subscriptions 
+        WHERE created_at >= ${startOfYear} AND status = 'active'
+        UNION ALL
+        SELECT price_amount FROM vendor_subscriptions 
+        WHERE created_at >= ${startOfYear} AND status = 'active'
+      ) combined
     `);
     
     // Calculate MRR from active subscriptions
@@ -135,11 +146,9 @@ router.get('/subscriptions/active', async (req, res) => {
     const communitySubsResult = await db.execute(sql`
       SELECT 
         cs.*,
-        c.name as community_name,
-        u.email as user_email
+        c.name as community_name
       FROM community_subscriptions cs
       LEFT JOIN communities c ON cs.community_id = c.id
-      LEFT JOIN users u ON cs.user_id = u.id
       WHERE cs.status = 'active'
       ORDER BY cs.created_at DESC
     `);
@@ -148,11 +157,9 @@ router.get('/subscriptions/active', async (req, res) => {
     const vendorSubsResult = await db.execute(sql`
       SELECT 
         vs.*,
-        v.company_name as vendor_name,
-        u.email as user_email
+        v.company_name as vendor_name
       FROM vendor_subscriptions vs
       LEFT JOIN vendors v ON vs.vendor_id = v.id
-      LEFT JOIN users u ON vs.user_id = u.id
       WHERE vs.status = 'active'
       ORDER BY vs.created_at DESC
     `);
@@ -213,16 +220,19 @@ router.get('/revenue/analytics', async (req, res) => {
         startDate.setDate(endDate.getDate() - 30);
     }
     
-    // Get daily revenue data
+    // Get daily revenue data from subscriptions
     const dailyRevenue = await db.execute(sql`
       SELECT 
         DATE(created_at) as date,
-        SUM(amount) as revenue,
+        SUM(price_amount) as revenue,
         COUNT(*) as transactions
-      FROM payments
-      WHERE created_at >= ${startDate}
-        AND created_at <= ${endDate}
-        AND status = 'completed'
+      FROM (
+        SELECT created_at, price_amount FROM community_subscriptions 
+        WHERE created_at >= ${startDate} AND created_at <= ${endDate} AND status = 'active'
+        UNION ALL
+        SELECT created_at, price_amount FROM vendor_subscriptions 
+        WHERE created_at >= ${startDate} AND created_at <= ${endDate} AND status = 'active'
+      ) combined
       GROUP BY DATE(created_at)
       ORDER BY date DESC
     `);
