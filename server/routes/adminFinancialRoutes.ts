@@ -248,17 +248,27 @@ router.get('/revenue/analytics', async (req, res) => {
         startDate.setDate(endDate.getDate() - 30);
     }
     
-    // Get daily revenue data from subscriptions
+    // Get daily revenue data from subscriptions using tier-based pricing
     const dailyRevenue = await db.execute(sql`
       SELECT 
         DATE(created_at) as date,
-        SUM(price_amount) as revenue,
+        SUM(CASE 
+          WHEN tier_level = 'starter' THEN 99
+          WHEN tier_level = 'growth' THEN 249
+          WHEN tier_level = 'professional' THEN 499
+          WHEN tier_level = 'premium' THEN 999
+          WHEN tier_level = 'enterprise' THEN 3999
+          WHEN tier_level = 'vendor_basic' THEN 149
+          WHEN tier_level = 'vendor_pro' THEN 299
+          WHEN tier_level = 'vendor_enterprise' THEN 599
+          ELSE 0
+        END) as revenue,
         COUNT(*) as transactions
       FROM (
-        SELECT created_at, price_amount FROM community_subscriptions 
+        SELECT created_at, tier_level FROM community_subscriptions 
         WHERE created_at >= ${startDate} AND created_at <= ${endDate} AND status = 'active'
         UNION ALL
-        SELECT created_at, price_amount FROM vendor_subscriptions 
+        SELECT created_at, tier_level FROM vendor_subscriptions 
         WHERE created_at >= ${startDate} AND created_at <= ${endDate} AND status = 'active'
       ) combined
       GROUP BY DATE(created_at)
@@ -268,15 +278,25 @@ router.get('/revenue/analytics', async (req, res) => {
     // Get revenue by subscription tier
     const revenueByTier = await db.execute(sql`
       SELECT 
-        subscription_tier,
-        SUM(price_amount) as revenue,
+        tier_level as subscription_tier,
+        SUM(CASE 
+          WHEN tier_level = 'starter' THEN 99
+          WHEN tier_level = 'growth' THEN 249
+          WHEN tier_level = 'professional' THEN 499
+          WHEN tier_level = 'premium' THEN 999
+          WHEN tier_level = 'enterprise' THEN 3999
+          WHEN tier_level = 'vendor_basic' THEN 149
+          WHEN tier_level = 'vendor_pro' THEN 299
+          WHEN tier_level = 'vendor_enterprise' THEN 599
+          ELSE 0
+        END) as revenue,
         COUNT(*) as count
       FROM (
-        SELECT subscription_tier, price_amount FROM community_subscriptions WHERE status = 'active'
+        SELECT tier_level FROM community_subscriptions WHERE status = 'active'
         UNION ALL
-        SELECT subscription_tier, price_amount FROM vendor_subscriptions WHERE status = 'active'
+        SELECT tier_level FROM vendor_subscriptions WHERE status = 'active'
       ) combined
-      GROUP BY subscription_tier
+      GROUP BY tier_level
       ORDER BY revenue DESC
     `);
     

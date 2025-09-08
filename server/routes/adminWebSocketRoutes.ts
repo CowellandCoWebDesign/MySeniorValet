@@ -82,13 +82,13 @@ export class AdminWebSocketService {
       const { sql } = await import('drizzle-orm');
       
       // Get real-time metrics from database
-      const [activeUsersResult] = await db.execute(sql`
+      const activeUsersResult = await db.execute(sql`
         SELECT COUNT(DISTINCT user_id) as count
         FROM user_sessions
         WHERE last_activity > NOW() - INTERVAL '5 minutes'
-      `).catch(() => [{ count: 0 }]);
+      `).catch(() => ({ rows: [{ count: 0 }] }));
       
-      const [revenueResult] = await db.execute(sql`
+      const revenueResult = await db.execute(sql`
         SELECT COALESCE(SUM(
           CASE 
             WHEN tier_level = 'starter' THEN 99
@@ -102,19 +102,19 @@ export class AdminWebSocketService {
         FROM community_subscriptions
         WHERE status = 'active'
         AND DATE(created_at) = CURRENT_DATE
-      `).catch(() => [{ revenue: 0 }]);
+      `).catch(() => ({ rows: [{ revenue: 0 }] }));
       
-      const [newCommunitiesResult] = await db.execute(sql`
+      const newCommunitiesResult = await db.execute(sql`
         SELECT COUNT(*) as count
         FROM communities
         WHERE DATE(created_at) = CURRENT_DATE
-      `).catch(() => [{ count: 0 }]);
+      `).catch(() => ({ rows: [{ count: 0 }] }));
       
-      const [activeSubsResult] = await db.execute(sql`
+      const activeSubsResult = await db.execute(sql`
         SELECT COUNT(*) as count
         FROM community_subscriptions
         WHERE status = 'active'
-      `).catch(() => [{ count: 0 }]);
+      `).catch(() => ({ rows: [{ count: 0 }] }));
       
       // Update live data with real values
       this.liveData = {
