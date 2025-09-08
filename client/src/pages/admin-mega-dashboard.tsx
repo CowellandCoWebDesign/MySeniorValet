@@ -562,78 +562,60 @@ export default function AdminMegaDashboard() {
     queryKey: ['/api/admin/users'],
   });
 
-  // Subscription plans with actual data
-  const subscriptionPlans: SubscriptionPlan[] = [
-    // Community Plans
-    {
-      id: 'comm-free',
-      name: 'Community Free',
-      type: 'community',
-      price: 0,
-
-      features: ['Basic listing', 'Contact info', 'Photos (5 max)'],
-      isActive: true,
-      maxCommunities: 1,
-    },
-    {
-      id: 'comm-standard',
-      name: 'Community Standard',
-      type: 'community',
-      price: 299,
-
-      features: ['Featured listing', 'Unlimited photos', 'Virtual tours', 'Analytics dashboard'],
-      isActive: true,
-      maxCommunities: 1,
-    },
-    {
-      id: 'comm-featured',
-      name: 'Community Featured',
-      type: 'community',
-      price: 599,
-
-      features: ['Premium placement', 'All Standard features', 'Priority support', 'Advanced analytics'],
-      isActive: true,
-      maxCommunities: 3,
-    },
-    {
-      id: 'comm-platinum',
-      name: 'Community Platinum',
-      type: 'community',
-      price: 999,
-
-      features: ['Top placement', 'All Featured benefits', 'Custom branding', 'Lead generation tools', 'API access'],
-      isActive: true,
-      maxCommunities: 10,
-    },
-    // Vendor Plans
-    {
-      id: 'vendor-basic',
-      name: 'Vendor Basic',
-      type: 'vendor',
-      price: 99,
-
-      features: ['Vendor profile', 'Service listing', 'Contact form'],
-      isActive: true,
-    },
-    {
-      id: 'vendor-featured',
-      name: 'Vendor Featured',
-      type: 'vendor',
-      price: 299,
-
-      features: ['Featured vendor badge', 'Priority listing', 'Analytics', 'Lead notifications'],
-      isActive: true,
-    },
-    {
-      id: 'vendor-national',
-      name: 'Vendor National',
-      type: 'vendor',
-      price: 599,
-
-      features: ['National coverage', 'All Featured benefits', 'Multiple locations', 'API integration'],
-      isActive: true,
-    },
-  ];
+  // Fetch real subscription tiers from API
+  const { data: subscriptionTiers } = useQuery({
+    queryKey: ['/api/payments/subscription-tiers'],
+    select: (data: any) => {
+      const plans: SubscriptionPlan[] = [];
+      
+      // Map community tiers
+      if (data?.community) {
+        data.community.forEach((tier: any) => {
+          const features = {
+            'starter': ['Profile & Photos', 'Basic Listing', 'Contact Information', 'Up to 5 photos'],
+            'growth': ['Everything in Starter', 'Direct Messaging', 'Featured Listing', 'Analytics Dashboard', 'Unlimited photos'],
+            'professional': ['Everything in Growth', 'Priority Placement', 'Virtual Tours', 'Lead Tracking', 'Custom Branding'],
+            'premium': ['Everything in Professional', 'Top Search Results', 'Multi-location Support', 'API Access', 'Dedicated Support'],
+            'enterprise': ['Everything in Premium', 'White Label Options', 'Custom Integrations', 'SLA Guarantee', 'Account Manager']
+          };
+          
+          plans.push({
+            id: `comm-${tier.id}`,
+            name: `Community ${tier.name}`,
+            type: 'community',
+            price: tier.price,
+            features: features[tier.id] || ['Standard features'],
+            isActive: true,
+            maxCommunities: tier.id === 'enterprise' ? 100 : tier.id === 'premium' ? 20 : tier.id === 'professional' ? 10 : tier.id === 'growth' ? 3 : 1
+          });
+        });
+      }
+      
+      // Map vendor tiers
+      if (data?.vendor) {
+        data.vendor.forEach((tier: any) => {
+          const features = {
+            'basic': ['Vendor Profile', 'Service Listing', 'Contact Form', 'Basic Analytics'],
+            'featured': ['Everything in Basic', 'Featured Badge', 'Priority Listing', 'Lead Notifications', 'Advanced Analytics'],
+            'national': ['Everything in Featured', 'National Coverage', 'Multiple Locations', 'API Integration', 'Premium Support']
+          };
+          
+          plans.push({
+            id: `vendor-${tier.id}`,
+            name: `Vendor ${tier.name}`,
+            type: 'vendor',
+            price: tier.price,
+            features: features[tier.id] || ['Standard features'],
+            isActive: true
+          });
+        });
+      }
+      
+      return plans;
+    }
+  });
+  
+  const subscriptionPlans = subscriptionTiers || [];
 
   // Active subscriptions
   const { data: activeSubscriptions } = useQuery({
