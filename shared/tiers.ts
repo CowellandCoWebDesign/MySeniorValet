@@ -195,7 +195,6 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
-      tourCalendarLink: false,
     }
   },
   
@@ -206,14 +205,13 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 99,
     priceDisplay: '$99/mo',
     stripePriceId: 'price_1S53IkEQ489MwJ34ktvmZFHk',
-    description: 'Professional online presence with AI enhancements, lead tracking CRM, and automated email marketing',
+    description: 'Professional online presence with TourMate™ scheduling, lead tracking, and basic analytics',
     highlights: [
-      '5 photos + AI photo enhancement',
-      'TourMate™ scheduling + Google Calendar sync',
-      '📊 Dashboard with 15+ metrics & API cost tracking',
-      '📧 SendGrid email integration & templates',
+      '5 photos gallery',
+      'TourMate™ tour scheduling system',
+      '📊 Basic analytics (view counts & engagement)',
       '🔍 AI-boosted search ranking',
-      '💼 Lead tracking system with conversion metrics',
+      '💼 Lead capture forms',
       '📄 Basic document templates',
       'Email support'
     ],
@@ -236,7 +234,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       mapPriority: false,
       searchBoost: false,
       conciergePreferred: false,
-      tourMate: false,
+      tourMate: true, // TourMate™ scheduling at Starter level
       aiLeaseGeneration: false,
       paymentProcessing: false,
       healthcareIntegrations: false,
@@ -249,7 +247,6 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
-      tourCalendarLink: false,
     }
   },
   
@@ -262,19 +259,18 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     stripePriceId: 'price_1S53IlEQ489MwJ34c6h8MRG8',
     badge: 'Most Popular',
     popular: true,
-    description: 'Complete communication suite with WhatsApp Business, AI analytics, virtual tours, and Facebook marketing',
+    description: 'Enhanced analytics, virtual tours, featured placement, and priority support',
     highlights: [
-      '💬 WhatsApp Business + SMS + Family Groups',
-      '20 photos + Multi-AI photo extraction & validation',
-      '📹 1 video (2 min) + Zoom virtual tours',
+      '20 photos gallery',
+      '📹 1 video (2 min)',
       '3 PDF brochures',
       '⭐ Featured placement + AI optimization',
       '🤖 AI-powered review response assistant',
-      '📊 NLP analytics + heatmaps + engagement tracking',
+      '📊 Enhanced analytics + conversion tracking',
       '📱 Facebook pixel + basic email campaigns',
       '🔗 Basic CRM integration (lead capture)',
       '🚗 View transportation options',
-      'Priority support'
+      'Priority support (24-hour response)'
     ],
     features: {
       editContactInfo: true,
@@ -308,7 +304,6 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
-      tourCalendarLink: true,
     }
   },
   
@@ -319,15 +314,14 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 999,
     priceDisplay: '$999/mo',
     stripePriceId: 'price_1S53ImEQ489MwJ34haImoDqJ',
-    description: 'Enterprise AI suite (5 systems), Salesforce/HubSpot CRM, DocuSign, Matterport 3D tours, and 2 RMS integrations',
+    description: 'Payment processing, CRM integrations, Zoom virtual tours, and advanced analytics',
     highlights: [
-      '⭐ Manage up to 5 properties + portfolio analytics',
       'Unlimited photos + Matterport 3D tours',
       '5 videos (5 min each) + virtual staging',
-      '🤖 FULL AI SUITE: Perplexity + Claude + ChatGPT + Grok + Gemini',
-      '💼 Salesforce OR HubSpot CRM integration ($2,000/mo value)',
+      '💳 Stripe payment processing',
+      '📹 Zoom integration for virtual tours',
+      '💼 Salesforce OR HubSpot CRM integration',
       '📄 DocuSign + Documenso + legal templates',
-      '🏢 Choose 2 RMS: Yardi/RealPage/Entrata/OneSite',
       '📧 Mailchimp + LinkedIn Sales Navigator',
       '🔌 Basic API access (1,000 calls/day)',
       '🚗 Transportation coordination tools',
@@ -355,18 +349,20 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       conciergePreferred: true,
       tourMate: true,
       aiLeaseGeneration: true,
-      paymentProcessing: false,
+      paymentProcessing: true, // Payment processing starts at Professional
       healthcareIntegrations: false,
       residentManagement: false,
       whiteLabelOptions: false,
       apiAccess: false,
-      multiPropertyCount: 5,
+      multiPropertyCount: 1, // No multi-property at Professional
       staffBios: true,
       menus: true,
       carePhilosophy: true,
       jobListings: false,
       realTimeAvailability: false,
-      tourCalendarLink: true,
+      zoomIntegration: true, // Zoom at Professional and above
+      salesforceIntegration: true, // Salesforce CRM at Professional
+      hubspotIntegration: true, // HubSpot CRM at Professional
     }
   },
   
@@ -377,18 +373,16 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 1999,
     priceDisplay: '$1,999/mo',
     stripePriceId: 'price_1S53InEQ489MwJ34Be6qsJBz',
-    description: 'Complete healthcare integrations (Epic/Cerner), all 7 RMS systems, Uber/Lyft Health, and government data access',
+    description: 'Background checks, insurance verification, multiple properties, and advanced business intelligence',
     highlights: [
       '💎 Manage up to 10 properties + advanced portfolio tools',
-      '🏥 COMPLETE HEALTHCARE: Epic FHIR + Cerner + Medicare/Medicaid verification',
+      '🔒 Background checks + compliance tracking',
+      '📋 Renter insurance verification',
       '💳 Stripe payments + commission tracking',
-      '🚑 Uber Health + Lyft Healthcare booking ($1,000/mo value)',
-      '🏢 ALL 7 RMS SYSTEMS: Yardi + RealPage + Entrata + OneSite + REPS + LCS + A-Line',
       '💼 ALL CRMs: Salesforce + HubSpot + custom CRM',
       '📱 Facebook Ads + Google Ads + marketing automation',
-      '🏛️ Full HUD data access (4,784 properties) + Medicare database',
+      '🏛️ Full HUD data access (4,784 properties)',
       '📊 Business intelligence + financial analytics',
-      '🔒 Background checks + compliance tracking',
       '🔌 Advanced API (10,000 calls/day)',
       'Monthly strategy calls + Quarterly reviews'
     ],
@@ -414,7 +408,9 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       tourMate: true,
       aiLeaseGeneration: true,
       paymentProcessing: true,
-      healthcareIntegrations: true,
+      backgroundChecks: true, // Background checks at Premium
+      renterInsuranceVerification: true, // Insurance verification at Premium
+      healthcareIntegrations: false, // Coming soon
       residentManagement: false,
       whiteLabelOptions: false,
       apiAccess: false,
@@ -424,7 +420,9 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: true,
       jobListings: true,
       realTimeAvailability: true,
-      tourCalendarLink: true,
+      zoomIntegration: true, // Continues from Professional
+      salesforceIntegration: true, // Continues from Professional
+      hubspotIntegration: true, // Continues from Professional
     }
   },
   
@@ -436,17 +434,14 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     priceDisplay: '$3,999/mo',
     stripePriceId: 'price_1S53InEQ489MwJ34FMoJIocA',
     badge: 'White Label',
-    description: 'White-label platform with Atria-specific tools, Redis caching, WebSockets, HIPAA compliance, and unlimited everything',
+    description: 'White-label platform with RMS integrations, unlimited properties, and enterprise infrastructure',
     highlights: [
-      '🚀 UNLIMITED properties with dedicated infrastructure',
-      '🏢 ATRIA-SPECIFIC TOOLS + chain customization ($10,000/mo value)',
+      '🚀 UNLIMITED properties with multi-portfolio management',
+      '🏢 ALL 7 RMS INTEGRATIONS: Yardi + RealPage + Entrata + OneSite + REPS + LCS + A-Line',
+      '🏢 ATRIA-SPECIFIC TOOLS + chain customization',
       '🤖 ALL 5 AI SYSTEMS + custom AI model training',
-      '🏥 COMPLETE HEALTHCARE SUITE: Epic + Cerner + Pharmacy + all integrations',
       '💼 EVERY CRM & MARKETING PLATFORM + Zapier automation',
-      '🏢 ALL 7 RMS + custom integrations',
-      '🚗 Fleet management + ride coordination',
-      '⚡ Redis caching + WebSocket + CDN + monitoring ($3,000/mo value)',
-      '🔒 HIPAA compliance + security dashboard + audit trails',
+      '⚡ Redis caching + WebSocket + CDN + monitoring',
       '🏛️ Priority government data + custom reports',
       '🏷️ Full white-label + custom domain + complete branding',
       '🔌 UNLIMITED API + webhooks + real-time data',
@@ -475,17 +470,22 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       tourMate: true,
       aiLeaseGeneration: true,
       paymentProcessing: true,
-      healthcareIntegrations: true,
+      healthcareIntegrations: false, // Coming soon
       residentManagement: true,
       whiteLabelOptions: true,
       apiAccess: true,
-      multiPropertyCount: 25,
+      multiPropertyCount: 999, // Multi-property management at Enterprise
       staffBios: true,
       menus: true,
       carePhilosophy: true,
       jobListings: true,
       realTimeAvailability: true,
-      tourCalendarLink: true,
+      backgroundChecks: true, // Continues from Premium
+      renterInsuranceVerification: true, // Continues from Premium
+      zoomIntegration: true, // Continues from Professional
+      salesforceIntegration: true, // Continues from Professional
+      hubspotIntegration: true, // Continues from Professional
+      rmsIntegrations: true, // RMS integrations at Enterprise
     }
   }
 };
