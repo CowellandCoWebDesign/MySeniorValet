@@ -488,15 +488,6 @@ function HeroSectionWithTransformingSearch() {
               </div>
               {/* Second Line */}
               <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-                <div className="flex items-center text-[9px] sm:text-[10px] text-yellow-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🔮</span> 33,427 Global Communities
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-purple-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
-                </div>
-              </div>
-              {/* Third Line */}
-              <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
                 <div className="flex items-center text-[9px] sm:text-[10px] text-emerald-300 font-semibold">
                   <span className="mr-0.5 text-[10px] sm:text-xs">💲</span> Online Bill Payment
                 </div>
@@ -672,14 +663,17 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* Security Badges - Centered Below Search */}
+        {/* Security & AI Badges - Centered Below Search */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-3">
-          <div className="flex justify-center items-center gap-3 sm:gap-4">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
             <div className="flex items-center text-[10px] sm:text-xs text-blue-300 font-semibold">
               <span className="mr-0.5 text-[11px] sm:text-sm">🔒</span> SSL Secured
             </div>
             <div className="flex items-center text-[10px] sm:text-xs text-green-300 font-semibold">
               <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
+            </div>
+            <div className="flex items-center text-[10px] sm:text-xs text-purple-300 font-semibold">
+              <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
             </div>
           </div>
         </div>
