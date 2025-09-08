@@ -174,6 +174,103 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
   }
 });
 
+// Create Subscription Checkout Session - Following Stripe Best Practices
+router.post('/create-subscription-checkout', async (req: Request, res: Response) => {
+  try {
+    const { tier, communityId, communityName, userEmail, successUrl, cancelUrl } = req.body;
+
+    // Validate tier
+    const tierInfo = COMMUNITY_TIERS[tier as keyof typeof COMMUNITY_TIERS];
+    if (!tierInfo) {
+      return res.status(400).json({ error: 'Invalid subscription tier' });
+    }
+
+    // Create or get Stripe customer
+    let customerId: string | undefined;
+    if (userEmail) {
+      const customers = await stripe.customers.list({
+        email: userEmail,
+        limit: 1
+      });
+
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+      } else {
+        const customer = await stripe.customers.create({
+          email: userEmail,
+          metadata: {
+            communityId: communityId?.toString() || '',
+            communityName: communityName || ''
+          }
+        });
+        customerId = customer.id;
+      }
+    }
+
+    // Create Checkout Session for subscription
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{
+        price_data: {
+          currency: 'usd',
+          product_data: {
+            name: `${tierInfo.name} Community Subscription`,
+            description: `Monthly subscription for ${communityName || 'your community'}`,
+            metadata: {
+              tier,
+              communityId: communityId?.toString() || '',
+              communityName: communityName || ''
+            }
+          },
+          unit_amount: tierInfo.price,
+          recurring: {
+            interval: tierInfo.interval
+          }
+        },
+        quantity: 1
+      }],
+      customer: customerId,
+      subscription_data: {
+        metadata: {
+          communityId: communityId?.toString() || '',
+          communityName: communityName || '',
+          tier
+        }
+      },
+      metadata: {
+        communityId: communityId?.toString() || '',
+        communityName: communityName || '',
+        tier,
+        type: 'community_subscription'
+      },
+      success_url: successUrl || `${req.protocol}://${req.get('host')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${req.protocol}://${req.get('host')}/community-portal`,
+      allow_promotion_codes: true,
+      billing_address_collection: 'required',
+      customer_update: {
+        address: 'auto',
+        name: 'auto'
+      }
+    });
+
+    console.log(`Created subscription checkout session: ${session.id} for ${tier} tier`);
+
+    res.json({
+      success: true,
+      url: session.url,
+      sessionId: session.id
+    });
+
+  } catch (error: any) {
+    console.error('Error creating subscription checkout session:', error);
+    res.status(500).json({ 
+      error: 'Failed to create checkout session',
+      message: error.message 
+    });
+  }
+});
+
 // Create Checkout Session (alternative to Payment Intent)
 router.post('/create-checkout-session', async (req: Request, res: Response) => {
   try {

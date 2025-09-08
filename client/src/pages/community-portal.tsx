@@ -229,13 +229,22 @@ export default function CommunityPortal() {
         throw new Error('Invalid plan selected');
       }
 
+      // For enterprise tier, redirect to contact
+      if (productId === 'enterprise') {
+        window.open('mailto:hello@myseniorvalet.com?subject=Enterprise Plan Inquiry', '_blank');
+        return;
+      }
+
       // For free tier, handle differently
       if (productId === 'verified') {
         // If it's an existing community claiming free tier
         if (existingCommunityData) {
           try {
-            await apiRequest('POST', '/api/payments/claim-free-tier', {
-              communityId: existingCommunityData.communityId
+            await apiRequest('/api/payments/claim-free-tier', {
+              method: 'POST',
+              body: JSON.stringify({
+                communityId: existingCommunityData.communityId
+              })
             });
             
             toast({
@@ -267,24 +276,31 @@ export default function CommunityPortal() {
         return;
       }
 
-      // Store the selected plan info for the payment page
-      sessionStorage.setItem('communityUpgradeData', JSON.stringify({
-        productId,
-        planName,
-        isNewCommunity: !existingCommunityData,
-        communityId: existingCommunityData?.communityId || null,
-        communityName: existingCommunityData?.communityName || 'New Community'
-      }));
-
-      // Redirect to the mobile-optimized payment page
+      // Create Stripe Checkout Session for paid tiers
+      // This follows Stripe's best practices for subscription billing
       toast({
-        title: "Redirecting to payment...",
-        description: "Setting up your secure payment session.",
+        title: "Setting up payment...",
+        description: "Creating secure checkout session",
       });
 
-      setTimeout(() => {
-        setLocation(`/community-mobile-payment/${productId}`);
-      }, 500);
+      const response = await apiRequest('/api/payments/create-subscription-checkout', {
+        method: 'POST',
+        body: JSON.stringify({
+          tier: productId,
+          communityId: existingCommunityData?.communityId || null,
+          communityName: existingCommunityData?.communityName || 'New Community',
+          userEmail: null, // You can pass user email if available
+          successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/community-portal`
+        })
+      });
+
+      if (response.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = response.url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
 
     } catch (error: any) {
       console.error('Payment error:', error);
