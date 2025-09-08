@@ -277,38 +277,28 @@ export default function CommunityPortal() {
         return;
       }
 
-      // Create Stripe Checkout Session for paid tiers
-      // This follows Stripe's best practices for subscription billing
+      // Store community data if upgrading existing community
+      if (existingCommunityData) {
+        sessionStorage.setItem('communityUpgradeData', JSON.stringify(existingCommunityData));
+      }
+
+      // Redirect to the mobile payment flow with multi-step onboarding
+      // This provides the amazing onboarding experience with progress tracking
       toast({
-        title: "Setting up payment...",
-        description: "Creating secure checkout session",
+        title: "Starting your journey...",
+        description: "Let's set up your community subscription",
       });
 
-      const response = await apiRequest(
-        'POST',
-        '/api/payments/create-subscription-checkout',
-        {
-          tier: productId,
-          communityId: existingCommunityData?.communityId || null,
-          communityName: existingCommunityData?.communityName || 'New Community',
-          userEmail: null, // You can pass user email if available
-          successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-          cancelUrl: `${window.location.origin}/community-portal`
-        }
-      );
-
-      if (response.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = response.url;
-      } else {
-        throw new Error('Failed to create checkout session');
-      }
+      // Redirect to the mobile payment page with the selected tier
+      setTimeout(() => {
+        setLocation(`/community-mobile-payment/${productId}`);
+      }, 500);
 
     } catch (error: any) {
       console.error('Payment error:', error);
       toast({
-        title: "Payment Error",
-        description: error.message || "Unable to process payment. Please try again or contact support.",
+        title: "Error",
+        description: error.message || "Unable to start payment process. Please try again.",
         variant: "destructive",
       });
     }

@@ -18,7 +18,6 @@ const TIER_DETAILS = {
     icon: CheckCircle2,
     color: 'bg-green-100 text-green-800',
     features: [
-      '💬 Live messaging with families',
       'Basic profile with 5 photos',
       'Pricing & availability display',
       'Contact information',
@@ -35,6 +34,7 @@ const TIER_DETAILS = {
     color: 'bg-blue-100 text-blue-800',
     features: [
       'Everything in Starter, plus:',
+      '💬 Live messaging with families',
       '📅 Reservation Management',
       '🏠 3D tour embed capability',
       'Enhanced listing with 20 photos',
