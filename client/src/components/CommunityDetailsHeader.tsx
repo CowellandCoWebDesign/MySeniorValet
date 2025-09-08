@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { 
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
-  CheckCircle, XCircle, AlertCircle, DollarSign
+  CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
@@ -354,6 +354,18 @@ export function CommunityDetailsHeader({
                   <Phone className="w-4 h-4" />
                   <span className="font-medium">Call Now</span>
                 </a>
+                
+                <button
+                  onClick={() => {
+                    // Open messaging interface or start chat
+                    // TODO: Implement direct messaging functionality
+                    alert("Direct messaging feature coming soon! This is included in your Starter plan ($99/month) benefits.");
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="font-medium">Direct Message</span>
+                </button>
                 
                 {displayWebsite && (
                   <ExternalLinkWarning
