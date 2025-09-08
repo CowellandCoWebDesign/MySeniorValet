@@ -4,19 +4,29 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, CreditCard, Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { COMMUNITY_TIERS, VENDOR_TIERS } from '@shared/tiers';
 
+// Use tiers from single source of truth
 const paymentTiers = {
-  community: [
-    { id: 'verified', name: 'Verified Listing', price: 0, color: 'bg-gray-500' },
-    { id: 'standard', name: 'Standard', price: 149, color: 'bg-blue-500' },
-    { id: 'featured', name: 'Featured', price: 249, color: 'bg-purple-500' },
-    { id: 'platinum', name: 'Platinum', price: 349, color: 'bg-yellow-500' }
-  ],
-  vendor: [
-    { id: 'basic', name: 'Basic Listing', price: 99, color: 'bg-green-500' },
-    { id: 'featured', name: 'Featured Vendor', price: 249, color: 'bg-indigo-500' },
-    { id: 'national', name: 'National Partner', price: 499, color: 'bg-red-500' }
-  ]
+  community: Object.values(COMMUNITY_TIERS).map(tier => ({
+    id: tier.id,
+    name: tier.displayName,
+    price: tier.price,
+    color: tier.price === 0 ? 'bg-gray-500' : 
+           tier.price === 99 ? 'bg-blue-500' :
+           tier.price === 299 ? 'bg-green-500' :
+           tier.price === 999 ? 'bg-purple-500' :
+           tier.price === 1999 ? 'bg-indigo-500' :
+           'bg-yellow-500'
+  })),
+  vendor: Object.values(VENDOR_TIERS).map(tier => ({
+    id: tier.id,
+    name: tier.displayName,
+    price: tier.price,
+    color: tier.price === 99 ? 'bg-green-500' :
+           tier.price === 399 ? 'bg-indigo-500' :
+           'bg-red-500'
+  }))
 };
 
 export default function PaymentDemo() {
