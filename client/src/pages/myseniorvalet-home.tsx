@@ -461,9 +461,12 @@ function HeroSectionWithTransformingSearch() {
               Search Without the Spam.<br className="sm:hidden" />
               <span className="sm:ml-2">Move Without the Stress.</span>
             </h1>
-            <p className="text-xs sm:text-sm md:text-base text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-2 px-2 sm:px-0">
-              AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place. No hidden costs, or selling your info like the other guys. Free for Families forever 🛡️
-            </p>
+            <div className="text-xs sm:text-sm md:text-base text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-2 px-2 sm:px-0 space-y-1">
+              <p>AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place.</p>
+              <p>No hidden costs 💸</p>
+              <p>No selling your information like the other guys 🔥</p>
+              <p>Free for Families forever 🛡️</p>
+            </div>
           </div>
         </div>
 
