@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(requireAuth);
 router.use(isAdmin);
 
-// Store in-memory metrics for real-time tracking
+// Store in-memory metrics for real-time tracking (Golden Data Rule compliant)
 const liveMetrics = {
   apiCalls: 0,
   dbQueries: 0,
@@ -19,27 +19,99 @@ const liveMetrics = {
   totalResponseTime: 0,
   requestCount: 0,
   errorCount: 0,
-  lastReset: new Date()
+  lastReset: new Date(),
+  // Granular endpoint metrics
+  endpoints: {} as Record<string, {
+    calls: number;
+    totalTime: number;
+    avgTime: number;
+    errors: number;
+    lastCall: Date;
+  }>,
+  // Real user session tracking
+  activeSessions: 0,
+  peakSessions: 0,
+  // Database performance
+  slowQueries: [] as Array<{
+    query: string;
+    duration: number;
+    timestamp: Date;
+  }>,
+  // Memory usage tracking
+  memoryUsage: {
+    heapUsed: 0,
+    heapTotal: 0,
+    external: 0,
+    rss: 0
+  }
 };
 
-// Middleware to track API performance
+// Middleware to track API performance with granular metrics
 export const trackPerformance = (req: any, res: any, next: any) => {
   const startTime = Date.now();
+  const endpoint = req.path;
   
   // Track API call
   liveMetrics.apiCalls++;
   liveMetrics.requestCount++;
   
+  // Initialize endpoint metrics if not exists
+  if (!liveMetrics.endpoints[endpoint]) {
+    liveMetrics.endpoints[endpoint] = {
+      calls: 0,
+      totalTime: 0,
+      avgTime: 0,
+      errors: 0,
+      lastCall: new Date()
+    };
+  }
+  
+  // Track endpoint call
+  liveMetrics.endpoints[endpoint].calls++;
+  liveMetrics.endpoints[endpoint].lastCall = new Date();
+  
+  // Track memory usage periodically
+  if (liveMetrics.requestCount % 100 === 0) {
+    const memUsage = process.memoryUsage();
+    liveMetrics.memoryUsage = {
+      heapUsed: memUsage.heapUsed,
+      heapTotal: memUsage.heapTotal,
+      external: memUsage.external,
+      rss: memUsage.rss
+    };
+  }
+  
   // Override res.end to capture response time
   const originalEnd = res.end;
   res.end = function(...args: any[]) {
     const responseTime = Date.now() - startTime;
+    
+    // Update global metrics
     liveMetrics.totalResponseTime += responseTime;
     liveMetrics.avgResponseTime = liveMetrics.totalResponseTime / liveMetrics.requestCount;
+    
+    // Update endpoint-specific metrics
+    liveMetrics.endpoints[endpoint].totalTime += responseTime;
+    liveMetrics.endpoints[endpoint].avgTime = 
+      liveMetrics.endpoints[endpoint].totalTime / liveMetrics.endpoints[endpoint].calls;
+    
+    // Track slow queries (>1000ms)
+    if (responseTime > 1000) {
+      liveMetrics.slowQueries.push({
+        query: endpoint,
+        duration: responseTime,
+        timestamp: new Date()
+      });
+      // Keep only last 20 slow queries
+      if (liveMetrics.slowQueries.length > 20) {
+        liveMetrics.slowQueries.shift();
+      }
+    }
     
     // Track errors
     if (res.statusCode >= 400) {
       liveMetrics.errorCount++;
+      liveMetrics.endpoints[endpoint].errors++;
     }
     
     originalEnd.apply(res, args);
