@@ -456,7 +456,7 @@ function HeroSectionWithTransformingSearch() {
         <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
         {/* Hero Title - Positioned at Very Top */}
         <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
-          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-4 sm:px-6 md:px-8 py-4 sm:py-5 max-w-[95vw] sm:max-w-none">
+          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-4 sm:px-6 md:px-8 py-4 sm:py-5 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none">
             {/* Main Tagline */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-4">
               Search Without the Spam.<br/>
@@ -468,41 +468,32 @@ function HeroSectionWithTransformingSearch() {
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
             
-            {/* Value Props in Clean Layout */}
-            <div className="space-y-3 max-w-2xl mx-auto">
+            {/* Value Props Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto mb-4">
               {/* What We Offer */}
-              <div className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 backdrop-blur-sm rounded-xl p-3 border border-green-400/20">
+              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-xl p-3 border border-green-400/30 shadow-lg">
                 <h3 className="text-white font-bold text-sm sm:text-base mb-2 flex items-center justify-center">
                   <span className="mr-2">✨</span> What You Get
                 </h3>
-                <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-green-100">
-                  <span>📱 Real Prices</span>
-                  <span>🏠 Instant Tours</span>
-                  <span>✅ Direct Reservations</span>
-                  <span>🌟 Every Senior Service</span>
+                <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-green-100">
+                  <span className="flex items-center">📱 Real Prices</span>
+                  <span className="flex items-center">🏠 Instant Tours</span>
+                  <span className="flex items-center">✅ Direct Reservations</span>
+                  <span className="flex items-center">🌟 Every Senior Service</span>
                 </div>
               </div>
               
               {/* What We Don't Do */}
-              <div className="bg-gradient-to-r from-red-900/40 to-pink-900/40 backdrop-blur-sm rounded-xl p-3 border border-red-400/20">
+              <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-xl p-3 border border-red-400/30 shadow-lg">
                 <h3 className="text-white font-bold text-sm sm:text-base mb-2 flex items-center justify-center">
                   <span className="mr-2">🚫</span> What We Never Do
                 </h3>
-                <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-red-100">
-                  <span>❌ No "Call for Pricing"</span>
-                  <span>❌ No Spam Calls</span>
-                  <span>❌ No Selling Your Info</span>
-                  <span>❌ No Hidden Costs</span>
+                <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-red-100">
+                  <span className="flex items-center">❌ No "Call for Pricing"</span>
+                  <span className="flex items-center">❌ No Spam Calls</span>
+                  <span className="flex items-center">❌ No Selling Your Info</span>
+                  <span className="flex items-center">❌ No Hidden Costs</span>
                 </div>
-              </div>
-              
-              {/* Free Forever Promise */}
-              <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 backdrop-blur-sm rounded-xl p-3 border border-purple-400/20">
-                <p className="text-white font-bold text-sm sm:text-base flex items-center justify-center">
-                  <span className="mr-2">🛡️</span>
-                  <span className="text-yellow-300">FREE</span>
-                  <span className="ml-1">for Families Forever - That's Our Promise</span>
-                </p>
               </div>
             </div>
           </div>
@@ -512,91 +503,75 @@ function HeroSectionWithTransformingSearch() {
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-end pb-16 sm:pb-20 md:pb-32'}`}>
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6 md:mb-8">
-          {/* Category Tabs - File Folder Style - Simplified */}
+          {/* Category Tabs - Enhanced Style */}
           <div className="flex justify-start">
-            <div className="inline-flex gap-0.5">
+            <div className="inline-flex gap-1 bg-black/30 backdrop-blur-sm p-1 rounded-t-xl">
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
                   ${searchCategory === 'communities' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300 shadow-md'
+                    ? 'bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600 text-white shadow-xl border-2 border-purple-400/50 z-20'
+                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-purple-400/50'
                   }`}
               >
                 <span className="text-sm">🏘️</span>
                 <div className="flex flex-col items-start leading-tight">
-                  <span className="hidden sm:inline">Senior Living Communities</span>
+                  <span className="hidden sm:inline">Senior Living</span>
                   <span className="sm:hidden">Communities</span>
-                  <span className="text-[8px] opacity-75">33,200+</span>
+                  <span className="text-[9px] opacity-90">33,200+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
                   ${searchCategory === 'services' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white border-t-2 border-l-2 border-r-2 border-green-400 dark:border-green-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-green-500 to-emerald-500 text-white border-t border-l border-r border-green-300 dark:border-green-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-green-600 dark:hover:text-green-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-green-300 dark:hover:text-green-300 shadow-md'
+                    ? 'bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 text-white shadow-xl border-2 border-green-400/50 z-20'
+                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-green-400/50'
                   }`}
               >
                 <span className="text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Services</span>
-                  <span className="text-[8px] opacity-75">7,500+</span>
+                  <span className="text-[9px] opacity-90">7,500+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
                   ${searchCategory === 'healthcare' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-red-600 to-pink-600 text-white border-t-2 border-l-2 border-r-2 border-red-400 dark:border-red-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-red-500 to-pink-500 text-white border-t border-l border-r border-red-300 dark:border-red-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-red-600 dark:hover:text-red-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-red-300 dark:hover:text-red-300 shadow-md'
+                    ? 'bg-gradient-to-br from-red-600 via-red-500 to-pink-600 text-white shadow-xl border-2 border-red-400/50 z-20'
+                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-red-400/50'
                   }`}
               >
                 <span className="text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75">2,000+</span>
+                  <span className="text-[9px] opacity-90">2,000+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
+                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
                   ${searchCategory === 'resources' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-amber-600 to-orange-600 text-white border-t-2 border-l-2 border-r-2 border-amber-400 dark:border-amber-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-amber-500 to-orange-500 text-white border-t border-l border-r border-amber-300 dark:border-amber-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-amber-600 dark:hover:text-amber-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-amber-300 dark:hover:text-amber-300 shadow-md'
+                    ? 'bg-gradient-to-br from-amber-600 via-amber-500 to-orange-600 text-white shadow-xl border-2 border-amber-400/50 z-20'
+                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-amber-400/50'
                   }`}
               >
                 <span className="text-sm">📚</span>
                 <div className="flex flex-col items-start leading-tight">
                   <span>Resources</span>
-                  <span className="text-[8px] opacity-75">119</span>
+                  <span className="text-[9px] opacity-90">119</span>
                 </div>
               </button>
             </div>
           </div>
           
-          {/* Search Bar Container - Always visible with tab-specific styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 pb-6 pt-3 px-3 shadow-2xl ${
+          {/* Search Bar Container - Enhanced styling */}
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-6 pt-3 px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
@@ -695,6 +670,17 @@ function HeroSectionWithTransformingSearch() {
                   <span>🌍 Discovery mode</span>
                 </button>
               </div>
+            </div>
+          </div>
+          
+          {/* Free Forever Promise - Below Search */}
+          <div className="mt-4 flex justify-center">
+            <div className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-purple-900/60 backdrop-blur-sm rounded-full px-4 py-2 border border-purple-400/30 shadow-lg">
+              <p className="text-white font-bold text-xs sm:text-sm flex items-center">
+                <span className="mr-2">🛡️</span>
+                <span className="text-yellow-300">FREE</span>
+                <span className="ml-1">for Families Forever - That's Our Promise</span>
+              </p>
             </div>
           </div>
         </div>
