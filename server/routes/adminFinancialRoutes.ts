@@ -27,51 +27,79 @@ router.get('/comprehensive', async (req, res) => {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const startOfYear = new Date(now.getFullYear(), 0, 1);
     
-    // Get revenue data from community and vendor subscriptions
+    // Get revenue data from community and vendor subscriptions using tier_level to estimate pricing
     const [monthlyRevenue] = await db.execute(sql`
       SELECT 
-        COALESCE(SUM(price_amount), 0) as revenue,
+        COALESCE(SUM(
+          CASE 
+            WHEN tier_level = 'starter' THEN 99
+            WHEN tier_level = 'growth' THEN 249
+            WHEN tier_level = 'professional' THEN 499
+            WHEN tier_level = 'premium' THEN 999
+            WHEN tier_level = 'enterprise' THEN 3999
+            ELSE 0
+          END
+        ), 0) as revenue,
         COUNT(*) as transaction_count
-      FROM (
-        SELECT price_amount, created_at FROM community_subscriptions 
-        WHERE created_at >= ${startOfMonth} AND status = 'active'
-        UNION ALL
-        SELECT price_amount, created_at FROM vendor_subscriptions 
-        WHERE created_at >= ${startOfMonth} AND status = 'active'
-      ) combined
+      FROM community_subscriptions 
+      WHERE created_at >= ${startOfMonth} AND status = 'active'
     `);
     
     const [lastMonthRevenue] = await db.execute(sql`
-      SELECT COALESCE(SUM(price_amount), 0) as revenue
-      FROM (
-        SELECT price_amount FROM community_subscriptions 
-        WHERE created_at >= ${startOfLastMonth} AND created_at < ${startOfMonth} AND status = 'active'
-        UNION ALL
-        SELECT price_amount FROM vendor_subscriptions 
-        WHERE created_at >= ${startOfLastMonth} AND created_at < ${startOfMonth} AND status = 'active'
-      ) combined
+      SELECT COALESCE(SUM(
+        CASE 
+          WHEN tier_level = 'starter' THEN 99
+          WHEN tier_level = 'growth' THEN 249
+          WHEN tier_level = 'professional' THEN 499
+          WHEN tier_level = 'premium' THEN 999
+          WHEN tier_level = 'enterprise' THEN 3999
+          ELSE 0
+        END
+      ), 0) as revenue
+      FROM community_subscriptions 
+      WHERE created_at >= ${startOfLastMonth} AND created_at < ${startOfMonth} AND status = 'active'
     `);
     
     const [yearlyRevenue] = await db.execute(sql`
-      SELECT COALESCE(SUM(price_amount), 0) as revenue
-      FROM (
-        SELECT price_amount FROM community_subscriptions 
-        WHERE created_at >= ${startOfYear} AND status = 'active'
-        UNION ALL
-        SELECT price_amount FROM vendor_subscriptions 
-        WHERE created_at >= ${startOfYear} AND status = 'active'
-      ) combined
+      SELECT COALESCE(SUM(
+        CASE 
+          WHEN tier_level = 'starter' THEN 99
+          WHEN tier_level = 'growth' THEN 249
+          WHEN tier_level = 'professional' THEN 499
+          WHEN tier_level = 'premium' THEN 999
+          WHEN tier_level = 'enterprise' THEN 3999
+          ELSE 0
+        END
+      ), 0) as revenue
+      FROM community_subscriptions 
+      WHERE created_at >= ${startOfYear} AND status = 'active'
     `);
     
     // Calculate MRR from active subscriptions
     const [communityMRR] = await db.execute(sql`
-      SELECT COALESCE(SUM(price_amount), 0) as mrr
+      SELECT COALESCE(SUM(
+        CASE 
+          WHEN tier_level = 'starter' THEN 99
+          WHEN tier_level = 'growth' THEN 249
+          WHEN tier_level = 'professional' THEN 499
+          WHEN tier_level = 'premium' THEN 999
+          WHEN tier_level = 'enterprise' THEN 3999
+          ELSE 0
+        END
+      ), 0) as mrr
       FROM community_subscriptions
       WHERE status = 'active'
     `);
     
     const [vendorMRR] = await db.execute(sql`
-      SELECT COALESCE(SUM(price_amount), 0) as mrr
+      SELECT COALESCE(SUM(
+        CASE 
+          WHEN tier_level = 'basic' THEN 49
+          WHEN tier_level = 'featured' THEN 299
+          WHEN tier_level = 'national' THEN 999
+          ELSE 0
+        END
+      ), 0) as mrr
       FROM vendor_subscriptions
       WHERE status = 'active'
     `);
