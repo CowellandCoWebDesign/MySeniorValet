@@ -469,15 +469,15 @@ function HeroSectionWithTransformingSearch() {
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
             
-            {/* Combined Trust & Value Badges - Two Lines */}
+            {/* Combined Trust & Value Badges - Three Lines */}
             <div className="flex flex-col gap-1 mt-2 mb-2">
               {/* First Line */}
               <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
                 <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">📱</span> Real Prices
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
                 </div>
                 <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🏠</span> Instant Tours
+                  <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
                 </div>
                 <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
                   <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
@@ -499,6 +499,18 @@ function HeroSectionWithTransformingSearch() {
                 </div>
                 <div className="flex items-center text-[9px] sm:text-[10px] text-purple-300 font-semibold">
                   <span className="mr-0.5 text-[10px] sm:text-xs">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
+                </div>
+              </div>
+              {/* Third Line */}
+              <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex items-center text-[9px] sm:text-[10px] text-emerald-300 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">💲</span> Online Bill Payment
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-cyan-300 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🖥️</span> Resident Portal
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-pink-300 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🛗</span> Family Collaboration Center
                 </div>
               </div>
             </div>
