@@ -2929,7 +2929,14 @@ Communities Created: ${details.stats.communitiesCreated}`;
           
           <TabsContent value="discovery" className="space-y-4">
             {renderCountyDiscovery()}
-            <Suspense fallback={<LoadingCard title="Loading Global Discovery Queue..." />}>
+            <Suspense fallback={
+              <Card>
+                <CardContent className="flex items-center justify-center p-8">
+                  <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                  <span>Loading Global Discovery Queue...</span>
+                </CardContent>
+              </Card>
+            }>
               <GlobalDiscoveryApprovalQueue />
             </Suspense>
           </TabsContent>
