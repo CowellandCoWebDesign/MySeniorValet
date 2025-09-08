@@ -456,30 +456,53 @@ function HeroSectionWithTransformingSearch() {
         <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
         {/* Hero Title - Positioned at Very Top */}
         <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
-          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-4 md:px-5 py-3 sm:py-2.5 max-w-[95vw] sm:max-w-none">
-            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-3">
-              AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place.
+          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-4 sm:px-6 md:px-8 py-4 sm:py-5 max-w-[95vw] sm:max-w-none">
+            {/* Main Tagline */}
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-4">
+              Search Without the Spam.<br/>
+              Move Without the Stress.
             </h1>
-            <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-3">
-              Search Without the Spam.<br className="sm:hidden" />
-              <span className="sm:ml-2">Move Without the Stress.</span>
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm md:text-base text-white font-medium max-w-2xl mx-auto">
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                <span className="mr-2">💸</span>
-                <span>No more hidden costs</span>
+            
+            {/* Platform Description */}
+            <p className="text-sm sm:text-base md:text-lg text-blue-100 font-medium mb-4 max-w-3xl mx-auto">
+              The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
+            </p>
+            
+            {/* Value Props in Clean Layout */}
+            <div className="space-y-3 max-w-2xl mx-auto">
+              {/* What We Offer */}
+              <div className="bg-gradient-to-r from-green-900/40 to-emerald-900/40 backdrop-blur-sm rounded-xl p-3 border border-green-400/20">
+                <h3 className="text-white font-bold text-sm sm:text-base mb-2 flex items-center justify-center">
+                  <span className="mr-2">✨</span> What You Get
+                </h3>
+                <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-green-100">
+                  <span>📱 Real Prices</span>
+                  <span>🏠 Instant Tours</span>
+                  <span>✅ Direct Reservations</span>
+                  <span>🌟 Every Senior Service</span>
+                </div>
               </div>
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                <span className="mr-2">📱</span>
-                <span>No more "Call for Pricing", complete transparency</span>
+              
+              {/* What We Don't Do */}
+              <div className="bg-gradient-to-r from-red-900/40 to-pink-900/40 backdrop-blur-sm rounded-xl p-3 border border-red-400/20">
+                <h3 className="text-white font-bold text-sm sm:text-base mb-2 flex items-center justify-center">
+                  <span className="mr-2">🚫</span> What We Never Do
+                </h3>
+                <div className="flex flex-wrap justify-center gap-2 text-xs sm:text-sm text-red-100">
+                  <span>❌ No "Call for Pricing"</span>
+                  <span>❌ No Spam Calls</span>
+                  <span>❌ No Selling Your Info</span>
+                  <span>❌ No Hidden Costs</span>
+                </div>
               </div>
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                <span className="mr-2">🔥</span>
-                <span>Search without spam calls, texts, emails</span>
-              </div>
-              <div className="bg-black/30 backdrop-blur-sm rounded-lg px-3 py-2 flex items-center justify-start drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]">
-                <span className="mr-2">🛡️</span>
-                <span>Free for Families forever</span>
+              
+              {/* Free Forever Promise */}
+              <div className="bg-gradient-to-r from-purple-900/40 to-blue-900/40 backdrop-blur-sm rounded-xl p-3 border border-purple-400/20">
+                <p className="text-white font-bold text-sm sm:text-base flex items-center justify-center">
+                  <span className="mr-2">🛡️</span>
+                  <span className="text-yellow-300">FREE</span>
+                  <span className="ml-1">for Families Forever - That's Our Promise</span>
+                </p>
               </div>
             </div>
           </div>
