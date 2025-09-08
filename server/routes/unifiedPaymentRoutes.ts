@@ -15,12 +15,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-07-30.basil' as any,
 });
 
-// Community Subscription Tiers
+// Community Subscription Tiers - Supporting both old and new tier names
 const COMMUNITY_TIERS = {
-  verified: { name: 'Verified Listing', price: 0, interval: 'month' as const },
-  standard: { name: 'Standard', price: 14900, interval: 'month' as const }, // $149 in cents
-  featured: { name: 'Featured', price: 34900, interval: 'month' as const }, // $349 in cents
-  platinum: { name: 'Platinum', price: 44900, interval: 'month' as const }, // $449 in cents
+  // New tier names (what frontend sends)
+  starter: { name: 'Starter', price: 9900, interval: 'month' as const }, // $99 in cents
+  growth: { name: 'Growth', price: 29900, interval: 'month' as const }, // $299 in cents
+  professional: { name: 'Professional', price: 99900, interval: 'month' as const }, // $999 in cents
+  premium: { name: 'Premium', price: 199900, interval: 'month' as const }, // $1999 in cents
+  enterprise: { name: 'Enterprise', price: 399900, interval: 'month' as const }, // $3999 in cents
+  // Legacy tier names (kept for backwards compatibility)
+  verified: { name: 'Verified Listing', price: 9900, interval: 'month' as const }, // Maps to Starter
+  standard: { name: 'Standard', price: 14900, interval: 'month' as const }, // Legacy price
+  featured: { name: 'Featured', price: 24900, interval: 'month' as const }, // Legacy price
+  platinum: { name: 'Platinum', price: 34900, interval: 'month' as const }, // Legacy price
 };
 
 // Vendor Subscription Tiers with Promotional Pricing
