@@ -502,7 +502,7 @@ function HeroSectionWithTransformingSearch() {
             {/* Trust Badges - Using space between value props and search */}
             <div className="flex justify-center items-center gap-4 mt-3 mb-2">
               <div className="flex items-center text-[10px] sm:text-xs text-yellow-300 font-semibold">
-                <span className="mr-1">⭐</span> 33,427 Communities
+                <span className="mr-1">🌍</span> 33,427 Global Communities
               </div>
               <div className="flex items-center text-[10px] sm:text-xs text-blue-300 font-semibold">
                 <span className="mr-1">🔒</span> SSL Secured
