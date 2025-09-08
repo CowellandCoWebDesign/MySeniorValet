@@ -781,14 +781,28 @@ export function registerPaymentRoutes(app: Express) {
     try {
       let { productId, communityId, successUrl, cancelUrl, tier, email } = req.body;
 
+      // Import TIER_MAPPING for new tier names
+      const { TIER_MAPPING } = await import('../services/payment.service');
+
       // Map tier to productId if provided instead of productId
       if (!productId && tier) {
+        // First check if it's a new tier name and map it to legacy name
+        const mappedTier = TIER_MAPPING[tier as keyof typeof TIER_MAPPING] || tier;
+        
         const tierToProductMap: Record<string, string> = {
+          // New tier mappings
+          'starter': 'verified',              // $99/month
+          'growth': 'standard',                // $299/month
+          'professional': 'featured',          // $999/month
+          'premium': 'platinum',               // $1999/month
+          'enterprise': 'platinum',            // $3999/month (maps to platinum)
+          // Legacy tier mappings
+          'verified': 'verified',              // $99/month
           'standard': 'featured-spotlight',    // $149/month
           'featured': 'premium-tools',         // $249/month
           'platinum': 'platinum-partner'       // $399/month
         };
-        productId = tierToProductMap[tier];
+        productId = tierToProductMap[tier] || tierToProductMap[mappedTier];
       }
 
       if (!productId) {

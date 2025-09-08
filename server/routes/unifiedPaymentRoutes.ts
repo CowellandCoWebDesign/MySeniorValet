@@ -628,6 +628,44 @@ router.post('/confirm-community-payment', async (req: Request, res: Response) =>
       });
     }
 
+    // Send email notifications
+    try {
+      const { notifySuperAdmin } = await import('../sendgrid-service');
+      
+      // Map tier names to pricing (handle both new and legacy names)
+      const tierPricing: Record<string, number> = {
+        'starter': 99,
+        'growth': 299,
+        'professional': 999,
+        'premium': 1999,
+        'enterprise': 3999,
+        'verified': 99,
+        'standard': 149,
+        'featured': 249,
+        'platinum': 349
+      };
+      
+      const price = tierPricing[tier] || 0;
+      
+      // Send notification to admin
+      await notifySuperAdmin(
+        `💳 New Community Payment - ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`,
+        `Community ID ${finalCommunityId} has upgraded to ${tier} tier.\n` +
+        `Amount: $${price}/month\n` +
+        `Payment ID: ${paymentIntentId}\n` +
+        `Status: Active`
+      );
+      
+      console.log('Email notification sent for community payment:', {
+        communityId: finalCommunityId,
+        tier,
+        price
+      });
+    } catch (emailError) {
+      console.error('Failed to send email notification:', emailError);
+      // Don't fail the payment confirmation if email fails
+    }
+
     // Return success response
     res.json({ 
       success: true, 
