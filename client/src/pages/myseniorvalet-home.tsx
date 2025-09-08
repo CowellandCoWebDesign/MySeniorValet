@@ -468,29 +468,37 @@ function HeroSectionWithTransformingSearch() {
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
             
-            {/* Combined Trust & Value Badges - Single Horizontal Line */}
-            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap mt-2 mb-2">
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">📱</span> Real Prices
+            {/* Combined Trust & Value Badges - Two Lines */}
+            <div className="flex flex-col gap-1 mt-2 mb-2">
+              {/* First Line */}
+              <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">📱</span> Real Prices
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🏠</span> Instant Tours
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🤖</span> AI-Assisted Research
+                </div>
               </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🏠</span> Instant Tours
-              </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
-              </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🌟</span> Every Senior Service
-              </div>
-              <span className="text-gray-400 mx-1">•</span>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-yellow-300 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🔮</span> 33,427 Global Communities
-              </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-blue-300 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🔒</span> SSL Secured
-              </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-300 font-semibold">
-                <span className="mr-0.5">✓</span> No Login Required
+              {/* Second Line */}
+              <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                <div className="flex items-center text-[9px] sm:text-[10px] text-yellow-300 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🔮</span> 33,427 Global Communities
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-blue-300 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🔒</span> SSL Secured
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-green-300 font-semibold">
+                  <span className="mr-0.5">✓</span> No Login Required
+                </div>
+                <div className="flex items-center text-[9px] sm:text-[10px] text-purple-300 font-semibold">
+                  <span className="mr-0.5 text-[10px] sm:text-xs">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
+                </div>
               </div>
             </div>
           </div>
