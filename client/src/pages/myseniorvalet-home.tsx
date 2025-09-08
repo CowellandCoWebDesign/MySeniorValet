@@ -466,7 +466,7 @@ function HeroSectionWithTransformingSearch() {
             
             {/* Platform Description - Larger and More Readable */}
             <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
-              The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
+              The only AI-powered Senior Living platform where you can research communities and pricing + schedule tours, Make reservations, and Move in services - all in one place
             </p>
             
             {/* Combined Trust & Value Badges - Three Lines */}
