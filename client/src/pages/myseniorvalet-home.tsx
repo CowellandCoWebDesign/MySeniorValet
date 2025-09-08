@@ -455,69 +455,69 @@ function HeroSectionWithTransformingSearch() {
         
         <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
         {/* Hero Title - Positioned at Very Top */}
-        <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
-          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-4 sm:px-6 md:px-8 py-4 sm:py-5 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none">
+        <div className="w-full text-center pt-1 sm:pt-2">
+          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none">
             {/* Main Tagline */}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-4">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3">
               Search Without the Spam.<br/>
               Move Without the Stress.
             </h1>
             
             {/* Platform Description */}
-            <p className="text-sm sm:text-base md:text-lg text-blue-100 font-medium mb-4 max-w-3xl mx-auto">
+            <p className="text-xs sm:text-sm md:text-base text-blue-100 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto">
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
             
             {/* Value Props Side by Side - Always Horizontal */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 max-w-4xl mx-auto">
               {/* What We Offer */}
-              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border border-green-400/30 shadow-lg">
-                <h3 className="text-white font-bold text-[11px] sm:text-sm md:text-base mb-1.5 sm:mb-2 flex items-center justify-center">
-                  <span className="mr-1 sm:mr-2 text-xs sm:text-base">✨</span>
+              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 border border-green-400/30 shadow-lg">
+                <h3 className="text-white font-bold text-[10px] sm:text-xs md:text-sm mb-1 flex items-center justify-center">
+                  <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-xs">✨</span>
                   <span>What You Get</span>
                 </h3>
-                <div className="grid grid-cols-1 gap-1 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-green-100">
-                  <span className="flex items-center"><span className="mr-1">📱</span> Real Prices</span>
-                  <span className="flex items-center"><span className="mr-1">🏠</span> Instant Tours</span>
-                  <span className="flex items-center"><span className="mr-1">✅</span> Direct Reservations</span>
-                  <span className="flex items-center"><span className="mr-1">🌟</span> Every Senior Service</span>
+                <div className="grid grid-cols-1 gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] md:text-xs text-green-100">
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">📱</span> Real Prices</span>
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">🏠</span> Instant Tours</span>
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">✅</span> Direct Reservations</span>
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">🌟</span> Every Senior Service</span>
                 </div>
               </div>
               
               {/* What We Don't Do */}
-              <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border border-red-400/30 shadow-lg">
-                <h3 className="text-white font-bold text-[11px] sm:text-sm md:text-base mb-1.5 sm:mb-2 flex items-center justify-center">
-                  <span className="mr-1 sm:mr-2 text-xs sm:text-base">🚫</span>
+              <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 border border-red-400/30 shadow-lg">
+                <h3 className="text-white font-bold text-[10px] sm:text-xs md:text-sm mb-1 flex items-center justify-center">
+                  <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-xs">🚫</span>
                   <span>What We Never Do</span>
                 </h3>
-                <div className="grid grid-cols-1 gap-1 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-red-100">
-                  <span className="flex items-center"><span className="mr-1">❌</span> No "Call for Pricing"</span>
-                  <span className="flex items-center"><span className="mr-1">❌</span> No Spam Calls</span>
-                  <span className="flex items-center"><span className="mr-1">❌</span> No Selling Your Info</span>
-                  <span className="flex items-center"><span className="mr-1">❌</span> No Hidden Costs</span>
+                <div className="grid grid-cols-1 gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] md:text-xs text-red-100">
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No "Call for Pricing"</span>
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Spam Calls</span>
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Selling Your Info</span>
+                  <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Hidden Costs</span>
                 </div>
               </div>
             </div>
             
             {/* Trust Badges - Using space between value props and search */}
-            <div className="flex justify-center items-center gap-4 mt-3 mb-2">
-              <div className="flex items-center text-[10px] sm:text-xs text-yellow-300 font-semibold">
-                <span className="mr-1">🌍</span> 33,427 Global Communities
+            <div className="flex justify-center items-center gap-2 sm:gap-4 mt-2 mb-1">
+              <div className="flex items-center text-[9px] sm:text-xs text-yellow-300 font-semibold">
+                <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-base">🌍</span> 33,427 Global Communities
               </div>
-              <div className="flex items-center text-[10px] sm:text-xs text-blue-300 font-semibold">
-                <span className="mr-1">🔒</span> SSL Secured
+              <div className="flex items-center text-[9px] sm:text-xs text-blue-300 font-semibold">
+                <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-base">🔒</span> SSL Secured
               </div>
-              <div className="flex items-center text-[10px] sm:text-xs text-green-300 font-semibold">
-                <span className="mr-1">✓</span> No Login Required
+              <div className="flex items-center text-[9px] sm:text-xs text-green-300 font-semibold">
+                <span className="mr-0.5 sm:mr-1">✓</span> No Login Required
               </div>
             </div>
           </div>
         </div>
 
         {/* Content Container - Flexible Spacer and Search */}
-        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-end pb-16 sm:pb-20 md:pb-32'}`}>
+        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-4' : 'justify-end pb-8 sm:pb-16 md:pb-24'}`}>
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6 md:mb-8">
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-3 sm:mb-6">
           {/* Category Tabs - Sleek Modern Style */}
           <div className="flex justify-center">
             <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
@@ -586,7 +586,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Bar Container - Enhanced styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-6 pt-3 px-3 shadow-2xl ${
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-4 sm:pb-6 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
@@ -689,23 +689,23 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Quick Action Stats - Below Search */}
-          <div className="mt-4 flex flex-col items-center gap-2">
-            <div className="flex justify-center items-center gap-3 text-[10px] sm:text-xs">
+          <div className="mt-2 sm:mt-3 flex flex-col items-center gap-1 sm:gap-2">
+            <div className="flex justify-center items-center gap-2 sm:gap-3 text-[9px] sm:text-xs">
               <div className="flex items-center text-white/80">
-                <span className="mr-1 text-green-400">●</span> Live Now
+                <span className="mr-0.5 text-green-400">●</span> Live Now
               </div>
               <div className="flex items-center text-white/80">
-                <span className="mr-1">👁️</span> 2,847 searching
+                <span className="mr-0.5 text-[10px]">👁️</span> 2,847 searching
               </div>
               <div className="flex items-center text-white/80">
-                <span className="mr-1">🔄</span> Updates every 24h
+                <span className="mr-0.5 text-[10px]">🔄</span> Updates every 24h
               </div>
             </div>
             
             {/* Free Forever Promise */}
-            <div className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-purple-900/60 backdrop-blur-sm rounded-full px-4 py-2 border border-purple-400/30 shadow-lg">
-              <p className="text-white font-bold text-xs sm:text-sm flex items-center">
-                <span className="mr-2">🛡️</span>
+            <div className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-purple-900/60 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 border border-purple-400/30 shadow-lg">
+              <p className="text-white font-bold text-[10px] sm:text-xs md:text-sm flex items-center">
+                <span className="mr-1 sm:mr-2 text-xs">🛡️</span>
                 <span className="text-yellow-300">FREE</span>
                 <span className="ml-1">for Families Forever - That's Our Promise</span>
               </p>
