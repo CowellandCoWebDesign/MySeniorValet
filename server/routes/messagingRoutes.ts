@@ -58,7 +58,7 @@ router.get("/conversations", async (req, res) => {
               profileImageUrl: users.profileImageUrl
             })
             .from(users)
-            .where(eq(users.id, p.userId));
+            .where(eq(users.id, parseInt(p.userId)));
             
             return {
               ...p,
@@ -115,7 +115,7 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
           profileImageUrl: users.profileImageUrl
         })
         .from(users)
-        .where(eq(users.id, msg.senderId));
+        .where(eq(users.id, parseInt(msg.senderId)));
 
         return {
           ...msg,
@@ -162,7 +162,7 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
         profileImageUrl: users.profileImageUrl
       })
       .from(users)
-      .where(eq(users.id, senderId));
+      .where(eq(users.id, parseInt(senderId)));
     } else if (senderType === 'community') {
       [sender] = await db.select({
         id: communities.id,

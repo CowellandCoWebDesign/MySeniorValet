@@ -115,8 +115,8 @@ export class MessagingService {
   private async handleAuth(ws: AuthenticatedWebSocket, payload: { userId: string }) {
     const { userId } = payload;
     
-    // Verify user exists
-    const [user] = await db.select().from(users).where(eq(users.id, userId));
+    // Verify user exists (convert string userId to number for comparison)
+    const [user] = await db.select().from(users).where(eq(users.id, parseInt(userId)));
     if (!user) {
       ws.send(JSON.stringify({ type: 'auth_failed', payload: 'Invalid user' }));
       ws.close();
@@ -199,7 +199,7 @@ export class MessagingService {
     // Get sender info
     const [sender] = await db.select()
       .from(users)
-      .where(eq(users.id, ws.userId!));
+      .where(eq(users.id, parseInt(ws.userId!)));
 
     const messageWithSender = {
       ...newMessage,

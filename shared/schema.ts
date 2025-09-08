@@ -3582,6 +3582,28 @@ export const insertMessageSchema = createInsertSchema(messages).omit({
   readAt: true,
 });
 
+// Add missing type exports for messaging
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type SelectConversation = typeof conversations.$inferSelect;
+export type Conversation = SelectConversation;
+
+export const insertFamilyGroupSchema = createInsertSchema(familyGroups).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertFamilyGroup = z.infer<typeof insertFamilyGroupSchema>;
+export type SelectFamilyGroup = typeof familyGroups.$inferSelect;
+export type FamilyGroup = SelectFamilyGroup;
+
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type SelectMessage = typeof messages.$inferSelect;
+
 export const insertMessageTemplateSchema = createInsertSchema(messageTemplates).omit({
   id: true,
   createdAt: true,
