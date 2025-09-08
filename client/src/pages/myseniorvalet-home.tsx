@@ -2952,14 +2952,14 @@ export default function MySeniorValetHome() {
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
                             <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$99/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Live messaging, basic profile, analytics</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic profile, lead generation, analytics</p>
                         </div>
                         <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Growth</p>
                             <p className="text-xs font-bold text-green-600 dark:text-green-400">$299/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Reservation mgmt (CC hold), 3D tours, priority support</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Direct messaging, reservation mgmt, 3D tours, priority support</p>
                         </div>
                         <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border border-purple-300 dark:border-purple-700">
                           <div className="flex justify-between items-center">
