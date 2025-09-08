@@ -98,7 +98,6 @@ export default function CommunityPortal() {
       tagline: 'Essential online presence',
       description: 'Perfect for single communities',
       features: [
-        { text: '💬 Live messaging with families', included: true, highlight: true },
         { text: 'Basic profile with 5 photos', included: true },
         { text: 'Pricing & availability display', included: true },
         { text: 'Contact information', included: true },
@@ -121,6 +120,7 @@ export default function CommunityPortal() {
       description: 'Includes 3D tour technology',
       features: [
         { text: 'Everything in Starter, plus:', header: true },
+        { text: '💬 Live messaging with families', included: true, highlight: true },
         { text: '📅 Reservation Management (credit card hold, no deposit)', included: true, highlight: true },
         { text: '🏠 3D tour embed capability', included: true, highlight: true },
         { text: 'Enhanced listing with 20 photos', included: true },
@@ -240,12 +240,13 @@ export default function CommunityPortal() {
         // If it's an existing community claiming free tier
         if (existingCommunityData) {
           try {
-            await apiRequest('/api/payments/claim-free-tier', {
-              method: 'POST',
-              body: JSON.stringify({
+            await apiRequest(
+              'POST',
+              '/api/payments/claim-free-tier',
+              {
                 communityId: existingCommunityData.communityId
-              })
-            });
+              }
+            );
             
             toast({
               title: "Success!",
@@ -283,17 +284,18 @@ export default function CommunityPortal() {
         description: "Creating secure checkout session",
       });
 
-      const response = await apiRequest('/api/payments/create-subscription-checkout', {
-        method: 'POST',
-        body: JSON.stringify({
+      const response = await apiRequest(
+        'POST',
+        '/api/payments/create-subscription-checkout',
+        {
           tier: productId,
           communityId: existingCommunityData?.communityId || null,
           communityName: existingCommunityData?.communityName || 'New Community',
           userEmail: null, // You can pass user email if available
           successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/community-portal`
-        })
-      });
+        }
+      );
 
       if (response.url) {
         // Redirect to Stripe Checkout
