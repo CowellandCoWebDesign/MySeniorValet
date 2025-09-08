@@ -468,31 +468,33 @@ function HeroSectionWithTransformingSearch() {
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
             
-            {/* Value Props Side by Side */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto mb-4">
+            {/* Value Props Side by Side - Always Horizontal */}
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 max-w-4xl mx-auto mb-4">
               {/* What We Offer */}
-              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-xl p-3 border border-green-400/30 shadow-lg">
-                <h3 className="text-white font-bold text-sm sm:text-base mb-2 flex items-center justify-center">
-                  <span className="mr-2">✨</span> What You Get
+              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border border-green-400/30 shadow-lg">
+                <h3 className="text-white font-bold text-[11px] sm:text-sm md:text-base mb-1.5 sm:mb-2 flex items-center justify-center">
+                  <span className="mr-1 sm:mr-2 text-xs sm:text-base">✨</span>
+                  <span>What You Get</span>
                 </h3>
-                <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-green-100">
-                  <span className="flex items-center">📱 Real Prices</span>
-                  <span className="flex items-center">🏠 Instant Tours</span>
-                  <span className="flex items-center">✅ Direct Reservations</span>
-                  <span className="flex items-center">🌟 Every Senior Service</span>
+                <div className="grid grid-cols-1 gap-1 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-green-100">
+                  <span className="flex items-center"><span className="mr-1">📱</span> Real Prices</span>
+                  <span className="flex items-center"><span className="mr-1">🏠</span> Instant Tours</span>
+                  <span className="flex items-center"><span className="mr-1">✅</span> Direct Reservations</span>
+                  <span className="flex items-center"><span className="mr-1">🌟</span> Every Senior Service</span>
                 </div>
               </div>
               
               {/* What We Don't Do */}
-              <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-xl p-3 border border-red-400/30 shadow-lg">
-                <h3 className="text-white font-bold text-sm sm:text-base mb-2 flex items-center justify-center">
-                  <span className="mr-2">🚫</span> What We Never Do
+              <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border border-red-400/30 shadow-lg">
+                <h3 className="text-white font-bold text-[11px] sm:text-sm md:text-base mb-1.5 sm:mb-2 flex items-center justify-center">
+                  <span className="mr-1 sm:mr-2 text-xs sm:text-base">🚫</span>
+                  <span>What We Never Do</span>
                 </h3>
-                <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-red-100">
-                  <span className="flex items-center">❌ No "Call for Pricing"</span>
-                  <span className="flex items-center">❌ No Spam Calls</span>
-                  <span className="flex items-center">❌ No Selling Your Info</span>
-                  <span className="flex items-center">❌ No Hidden Costs</span>
+                <div className="grid grid-cols-1 gap-1 sm:gap-2 text-[10px] sm:text-xs md:text-sm text-red-100">
+                  <span className="flex items-center"><span className="mr-1">❌</span> No "Call for Pricing"</span>
+                  <span className="flex items-center"><span className="mr-1">❌</span> No Spam Calls</span>
+                  <span className="flex items-center"><span className="mr-1">❌</span> No Selling Your Info</span>
+                  <span className="flex items-center"><span className="mr-1">❌</span> No Hidden Costs</span>
                 </div>
               </div>
             </div>
