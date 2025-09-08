@@ -8,12 +8,14 @@ import { db } from "../db";
 import { subscriptions, paymentTransactions, communities } from '@shared/schema';
 import { eq } from "drizzle-orm";
 import Stripe from "stripe";
+import { PaymentNotificationService } from '../services/payment-notification-service';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { 
   apiVersion: '2025-07-30.basil' as any 
 });
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+const notificationService = new PaymentNotificationService();
 
 // Real payment tracking (Golden Data Rule compliant)
 const paymentTracker = {
@@ -73,6 +75,18 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           metadata: paymentIntent.metadata as any,
           completedAt: new Date(),
         });
+        
+        // Send payment success notification if customer email exists
+        if (paymentIntent.receipt_email || paymentIntent.metadata?.customerEmail) {
+          await notificationService.sendPaymentNotification({
+            type: 'payment_successful',
+            customerEmail: paymentIntent.receipt_email || paymentIntent.metadata?.customerEmail || '',
+            tierName: paymentIntent.metadata?.tier || 'One-time payment',
+            amount: paymentIntent.amount / 100,
+            subscriptionType: paymentIntent.metadata?.type === 'vendor' ? 'vendor' : 'community',
+            metadata: paymentIntent.metadata
+          });
+        }
         
         console.log(`✅ Payment processed: $${paymentIntent.amount / 100}`);
         break;
@@ -141,6 +155,32 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           errorMessage: 'Invoice payment failed',
         });
         
+        // Send payment failure notification
+        if (invoice.customer) {
+          try {
+            const customer = await stripe.customers.retrieve(invoice.customer as string);
+            if ('email' in customer && customer.email) {
+              const subscription = invoice.subscription ? 
+                await stripe.subscriptions.retrieve(invoice.subscription as string) : null;
+              
+              await notificationService.sendPaymentNotification({
+                type: 'payment_failed',
+                customerEmail: customer.email,
+                tierName: subscription?.metadata?.tier || 'Subscription',
+                amount: (invoice.amount_due || 0) / 100,
+                subscriptionType: subscription?.metadata?.type === 'vendor' ? 'vendor' : 'community',
+                metadata: {
+                  invoiceId: invoice.id,
+                  reason: 'Payment declined',
+                  subscriptionId: invoice.subscription
+                }
+              });
+            }
+          } catch (error) {
+            console.error('Failed to send payment failure notification:', error);
+          }
+        }
+        
         console.log(`❌ Invoice payment failed: ${invoice.id}`);
         break;
       }
@@ -166,6 +206,24 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   if (session.mode === 'subscription' && session.subscription) {
     // Retrieve the full subscription object
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    
+    // Send subscription created notification
+    const customerEmail = session.customer_details?.email || session.customer_email;
+    if (customerEmail) {
+      await notificationService.sendPaymentNotification({
+        type: 'subscription_created',
+        customerEmail,
+        tierName: tier || 'Unknown',
+        amount: (subscription.items.data[0]?.price.unit_amount || 0) / 100,
+        subscriptionType: 'community',
+        metadata: {
+          communityId,
+          communityName,
+          subscriptionId: subscription.id,
+          customerId: subscription.customer
+        }
+      });
+    }
     
     // Create or update subscription record
     const subscriptionData = {
@@ -323,6 +381,26 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
         subscriptionTier: 'free',
       })
       .where(eq(communities.id, sub[0].communityId));
+  }
+
+  // Send cancellation notification
+  try {
+    const customer = await stripe.customers.retrieve(subscription.customer as string);
+    if ('email' in customer && customer.email) {
+      await notificationService.sendPaymentNotification({
+        type: 'subscription_cancelled',
+        customerEmail: customer.email,
+        tierName: subscription.metadata?.tier || 'Subscription',
+        amount: (subscription.items.data[0]?.price.unit_amount || 0) / 100,
+        subscriptionType: subscription.metadata?.type === 'vendor' ? 'vendor' : 'community',
+        metadata: {
+          subscriptionId: subscription.id,
+          reason: subscription.cancellation_details?.reason || 'User cancelled'
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Failed to send cancellation notification:', error);
   }
 
   paymentTracker.activeSubscriptions = Math.max(0, paymentTracker.activeSubscriptions - 1);
