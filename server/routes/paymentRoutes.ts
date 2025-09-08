@@ -1067,7 +1067,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select({ stripeCustomerId: users.stripeCustomerId })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeCustomerId) {
@@ -1099,7 +1099,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select()
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user) {
@@ -1306,7 +1306,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select({ stripeCustomerId: users.stripeCustomerId })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeCustomerId) {
@@ -1413,7 +1413,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       stripeSubscriptionId: subscription.id,
       updatedAt: new Date()
     })
-    .where(eq(users.id, userId));
+    .where(eq(users.id, parseInt(userId)));
 }
 
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
@@ -1426,7 +1426,7 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
       stripeSubscriptionId: null,
       updatedAt: new Date()
     })
-    .where(eq(users.id, userId));
+    .where(eq(users.id, parseInt(userId)));
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
