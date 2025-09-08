@@ -2864,27 +2864,87 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4">
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Database Tools",
+                        description: "Accessing database management interface...",
+                      });
+                      setActiveTab('communities');
+                    }}
+                  >
                     <Database className="h-6 w-6 mb-2" />
                     Database Tools
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Security Settings",
+                        description: "Opening security configuration panel...",
+                      });
+                      setActiveTab('protection');
+                    }}
+                  >
                     <Shield className="h-6 w-6 mb-2" />
                     Security Settings
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "System Configuration",
+                        description: "Loading system settings...",
+                      });
+                      setActiveTab('system');
+                    }}
+                  >
                     <Settings className="h-6 w-6 mb-2" />
                     System Config
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Test Tools",
+                        description: "Opening testing dashboard...",
+                      });
+                      window.location.href = '/payment-test-dashboard';
+                    }}
+                  >
                     <TestTube className="h-6 w-6 mb-2" />
                     Test Tools
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Theme Settings",
+                        description: "Theme customization coming soon!",
+                        variant: "default",
+                      });
+                    }}
+                  >
                     <Palette className="h-6 w-6 mb-2" />
                     Theme Settings
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Audit Logs",
+                        description: "Loading audit history...",
+                      });
+                      setActiveTab('activity');
+                    }}
+                  >
                     <FileSearch className="h-6 w-6 mb-2" />
                     Audit Logs
                   </Button>
