@@ -15,14 +15,23 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-07-30.basil' as any,
 });
 
+// Stripe Price IDs from configured products
+const STRIPE_PRICE_IDS = {
+  starter: 'price_1S53IkEQ489MwJ34ktvmZFHk',
+  growth: 'price_1S53IlEQ489MwJ34c6h8MRG8',
+  professional: 'price_1S53ImEQ489MwJ34haImoDqJ',
+  premium: 'price_1S53InEQ489MwJ34Be6qsJBz',
+  enterprise: 'price_1S53InEQ489MwJ34FMoJIocA'
+};
+
 // Community Subscription Tiers - Supporting both old and new tier names
 const COMMUNITY_TIERS = {
   // New tier names (what frontend sends)
-  starter: { name: 'Starter', price: 9900, interval: 'month' as const }, // $99 in cents
-  growth: { name: 'Growth', price: 29900, interval: 'month' as const }, // $299 in cents
-  professional: { name: 'Professional', price: 99900, interval: 'month' as const }, // $999 in cents
-  premium: { name: 'Premium', price: 199900, interval: 'month' as const }, // $1999 in cents
-  enterprise: { name: 'Enterprise', price: 399900, interval: 'month' as const }, // $3999 in cents
+  starter: { name: 'Starter', price: 9900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.starter }, // $99 in cents
+  growth: { name: 'Growth', price: 29900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.growth }, // $299 in cents
+  professional: { name: 'Professional', price: 99900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.professional }, // $999 in cents
+  premium: { name: 'Premium', price: 199900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.premium }, // $1999 in cents
+  enterprise: { name: 'Enterprise', price: 399900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.enterprise }, // $3999 in cents
   // Legacy tier names (kept for backwards compatibility)
   verified: { name: 'Verified Listing', price: 9900, interval: 'month' as const }, // Maps to Starter
   standard: { name: 'Standard', price: 14900, interval: 'month' as const }, // Legacy price
@@ -208,27 +217,31 @@ router.post('/create-subscription-checkout', async (req: Request, res: Response)
     }
 
     // Create Checkout Session for subscription
-    const session = await stripe.checkout.sessions.create({
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: `${tierInfo.name} Community Subscription`,
-            description: `Monthly subscription for ${communityName || 'your community'}`,
-            metadata: {
-              tier,
-              communityId: communityId?.toString() || '',
-              communityName: communityName || ''
-            }
-          },
-          unit_amount: tierInfo.price,
-          recurring: {
-            interval: tierInfo.interval
-          }
-        },
-        quantity: 1
+        quantity: 1,
+        ...(tierInfo.priceId 
+          ? { price: tierInfo.priceId }  // Use configured Stripe Price ID
+          : { // Fallback to dynamic pricing for legacy tiers
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: `${tierInfo.name} Community Subscription`,
+                  description: `Monthly subscription for ${communityName || 'your community'}`,
+                  metadata: {
+                    tier,
+                    communityId: communityId?.toString() || '',
+                    communityName: communityName || ''
+                  }
+                },
+                unit_amount: tierInfo.price,
+                recurring: {
+                  interval: tierInfo.interval
+                }
+              }
+            })
       }],
       customer: customerId,
       subscription_data: {
@@ -248,7 +261,9 @@ router.post('/create-subscription-checkout', async (req: Request, res: Response)
       cancel_url: cancelUrl || `${req.protocol}://${req.get('host')}/community-portal`,
       allow_promotion_codes: true,
       billing_address_collection: 'required'
-    });
+    };
+    
+    const session = await stripe.checkout.sessions.create(sessionConfig);
 
     console.log(`Created subscription checkout session: ${session.id} for ${tier} tier`);
 
