@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { ExecutiveAnalyticsService } from "../services/executive-analytics.service";
-import { requireAdminAuth } from "../middleware/auth";
+import { isAuthenticated as requireAuth, isAdmin } from "../auth-middleware";
 
 const router = Router();
 const executiveService = ExecutiveAnalyticsService.getInstance();
 
 // All executive routes require admin authentication
-router.use(requireAdminAuth);
+router.use(requireAuth);
+router.use(isAdmin);
 
 // Get executive KPIs
 router.get('/kpis', async (req, res) => {
