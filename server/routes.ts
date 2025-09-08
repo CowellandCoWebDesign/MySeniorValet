@@ -430,6 +430,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register community enrichment routes
   const { registerCommunityEnrichmentRoutes } = await import('./routes/community-enrichment-routes');
   registerCommunityEnrichmentRoutes(app);
+  
+  // Register admin financial routes
+  const adminFinancialRoutes = await import('./routes/adminFinancialRoutes');
+  app.use('/api/admin', adminFinancialRoutes.default);
+  app.use('/api/financial', adminFinancialRoutes.default);
+  
+  // Register admin performance monitoring routes
+  const adminPerformanceRoutes = await import('./routes/adminPerformanceRoutes');
+  const { trackPerformance } = adminPerformanceRoutes;
+  app.use(trackPerformance); // Apply performance tracking middleware
+  app.use('/api/admin/performance', adminPerformanceRoutes.default);
 
   // Admin: Get all users
   app.get('/api/admin/users', async (req, res) => {
