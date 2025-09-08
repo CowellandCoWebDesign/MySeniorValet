@@ -466,7 +466,7 @@ function HeroSectionWithTransformingSearch() {
             
             {/* Platform Description - Larger and More Readable */}
             <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-1 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
-              AI-powered Senior Living Transparency platform providing information access via research/comparison of communities & pricing, instant tour scheduling, and rapid reservation capability + access to local Caregiving, Healthcare, and supportive Resources - all in one place
+              AI-powered Senior Living Transparency platform providing information access via research/comparison of communities & Pricing & Reviews, instant tour scheduling, and rapid reservation capability + access to local Caregiving, Healthcare, and supportive Resources - all in one place
             </p>
             
             {/* Privacy Message - Separate Line */}
