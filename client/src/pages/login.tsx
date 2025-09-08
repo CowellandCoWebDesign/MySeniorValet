@@ -45,8 +45,8 @@ export default function LoginPage() {
           window.location.href = `/community-mobile-payment/${pendingCommunityTier}`;
         } else {
           // Redirect based on user role
-          window.location.href = data.user.role === "super_admin" ? "/admin-unified" : 
-                                data.user.role === "admin" ? "/admin-unified" : "/dashboard";
+          window.location.href = data.user.role === "super_admin" ? "/admin-mega-dashboard" : 
+                                data.user.role === "admin" ? "/admin-mega-dashboard" : "/dashboard";
         }
       } else {
         toast({
@@ -69,8 +69,8 @@ export default function LoginPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !isLoading) {
-      if ((user as any).role === "super_admin") {
-        setLocation("/admin-unified");
+      if ((user as any).role === "super_admin" || (user as any).role === "admin") {
+        setLocation("/admin-mega-dashboard");
       } else {
         setLocation("/dashboard");
       }
