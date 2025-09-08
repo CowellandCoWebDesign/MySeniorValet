@@ -3,7 +3,8 @@ import express from "express";
 import { db } from "../db";
 import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth, createAuthenticatedSession } from "../auth-middleware";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
+import { createAuthenticatedSession } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";
@@ -650,6 +651,7 @@ export function registerPaymentRoutes(app: Express) {
       });
     }
   });
+  */
 
   // Recovery endpoint for failed payment confirmations
   app.post('/api/payments/recover-failed-payment', async (req, res) => {
