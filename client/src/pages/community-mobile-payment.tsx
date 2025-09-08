@@ -3,146 +3,41 @@ import { useParams, useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy, UserPlus, LogIn } from 'lucide-react';
+import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy, UserPlus, LogIn, TrendingUp, Sparkles } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
 // Removed MobilePaymentForm - using direct Stripe Checkout for subscriptions
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
 import { useAuth } from '@/hooks/useAuth';
+import { getCommunityTier, COMMUNITY_TIERS, LEGACY_TIER_MAPPING } from '@shared/tiers';
 
-const TIER_DETAILS = {
-  starter: {
-    name: 'Starter',
-    price: 99,
+// Map tier IDs to icons and colors for visual representation
+const TIER_VISUALS = {
+  free: {
     icon: CheckCircle2,
+    color: 'bg-gray-100 text-gray-800',
+  },
+  starter: {
+    icon: Star,
     color: 'bg-green-100 text-green-800',
-    features: [
-      'Basic profile with 5 photos',
-      'Pricing & availability display',
-      'Contact information',
-      'Analytics dashboard',
-      'Tour scheduling',
-      'Standard search placement',
-      'Monthly performance report'
-    ]
   },
   growth: {
-    name: 'Growth',
-    price: 299,
     icon: Trophy,
     color: 'bg-blue-100 text-blue-800',
-    features: [
-      'Everything in Starter, plus:',
-      '💬 Live messaging with families',
-      '📅 Reservation Management',
-      '🏠 3D tour embed capability',
-      'Enhanced listing with 20 photos',
-      'Featured search ranking',
-      'TourMate™ advanced scheduling',
-      'Lead tracking & CRM exports',
-      'Priority phone support'
-    ]
   },
   professional: {
-    name: 'Professional',
-    price: 999,
-    icon: Star,
+    icon: Shield,
     color: 'bg-purple-100 text-purple-800',
-    features: [
-      'Everything in Growth, plus:',
-      '⭐ Manage up to 5 properties',
-      '🤖 AI lease generation',
-      '🛡️ Rental insurance tracking',
-      'Advanced lead tracking',
-      'RMS integration',
-      'Move-in cost calculator',
-      'Unlimited photos & videos',
-      'Dedicated success manager'
-    ]
   },
   premium: {
-    name: 'Premium',
-    price: 1999,
-    icon: Shield,
+    icon: Sparkles,
     color: 'bg-indigo-100 text-indigo-800',
-    features: [
-      'Everything in Professional, plus:',
-      '💎 Manage up to 10 properties',
-      '💳 Payment & deposit processing',
-      '🏥 Healthcare integrations',
-      'AI-powered insights',
-      'Medicare eligibility verification',
-      'Financial reporting suite',
-      'Compliance monitoring',
-      'Quarterly business reviews'
-    ]
   },
   enterprise: {
-    name: 'Enterprise',
-    price: 3999,
     icon: Crown,
     color: 'bg-yellow-100 text-yellow-800',
-    features: [
-      'Everything in Premium, plus:',
-      '🚀 Manage up to 25 properties',
-      '👥 Full Resident Management',
-      'White-label platform options',
-      'Full API access & webhooks',
-      'Custom domain & branding',
-      'Dedicated infrastructure',
-      'SLA guarantees',
-      'Executive partnership team'
-    ]
   },
-  // Keep legacy tiers for backward compatibility
-  standard: {
-    name: 'Standard',
-    price: 149,
-    icon: Star,
-    color: 'bg-blue-100 text-blue-800',
-    features: [
-      'Upload up to 10 photos',
-      'Upload 1 brochure PDF',
-      'Add external calendar link',
-      'Access basic analytics',
-      'Can respond to reviews',
-      '"Standard Verified" badge'
-    ]
-  },
-  featured: {
-    name: 'Featured',
-    price: 249,
-    icon: Shield,
-    color: 'bg-purple-100 text-purple-800',
-    features: [
-      'All Standard features, plus:',
-      'Upload up to 25 photos',
-      '1 video (max 2 mins)',
-      'Upload up to 3 PDFs',
-      'Featured placement in search & maps',
-      'In-app messaging + AI assist',
-      'Promo badge support',
-      'Concierge "Preferred" tag'
-    ]
-  },
-  platinum: {
-    name: 'Platinum',
-    price: 349,
-    icon: Crown,
-    color: 'bg-yellow-100 text-yellow-800',
-    features: [
-      'All Featured features, plus:',
-      'Upload up to 50 photos',
-      'Up to 3 videos (5 mins each)',
-      'Unlimited PDFs',
-      'Staff bios, care philosophy, menus',
-      'Availability sync',
-      'Admin dashboard',
-      'Top Concierge Priority',
-      'Monthly performance review call'
-    ]
-  }
 };
 
 export default function CommunityMobilePayment() {
@@ -155,12 +50,16 @@ export default function CommunityMobilePayment() {
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(COMMUNITY_PAYMENT_STEPS);
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
 
-  const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
+  // Handle legacy tier names for backward compatibility
+  const actualTierId = LEGACY_TIER_MAPPING[tier as string] || tier;
+  const tierInfo = getCommunityTier(actualTierId as string);
+  const tierVisual = TIER_VISUALS[actualTierId as keyof typeof TIER_VISUALS] || TIER_VISUALS.starter;
+  const Icon = tierVisual.icon;
 
   useEffect(() => {
     if (authLoading) return;
 
-    if (!tierDetails) {
+    if (!tierInfo || tierInfo.price === 0) {
       setError('Invalid tier selected. Please choose a valid subscription plan.');
       setIsLoading(false);
       return;
@@ -338,7 +237,7 @@ export default function CommunityMobilePayment() {
     );
   }
 
-  if (error || !tierDetails) {
+  if (error || !tierInfo) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavigationHeader />
@@ -356,7 +255,7 @@ export default function CommunityMobilePayment() {
     );
   }
 
-  const TierIcon = tierDetails.icon;
+  // Icon already set above
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -384,31 +283,31 @@ export default function CommunityMobilePayment() {
                     {communityData?.communityName || 'Community'}
                   </CardDescription>
                 </div>
-                <Badge className={tierDetails.color}>
-                  <TierIcon className="mr-1 h-4 w-4" />
-                  {tierDetails.name}
+                <Badge className={tierVisual.color}>
+                  <Icon className="mr-1 h-4 w-4" />
+                  {tierInfo.displayName}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b">
-                  <span className="font-semibold">{tierDetails.name} Subscription</span>
-                  <span className="text-2xl font-bold">${tierDetails.price}/mo</span>
+                  <span className="font-semibold">{tierInfo.displayName} Subscription</span>
+                  <span className="text-2xl font-bold">{tierInfo.priceDisplay}</span>
                 </div>
                 
                 <div>
                   <h4 className="font-semibold mb-2">Included Features:</h4>
                   <ul className="space-y-1">
-                    {tierDetails.features.slice(0, 4).map((feature, index) => (
+                    {tierInfo.highlights.slice(0, 4).map((feature, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
-                    {tierDetails.features.length > 4 && (
+                    {tierInfo.highlights.length > 4 && (
                       <li className="text-sm text-gray-500 dark:text-gray-500 pl-6">
-                        ...and {tierDetails.features.length - 4} more features
+                        ...and {tierInfo.highlights.length - 4} more features
                       </li>
                     )}
                   </ul>
@@ -429,7 +328,7 @@ export default function CommunityMobilePayment() {
               <CardContent className="space-y-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Your {tierDetails.name} subscription will be linked to your account for easy management and renewal.
+                    Your {tierInfo.displayName} subscription will be linked to your account for easy management and renewal.
                   </p>
                 </div>
                 
