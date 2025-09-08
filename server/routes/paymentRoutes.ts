@@ -166,22 +166,66 @@ export function registerPaymentRoutes(app: Express) {
   // Create payment intent for Payment Element
   app.post('/api/payments/create-payment-intent', async (req, res) => {
     try {
-      const { productId, amount, customerId, metadata } = req.body;
+      const { tier, type, productId, amount, customerId, metadata, billingCycle } = req.body;
 
-      if (!amount || amount < 50) { // Stripe minimum is 50 cents
-        return res.status(400).json({ error: 'Invalid amount' });
+      // Map new tier names to legacy system
+      const TIER_MAPPING: Record<string, string> = {
+        'starter': 'verified',
+        'growth': 'standard',
+        'professional': 'featured',
+        'premium': 'platinum',
+        'enterprise': 'platinum'
+      };
+
+      // Pricing map for each tier (monthly prices in cents)
+      const TIER_PRICING: Record<string, number> = {
+        'starter': 9900,      // $99
+        'growth': 29900,      // $299
+        'professional': 99900, // $999
+        'premium': 199900,    // $1999
+        'enterprise': 399900, // $3999
+        'verified': 9900,     // Legacy tier
+        'standard': 14900,    // Legacy tier
+        'featured': 24900,    // Legacy tier
+        'platinum': 34900,    // Legacy tier
+        'basic': 9900,        // Vendor tier
+        'national': 49900     // Vendor tier
+      };
+
+      // Calculate amount based on tier if not provided
+      let finalAmount = amount;
+      let finalTier = tier;
+      
+      if (tier && !amount) {
+        // Map new tier names to legacy names if needed
+        finalTier = TIER_MAPPING[tier] || tier;
+        finalAmount = TIER_PRICING[tier] || TIER_PRICING[finalTier] || 9900; // Default to starter price
+        
+        console.log('Calculated amount from tier:', { 
+          originalTier: tier, 
+          mappedTier: finalTier, 
+          amount: finalAmount 
+        });
+      }
+
+      if (!finalAmount || finalAmount < 50) { // Stripe minimum is 50 cents
+        return res.status(400).json({ error: 'Invalid tier or amount' });
       }
 
       // Create payment intent
       const paymentIntent = await stripePaymentService.createPaymentIntent({
-        amount,
+        amount: finalAmount,
         currency: 'usd',
         customer: customerId,
         metadata: {
           ...metadata,
-          productId,
+          tier: finalTier,
+          originalTier: tier,
+          productId: productId || tier,
+          type: type || (tier && ['verified', 'standard', 'featured', 'platinum', 'starter', 'growth', 'professional', 'premium', 'enterprise'].includes(tier) ? 'community' : 'vendor'),
           platform: 'myseniorvalet',
-          paymentType: productId?.includes('vendor') ? 'vendor_subscription' : 'community_subscription'
+          paymentType: type === 'vendor' ? 'vendor_subscription' : 'community_subscription',
+          billingCycle: billingCycle || 'monthly'
         },
         automatic_payment_methods: {
           enabled: true,
