@@ -459,9 +459,9 @@ function HeroSectionWithTransformingSearch() {
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Single Line */}
             <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3 whitespace-nowrap">
-              <span className="inline-block animate-slide-in-left">Search Without the Spam</span>
+              <span className="inline-block animate-slide-in-left">Search Without the <span className="text-red-500">Spam</span></span>
               <span className="mx-1 sm:mx-2">•</span>
-              <span className="inline-block animate-slide-in-right">Move Without the Stress</span>
+              <span className="inline-block animate-slide-in-right">Move Without the <span className="text-red-500">Stress</span></span>
             </h1>
             
             {/* Platform Description - Larger and More Readable */}
@@ -666,13 +666,13 @@ function HeroSectionWithTransformingSearch() {
         {/* Security & AI Badges - Centered Below Search */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-3">
           <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center text-[10px] sm:text-xs text-blue-300 font-semibold">
+            <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-blue-600/80 backdrop-blur-sm rounded-full px-2 py-1">
               <span className="mr-0.5 text-[11px] sm:text-sm">🔒</span> SSL Secured
             </div>
-            <div className="flex items-center text-[10px] sm:text-xs text-green-300 font-semibold">
+            <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-green-600/80 backdrop-blur-sm rounded-full px-2 py-1">
               <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
             </div>
-            <div className="flex items-center text-[10px] sm:text-xs text-purple-300 font-semibold">
+            <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-purple-600/80 backdrop-blur-sm rounded-full px-2 py-1">
               <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
             </div>
           </div>
