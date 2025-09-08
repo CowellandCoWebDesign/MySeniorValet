@@ -54,6 +54,80 @@ export interface CommunityTierFeatures {
   jobListings: boolean;
   realTimeAvailability: boolean;
   tourCalendarLink: boolean;
+  
+  // AI & Intelligence (Hidden Features)
+  perplexityAI?: boolean;
+  claudeAI?: boolean;
+  openAI?: boolean;
+  grokAI?: boolean;
+  multiAIOrchestration?: boolean;
+  aiMarketIntelligence?: boolean;
+  nlpSearch?: boolean;
+  semanticSearch?: boolean;
+  
+  // Healthcare Systems (Hidden Features)
+  epicFHIR?: boolean;
+  cernerIntegration?: boolean;
+  medicareVerification?: boolean;
+  pharmacyIntegration?: boolean;
+  
+  // Transportation (Hidden Features)  
+  uberHealthIntegration?: boolean;
+  lyftHealthcareIntegration?: boolean;
+  transportationCoordination?: boolean;
+  
+  // RMS Integrations (Hidden Features)
+  yardiIntegration?: boolean;
+  realPageIntegration?: boolean;
+  entrataIntegration?: boolean;
+  oneSiteIntegration?: boolean;
+  repsIntegration?: boolean;
+  lcsIntegration?: boolean;
+  aLineIntegration?: boolean;
+  
+  // CRM & Marketing (Hidden Features)
+  salesforceIntegration?: boolean;
+  hubspotIntegration?: boolean;
+  mailchimpIntegration?: boolean;
+  facebookMarketing?: boolean;
+  linkedInSales?: boolean;
+  whatsappBusiness?: boolean;
+  twilioSMS?: boolean;
+  
+  // Document Management (Hidden Features)
+  docusignIntegration?: boolean;
+  documensoIntegration?: boolean;
+  documentVersionControl?: boolean;
+  backgroundChecks?: boolean;
+  
+  // Infrastructure (Hidden Features)
+  redisCaching?: boolean;
+  webSocketSupport?: boolean;
+  securityDashboard?: boolean;
+  performanceMonitoring?: boolean;
+  zapierAutomation?: boolean;
+  
+  // Data Access (Hidden Features)
+  hudDataAccess?: boolean;
+  governmentDataAccess?: boolean;
+  marketPricingIntelligence?: boolean;
+  
+  // Communication (Hidden Features)
+  sendGridEmail?: boolean;
+  zoomIntegration?: boolean;
+  googleCalendarSync?: boolean;
+  emergencyContactSystem?: boolean;
+  
+  // E-commerce (Hidden Features)
+  amazonAssociates?: boolean;
+  affiliateTracking?: boolean;
+  
+  // Advanced Analytics (Hidden Features)
+  businessIntelligence?: boolean;
+  executiveDashboard?: boolean;
+  heatmapAnalytics?: boolean;
+  apiCostAnalyzer?: boolean;
+  predictiveAnalytics?: boolean;
 }
 
 export interface CommunityTier {
@@ -78,13 +152,16 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 0,
     priceDisplay: 'FREE',
     badge: 'Claim Your Listing',
-    description: 'Correct your basic information and claim your community listing',
+    description: 'Claim your listing with AI-powered search visibility, access to government data, and intelligent matching',
     highlights: [
       'Claim & verify your listing',
       'Edit contact information',
       'Add 1 photo for verification',
       'Display existing reviews',
-      'Basic listing visibility'
+      'Basic listing visibility',
+      '🔍 AI-powered search ranking (NLP & Semantic)',
+      '📊 Access to 4,784 HUD properties data (view only)',
+      '🤖 Basic AI-powered matching'
     ],
     features: {
       editContactInfo: true,
@@ -119,6 +196,14 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       jobListings: false,
       realTimeAvailability: false,
       tourCalendarLink: false,
+      // Hidden features that are actually built
+      nlpSearch: true,
+      semanticSearch: true,
+      hudDataAccess: true, // View only
+      sendGridEmail: false,
+      perplexityAI: false,
+      claudeAI: false,
+      openAI: false,
     }
   },
   
@@ -129,13 +214,15 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 99,
     priceDisplay: '$99/mo',
     stripePriceId: 'price_1S53IkEQ489MwJ34ktvmZFHk',
-    description: 'Essential online presence for single communities',
+    description: 'Professional online presence with AI enhancements, lead tracking CRM, and automated email marketing',
     highlights: [
-      '5 photos for your listing',
-      'Tour scheduling system',
-      'Basic analytics & view counts',
-      'Contact information display',
-      'Standard search placement',
+      '5 photos + AI photo enhancement',
+      'TourMate™ scheduling + Google Calendar sync',
+      '📊 Dashboard with 15+ metrics & API cost tracking',
+      '📧 SendGrid email integration & templates',
+      '🔍 AI-boosted search ranking',
+      '💼 Lead tracking system with conversion metrics',
+      '📄 Basic document templates',
       'Email support'
     ],
     features: {
@@ -171,6 +258,15 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       jobListings: false,
       realTimeAvailability: false,
       tourCalendarLink: false,
+      // Hidden features that are actually built
+      nlpSearch: true,
+      semanticSearch: true,
+      hudDataAccess: true, // View only
+      sendGridEmail: true,
+      googleCalendarSync: true,
+      perplexityAI: false,
+      claudeAI: false,
+      openAI: false,
     }
   },
   
@@ -183,15 +279,18 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     stripePriceId: 'price_1S53IlEQ489MwJ34c6h8MRG8',
     badge: 'Most Popular',
     popular: true,
-    description: 'Enhanced visibility & engagement tools',
+    description: 'Complete communication suite with WhatsApp Business, AI analytics, virtual tours, and Facebook marketing',
     highlights: [
-      '💬 Live messaging with families',
-      '20 photos + 1 video (2 min)',
+      '💬 WhatsApp Business + SMS + Family Groups',
+      '20 photos + Multi-AI photo extraction & validation',
+      '📹 1 video (2 min) + Zoom virtual tours',
       '3 PDF brochures',
-      'Featured search placement',
-      'TourMate™ advanced scheduling',
-      'Respond to reviews',
-      'Advanced analytics',
+      '⭐ Featured placement + AI optimization',
+      '🤖 AI-powered review response assistant',
+      '📊 NLP analytics + heatmaps + engagement tracking',
+      '📱 Facebook pixel + basic email campaigns',
+      '🔗 Basic CRM integration (lead capture)',
+      '🚗 View transportation options',
       'Priority support'
     ],
     features: {
@@ -227,6 +326,20 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       jobListings: false,
       realTimeAvailability: false,
       tourCalendarLink: true,
+      // Hidden features that are actually built
+      nlpSearch: true,
+      semanticSearch: true,
+      hudDataAccess: true, // View only
+      sendGridEmail: true,
+      googleCalendarSync: true,
+      zoomIntegration: true,
+      whatsappBusiness: true,
+      twilioSMS: true,
+      facebookMarketing: true,
+      heatmapAnalytics: true,
+      perplexityAI: false,
+      claudeAI: false,
+      openAI: false,
     }
   },
   
@@ -237,16 +350,19 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 999,
     priceDisplay: '$999/mo',
     stripePriceId: 'price_1S53ImEQ489MwJ34haImoDqJ',
-    description: 'Complete suite for multi-property management',
+    description: 'Enterprise AI suite (5 systems), Salesforce/HubSpot CRM, DocuSign, Matterport 3D tours, and 2 RMS integrations',
     highlights: [
-      '⭐ Manage up to 5 properties',
-      'Unlimited photos & PDFs',
-      '5 videos (5 min each)',
-      '🤖 AI lease generation',
-      'AI response assistant',
-      'Priority map placement',
-      'SEO boost & concierge preferred',
-      'Staff bios, menus, care philosophy',
+      '⭐ Manage up to 5 properties + portfolio analytics',
+      'Unlimited photos + Matterport 3D tours',
+      '5 videos (5 min each) + virtual staging',
+      '🤖 FULL AI SUITE: Perplexity + Claude + ChatGPT + Grok + Gemini',
+      '💼 Salesforce OR HubSpot CRM integration ($2,000/mo value)',
+      '📄 DocuSign + Documenso + legal templates',
+      '🏢 Choose 2 RMS: Yardi/RealPage/Entrata/OneSite',
+      '📧 Mailchimp + LinkedIn Sales Navigator',
+      '🔌 Basic API access (1,000 calls/day)',
+      '🚗 Transportation coordination tools',
+      '📊 Executive dashboard + predictive analytics',
       'Dedicated success manager'
     ],
     features: {
@@ -282,6 +398,34 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       jobListings: false,
       realTimeAvailability: false,
       tourCalendarLink: true,
+      // Hidden features that are actually built
+      nlpSearch: true,
+      semanticSearch: true,
+      hudDataAccess: true,
+      sendGridEmail: true,
+      googleCalendarSync: true,
+      zoomIntegration: true,
+      whatsappBusiness: true,
+      twilioSMS: true,
+      facebookMarketing: true,
+      linkedInSales: true,
+      mailchimpIntegration: true,
+      salesforceIntegration: true,
+      hubspotIntegration: true,
+      docusignIntegration: true,
+      documensoIntegration: true,
+      yardiIntegration: true,
+      realPageIntegration: true,
+      perplexityAI: true,
+      claudeAI: true,
+      openAI: true,
+      grokAI: true,
+      multiAIOrchestration: true,
+      aiMarketIntelligence: true,
+      businessIntelligence: true,
+      executiveDashboard: true,
+      predictiveAnalytics: true,
+      apiCostAnalyzer: true,
     }
   },
   
@@ -292,16 +436,20 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     price: 1999,
     priceDisplay: '$1,999/mo',
     stripePriceId: 'price_1S53InEQ489MwJ34Be6qsJBz',
-    description: 'Enterprise features for large portfolios',
+    description: 'Complete healthcare integrations (Epic/Cerner), all 7 RMS systems, Uber/Lyft Health, and government data access',
     highlights: [
-      '💎 Manage up to 10 properties',
-      '10 videos (10 min each)',
-      '💳 Payment & deposit processing',
-      '🏥 Healthcare integrations (Epic, Cerner)',
-      'Job listings board',
-      'Real-time availability sync',
-      'Monthly strategy calls',
-      'Quarterly business reviews'
+      '💎 Manage up to 10 properties + advanced portfolio tools',
+      '🏥 COMPLETE HEALTHCARE: Epic FHIR + Cerner + Medicare/Medicaid verification',
+      '💳 Stripe payments + commission tracking',
+      '🚑 Uber Health + Lyft Healthcare booking ($1,000/mo value)',
+      '🏢 ALL 7 RMS SYSTEMS: Yardi + RealPage + Entrata + OneSite + REPS + LCS + A-Line',
+      '💼 ALL CRMs: Salesforce + HubSpot + custom CRM',
+      '📱 Facebook Ads + Google Ads + marketing automation',
+      '🏛️ Full HUD data access (4,784 properties) + Medicare database',
+      '📊 Business intelligence + financial analytics',
+      '🔒 Background checks + compliance tracking',
+      '🔌 Advanced API (10,000 calls/day)',
+      'Monthly strategy calls + Quarterly reviews'
     ],
     features: {
       editContactInfo: true,
@@ -336,6 +484,49 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       jobListings: true,
       realTimeAvailability: true,
       tourCalendarLink: true,
+      // Hidden features that are actually built
+      nlpSearch: true,
+      semanticSearch: true,
+      hudDataAccess: true, // Full access
+      governmentDataAccess: true,
+      sendGridEmail: true,
+      googleCalendarSync: true,
+      zoomIntegration: true,
+      whatsappBusiness: true,
+      twilioSMS: true,
+      facebookMarketing: true,
+      linkedInSales: true,
+      mailchimpIntegration: true,
+      salesforceIntegration: true,
+      hubspotIntegration: true,
+      docusignIntegration: true,
+      documensoIntegration: true,
+      backgroundChecks: true,
+      yardiIntegration: true,
+      realPageIntegration: true,
+      entrataIntegration: true,
+      oneSiteIntegration: true,
+      repsIntegration: true,
+      lcsIntegration: true,
+      aLineIntegration: true,
+      epicFHIR: true,
+      cernerIntegration: true,
+      medicareVerification: true,
+      pharmacyIntegration: true,
+      uberHealthIntegration: true,
+      lyftHealthcareIntegration: true,
+      transportationCoordination: true,
+      perplexityAI: true,
+      claudeAI: true,
+      openAI: true,
+      grokAI: true,
+      multiAIOrchestration: true,
+      aiMarketIntelligence: true,
+      businessIntelligence: true,
+      executiveDashboard: true,
+      predictiveAnalytics: true,
+      apiCostAnalyzer: true,
+      marketPricingIntelligence: true,
     }
   },
   
@@ -347,17 +538,22 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     priceDisplay: '$3,999/mo',
     stripePriceId: 'price_1S53InEQ489MwJ34FMoJIocA',
     badge: 'White Label',
-    description: 'Fortune 500 infrastructure & unlimited scale',
+    description: 'White-label platform with Atria-specific tools, Redis caching, WebSockets, HIPAA compliance, and unlimited everything',
     highlights: [
-      '🚀 Manage 25+ properties',
-      'Everything unlimited',
-      '👥 Full resident management portal',
-      'White-label platform options',
-      'Full API access & webhooks',
-      'Custom domain & branding',
-      'Dedicated infrastructure',
-      'SLA guarantees',
-      'Executive partnership team'
+      '🚀 UNLIMITED properties with dedicated infrastructure',
+      '🏢 ATRIA-SPECIFIC TOOLS + chain customization ($10,000/mo value)',
+      '🤖 ALL 5 AI SYSTEMS + custom AI model training',
+      '🏥 COMPLETE HEALTHCARE SUITE: Epic + Cerner + Pharmacy + all integrations',
+      '💼 EVERY CRM & MARKETING PLATFORM + Zapier automation',
+      '🏢 ALL 7 RMS + custom integrations',
+      '🚗 Fleet management + ride coordination',
+      '⚡ Redis caching + WebSocket + CDN + monitoring ($3,000/mo value)',
+      '🔒 HIPAA compliance + security dashboard + audit trails',
+      '🏛️ Priority government data + custom reports',
+      '🏷️ Full white-label + custom domain + complete branding',
+      '🔌 UNLIMITED API + webhooks + real-time data',
+      '📊 Predictive AI + custom BI reports + all analytics',
+      '👥 Executive partnership team + 24/7 support + SLA guarantees'
     ],
     features: {
       editContactInfo: true,
@@ -392,6 +588,59 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       jobListings: true,
       realTimeAvailability: true,
       tourCalendarLink: true,
+      // Hidden features that are actually built - EVERYTHING
+      nlpSearch: true,
+      semanticSearch: true,
+      hudDataAccess: true,
+      governmentDataAccess: true,
+      sendGridEmail: true,
+      googleCalendarSync: true,
+      zoomIntegration: true,
+      whatsappBusiness: true,
+      twilioSMS: true,
+      facebookMarketing: true,
+      linkedInSales: true,
+      mailchimpIntegration: true,
+      salesforceIntegration: true,
+      hubspotIntegration: true,
+      docusignIntegration: true,
+      documensoIntegration: true,
+      documentVersionControl: true,
+      backgroundChecks: true,
+      yardiIntegration: true,
+      realPageIntegration: true,
+      entrataIntegration: true,
+      oneSiteIntegration: true,
+      repsIntegration: true,
+      lcsIntegration: true,
+      aLineIntegration: true,
+      epicFHIR: true,
+      cernerIntegration: true,
+      medicareVerification: true,
+      pharmacyIntegration: true,
+      uberHealthIntegration: true,
+      lyftHealthcareIntegration: true,
+      transportationCoordination: true,
+      perplexityAI: true,
+      claudeAI: true,
+      openAI: true,
+      grokAI: true,
+      multiAIOrchestration: true,
+      aiMarketIntelligence: true,
+      businessIntelligence: true,
+      executiveDashboard: true,
+      predictiveAnalytics: true,
+      heatmapAnalytics: true,
+      apiCostAnalyzer: true,
+      marketPricingIntelligence: true,
+      amazonAssociates: true,
+      affiliateTracking: true,
+      redisCaching: true,
+      webSocketSupport: true,
+      securityDashboard: true,
+      performanceMonitoring: true,
+      zapierAutomation: true,
+      emergencyContactSystem: true,
     }
   }
 };
@@ -441,15 +690,17 @@ export const VENDOR_TIERS: Record<string, VendorTier> = {
     price: 99,
     priceDisplay: '$99/mo',
     stripePriceId: 'price_vendor_basic',
-    description: 'Essential vendor listing with lead generation',
+    description: 'AI-qualified lead generation with conversion tracking, ROI analytics, and SEO-optimized listing',
     highlights: [
-      'Enhanced vendor listing',
-      '5 qualified leads per month',
-      'Service area targeting',
-      'Basic company profile',
-      'Contact information display',
+      'Enhanced vendor listing with SEO optimization',
+      '5 AI-qualified leads per month',
+      '🤖 AI-powered lead matching',
+      'Service area geographic targeting',
+      'Basic company profile + logo',
+      '📊 Conversion tracking + ROI analytics',
+      'Contact information + click tracking',
       'Standard search visibility',
-      'Email support'
+      'Email support (48-hour response)'
     ],
     features: {
       listingVisible: true,
@@ -480,17 +731,19 @@ export const VENDOR_TIERS: Record<string, VendorTier> = {
     stripePriceId: 'price_vendor_featured',
     badge: 'Most Popular',
     popular: true,
-    description: 'Featured placement with advanced lead generation',
+    description: 'Featured placement with AI lead scoring, custom landing pages, marketing automation, and verified badge',
     highlights: [
       'Everything in Basic, plus:',
-      'Featured vendor placement',
-      '25 qualified leads per month',
-      'Priority support & analytics',
-      'Custom landing page',
-      'Advanced lead scoring',
-      'Company logo & branding',
-      'Promotional campaigns',
-      'Phone support'
+      '⭐ Featured vendor placement with AI optimization',
+      '25 AI-qualified & scored leads per month',
+      '📊 Advanced analytics with predictive insights',
+      '🌐 Custom landing page with conversion tracking',
+      '🤖 AI-powered lead scoring & qualification',
+      '📧 Email campaigns + marketing automation',
+      'Company logo & full branding suite',
+      '🎯 3 promotional campaigns per month',
+      '✅ Verified vendor badge',
+      'Priority phone support (24-hour response)'
     ],
     features: {
       listingVisible: true,
@@ -520,17 +773,21 @@ export const VENDOR_TIERS: Record<string, VendorTier> = {
     priceDisplay: '$999/mo',
     stripePriceId: 'price_vendor_national',
     badge: 'Enterprise',
-    description: 'Nationwide coverage with unlimited leads',
+    description: 'Unlimited AI-scored leads, full API access, priority AI routing, white-label options, and dedicated success team',
     highlights: [
       'Everything in Featured, plus:',
-      'Unlimited leads nationwide',
-      'API integration access',
-      'Dedicated account manager',
-      'Custom integrations',
-      'White-label options',
-      'Quarterly business reviews',
-      'Priority routing in AI system',
-      'International expansion ready'
+      '🌎 UNLIMITED AI-scored leads nationwide',
+      '🔌 Full API access + integration support',
+      '💼 Dedicated account manager + success team',
+      '🤖 Priority routing in all 5 AI systems',
+      '📊 Predictive analytics + Business Intelligence',
+      '🗺️ Geographic heat mapping + territory analysis',
+      '🏷️ White-label options + custom branding',
+      '⚡ Custom integrations + Zapier automation',
+      '🌐 International expansion support',
+      'Unlimited promotional campaigns',
+      'Quarterly business reviews + strategy sessions',
+      'Immediate response time + 24/7 support'
     ],
     features: {
       listingVisible: true,
