@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy, UserPlus, LogIn } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { MobilePaymentForm } from '@/components/MobilePaymentForm';
+// Removed MobilePaymentForm - using direct Stripe Checkout for subscriptions
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
@@ -277,6 +277,56 @@ export default function CommunityMobilePayment() {
     setLocation(`/community/${communityData?.communityId || ''}`);
   };
 
+  const handleCreateCheckout = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      // Create Stripe Checkout Session for subscription
+      const response = await apiRequest(
+        'POST',
+        '/api/payments/create-subscription-checkout',
+        {
+          tier: tier,
+          communityId: communityData?.communityId || null,
+          communityName: communityData?.communityName || 'New Community',
+          userEmail: user?.email || null,
+          successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/community-mobile-payment/${tier}`
+        }
+      );
+
+      if (response.url) {
+        // Update payment steps to show we're going to Stripe
+        const checkoutSteps = paymentSteps.map(step => {
+          if (step.id === 'payment-details') {
+            return { ...step, status: 'active' as const };
+          }
+          if (step.id === 'account-setup' || step.id === 'tier-selection') {
+            return { ...step, status: 'completed' as const };
+          }
+          return step;
+        });
+        setPaymentSteps(checkoutSteps);
+        
+        // Redirect to Stripe Checkout
+        window.location.href = response.url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      setError(error.message || 'Unable to process payment. Please try again.');
+      toast({
+        title: "Payment Error",
+        description: error.message || "Unable to process payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -429,20 +479,60 @@ export default function CommunityMobilePayment() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <MobilePaymentForm
-                  productId={`community-${tier}` || ''}
-                  productName={`${tierDetails.name} Community Subscription`}
-                  price={tierDetails.price * 100}
-                  metadata={{
-                    communityId: communityData?.communityId || 'new',
-                    communityName: communityData?.communityName || 'New Community',
-                    tier: tier || '',
-                    type: 'community_subscription',
-                    userId: user?.id || null // Ensure payment is tied to user account
-                  }}
-                  onSuccess={handlePaymentSuccess}
-                  onCancel={handleCancel}
-                />
+                <div className="space-y-4">
+                  {/* Price display */}
+                  <div className="text-center py-4">
+                    <div className="text-3xl font-bold">
+                      ${tierDetails.price}
+                      <span className="text-lg font-normal text-gray-500">/month</span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      Cancel anytime • No hidden fees
+                    </p>
+                  </div>
+
+                  {/* Error message */}
+                  {error && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  {/* Checkout button */}
+                  <Button
+                    onClick={handleCreateCheckout}
+                    disabled={isLoading}
+                    className="w-full h-12 text-lg"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Creating secure checkout...
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="h-5 w-5 mr-2" />
+                        Subscribe Now
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Security badge */}
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Shield className="h-4 w-4" />
+                    <span>Secure payment powered by Stripe</span>
+                  </div>
+
+                  {/* Cancel button */}
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep('tier-selection')}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    Back to tier selection
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}
