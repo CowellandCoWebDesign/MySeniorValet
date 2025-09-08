@@ -2,7 +2,7 @@
 // Enforces feature restrictions based on subscription tiers
 
 export interface SubscriptionTier {
-  name: 'starter' | 'growth' | 'professional' | 'premium' | 'enterprise';
+  name: 'free' | 'starter' | 'growth' | 'professional' | 'premium' | 'enterprise';
   price: number;
   displayName: string;
   badge?: string;
@@ -14,7 +14,7 @@ export interface TierFeatures {
   editContactInfo: boolean;
   claimListing: boolean;
   displayReviews: boolean;
-  tourScheduling: boolean; // Always enabled if email verified
+  tourScheduling: boolean;
   
   // Photo & Media
   maxPhotos: number;
@@ -49,36 +49,45 @@ export interface TierFeatures {
   jobListings: boolean;
   realTimeAvailability: boolean;
   multiPropertyDashboard: boolean;
+  tourMate: boolean;
+  aiLeaseGeneration: boolean;
+  paymentProcessing: boolean;
+  healthcareIntegrations: boolean;
+  residentManagement: boolean;
+  whiteLabelOptions: boolean;
+  apiAccess: boolean;
+  multiPropertyCount: number;
 }
 
-// Tier Definitions
+// Tier Definitions with Fortune 500-level features
 export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
-  starter: {
-    name: 'starter',
-    price: 99,
-    displayName: 'Community Starter',
+  // FREE CLAIM TIER - Basic information correction
+  free: {
+    name: 'free',
+    price: 0,
+    displayName: 'Free Claim',
     features: {
       // Basic
-      editContactInfo: true,
+      editContactInfo: true, // Can correct basic info
       claimListing: true,
-      displayReviews: true,
-      tourScheduling: true, // If email verified
+      displayReviews: true, // Shows existing reviews
+      tourScheduling: false, // No tour scheduling
       
       // Media
-      maxPhotos: 1, // Logo or exterior only
+      maxPhotos: 1, // 1 photo for verification
       maxVideos: 0,
       maxVideoLength: 0,
       
       // Documents
-      maxPdfs: 0, // No PDF uploads
+      maxPdfs: 0,
       
       // Engagement
-      respondToReviews: false, // Cannot respond to reviews
-      inAppMessaging: false, // No in-app messaging
+      respondToReviews: false,
+      inAppMessaging: false,
       aiResponseAssist: false,
       
       // Analytics
-      basicAnalytics: false, // No analytics
+      basicAnalytics: false,
       advancedAnalytics: false,
       monthlyPerformanceCall: false,
       
@@ -90,16 +99,82 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       seasonalBadges: false,
       
       // Advanced
-      tourCalendarLink: false, // No external calendar link
+      tourCalendarLink: false,
       staffBios: false,
       menus: false,
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
       multiPropertyDashboard: false,
+      tourMate: false,
+      aiLeaseGeneration: false,
+      paymentProcessing: false,
+      healthcareIntegrations: false,
+      residentManagement: false,
+      whiteLabelOptions: false,
+      apiAccess: false,
+      multiPropertyCount: 1,
     }
   },
   
+  // STARTER - $99/month
+  starter: {
+    name: 'starter',
+    price: 99,
+    displayName: 'Community Starter',
+    badge: 'Starter',
+    features: {
+      // Basic
+      editContactInfo: true,
+      claimListing: true,
+      displayReviews: true,
+      tourScheduling: true, // Basic tour scheduling
+      
+      // Media
+      maxPhotos: 5, // Increased from 1 to 5
+      maxVideos: 0,
+      maxVideoLength: 0,
+      
+      // Documents
+      maxPdfs: 0,
+      
+      // Engagement
+      respondToReviews: false,
+      inAppMessaging: false, // No messaging at this tier
+      aiResponseAssist: false,
+      
+      // Analytics
+      basicAnalytics: true, // Basic view counts
+      advancedAnalytics: false,
+      monthlyPerformanceCall: false,
+      
+      // Visibility
+      featuredPlacement: false,
+      mapPriority: false,
+      searchBoost: false,
+      conciergePreferred: false,
+      seasonalBadges: false,
+      
+      // Advanced
+      tourCalendarLink: false,
+      staffBios: false,
+      menus: false,
+      carePhilosophy: false,
+      jobListings: false,
+      realTimeAvailability: false,
+      multiPropertyDashboard: false,
+      tourMate: false,
+      aiLeaseGeneration: false,
+      paymentProcessing: false,
+      healthcareIntegrations: false,
+      residentManagement: false,
+      whiteLabelOptions: false,
+      apiAccess: false,
+      multiPropertyCount: 1,
+    }
+  },
+  
+  // GROWTH - $299/month
   growth: {
     name: 'growth',
     price: 299,
@@ -113,25 +188,25 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 10, // Up to 10 photos
-      maxVideos: 0,
-      maxVideoLength: 0,
+      maxPhotos: 20, // Increased from 10 to 20
+      maxVideos: 1, // Added 1 video
+      maxVideoLength: 2, // 2 minute video
       
       // Documents
-      maxPdfs: 1, // 1 brochure/PDF
+      maxPdfs: 3, // Increased from 1 to 3
       
       // Engagement
-      respondToReviews: true, // Can respond to reviews
-      inAppMessaging: false,
+      respondToReviews: true,
+      inAppMessaging: true, // MOVED HERE - Messaging with families
       aiResponseAssist: false,
       
       // Analytics
-      basicAnalytics: true, // Access basic listing analytics
-      advancedAnalytics: false,
+      basicAnalytics: true,
+      advancedAnalytics: true, // Advanced analytics
       monthlyPerformanceCall: false,
       
       // Visibility
-      featuredPlacement: false,
+      featuredPlacement: true, // Featured in search
       mapPriority: false,
       searchBoost: false,
       conciergePreferred: false,
@@ -145,9 +220,18 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       jobListings: false,
       realTimeAvailability: false,
       multiPropertyDashboard: false,
+      tourMate: true, // TourMate™ scheduling system
+      aiLeaseGeneration: false,
+      paymentProcessing: false,
+      healthcareIntegrations: false,
+      residentManagement: false,
+      whiteLabelOptions: false,
+      apiAccess: false,
+      multiPropertyCount: 1,
     }
   },
   
+  // PROFESSIONAL - $999/month
   professional: {
     name: 'professional',
     price: 999,
@@ -161,17 +245,17 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 25, // Up to 25 photos
-      maxVideos: 1, // 1 video
-      maxVideoLength: 2, // Max 2 minutes
+      maxPhotos: 999, // Unlimited photos
+      maxVideos: 5, // 5 videos
+      maxVideoLength: 5, // 5 minutes each
       
       // Documents
-      maxPdfs: 3, // Up to 3 PDFs
+      maxPdfs: 999, // Unlimited PDFs
       
       // Engagement
       respondToReviews: true,
       inAppMessaging: true,
-      aiResponseAssist: true,
+      aiResponseAssist: true, // AI-powered responses
       
       // Analytics
       basicAnalytics: true,
@@ -180,22 +264,31 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       
       // Visibility
       featuredPlacement: true,
-      mapPriority: true,
-      searchBoost: true,
-      conciergePreferred: true,
+      mapPriority: true, // Priority on map
+      searchBoost: true, // SEO boost
+      conciergePreferred: true, // Preferred by AI concierge
       seasonalBadges: true,
       
       // Advanced
       tourCalendarLink: true,
-      staffBios: false,
-      menus: false,
-      carePhilosophy: false,
+      staffBios: true, // Staff profiles
+      menus: true, // Dining menus
+      carePhilosophy: true, // Care philosophy
       jobListings: false,
       realTimeAvailability: false,
-      multiPropertyDashboard: false,
+      multiPropertyDashboard: true, // Multi-property support
+      tourMate: true,
+      aiLeaseGeneration: true, // AI lease documents
+      paymentProcessing: false,
+      healthcareIntegrations: false,
+      residentManagement: false,
+      whiteLabelOptions: false,
+      apiAccess: false,
+      multiPropertyCount: 5, // Up to 5 properties
     }
   },
   
+  // PREMIUM - $1999/month
   premium: {
     name: 'premium',
     price: 1999,
@@ -209,12 +302,12 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 50, // Up to 50 photos
-      maxVideos: 3, // Up to 3 videos
-      maxVideoLength: 5, // Max 5 mins each
+      maxPhotos: 999, // Unlimited
+      maxVideos: 10, // 10 videos
+      maxVideoLength: 10, // 10 minutes each
       
       // Documents
-      maxPdfs: 999, // Unlimited PDFs
+      maxPdfs: 999, // Unlimited
       
       // Engagement
       respondToReviews: true,
@@ -224,7 +317,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       // Analytics
       basicAnalytics: true,
       advancedAnalytics: true,
-      monthlyPerformanceCall: true, // Monthly performance review call
+      monthlyPerformanceCall: true, // Monthly strategy calls
       
       // Visibility
       featuredPlacement: true,
@@ -235,15 +328,24 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       
       // Advanced
       tourCalendarLink: true,
-      staffBios: true, // Upload staff bios
-      menus: true, // Upload menus
-      carePhilosophy: true, // Upload care philosophy
-      jobListings: true, // Upload job listings
-      realTimeAvailability: true, // Real-time availability syncing
-      multiPropertyDashboard: true, // Multi-property admin dashboard
+      staffBios: true,
+      menus: true,
+      carePhilosophy: true,
+      jobListings: true, // Job board
+      realTimeAvailability: true, // Live availability
+      multiPropertyDashboard: true,
+      tourMate: true,
+      aiLeaseGeneration: true,
+      paymentProcessing: true, // Accept payments online
+      healthcareIntegrations: true, // EHR integrations
+      residentManagement: false,
+      whiteLabelOptions: false,
+      apiAccess: false,
+      multiPropertyCount: 10, // Up to 10 properties
     }
   },
   
+  // ENTERPRISE - $3999/month
   enterprise: {
     name: 'enterprise',
     price: 3999,
@@ -257,12 +359,12 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 999, // Unlimited photos
-      maxVideos: 999, // Unlimited videos
+      maxPhotos: 999, // Unlimited
+      maxVideos: 999, // Unlimited
       maxVideoLength: 999, // Unlimited length
       
       // Documents
-      maxPdfs: 999, // Unlimited PDFs
+      maxPdfs: 999, // Unlimited
       
       // Engagement
       respondToReviews: true,
@@ -272,7 +374,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       // Analytics
       basicAnalytics: true,
       advancedAnalytics: true,
-      monthlyPerformanceCall: true, // Quarterly business reviews
+      monthlyPerformanceCall: true, // Dedicated account manager
       
       // Visibility
       featuredPlacement: true,
@@ -288,14 +390,22 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       carePhilosophy: true,
       jobListings: true,
       realTimeAvailability: true,
-      multiPropertyDashboard: true, // White-label platform
+      multiPropertyDashboard: true,
+      tourMate: true,
+      aiLeaseGeneration: true,
+      paymentProcessing: true,
+      healthcareIntegrations: true,
+      residentManagement: true, // Full resident portal
+      whiteLabelOptions: true, // White-label platform
+      apiAccess: true, // API access
+      multiPropertyCount: 25, // 25+ properties
     }
   }
 };
 
 // Helper Functions
 export function getTierFeatures(tier: string): TierFeatures {
-  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.starter;
+  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.free;
   return subscription.features;
 }
 
@@ -316,7 +426,8 @@ export function canUploadPdfs(tier: string, currentCount: number): boolean {
 
 export function hasFeature(tier: string, feature: keyof TierFeatures): boolean {
   const features = getTierFeatures(tier);
-  return features[feature] === true;
+  const value = features[feature];
+  return value === true || (typeof value === 'number' && value > 0);
 }
 
 export function getMaximumValue(tier: string, feature: keyof TierFeatures): number {
@@ -333,13 +444,13 @@ export function getTierBadge(tier: string): string | undefined {
 
 // Get tier display name
 export function getTierDisplayName(tier: string): string {
-  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.starter;
+  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.free;
   return subscription.displayName;
 }
 
 // Get tier price
 export function getTierPrice(tier: string): number {
-  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.starter;
+  const subscription = SUBSCRIPTION_TIERS[tier] || SUBSCRIPTION_TIERS.free;
   return subscription.price;
 }
 
@@ -364,7 +475,7 @@ export function canUseFeature(communityTier: string, feature: keyof TierFeatures
 // Get upgrade suggestions based on requested feature
 export function getUpgradeOptionsForFeature(currentTier: string, requestedFeature: keyof TierFeatures): SubscriptionTier[] {
   const upgradeTiers: SubscriptionTier[] = [];
-  const tierOrder = ['starter', 'growth', 'professional', 'premium', 'enterprise'];
+  const tierOrder = ['free', 'starter', 'growth', 'professional', 'premium', 'enterprise'];
   const currentIndex = tierOrder.indexOf(currentTier);
   
   for (let i = currentIndex + 1; i < tierOrder.length; i++) {
@@ -385,123 +496,163 @@ export function getUpgradeOptionsForFeature(currentTier: string, requestedFeatur
 export function getTierComparison(): Array<{
   feature: string;
   description: string;
-  verified: string | boolean;
-  standard: string | boolean;
-  featured: string | boolean;
-  platinum: string | boolean;
+  free: string | boolean;
+  starter: string | boolean;
+  growth: string | boolean;
+  professional: string | boolean;
+  premium: string | boolean;
+  enterprise: string | boolean;
 }> {
   return [
     {
       feature: 'Monthly Price',
       description: 'Subscription cost',
-      verified: '$0',
-      standard: '$149',
-      featured: '$249',
-      platinum: '$349'
+      free: 'FREE',
+      starter: '$99',
+      growth: '$299',
+      professional: '$999',
+      premium: '$1,999',
+      enterprise: '$3,999'
     },
     {
       feature: 'Photo Uploads',
       description: 'Maximum photos allowed',
-      verified: '1',
-      standard: '10',
-      featured: '25',
-      platinum: '50'
+      free: '1',
+      starter: '5',
+      growth: '20',
+      professional: 'Unlimited',
+      premium: 'Unlimited',
+      enterprise: 'Unlimited'
     },
     {
       feature: 'Video Uploads',
       description: 'Maximum videos allowed',
-      verified: '0',
-      standard: '0',
-      featured: '1 (2 min)',
-      platinum: '3 (5 min each)'
+      free: '0',
+      starter: '0',
+      growth: '1 (2 min)',
+      professional: '5 (5 min)',
+      premium: '10 (10 min)',
+      enterprise: 'Unlimited'
     },
     {
       feature: 'PDF/Brochures',
       description: 'Document uploads',
-      verified: '0',
-      standard: '1',
-      featured: '3',
-      platinum: 'Unlimited'
+      free: '0',
+      starter: '0',
+      growth: '3',
+      professional: 'Unlimited',
+      premium: 'Unlimited',
+      enterprise: 'Unlimited'
     },
     {
-      feature: 'Review Responses',
-      description: 'Respond to user reviews',
-      verified: false,
-      standard: true,
-      featured: true,
-      platinum: true
+      feature: 'Messaging with Families',
+      description: 'In-app communication',
+      free: false,
+      starter: false,
+      growth: true, // Moved to Growth
+      professional: true,
+      premium: true,
+      enterprise: true
     },
     {
-      feature: 'In-App Messaging',
-      description: 'Chat with families',
-      verified: false,
-      standard: false,
-      featured: true,
-      platinum: true
-    },
-    {
-      feature: 'AI Response Assist',
+      feature: 'AI Response Assistant',
       description: 'AI-powered message drafts',
-      verified: false,
-      standard: false,
-      featured: true,
-      platinum: true
+      free: false,
+      starter: false,
+      growth: false,
+      professional: true,
+      premium: true,
+      enterprise: true
     },
     {
       feature: 'Analytics',
       description: 'Performance insights',
-      verified: false,
-      standard: 'Basic',
-      featured: 'Advanced',
-      platinum: 'Advanced'
+      free: false,
+      starter: 'Basic',
+      growth: 'Advanced',
+      professional: 'Advanced',
+      premium: 'Premium',
+      enterprise: 'Enterprise'
     },
     {
       feature: 'Featured Placement',
-      description: 'Priority in search & maps',
-      verified: false,
-      standard: false,
-      featured: true,
-      platinum: true
+      description: 'Priority in search',
+      free: false,
+      starter: false,
+      growth: true,
+      professional: true,
+      premium: true,
+      enterprise: true
     },
     {
-      feature: 'Tour Calendar Link',
-      description: 'External calendar integration',
-      verified: false,
-      standard: true,
-      featured: true,
-      platinum: true
+      feature: 'TourMate™ System',
+      description: 'Advanced tour scheduling',
+      free: false,
+      starter: false,
+      growth: true,
+      professional: true,
+      premium: true,
+      enterprise: true
     },
     {
-      feature: 'Staff & Menus',
-      description: 'Additional content sections',
-      verified: false,
-      standard: false,
-      featured: false,
-      platinum: true
+      feature: 'AI Lease Generation',
+      description: 'Automated documents',
+      free: false,
+      starter: false,
+      growth: false,
+      professional: true,
+      premium: true,
+      enterprise: true
     },
     {
-      feature: 'Real-Time Availability',
-      description: 'Live unit updates',
-      verified: false,
-      standard: false,
-      featured: false,
-      platinum: true
+      feature: 'Payment Processing',
+      description: 'Accept online payments',
+      free: false,
+      starter: false,
+      growth: false,
+      professional: false,
+      premium: true,
+      enterprise: true
     },
     {
-      feature: 'Multi-Property Dashboard',
+      feature: 'Healthcare Integrations',
+      description: 'EHR/EMR connections',
+      free: false,
+      starter: false,
+      growth: false,
+      professional: false,
+      premium: true,
+      enterprise: true
+    },
+    {
+      feature: 'Multi-Property Support',
       description: 'Manage multiple locations',
-      verified: false,
-      standard: false,
-      featured: false,
-      platinum: true
+      free: '1',
+      starter: '1',
+      growth: '1',
+      professional: '5',
+      premium: '10',
+      enterprise: '25+'
     },
     {
-      feature: 'Monthly Performance Call',
-      description: 'Dedicated support',
-      verified: false,
-      standard: false,
-      featured: false,
-      platinum: true
+      feature: 'White Label Options',
+      description: 'Custom branding',
+      free: false,
+      starter: false,
+      growth: false,
+      professional: false,
+      premium: false,
+      enterprise: true
+    },
+    {
+      feature: 'API Access',
+      description: 'Developer integration',
+      free: false,
+      starter: false,
+      growth: false,
+      professional: false,
+      premium: false,
+      enterprise: true
     }
   ];
 }
