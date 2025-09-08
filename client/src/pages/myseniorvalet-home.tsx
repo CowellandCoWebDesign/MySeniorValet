@@ -467,6 +467,32 @@ function HeroSectionWithTransformingSearch() {
             <p className="text-xs sm:text-sm md:text-base text-blue-100 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto">
               The only AI-powered senior living platform with real prices, instant tours, and direct reservations - all in one place
             </p>
+            
+            {/* Combined Trust & Value Badges - Single Horizontal Line */}
+            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap mt-2 mb-2">
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                <span className="mr-0.5 text-[10px] sm:text-xs">📱</span> Real Prices
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🏠</span> Instant Tours
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🌟</span> Every Senior Service
+              </div>
+              <span className="text-gray-400 mx-1">•</span>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-yellow-300 font-semibold">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🌍</span> 33,427 Global Communities
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-blue-300 font-semibold">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🔒</span> SSL Secured
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-300 font-semibold">
+                <span className="mr-0.5">✓</span> No Login Required
+              </div>
+            </div>
           </div>
         </div>
 
@@ -647,53 +673,22 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* Value Props and Trust Badges - Below Search */}
+        {/* "What We Never Do" Section - Now standalone */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-3">
-          {/* Value Props Side by Side - Always Horizontal */}
-          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-            {/* What We Offer */}
-            <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 border border-green-400/30 shadow-lg">
-              <h3 className="text-white font-bold text-[10px] sm:text-xs md:text-sm mb-1 flex items-center justify-center">
-                <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-xs">✨</span>
-                <span>What You Get</span>
-              </h3>
-              <div className="grid grid-cols-1 gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] md:text-xs text-green-100">
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">📱</span> Real Prices</span>
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">🏠</span> Instant Tours</span>
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">✅</span> Direct Reservations</span>
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">🌟</span> Every Senior Service</span>
-              </div>
-            </div>
-            
-            {/* What We Don't Do */}
-            <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 border border-red-400/30 shadow-lg">
-              <h3 className="text-white font-bold text-[10px] sm:text-xs md:text-sm mb-1 flex items-center justify-center">
-                <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-xs">🚫</span>
-                <span>What We Never Do</span>
-              </h3>
-              <div className="grid grid-cols-1 gap-0.5 sm:gap-1 text-[9px] sm:text-[10px] md:text-xs text-red-100">
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No "Call for Pricing"</span>
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Spam Calls</span>
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Selling Your Info</span>
-                <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Hidden Costs</span>
-              </div>
+          <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 border border-red-400/30 shadow-lg">
+            <h3 className="text-white font-bold text-[10px] sm:text-xs md:text-sm mb-1 flex items-center justify-center">
+              <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-xs">🚫</span>
+              <span>What We Never Do</span>
+            </h3>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 text-[9px] sm:text-[10px] md:text-xs text-red-100">
+              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No "Call for Pricing"</span>
+              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Spam Calls</span>
+              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Selling Your Info</span>
+              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Hidden Costs</span>
             </div>
           </div>
           
-          {/* Trust Badges - Below Value Props */}
-          <div className="flex justify-center items-center gap-2 sm:gap-4 mt-2">
-            <div className="flex items-center text-[9px] sm:text-xs text-yellow-300 font-semibold">
-              <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-base">🌍</span> 33,427 Global Communities
-            </div>
-            <div className="flex items-center text-[9px] sm:text-xs text-blue-300 font-semibold">
-              <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-base">🔒</span> SSL Secured
-            </div>
-            <div className="flex items-center text-[9px] sm:text-xs text-green-300 font-semibold">
-              <span className="mr-0.5 sm:mr-1">✓</span> No Login Required
-            </div>
-          </div>
-          
-          {/* Quick Action Stats - Below Trust Badges */}
+          {/* Quick Action Stats - Below "What We Never Do" */}
           <div className="mt-2 flex flex-col items-center gap-1">
             <div className="flex justify-center items-center gap-2 sm:gap-3 text-[9px] sm:text-xs">
               <div className="flex items-center text-white/80">
