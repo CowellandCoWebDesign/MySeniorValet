@@ -1053,6 +1053,15 @@ Please review and update the link accuracy for this community.`,
   } catch (error) {
     console.error('❌ Failed to initialize enterprise WebSocket service:', error);
   }
+  
+  // Initialize Admin WebSocket Service for real-time dashboard updates (Golden Data Rule compliant)
+  try {
+    const { adminWebSocketService } = await import('./routes/adminWebSocketRoutes');
+    adminWebSocketService.initialize(httpServer);
+    console.log('✅ Admin WebSocket service initialized on /admin-ws - Real-time dashboard updates enabled');
+  } catch (error) {
+    console.error('❌ Failed to initialize Admin WebSocket service:', error);
+  }
 
   // Register enterprise test routes (Phase 3 validation)
   const enterpriseTestRoutes = await import('./routes/enterprise-test');
