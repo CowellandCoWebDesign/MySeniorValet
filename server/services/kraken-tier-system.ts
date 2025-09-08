@@ -351,7 +351,7 @@ export const ENTERPRISE_TIERS: KrakenTier[] = [
       
       // Support
       dedicated_team: true,
-      24_7_support: true,
+      support_24_7: true,
       custom_training: true,
       implementation_support: true
     }
