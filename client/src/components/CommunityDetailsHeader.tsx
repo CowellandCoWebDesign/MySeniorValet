@@ -566,5 +566,14 @@ export function CommunityDetailsHeader({
         </div>
       </CardContent>
     </Card>
+    
+    {/* Messaging Interface Modal */}
+    <MessagingInterface
+      isOpen={isMessagingOpen}
+      onClose={() => setIsMessagingOpen(false)}
+      communityId={community.id}
+      communityName={community.name}
+    />
+    </>
   );
 }
