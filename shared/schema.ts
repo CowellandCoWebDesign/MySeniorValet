@@ -4132,6 +4132,9 @@ export const communitySubscriptions = pgTable("community_subscriptions", {
   stripeSubscriptionId: text("stripe_subscription_id").notNull(),
   stripePriceId: text("stripe_price_id").notNull(),
   productId: integer("product_id").references(() => stripeProducts.id),
+  tierLevel: text("tier_level", {
+    enum: ["starter", "growth", "professional", "premium", "enterprise"]
+  }).default("starter"),
   status: text("status", {
     enum: ["active", "past_due", "canceled", "trialing", "incomplete", "incomplete_expired"]
   }).notNull(),
@@ -4144,6 +4147,71 @@ export const communitySubscriptions = pgTable("community_subscriptions", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Vendor Subscriptions table - tracks vendor marketplace subscriptions
+export const vendorSubscriptions = pgTable("vendor_subscriptions", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  tierLevel: text("tier_level", {
+    enum: ["vendor_basic", "vendor_pro", "vendor_enterprise"]
+  }).default("vendor_basic"),
+  status: text("status", {
+    enum: ["active", "past_due", "canceled", "trialing", "incomplete", "incomplete_expired"]
+  }).notNull(),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  canceledAt: timestamp("canceled_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Stripe Payment Events table - tracks all payment events from webhooks
+export const stripePaymentEvents = pgTable("stripe_payment_events", {
+  id: serial("id").primaryKey(),
+  stripeEventId: text("stripe_event_id").unique().notNull(),
+  eventType: text("event_type").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }),
+  currency: text("currency"),
+  customerId: text("customer_id"),
+  paymentIntentId: text("payment_intent_id"),
+  status: text("status"),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Stripe Invoice Events table - tracks invoice events
+export const stripeInvoiceEvents = pgTable("stripe_invoice_events", {
+  id: serial("id").primaryKey(),
+  stripeInvoiceId: text("stripe_invoice_id").unique().notNull(),
+  subscriptionId: text("subscription_id"),
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+  currency: text("currency"),
+  customerId: text("customer_id"),
+  status: text("status"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Community Enrichment History table - tracks AI enrichment and verification
+export const communityEnrichmentHistory = pgTable("community_enrichment_history", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  enrichmentType: text("enrichment_type").notNull(), // 'perplexity_web', 'ai_analysis', 'manual_verification'
+  aiProvider: text("ai_provider"), // 'perplexity', 'claude', 'chatgpt'
+  dataEnriched: jsonb("data_enriched").$type<Record<string, any>>(),
+  verificationStatus: text("verification_status"),
+  metadata: jsonb("metadata").$type<{
+    ai_provider?: string;
+    cost?: number;
+    tokens_used?: number;
+    response_time?: number;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_enrichment_community").on(table.communityId),
+  index("idx_enrichment_type").on(table.enrichmentType),
+]);
 
 // Tour Reviews table - comprehensive tour tracking and review system
 export const tourReviews = pgTable("tour_reviews", {
