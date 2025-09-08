@@ -465,8 +465,13 @@ function HeroSectionWithTransformingSearch() {
             </h1>
             
             {/* Platform Description - Larger and More Readable */}
-            <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
-              AI-powered Senior Living Transparency platform where Seniors and their family can research/compare communities & pricing, schedule tours, and make reservations + find local Caregiving, Healthcare, and supportive Resources - all in one place! Without having to give away your information 🔥
+            <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-1 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
+              AI-powered Senior Living Transparency platform where Seniors and their family can research/compare communities & pricing, schedule tours, and make reservations + find local Caregiving, Healthcare, and supportive Resources - all in one place!
+            </p>
+            
+            {/* Privacy Message - Separate Line */}
+            <p className="text-sm sm:text-base md:text-lg text-white/90 font-bold mb-2 sm:mb-3 max-w-2xl mx-auto drop-shadow-lg animate-fade-in-delayed">
+              Without having to give away your information 🔥
             </p>
             
             {/* Combined Trust & Value Badges - Three Lines */}
