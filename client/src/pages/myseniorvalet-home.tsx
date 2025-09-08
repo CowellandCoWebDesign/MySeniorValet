@@ -458,10 +458,10 @@ function HeroSectionWithTransformingSearch() {
         <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
           <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-4 md:px-5 py-2 sm:py-2.5">
             <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white whitespace-nowrap leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
-              Everything You Need. Nothing You Pay.
+              Search Without the Spam. Move Without the Stress.
             </h1>
             <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-1">
-              AI-powered search, real pricing, instant comparisons, and expert guidance all in one free platform.
+              AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place. No hidden costs, or selling your info like the other guys. Free for Families forever 🛡️
             </p>
           </div>
         </div>
