@@ -85,7 +85,7 @@ export class AdminWebSocketService {
       const activeUsersResult = await db.execute(sql`
         SELECT COUNT(DISTINCT user_id) as count
         FROM user_sessions
-        WHERE last_activity > NOW() - INTERVAL '5 minutes'
+        WHERE last_accessed_at > NOW() - INTERVAL '5 minutes'
       `).catch(() => ({ rows: [{ count: 0 }] }));
       
       const revenueResult = await db.execute(sql`
