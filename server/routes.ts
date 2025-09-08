@@ -441,6 +441,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { trackPerformance } = adminPerformanceRoutes;
   app.use(trackPerformance); // Apply performance tracking middleware
   app.use('/api/admin/performance', adminPerformanceRoutes.default);
+  
+  // Register admin AI metrics routes
+  const adminAIMetricsRoutes = await import('./routes/adminAIMetricsRoutes');
+  app.use('/api/admin/ai', adminAIMetricsRoutes.default);
 
   // Admin: Get all users
   app.get('/api/admin/users', async (req, res) => {
