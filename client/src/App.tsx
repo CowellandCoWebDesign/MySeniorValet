@@ -40,6 +40,7 @@ import AffordableHousing from "@/pages/affordable-housing";
 import FamilyCollaboration from "@/pages/family-collaboration";
 import FamilyCollaborationCenter from "@/pages/family-collaboration-center";
 import FamilyDashboard from "@/pages/family-dashboard";
+import MessagingDashboard from "@/pages/MessagingDashboard";
 import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
 import ServiceDetail from "@/pages/service-detail";
@@ -268,8 +269,8 @@ function Router() {
       <Route path="/tour-tracker/:communityId" component={TourTracker} />
       <Route path="/edit-tour/:tourId" component={TourTracker} />
       <Route path="/tours" component={ToursPage} />
-      <Route path="/messaging" component={Messaging} />
-      <Route path="/messages" component={Messaging} />
+      <Route path="/messaging" component={MessagingDashboard} />
+      <Route path="/messages" component={MessagingDashboard} />
       <Route path="/notification-preferences" component={NotificationPreferencesPage} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
