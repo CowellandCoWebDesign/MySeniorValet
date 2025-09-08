@@ -484,7 +484,7 @@ function HeroSectionWithTransformingSearch() {
               </div>
               <span className="text-gray-400 mx-1">•</span>
               <div className="flex items-center text-[9px] sm:text-[10px] text-yellow-300 font-semibold">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🌍</span> 33,427 Global Communities
+                <span className="mr-0.5 text-[10px] sm:text-xs">🔮</span> 33,427 Global Communities
               </div>
               <div className="flex items-center text-[9px] sm:text-[10px] text-blue-300 font-semibold">
                 <span className="mr-0.5 text-[10px] sm:text-xs">🔒</span> SSL Secured
@@ -612,25 +612,17 @@ function HeroSectionWithTransformingSearch() {
             </div>
             </div>
             
-            {/* View Mode Tabs - Overlapping Bottom Border */}
+            {/* View Mode Tabs - Sleek Modern Style */}
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
-                isSearchActive 
-                  ? 'bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 shadow-xl border border-gray-200 dark:border-gray-600'
-                  : 'bg-gradient-to-br from-black/60 to-black/50 backdrop-blur-sm shadow-lg border border-white/30 dark:border-gray-700/30'
-              }`}>
+              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-full">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'list' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400'
-                        : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg border border-purple-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-full
+                    ${viewMode === 'list' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
                 >
                   <span className="text-xs sm:text-sm">📋</span>
                   <span>List</span>
@@ -638,15 +630,11 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'map' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white shadow-xl scale-105 border border-green-400'
-                        : 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg border border-green-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-full
+                    ${viewMode === 'map' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
                   <span>Map</span>
@@ -654,18 +642,14 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'discover' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400 animate-pulse'
-                        : 'bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 text-white shadow-lg border border-purple-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-full
+                    ${viewMode === 'discover' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
                 >
-                  <span className="text-xs sm:text-sm">🧠</span>
-                  <span>🌍 Discovery mode</span>
+                  <span className="text-xs sm:text-sm">🔮</span>
+                  <span>Discovery mode</span>
                 </button>
               </div>
             </div>
@@ -673,36 +657,9 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* "What We Never Do" Section - Now standalone */}
+        {/* Free Forever Promise - Centered Below Search */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-3">
-          <div className="bg-gradient-to-br from-red-900/50 to-pink-900/50 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 border border-red-400/30 shadow-lg">
-            <h3 className="text-white font-bold text-[10px] sm:text-xs md:text-sm mb-1 flex items-center justify-center">
-              <span className="mr-0.5 sm:mr-1 text-[10px] sm:text-xs">🚫</span>
-              <span>What We Never Do</span>
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 text-[9px] sm:text-[10px] md:text-xs text-red-100">
-              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No "Call for Pricing"</span>
-              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Spam Calls</span>
-              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Selling Your Info</span>
-              <span className="flex items-center"><span className="mr-0.5 text-[8px] sm:text-[10px]">❌</span> No Hidden Costs</span>
-            </div>
-          </div>
-          
-          {/* Quick Action Stats - Below "What We Never Do" */}
-          <div className="mt-2 flex flex-col items-center gap-1">
-            <div className="flex justify-center items-center gap-2 sm:gap-3 text-[9px] sm:text-xs">
-              <div className="flex items-center text-white/80">
-                <span className="mr-0.5 text-green-400">●</span> Live Now
-              </div>
-              <div className="flex items-center text-white/80">
-                <span className="mr-0.5 text-[10px]">👁️</span> 2,847 searching
-              </div>
-              <div className="flex items-center text-white/80">
-                <span className="mr-0.5 text-[10px]">🔄</span> Updates every 24h
-              </div>
-            </div>
-            
-            {/* Free Forever Promise */}
+          <div className="flex justify-center">
             <div className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-purple-900/60 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 border border-purple-400/30 shadow-lg">
               <p className="text-white font-bold text-[10px] sm:text-xs md:text-sm flex items-center">
                 <span className="mr-1 sm:mr-2 text-xs">🛡️</span>
