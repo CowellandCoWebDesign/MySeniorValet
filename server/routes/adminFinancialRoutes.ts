@@ -3,7 +3,6 @@ import { db } from "../db";
 import { 
   communitySubscriptions, 
   vendorSubscriptions,
-  payments,
   communities,
   vendors,
   users
@@ -13,7 +12,7 @@ import { isAuthenticated as requireAuth, isAdmin } from "../auth-middleware";
 import Stripe from "stripe";
 
 const router = express.Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2024-11-20.acacia' });
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
 
 // Apply admin authentication to all routes
 router.use(requireAuth);
