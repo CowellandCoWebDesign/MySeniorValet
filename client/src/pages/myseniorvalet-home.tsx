@@ -469,7 +469,7 @@ function HeroSectionWithTransformingSearch() {
             </p>
             
             {/* Value Props Side by Side - Always Horizontal */}
-            <div className="grid grid-cols-2 gap-2 sm:gap-3 max-w-4xl mx-auto mb-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 max-w-4xl mx-auto">
               {/* What We Offer */}
               <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 backdrop-blur-sm rounded-lg sm:rounded-xl p-2 sm:p-3 border border-green-400/30 shadow-lg">
                 <h3 className="text-white font-bold text-[11px] sm:text-sm md:text-base mb-1.5 sm:mb-2 flex items-center justify-center">
@@ -498,6 +498,19 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               </div>
             </div>
+            
+            {/* Trust Badges - Using space between value props and search */}
+            <div className="flex justify-center items-center gap-4 mt-3 mb-2">
+              <div className="flex items-center text-[10px] sm:text-xs text-yellow-300 font-semibold">
+                <span className="mr-1">⭐</span> 33,427 Communities
+              </div>
+              <div className="flex items-center text-[10px] sm:text-xs text-blue-300 font-semibold">
+                <span className="mr-1">🔒</span> SSL Secured
+              </div>
+              <div className="flex items-center text-[10px] sm:text-xs text-green-300 font-semibold">
+                <span className="mr-1">✓</span> No Login Required
+              </div>
+            </div>
           </div>
         </div>
 
@@ -505,68 +518,68 @@ function HeroSectionWithTransformingSearch() {
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-end pb-16 sm:pb-20 md:pb-32'}`}>
         {/* Unified Search Component with File Folder Tab Design - Simplified */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6 md:mb-8">
-          {/* Category Tabs - Enhanced Style */}
-          <div className="flex justify-start">
-            <div className="inline-flex gap-1 bg-black/30 backdrop-blur-sm p-1 rounded-t-xl">
+          {/* Category Tabs - Sleek Modern Style */}
+          <div className="flex justify-center">
+            <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
                   ${searchCategory === 'communities' 
-                    ? 'bg-gradient-to-br from-purple-600 via-purple-500 to-blue-600 text-white shadow-xl border-2 border-purple-400/50 z-20'
-                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-purple-400/50'
+                    ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm">🏘️</span>
-                <div className="flex flex-col items-start leading-tight">
-                  <span className="hidden sm:inline">Senior Living</span>
-                  <span className="sm:hidden">Communities</span>
-                  <span className="text-[9px] opacity-90">33,200+</span>
+                <span className="text-xs sm:text-sm">🏘️</span>
+                <div className="flex flex-col items-start leading-none">
+                  <span className="hidden sm:inline">Communities</span>
+                  <span className="sm:hidden">Homes</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">33,200+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
                   ${searchCategory === 'services' 
-                    ? 'bg-gradient-to-br from-green-600 via-green-500 to-emerald-600 text-white shadow-xl border-2 border-green-400/50 z-20'
-                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-green-400/50'
+                    ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm">🛍️</span>
-                <div className="flex flex-col items-start leading-tight">
+                <span className="text-xs sm:text-sm">🛍️</span>
+                <div className="flex flex-col items-start leading-none">
                   <span>Services</span>
-                  <span className="text-[9px] opacity-90">7,500+</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">7,500+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
                   ${searchCategory === 'healthcare' 
-                    ? 'bg-gradient-to-br from-red-600 via-red-500 to-pink-600 text-white shadow-xl border-2 border-red-400/50 z-20'
-                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-red-400/50'
+                    ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm">🏥</span>
-                <div className="flex flex-col items-start leading-tight">
+                <span className="text-xs sm:text-sm">🏥</span>
+                <div className="flex flex-col items-start leading-none">
                   <span>Healthcare</span>
-                  <span className="text-[9px] opacity-90">2,000+</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">2,000+</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-3 sm:px-4 py-2 transition-all duration-300 text-[11px] sm:text-xs font-bold flex items-center gap-1.5 rounded-t-lg transform hover:scale-105
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
                   ${searchCategory === 'resources' 
-                    ? 'bg-gradient-to-br from-amber-600 via-amber-500 to-orange-600 text-white shadow-xl border-2 border-amber-400/50 z-20'
-                    : 'bg-gradient-to-br from-gray-800/80 to-gray-700/80 text-gray-300 hover:text-white border border-gray-600/50 hover:border-amber-400/50'
+                    ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm">📚</span>
-                <div className="flex flex-col items-start leading-tight">
+                <span className="text-xs sm:text-sm">📚</span>
+                <div className="flex flex-col items-start leading-none">
                   <span>Resources</span>
-                  <span className="text-[9px] opacity-90">119</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">119</span>
                 </div>
               </button>
             </div>
@@ -675,8 +688,21 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Free Forever Promise - Below Search */}
-          <div className="mt-4 flex justify-center">
+          {/* Quick Action Stats - Below Search */}
+          <div className="mt-4 flex flex-col items-center gap-2">
+            <div className="flex justify-center items-center gap-3 text-[10px] sm:text-xs">
+              <div className="flex items-center text-white/80">
+                <span className="mr-1 text-green-400">●</span> Live Now
+              </div>
+              <div className="flex items-center text-white/80">
+                <span className="mr-1">👁️</span> 2,847 searching
+              </div>
+              <div className="flex items-center text-white/80">
+                <span className="mr-1">🔄</span> Updates every 24h
+              </div>
+            </div>
+            
+            {/* Free Forever Promise */}
             <div className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-purple-900/60 backdrop-blur-sm rounded-full px-4 py-2 border border-purple-400/30 shadow-lg">
               <p className="text-white font-bold text-xs sm:text-sm flex items-center">
                 <span className="mr-2">🛡️</span>
