@@ -459,9 +459,7 @@ function HeroSectionWithTransformingSearch() {
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Single Line */}
             <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3 whitespace-nowrap">
-              <span className="inline-block animate-slide-in-left">Search Without the <span className="text-red-500">Spam</span></span>
-              <span className="mx-1 sm:mx-2">•</span>
-              <span className="inline-block animate-slide-in-right">Move Without the <span className="text-red-500">Stress</span></span>
+              <span className="inline-block animate-slide-in-left">One Platform. Every Step of the Journey.</span>
             </h1>
             
             {/* Platform Description - Larger and More Readable */}
