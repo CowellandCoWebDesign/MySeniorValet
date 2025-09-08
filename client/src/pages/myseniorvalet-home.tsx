@@ -463,8 +463,9 @@ function HeroSectionWithTransformingSearch() {
             </h1>
             <div className="text-xs sm:text-sm md:text-base text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-2 px-2 sm:px-0 space-y-1">
               <p>AI-powered senior living research platform with Real prices, instant tours, direct reservations, and every senior service in one place.</p>
-              <p>💸 No more "Call for Pricing" and no more hidden costs</p>
-              <p>🔥 Search on your terms without spam calls, texts, emails, or "Call for Pricing"</p>
+              <p>💸 No more hidden costs</p>
+              <p>📱 No more "Call for Pricing", complete transparency of what's online and where</p>
+              <p>🔥 Search on your terms without spam calls, texts, emails</p>
               <p>🛡️ Free for Families forever</p>
             </div>
           </div>
