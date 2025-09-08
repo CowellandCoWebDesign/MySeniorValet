@@ -72,7 +72,7 @@ router.post('/webhook', async (req, res) => {
 
   try {
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-      apiVersion: '2025-06-30.basil'
+      apiVersion: '2025-08-27.basil'
     });
 
     const event = stripe.webhooks.constructEvent(
@@ -94,7 +94,7 @@ router.post('/webhook', async (req, res) => {
 router.get('/pricing/:productId', async (req, res) => {
   try {
     const { productId } = req.params;
-    const products = await stripeService.getAllProducts();
+    const products = await stripeSubscriptionService.getAllProducts();
     
     const product = [...products.products, ...products.addOns].find(p => p.id === productId);
     
@@ -104,7 +104,7 @@ router.get('/pricing/:productId', async (req, res) => {
 
     res.json({
       product,
-      formattedPrice: stripeService.formatPrice(product.price),
+      formattedPrice: `$${(product.price / 100).toFixed(2)}`,
       isRecurring: !!product.interval
     });
   } catch (error) {
