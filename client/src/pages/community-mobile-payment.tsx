@@ -430,7 +430,7 @@ export default function CommunityMobilePayment() {
               </CardHeader>
               <CardContent>
                 <MobilePaymentForm
-                  productId={tier || ''}
+                  productId={`community-${tier}` || ''}
                   productName={`${tierDetails.name} Community Subscription`}
                   price={tierDetails.price * 100}
                   metadata={{
