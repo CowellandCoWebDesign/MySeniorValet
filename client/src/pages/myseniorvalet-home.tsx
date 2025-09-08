@@ -458,9 +458,9 @@ function HeroSectionWithTransformingSearch() {
         <div className="w-full text-center pt-1 sm:pt-2">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Single Line */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3">
+            <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3 whitespace-nowrap">
               <span className="inline-block animate-slide-in-left">Search Without the Spam</span>
-              <span className="mx-2">•</span>
+              <span className="mx-1 sm:mx-2">•</span>
               <span className="inline-block animate-slide-in-right">Move Without the Stress</span>
             </h1>
             
@@ -510,7 +510,7 @@ function HeroSectionWithTransformingSearch() {
                   <span className="mr-0.5 text-[10px] sm:text-xs">🖥️</span> Resident Portal
                 </div>
                 <div className="flex items-center text-[9px] sm:text-[10px] text-pink-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🛗</span> Family Collaboration Center
+                  <span className="mr-0.5 text-[10px] sm:text-xs">👨‍👩‍👧‍👦</span> Family Collaboration Center
                 </div>
               </div>
             </div>
