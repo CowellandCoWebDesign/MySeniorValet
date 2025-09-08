@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
+import { MessagingInterface } from "./MessagingInterface";
 
 interface CommunityDetailsHeaderProps {
   community: any;
@@ -33,6 +34,7 @@ export function CommunityDetailsHeader({
   onReserveClick,
   onTourClick
 }: CommunityDetailsHeaderProps) {
+  const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
     const lowerAmenity = amenity.toLowerCase();
@@ -225,7 +227,8 @@ export function CommunityDetailsHeader({
   };
 
   return (
-    <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <>
+      <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
         {/* Photo Carousel - Full Height Without Overlays */}
         <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
@@ -356,11 +359,7 @@ export function CommunityDetailsHeader({
                 </a>
                 
                 <button
-                  onClick={() => {
-                    // Open messaging interface or start chat
-                    // TODO: Implement direct messaging functionality
-                    alert("Direct messaging feature coming soon! This is included in your Starter plan ($99/month) benefits.");
-                  }}
+                  onClick={() => setIsMessagingOpen(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <MessageSquare className="w-4 h-4" />
