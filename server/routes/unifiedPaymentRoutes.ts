@@ -247,11 +247,7 @@ router.post('/create-subscription-checkout', async (req: Request, res: Response)
       success_url: successUrl || `${req.protocol}://${req.get('host')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: cancelUrl || `${req.protocol}://${req.get('host')}/community-portal`,
       allow_promotion_codes: true,
-      billing_address_collection: 'required',
-      customer_update: {
-        address: 'auto',
-        name: 'auto'
-      }
+      billing_address_collection: 'required'
     });
 
     console.log(`Created subscription checkout session: ${session.id} for ${tier} tier`);
