@@ -2917,7 +2917,7 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$3,999/mo</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $3,999/mo</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -2944,9 +2944,16 @@ export default function MySeniorValetHome() {
                     {/* Right side - Pricing Tiers Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>💰</span> 5 Tier Options
+                        <span>💰</span> 6 Tier Options
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
+                        <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Free Claim ✨</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">FREE</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Claim & verify your listing, edit contact info, 1 photo</p>
+                        </div>
                         <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
@@ -3035,10 +3042,22 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
-                    <span className="font-semibold">Access Portal & Dashboard</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                  <div className="space-y-2">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href = '/community-claim';
+                      }}
+                    >
+                      <Gift className="mr-2 h-4 w-4" />
+                      <span className="font-semibold">Claim Your Free Listing</span>
+                    </Button>
+                    <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                      <span className="font-semibold">Access Portal & Dashboard</span>
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
