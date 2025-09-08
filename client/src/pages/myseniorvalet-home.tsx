@@ -491,12 +491,6 @@ function HeroSectionWithTransformingSearch() {
                 <div className="flex items-center text-[9px] sm:text-[10px] text-yellow-300 font-semibold">
                   <span className="mr-0.5 text-[10px] sm:text-xs">🔮</span> 33,427 Global Communities
                 </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-blue-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🔒</span> SSL Secured
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-green-300 font-semibold">
-                  <span className="mr-0.5">✓</span> No Login Required
-                </div>
                 <div className="flex items-center text-[9px] sm:text-[10px] text-purple-300 font-semibold">
                   <span className="mr-0.5 text-[10px] sm:text-xs">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
                 </div>
@@ -678,15 +672,14 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* Free Forever Promise - Centered Below Search */}
+        {/* Security Badges - Centered Below Search */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-3">
-          <div className="flex justify-center">
-            <div className="bg-gradient-to-r from-purple-900/60 via-blue-900/60 to-purple-900/60 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 border border-purple-400/30 shadow-lg">
-              <p className="text-white font-bold text-[10px] sm:text-xs md:text-sm flex items-center">
-                <span className="mr-1 sm:mr-2 text-xs">🛡️</span>
-                <span className="text-yellow-300">FREE</span>
-                <span className="ml-1">for Families Forever - That's Our Promise</span>
-              </p>
+          <div className="flex justify-center items-center gap-3 sm:gap-4">
+            <div className="flex items-center text-[10px] sm:text-xs text-blue-300 font-semibold">
+              <span className="mr-0.5 text-[11px] sm:text-sm">🔒</span> SSL Secured
+            </div>
+            <div className="flex items-center text-[10px] sm:text-xs text-green-300 font-semibold">
+              <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
             </div>
           </div>
         </div>
