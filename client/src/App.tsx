@@ -183,6 +183,7 @@ import CVSPharmacyPage from "@/pages/vendors/cvs-pharmacy";
 import MedicareGuidePage from "@/pages/resources/medicare-guide";
 import LocationLanding from "@/pages/location-landing";
 import PricingPage from "@/pages/pricing";
+import CommunityClaim from "@/pages/community-claim";
 
 function Router() {
   const [location] = useLocation();
@@ -224,7 +225,7 @@ function Router() {
       <Route path="/hospitals" component={SeniorHealthcareDirectory} />
       <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
-      <Route path="/community-claim" component={Claim} />
+      <Route path="/community-claim" component={CommunityClaim} />
       {/* ALL ADMIN ROUTES NOW REDIRECT TO UNIFIED SUPER ADMIN DASHBOARD */}
       <Route path="/admin" component={SuperAdminAnalytics} />
       <Route path="/admin-creative" component={SuperAdminAnalytics} />
