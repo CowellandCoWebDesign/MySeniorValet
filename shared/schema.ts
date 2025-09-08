@@ -1717,6 +1717,7 @@ export const subscriptions = pgTable("subscriptions", {
   
   // Subscription Details
   productId: text("product_id").notNull(), // 'basic-listing', 'featured-spotlight', etc.
+  tier: text("tier"), // 'starter', 'growth', 'professional', 'premium', 'enterprise'
   status: text("status", {
     enum: ["active", "canceled", "incomplete", "incomplete_expired", "past_due", "trialing", "unpaid"]
   }).default("active"),
