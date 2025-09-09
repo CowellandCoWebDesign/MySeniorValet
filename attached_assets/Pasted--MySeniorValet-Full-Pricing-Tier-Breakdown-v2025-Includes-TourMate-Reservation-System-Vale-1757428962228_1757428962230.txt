@@ -1,0 +1,217 @@
+📊 MySeniorValet – Full Pricing Tier Breakdown (v2025)
+
+Includes TourMate™, Reservation System, Valet Assist™, and Real-Time Page Enrichment
+
+
+---
+
+🆓 FREE TIER — $0/month
+
+Purpose: Get verified, appear in search, and let our concierge handle your inbound interest.
+
+✅ INCLUDED:
+
+Claim + verify listing
+
+Display 1 photo (verified)
+
+Read-only public reviews
+
+TourMate™ enabled (via Valet Assist™ concierge fallback)
+
+Reservation requests enabled (Valet Assist™ handles manually)
+
+AI-powered search indexing (NLP only)
+
+View-only HUD properties (4,784)
+
+Real-time enrichment (user-triggered)
+
+“Unclaimed” badge
+
+
+🚫 NOT INCLUDED:
+
+Lead delivery
+
+Messaging or calendar control
+
+Review response
+
+Analytics
+
+Custom branding or content
+
+RMS/CRM/payment integrations
+
+
+
+---
+
+🚀 STARTER TIER — $149/month
+
+Purpose: Gain control of leads, calendar, and photos. Start converting traffic.
+
+✅ INCLUDED:
+
+Everything in Free, plus:
+
+Direct delivery of tour + reservation requests
+
+Full photo control (up to 10)
+
+2 brochure uploads (PDFs)
+
+Manual calendar & blackout date management
+
+Manual review responses
+
+Basic analytics
+
+Email support
+
+AI search ranking boost
+
+“Verified” badge
+
+
+
+---
+
+📈 GROWTH TIER — $399/month (Most Popular)
+
+Purpose: Boost engagement with video, featured placement, and automation.
+
+✅ INCLUDED:
+
+Everything in Starter, plus:
+
+20 photos
+
+1 video (2 min max)
+
+3 brochure uploads
+
+Featured placement in AI-powered search
+
+In-app messaging + AI autoresponder
+
+AI Review Response Assistant
+
+Enhanced analytics
+
+Facebook Pixel & Email Campaign Starter Kit
+
+Tour auto-confirmation + smart routing
+
+Basic CRM sync (Salesforce/HubSpot Lite)
+
+Priority support (8h SLA)
+
+
+
+---
+
+💼 PROFESSIONAL TIER — $1,299/month
+
+Purpose: Enable full leasing automation, payments, and integrations.
+
+✅ INCLUDED:
+
+Everything in Growth, plus:
+
+Stripe payments (deposits & application fees)
+
+Zoom Virtual Tour integration
+
+Matterport / 3D Tour support
+
+Up to 5 videos (5 min each)
+
+Unlimited PDFs
+
+DocuSign + lease templates
+
+Full CRM sync (Salesforce, HubSpot)
+
+Executive dashboard + heatmaps
+
+API access (2,000 calls/day)
+
+Concierge badge
+
+Dedicated Success Manager
+
+
+
+---
+
+💎 PREMIUM TIER — $2,499/month
+
+Purpose: Control multiple locations with compliance and intelligent automation.
+
+✅ INCLUDED:
+
+Everything in Professional, plus:
+
+Manage up to 10 communities
+
+Portfolio dashboard with role-based access
+
+SeniorSafe™ Background Checks
+
+Renter Insurance Verification
+
+Job board + hiring funnel
+
+Real-time availability updates
+
+Custom lead routing rules
+
+Full CRM + custom CRM integrations
+
+Business intelligence dashboard
+
+Ad toolkit (FB, Google, retargeting)
+
+API access (10,000 calls/day)
+
+Quarterly reviews + strategy consults
+
+
+
+---
+
+🏢 ENTERPRISE TIER — $4,999/month+ (Custom Quote)
+
+Purpose: Full white-label infrastructure for national operators.
+
+✅ INCLUDED:
+
+Everything in Premium, plus:
+
+Unlimited properties
+
+All 7 RMS integrations + live sync
+
+(Yardi, RealPage, Entrata, OneSite, REPS, LCS, A-Line)
+
+
+White-label platform + custom domain
+
+Internal permissions + chain-level control
+
+Chain-wide analytics and financial dashboards
+
+Unlimited API + webhooks
+
+Branded mobile app (optional)
+
+Custom AI review workflows
+
+Zapier, HubSpot, Mailchimp, Salesforce, etc.
+
+24/7 SLA-backed support + dedicated engineers
+
+NDA implementation + Enterprise Data Lab access
+

@@ -151,23 +151,24 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     displayName: 'Free Claim',
     price: 0,
     priceDisplay: 'FREE',
-    badge: 'Claim Your Listing',
-    description: 'Claim your listing with AI-powered search visibility, access to government data, and intelligent matching',
+    badge: 'Unclaimed',
+    description: 'Get verified, appear in search, and let our concierge handle your inbound interest',
     highlights: [
-      'Claim & verify your listing',
-      'Edit contact information',
-      'Add 1 photo for verification',
-      'Display existing reviews',
-      'Basic listing visibility',
-      '🔍 AI-powered search ranking (NLP & Semantic)',
-      '📊 Access to 4,784 HUD properties data (view only)',
-      '🤖 Basic AI-powered matching'
+      'Claim + verify listing',
+      'Display 1 photo (verified)',
+      'Read-only public reviews',
+      'TourMate™ enabled (via Valet Assist™ concierge fallback)',
+      'Reservation requests enabled (Valet Assist™ handles manually)',
+      'AI-powered search indexing (NLP only)',
+      'View-only HUD properties (4,784)',
+      'Real-time enrichment (user-triggered)',
+      '"Unclaimed" badge'
     ],
     features: {
-      editContactInfo: true,
+      editContactInfo: false, // Free tier can't edit
       claimListing: true,
       displayReviews: true,
-      tourScheduling: false,
+      tourScheduling: false, // Handled by Valet Assist
       maxPhotos: 1,
       maxVideos: 0,
       maxVideoLength: 0,
@@ -182,7 +183,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       mapPriority: false,
       searchBoost: false,
       conciergePreferred: false,
-      tourMate: false,
+      tourMate: false, // Enabled via Valet Assist fallback
       aiLeaseGeneration: false,
       paymentProcessing: false,
       healthcareIntegrations: false,
@@ -195,6 +196,8 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
+      valetAssist: true, // New feature for concierge fallback
+      realTimeEnrichment: true, // User-triggered enrichment
     }
   },
   
