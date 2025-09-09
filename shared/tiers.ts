@@ -205,29 +205,31 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     id: 'starter',
     name: 'starter',
     displayName: 'Starter',
-    price: 99,
-    priceDisplay: '$99/mo',
+    price: 149,
+    priceDisplay: '$149/mo',
     stripePriceId: 'price_1S53IkEQ489MwJ34ktvmZFHk',
-    description: 'Professional online presence with TourMate™ scheduling, lead tracking, and basic analytics',
+    description: 'Gain control of leads, calendar, and photos. Start converting traffic',
     highlights: [
-      '5 photos gallery',
-      'TourMate™ tour scheduling system',
-      '📊 Basic analytics (view counts & engagement)',
-      '🔍 AI-boosted search ranking',
-      '💼 Lead capture forms',
-      '📄 Basic document templates',
-      'Email support'
+      'Direct delivery of tour + reservation requests',
+      'Full photo control (up to 10)',
+      '2 brochure uploads (PDFs)',
+      'Manual calendar & blackout date management',
+      'Manual review responses',
+      'Basic analytics',
+      'Email support',
+      'AI search ranking boost',
+      '"Verified" badge'
     ],
     features: {
       editContactInfo: true,
       claimListing: true,
       displayReviews: true,
-      tourScheduling: true,
-      maxPhotos: 5,
+      tourScheduling: true, // Direct control of calendar
+      maxPhotos: 10, // Increased from 5
       maxVideos: 0,
       maxVideoLength: 0,
-      maxPdfs: 0,
-      respondToReviews: false,
+      maxPdfs: 2, // 2 brochure uploads
+      respondToReviews: true, // Manual review responses
       inAppMessaging: false,
       aiResponseAssist: false,
       basicAnalytics: true,
@@ -235,9 +237,9 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       monthlyPerformanceCall: false,
       featuredPlacement: false,
       mapPriority: false,
-      searchBoost: false,
+      searchBoost: true, // AI search ranking boost
       conciergePreferred: false,
-      tourMate: true, // TourMate™ scheduling at Starter level
+      tourMate: true, // Direct delivery of requests
       aiLeaseGeneration: false,
       paymentProcessing: false,
       healthcareIntegrations: false,
@@ -250,6 +252,8 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
+      valetAssist: false, // No longer needed - direct control
+      realTimeEnrichment: true,
     }
   },
   
