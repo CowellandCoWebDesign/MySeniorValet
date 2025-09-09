@@ -388,21 +388,23 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     id: 'premium',
     name: 'premium',
     displayName: 'Premium',
-    price: 1999,
-    priceDisplay: '$1,999/mo',
+    price: 2499,
+    priceDisplay: '$2,499/mo',
     stripePriceId: 'price_1S53InEQ489MwJ34Be6qsJBz',
-    description: 'Background checks, insurance verification, multiple properties, and advanced business intelligence',
+    description: 'Control multiple locations with compliance and intelligent automation',
     highlights: [
-      '💎 Manage up to 10 properties + advanced portfolio tools',
-      '🔒 Background checks + compliance tracking',
-      '📋 Renter insurance verification',
-      '💳 Stripe payments + commission tracking',
-      '💼 ALL CRMs: Salesforce + HubSpot + custom CRM',
-      '📱 Facebook Ads + Google Ads + marketing automation',
-      '🏛️ Full HUD data access (4,784 properties)',
-      '📊 Business intelligence + financial analytics',
-      '🔌 Advanced API (10,000 calls/day)',
-      'Monthly strategy calls + Quarterly reviews'
+      'Manage up to 10 communities',
+      'Portfolio dashboard with role-based access',
+      'SeniorSafe™ Background Checks',
+      'Renter Insurance Verification',
+      'Job board + hiring funnel',
+      'Real-time availability updates',
+      'Custom lead routing rules',
+      'Full CRM + custom CRM integrations',
+      'Business intelligence dashboard',
+      'Ad toolkit (FB, Google, retargeting)',
+      'API access (10,000 calls/day)',
+      'Quarterly reviews + strategy consults'
     ],
     features: {
       editContactInfo: true,
@@ -426,21 +428,30 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       tourMate: true,
       aiLeaseGeneration: true,
       paymentProcessing: true,
-      backgroundChecks: true, // Background checks at Premium
-      renterInsuranceVerification: true, // Insurance verification at Premium
-      healthcareIntegrations: false, // Coming soon
+      backgroundChecks: true, // SeniorSafe™ Background Checks
+      renterInsuranceVerification: true, // Renter Insurance Verification
+      healthcareIntegrations: false,
       residentManagement: false,
       whiteLabelOptions: false,
-      apiAccess: false,
-      multiPropertyCount: 10,
+      apiAccess: true, // API access (10,000 calls/day)
+      multiPropertyCount: 10, // Manage up to 10 communities
       staffBios: true,
       menus: true,
       carePhilosophy: true,
-      jobListings: true,
-      realTimeAvailability: true,
-      zoomIntegration: true, // Continues from Professional
-      salesforceIntegration: true, // Continues from Professional
-      hubspotIntegration: true, // Continues from Professional
+      jobListings: true, // Job board + hiring funnel
+      realTimeAvailability: true, // Real-time availability updates
+      zoomIntegration: true,
+      salesforceIntegration: true,
+      hubspotIntegration: true,
+      valetAssist: false,
+      realTimeEnrichment: true,
+      tourAutoConfirmation: true,
+      crmSyncBasic: false,
+      matterportSupport: true,
+      conciergeBadge: true,
+      portfolioDashboard: true, // Portfolio dashboard with role-based access
+      customLeadRouting: true, // Custom lead routing rules
+      adToolkit: true, // Ad toolkit (FB, Google, retargeting)
     }
   },
   
