@@ -128,6 +128,21 @@ export interface CommunityTierFeatures {
   heatmapAnalytics?: boolean;
   apiCostAnalyzer?: boolean;
   predictiveAnalytics?: boolean;
+  
+  // New features from v2025 reorganization
+  valetAssist?: boolean; // Valet Assist™ concierge fallback
+  realTimeEnrichment?: boolean; // Real-time page enrichment
+  tourAutoConfirmation?: boolean; // Tour auto-confirmation + smart routing
+  crmSyncBasic?: boolean; // Basic CRM sync (Salesforce/HubSpot Lite)
+  matterportSupport?: boolean; // Matterport / 3D Tour support
+  conciergeBadge?: boolean; // Concierge badge display
+  portfolioDashboard?: boolean; // Portfolio dashboard with role-based access
+  customLeadRouting?: boolean; // Custom lead routing rules
+  adToolkit?: boolean; // Ad toolkit (FB, Google, retargeting)
+  chainLevelControl?: boolean; // Internal permissions + chain-level control
+  brandedMobileApp?: boolean; // Branded mobile app (optional)
+  customAIWorkflows?: boolean; // Custom AI review workflows
+  enterpriseDataLab?: boolean; // NDA implementation + Enterprise Data Lab access
 }
 
 export interface CommunityTier {
