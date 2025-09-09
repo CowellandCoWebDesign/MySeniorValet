@@ -222,7 +222,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     displayName: 'Starter',
     price: 149,
     priceDisplay: '$149/mo',
-    stripePriceId: 'price_1S53IkEQ489MwJ34ktvmZFHk',
+    stripePriceId: 'price_1S5TYOEQ489MwJ345bC4X9l7',
     description: 'Gain control of leads, calendar, and photos. Start converting traffic',
     highlights: [
       'Direct delivery of tour + reservation requests',
@@ -278,7 +278,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     displayName: 'Growth',
     price: 399,
     priceDisplay: '$399/mo',
-    stripePriceId: 'price_1S53IlEQ489MwJ34c6h8MRG8',
+    stripePriceId: 'price_1S5TYPEQ489MwJ34ViLqHgiV',
     badge: 'Most Popular',
     popular: true,
     description: 'Boost engagement with video, featured placement, and automation',
@@ -340,7 +340,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     displayName: 'Professional',
     price: 1299,
     priceDisplay: '$1,299/mo',
-    stripePriceId: 'price_1S53ImEQ489MwJ34haImoDqJ',
+    stripePriceId: 'price_1S5TYPEQ489MwJ34dP5JhzEQ',
     description: 'Enable full leasing automation, payments, and integrations',
     highlights: [
       'Stripe payments (deposits & application fees)',
@@ -405,7 +405,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     displayName: 'Premium',
     price: 2499,
     priceDisplay: '$2,499/mo',
-    stripePriceId: 'price_1S53InEQ489MwJ34Be6qsJBz',
+    stripePriceId: 'price_1S5TYQEQ489MwJ34pUhbev9G',
     description: 'Control multiple locations with compliance and intelligent automation',
     highlights: [
       'Manage up to 10 communities',
@@ -476,7 +476,7 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     displayName: 'Enterprise',
     price: 4999,
     priceDisplay: '$4,999+/mo',
-    stripePriceId: 'price_1S53InEQ489MwJ34FMoJIocA',
+    stripePriceId: 'price_1S5TYREQ489MwJ34xkMl4wKo',
     badge: 'White Label',
     description: 'Full white-label infrastructure for national operators',
     highlights: [
