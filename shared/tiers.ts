@@ -459,23 +459,24 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     id: 'enterprise',
     name: 'enterprise',
     displayName: 'Enterprise',
-    price: 3999,
-    priceDisplay: '$3,999/mo',
+    price: 4999,
+    priceDisplay: '$4,999+/mo',
     stripePriceId: 'price_1S53InEQ489MwJ34FMoJIocA',
     badge: 'White Label',
-    description: 'White-label platform with RMS integrations, unlimited properties, and enterprise infrastructure',
+    description: 'Full white-label infrastructure for national operators',
     highlights: [
-      '🚀 UNLIMITED properties with multi-portfolio management',
-      '🏢 ALL 7 RMS INTEGRATIONS: Yardi + RealPage + Entrata + OneSite + REPS + LCS + A-Line',
-      '🏢 ATRIA-SPECIFIC TOOLS + chain customization',
-      '🤖 ALL 5 AI SYSTEMS + custom AI model training',
-      '💼 EVERY CRM & MARKETING PLATFORM + Zapier automation',
-      '⚡ Redis caching + WebSocket + CDN + monitoring',
-      '🏛️ Priority government data + custom reports',
-      '🏷️ Full white-label + custom domain + complete branding',
-      '🔌 UNLIMITED API + webhooks + real-time data',
-      '📊 Predictive AI + custom BI reports + all analytics',
-      '👥 Executive partnership team + 24/7 support + SLA guarantees'
+      'Unlimited properties',
+      'All 7 RMS integrations + live sync',
+      '(Yardi, RealPage, Entrata, OneSite, REPS, LCS, A-Line)',
+      'White-label platform + custom domain',
+      'Internal permissions + chain-level control',
+      'Chain-wide analytics and financial dashboards',
+      'Unlimited API + webhooks',
+      'Branded mobile app (optional)',
+      'Custom AI review workflows',
+      'Zapier, HubSpot, Mailchimp, Salesforce, etc.',
+      '24/7 SLA-backed support + dedicated engineers',
+      'NDA implementation + Enterprise Data Lab access'
     ],
     features: {
       editContactInfo: true,
@@ -503,18 +504,31 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       residentManagement: true,
       whiteLabelOptions: true,
       apiAccess: true,
-      multiPropertyCount: 999, // Multi-property management at Enterprise
+      multiPropertyCount: 999, // Unlimited properties
       staffBios: true,
       menus: true,
       carePhilosophy: true,
       jobListings: true,
       realTimeAvailability: true,
-      backgroundChecks: true, // Continues from Premium
-      renterInsuranceVerification: true, // Continues from Premium
-      zoomIntegration: true, // Continues from Professional
-      salesforceIntegration: true, // Continues from Professional
-      hubspotIntegration: true, // Continues from Professional
-      rmsIntegrations: true, // RMS integrations at Enterprise
+      backgroundChecks: true,
+      renterInsuranceVerification: true,
+      zoomIntegration: true,
+      salesforceIntegration: true,
+      hubspotIntegration: true,
+      rmsIntegrations: true, // All 7 RMS integrations + live sync
+      valetAssist: false,
+      realTimeEnrichment: true,
+      tourAutoConfirmation: true,
+      crmSyncBasic: false,
+      matterportSupport: true,
+      conciergeBadge: true,
+      portfolioDashboard: true,
+      customLeadRouting: true,
+      adToolkit: true,
+      chainLevelControl: true, // Internal permissions + chain-level control
+      brandedMobileApp: true, // Branded mobile app (optional)
+      customAIWorkflows: true, // Custom AI review workflows
+      enterpriseDataLab: true, // NDA implementation + Enterprise Data Lab access
     }
   }
 };
