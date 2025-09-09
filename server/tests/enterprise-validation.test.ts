@@ -514,11 +514,11 @@ class EnterpriseValidationTester {
           message: '✅ Stripe payment gateway configured',
           details: { 
             tiers: [
-              { name: 'Starter', price: 99 },
-              { name: 'Growth', price: 299 },
-              { name: 'Professional', price: 999 },
-              { name: 'Premium', price: 1999 },
-              { name: 'Enterprise', price: 3999 }
+              { name: 'Starter', price: 149 },
+              { name: 'Growth', price: 399 },
+              { name: 'Professional', price: 1299 },
+              { name: 'Premium', price: 2499 },
+              { name: 'Enterprise', price: 4999 }
             ]
           }
         });

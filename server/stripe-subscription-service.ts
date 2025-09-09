@@ -26,7 +26,7 @@ export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
     id: 'community-starter',
     name: 'Community Starter',
     description: 'Basic listing with verified badge and lead generation.',
-    price: 9900, // $99.00/month
+    price: 14900, // $149.00/month
     interval: 'month',
     type: 'product',
     features: [
@@ -41,7 +41,7 @@ export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
     id: 'community-growth',
     name: 'Community Growth',
     description: '3D tour embed, unit reservations, and enhanced visibility.',
-    price: 29900, // $299.00/month
+    price: 39900, // $399.00/month
     interval: 'month',
     type: 'product',
     features: [
@@ -57,7 +57,7 @@ export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
     id: 'community-professional',
     name: 'Community Professional',
     description: 'AI lease management and advanced features.',
-    price: 99900, // $999.00/month
+    price: 129900, // $1,299.00/month
     interval: 'month',
     type: 'product',
     features: [
@@ -73,7 +73,7 @@ export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
     id: 'community-premium',
     name: 'Community Premium',
     description: 'Payment processing and multi-property management.',
-    price: 199900, // $1,999.00/month
+    price: 249900, // $2,499.00/month
     interval: 'month',
     type: 'product',
     features: [
@@ -89,7 +89,7 @@ export const SUBSCRIPTION_PRODUCTS: SubscriptionProduct[] = [
     id: 'community-enterprise',
     name: 'Community Enterprise',
     description: 'White-label platform with API access and dedicated support.',
-    price: 399900, // $3,999.00/month
+    price: 499900, // $4,999.00/month
     interval: 'month',
     type: 'product',
     features: [
