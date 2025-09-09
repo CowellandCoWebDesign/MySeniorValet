@@ -134,6 +134,7 @@ import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { initGA } from "@/lib/analytics";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { initSentry } from "@/lib/sentry";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
@@ -443,14 +444,21 @@ function AppContent() {
 }
 
 function App() {
-  // Initialize Google Analytics when app loads
+  // Initialize analytics and monitoring when app loads
   useEffect(() => {
-    // Verify required environment variable is present
+    // Initialize Google Analytics
     if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
       console.warn('Missing Google Analytics key: VITE_GA_MEASUREMENT_ID - analytics disabled');
     } else {
       initGA();
       console.log('✅ Google Analytics initialized');
+    }
+    
+    // Initialize Sentry error monitoring
+    if (!import.meta.env.VITE_SENTRY_DSN) {
+      console.warn('Sentry DSN not configured - error monitoring disabled');
+    } else {
+      initSentry();
     }
   }, []);
   
