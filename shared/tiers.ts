@@ -323,22 +323,22 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     id: 'professional',
     name: 'professional',
     displayName: 'Professional',
-    price: 999,
-    priceDisplay: '$999/mo',
+    price: 1299,
+    priceDisplay: '$1,299/mo',
     stripePriceId: 'price_1S53ImEQ489MwJ34haImoDqJ',
-    description: 'Payment processing, CRM integrations, Zoom virtual tours, and advanced analytics',
+    description: 'Enable full leasing automation, payments, and integrations',
     highlights: [
-      'Unlimited photos + Matterport 3D tours',
-      '5 videos (5 min each) + virtual staging',
-      '💳 Stripe payment processing',
-      '📹 Zoom integration for virtual tours',
-      '💼 Salesforce OR HubSpot CRM integration',
-      '📄 DocuSign + Documenso + legal templates',
-      '📧 Mailchimp + LinkedIn Sales Navigator',
-      '🔌 Basic API access (1,000 calls/day)',
-      '🚗 Transportation coordination tools',
-      '📊 Executive dashboard + predictive analytics',
-      'Dedicated success manager'
+      'Stripe payments (deposits & application fees)',
+      'Zoom Virtual Tour integration',
+      'Matterport / 3D Tour support',
+      'Up to 5 videos (5 min each)',
+      'Unlimited PDFs',
+      'DocuSign + lease templates',
+      'Full CRM sync (Salesforce, HubSpot)',
+      'Executive dashboard + heatmaps',
+      'API access (2,000 calls/day)',
+      'Concierge badge',
+      'Dedicated Success Manager'
     ],
     features: {
       editContactInfo: true,
@@ -365,16 +365,22 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       healthcareIntegrations: false,
       residentManagement: false,
       whiteLabelOptions: false,
-      apiAccess: false,
-      multiPropertyCount: 1, // No multi-property at Professional
+      apiAccess: true, // API access (2,000 calls/day)
+      multiPropertyCount: 1,
       staffBios: true,
       menus: true,
       carePhilosophy: true,
       jobListings: false,
       realTimeAvailability: false,
-      zoomIntegration: true, // Zoom at Professional and above
-      salesforceIntegration: true, // Salesforce CRM at Professional
-      hubspotIntegration: true, // HubSpot CRM at Professional
+      zoomIntegration: true, // Zoom Virtual Tour integration
+      salesforceIntegration: true, // Full CRM sync
+      hubspotIntegration: true, // Full CRM sync
+      valetAssist: false,
+      realTimeEnrichment: true,
+      tourAutoConfirmation: true,
+      crmSyncBasic: false, // Full CRM sync instead
+      matterportSupport: true, // Matterport / 3D Tour support
+      conciergeBadge: true, // Concierge badge
     }
   },
   
