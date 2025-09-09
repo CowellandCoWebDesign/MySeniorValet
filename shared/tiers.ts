@@ -261,23 +261,24 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
     id: 'growth',
     name: 'growth',
     displayName: 'Growth',
-    price: 299,
-    priceDisplay: '$299/mo',
+    price: 399,
+    priceDisplay: '$399/mo',
     stripePriceId: 'price_1S53IlEQ489MwJ34c6h8MRG8',
     badge: 'Most Popular',
     popular: true,
-    description: 'Enhanced analytics, virtual tours, featured placement, and priority support',
+    description: 'Boost engagement with video, featured placement, and automation',
     highlights: [
-      '20 photos gallery',
-      '📹 1 video (2 min)',
-      '3 PDF brochures',
-      '⭐ Featured placement + AI optimization',
-      '🤖 AI-powered review response assistant',
-      '📊 Enhanced analytics + conversion tracking',
-      '📱 Facebook pixel + basic email campaigns',
-      '🔗 Basic CRM integration (lead capture)',
-      '🚗 View transportation options',
-      'Priority support (24-hour response)'
+      '20 photos',
+      '1 video (2 min max)',
+      '3 brochure uploads',
+      'Featured placement in AI-powered search',
+      'In-app messaging + AI autoresponder',
+      'AI Review Response Assistant',
+      'Enhanced analytics',
+      'Facebook Pixel & Email Campaign Starter Kit',
+      'Tour auto-confirmation + smart routing',
+      'Basic CRM sync (Salesforce/HubSpot Lite)',
+      'Priority support (8h SLA)'
     ],
     features: {
       editContactInfo: true,
@@ -289,14 +290,14 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       maxVideoLength: 2,
       maxPdfs: 3,
       respondToReviews: true,
-      inAppMessaging: true,
-      aiResponseAssist: false,
+      inAppMessaging: true, // In-app messaging + AI autoresponder
+      aiResponseAssist: true, // AI Review Response Assistant
       basicAnalytics: true,
-      advancedAnalytics: true,
+      advancedAnalytics: true, // Enhanced analytics
       monthlyPerformanceCall: false,
-      featuredPlacement: true,
+      featuredPlacement: true, // Featured placement in search
       mapPriority: false,
-      searchBoost: false,
+      searchBoost: true,
       conciergePreferred: false,
       tourMate: true,
       aiLeaseGeneration: false,
@@ -311,6 +312,10 @@ export const COMMUNITY_TIERS: Record<string, CommunityTier> = {
       carePhilosophy: false,
       jobListings: false,
       realTimeAvailability: false,
+      valetAssist: false,
+      realTimeEnrichment: true,
+      tourAutoConfirmation: true, // Tour auto-confirmation + smart routing
+      crmSyncBasic: true, // Basic CRM sync (Salesforce/HubSpot Lite)
     }
   },
   
