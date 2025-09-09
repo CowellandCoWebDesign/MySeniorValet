@@ -18,11 +18,12 @@ import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
 import residentFamilyRoutes from "./routes/resident-family-api";
 import { db } from "./db";
-import { eq, or, like, desc, and } from "drizzle-orm";
+import { eq, or, like, desc, and, sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
 import { vendors, users } from "../shared/schema";
+import * as schema from "../shared/schema";
 import { sendEmail } from "./sendgrid-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -747,49 +748,99 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userAgent
       });
 
-      // Send notification email to admin
-      const emailSent = await sendEmail({
-        to: 'admin@myseniorvalet.com',
-        from: 'notifications@myseniorvalet.com',
-        subject: 'Incorrect External Link Reported',
-        text: `A user has reported an incorrect external link on MySeniorValet.
+      // Extract community ID from the page URL if possible
+      const communityIdMatch = pageUrl?.match(/community\/(\d+)/);
+      const communityId = communityIdMatch ? parseInt(communityIdMatch[1]) : null;
+
+      // Store feedback in database for tracking
+      if (communityId) {
+        try {
+          // Store in community_reports table
+          await db.insert(schema.communityReports).values({
+            communityId,
+            reportType: 'Incorrect Information',
+            description: `Incorrect website URL reported: ${reportedUrl}`,
+            reportedBy: null, // Anonymous report
+            status: 'pending',
+            createdAt: new Date()
+          });
+          console.log('✅ Feedback stored in database');
+        } catch (dbError) {
+          console.error('Failed to store feedback in database:', dbError);
+        }
+      }
+
+      // Send notification emails to BOTH admin addresses
+      const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      const emailPromises = adminEmails.map(email => 
+        sendEmail({
+          to: email,
+          from: 'notifications@myseniorvalet.com',
+          subject: '🚨 Incorrect External Link Reported - MySeniorValet',
+          text: `A user has reported an incorrect external link on MySeniorValet.
         
 Reported URL: ${reportedUrl}
 Found on page: ${pageUrl}
+Community ID: ${communityId || 'Unknown'}
 Reported at: ${timestamp}
 User Agent: ${userAgent}
 
 Please review and update the link accuracy for this community.`,
-        html: `
-          <h3>Incorrect External Link Reported</h3>
-          <p>A user has reported an incorrect external link on MySeniorValet.</p>
-          <table style="border-collapse: collapse; width: 100%;">
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reported URL:</strong></td>
-              <td style="padding: 8px; border: 1px solid #ddd;">${reportedUrl}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Found on page:</strong></td>
-              <td style="padding: 8px; border: 1px solid #ddd;">${pageUrl}</td>
-            </tr>
-            <tr>
-              <td style="padding: 8px; border: 1px solid #ddd;"><strong>Reported at:</strong></td>
-              <td style="padding: 8px; border: 1px solid #ddd;">${timestamp}</td>
-            </tr>
-          </table>
-          <p style="margin-top: 20px;">Please review and update the link accuracy for this community.</p>
-        `
-      });
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <div style="background: #ef4444; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                <h2 style="margin: 0;">🚨 Incorrect External Link Reported</h2>
+              </div>
+              <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+                <p style="margin-top: 0;">A user has reported an incorrect external link on MySeniorValet.</p>
+                <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+                  <tr>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Reported URL:</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><a href="${reportedUrl}" target="_blank" style="color: #3b82f6;">${reportedUrl}</a></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Found on page:</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><a href="${pageUrl}" target="_blank" style="color: #3b82f6;">${pageUrl}</a></td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Community ID:</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${communityId || 'Not detected'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Reported at:</strong></td>
+                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${new Date(timestamp).toLocaleString()}</td>
+                  </tr>
+                </table>
+                <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                  <p style="margin: 0; color: #991b1b;"><strong>Action Required:</strong> Please review and update the link accuracy for this community in the admin dashboard.</p>
+                </div>
+              </div>
+            </div>
+          `
+        }).catch(err => {
+          console.error(`Failed to send email to ${email}:`, err);
+          return false;
+        })
+      );
+
+      const emailResults = await Promise.all(emailPromises);
+      const anyEmailSent = emailResults.some(result => result);
+
+      if (anyEmailSent) {
+        console.log('✅ Admin notifications sent successfully');
+      } else {
+        console.warn('⚠️ Failed to send admin notifications');
+      }
 
       res.json({ 
         success: true, 
-        message: 'Feedback received. Thank you for helping us improve!' 
+        message: 'Thank you for your feedback! Our team will review and correct this link.' 
       });
     } catch (error) {
       console.error('Error processing link feedback:', error);
       res.status(500).json({ 
         error: 'Failed to process feedback',
-        message: 'Please try again later' 
+        message: 'Please try again later or contact hello@myseniorvalet.com' 
       });
     }
   });
