@@ -73,12 +73,12 @@ class ProductionLaunchAudit {
       'ANTHROPIC_API_KEY',
       'SESSION_SECRET',
       'GOOGLE_CLIENT_ID',
-      'GOOGLE_CLIENT_SECRET',
-      'FACEBOOK_APP_ID',
-      'FACEBOOK_APP_SECRET'
+      'GOOGLE_CLIENT_SECRET'
     ];
 
     const optionalVars = [
+      'FACEBOOK_APP_ID',
+      'FACEBOOK_APP_SECRET',
       'DOCUMENSO_API_KEY',
       'SENTRY_DSN',
       'VITE_GA_MEASUREMENT_ID',
@@ -494,7 +494,8 @@ class ProductionLaunchAudit {
       // Check pricing data
       const pricingData = await db.execute(sql`
         SELECT COUNT(*) as count FROM communities 
-        WHERE pricing_info IS NOT NULL
+        WHERE base_pricing IS NOT NULL 
+        OR pricing_notes IS NOT NULL
       `);
       const pricingCount = Number(pricingData.rows[0].count);
       
