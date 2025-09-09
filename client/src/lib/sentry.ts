@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/react';
 
 export function initSentry() {
   const dsn = import.meta.env.VITE_SENTRY_DSN;
@@ -12,7 +11,7 @@ export function initSentry() {
   Sentry.init({
     dsn,
     integrations: [
-      new BrowserTracing(),
+      Sentry.browserTracingIntegration(),
     ],
     environment: import.meta.env.MODE,
     tracesSampleRate: import.meta.env.MODE === 'production' ? 0.1 : 1.0,
@@ -21,7 +20,7 @@ export function initSentry() {
     beforeSend(event, hint) {
       // Filter out certain errors if needed
       if (event.exception) {
-        const error = hint.originalException;
+        const error = hint.originalException as Error;
         // Don't send network errors in development
         if (import.meta.env.MODE === 'development' && error?.message?.includes('Network')) {
           return null;
