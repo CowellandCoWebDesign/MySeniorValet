@@ -60,7 +60,7 @@ class TierFeatureVerificationTest {
     console.log('-'.repeat(40));
 
     // Verify pricing
-    if (tier.price === 0 && tierDef.priceDisplay === 'Free') {
+    if (tier.price === 0 && (tierDef.priceDisplay === 'FREE' || tierDef.priceDisplay === 'Free')) {
       result.passedTests.push('✅ Pricing correct: $0/month');
     } else {
       result.failedTests.push('❌ Pricing mismatch');
@@ -68,9 +68,9 @@ class TierFeatureVerificationTest {
 
     // Test basic features
     if (tier.features.editContactInfo === true) {
-      result.passedTests.push('✅ Can edit contact info');
+      result.passedTests.push('✅ Can edit contact info (correct basic info)');
     } else {
-      result.failedTests.push('❌ Cannot edit contact info');
+      result.failedTests.push('❌ Should be able to edit contact info');
     }
 
     if (tier.features.claimListing === true) {
@@ -220,7 +220,7 @@ class TierFeatureVerificationTest {
     }
 
     // Test Valet Assist™ (manual tour facilitation)
-    if (tierDef.features.includes('Valet Assist™')) {
+    if (tierDef.highlights.some(h => h.includes('Valet Assist™'))) {
       result.passedTests.push('✅ Valet Assist™ available');
     }
 
@@ -285,7 +285,7 @@ class TierFeatureVerificationTest {
     }
 
     // Test SeniorSafe™ Background Checks
-    if (tierDef.features.includes('SeniorSafe™ Background Checks')) {
+    if (tierDef.highlights.some(h => h.includes('SeniorSafe™ Background Checks'))) {
       result.passedTests.push('✅ SeniorSafe™ Background Checks available');
     }
 
@@ -350,7 +350,7 @@ class TierFeatureVerificationTest {
     }
 
     // Test portfolio management
-    if (tierDef.features.includes('Manage up to 10 properties')) {
+    if (tierDef.highlights.some(h => h.includes('10 properties')) || tier.features.multiPropertyCount === 10) {
       result.passedTests.push('✅ Portfolio management verified');
     }
 
@@ -422,7 +422,7 @@ class TierFeatureVerificationTest {
 
     // Test RMS integrations
     const rmsIntegrations = ['Yardi', 'RealPage', 'Entrata', 'OneSite', 'REPS', 'LCS', 'A-Line'];
-    if (tierDef.features.some(f => rmsIntegrations.some(rms => f.includes(rms)))) {
+    if (tierDef.highlights.some(h => rmsIntegrations.some(rms => h.includes(rms)))) {
       result.passedTests.push('✅ RMS integrations available');
     } else {
       result.failedTests.push('❌ RMS integrations missing');

@@ -245,8 +245,8 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 999, // Unlimited photos
-      maxVideos: 5, // 5 videos
+      maxPhotos: 50, // 50 photos
+      maxVideos: 3, // 3 videos
       maxVideoLength: 5, // 5 minutes each
       
       // Documents
@@ -279,12 +279,12 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       multiPropertyDashboard: true, // Multi-property support
       tourMate: true,
       aiLeaseGeneration: true, // AI lease documents
-      paymentProcessing: false,
+      paymentProcessing: true,
       healthcareIntegrations: false,
       residentManagement: false,
       whiteLabelOptions: false,
       apiAccess: false,
-      multiPropertyCount: 5, // Up to 5 properties
+      multiPropertyCount: 1, // Single property
     }
   },
   
@@ -302,8 +302,8 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 999, // Unlimited
-      maxVideos: 10, // 10 videos
+      maxPhotos: 100, // 100 photos
+      maxVideos: 5, // 5 videos
       maxVideoLength: 10, // 10 minutes each
       
       // Documents
@@ -359,9 +359,9 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       tourScheduling: true,
       
       // Media
-      maxPhotos: 999, // Unlimited
-      maxVideos: 999, // Unlimited
-      maxVideoLength: 999, // Unlimited length
+      maxPhotos: -1, // Unlimited
+      maxVideos: -1, // Unlimited
+      maxVideoLength: -1, // Unlimited length
       
       // Documents
       maxPdfs: 999, // Unlimited
@@ -398,7 +398,7 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
       residentManagement: true, // Full resident portal
       whiteLabelOptions: true, // White-label platform
       apiAccess: true, // API access
-      multiPropertyCount: 25, // 25+ properties
+      multiPropertyCount: -1, // Unlimited properties
     }
   }
 };
