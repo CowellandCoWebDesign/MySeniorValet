@@ -736,6 +736,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Auto-approve and fix incorrect link (admin only)
+  app.post('/api/admin/fix-incorrect-link', async (req: any, res) => {
+    try {
+      // Check if user is admin
+      if (!req.session?.user || 
+          (req.session.user.email !== 'william.cowell01@gmail.com' && 
+           req.session.user.email !== 'admin@myseniorvalet.com')) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { communityId, correctUrl, reportId } = req.body;
+      
+      if (!communityId || !correctUrl) {
+        return res.status(400).json({ error: 'Community ID and correct URL required' });
+      }
+
+      // Update the community's website URL
+      const [updatedCommunity] = await db
+        .update(schema.communities)
+        .set({ 
+          website: correctUrl,
+          isVerified: true
+        })
+        .where(eq(schema.communities.id, communityId))
+        .returning();
+
+      if (!updatedCommunity) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      // Log the correction for tracking
+      await db.insert(schema.communityReports).values({
+        communityId,
+        reportType: 'analytics',
+        reportDate: new Date().toISOString().split('T')[0],
+        reportData: {
+          action: 'website_url_corrected',
+          oldUrl: null,
+          newUrl: correctUrl,
+          correctedBy: req.session.user.email,
+          timestamp: new Date().toISOString()
+        },
+        generatedBy: req.session.user.id,
+        emailSent: true
+      });
+
+      // Log the correction for audit trail
+      console.log(`✅ Website URL corrected for community ${communityId}: ${correctUrl}`);
+
+      // Send confirmation email
+      await sendEmail({
+        to: req.session.user.email,
+        from: 'notifications@myseniorvalet.com',
+        subject: 'Website URL Corrected - MySeniorValet',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: #10b981; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+              <h2 style="margin: 0;">✅ Website URL Corrected</h2>
+            </div>
+            <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
+              <p>The website URL has been successfully updated:</p>
+              <table style="width: 100%; margin: 20px 0;">
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Community:</strong></td>
+                  <td style="padding: 8px; border: 1px solid #e5e7eb;">${updatedCommunity.name}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>New URL:</strong></td>
+                  <td style="padding: 8px; border: 1px solid #e5e7eb;">${correctUrl}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px; border: 1px solid #e5e7eb;"><strong>Updated at:</strong></td>
+                  <td style="padding: 8px; border: 1px solid #e5e7eb;">${new Date().toLocaleString()}</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        `
+      });
+
+      res.json({ 
+        success: true, 
+        message: 'Website URL corrected successfully',
+        community: updatedCommunity
+      });
+    } catch (error) {
+      console.error('Error fixing incorrect link:', error);
+      res.status(500).json({ error: 'Failed to update website URL' });
+    }
+  });
+
   // Feedback for incorrect external links
   app.post('/api/feedback/incorrect-link', async (req, res) => {
     try {
@@ -755,14 +846,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Store feedback in database for tracking
       if (communityId) {
         try {
-          // Store in community_reports table
+          // Store in community_reports table for tracking
           await db.insert(schema.communityReports).values({
             communityId,
-            reportType: 'Incorrect Information',
-            description: `Incorrect website URL reported: ${reportedUrl}`,
-            reportedBy: null, // Anonymous report
-            status: 'pending',
-            createdAt: new Date()
+            reportType: 'analytics',
+            reportDate: new Date().toISOString().split('T')[0],
+            reportData: {
+              issue: 'incorrect_website_url',
+              reportedUrl,
+              pageUrl,
+              timestamp,
+              userAgent
+            },
+            generatedBy: null,
+            emailSent: false
           });
           console.log('✅ Feedback stored in database');
         } catch (dbError) {
@@ -884,13 +981,11 @@ Please review and update the link accuracy for this community.`,
   app.get('/api/auth/user/role', (req: any, res) => {
     console.log('Auth check - User session:', req.session?.user);
     
-    // Check for demo/test user with super admin access
+    // Check for super admin access
     if (req.session?.user) {
       const user = req.session.user;
       const isAdmin = user.email === 'william.cowell01@gmail.com' || 
-                      user.email === 'admin@myseniorvalet.com' ||
-                      user.email === 'demo@example.com' ||
-                      user.id === 'test-user-123';
+                      user.email === 'admin@myseniorvalet.com';
       
       return res.json({
         role: isAdmin ? 'super_admin' : (user.role || 'user'),
