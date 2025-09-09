@@ -132,9 +132,9 @@ export function Footer() {
             <div className="flex flex-col md:flex-row items-center md:items-baseline gap-2 text-xs">
               <p className="text-gray-300">© 2025 MySeniorValet. All rights reserved.</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">Data from verified state agencies</p>
+              <p className="text-gray-500">Data from AI-assisted web search across all online sources</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v3.2</p>
+              <p className="text-gray-500">v3.3</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
