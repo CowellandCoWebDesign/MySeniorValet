@@ -117,10 +117,10 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  // STARTER - $99/month
+  // STARTER - $149/month
   starter: {
     name: 'starter',
-    price: 99,
+    price: 149,
     displayName: 'Community Starter',
     badge: 'Starter',
     features: {
@@ -174,10 +174,10 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  // GROWTH - $299/month
+  // GROWTH - $399/month
   growth: {
     name: 'growth',
-    price: 299,
+    price: 399,
     displayName: 'Community Growth',
     badge: 'Growth Partner',
     features: {
@@ -231,10 +231,10 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  // PROFESSIONAL - $999/month
+  // PROFESSIONAL - $1,299/month
   professional: {
     name: 'professional',
-    price: 999,
+    price: 1299,
     displayName: 'Community Professional',
     badge: 'Professional Partner',
     features: {
@@ -288,10 +288,10 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  // PREMIUM - $1999/month
+  // PREMIUM - $2,499/month
   premium: {
     name: 'premium',
-    price: 1999,
+    price: 2499,
     displayName: 'Community Premium',
     badge: 'Premium Partner',
     features: {
@@ -345,10 +345,10 @@ export const SUBSCRIPTION_TIERS: Record<string, SubscriptionTier> = {
     }
   },
   
-  // ENTERPRISE - $3999/month
+  // ENTERPRISE - $4,999+/month
   enterprise: {
     name: 'enterprise',
-    price: 3999,
+    price: 4999,
     displayName: 'Community Enterprise',
     badge: 'Enterprise Partner',
     features: {
