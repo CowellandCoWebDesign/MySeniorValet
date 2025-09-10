@@ -178,7 +178,7 @@ export default function CompetitiveAnalysis() {
       </div>
 
       {/* Header with enhanced styling and Thinker image */}
-      <div className="relative h-96 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden">
+      <div className="relative h-96 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden mt-14 sm:mt-16">
         {/* Thinker Background Image with better visibility and proper z-index */}
         <img 
           src={heroThinkerImage}
