@@ -178,7 +178,7 @@ export default function CompetitiveAnalysis() {
       </div>
 
       {/* Header with enhanced styling and Thinker image - Added proper spacing for sticky header */}
-      <div className="relative min-h-[450px] text-white overflow-hidden" style={{ paddingTop: '80px' }}>
+      <div className="relative h-[550px] text-white overflow-hidden" style={{ paddingTop: '80px' }}>
         {/* Thinker Background Image with full visibility */}
         <img 
           src={heroThinkerImage}
@@ -186,46 +186,49 @@ export default function CompetitiveAnalysis() {
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
         
-        <div className="relative py-8 z-20">
-          <div className="max-w-7xl mx-auto px-4">
-            {/* Content container with semi-transparent background at the top */}
-            <div className="bg-black/60 backdrop-blur-md rounded-2xl p-8 max-w-4xl">
-              <Link href="/">
-                <Button 
-                  variant="ghost" 
-                  className="text-white hover:bg-white/20 mb-6 transition-all duration-300 hover:scale-105"
-                >
-                  ← Back to Home
-                </Button>
-              </Link>
-              
-              <div className="space-y-6">
-                <h1 className="text-4xl md:text-6xl font-bold flex items-center gap-4 animate-fadeIn">
-                  <div className="p-3 bg-white/10 rounded-2xl">
-                    <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />
+        {/* Content positioned at top 40% only */}
+        <div className="absolute top-0 left-0 right-0 h-[40%] z-20 pt-20">
+          <div className="h-full flex items-start pt-6">
+            <div className="max-w-7xl mx-auto px-4 w-full">
+              {/* Compact content container */}
+              <div className="bg-black/70 backdrop-blur-sm rounded-xl p-4 sm:p-6">
+                <Link href="/">
+                  <Button 
+                    variant="ghost" 
+                    className="text-white hover:bg-white/20 mb-3 text-sm transition-all duration-300"
+                  >
+                    ← Back to Home
+                  </Button>
+                </Link>
+                
+                <div className="space-y-3">
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold flex items-center gap-3 animate-fadeIn">
+                    <div className="p-2 bg-white/10 rounded-lg">
+                      <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
+                    </div>
+                    <span className="text-white">
+                      Competitive Market Analysis
+                    </span>
+                  </h1>
+                  
+                  <p className="text-sm sm:text-base text-white/90 max-w-2xl leading-snug animate-fadeIn animation-delay-200">
+                    Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
+                  </p>
+                  
+                  <div className="flex flex-wrap gap-2 animate-fadeIn animation-delay-300">
+                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 text-xs hover:bg-white/30 transition-all duration-300">
+                      <Brain className="w-3 h-3 mr-1" />
+                      Perplexity AI Powered
+                    </Badge>
+                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 text-xs hover:bg-white/30 transition-all duration-300">
+                      <Globe className="w-3 h-3 mr-1" />
+                      Live Web Search
+                    </Badge>
+                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 text-xs hover:bg-white/30 transition-all duration-300">
+                      <BarChart3 className="w-3 h-3 mr-1" />
+                      Real-Time Data
+                    </Badge>
                   </div>
-                  <span className="text-white">
-                    Competitive Market Analysis
-                  </span>
-                </h1>
-                
-                <p className="text-xl md:text-2xl text-white/95 max-w-3xl leading-relaxed animate-fadeIn animation-delay-200">
-                  Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
-                </p>
-                
-                <div className="flex flex-wrap gap-3 animate-fadeIn animation-delay-300">
-                  <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
-                    <Brain className="w-4 h-4 mr-2" />
-                    Perplexity AI Powered
-                  </Badge>
-                  <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
-                    <Globe className="w-4 h-4 mr-2" />
-                    Live Web Search
-                  </Badge>
-                  <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Real-Time Data
-                  </Badge>
                 </div>
               </div>
             </div>
