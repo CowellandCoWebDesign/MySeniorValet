@@ -83,9 +83,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
   
-  app.post('/api/circuit-breaker/reset/:service', (req, res) => {
+  // Circuit breaker reset endpoint - admin only for security
+  const { isAuthenticated: requireAuth, isAdmin } = await import('./auth-middleware');
+  app.post('/api/circuit-breaker/reset/:service', requireAuth, isAdmin, (req, res) => {
     const { service } = req.params;
     apiCircuitBreaker.resetCircuit(service);
+    console.log(`🔧 Circuit breaker reset for ${service} by admin user`);
     res.json({ message: `Circuit breaker for ${service} has been reset` });
   });
   
