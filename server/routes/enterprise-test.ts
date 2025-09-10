@@ -141,7 +141,7 @@ router.get('/api/enterprise/test/websocket-status', (req, res) => {
     websocketEndpoint: '/enterprise-ws',
     status: 'available',
     instructions: {
-      connect: 'Create WebSocket connection to ws://[host]/enterprise-ws',
+      connect: 'Create WebSocket connection to wss://[host]/enterprise-ws',
       subscribe: 'Send: {"type":"subscribe","channel":"analytics|financial|compliance|metrics","communityId":47677}',
       authenticate: 'Send: {"type":"authenticate","userId":"1","role":"admin"}',
       ping: 'Send: {"type":"ping"} to keep connection alive'

@@ -298,9 +298,19 @@ router.put('/members/:id', async (req: Request, res: Response) => {
       });
     }
     
+    // Validate and sanitize input to prevent prototype pollution
+    const allowedFields = ['name', 'department', 'position', 'email', 'phone', 'startDate', 'schedule', 'certifications', 'emergencyContact', 'status'];
+    const updates: any = {};
+    
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+    
     staffData.members[memberIndex] = {
       ...staffData.members[memberIndex],
-      ...req.body
+      ...updates
     };
     
     res.json({
@@ -390,9 +400,19 @@ router.put('/shifts/:id', async (req: Request, res: Response) => {
       });
     }
     
+    // Validate and sanitize input to prevent prototype pollution
+    const allowedFields = ['date', 'startTime', 'endTime', 'assignedTo', 'department', 'type', 'notes'];
+    const updates: any = {};
+    
+    for (const field of allowedFields) {
+      if (req.body[field] !== undefined) {
+        updates[field] = req.body[field];
+      }
+    }
+    
     staffData.shifts[shiftIndex] = {
       ...staffData.shifts[shiftIndex],
-      ...req.body
+      ...updates
     };
     
     res.json({
