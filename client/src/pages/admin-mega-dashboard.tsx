@@ -329,7 +329,7 @@ export default function AdminMegaDashboard() {
     try {
       const communitiesResponse = await fetch('/api/communities/count');
       const communitiesData = await communitiesResponse.json();
-      const communityCount = parseInt(communitiesData.count);
+      const communityCount = parseInt(communitiesData.count) || 0;
       
       results.push({
         component: 'Golden Data Rule Compliance',
@@ -1129,24 +1129,24 @@ export default function AdminMegaDashboard() {
         cacheHitRate: 0,
         dbQueries: 0,
       },
-      ai: (aiMetrics as any) || {
-        totalRequests: 0,
+      ai: {
+        totalRequests: (aiMetrics as any)?.totalRequests || 0,
         byProvider: {
-          claude: 0,
-          chatgpt: 0,
-          perplexity: 0,
-          gemini: 0,
-          grok: 0,
+          claude: (aiMetrics as any)?.byProvider?.claude || 0,
+          chatgpt: (aiMetrics as any)?.byProvider?.chatgpt || 0,
+          perplexity: (aiMetrics as any)?.byProvider?.perplexity || 0,
+          gemini: (aiMetrics as any)?.byProvider?.gemini || 0,
+          grok: (aiMetrics as any)?.byProvider?.grok || 0,
         },
         costs: {
-          total: 0,
-          claude: 0,
-          chatgpt: 0,
-          perplexity: 0,
-          gemini: 0,
+          total: (aiMetrics as any)?.costs?.total || 0,
+          claude: (aiMetrics as any)?.costs?.claude || 0,
+          chatgpt: (aiMetrics as any)?.costs?.chatgpt || 0,
+          perplexity: (aiMetrics as any)?.costs?.perplexity || 0,
+          gemini: (aiMetrics as any)?.costs?.gemini || 0,
         },
-        successRate: 0,
-        avgResponseTime: 0,
+        successRate: (aiMetrics as any)?.successRate || 0,
+        avgResponseTime: (aiMetrics as any)?.avgResponseTime || 0,
       },
       financial: {
         revenue: (financialData as any)?.revenue || {
@@ -1200,7 +1200,7 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.platform.totalCommunities.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics.platform.totalCommunities || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
             <span className="text-green-600">+{metrics.platform.growthRate}%</span> from last month
@@ -1216,7 +1216,7 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.platform.totalUsers.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics.platform.totalUsers || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <Activity className="h-3 w-3 mr-1" />
             {metrics.engagement.dailyActiveUsers} daily active
@@ -1232,7 +1232,7 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${metrics.platform.monthlyRevenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold">${(metrics.platform.monthlyRevenue || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
             ARPU: ${metrics.financial.arpu}
@@ -1248,10 +1248,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.ai.totalRequests.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics.ai.totalRequests || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <DollarSign className="h-3 w-3 mr-1" />
-            Cost: ${metrics.ai.costs.total.toFixed(2)}
+            Cost: ${(metrics.ai.costs.total || 0).toFixed(2)}
           </div>
         </CardContent>
       </Card>
@@ -1516,7 +1516,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">MRR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${metrics.financial.revenue.month.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${(metrics.financial.revenue.month || 0).toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1524,7 +1524,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">ARR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${metrics.financial.revenue.year.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${(metrics.financial.revenue.year || 0).toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1599,20 +1599,20 @@ Communities Created: ${details.stats.communitiesCreated}`;
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Claude</span>
-                <span className="font-medium">${metrics.ai.costs.claude.toFixed(2)}</span>
+                <span className="font-medium">${(metrics.ai.costs.claude || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">ChatGPT</span>
-                <span className="font-medium">${metrics.ai.costs.chatgpt.toFixed(2)}</span>
+                <span className="font-medium">${(metrics.ai.costs.chatgpt || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Perplexity</span>
-                <span className="font-medium">${metrics.ai.costs.perplexity.toFixed(2)}</span>
+                <span className="font-medium">${(metrics.ai.costs.perplexity || 0).toFixed(2)}</span>
               </div>
               <Separator />
               <div className="flex justify-between items-center font-bold">
                 <span>Total</span>
-                <span>${metrics.ai.costs.total.toFixed(2)}</span>
+                <span>${(metrics.ai.costs.total || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -1702,7 +1702,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">API Calls</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.apiCalls.toLocaleString()} today</span>
+              <span className="text-sm text-muted-foreground">{(metrics.performance.apiCalls || 0).toLocaleString()} today</span>
             </div>
             <Progress value={Math.min((metrics.performance.apiCalls / 100000) * 100, 100)} />
           </div>
@@ -1718,7 +1718,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Database Queries</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.dbQueries.toLocaleString()}/min</span>
+              <span className="text-sm text-muted-foreground">{(metrics.performance.dbQueries || 0).toLocaleString()}/min</span>
             </div>
             <Progress value={Math.min((metrics.performance.dbQueries / 1000) * 100, 100)} />
           </div>
