@@ -97,6 +97,11 @@ const GlobalDiscoveryApprovalQueue = lazy(() => import("@/components/admin/Globa
   default: module.GlobalDiscoveryApprovalQueue
 })));
 
+// Lazy load Data Quality Dashboard
+const DataQualityDashboard = lazy(() => import("@/components/DataQualityDashboard").then(module => ({
+  default: module.DataQualityDashboard
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2807,6 +2812,11 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </ScrollArea>
           
           <TabsContent value="overview" className="space-y-4">
+            {/* Data Quality Dashboard */}
+            <Suspense fallback={<div className="flex items-center justify-center h-40"><Loader2 className="w-6 h-6 animate-spin" /></div>}>
+              <DataQualityDashboard />
+            </Suspense>
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {renderAIAnalytics()}
               {renderPerformanceMonitoring()}
