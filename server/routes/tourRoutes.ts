@@ -131,19 +131,38 @@ router.post("/schedule", async (req, res) => {
           <p>The community will contact you within 24-48 hours to confirm your tour.</p>
           
           <div style="background: #E0E7FF; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4F46E5;">
-            <p style="color: #312E81; margin: 0 0 10px 0;"><strong>📍 Track Your Tour Journey!</strong></p>
-            <p style="color: #312E81; margin: 0 0 10px 0;">Use our Tour Tracker™ to:</p>
-            <ul style="margin: 5px 0 10px 20px; color: #312E81;">
-              <li>View all your scheduled tours</li>
-              <li>Get reminders before your visit</li>
-              <li>Take notes and photos during your tour</li>
-              <li>Rate and review your experience</li>
-              <li>Share insights with family members</li>
+            <p style="color: #312E81; margin: 0 0 10px 0;"><strong>📍 Your Family Tools & Resources</strong></p>
+            <p style="color: #312E81; margin: 0 0 10px 0;">Everything you need for your senior living journey:</p>
+            
+            <div style="margin: 20px 0;">
+              <div style="margin-bottom: 15px;">
+                <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+                   style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
+                  📍 Tour Tracker™ - Manage Your Tours
+                </a>
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/family-collaboration-center" 
+                   style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
+                  👨‍👩‍👧‍👦 Family Collaboration Center
+                </a>
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/dashboard" 
+                   style="display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
+                  🏠 Your Personal Dashboard
+                </a>
+              </div>
+            </div>
+            
+            <ul style="margin: 5px 0 10px 20px; color: #312E81; font-size: 14px;">
+              <li>Track all scheduled tours in one place</li>
+              <li>Collaborate with family members on decisions</li>
+              <li>Save and compare your favorite communities</li>
+              <li>Access resources and benefits information</li>
             </ul>
-            <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
-               style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
-              Access Tour Tracker™
-            </a>
           </div>
           
           <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">

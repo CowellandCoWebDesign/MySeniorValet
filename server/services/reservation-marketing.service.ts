@@ -236,7 +236,14 @@ export class ReservationMarketingService {
                 <li>✅ Showcase your unique amenities and care services</li>
               </ul>
               <p style="text-align: center;">
-                <a href="https://myseniorvalet.com/claim-community" style="color: #3b82f6; font-weight: bold;">Claim Your Free Profile →</a>
+                <a href="https://myseniorvalet.com/claim-community/${request.communityId}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+                  👑 Claim Your Community Profile
+                </a>
+              </p>
+              <p style="text-align: center; margin-top: 10px;">
+                <a href="https://myseniorvalet.com/community-portal" style="color: #3b82f6; font-weight: bold;">
+                  Or access your Community Portal →
+                </a>
               </p>
             </div>
           </div>
@@ -416,6 +423,35 @@ Contact them immediately to convert this opportunity!
                   <li>Ask about all fees and what's included</li>
                   <li>Tour multiple communities for comparison</li>
                   <li>Bring a family member or friend for support</li>
+                </ul>
+              </div>
+              
+              <div style="background: #e0e7ff; border: 2px solid #4f46e5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <h3 style="color: #312e81; margin-top: 0;">🔧 Your Family Tools & Resources</h3>
+                <p style="color: #312e81; margin: 10px 0;">Access all your senior living planning tools in one place:</p>
+                
+                <div style="margin: 20px 0;">
+                  <a href="https://myseniorvalet.com/tour-tracker" 
+                     style="display: block; background: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center; margin-bottom: 10px;">
+                    📍 Tour Tracker™ - Schedule & Manage Tours
+                  </a>
+                  
+                  <a href="https://myseniorvalet.com/family-collaboration-center" 
+                     style="display: block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center; margin-bottom: 10px;">
+                    👨‍👩‍👧‍👦 Family Collaboration Center
+                  </a>
+                  
+                  <a href="https://myseniorvalet.com/dashboard" 
+                     style="display: block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
+                    🏠 Your Personal Dashboard
+                  </a>
+                </div>
+                
+                <ul style="margin: 10px 0 0 20px; color: #312e81; font-size: 14px;">
+                  <li>Track all your reservations and inquiries</li>
+                  <li>Share research with family members</li>
+                  <li>Compare communities side-by-side</li>
+                  <li>Access benefits and resources</li>
                 </ul>
               </div>
             </div>
