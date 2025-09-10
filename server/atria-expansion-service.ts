@@ -2291,9 +2291,9 @@ export class AtriaExpansionService {
             address: atriaProperty.address,
             city: atriaProperty.city,
             state: atriaProperty.state,
-            zipCode: atriaProperty.zipCode,
-            phone: atriaProperty.phone,
-            website: atriaProperty.website,
+            zipCode: atriaProperty.zipCode || '',
+            phone: atriaProperty.phone || null,
+            website: atriaProperty.website || null,
             careTypes: atriaProperty.careTypes,
             amenities: atriaProperty.amenities || []
           });

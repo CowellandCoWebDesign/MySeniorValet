@@ -52,7 +52,7 @@ export class CommunityEnrichmentService {
           await db
             .update(communities)
             .set({ 
-              communitySubtype: suggestedSubtype,
+              communitySubtype: suggestedSubtype as any,
               updatedAt: new Date()
             })
             .where(eq(communities.id, community.id));
@@ -127,7 +127,7 @@ export class CommunityEnrichmentService {
         'unlicensed_senior_housing'
       ];
       
-      return validSubtypes.includes(subtype || '') ? subtype : null;
+      return validSubtypes.includes(subtype || '') ? (subtype as string) : null;
     } catch (error) {
       console.error('AI classification error:', error);
       return null;
@@ -153,7 +153,7 @@ export class CommunityEnrichmentService {
         state: community.state,
         city: community.city,
         hudProperty: !!community.hudPropertyId,
-        medicareProvider: !!community.cmsProviderId,
+        medicareProvider: !!(community as any).cmsProviderId,
         licenseStatus: community.licenseStatus
       };
 
@@ -173,7 +173,6 @@ export class CommunityEnrichmentService {
 
       // Store in enrichments table
       await db.insert(enrichments).values({
-        communityId,
         enrichmentType: 'ai_summary',
         data: enrichmentData,
         source: 'public_metadata_ai',
@@ -200,7 +199,7 @@ export class CommunityEnrichmentService {
     
     Write 2-3 sentences that are factual and based only on the provided information. Do not make assumptions.`;
 
-    const response = await this.anthropic.generateContent(prompt);
+    const response = await this.anthropic.generateTextResponse(prompt);
     return response || 'Community information pending verification.';
   }
 

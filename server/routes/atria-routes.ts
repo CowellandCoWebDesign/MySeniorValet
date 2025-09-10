@@ -94,9 +94,9 @@ router.get('/database', async (req, res) => {
       database: atriaDatabase,
       count: atriaDatabase.length,
       coverage: {
-        states: [...new Set(atriaDatabase.map(p => p.state))].length,
-        cities: [...new Set(atriaDatabase.map(p => p.city))].length,
-        careTypes: [...new Set(atriaDatabase.flatMap(p => p.careTypes))].length
+        states: [...new Set(atriaDatabase.map((p: any) => p.state))].length,
+        cities: [...new Set(atriaDatabase.map((p: any) => p.city))].length,
+        careTypes: [...new Set(atriaDatabase.flatMap((p: any) => p.careTypes))].length
       }
     });
     
