@@ -37,9 +37,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { setupSocialAuth } = await import('./social-auth');
   setupSocialAuth(app);
   
-  // Keep auth bypass for super admin access
-  const { setupAuthBypass } = await import('./auth-bypass');
-  await setupAuthBypass(app);
+  // Auth bypass for development only - NEVER enable in production
+  if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTH_BYPASS === 'true') {
+    console.warn('⚠️ AUTH BYPASS ENABLED - Development only!');
+    const { setupAuthBypass } = await import('./auth-bypass');
+    await setupAuthBypass(app);
+  }
   
   // Apply security monitoring middleware to detect and log threats
   const { securityMonitoringMiddleware } = await import('./security-monitor');

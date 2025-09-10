@@ -2,11 +2,20 @@ import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcrypt';
 import { storage } from './storage';
 
-// Super admin bypass for production deployment
-const SUPER_ADMIN_CREDENTIALS = {
-  'William.cowell01@gmail.com': process.env.SUPER_ADMIN_PASSWORD || 'MySV2025!Admin',
-  'admin@myseniorvalet.com': process.env.ADMIN_PASSWORD || 'AdminMySV2025!'
-};
+// Super admin bypass - DEVELOPMENT ONLY
+// This should NEVER be enabled in production
+const isDevelopment = process.env.NODE_ENV === 'development';
+const bypassEnabled = process.env.ENABLE_AUTH_BYPASS === 'true';
+
+if (!isDevelopment || !bypassEnabled) {
+  console.error('⛔ Auth bypass attempted to load in non-development environment');
+}
+
+// Use environment variables for credentials - never hardcode
+const SUPER_ADMIN_CREDENTIALS = isDevelopment && bypassEnabled ? {
+  'William.cowell01@gmail.com': process.env.SUPER_ADMIN_PASSWORD,
+  'admin@myseniorvalet.com': process.env.ADMIN_PASSWORD
+} : {};
 
 export async function setupAuthBypass(app: any) {
   // Standard login endpoint that doesn't require Replit OAuth
