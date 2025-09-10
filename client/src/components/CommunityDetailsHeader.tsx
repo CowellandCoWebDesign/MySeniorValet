@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { 
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
-  CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare
+  CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
+  Flag, RefreshCw
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
@@ -35,6 +36,53 @@ export function CommunityDetailsHeader({
   onTourClick
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  const [isReVerifying, setIsReVerifying] = useState(false);
+  
+  // Determine if community needs data quality review
+  const needsDataReview = () => {
+    // Check various data quality indicators
+    if (!community.isVerified) return true;
+    if (!community.website || community.website === '') return true;
+    if (!community.phone || community.phone === '') return true;
+    if (!community.photos || community.photos.length === 0) return true;
+    if (community.dataQualityScore && community.dataQualityScore < 70) return true;
+    
+    // Check if pricing is missing or outdated
+    const hasPricing = community.priceRange?.min > 0 || 
+                       community.rentPerMonth > 0 || 
+                       verificationReport?.pricing?.verified;
+    if (!hasPricing) return true;
+    
+    return false;
+  };
+  
+  const handleReVerify = async () => {
+    if (isReVerifying) return;
+    
+    setIsReVerifying(true);
+    try {
+      const response = await fetch('/api/communities/re-verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          communityId: community.id,
+          communityName: community.name,
+          city: community.city,
+          state: community.state
+        })
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        // Reload page to show updated data
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error('Re-verification failed:', error);
+    } finally {
+      setIsReVerifying(false);
+    }
+  };
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
     const lowerAmenity = amenity.toLowerCase();
@@ -310,9 +358,31 @@ export function CommunityDetailsHeader({
             
             {/* Community Details - Full width minus price box with better spacing */}
             <div className="pr-0 sm:pr-48 md:pr-56 lg:pr-64">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3 break-words">
-                {community.name}
-              </h1>
+              <div className="flex items-center gap-3 mb-3">
+                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words">
+                  {community.name}
+                </h1>
+                {needsDataReview() && (
+                  <button
+                    onClick={handleReVerify}
+                    disabled={isReVerifying}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg border border-orange-300 dark:border-orange-700 hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-all group"
+                    title="This community needs data quality review. Click to re-verify with AI."
+                  >
+                    {isReVerifying ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span className="text-xs font-medium">Verifying...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Flag className="w-4 h-4 group-hover:animate-pulse" />
+                        <span className="text-xs font-medium">Needs Review</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
               
               {/* Website URL at the top with crystal ball emoji */}
               {displayWebsite && (

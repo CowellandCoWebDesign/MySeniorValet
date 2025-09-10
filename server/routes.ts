@@ -827,6 +827,111 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Re-verify community data using AI
+  app.post('/api/communities/re-verify', async (req, res) => {
+    try {
+      const { communityId, communityName, city, state } = req.body;
+      
+      console.log(`🔍 Re-verifying community #${communityId}: ${communityName} in ${city}, ${state}`);
+      
+      // Use Perplexity AI to get fresh data
+      const { SimplifiedPerplexityService } = await import('./simplified-perplexity-service');
+      const perplexityService = new SimplifiedPerplexityService();
+      
+      const intelligence = await perplexityService.findExactCommunity(
+        communityName,
+        city,
+        state
+      );
+      
+      if (!intelligence.found) {
+        return res.status(404).json({ error: 'Community not found in web search' });
+      }
+      
+      // Update community with fresh data
+      const updates: any = {
+        isVerified: true,
+        lastVerificationDate: new Date()
+      };
+      
+      if (intelligence.officialWebsite) {
+        updates.website = intelligence.officialWebsite;
+      }
+      
+      if (intelligence.phone) {
+        updates.phone = intelligence.phone;
+      }
+      
+      if (intelligence.address) {
+        updates.address = intelligence.address;
+      }
+      
+      if (intelligence.description) {
+        updates.description = intelligence.description;
+      }
+      
+      if (intelligence.amenities && intelligence.amenities.length > 0) {
+        updates.amenities = intelligence.amenities;
+      }
+      
+      if (intelligence.careLevels && intelligence.careLevels.length > 0) {
+        updates.careTypes = intelligence.careLevels;
+      }
+      
+      // Update pricing if available
+      if (intelligence.pricing) {
+        const priceRange: any = {};
+        
+        if (intelligence.pricing.assistedLiving) {
+          const priceMatch = intelligence.pricing.assistedLiving.match(/\$?([\d,]+)/);
+          if (priceMatch) {
+            priceRange.min = parseInt(priceMatch[1].replace(/,/g, ''));
+          }
+        }
+        
+        if (Object.keys(priceRange).length > 0) {
+          updates.priceRange = priceRange;
+        }
+      }
+      
+      // Apply updates to database
+      await db
+        .update(schema.communities)
+        .set(updates)
+        .where(eq(schema.communities.id, communityId));
+      
+      console.log(`✅ Community #${communityId} re-verified and updated`);
+      
+      // Send notification to admins
+      const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      adminEmails.forEach(email => {
+        sendEmail({
+          to: email,
+          from: 'notifications@myseniorvalet.com',
+          subject: `✅ Community Re-Verified - ${communityName}`,
+          text: `Community successfully re-verified using AI:\n\n${communityName}\n${city}, ${state}\n\nUpdated fields:\n${Object.keys(updates).join(', ')}`,
+          html: `
+            <div style="font-family: Arial, sans-serif;">
+              <h2>✅ Community Re-Verified</h2>
+              <p><strong>${communityName}</strong><br/>${city}, ${state}</p>
+              <p>Updated fields: ${Object.keys(updates).join(', ')}</p>
+            </div>
+          `
+        }).catch(console.error);
+      });
+      
+      res.json({ 
+        success: true, 
+        message: 'Community data refreshed',
+        updates: Object.keys(updates)
+      });
+      
+    } catch (error) {
+      console.error('Re-verification failed:', error);
+      res.status(500).json({ error: 'Re-verification failed' });
+    }
+  });
+
   // Feedback for incorrect external links - NOW WITH SELF-HEALING AI
   app.post('/api/feedback/incorrect-link', async (req, res) => {
     try {
