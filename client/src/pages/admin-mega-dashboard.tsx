@@ -1226,10 +1226,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.platform.totalCommunities.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics?.platform?.totalCommunities || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
-            <span className="text-green-600">+{metrics.platform.growthRate}%</span> from last month
+            <span className="text-green-600">+{metrics?.platform?.growthRate || 0}%</span> from last month
           </div>
         </CardContent>
       </Card>
@@ -1242,10 +1242,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.platform.totalUsers.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics?.platform?.totalUsers || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <Activity className="h-3 w-3 mr-1" />
-            {metrics.engagement.dailyActiveUsers} daily active
+            {metrics?.engagement?.dailyActiveUsers || 0} daily active
           </div>
         </CardContent>
       </Card>
@@ -1258,10 +1258,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${metrics.platform.monthlyRevenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold">${(metrics?.platform?.monthlyRevenue || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
-            ARPU: ${metrics.financial.arpu}
+            ARPU: ${metrics?.financial?.arpu || 0}
           </div>
         </CardContent>
       </Card>
@@ -1274,10 +1274,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.ai.totalRequests.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics?.ai?.totalRequests || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <DollarSign className="h-3 w-3 mr-1" />
-            Cost: ${metrics.ai.costs.total.toFixed(2)}
+            Cost: ${(metrics?.ai?.costs?.total || 0).toFixed(2)}
           </div>
         </CardContent>
       </Card>
@@ -1542,7 +1542,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">MRR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${metrics.financial.revenue.month.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${(metrics?.financial?.revenue?.month || 0).toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1550,7 +1550,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">ARR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${metrics.financial.revenue.year.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${(metrics?.financial?.revenue?.year || 0).toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1688,8 +1688,8 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metrics.performance.uptime}%</div>
-              <Progress value={metrics.performance.uptime} className="mt-2" />
+              <div className="text-2xl font-bold">{metrics?.performance?.uptime || 99.9}%</div>
+              <Progress value={metrics?.performance?.uptime || 99.9} className="mt-2" />
             </CardContent>
           </Card>
           
@@ -1701,9 +1701,9 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metrics.performance.responseTime}ms</div>
-              <div className={`text-xs ${metrics.performance.responseTime < 200 ? 'text-green-600' : 'text-yellow-600'}`}>
-                {metrics.performance.responseTime < 200 ? 'Excellent' : 'Good'}
+              <div className="text-2xl font-bold">{metrics?.performance?.responseTime || 0}ms</div>
+              <div className={`text-xs ${(metrics?.performance?.responseTime || 0) < 200 ? 'text-green-600' : 'text-yellow-600'}`}>
+                {(metrics?.performance?.responseTime || 0) < 200 ? 'Excellent' : 'Good'}
               </div>
             </CardContent>
           </Card>
@@ -1716,9 +1716,9 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metrics.performance.errorRate}%</div>
-              <div className={`text-xs ${metrics.performance.errorRate < 1 ? 'text-green-600' : 'text-red-600'}`}>
-                {metrics.performance.errorRate < 1 ? 'Normal' : 'High'}
+              <div className="text-2xl font-bold">{metrics?.performance?.errorRate || 0}%</div>
+              <div className={`text-xs ${(metrics?.performance?.errorRate || 0) < 1 ? 'text-green-600' : 'text-red-600'}`}>
+                {(metrics?.performance?.errorRate || 0) < 1 ? 'Normal' : 'High'}
               </div>
             </CardContent>
           </Card>
@@ -1728,25 +1728,25 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">API Calls</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.apiCalls.toLocaleString()} today</span>
+              <span className="text-sm text-muted-foreground">{(metrics?.performance?.apiCalls || 0).toLocaleString()} today</span>
             </div>
-            <Progress value={Math.min((metrics.performance.apiCalls / 100000) * 100, 100)} />
+            <Progress value={Math.min(((metrics?.performance?.apiCalls || 0) / 100000) * 100, 100)} />
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Cache Hit Rate</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.cacheHitRate}%</span>
+              <span className="text-sm text-muted-foreground">{metrics?.performance?.cacheHitRate || 0}%</span>
             </div>
-            <Progress value={metrics.performance.cacheHitRate} />
+            <Progress value={metrics?.performance?.cacheHitRate || 0} />
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Database Queries</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.dbQueries.toLocaleString()}/min</span>
+              <span className="text-sm text-muted-foreground">{(metrics?.performance?.dbQueries || 0).toLocaleString()}/min</span>
             </div>
-            <Progress value={Math.min((metrics.performance.dbQueries / 1000) * 100, 100)} />
+            <Progress value={Math.min(((metrics?.performance?.dbQueries || 0) / 1000) * 100, 100)} />
           </div>
         </div>
       </CardContent>
