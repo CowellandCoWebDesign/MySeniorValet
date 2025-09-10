@@ -56,17 +56,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register all modular routes
   registerModularRoutes(app);
   
-  // Register test routes
-  const { registerTestRoutes } = await import('./test-system');
-  registerTestRoutes(app);
+  // Register test routes - development only
+  if (process.env.NODE_ENV === 'development') {
+    console.warn('⚠️ TEST ROUTES ENABLED - Development only!');
+    const { registerTestRoutes } = await import('./test-system');
+    registerTestRoutes(app);
+  }
   
   // Register location routes for SEO
   const locationRoutes = await import('./routes/locationRoutes');
   app.use(locationRoutes.default);
   
-  // Register Perplexity test route
-  const testPerplexityRoutes = await import('./routes/test-perplexity');
-  app.use(testPerplexityRoutes.default);
+  // Register Perplexity test route - development only
+  if (process.env.NODE_ENV === 'development') {
+    const testPerplexityRoutes = await import('./routes/test-perplexity');
+    app.use(testPerplexityRoutes.default);
+  }
   
   // Register Circuit Breaker health endpoint
   const { apiCircuitBreaker } = await import('./infrastructure/api-circuit-breaker');
