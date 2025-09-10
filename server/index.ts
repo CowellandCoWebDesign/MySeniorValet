@@ -33,9 +33,6 @@ process.on('uncaughtException', (error) => {
   console.error('❌ UNCAUGHT EXCEPTION:', error);
   console.error('Stack:', error.stack);
   // Don't exit in production, try to keep serving
-  if (process.env.NODE_ENV === 'development') {
-    process.exit(1);
-  }
 });
 
 process.on('unhandledRejection', (reason, promise) => {
@@ -44,12 +41,7 @@ process.on('unhandledRejection', (reason, promise) => {
 });
 
 // Production mode - caches enabled for performance
-if (process.env.NODE_ENV === 'development') {
-  clearViteCache();
-  console.log('🔥 DEVELOPMENT MODE: All caches cleared, instant edit visibility enabled');
-} else {
-  console.log('⚡ PRODUCTION MODE: Optimized caching enabled for maximum performance');
-}
+console.log('⚡ PRODUCTION MODE: Optimized caching enabled for maximum performance');
 
 // Enable compression for all responses (production optimization)
 app.use(compression({
@@ -76,12 +68,8 @@ app.use(enhanceSessionSecurity);
 // Performance monitoring (lightweight)
 app.use(performanceMonitor.middleware());
 
-// DISABLE Security monitoring in development to prevent rate limiting
-if (process.env.NODE_ENV !== 'development') {
-  app.use(securityDashboard.middleware());
-} else {
-  console.log('⚠️ Security monitoring DISABLED in development mode');
-}
+// Enable security monitoring in production
+app.use(securityDashboard.middleware());
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
@@ -114,12 +102,7 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 // Add cookie parser middleware early in the chain
 app.use(cookieParser());
 
-// Cache optimization: disable aggressive dev mode cache busting in production
-if (process.env.NODE_ENV === 'development') {
-  app.use(devCacheKiller); // Only in development
-  app.use(cacheBuster);
-  app.use(devModeHeaders);
-}
+// Cache optimization: production mode, no cache busting
 
 // Input security middleware
 app.use(sanitizeInput);
@@ -129,76 +112,32 @@ app.use(sqlInjectionProtection);
 import { trackAnalytics } from './middleware/analytics-tracker';
 app.use(trackAnalytics);
 
-// Development mode - disable caching for immediate visibility
-if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-cache, must-revalidate');
-    res.set('Pragma', 'no-cache');
-    res.set('X-Content-Type-Options', 'nosniff');
-    res.set('X-Frame-Options', 'DENY');
-    next();
-  });
-} else {
-  // Production mode - enable smart caching for performance
-  app.use((req, res, next) => {
-    // Static assets get longer cache
-    if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
-      res.set('Cache-Control', 'public, max-age=31536000, immutable');
-    }
-    // API responses get shorter cache
-    else if (req.path.startsWith('/api/')) {
-      res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-    }
-    res.set('X-Content-Type-Options', 'nosniff');
-    res.set('X-Frame-Options', 'SAMEORIGIN');
-    next();
-  });
-}
+// Production mode - enable smart caching for performance
+app.use((req, res, next) => {
+  // Static assets get longer cache
+  if (req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+  }
+  // API responses get shorter cache
+  else if (req.path.startsWith('/api/')) {
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600');
+  }
+  res.set('X-Content-Type-Options', 'nosniff');
+  res.set('X-Frame-Options', 'SAMEORIGIN');
+  next();
+});
 
-// Request logging - verbose in development, minimal in production
-if (process.env.NODE_ENV === 'development') {
-  app.use((req, res, next) => {
-    const start = Date.now();
-    const path = req.path;
-    let capturedJsonResponse: Record<string, any> | undefined = undefined;
-
-    const originalResJson = res.json;
-    res.json = function (bodyJson, ...args) {
-      capturedJsonResponse = bodyJson;
-      return originalResJson.apply(res, [bodyJson, ...args]);
-    };
-
-    res.on("finish", () => {
+// Production: only log errors and important events
+app.use((req, res, next) => {
+  const start = Date.now();
+  res.on("finish", () => {
+    if (res.statusCode >= 400) {
       const duration = Date.now() - start;
-      if (path.startsWith("/api")) {
-        let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
-        if (capturedJsonResponse) {
-          logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
-        }
-
-        if (logLine.length > 80) {
-          logLine = logLine.slice(0, 79) + "…";
-        }
-
-        log(logLine);
-      }
-    });
-
-    next();
+      log(`${req.method} ${req.path} ${res.statusCode} in ${duration}ms`);
+    }
   });
-} else {
-  // Production: only log errors and important events
-  app.use((req, res, next) => {
-    const start = Date.now();
-    res.on("finish", () => {
-      if (res.statusCode >= 400) {
-        const duration = Date.now() - start;
-        log(`${req.method} ${req.path} ${res.statusCode} in ${duration}ms`);
-      }
-    });
-    next();
-  });
-}
+  next();
+});
 
 (async () => {
   try {
