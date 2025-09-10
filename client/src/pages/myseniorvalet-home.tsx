@@ -630,21 +630,6 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* Security & AI Badges - Centered Below Search */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-3">
-          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-blue-600/80 backdrop-blur-sm rounded-full px-2 py-1">
-              <span className="mr-0.5 text-[11px] sm:text-sm">🔒</span> SSL Secured
-            </div>
-            <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-green-600/80 backdrop-blur-sm rounded-full px-2 py-1">
-              <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
-            </div>
-            <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-purple-600/80 backdrop-blur-sm rounded-full px-2 py-1">
-              <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
-            </div>
-          </div>
-        </div>
-        
         {/* Quick Action Buttons - Moved from Community Directory Section */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
           <div className="grid grid-cols-4 gap-2">
@@ -734,6 +719,18 @@ function HeroSectionWithTransformingSearch() {
               </div>
               <div className="flex items-center text-[9px] sm:text-[10px] text-pink-300 font-semibold bg-pink-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
                 <span className="mr-0.5 text-[10px] sm:text-xs">👨‍👩‍👧‍👦</span> Family Collaboration Center
+              </div>
+            </div>
+            {/* Third Line - Security Badges */}
+            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-blue-600/80 backdrop-blur-sm rounded-full px-2 py-1">
+                <span className="mr-0.5 text-[11px] sm:text-sm">🔒</span> SSL Secured
+              </div>
+              <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-green-600/80 backdrop-blur-sm rounded-full px-2 py-1">
+                <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
+              </div>
+              <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-purple-600/80 backdrop-blur-sm rounded-full px-2 py-1">
+                <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
               </div>
             </div>
           </div>
