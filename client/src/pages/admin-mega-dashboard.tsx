@@ -52,8 +52,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { useLocation } from "wouter";
 
 // Lazy load the enhanced heatmap component for better performance
