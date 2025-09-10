@@ -33,9 +33,19 @@ export default function Contact() {
                   <div className="flex items-center">
                     <Mail className="w-5 h-5 text-blue-600 mr-3" />
                     <div>
-                      <div className="font-medium">Email</div>
+                      <div className="font-medium">General Inquiries</div>
                       <a href="mailto:hello@myseniorvalet.com" className="text-blue-600 hover:text-blue-700">
                         hello@myseniorvalet.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
+                    <Mail className="w-5 h-5 text-green-600 mr-3" />
+                    <div>
+                      <div className="font-medium">Business & Billing</div>
+                      <a href="mailto:billing@myseniorvalet.com" className="text-blue-600 hover:text-blue-700">
+                        billing@myseniorvalet.com
                       </a>
                     </div>
                   </div>
