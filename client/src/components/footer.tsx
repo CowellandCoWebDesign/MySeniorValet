@@ -1,7 +1,20 @@
 import { Link } from "wouter";
-import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store } from "lucide-react";
+import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
+
+// MySeniorValet Brand Gallery Images
+import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
+import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
+import Watercolor from '@assets/generated_images/Watercolor_art_style_c8d65f22.png';
+import Chrome3D from '@assets/generated_images/3D_chrome_space_c4ebf60f.png';
+import ArtDeco from '@assets/generated_images/Art_deco_vintage_a3fbda53.png';
+import Minimalist from '@assets/generated_images/Minimalist_Scandinavian_ff548e0c.png';
+import ZenGarden from '@assets/generated_images/Zen_garden_style_f7dcf60c.png';
+import Corporate from '@assets/generated_images/Corporate_professional_d257ef18.png';
+import Nature from '@assets/generated_images/Nature_organic_24298b0b.png';
+import Cyberpunk from '@assets/generated_images/Cyberpunk_neon_f9432e52.png';
 
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
@@ -9,6 +22,21 @@ export function Footer() {
     refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
     staleTime: 15 * 60 * 1000, // Consider data stale after 15 minutes
   });
+
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+  const brandImages = [
+    { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic' },
+    { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology' },
+    { src: Watercolor, title: 'Watercolor Art', description: 'Artistic creative interpretation' },
+    { src: Chrome3D, title: '3D Chrome', description: 'Futuristic cosmic design' },
+    { src: ArtDeco, title: 'Art Deco', description: 'Vintage glamour style' },
+    { src: Minimalist, title: 'Minimalist', description: 'Clean Scandinavian design' },
+    { src: ZenGarden, title: 'Zen Garden', description: 'Peaceful Japanese aesthetic' },
+    { src: Corporate, title: 'Corporate', description: 'Professional business branding' },
+    { src: Nature, title: 'Nature', description: 'Organic environmental theme' },
+    { src: Cyberpunk, title: 'Cyberpunk', description: 'Neon futuristic vibe' }
+  ];
 
   return (
     <footer className="relative text-white border-t-2 border-purple-600 overflow-hidden min-h-[600px]" 
@@ -82,7 +110,6 @@ export function Footer() {
                 <li><Link href="/claim-community" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
                 <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
                 <li><Link href="/community-benefits" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
-                <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
               </ul>
             </div>
             
@@ -102,6 +129,70 @@ export function Footer() {
             </div>
           </div>
         </div>
+
+        {/* Contact Us & Brand Gallery Section */}
+        <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
+          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery</h3>
+          <p className="text-xs text-gray-400 mb-4">
+            Explore the creative possibilities of MySeniorValet through our AI-generated brand interpretations. 
+            Click any image to view in detail. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
+          </p>
+          
+          {/* Image Gallery Grid */}
+          <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-4">
+            {brandImages.map((image, index) => (
+              <div 
+                key={index}
+                className="relative group cursor-pointer transform transition-all duration-300 hover:scale-110 hover:z-10"
+                onClick={() => setSelectedImage(image.src)}
+              >
+                <img 
+                  src={image.src} 
+                  alt={image.title}
+                  className="w-full h-16 object-cover rounded-md border border-purple-500/30 hover:border-purple-400"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md">
+                  <div className="absolute bottom-0 left-0 right-0 p-1">
+                    <p className="text-[8px] text-white font-semibold truncate">{image.title}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex flex-wrap gap-3 text-xs">
+            <Link href="/contact" className="text-blue-400 hover:text-blue-300 transition-colors">Full Contact Form</Link>
+            <span className="text-gray-600">•</span>
+            <a href="mailto:admin@myseniorvalet.com" className="text-gray-400 hover:text-blue-400 transition-colors">Admin: admin@myseniorvalet.com</a>
+            <span className="text-gray-600">•</span>
+            <a href="mailto:billing@myseniorvalet.com" className="text-gray-400 hover:text-blue-400 transition-colors">Billing: billing@myseniorvalet.com</a>
+          </div>
+        </div>
+
+        {/* Modal for selected image */}
+        {selectedImage && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setSelectedImage(null)}
+          >
+            <div className="relative max-w-3xl max-h-[90vh] p-4">
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-2 right-2 z-10 p-2 bg-gray-900/80 rounded-full hover:bg-gray-800 transition-colors"
+              >
+                <X className="h-5 w-5 text-white" />
+              </button>
+              <img 
+                src={selectedImage} 
+                alt="MySeniorValet Brand Design"
+                className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+              />
+              <p className="text-center text-white mt-4 text-sm">
+                MySeniorValet - AI-Generated Brand Interpretation
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Bottom Row: Other sections */}
         <div className="flex gap-8 mb-6">
@@ -139,7 +230,7 @@ export function Footer() {
               <span className="hidden md:inline text-gray-600">•</span>
               <p className="text-gray-500">Data from AI-assisted web search across all online sources</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v3.3</p>
+              <p className="text-gray-500">v3.4</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
