@@ -358,44 +358,12 @@ export function CommunityDetailsHeader({
             
             {/* Community Details - Full width minus price box with better spacing */}
             <div className="pr-0 sm:pr-48 md:pr-56 lg:pr-64">
-              <div className="flex items-center gap-3 mb-3">
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words">
+              <div className="mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
                   {community.name}
                 </h1>
-                {needsDataReview() && (
-                  <button
-                    onClick={handleReVerify}
-                    disabled={isReVerifying}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg border border-orange-300 dark:border-orange-700 hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-all group"
-                    title="This community needs data quality review. Click to re-verify with AI."
-                  >
-                    {isReVerifying ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span className="text-xs font-medium">Verifying...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Flag className="w-4 h-4 group-hover:animate-pulse" />
-                        <span className="text-xs font-medium">Needs Review</span>
-                      </>
-                    )}
-                  </button>
-                )}
               </div>
               
-              {/* Website URL at the top with crystal ball emoji */}
-              {displayWebsite && (
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xl">🔮</span>
-                  <ExternalLinkWarning
-                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600"
-                  >
-                    {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                  </ExternalLinkWarning>
-                </div>
-              )}
               
               <div className="flex items-start gap-2 mb-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">📌</span>
@@ -452,15 +420,37 @@ export function CommunityDetailsHeader({
           {/* Rating, Care Type and Badges Section */}
           <div className="px-6 pb-4">
             <div className="flex flex-wrap items-center gap-4">
-              {/* Rating Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="font-bold text-gray-900 dark:text-white">
-                  {community.googleRating || '4.2'}
-                </span>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">
-                  ({community.googleReviewCount || '47'} reviews)
-                </span>
+              {/* Rating Badge with Review Button */}
+              <div className="inline-flex items-center gap-2">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
+                  <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    {community.googleRating || '4.2'}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400 text-sm">
+                    ({community.googleReviewCount || '47'} reviews)
+                  </span>
+                </div>
+                {needsDataReview() && (
+                  <button
+                    onClick={handleReVerify}
+                    disabled={isReVerifying}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg border border-orange-300 dark:border-orange-700 hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-all group"
+                    title="This community needs data quality review. Click to re-verify with AI."
+                  >
+                    {isReVerifying ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span className="text-xs font-medium">Verifying...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Flag className="w-4 h-4 group-hover:animate-pulse" />
+                        <span className="text-xs font-medium">Needs Review</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
               
               {/* Care Type Badge */}
