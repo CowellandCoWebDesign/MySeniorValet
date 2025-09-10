@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
 
-// MySeniorValet Brand Gallery Images
+// MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
 import Watercolor from '@assets/generated_images/Watercolor_art_style_c8d65f22.png';
@@ -16,6 +16,18 @@ import Corporate from '@assets/generated_images/Corporate_professional_d257ef18.
 import Nature from '@assets/generated_images/Nature_organic_24298b0b.png';
 import Cyberpunk from '@assets/generated_images/Cyberpunk_neon_f9432e52.png';
 
+// MySeniorValet Feature & Advertising Images - Second Set
+import TransparentPricing from '@assets/generated_images/Transparent_pricing_feature_36337349.png';
+import FamilyCollab from '@assets/generated_images/Family_collaboration_tool_8925b86e.png';
+import AISearch from '@assets/generated_images/AI_search_engine_6c0b9a2f.png';
+import TourMate from '@assets/generated_images/TourMate_scheduling_dd8d9491.png';
+import VerifiedData from '@assets/generated_images/Verified_data_trust_888d702e.png';
+import InteractiveMap from '@assets/generated_images/Interactive_map_coverage_c4598da0.png';
+import StainedGlass from '@assets/generated_images/Stained_glass_spiritual_f5cf7954.png';
+import EmergencyContact from '@assets/generated_images/Emergency_contact_system_db900e8c.png';
+import ComparisonDash from '@assets/generated_images/Comparison_dashboard_2d6c7912.png';
+import CrystalPrism from '@assets/generated_images/Crystal_prism_clarity_43494b4e.png';
+
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
     queryKey: ["/api/platform/stats/formatted"],
@@ -23,9 +35,10 @@ export function Footer() {
     staleTime: 15 * 60 * 1000, // Consider data stale after 15 minutes
   });
 
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
 
   const brandImages = [
+    // Brand Style Images
     { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic' },
     { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology' },
     { src: Watercolor, title: 'Watercolor Art', description: 'Artistic creative interpretation' },
@@ -35,7 +48,18 @@ export function Footer() {
     { src: ZenGarden, title: 'Zen Garden', description: 'Peaceful Japanese aesthetic' },
     { src: Corporate, title: 'Corporate', description: 'Professional business branding' },
     { src: Nature, title: 'Nature', description: 'Organic environmental theme' },
-    { src: Cyberpunk, title: 'Cyberpunk', description: 'Neon futuristic vibe' }
+    { src: Cyberpunk, title: 'Cyberpunk', description: 'Neon futuristic vibe' },
+    // Feature & Advertising Images
+    { src: TransparentPricing, title: 'Transparent Pricing', description: 'No hidden fees - clear pricing for all' },
+    { src: FamilyCollab, title: 'Family Collaboration', description: 'Bringing families together in care decisions' },
+    { src: AISearch, title: 'AI-Powered Search', description: 'Intelligent search across 33,000+ communities' },
+    { src: TourMate, title: 'TourMate™ Scheduling', description: 'Book tours instantly with one click' },
+    { src: VerifiedData, title: 'Verified Data', description: '99.8% accuracy with Golden Data Rule' },
+    { src: InteractiveMap, title: 'Interactive Map', description: 'Complete coverage across North America' },
+    { src: StainedGlass, title: 'Spiritual Care', description: 'Timeless elegance in senior care' },
+    { src: EmergencyContact, title: 'Emergency System', description: 'One-touch emergency contact feature' },
+    { src: ComparisonDash, title: 'Compare Communities', description: 'Side-by-side community comparisons' },
+    { src: CrystalPrism, title: 'Crystal Clear', description: 'Transparency and clarity in all we do' }
   ];
 
   return (
@@ -132,19 +156,19 @@ export function Footer() {
 
         {/* Contact Us & Brand Gallery Section */}
         <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
-          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery</h3>
+          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 20 Unique Designs</h3>
           <p className="text-xs text-gray-400 mb-4">
-            Explore the creative possibilities of MySeniorValet through our AI-generated brand interpretations. 
-            Click any image to view in detail. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
+            Explore 20 creative interpretations of MySeniorValet, including brand styles and feature highlights for advertising. 
+            Click any image to view details. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
           </p>
           
-          {/* Image Gallery Grid */}
+          {/* Image Gallery Grid - Now with 20 images */}
           <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-4">
             {brandImages.map((image, index) => (
               <div 
                 key={index}
                 className="relative group cursor-pointer transform transition-all duration-300 hover:scale-110 hover:z-10"
-                onClick={() => setSelectedImage(image.src)}
+                onClick={() => setSelectedImage(image)}
               >
                 <img 
                   src={image.src} 
@@ -175,7 +199,7 @@ export function Footer() {
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
             onClick={() => setSelectedImage(null)}
           >
-            <div className="relative max-w-3xl max-h-[90vh] p-4">
+            <div className="relative max-w-4xl max-h-[90vh] p-4" onClick={(e) => e.stopPropagation()}>
               <button 
                 onClick={() => setSelectedImage(null)}
                 className="absolute top-2 right-2 z-10 p-2 bg-gray-900/80 rounded-full hover:bg-gray-800 transition-colors"
@@ -183,13 +207,15 @@ export function Footer() {
                 <X className="h-5 w-5 text-white" />
               </button>
               <img 
-                src={selectedImage} 
-                alt="MySeniorValet Brand Design"
-                className="max-w-full max-h-[80vh] object-contain rounded-lg shadow-2xl"
+                src={selectedImage.src} 
+                alt={selectedImage.title}
+                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl"
               />
-              <p className="text-center text-white mt-4 text-sm">
-                MySeniorValet - AI-Generated Brand Interpretation
-              </p>
+              <div className="text-center text-white mt-4">
+                <h3 className="text-lg font-bold mb-1">{selectedImage.title}</h3>
+                <p className="text-sm text-gray-300">{selectedImage.description}</p>
+                <p className="text-xs text-gray-400 mt-2">MySeniorValet - AI-Generated Brand & Feature Visualization</p>
+              </div>
             </div>
           </div>
         )}
