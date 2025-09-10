@@ -1,7 +1,43 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { z } from 'zod';
 
 const router = Router();
+
+// Input validation schemas
+const idParamSchema = z.object({
+  id: z.string().regex(/^[a-zA-Z0-9-]+$/)
+});
+
+const paginationSchema = z.object({
+  page: z.string().regex(/^\d+$/).optional(),
+  limit: z.string().regex(/^\d+$/).optional()
+});
+
+// Sanitize output to prevent XSS
+function sanitizeOutput(input: any): any {
+  if (typeof input === 'string') {
+    return input
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .trim();
+  }
+  if (Array.isArray(input)) {
+    return input.map(sanitizeOutput);
+  }
+  if (input && typeof input === 'object') {
+    const sanitized: any = {};
+    for (const key in input) {
+      if (input.hasOwnProperty(key)) {
+        sanitized[key] = sanitizeOutput(input[key]);
+      }
+    }
+    return sanitized;
+  }
+  return input;
+}
 
 // Mock data store - will be replaced with database
 const staffData = {
