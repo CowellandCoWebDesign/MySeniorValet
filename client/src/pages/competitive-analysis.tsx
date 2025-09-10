@@ -177,8 +177,8 @@ export default function CompetitiveAnalysis() {
         }} />
       </div>
 
-      {/* Header with enhanced styling and Thinker image */}
-      <div className="relative h-96 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden mt-14 sm:mt-16">
+      {/* Header with enhanced styling and Thinker image - Added proper spacing for sticky header */}
+      <div className="relative min-h-[450px] bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden" style={{ paddingTop: '80px' }}>
         {/* Thinker Background Image with better visibility and proper z-index */}
         <img 
           src={heroThinkerImage}
@@ -188,7 +188,7 @@ export default function CompetitiveAnalysis() {
         {/* Enhanced gradient overlay with reduced opacity for better image visibility */}
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/60 via-teal-600/60 to-cyan-600/60 dark:from-emerald-600/50 dark:via-teal-600/50 dark:to-cyan-600/50 z-10" />
         
-        <div className="relative py-20 z-20">
+        <div className="relative py-12 z-20">
           <div className="max-w-7xl mx-auto px-4">
             <Link href="/">
               <Button 
