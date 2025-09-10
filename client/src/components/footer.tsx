@@ -134,6 +134,7 @@ export function Footer() {
                 <li><Link href="/claim-community" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
                 <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
                 <li><Link href="/community-benefits" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
+                <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
               </ul>
             </div>
             
