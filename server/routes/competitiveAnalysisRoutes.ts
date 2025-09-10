@@ -4,9 +4,11 @@ import EnhancedAIEnrichmentService from '../services/enhanced-ai-enrichment';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import { DiscoveredCommunityService } from '../services/discovered-community-service';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
+const discoveredCommunityService = new DiscoveredCommunityService();
 
 // Simplified Competitive Analysis using Perplexity-first approach with Enhanced Fuzzy Matching
 router.post('/api/competitive-analysis', async (req, res) => {
@@ -253,7 +255,46 @@ router.post('/api/competitive-analysis', async (req, res) => {
       // STEP 2: Get AI-enhanced data from Perplexity
       const nearbyOptions = await simplifiedPerplexityService.findNearbyOptions(location);
       
-      // STEP 3: Merge database communities with AI communities
+      // STEP 2.5: Save discovered communities to database for permanent storage
+      const savedCommunityIds: number[] = [];
+      if (nearbyOptions.nearbyOptions && nearbyOptions.nearbyOptions.length > 0) {
+        console.log(`💾 Saving ${nearbyOptions.nearbyOptions.length} discovered communities to database...`);
+        
+        for (const opt of nearbyOptions.nearbyOptions) {
+          // Check if this community already exists in our DB
+          const existingCheck = dbCommunities.find(c => 
+            c.name.toLowerCase() === opt.name.toLowerCase()
+          );
+          
+          if (!existingCheck) {
+            // Parse location from the description or address
+            const locationParts = location.split(',').map(s => s.trim());
+            const cityName = locationParts[0] || '';
+            const stateName = locationParts[1] || '';
+            
+            // Save the discovered community
+            const savedId = await discoveredCommunityService.saveDiscoveredCommunity({
+              name: opt.name,
+              address: opt.address || '',
+              city: cityName,
+              state: stateName,
+              country: 'United States',
+              description: opt.description || '',
+              discoverySource: 'competitive_analysis',
+              rawData: opt
+            });
+            
+            if (savedId > 0) {
+              savedCommunityIds.push(savedId);
+              console.log(`✅ Saved: ${opt.name} (ID: ${savedId})`);
+            }
+          }
+        }
+        
+        console.log(`✅ Saved ${savedCommunityIds.length} new communities to database`);
+      }
+      
+      // STEP 3: Merge database communities with AI communities (now with saved IDs)
       const allCommunities = new Map<string, any>();
       
       // Add database communities first (more reliable)
@@ -272,15 +313,22 @@ router.post('/api/competitive-analysis', async (req, res) => {
         });
       });
       
-      // Add AI communities (may have duplicates or new ones)
-      nearbyOptions.nearbyOptions?.forEach((opt: any) => {
+      // Add AI communities with their new database IDs
+      nearbyOptions.nearbyOptions?.forEach((opt: any, index: number) => {
         const key = opt.name.toLowerCase();
         if (!allCommunities.has(key)) {
+          // Try to find the saved ID for this community
+          const savedIndex = nearbyOptions.nearbyOptions
+            .slice(0, savedCommunityIds.length)
+            .findIndex((o: any) => o.name === opt.name);
+          
           allCommunities.set(key, {
+            id: savedIndex >= 0 ? savedCommunityIds[savedIndex] : null,
             name: opt.name,
             address: opt.address || '',
             description: opt.description,
-            source: 'ai'
+            source: 'ai',
+            isNew: savedIndex >= 0 // Flag to indicate this was just saved
           });
         }
       });
@@ -392,10 +440,12 @@ router.post('/api/competitive-analysis', async (req, res) => {
         // ALL Communities (no artificial limit - users deserve to see everything)
         topCommunities: mergedCommunities
           .map(c => ({
+            id: c.id, // Include the database ID for clickable links
             name: c.name,
             location: c.address || `${c.city || location}`,
             price: c.rentPerMonth ? `$${c.rentPerMonth.toLocaleString()}/month` : 'Contact for pricing',
-            verified: c.source === 'database'
+            verified: c.source === 'database',
+            isNew: c.isNew || false // Flag to show this was just discovered
           })),
         
         // Raw Perplexity Analysis - THE ACTUAL VALUABLE CONTENT

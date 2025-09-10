@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText, ExternalLink } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText, ExternalLink, Sparkles } from 'lucide-react';
 import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
 import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
@@ -58,10 +58,12 @@ interface MarketAnalysis {
   
   // Top Communities
   topCommunities?: Array<{
+    id?: number;
     name: string;
     location: string;
     price: string;
     verified: boolean;
+    isNew?: boolean;
   }>;
   
   // Data Attribution
@@ -593,36 +595,53 @@ export default function CompetitiveAnalysis() {
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {analysisMutation.data.topCommunities.map((community, index) => (
-                  <Link 
-                    key={index} 
-                    href={`/search?q=${encodeURIComponent(community.name)}`}
-                    className="block"
-                  >
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border-2 border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] group">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2 group-hover:text-purple-600 dark:group-hover:text-purple-400">
-                            {community.name}
-                            {community.verified && (
-                              <span title="Verified in database">
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              </span>
+                {analysisMutation.data.topCommunities.map((community, index) => {
+                  // If community has an ID, link to community page; otherwise search
+                  const linkHref = community.id 
+                    ? `/community/${community.id}`
+                    : `/search?q=${encodeURIComponent(community.name)}`;
+                  
+                  return (
+                    <Link 
+                      key={index} 
+                      href={linkHref}
+                      className="block"
+                    >
+                      <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border-2 border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] group">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                              {community.name}
+                              {community.verified && (
+                                <span title="Verified in database">
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                </span>
+                              )}
+                              {community.isNew && (
+                                <span title="Newly discovered and saved">
+                                  <Sparkles className="w-4 h-4 text-yellow-500" />
+                                </span>
+                              )}
+                            </h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {community.location}
+                            </p>
+                            <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
+                              {community.price}
+                            </p>
+                            {community.id && (
+                              <p className="text-xs text-gray-500 dark:text-gray-600 mt-1">
+                                Click to view details →
+                              </p>
                             )}
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {community.location}
-                          </p>
-                          <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
-                            {community.price}
-                          </p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600" />
                         </div>
-                        <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600" />
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
