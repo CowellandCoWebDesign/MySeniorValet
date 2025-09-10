@@ -8,7 +8,7 @@ import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 const globalSearchSchema = z.object({
   query: z.string(),
   searchType: z.enum(['location', 'service', 'services', 'community']).optional(),
-  limit: z.number().min(1).max(100).default(20)
+  limit: z.number().min(1).max(100).default(30)
 });
 
 // Schema for discovered community data
@@ -72,7 +72,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               )
             )
           )
-          .limit(5);
+          .limit(15);
       }
       
       // Step 2: Use Perplexity to search globally for communities
@@ -89,20 +89,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       if (searchType === 'services') {
         // For services, discover ANY type of service providers - not limited to senior care
-        searchQuery = `Find ALL types of service providers and businesses in ${query}. This includes restaurants, law firms, tech companies, retail stores, fitness centers, beauty salons, medical practices, financial services, education centers, entertainment venues, transportation services, and ANY other business or service provider. Include ONLY real, operational businesses physically located in ${query}. Provide exact business names, complete street addresses, phone numbers, websites, and descriptions of their services. Do not limit to senior care - include ALL types of businesses and services.`;
+        searchQuery = `Find at least 15-20 different service providers and businesses in ${query}. This includes restaurants, law firms, tech companies, retail stores, fitness centers, beauty salons, medical practices, financial services, education centers, entertainment venues, transportation services, and ANY other business or service provider. Include ONLY real, operational businesses physically located in ${query}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. List as many businesses as possible, minimum 15. Do not limit to senior care - include ALL types of businesses and services.`;
       } else if (searchType === 'location' || locationSearch || isSpecificCitySearch) {
-        searchQuery = `Find ALL senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. Include ONLY real, operational facilities physically located in ${query}. Provide exact facility names, complete street addresses with street numbers, phone numbers, websites, and descriptions of their services. Focus on facilities that families can actually visit and tour.`;
+        searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. List ALL facilities you can find, not just a few examples. Include ONLY real, operational facilities physically located in ${query}. For each facility provide: exact facility name, complete street address with street number, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
-        searchQuery = `Find senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions.`;
+        searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
       } else {
-        searchQuery = `Find information about ${query} related to senior living, assisted living, or elder care. Include facility names, locations, and contact details if available.`;
+        searchQuery = `Find at least 10-15 facilities about ${query} related to senior living, assisted living, or elder care. Include facility names, locations, and contact details. Provide comprehensive results.`;
       }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
-      // Call Perplexity API with STRUCTURED JSON OUTPUT
+      // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+      
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+        signal: controller.signal,
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${perplexityApiKey}`,
@@ -117,7 +121,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             },
             {
               role: 'user',
-              content: searchQuery + ' Provide the response as structured JSON data.'
+              content: searchQuery + ' Provide the response as structured JSON data with ALL facilities found, not just examples. Include every single facility you can find.'
             }
           ],
           response_format: {
@@ -138,13 +142,15 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                         country: { type: 'string' },
                         phone: { type: 'string' },
                         website: { type: 'string' },
+                        email: { type: 'string' },
                         description: { type: 'string' },
                         careTypes: {
                           type: 'array',
                           items: { type: 'string' }
-                        }
+                        },
+                        zipCode: { type: 'string' }
                       },
-                      required: ['name', 'city', 'country']
+                      required: ['name']
                     }
                   },
                   totalFound: { type: 'number' },
@@ -154,12 +160,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               }
             }
           },
-          temperature: 0.2,
-          max_tokens: 2000,
-          top_p: 0.9,
+          temperature: 0.5,
+          max_tokens: 4000,
+          top_p: 0.95,
           stream: false
         })
-      });
+      }).finally(() => clearTimeout(timeout));
       
       if (!perplexityResponse.ok) {
         console.error('❌ Perplexity API error:', perplexityResponse.status);
@@ -181,44 +187,87 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         const structuredData = JSON.parse(aiResponse);
         
         if (structuredData.facilities && Array.isArray(structuredData.facilities)) {
-          discoveredCommunities = structuredData.facilities.map(facility => ({
-            name: facility.name,
-            address: facility.address || '',
-            city: facility.city || '',
-            state: facility.state || '',
-            country: facility.country || '',
-            phone: facility.phone || '',
-            website: facility.website || '',
-            description: facility.description || `Senior living facility in ${facility.city}, ${facility.country}`,
-            careTypes: facility.careTypes || [],
-            source: 'Perplexity AI Discovery',
-            confidence: 95,
-            isDiscovered: true
-          }));
-          console.log(`✅ Successfully parsed ${discoveredCommunities.length} facilities from structured JSON`);
+          // Filter out any facilities that don't have valid names or are duplicates
+          const uniqueFacilities = new Map();
+          
+          structuredData.facilities.forEach(facility => {
+            // Skip if no name or name is too short
+            if (!facility.name || facility.name.length < 3) return;
+            
+            // Use name + city as unique key to avoid exact duplicates
+            const key = `${facility.name.toLowerCase()}_${(facility.city || '').toLowerCase()}`;
+            
+            // Only add if we haven't seen this facility before
+            if (!uniqueFacilities.has(key)) {
+              uniqueFacilities.set(key, {
+                name: facility.name,
+                address: facility.address || '',
+                city: facility.city || query.split(',')[0]?.trim() || '',
+                state: facility.state || query.split(',')[1]?.trim() || '',
+                country: facility.country || 'United States',
+                phone: facility.phone || '',
+                website: facility.website || '',
+                email: facility.email || '',
+                zipCode: facility.zipCode || '',
+                description: facility.description || `Senior living facility in ${facility.city || query}`,
+                careTypes: facility.careTypes || [],
+                source: 'Perplexity AI Discovery',
+                confidence: 95,
+                isDiscovered: true
+              });
+            }
+          });
+          
+          discoveredCommunities = Array.from(uniqueFacilities.values());
+          console.log(`✅ Successfully parsed ${discoveredCommunities.length} unique facilities from structured JSON`);
         }
       } catch (parseError) {
         console.error('⚠️ Error parsing structured JSON:', parseError);
         console.log('Attempting fallback parsing for markdown response...');
         
-        // Fallback: Extract facilities from markdown format
+        // Fallback: More comprehensive extraction from markdown format
         try {
-          const facilityMatches = aiResponse.matchAll(/\*\*([^\*]+)\*\*[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi);
-          for (const match of facilityMatches) {
-            const name = match[1].trim();
-            const location = match[2] ? match[2].trim() : '';
-            if (name && name.length > 5 && !name.includes('?')) {
-              discoveredCommunities.push({
-                name: name,
-                address: location,
-                description: `Found via search for "${query}"`,
-                source: 'Perplexity Web Search',
-                confidence: 85,
-                isDiscovered: true
-              });
+          const uniqueFallbackFacilities = new Map();
+          
+          // Try multiple patterns to extract facility information
+          const patterns = [
+            /\*\*([^\*]+)\*\*[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
+            /\d+\.\s+([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
+            /^-\s+([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gim,
+            /(?:Name|Facility):\s*([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi
+          ];
+          
+          for (const pattern of patterns) {
+            const matches = aiResponse.matchAll(pattern);
+            for (const match of matches) {
+              const name = match[1]?.trim();
+              const location = match[2]?.trim() || '';
+              
+              // Validate the name
+              if (name && name.length > 5 && !name.includes('?') && !name.includes('example')) {
+                const key = name.toLowerCase();
+                if (!uniqueFallbackFacilities.has(key)) {
+                  uniqueFallbackFacilities.set(key, {
+                    name: name,
+                    address: location,
+                    city: query.split(',')[0]?.trim() || '',
+                    state: query.split(',')[1]?.trim() || '',
+                    country: 'United States',
+                    description: `Found via search for "${query}"`,
+                    source: 'Perplexity Web Search',
+                    confidence: 85,
+                    isDiscovered: true
+                  });
+                }
+              }
             }
           }
-          console.log(`✅ Fallback parsing extracted ${discoveredCommunities.length} facilities`);
+          
+          const fallbackResults = Array.from(uniqueFallbackFacilities.values());
+          if (fallbackResults.length > 0) {
+            discoveredCommunities = fallbackResults;
+            console.log(`✅ Fallback parsing extracted ${discoveredCommunities.length} unique facilities`);
+          }
         } catch (fallbackError) {
           console.error('❌ Fallback parsing also failed:', fallbackError);
         }
@@ -228,13 +277,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const savedCommunities = [];
       for (const discovered of discoveredCommunities) {
         try {
-          // Check if we already have this community
+          // Check if we already have this community - use more flexible matching
+          const nameParts = discovered.name.toLowerCase().split(/\s+/);
+          const mainNamePart = nameParts.filter(p => p.length > 3)[0] || nameParts[0];
+          
           const existing = await db.select()
             .from(communities)
             .where(
               and(
-                eq(communities.name, discovered.name),
-                discovered.city ? eq(communities.city, discovered.city) : sql`true`
+                sql`LOWER(${communities.name}) LIKE ${'%' + mainNamePart + '%'}`,
+                discovered.city ? 
+                  sql`LOWER(${communities.city}) = ${discovered.city.toLowerCase()}` : 
+                  sql`true`
               )
             )
             .limit(1);
@@ -283,7 +337,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const discoveredWithRealIds = savedCommunities.map((saved) => {
         // Find the original discovered data to get additional fields
         const originalData = discoveredCommunities.find(d => 
-          d.name === saved.name && d.city === saved.city
+          d.name === saved.name || 
+          (d.name && saved.name && d.name.toLowerCase().includes(saved.name.toLowerCase()))
         );
         
         return {
@@ -315,11 +370,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         };
       });
       
-      // Step 6: Combine results - prioritize discovered facilities over database results
-      const allResults = [
-        ...discoveredWithRealIds, // Show discovered results with REAL IDs first
-        ...existingCommunities.map(c => ({ ...c, isExisting: true }))
-      ];
+      // Step 6: Combine results - remove duplicates and prioritize discovered facilities
+      const combinedResults = new Map();
+      
+      // Add discovered communities first
+      discoveredWithRealIds.forEach(community => {
+        const key = `${community.name.toLowerCase()}_${(community.city || '').toLowerCase()}`;
+        combinedResults.set(key, community);
+      });
+      
+      // Add existing communities if they're not duplicates
+      existingCommunities.forEach(community => {
+        const key = `${community.name.toLowerCase()}_${(community.city || '').toLowerCase()}`;
+        if (!combinedResults.has(key)) {
+          combinedResults.set(key, { ...community, isExisting: true });
+        }
+      });
+      
+      const allResults = Array.from(combinedResults.values());
       
       // Step 7: Return results with metadata
       res.json({
@@ -343,11 +411,35 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
     } catch (error) {
       console.error('❌ Global discovery search error:', error);
-      res.status(500).json({ 
-        success: false,
-        error: 'Failed to perform global search',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
+      
+      // If it's a timeout error, return existing results
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('⏱️ Perplexity API timeout - returning existing results only');
+        const { query, searchType, limit } = req.body;
+        res.json({
+          success: true,
+          query: query || '',
+          searchType: searchType || 'auto-detected',
+          results: existingCommunities.slice(0, limit || 30),
+          metadata: {
+            totalFound: existingCommunities.length,
+            existingCount: existingCommunities.length,
+            discoveredCount: 0,
+            sources: [],
+            searchLocation: query,
+            timestamp: new Date().toISOString(),
+            aiConfidence: 0,
+            note: 'Discovery service timeout - showing existing communities only'
+          },
+          message: `Found ${existingCommunities.length} existing communities. Discovery service timed out.`
+        });
+      } else {
+        res.status(500).json({ 
+          success: false,
+          error: 'Failed to perform global search',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
     }
   });
   
