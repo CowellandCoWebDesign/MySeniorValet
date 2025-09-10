@@ -22,6 +22,8 @@ interface CommunityDetailsHeaderProps {
   generatePhoneNumber?: (state: string, id: number) => string;
   onReserveClick?: () => void;
   onTourClick?: () => void;
+  onPhotoChange?: (index: number) => void;
+  currentPhotoIndex?: number;
 }
 
 export function CommunityDetailsHeader({ 
@@ -33,7 +35,9 @@ export function CommunityDetailsHeader({
   formatCareType,
   generatePhoneNumber,
   onReserveClick,
-  onTourClick
+  onTourClick,
+  onPhotoChange,
+  currentPhotoIndex
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   
@@ -286,6 +290,8 @@ export function CommunityDetailsHeader({
             community={community}
             verificationReport={verificationReport}
             className="w-full h-full"
+            currentPhotoIndex={currentPhotoIndex}
+            onPhotoIndexChange={onPhotoChange}
           />
         </div>
         
@@ -297,10 +303,9 @@ export function CommunityDetailsHeader({
               <button
                 key={index}
                 onClick={() => {
-                  // Send event to carousel to change photo
-                  const carousel = document.querySelector('.carousel-main-image');
-                  if (carousel) {
-                    carousel.dispatchEvent(new CustomEvent('goToPhoto', { detail: { index } }));
+                  // Call the photo change handler if provided
+                  if (onPhotoChange) {
+                    onPhotoChange(index);
                   }
                 }}
                 className={`relative flex-shrink-0 w-10 h-8 sm:w-12 sm:h-10 rounded overflow-hidden border-2 transition-all hover:scale-110 ${

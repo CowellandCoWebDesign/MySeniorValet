@@ -1139,6 +1139,7 @@ export default function CommunityDetail() {
   // Move useResponsive and searchQuery state here to ensure they're called before any conditional returns
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
   const { data: community, isLoading, error } = useQuery<Community>({
@@ -1595,6 +1596,8 @@ export default function CommunityDetail() {
               getPricingBadgeInfo={getPricingBadgeInfo}
               formatCareType={formatCareType}
               generatePhoneNumber={generatePhoneNumber}
+              currentPhotoIndex={currentPhotoIndex}
+              onPhotoChange={(index) => setCurrentPhotoIndex(index)}
               onReserveClick={() => {
                 // Open reservation dialog directly
                 setShowReservationDialog(true);

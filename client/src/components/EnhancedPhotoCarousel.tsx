@@ -17,6 +17,8 @@ interface PhotoCarouselProps {
   showValidation?: boolean;
   showSourceIndicator?: boolean;
   isLoading?: boolean;
+  currentPhotoIndex?: number;
+  onPhotoIndexChange?: (index: number) => void;
 }
 
 interface PhotoValidationResult {
@@ -39,9 +41,22 @@ export function EnhancedPhotoCarousel({
   className = "", 
   showValidation = false,
   showSourceIndicator = true,
-  isLoading = false 
+  isLoading = false,
+  currentPhotoIndex,
+  onPhotoIndexChange
 }: PhotoCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Use controlled or uncontrolled mode
+  const isControlled = currentPhotoIndex !== undefined;
+  const [internalIndex, setInternalIndex] = useState(0);
+  const currentIndex = isControlled ? currentPhotoIndex : internalIndex;
+  
+  const setCurrentIndex = (index: number) => {
+    if (isControlled && onPhotoIndexChange) {
+      onPhotoIndexChange(index);
+    } else {
+      setInternalIndex(index);
+    }
+  };
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [photoValidation, setPhotoValidation] = useState<Record<string, PhotoValidationResult>>({});
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
