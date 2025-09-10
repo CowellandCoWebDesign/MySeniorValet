@@ -311,14 +311,14 @@ export default function AdminMegaDashboard() {
     enabled: false,
   });
   
-  // Check super admin access - allow development access for testing
+  // Check super admin access - production-ready security
   const userRole = (user as any)?.role || '';
   const userEmail = (user as any)?.email || '';
-  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+  // In production, only allow explicitly authorized users
   const isSuperAdmin = userRole === 'super_admin' || 
                        userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com' ||
-                       isDevelopment; // Allow access in development for testing
+                       userEmail === 'admin@myseniorvalet.com';
+  // Server-side API routes will enforce actual authentication
                        
   // Platform Health Verification Functions
   const runPlatformHealthVerification = async () => {
@@ -525,7 +525,7 @@ export default function AdminMegaDashboard() {
   }, [activeTab]);
   
   // Block non-super admin users (except in development)
-  if (!isDevelopment && (!user || !isSuperAdmin)) {
+  if (!user || !isSuperAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <Card className="max-w-2xl">
