@@ -958,15 +958,19 @@ export function registerOperationsManagementRoutes(app: Express) {
       const { communityId } = req.params;
       const { status, type } = req.query;
       
-      let whereClause = `WHERE community_id = ${parseInt(communityId)}`;
-      if (status) whereClause += ` AND status = '${status}'`;
-      if (type) whereClause += ` AND payment_type = '${type}'`;
+      // Using parameterized queries to prevent SQL injection
+      let query = sql`SELECT * FROM resident_payments WHERE community_id = ${parseInt(communityId)}`;
       
-      const payments = await db.execute(sql`
-        SELECT * FROM resident_payments 
-        ${sql.raw(whereClause)}
-        ORDER BY created_at DESC
-      `).catch(() => ({ rows: [] }));
+      if (status) {
+        query = sql`${query} AND status = ${status}`;
+      }
+      if (type) {
+        query = sql`${query} AND payment_type = ${type}`;
+      }
+      
+      query = sql`${query} ORDER BY created_at DESC`;
+      
+      const payments = await db.execute(query).catch(() => ({ rows: [] }));
       
       const paymentData = payments.rows || [];
       
