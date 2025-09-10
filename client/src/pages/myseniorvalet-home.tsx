@@ -472,6 +472,21 @@ function HeroSectionWithTransformingSearch() {
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-end pb-8 sm:pb-16 md:pb-24'}`}>
         
+        {/* Key Value Props - Above Search */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-3">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
+            </div>
+            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
+            </div>
+            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
+            </div>
+          </div>
+        </div>
+        
         {/* Unified Search Component - Moved Above Value Props */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-3">
           {/* Category Tabs - Sleek Modern Style */}
@@ -696,15 +711,6 @@ function HeroSectionWithTransformingSearch() {
           <div className="flex flex-col gap-1">
             {/* First Line */}
             <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
-              </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-                <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
-              </div>
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-                <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
-              </div>
               <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
                 <span className="mr-0.5 text-[10px] sm:text-xs">🤖</span> AI-Assisted Research
               </div>
