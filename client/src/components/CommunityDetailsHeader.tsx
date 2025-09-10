@@ -364,6 +364,18 @@ export function CommunityDetailsHeader({
                 </h1>
               </div>
               
+              {/* Website URL with crystal ball emoji - properly spaced */}
+              {displayWebsite && (
+                <div className="flex items-start gap-2 mb-3">
+                  <span className="text-xl flex-shrink-0">🔮</span>
+                  <ExternalLinkWarning
+                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600 break-all text-sm sm:text-base"
+                  >
+                    {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                  </ExternalLinkWarning>
+                </div>
+              )}
               
               <div className="flex items-start gap-2 mb-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">📌</span>
