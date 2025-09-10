@@ -61,6 +61,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const testPerplexityRoutes = await import('./routes/test-perplexity');
   app.use(testPerplexityRoutes.default);
   
+  // Register Circuit Breaker health endpoint
+  const { apiCircuitBreaker } = await import('./infrastructure/api-circuit-breaker');
+  app.get('/api/circuit-breaker/health', (req, res) => {
+    res.json({
+      status: 'operational',
+      services: apiCircuitBreaker.getHealthStatus(),
+      timestamp: new Date().toISOString()
+    });
+  });
+  
+  app.post('/api/circuit-breaker/reset/:service', (req, res) => {
+    const { service } = req.params;
+    apiCircuitBreaker.resetCircuit(service);
+    res.json({ message: `Circuit breaker for ${service} has been reset` });
+  });
+  
   // Register Atria expansion routes
   const { atriaRoutes } = await import('./routes/atria-routes');
   app.use('/api/atria', atriaRoutes);

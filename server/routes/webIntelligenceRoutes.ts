@@ -3,6 +3,7 @@ import { perplexityService } from '../perplexity-ai-service';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
 import { websiteScraperService } from '../website-scraper-service';
 import { discoveredCommunityService } from '../services/discovered-community-service';
+import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
 
 const router = Router();
 
