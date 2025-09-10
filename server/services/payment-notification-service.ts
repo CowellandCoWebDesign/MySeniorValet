@@ -17,7 +17,6 @@ interface PaymentNotification {
 export class PaymentNotificationService {
   private readonly adminEmail = 'admin@myseniorvalet.com';
   private readonly billingEmail = 'billing@myseniorvalet.com';
-  private readonly bccEmail = 'william.cowell01@gmail.com';
   private readonly supportEmail = 'hello@myseniorvalet.com';
 
   async sendPaymentNotification(notification: PaymentNotification): Promise<void> {
@@ -57,8 +56,7 @@ export class PaymentNotificationService {
       from: this.supportEmail,
       subject,
       html,
-      cc: [this.billingEmail],
-      bcc: [this.bccEmail]
+      cc: [this.billingEmail, this.supportEmail]
     };
 
     await sgMail.send(msg);

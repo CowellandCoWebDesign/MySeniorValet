@@ -114,6 +114,7 @@ export class ReservationMarketingService {
     const msg = {
       to: request.communityEmail!,
       from: 'hello@myseniorvalet.com',
+      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
       subject: `🎯 New Qualified Lead from MySeniorValet - ${request.userName}`,
       html: `
         <!DOCTYPE html>
@@ -361,6 +362,7 @@ Contact them immediately to convert this opportunity!
     const msg = {
       to: request.userEmail,
       from: 'hello@myseniorvalet.com',
+      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
       subject: `Reservation Request Confirmed - ${request.communityName}`,
       html: `
         <!DOCTYPE html>
