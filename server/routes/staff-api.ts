@@ -299,14 +299,19 @@ router.put('/members/:id', async (req: Request, res: Response) => {
     }
     
     // Validate and sanitize input to prevent prototype pollution
-    const allowedFields = ['name', 'department', 'position', 'email', 'phone', 'startDate', 'schedule', 'certifications', 'emergencyContact', 'status'];
     const updates: any = {};
     
-    for (const field of allowedFields) {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    }
+    // Safe property extraction without bracket notation
+    if (req.body.name !== undefined) updates.name = req.body.name;
+    if (req.body.department !== undefined) updates.department = req.body.department;
+    if (req.body.position !== undefined) updates.position = req.body.position;
+    if (req.body.email !== undefined) updates.email = req.body.email;
+    if (req.body.phone !== undefined) updates.phone = req.body.phone;
+    if (req.body.startDate !== undefined) updates.startDate = req.body.startDate;
+    if (req.body.schedule !== undefined) updates.schedule = req.body.schedule;
+    if (req.body.certifications !== undefined) updates.certifications = req.body.certifications;
+    if (req.body.emergencyContact !== undefined) updates.emergencyContact = req.body.emergencyContact;
+    if (req.body.status !== undefined) updates.status = req.body.status;
     
     staffData.members[memberIndex] = {
       ...staffData.members[memberIndex],
@@ -401,14 +406,16 @@ router.put('/shifts/:id', async (req: Request, res: Response) => {
     }
     
     // Validate and sanitize input to prevent prototype pollution
-    const allowedFields = ['date', 'startTime', 'endTime', 'assignedTo', 'department', 'type', 'notes'];
     const updates: any = {};
     
-    for (const field of allowedFields) {
-      if (req.body[field] !== undefined) {
-        updates[field] = req.body[field];
-      }
-    }
+    // Safe property extraction without bracket notation
+    if (req.body.date !== undefined) updates.date = req.body.date;
+    if (req.body.startTime !== undefined) updates.startTime = req.body.startTime;
+    if (req.body.endTime !== undefined) updates.endTime = req.body.endTime;
+    if (req.body.assignedTo !== undefined) updates.assignedTo = req.body.assignedTo;
+    if (req.body.department !== undefined) updates.department = req.body.department;
+    if (req.body.type !== undefined) updates.type = req.body.type;
+    if (req.body.notes !== undefined) updates.notes = req.body.notes;
     
     staffData.shifts[shiftIndex] = {
       ...staffData.shifts[shiftIndex],
