@@ -6,7 +6,7 @@ import {
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
   CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
-  Flag, RefreshCw
+  Flag, RefreshCw, TrendingUp
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
@@ -467,6 +467,20 @@ export function CommunityDetailsHeader({
                     <span className="font-medium">Visit Website</span>
                   </ExternalLinkWarning>
                 )}
+                
+                {/* Market Analysis Button */}
+                <button
+                  onClick={() => {
+                    window.location.href = '/competitive-analysis';
+                  }}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
+                >
+                  <TrendingUp className="w-4 h-4" />
+                  <div className="flex flex-col items-start">
+                    <span className="font-semibold text-sm">Market Analysis</span>
+                    <span className="text-xs opacity-90">Price Compare</span>
+                  </div>
+                </button>
               </div>
             </div>
           </div>
