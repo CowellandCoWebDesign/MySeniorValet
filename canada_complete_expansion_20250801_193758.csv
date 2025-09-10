@@ -1,0 +1,17 @@
+address,bilingual,care_types,city,community_subtype,country,languages,latitude,longitude,name,name_fr,phone,postal_code,primary_language,state_province,total_units,trilingual
+1778 Main Street,True,"['Independent Living', 'Assisted Living']",Winnipeg,independent_living,Canada,,49.9315,-97.1094,Riverwood Square,Place Riverwood,204-339-5700,R2V 3M4,,MB,180,
+320 Sherbrook Street,False,"['Long-Term Care', 'Complex Care']",Winnipeg,skilled_nursing,Canada,,49.9047,-97.1547,Lions Personal Care Centre,Centre de soins personnels Lions,204-774-3241,R3B 2W6,,MB,116,
+2325 Preston Avenue,False,"['Long-Term Care', 'Rehabilitation']",Saskatoon,skilled_nursing,Canada,,52.1178,-106.6138,Saskatoon Convalescent Home,Maison de convalescence de Saskatoon,306-655-8000,S7J 2G2,,SK,140,
+4215 Regina Avenue,False,"['Independent Living', 'Supportive Living']",Regina,independent_living,Canada,,50.4509,-104.5886,Regina Pioneer Village,Village des pionniers de Regina,306-586-8888,S4S 0A5,,SK,275,
+2615 Northwood Terrace,True,"['Long-Term Care', 'Memory Care', 'Respite Care']",Halifax,skilled_nursing,Canada,,44.662,-63.6165,Northwood Halifax,Northwood Halifax,902-454-3372,B3K 3S5,,NS,485,
+5686 Spring Garden Road,False,"['Independent Living', 'Assisted Living']",Halifax,independent_living,Canada,,44.6425,-63.5857,The Berkeley Gladstone,Le Berkeley Gladstone,902-429-0101,B3J 1H4,,NS,128,
+185 Loch Lomond Road,True,"['Long-Term Care', 'Special Care']",Saint John,skilled_nursing,Canada,,45.3225,-66.0863,Loch Lomond Villa,Villa Loch Lomond,506-643-7090,E2J 3S3,,NB,247,
+119 Millennium Boulevard,True,"['Independent Living', 'Assisted Living', 'Memory Care']",Moncton,independent_living,Canada,,46.1072,-64.8166,Shannex Parkland Moncton,Shannex Parkland Moncton,506-857-8770,E1E 1E5,,NB,195,
+380 rue Acadie,True,"['Assisted Living', 'Memory Care']",Edmundston,assisted_living,Canada,,47.3737,-68.3251,Résidence Desjardins,Résidence Desjardins,506-735-4444,E3V 3K4,French,NB,60,
+55 Clinch Crescent,False,"['Independent Living', 'Assisted Living']",St. John's,independent_living,Canada,,47.589,-52.6881,Chancellor Park,Parc Chancellor,709-753-7526,A1E 5B1,,NL,152,
+135 Newfoundland Drive,False,"['Long-Term Care', 'Dementia Care']",St. John's,skilled_nursing,Canada,,47.5713,-52.7411,Agnes Pratt Home,Foyer Agnes Pratt,709-726-3007,A1A 3E9,,NL,104,
+215 Brackley Point Road,True,"['Independent Living', 'Supportive Living']",Charlottetown,independent_living,Canada,,46.2713,-63.1443,Andrews Lodge,Lodge Andrews,902-368-4444,C1E 1Z3,,PE,86,
+105 MacEwen Road,True,"['Long-Term Care', 'Respite Care']",Charlottetown,skilled_nursing,Canada,,46.2652,-63.1639,Beach Grove Home,Foyer Beach Grove,902-368-7900,C1C 1M7,,PE,92,
+370 Copper Road,True,"['Long-Term Care', 'Dementia Care']",Whitehorse,skilled_nursing,Canada,,60.6847,-135.0504,Copper Ridge Place,Place Copper Ridge,867-393-7090,Y1A 2Z6,,YT,96,
+5710 50th Avenue,True,"['Independent Living', 'Assisted Living', 'Long-Term Care']",Yellowknife,independent_living,Canada,,62.454,-114.3718,Avens Seniors Community,Communauté des aînés Avens,867-920-2998,X1A 1E2,,NT,180,
+1071 Mivvik Street,True,"['Assisted Living', 'Cultural Care']",Iqaluit,assisted_living,Canada,"['English', 'French', 'Inuktitut']",63.7467,-68.517,Elders Centre,Centre des aînés,867-979-8500,X0A 0H0,,NU,24,True

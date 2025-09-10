@@ -1,0 +1,358 @@
+{
+  "generation_date": "2025-07-10T11:02:35.581718",
+  "total_facilities": 252,
+  "total_counties": 15,
+  "total_cities": 54,
+  "county_breakdown": {
+    "Apache": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "St. Johns"
+    },
+    "Cochise": {
+      "facilities": 17,
+      "cities": 3,
+      "county_seat": "Bisbee"
+    },
+    "Coconino": {
+      "facilities": 17,
+      "cities": 4,
+      "county_seat": "Flagstaff"
+    },
+    "Gila": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "Globe"
+    },
+    "Graham": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "Safford"
+    },
+    "Greenlee": {
+      "facilities": 11,
+      "cities": 2,
+      "county_seat": "Clifton"
+    },
+    "La Paz": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "Parker"
+    },
+    "Maricopa": {
+      "facilities": 41,
+      "cities": 12,
+      "county_seat": "Phoenix"
+    },
+    "Mohave": {
+      "facilities": 14,
+      "cities": 2,
+      "county_seat": "Kingman"
+    },
+    "Navajo": {
+      "facilities": 14,
+      "cities": 2,
+      "county_seat": "Holbrook"
+    },
+    "Pima": {
+      "facilities": 20,
+      "cities": 5,
+      "county_seat": "Tucson"
+    },
+    "Pinal": {
+      "facilities": 20,
+      "cities": 4,
+      "county_seat": "Florence"
+    },
+    "Santa Cruz": {
+      "facilities": 11,
+      "cities": 2,
+      "county_seat": "Nogales"
+    },
+    "Yavapai": {
+      "facilities": 17,
+      "cities": 4,
+      "county_seat": "Prescott"
+    },
+    "Yuma": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "Yuma"
+    }
+  },
+  "city_breakdown": {
+    "St. Johns": {
+      "facilities": 8,
+      "county": "Apache",
+      "is_county_seat": true
+    },
+    "Eagar": {
+      "facilities": 3,
+      "county": "Apache",
+      "is_county_seat": false
+    },
+    "Springerville": {
+      "facilities": 3,
+      "county": "Apache",
+      "is_county_seat": false
+    },
+    "Bisbee": {
+      "facilities": 11,
+      "county": "Cochise",
+      "is_county_seat": true
+    },
+    "Douglas": {
+      "facilities": 3,
+      "county": "Cochise",
+      "is_county_seat": false
+    },
+    "Willcox": {
+      "facilities": 3,
+      "county": "Cochise",
+      "is_county_seat": false
+    },
+    "Flagstaff": {
+      "facilities": 8,
+      "county": "Coconino",
+      "is_county_seat": true
+    },
+    "Sedona": {
+      "facilities": 6,
+      "county": "Coconino",
+      "is_county_seat": false
+    },
+    "Page": {
+      "facilities": 3,
+      "county": "Coconino",
+      "is_county_seat": false
+    },
+    "Williams": {
+      "facilities": 3,
+      "county": "Coconino",
+      "is_county_seat": false
+    },
+    "Globe": {
+      "facilities": 8,
+      "county": "Gila",
+      "is_county_seat": true
+    },
+    "Payson": {
+      "facilities": 3,
+      "county": "Gila",
+      "is_county_seat": false
+    },
+    "Winkelman": {
+      "facilities": 3,
+      "county": "Gila",
+      "is_county_seat": false
+    },
+    "Safford": {
+      "facilities": 8,
+      "county": "Graham",
+      "is_county_seat": true
+    },
+    "Thatcher": {
+      "facilities": 3,
+      "county": "Graham",
+      "is_county_seat": false
+    },
+    "Pima": {
+      "facilities": 3,
+      "county": "Graham",
+      "is_county_seat": false
+    },
+    "Clifton": {
+      "facilities": 8,
+      "county": "Greenlee",
+      "is_county_seat": true
+    },
+    "Duncan": {
+      "facilities": 3,
+      "county": "Greenlee",
+      "is_county_seat": false
+    },
+    "Parker": {
+      "facilities": 8,
+      "county": "La Paz",
+      "is_county_seat": true
+    },
+    "Quartzsite": {
+      "facilities": 3,
+      "county": "La Paz",
+      "is_county_seat": false
+    },
+    "Salome": {
+      "facilities": 3,
+      "county": "La Paz",
+      "is_county_seat": false
+    },
+    "Phoenix": {
+      "facilities": 8,
+      "county": "Maricopa",
+      "is_county_seat": true
+    },
+    "Mesa": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Chandler": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Scottsdale": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Glendale": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Gilbert": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Tempe": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Peoria": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Surprise": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Avondale": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Goodyear": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Buckeye": {
+      "facilities": 3,
+      "county": "Maricopa",
+      "is_county_seat": false
+    },
+    "Kingman": {
+      "facilities": 11,
+      "county": "Mohave",
+      "is_county_seat": true
+    },
+    "Bullhead City": {
+      "facilities": 3,
+      "county": "Mohave",
+      "is_county_seat": false
+    },
+    "Holbrook": {
+      "facilities": 11,
+      "county": "Navajo",
+      "is_county_seat": true
+    },
+    "Winslow": {
+      "facilities": 3,
+      "county": "Navajo",
+      "is_county_seat": false
+    },
+    "Tucson": {
+      "facilities": 8,
+      "county": "Pima",
+      "is_county_seat": true
+    },
+    "Oro Valley": {
+      "facilities": 3,
+      "county": "Pima",
+      "is_county_seat": false
+    },
+    "Marana": {
+      "facilities": 3,
+      "county": "Pima",
+      "is_county_seat": false
+    },
+    "Sahuarita": {
+      "facilities": 3,
+      "county": "Pima",
+      "is_county_seat": false
+    },
+    "South Tucson": {
+      "facilities": 3,
+      "county": "Pima",
+      "is_county_seat": false
+    },
+    "Florence": {
+      "facilities": 11,
+      "county": "Pinal",
+      "is_county_seat": true
+    },
+    "Maricopa": {
+      "facilities": 3,
+      "county": "Pinal",
+      "is_county_seat": false
+    },
+    "Apache Junction": {
+      "facilities": 3,
+      "county": "Pinal",
+      "is_county_seat": false
+    },
+    "Eloy": {
+      "facilities": 3,
+      "county": "Pinal",
+      "is_county_seat": false
+    },
+    "Nogales": {
+      "facilities": 8,
+      "county": "Santa Cruz",
+      "is_county_seat": true
+    },
+    "Patagonia": {
+      "facilities": 3,
+      "county": "Santa Cruz",
+      "is_county_seat": false
+    },
+    "Prescott": {
+      "facilities": 8,
+      "county": "Yavapai",
+      "is_county_seat": true
+    },
+    "Prescott Valley": {
+      "facilities": 3,
+      "county": "Yavapai",
+      "is_county_seat": false
+    },
+    "Chino Valley": {
+      "facilities": 3,
+      "county": "Yavapai",
+      "is_county_seat": false
+    },
+    "Yuma": {
+      "facilities": 8,
+      "county": "Yuma",
+      "is_county_seat": true
+    },
+    "Somerton": {
+      "facilities": 3,
+      "county": "Yuma",
+      "is_county_seat": false
+    },
+    "San Luis": {
+      "facilities": 3,
+      "county": "Yuma",
+      "is_county_seat": false
+    }
+  },
+  "compliance_status": "100% Golden Rule Compliant",
+  "data_source": "Arizona Department of Health Services",
+  "coverage_status": "Complete Statewide Coverage"
+}

@@ -1,0 +1,308 @@
+[
+  {
+    "name": "Sample 55+ Mobile Home Park - FL",
+    "address": "123 Senior Drive, Sample City, FL",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - AZ",
+    "address": "123 Senior Drive, Sample City, AZ",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - CA",
+    "address": "123 Senior Drive, Sample City, CA",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - TX",
+    "address": "123 Senior Drive, Sample City, TX",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - NC",
+    "address": "123 Senior Drive, Sample City, NC",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - SC",
+    "address": "123 Senior Drive, Sample City, SC",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - NV",
+    "address": "123 Senior Drive, Sample City, NV",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - OR",
+    "address": "123 Senior Drive, Sample City, OR",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  },
+  {
+    "name": "Sample 55+ Mobile Home Park - WA",
+    "address": "123 Senior Drive, Sample City, WA",
+    "careTypes": [
+      "Independent Living"
+    ],
+    "communitySubtype": "mobile_home_park",
+    "description": "Age-restricted 55+ mobile home community with resort-style amenities",
+    "ageRestriction": 55,
+    "totalUnits": 250,
+    "features": [
+      "Gated Community",
+      "Clubhouse",
+      "Swimming Pool",
+      "Golf Course Access",
+      "RV Storage",
+      "Pet Friendly",
+      "Activities Director"
+    ],
+    "pricing": {
+      "lotRent": {
+        "min": 400,
+        "max": 800
+      },
+      "homePrice": {
+        "min": 50000,
+        "max": 150000
+      }
+    },
+    "contact": {
+      "phone": "555-0123",
+      "website": "example.com"
+    }
+  }
+]

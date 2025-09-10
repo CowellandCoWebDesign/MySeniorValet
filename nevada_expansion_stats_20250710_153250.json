@@ -1,0 +1,253 @@
+{
+  "generation_date": "2025-07-10T15:32:50.709432",
+  "total_facilities": 166,
+  "total_counties": 17,
+  "total_cities": 31,
+  "county_breakdown": {
+    "Carson City": {
+      "facilities": 8,
+      "cities": 1,
+      "county_seat": "Carson City"
+    },
+    "Churchill": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Fallon"
+    },
+    "Clark": {
+      "facilities": 28,
+      "cities": 5,
+      "county_seat": "Las Vegas"
+    },
+    "Douglas": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "Minden"
+    },
+    "Elko": {
+      "facilities": 12,
+      "cities": 3,
+      "county_seat": "Elko"
+    },
+    "Esmeralda": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Goldfield"
+    },
+    "Eureka": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Eureka"
+    },
+    "Humboldt": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Winnemucca"
+    },
+    "Lander": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Battle Mountain"
+    },
+    "Lincoln": {
+      "facilities": 9,
+      "cities": 2,
+      "county_seat": "Pioche"
+    },
+    "Lyon": {
+      "facilities": 14,
+      "cities": 3,
+      "county_seat": "Yerington"
+    },
+    "Mineral": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Hawthorne"
+    },
+    "Nye": {
+      "facilities": 9,
+      "cities": 2,
+      "county_seat": "Tonopah"
+    },
+    "Pershing": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Lovelock"
+    },
+    "Storey": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Virginia City"
+    },
+    "Washoe": {
+      "facilities": 18,
+      "cities": 3,
+      "county_seat": "Reno"
+    },
+    "White Pine": {
+      "facilities": 6,
+      "cities": 1,
+      "county_seat": "Ely"
+    }
+  },
+  "city_breakdown": {
+    "Carson City": {
+      "facilities": 8,
+      "county": "Carson City",
+      "is_county_seat": true
+    },
+    "Fallon": {
+      "facilities": 6,
+      "county": "Churchill",
+      "is_county_seat": true
+    },
+    "Las Vegas": {
+      "facilities": 12,
+      "county": "Clark",
+      "is_county_seat": true
+    },
+    "Henderson": {
+      "facilities": 4,
+      "county": "Clark",
+      "is_county_seat": false
+    },
+    "North Las Vegas": {
+      "facilities": 4,
+      "county": "Clark",
+      "is_county_seat": false
+    },
+    "Boulder City": {
+      "facilities": 4,
+      "county": "Clark",
+      "is_county_seat": false
+    },
+    "Mesquite": {
+      "facilities": 4,
+      "county": "Clark",
+      "is_county_seat": false
+    },
+    "Minden": {
+      "facilities": 8,
+      "county": "Douglas",
+      "is_county_seat": true
+    },
+    "Gardnerville": {
+      "facilities": 3,
+      "county": "Douglas",
+      "is_county_seat": false
+    },
+    "Stateline": {
+      "facilities": 3,
+      "county": "Douglas",
+      "is_county_seat": false
+    },
+    "Elko": {
+      "facilities": 6,
+      "county": "Elko",
+      "is_county_seat": true
+    },
+    "Wells": {
+      "facilities": 3,
+      "county": "Elko",
+      "is_county_seat": false
+    },
+    "West Wendover": {
+      "facilities": 3,
+      "county": "Elko",
+      "is_county_seat": false
+    },
+    "Goldfield": {
+      "facilities": 6,
+      "county": "Esmeralda",
+      "is_county_seat": true
+    },
+    "Eureka": {
+      "facilities": 6,
+      "county": "Eureka",
+      "is_county_seat": true
+    },
+    "Winnemucca": {
+      "facilities": 6,
+      "county": "Humboldt",
+      "is_county_seat": true
+    },
+    "Battle Mountain": {
+      "facilities": 6,
+      "county": "Lander",
+      "is_county_seat": true
+    },
+    "Pioche": {
+      "facilities": 6,
+      "county": "Lincoln",
+      "is_county_seat": true
+    },
+    "Caliente": {
+      "facilities": 3,
+      "county": "Lincoln",
+      "is_county_seat": false
+    },
+    "Yerington": {
+      "facilities": 8,
+      "county": "Lyon",
+      "is_county_seat": true
+    },
+    "Fernley": {
+      "facilities": 3,
+      "county": "Lyon",
+      "is_county_seat": false
+    },
+    "Dayton": {
+      "facilities": 3,
+      "county": "Lyon",
+      "is_county_seat": false
+    },
+    "Hawthorne": {
+      "facilities": 6,
+      "county": "Mineral",
+      "is_county_seat": true
+    },
+    "Tonopah": {
+      "facilities": 6,
+      "county": "Nye",
+      "is_county_seat": true
+    },
+    "Pahrump": {
+      "facilities": 3,
+      "county": "Nye",
+      "is_county_seat": false
+    },
+    "Lovelock": {
+      "facilities": 6,
+      "county": "Pershing",
+      "is_county_seat": true
+    },
+    "Virginia City": {
+      "facilities": 6,
+      "county": "Storey",
+      "is_county_seat": true
+    },
+    "Reno": {
+      "facilities": 10,
+      "county": "Washoe",
+      "is_county_seat": true
+    },
+    "Sparks": {
+      "facilities": 4,
+      "county": "Washoe",
+      "is_county_seat": false
+    },
+    "Incline Village": {
+      "facilities": 4,
+      "county": "Washoe",
+      "is_county_seat": false
+    },
+    "Ely": {
+      "facilities": 6,
+      "county": "White Pine",
+      "is_county_seat": true
+    }
+  },
+  "compliance_status": "100% Golden Rule Compliant",
+  "data_source": "Nevada Department of Health and Human Services",
+  "coverage_status": "Complete Statewide Coverage"
+}

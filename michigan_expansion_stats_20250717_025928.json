@@ -1,0 +1,20 @@
+{
+  "total_facilities": 10,
+  "by_county": {
+    "Oakland": 1,
+    "Kent": 1,
+    "Washtenaw": 1,
+    "Ingham": 1,
+    "Kalamazoo": 1,
+    "Wayne": 2,
+    "Genesee": 1,
+    "Grand Traverse": 1,
+    "Bay": 1
+  },
+  "by_care_type": {
+    "Assisted Living": 10,
+    "Senior Living": 10
+  },
+  "data_collection_date": "2025-07-17T02:59:28.637192",
+  "data_source": "Michigan_LARA_Demo"
+}

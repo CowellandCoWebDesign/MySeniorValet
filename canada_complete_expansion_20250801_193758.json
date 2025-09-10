@@ -1,0 +1,316 @@
+[
+  {
+    "name": "Riverwood Square",
+    "name_fr": "Place Riverwood",
+    "address": "1778 Main Street",
+    "city": "Winnipeg",
+    "state_province": "MB",
+    "postal_code": "R2V 3M4",
+    "country": "Canada",
+    "phone": "204-339-5700",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living"
+    ],
+    "total_units": 180,
+    "latitude": 49.9315,
+    "longitude": -97.1094,
+    "bilingual": true
+  },
+  {
+    "name": "Lions Personal Care Centre",
+    "name_fr": "Centre de soins personnels Lions",
+    "address": "320 Sherbrook Street",
+    "city": "Winnipeg",
+    "state_province": "MB",
+    "postal_code": "R3B 2W6",
+    "country": "Canada",
+    "phone": "204-774-3241",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Complex Care"
+    ],
+    "total_units": 116,
+    "latitude": 49.9047,
+    "longitude": -97.1547,
+    "bilingual": false
+  },
+  {
+    "name": "Saskatoon Convalescent Home",
+    "name_fr": "Maison de convalescence de Saskatoon",
+    "address": "2325 Preston Avenue",
+    "city": "Saskatoon",
+    "state_province": "SK",
+    "postal_code": "S7J 2G2",
+    "country": "Canada",
+    "phone": "306-655-8000",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Rehabilitation"
+    ],
+    "total_units": 140,
+    "latitude": 52.1178,
+    "longitude": -106.6138,
+    "bilingual": false
+  },
+  {
+    "name": "Regina Pioneer Village",
+    "name_fr": "Village des pionniers de Regina",
+    "address": "4215 Regina Avenue",
+    "city": "Regina",
+    "state_province": "SK",
+    "postal_code": "S4S 0A5",
+    "country": "Canada",
+    "phone": "306-586-8888",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Supportive Living"
+    ],
+    "total_units": 275,
+    "latitude": 50.4509,
+    "longitude": -104.5886,
+    "bilingual": false
+  },
+  {
+    "name": "Northwood Halifax",
+    "name_fr": "Northwood Halifax",
+    "address": "2615 Northwood Terrace",
+    "city": "Halifax",
+    "state_province": "NS",
+    "postal_code": "B3K 3S5",
+    "country": "Canada",
+    "phone": "902-454-3372",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Memory Care",
+      "Respite Care"
+    ],
+    "total_units": 485,
+    "latitude": 44.662,
+    "longitude": -63.6165,
+    "bilingual": true
+  },
+  {
+    "name": "The Berkeley Gladstone",
+    "name_fr": "Le Berkeley Gladstone",
+    "address": "5686 Spring Garden Road",
+    "city": "Halifax",
+    "state_province": "NS",
+    "postal_code": "B3J 1H4",
+    "country": "Canada",
+    "phone": "902-429-0101",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living"
+    ],
+    "total_units": 128,
+    "latitude": 44.6425,
+    "longitude": -63.5857,
+    "bilingual": false
+  },
+  {
+    "name": "Loch Lomond Villa",
+    "name_fr": "Villa Loch Lomond",
+    "address": "185 Loch Lomond Road",
+    "city": "Saint John",
+    "state_province": "NB",
+    "postal_code": "E2J 3S3",
+    "country": "Canada",
+    "phone": "506-643-7090",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Special Care"
+    ],
+    "total_units": 247,
+    "latitude": 45.3225,
+    "longitude": -66.0863,
+    "bilingual": true
+  },
+  {
+    "name": "Shannex Parkland Moncton",
+    "name_fr": "Shannex Parkland Moncton",
+    "address": "119 Millennium Boulevard",
+    "city": "Moncton",
+    "state_province": "NB",
+    "postal_code": "E1E 1E5",
+    "country": "Canada",
+    "phone": "506-857-8770",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "total_units": 195,
+    "latitude": 46.1072,
+    "longitude": -64.8166,
+    "bilingual": true
+  },
+  {
+    "name": "Résidence Desjardins",
+    "name_fr": "Résidence Desjardins",
+    "address": "380 rue Acadie",
+    "city": "Edmundston",
+    "state_province": "NB",
+    "postal_code": "E3V 3K4",
+    "country": "Canada",
+    "phone": "506-735-4444",
+    "community_subtype": "assisted_living",
+    "care_types": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "total_units": 60,
+    "latitude": 47.3737,
+    "longitude": -68.3251,
+    "bilingual": true,
+    "primary_language": "French"
+  },
+  {
+    "name": "Chancellor Park",
+    "name_fr": "Parc Chancellor",
+    "address": "55 Clinch Crescent",
+    "city": "St. John's",
+    "state_province": "NL",
+    "postal_code": "A1E 5B1",
+    "country": "Canada",
+    "phone": "709-753-7526",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living"
+    ],
+    "total_units": 152,
+    "latitude": 47.589,
+    "longitude": -52.6881,
+    "bilingual": false
+  },
+  {
+    "name": "Agnes Pratt Home",
+    "name_fr": "Foyer Agnes Pratt",
+    "address": "135 Newfoundland Drive",
+    "city": "St. John's",
+    "state_province": "NL",
+    "postal_code": "A1A 3E9",
+    "country": "Canada",
+    "phone": "709-726-3007",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Dementia Care"
+    ],
+    "total_units": 104,
+    "latitude": 47.5713,
+    "longitude": -52.7411,
+    "bilingual": false
+  },
+  {
+    "name": "Andrews Lodge",
+    "name_fr": "Lodge Andrews",
+    "address": "215 Brackley Point Road",
+    "city": "Charlottetown",
+    "state_province": "PE",
+    "postal_code": "C1E 1Z3",
+    "country": "Canada",
+    "phone": "902-368-4444",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Supportive Living"
+    ],
+    "total_units": 86,
+    "latitude": 46.2713,
+    "longitude": -63.1443,
+    "bilingual": true
+  },
+  {
+    "name": "Beach Grove Home",
+    "name_fr": "Foyer Beach Grove",
+    "address": "105 MacEwen Road",
+    "city": "Charlottetown",
+    "state_province": "PE",
+    "postal_code": "C1C 1M7",
+    "country": "Canada",
+    "phone": "902-368-7900",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Respite Care"
+    ],
+    "total_units": 92,
+    "latitude": 46.2652,
+    "longitude": -63.1639,
+    "bilingual": true
+  },
+  {
+    "name": "Copper Ridge Place",
+    "name_fr": "Place Copper Ridge",
+    "address": "370 Copper Road",
+    "city": "Whitehorse",
+    "state_province": "YT",
+    "postal_code": "Y1A 2Z6",
+    "country": "Canada",
+    "phone": "867-393-7090",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Dementia Care"
+    ],
+    "total_units": 96,
+    "latitude": 60.6847,
+    "longitude": -135.0504,
+    "bilingual": true
+  },
+  {
+    "name": "Avens Seniors Community",
+    "name_fr": "Communauté des aînés Avens",
+    "address": "5710 50th Avenue",
+    "city": "Yellowknife",
+    "state_province": "NT",
+    "postal_code": "X1A 1E2",
+    "country": "Canada",
+    "phone": "867-920-2998",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living",
+      "Long-Term Care"
+    ],
+    "total_units": 180,
+    "latitude": 62.454,
+    "longitude": -114.3718,
+    "bilingual": true
+  },
+  {
+    "name": "Elders Centre",
+    "name_fr": "Centre des aînés",
+    "address": "1071 Mivvik Street",
+    "city": "Iqaluit",
+    "state_province": "NU",
+    "postal_code": "X0A 0H0",
+    "country": "Canada",
+    "phone": "867-979-8500",
+    "community_subtype": "assisted_living",
+    "care_types": [
+      "Assisted Living",
+      "Cultural Care"
+    ],
+    "total_units": 24,
+    "latitude": 63.7467,
+    "longitude": -68.517,
+    "bilingual": true,
+    "trilingual": true,
+    "languages": [
+      "English",
+      "French",
+      "Inuktitut"
+    ]
+  }
+]

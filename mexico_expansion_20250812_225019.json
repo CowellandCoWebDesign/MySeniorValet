@@ -1,0 +1,6632 @@
+[
+  {
+    "name": "Casa Hogar San José",
+    "address": "292 Calle Central",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "59746",
+    "phone": "+52 965 979 8280",
+    "email": "info@casahogarsanjose.mx",
+    "description": "Centro público certificado por el DIF en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1076,
+      "move_in_fee": 538,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.89,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia San José",
+    "address": "265 Av. Revolución",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "25350",
+    "phone": "+52 519 323 2628",
+    "email": "info@casadeasistenciasanjose.mx",
+    "description": "Centro público certificado por el DIF en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1180,
+      "move_in_fee": 590,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.17,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "204 Blvd. Benito Juárez",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "26667",
+    "phone": "+52 900 278 9613",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 908,
+      "move_in_fee": 454,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.45,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Villa Dorada",
+    "address": "404 Av. Revolución",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "51031",
+    "phone": "+52 136 298 9283",
+    "email": "info@centrodecuidadosvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 966,
+      "move_in_fee": 483,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.33,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Casa Blanca",
+    "address": "768 Calle Central",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "46221",
+    "phone": "+52 577 663 1969",
+    "email": "info@casaderetirocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 828,
+      "move_in_fee": 414,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.49,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "418 Calle Central",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "52973",
+    "phone": "+52 186 646 1920",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1158,
+      "move_in_fee": 579,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.76,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico San Antonio",
+    "address": "151 Av. Revolución",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "55344",
+    "phone": "+52 547 988 5387",
+    "email": "info@centrogerontologicosanantonio.mx",
+    "description": "Centro público certificado por el DIF en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1116,
+      "move_in_fee": 558,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.62,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia El Jardín",
+    "address": "193 Calle Central",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "23299",
+    "phone": "+52 170 715 6565",
+    "email": "info@casadeasistenciaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 945,
+      "move_in_fee": 472,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.04,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "113 Blvd. Benito Juárez",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "76248",
+    "phone": "+52 948 319 9962",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1061,
+      "move_in_fee": 530,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.79,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Guadalupe",
+    "address": "255 Av. Principal",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "81315",
+    "phone": "+52 220 639 5148",
+    "email": "info@centrodedíaguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 920,
+      "move_in_fee": 460,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.72,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Los Pinos",
+    "address": "519 Av. Principal",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "37602",
+    "phone": "+52 865 504 8236",
+    "email": "info@casahogarlospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 875,
+      "move_in_fee": 437,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.17,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Los Pinos",
+    "address": "409 Av. Revolución",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "52953",
+    "phone": "+52 292 703 1096",
+    "email": "info@centrodedíalospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1194,
+      "move_in_fee": 597,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.68,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados San José",
+    "address": "701 Av. Revolución",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "83647",
+    "phone": "+52 103 458 7557",
+    "email": "info@centrodecuidadossanjose.mx",
+    "description": "Centro público certificado por el DIF en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1171,
+      "move_in_fee": 585,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.34,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Casa Blanca",
+    "address": "747 Av. Revolución",
+    "city": "Aguascalientes",
+    "state": "AGS",
+    "country": "MX",
+    "zip_code": "10252",
+    "phone": "+52 445 605 1037",
+    "email": "info@centrogerontologicocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Aguascalientes, Aguascalientes",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1060,
+      "move_in_fee": 530,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.37,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados El Jardín",
+    "address": "154 Blvd. Benito Juárez",
+    "city": "Campeche",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "60843",
+    "phone": "+52 920 590 7913",
+    "email": "info@centrodecuidadoseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Campeche, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1023,
+      "move_in_fee": 511,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.71,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Nuevo Amanecer",
+    "address": "371 Calle Central",
+    "city": "Campeche",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "29385",
+    "phone": "+52 877 818 1022",
+    "email": "info@centrogerontologiconuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Campeche, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1200,
+      "move_in_fee": 600,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.04,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados San Miguel",
+    "address": "355 Calle Central",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "63443",
+    "phone": "+52 334 981 7055",
+    "email": "info@centrodecuidadossanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1038,
+      "move_in_fee": 519,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.58,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro El Jardín",
+    "address": "513 Av. Revolución",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "14671",
+    "phone": "+52 937 700 5513",
+    "email": "info@casaderetiroeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 990,
+      "move_in_fee": 495,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.07,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar El Jardín",
+    "address": "220 Av. Revolución",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "14697",
+    "phone": "+52 716 305 7576",
+    "email": "info@casahogareljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1169,
+      "move_in_fee": 584,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.7,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Villa Dorada",
+    "address": "174 Av. Principal",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "75657",
+    "phone": "+52 671 725 5870",
+    "email": "info@casadeasistenciavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1184,
+      "move_in_fee": 592,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.81,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Villa Dorada",
+    "address": "140 Av. Revolución",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "80460",
+    "phone": "+52 123 465 3992",
+    "email": "info@centrodecuidadosvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1068,
+      "move_in_fee": 534,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.14,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia El Jardín",
+    "address": "134 Av. Revolución",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "22420",
+    "phone": "+52 823 785 2228",
+    "email": "info@casadeasistenciaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 927,
+      "move_in_fee": 463,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.04,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro El Jardín",
+    "address": "549 Av. Principal",
+    "city": "Campeche",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "28788",
+    "phone": "+52 999 376 8204",
+    "email": "info@casaderetiroeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Campeche, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1069,
+      "move_in_fee": 534,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.83,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Nuevo Amanecer",
+    "address": "762 Blvd. Benito Juárez",
+    "city": "Campeche",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "99566",
+    "phone": "+52 213 191 2621",
+    "email": "info@residenciaparaadultosmayoresnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Campeche, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1186,
+      "move_in_fee": 593,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Casa Blanca",
+    "address": "159 Calle Central",
+    "city": "Ciudad del Carmen",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "58192",
+    "phone": "+52 570 496 4461",
+    "email": "info@casadeasistenciacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad del Carmen, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1027,
+      "move_in_fee": 513,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.07,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Villa Dorada",
+    "address": "739 Av. Revolución",
+    "city": "Campeche",
+    "state": "CAMP",
+    "country": "MX",
+    "zip_code": "64815",
+    "phone": "+52 602 595 8935",
+    "email": "info@residenciaparaadultosmayoresvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Campeche, Campeche",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1014,
+      "move_in_fee": 507,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.71,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Villa Dorada",
+    "address": "910 Av. Principal",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "19198",
+    "phone": "+52 905 268 5825",
+    "email": "info@casadeasistenciavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 903,
+      "move_in_fee": 451,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar El Jardín",
+    "address": "660 Av. Revolución",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "57444",
+    "phone": "+52 303 655 6511",
+    "email": "info@casahogareljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1026,
+      "move_in_fee": 513,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.29,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores El Jardín",
+    "address": "467 Av. Revolución",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "78403",
+    "phone": "+52 157 911 2480",
+    "email": "info@residenciaparaadultosmayoreseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 966,
+      "move_in_fee": 483,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.34,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro San José",
+    "address": "878 Blvd. Benito Juárez",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "86184",
+    "phone": "+52 142 458 7903",
+    "email": "info@casaderetirosanjose.mx",
+    "description": "Centro público certificado por el DIF en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 984,
+      "move_in_fee": 492,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.76,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Casa Blanca",
+    "address": "327 Blvd. Benito Juárez",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "76647",
+    "phone": "+52 966 930 5552",
+    "email": "info@residenciaparaadultosmayorescasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 959,
+      "move_in_fee": 479,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.23,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico El Jardín",
+    "address": "500 Av. Revolución",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "58422",
+    "phone": "+52 227 623 8243",
+    "email": "info@centrogerontologicoeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1087,
+      "move_in_fee": 543,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.45,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores El Jardín",
+    "address": "985 Av. Principal",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "75319",
+    "phone": "+52 452 452 1723",
+    "email": "info@residenciaparaadultosmayoreseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 842,
+      "move_in_fee": 421,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.63,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Santa María",
+    "address": "326 Av. Revolución",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "31164",
+    "phone": "+52 794 871 6288",
+    "email": "info@centrodecuidadossantamaría.mx",
+    "description": "Centro público certificado por el DIF en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1159,
+      "move_in_fee": 579,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.61,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "397 Blvd. Benito Juárez",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "36482",
+    "phone": "+52 907 557 8960",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1091,
+      "move_in_fee": 545,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Guadalupe",
+    "address": "828 Calle Central",
+    "city": "Ciudad Juárez",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "94334",
+    "phone": "+52 689 795 2008",
+    "email": "info@centrogerontologicoguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Ciudad Juárez, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1056,
+      "move_in_fee": 528,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.46,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Villa Dorada",
+    "address": "833 Av. Revolución",
+    "city": "Chihuahua",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "62079",
+    "phone": "+52 293 176 7616",
+    "email": "info@centrogerontologicovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chihuahua, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 859,
+      "move_in_fee": 429,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.36,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "114 Blvd. Benito Juárez",
+    "city": "Ciudad Juárez",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "58062",
+    "phone": "+52 694 682 2178",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Juárez, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1142,
+      "move_in_fee": 571,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.44,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Nuevo Amanecer",
+    "address": "902 Blvd. Benito Juárez",
+    "city": "Ciudad Juárez",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "48707",
+    "phone": "+52 844 682 1334",
+    "email": "info@casaderetironuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Juárez, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 889,
+      "move_in_fee": 444,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "324 Av. Revolución",
+    "city": "Ciudad Juárez",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "68962",
+    "phone": "+52 253 844 3923",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Juárez, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1197,
+      "move_in_fee": 598,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.52,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores El Jardín",
+    "address": "181 Calle Central",
+    "city": "Ciudad Juárez",
+    "state": "CHIH",
+    "country": "MX",
+    "zip_code": "60679",
+    "phone": "+52 252 383 9701",
+    "email": "info@residenciaparaadultosmayoreseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Juárez, Chihuahua",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 997,
+      "move_in_fee": 498,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.61,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados El Jardín",
+    "address": "121 Calle Central",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "63835",
+    "phone": "+52 415 174 4984",
+    "email": "info@centrodecuidadoseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 817,
+      "move_in_fee": 408,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.88,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Casa Blanca",
+    "address": "248 Calle Central",
+    "city": "Tuxtla Gutiérrez",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "96084",
+    "phone": "+52 217 203 3876",
+    "email": "info@casahogarcasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tuxtla Gutiérrez, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1086,
+      "move_in_fee": 543,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.07,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia San Miguel",
+    "address": "475 Calle Central",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "21074",
+    "phone": "+52 806 508 4565",
+    "email": "info@casadeasistenciasanmiguel.mx",
+    "description": "Centro público certificado por el DIF en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 945,
+      "move_in_fee": 472,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.24,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "103 Blvd. Benito Juárez",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "79761",
+    "phone": "+52 754 683 3444",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1174,
+      "move_in_fee": 587,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.79,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados San Antonio",
+    "address": "166 Av. Revolución",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "42592",
+    "phone": "+52 106 820 3297",
+    "email": "info@centrodecuidadossanantonio.mx",
+    "description": "Centro público certificado por el DIF en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 991,
+      "move_in_fee": 495,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Nuevo Amanecer",
+    "address": "331 Blvd. Benito Juárez",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "85771",
+    "phone": "+52 310 269 8169",
+    "email": "info@casaderetironuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1176,
+      "move_in_fee": 588,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.39,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "515 Av. Principal",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "92695",
+    "phone": "+52 896 856 4289",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 931,
+      "move_in_fee": 465,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.19,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Los Pinos",
+    "address": "808 Av. Principal",
+    "city": "San Cristóbal de las Casas",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "58501",
+    "phone": "+52 351 794 2713",
+    "email": "info@casahogarlospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Cristóbal de las Casas, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1143,
+      "move_in_fee": 571,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.67,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Santa María",
+    "address": "983 Blvd. Benito Juárez",
+    "city": "Tuxtla Gutiérrez",
+    "state": "CHIS",
+    "country": "MX",
+    "zip_code": "24743",
+    "phone": "+52 828 915 4054",
+    "email": "info@centrogerontologicosantamaría.mx",
+    "description": "Centro público certificado por el DIF en Tuxtla Gutiérrez, Chiapas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 867,
+      "move_in_fee": 433,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.34,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Villa Dorada",
+    "address": "276 Av. Revolución",
+    "city": "Torreón",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "74662",
+    "phone": "+52 854 458 2256",
+    "email": "info@centrodecuidadosvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Torreón, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 838,
+      "move_in_fee": 419,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.59,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar San Miguel",
+    "address": "509 Av. Principal",
+    "city": "Monclova",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "26559",
+    "phone": "+52 655 104 7749",
+    "email": "info@casahogarsanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Monclova, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1013,
+      "move_in_fee": 506,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.33,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Villa Dorada",
+    "address": "375 Av. Revolución",
+    "city": "Torreón",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "73957",
+    "phone": "+52 821 866 4263",
+    "email": "info@casadeasistenciavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Torreón, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 860,
+      "move_in_fee": 430,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro El Jardín",
+    "address": "936 Av. Revolución",
+    "city": "Saltillo",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "11819",
+    "phone": "+52 492 400 3500",
+    "email": "info@casaderetiroeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Saltillo, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 835,
+      "move_in_fee": 417,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.71,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San José",
+    "address": "717 Av. Revolución",
+    "city": "Saltillo",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "37581",
+    "phone": "+52 937 220 3780",
+    "email": "info@centrodedíasanjose.mx",
+    "description": "Centro público certificado por el DIF en Saltillo, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 851,
+      "move_in_fee": 425,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.57,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "657 Calle Central",
+    "city": "Torreón",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "77997",
+    "phone": "+52 924 756 1112",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Torreón, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 907,
+      "move_in_fee": 453,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.85,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Nuevo Amanecer",
+    "address": "223 Blvd. Benito Juárez",
+    "city": "Monclova",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "51764",
+    "phone": "+52 776 384 9375",
+    "email": "info@residenciaparaadultosmayoresnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Monclova, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1036,
+      "move_in_fee": 518,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Guadalupe",
+    "address": "368 Av. Principal",
+    "city": "Monclova",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "57824",
+    "phone": "+52 846 294 4600",
+    "email": "info@casahogarguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Monclova, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1158,
+      "move_in_fee": 579,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.45,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día El Jardín",
+    "address": "399 Blvd. Benito Juárez",
+    "city": "Saltillo",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "87239",
+    "phone": "+52 937 353 8335",
+    "email": "info@centrodedíaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Saltillo, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 993,
+      "move_in_fee": 496,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.66,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Los Pinos",
+    "address": "914 Blvd. Benito Juárez",
+    "city": "Monclova",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "20929",
+    "phone": "+52 552 664 1194",
+    "email": "info@centrogerontologicolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Monclova, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 871,
+      "move_in_fee": 435,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Nuevo Amanecer",
+    "address": "300 Av. Principal",
+    "city": "Monclova",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "78902",
+    "phone": "+52 430 901 7388",
+    "email": "info@centrogerontologiconuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Monclova, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 857,
+      "move_in_fee": 428,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.6,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar El Jardín",
+    "address": "964 Av. Principal",
+    "city": "Torreón",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "11420",
+    "phone": "+52 175 876 4750",
+    "email": "info@casahogareljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Torreón, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 854,
+      "move_in_fee": 427,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.39,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "300 Calle Central",
+    "city": "Torreón",
+    "state": "COAH",
+    "country": "MX",
+    "zip_code": "60980",
+    "phone": "+52 229 569 1514",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Torreón, Coahuila",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1066,
+      "move_in_fee": 533,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.28,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Nuevo Amanecer",
+    "address": "168 Blvd. Benito Juárez",
+    "city": "Colima",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "25808",
+    "phone": "+52 419 806 2729",
+    "email": "info@centrodedíanuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Colima, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1024,
+      "move_in_fee": 512,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.73,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia San Miguel",
+    "address": "599 Blvd. Benito Juárez",
+    "city": "Colima",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "69631",
+    "phone": "+52 420 659 1738",
+    "email": "info@casadeasistenciasanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Colima, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1007,
+      "move_in_fee": 503,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Guadalupe",
+    "address": "388 Av. Principal",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "88639",
+    "phone": "+52 251 262 4328",
+    "email": "info@centrodedíaguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 813,
+      "move_in_fee": 406,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.49,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Villa Dorada",
+    "address": "876 Calle Central",
+    "city": "Colima",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "11662",
+    "phone": "+52 685 149 7748",
+    "email": "info@residenciaparaadultosmayoresvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Colima, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1192,
+      "move_in_fee": 596,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.24,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia El Jardín",
+    "address": "188 Calle Central",
+    "city": "Colima",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "60743",
+    "phone": "+52 338 709 4122",
+    "email": "info@casadeasistenciaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Colima, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 950,
+      "move_in_fee": 475,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.72,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Casa Blanca",
+    "address": "866 Av. Revolución",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "70724",
+    "phone": "+52 718 169 1683",
+    "email": "info@residenciaparaadultosmayorescasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 907,
+      "move_in_fee": 453,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.48,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Los Pinos",
+    "address": "239 Calle Central",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "87961",
+    "phone": "+52 674 665 1640",
+    "email": "info@casaderetirolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1094,
+      "move_in_fee": 547,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.23,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores San Antonio",
+    "address": "995 Blvd. Benito Juárez",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "88972",
+    "phone": "+52 228 867 4937",
+    "email": "info@residenciaparaadultosmayoressanantonio.mx",
+    "description": "Centro público certificado por el DIF en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 807,
+      "move_in_fee": 403,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.29,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia San José",
+    "address": "262 Blvd. Benito Juárez",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "67125",
+    "phone": "+52 136 534 2268",
+    "email": "info@casadeasistenciasanjose.mx",
+    "description": "Centro público certificado por el DIF en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1190,
+      "move_in_fee": 595,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.01,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados El Jardín",
+    "address": "609 Av. Principal",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "76362",
+    "phone": "+52 226 379 9974",
+    "email": "info@centrodecuidadoseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1007,
+      "move_in_fee": 503,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.08,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "362 Av. Principal",
+    "city": "Colima",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "91640",
+    "phone": "+52 900 681 4760",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Colima, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 902,
+      "move_in_fee": 451,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.62,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Nuevo Amanecer",
+    "address": "748 Av. Revolución",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "30168",
+    "phone": "+52 901 613 7130",
+    "email": "info@centrogerontologiconuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1164,
+      "move_in_fee": 582,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Casa Blanca",
+    "address": "242 Blvd. Benito Juárez",
+    "city": "Manzanillo",
+    "state": "COL",
+    "country": "MX",
+    "zip_code": "55071",
+    "phone": "+52 501 276 5535",
+    "email": "info@centrogerontologicocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Manzanillo, Colima",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1169,
+      "move_in_fee": 584,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.66,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Casa Blanca",
+    "address": "266 Av. Principal",
+    "city": "Durango",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "73146",
+    "phone": "+52 812 619 9408",
+    "email": "info@casadeasistenciacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Durango, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1088,
+      "move_in_fee": 544,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.5,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Casa Blanca",
+    "address": "455 Calle Central",
+    "city": "Gómez Palacio",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "39292",
+    "phone": "+52 776 330 8818",
+    "email": "info@centrodedíacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Gómez Palacio, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 860,
+      "move_in_fee": 430,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.38,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Guadalupe",
+    "address": "647 Blvd. Benito Juárez",
+    "city": "Durango",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "59353",
+    "phone": "+52 792 323 5527",
+    "email": "info@casahogarguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Durango, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1049,
+      "move_in_fee": 524,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.37,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Casa Blanca",
+    "address": "516 Blvd. Benito Juárez",
+    "city": "Gómez Palacio",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "21637",
+    "phone": "+52 986 124 3779",
+    "email": "info@casaderetirocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Gómez Palacio, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1114,
+      "move_in_fee": 557,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.48,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San Miguel",
+    "address": "149 Av. Revolución",
+    "city": "Durango",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "88024",
+    "phone": "+52 169 348 7845",
+    "email": "info@centrodedíasanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Durango, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1179,
+      "move_in_fee": 589,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.14,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "808 Calle Central",
+    "city": "Gómez Palacio",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "74485",
+    "phone": "+52 818 187 7222",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Gómez Palacio, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1049,
+      "move_in_fee": 524,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.57,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Los Pinos",
+    "address": "882 Calle Central",
+    "city": "Durango",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "92650",
+    "phone": "+52 979 915 9275",
+    "email": "info@casahogarlospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Durango, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 867,
+      "move_in_fee": 433,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.15,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Casa Blanca",
+    "address": "955 Calle Central",
+    "city": "Gómez Palacio",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "45621",
+    "phone": "+52 873 129 5447",
+    "email": "info@residenciaparaadultosmayorescasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Gómez Palacio, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 973,
+      "move_in_fee": 486,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.42,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Santa María",
+    "address": "658 Av. Principal",
+    "city": "Durango",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "64699",
+    "phone": "+52 977 385 6907",
+    "email": "info@centrodecuidadossantamaría.mx",
+    "description": "Centro público certificado por el DIF en Durango, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1182,
+      "move_in_fee": 591,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.16,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Los Pinos",
+    "address": "495 Av. Revolución",
+    "city": "Durango",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "75913",
+    "phone": "+52 697 846 1369",
+    "email": "info@centrodedíalospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Durango, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1055,
+      "move_in_fee": 527,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.37,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Guadalupe",
+    "address": "915 Calle Central",
+    "city": "Gómez Palacio",
+    "state": "DGO",
+    "country": "MX",
+    "zip_code": "17837",
+    "phone": "+52 564 877 4455",
+    "email": "info@centrogerontologicoguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Gómez Palacio, Durango",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 850,
+      "move_in_fee": 425,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.57,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "154 Av. Revolución",
+    "city": "Chilpancingo",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "39154",
+    "phone": "+52 246 301 3925",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chilpancingo, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1190,
+      "move_in_fee": 595,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.78,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San José",
+    "address": "534 Blvd. Benito Juárez",
+    "city": "Acapulco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "33990",
+    "phone": "+52 157 929 7085",
+    "email": "info@centrodedíasanjose.mx",
+    "description": "Centro público certificado por el DIF en Acapulco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 995,
+      "move_in_fee": 497,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.32,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Villa Dorada",
+    "address": "671 Av. Revolución",
+    "city": "Chilpancingo",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "93843",
+    "phone": "+52 129 542 1371",
+    "email": "info@centrodecuidadosvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chilpancingo, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 885,
+      "move_in_fee": 442,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.31,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San José",
+    "address": "506 Blvd. Benito Juárez",
+    "city": "Taxco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "10834",
+    "phone": "+52 812 239 4062",
+    "email": "info@centrodedíasanjose.mx",
+    "description": "Centro público certificado por el DIF en Taxco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1054,
+      "move_in_fee": 527,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.19,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "427 Blvd. Benito Juárez",
+    "city": "Taxco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "89310",
+    "phone": "+52 954 914 1614",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Taxco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1038,
+      "move_in_fee": 519,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Santa María",
+    "address": "641 Av. Revolución",
+    "city": "Chilpancingo",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "39564",
+    "phone": "+52 284 534 1929",
+    "email": "info@centrodecuidadossantamaría.mx",
+    "description": "Centro público certificado por el DIF en Chilpancingo, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1052,
+      "move_in_fee": 526,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.32,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San José",
+    "address": "230 Av. Revolución",
+    "city": "Acapulco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "74492",
+    "phone": "+52 433 332 8530",
+    "email": "info@centrodedíasanjose.mx",
+    "description": "Centro público certificado por el DIF en Acapulco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 962,
+      "move_in_fee": 481,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.68,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Villa Dorada",
+    "address": "795 Blvd. Benito Juárez",
+    "city": "Chilpancingo",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "62957",
+    "phone": "+52 218 265 4941",
+    "email": "info@centrogerontologicovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chilpancingo, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1082,
+      "move_in_fee": 541,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.14,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico El Jardín",
+    "address": "392 Av. Revolución",
+    "city": "Acapulco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "84922",
+    "phone": "+52 255 639 2697",
+    "email": "info@centrogerontologicoeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Acapulco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1132,
+      "move_in_fee": 566,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.01,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "923 Blvd. Benito Juárez",
+    "city": "Taxco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "99273",
+    "phone": "+52 127 304 6930",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Taxco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1046,
+      "move_in_fee": 523,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.38,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Los Pinos",
+    "address": "751 Av. Principal",
+    "city": "Chilpancingo",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "99455",
+    "phone": "+52 418 840 7023",
+    "email": "info@centrogerontologicolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Chilpancingo, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1060,
+      "move_in_fee": 530,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.63,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro El Jardín",
+    "address": "893 Blvd. Benito Juárez",
+    "city": "Acapulco",
+    "state": "GRO",
+    "country": "MX",
+    "zip_code": "97171",
+    "phone": "+52 140 109 1703",
+    "email": "info@casaderetiroeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Acapulco, Guerrero",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 898,
+      "move_in_fee": 449,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.03,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "677 Calle Central",
+    "city": "Pachuca",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "72846",
+    "phone": "+52 794 642 3934",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Pachuca, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1108,
+      "move_in_fee": 554,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico El Jardín",
+    "address": "260 Blvd. Benito Juárez",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "87364",
+    "phone": "+52 999 929 9996",
+    "email": "info@centrogerontologicoeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 825,
+      "move_in_fee": 412,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.7,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "178 Av. Principal",
+    "city": "Pachuca",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "73879",
+    "phone": "+52 228 676 9062",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Pachuca, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1102,
+      "move_in_fee": 551,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.81,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "618 Blvd. Benito Juárez",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "11918",
+    "phone": "+52 991 783 5937",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 865,
+      "move_in_fee": 432,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.81,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "418 Av. Principal",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "70353",
+    "phone": "+52 599 356 1801",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1024,
+      "move_in_fee": 512,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.68,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "710 Blvd. Benito Juárez",
+    "city": "Pachuca",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "53759",
+    "phone": "+52 689 485 6739",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Pachuca, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1171,
+      "move_in_fee": 585,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.02,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "256 Calle Central",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "95408",
+    "phone": "+52 808 975 7526",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 996,
+      "move_in_fee": 498,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.22,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico San José",
+    "address": "938 Calle Central",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "66876",
+    "phone": "+52 114 581 7405",
+    "email": "info@centrogerontologicosanjose.mx",
+    "description": "Centro público certificado por el DIF en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 897,
+      "move_in_fee": 448,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.69,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia San Antonio",
+    "address": "278 Av. Revolución",
+    "city": "Pachuca",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "54422",
+    "phone": "+52 313 438 3068",
+    "email": "info@casadeasistenciasanantonio.mx",
+    "description": "Centro público certificado por el DIF en Pachuca, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 963,
+      "move_in_fee": 481,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.7,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Villa Dorada",
+    "address": "931 Calle Central",
+    "city": "Pachuca",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "67547",
+    "phone": "+52 889 786 2849",
+    "email": "info@centrogerontologicovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Pachuca, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 990,
+      "move_in_fee": 495,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.07,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Nuevo Amanecer",
+    "address": "778 Calle Central",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "23220",
+    "phone": "+52 793 384 4397",
+    "email": "info@centrogerontologiconuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 833,
+      "move_in_fee": 416,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "110 Calle Central",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "38682",
+    "phone": "+52 946 696 5184",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1057,
+      "move_in_fee": 528,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.53,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Guadalupe",
+    "address": "428 Av. Revolución",
+    "city": "Tulancingo",
+    "state": "HGO",
+    "country": "MX",
+    "zip_code": "89326",
+    "phone": "+52 475 297 8147",
+    "email": "info@centrogerontologicoguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Tulancingo, Hidalgo",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1168,
+      "move_in_fee": 584,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.58,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "540 Blvd. Benito Juárez",
+    "city": "Naucalpan",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "55187",
+    "phone": "+52 246 595 5301",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Naucalpan, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 985,
+      "move_in_fee": 492,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.13,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "845 Av. Principal",
+    "city": "Naucalpan",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "23942",
+    "phone": "+52 465 740 2589",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Naucalpan, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1108,
+      "move_in_fee": 554,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.76,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "767 Av. Revolución",
+    "city": "Ecatepec",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "27750",
+    "phone": "+52 568 865 8627",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ecatepec, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1126,
+      "move_in_fee": 563,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.73,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Nuevo Amanecer",
+    "address": "771 Av. Principal",
+    "city": "Tlalnepantla",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "10464",
+    "phone": "+52 481 557 1536",
+    "email": "info@casaderetironuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlalnepantla, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 892,
+      "move_in_fee": 446,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Los Pinos",
+    "address": "175 Av. Principal",
+    "city": "Naucalpan",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "72936",
+    "phone": "+52 424 970 7352",
+    "email": "info@casaderetirolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Naucalpan, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 816,
+      "move_in_fee": 408,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.64,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Guadalupe",
+    "address": "337 Av. Principal",
+    "city": "Toluca",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "28288",
+    "phone": "+52 757 448 8014",
+    "email": "info@casadeasistenciaguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Toluca, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1196,
+      "move_in_fee": 598,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.56,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "369 Blvd. Benito Juárez",
+    "city": "Naucalpan",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "61885",
+    "phone": "+52 901 360 3258",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Naucalpan, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1123,
+      "move_in_fee": 561,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.13,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro San José",
+    "address": "331 Av. Revolución",
+    "city": "Tlalnepantla",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "71226",
+    "phone": "+52 445 401 1834",
+    "email": "info@casaderetirosanjose.mx",
+    "description": "Centro público certificado por el DIF en Tlalnepantla, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1108,
+      "move_in_fee": 554,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.83,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Los Pinos",
+    "address": "519 Blvd. Benito Juárez",
+    "city": "Tlalnepantla",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "97728",
+    "phone": "+52 756 106 1388",
+    "email": "info@casaderetirolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlalnepantla, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1029,
+      "move_in_fee": 514,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "936 Av. Principal",
+    "city": "Tlalnepantla",
+    "state": "MEX",
+    "country": "MX",
+    "zip_code": "61426",
+    "phone": "+52 966 473 1120",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlalnepantla, Estado de México",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 827,
+      "move_in_fee": 413,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.14,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores San Miguel",
+    "address": "813 Calle Central",
+    "city": "Pátzcuaro",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "59736",
+    "phone": "+52 997 493 6591",
+    "email": "info@residenciaparaadultosmayoressanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Pátzcuaro, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1021,
+      "move_in_fee": 510,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.76,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Los Pinos",
+    "address": "833 Calle Central",
+    "city": "Morelia",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "49723",
+    "phone": "+52 438 167 8403",
+    "email": "info@residenciaparaadultosmayoreslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Morelia, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 890,
+      "move_in_fee": 445,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro San José",
+    "address": "288 Calle Central",
+    "city": "Morelia",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "47234",
+    "phone": "+52 255 891 9378",
+    "email": "info@casaderetirosanjose.mx",
+    "description": "Centro público certificado por el DIF en Morelia, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 941,
+      "move_in_fee": 470,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.26,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "804 Calle Central",
+    "city": "Morelia",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "61432",
+    "phone": "+52 589 105 9729",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Morelia, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 966,
+      "move_in_fee": 483,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.59,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Villa Dorada",
+    "address": "517 Av. Principal",
+    "city": "Pátzcuaro",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "22366",
+    "phone": "+52 485 422 6767",
+    "email": "info@casaderetirovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Pátzcuaro, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 843,
+      "move_in_fee": 421,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.59,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Villa Dorada",
+    "address": "425 Calle Central",
+    "city": "Uruapan",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "40764",
+    "phone": "+52 188 939 8095",
+    "email": "info@centrogerontologicovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Uruapan, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1161,
+      "move_in_fee": 580,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.65,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Guadalupe",
+    "address": "863 Blvd. Benito Juárez",
+    "city": "Pátzcuaro",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "59202",
+    "phone": "+52 937 375 8410",
+    "email": "info@residenciaparaadultosmayoresguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Pátzcuaro, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 829,
+      "move_in_fee": 414,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.15,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "746 Av. Revolución",
+    "city": "Uruapan",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "75839",
+    "phone": "+52 857 168 2515",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Uruapan, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 803,
+      "move_in_fee": 401,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.62,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "689 Av. Revolución",
+    "city": "Morelia",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "50121",
+    "phone": "+52 930 806 8523",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Morelia, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 959,
+      "move_in_fee": 479,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.66,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados El Jardín",
+    "address": "440 Av. Revolución",
+    "city": "Uruapan",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "52463",
+    "phone": "+52 458 822 8142",
+    "email": "info@centrodecuidadoseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Uruapan, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 801,
+      "move_in_fee": 400,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.26,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Casa Blanca",
+    "address": "122 Calle Central",
+    "city": "Morelia",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "88813",
+    "phone": "+52 690 721 1103",
+    "email": "info@centrodedíacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Morelia, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 837,
+      "move_in_fee": 418,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.41,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados San Miguel",
+    "address": "309 Av. Revolución",
+    "city": "Uruapan",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "94202",
+    "phone": "+52 525 121 6633",
+    "email": "info@centrodecuidadossanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Uruapan, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1049,
+      "move_in_fee": 524,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.68,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Los Pinos",
+    "address": "517 Blvd. Benito Juárez",
+    "city": "Uruapan",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "65756",
+    "phone": "+52 453 204 5532",
+    "email": "info@centrogerontologicolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Uruapan, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1040,
+      "move_in_fee": 520,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.26,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "905 Blvd. Benito Juárez",
+    "city": "Uruapan",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "76386",
+    "phone": "+52 681 538 1107",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Uruapan, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1114,
+      "move_in_fee": 557,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Casa Blanca",
+    "address": "666 Blvd. Benito Juárez",
+    "city": "Morelia",
+    "state": "MICH",
+    "country": "MX",
+    "zip_code": "46460",
+    "phone": "+52 466 538 5523",
+    "email": "info@centrodecuidadoscasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Morelia, Michoacán",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1028,
+      "move_in_fee": 514,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.86,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Villa Dorada",
+    "address": "603 Av. Revolución",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "70183",
+    "phone": "+52 601 352 2310",
+    "email": "info@casaderetirovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 869,
+      "move_in_fee": 434,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.48,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San José",
+    "address": "474 Av. Revolución",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "22081",
+    "phone": "+52 165 951 6204",
+    "email": "info@centrodedíasanjose.mx",
+    "description": "Centro público certificado por el DIF en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1143,
+      "move_in_fee": 571,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.13,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Casa Blanca",
+    "address": "372 Av. Revolución",
+    "city": "Tepic",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "64261",
+    "phone": "+52 167 900 9813",
+    "email": "info@casadeasistenciacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tepic, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1058,
+      "move_in_fee": 529,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.81,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Casa Blanca",
+    "address": "159 Av. Principal",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "87795",
+    "phone": "+52 168 441 2502",
+    "email": "info@centrogerontologicocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 934,
+      "move_in_fee": 467,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "597 Av. Revolución",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "39242",
+    "phone": "+52 987 866 8336",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 896,
+      "move_in_fee": 448,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.03,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia El Jardín",
+    "address": "437 Av. Principal",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "64374",
+    "phone": "+52 826 392 2647",
+    "email": "info@casadeasistenciaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1173,
+      "move_in_fee": 586,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.24,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Casa Blanca",
+    "address": "146 Av. Revolución",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "65749",
+    "phone": "+52 378 316 3591",
+    "email": "info@centrogerontologicocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 966,
+      "move_in_fee": 483,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.3,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Casa Blanca",
+    "address": "683 Av. Revolución",
+    "city": "Bahía de Banderas",
+    "state": "NAY",
+    "country": "MX",
+    "zip_code": "59227",
+    "phone": "+52 808 513 6304",
+    "email": "info@residenciaparaadultosmayorescasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Bahía de Banderas, Nayarit",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 900,
+      "move_in_fee": 450,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.22,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "396 Blvd. Benito Juárez",
+    "city": "San Luis Potosí",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "60236",
+    "phone": "+52 978 562 1206",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Luis Potosí, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1134,
+      "move_in_fee": 567,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.24,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Santa María",
+    "address": "500 Blvd. Benito Juárez",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "99550",
+    "phone": "+52 167 446 5496",
+    "email": "info@casaderetirosantamaría.mx",
+    "description": "Centro público certificado por el DIF en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 920,
+      "move_in_fee": 460,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.18,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Casa Blanca",
+    "address": "108 Calle Central",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "51342",
+    "phone": "+52 975 298 5954",
+    "email": "info@casaderetirocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 955,
+      "move_in_fee": 477,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.79,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San Antonio",
+    "address": "414 Av. Revolución",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "55154",
+    "phone": "+52 819 843 4917",
+    "email": "info@centrodedíasanantonio.mx",
+    "description": "Centro público certificado por el DIF en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 984,
+      "move_in_fee": 492,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.22,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados El Jardín",
+    "address": "876 Av. Principal",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "28065",
+    "phone": "+52 533 157 9919",
+    "email": "info@centrodecuidadoseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1083,
+      "move_in_fee": 541,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.63,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro San Antonio",
+    "address": "668 Calle Central",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "63585",
+    "phone": "+52 618 456 1237",
+    "email": "info@casaderetirosanantonio.mx",
+    "description": "Centro público certificado por el DIF en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 851,
+      "move_in_fee": 425,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.07,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Casa Blanca",
+    "address": "833 Av. Principal",
+    "city": "San Luis Potosí",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "14817",
+    "phone": "+52 928 894 1426",
+    "email": "info@casaderetirocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Luis Potosí, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1165,
+      "move_in_fee": 582,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.45,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "573 Av. Principal",
+    "city": "San Luis Potosí",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "22011",
+    "phone": "+52 782 128 2440",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Luis Potosí, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1109,
+      "move_in_fee": 554,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.12,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico San José",
+    "address": "945 Blvd. Benito Juárez",
+    "city": "San Luis Potosí",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "23068",
+    "phone": "+52 113 972 1585",
+    "email": "info@centrogerontologicosanjose.mx",
+    "description": "Centro público certificado por el DIF en San Luis Potosí, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1005,
+      "move_in_fee": 502,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.01,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Los Pinos",
+    "address": "727 Calle Central",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "31320",
+    "phone": "+52 382 352 6688",
+    "email": "info@casahogarlospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1142,
+      "move_in_fee": 571,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.16,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Guadalupe",
+    "address": "761 Blvd. Benito Juárez",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "34432",
+    "phone": "+52 114 901 3684",
+    "email": "info@casadeasistenciaguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 904,
+      "move_in_fee": 452,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.27,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Nuevo Amanecer",
+    "address": "109 Calle Central",
+    "city": "Ciudad Valles",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "20940",
+    "phone": "+52 930 599 5038",
+    "email": "info@residenciaparaadultosmayoresnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Valles, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1124,
+      "move_in_fee": 562,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.72,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Casa Blanca",
+    "address": "409 Calle Central",
+    "city": "San Luis Potosí",
+    "state": "SLP",
+    "country": "MX",
+    "zip_code": "85525",
+    "phone": "+52 291 123 7286",
+    "email": "info@casahogarcasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en San Luis Potosí, San Luis Potosí",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 990,
+      "move_in_fee": 495,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.87,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Los Pinos",
+    "address": "273 Calle Central",
+    "city": "Mazatlán",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "74289",
+    "phone": "+52 668 404 8035",
+    "email": "info@residenciaparaadultosmayoreslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Mazatlán, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 816,
+      "move_in_fee": 408,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.82,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "271 Av. Revolución",
+    "city": "Ciudad Obregón",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "75948",
+    "phone": "+52 889 659 6515",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Obregón, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1032,
+      "move_in_fee": 516,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.0,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro San Antonio",
+    "address": "485 Calle Central",
+    "city": "Mazatlán",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "61003",
+    "phone": "+52 100 414 1410",
+    "email": "info@casaderetirosanantonio.mx",
+    "description": "Centro público certificado por el DIF en Mazatlán, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 872,
+      "move_in_fee": 436,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.05,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores El Jardín",
+    "address": "278 Blvd. Benito Juárez",
+    "city": "Mazatlán",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "31894",
+    "phone": "+52 326 191 5646",
+    "email": "info@residenciaparaadultosmayoreseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Mazatlán, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 894,
+      "move_in_fee": 447,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.35,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "965 Av. Revolución",
+    "city": "Mazatlán",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "52191",
+    "phone": "+52 829 134 5210",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Mazatlán, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1094,
+      "move_in_fee": 547,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.43,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Casa Blanca",
+    "address": "573 Blvd. Benito Juárez",
+    "city": "Hermosillo",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "65340",
+    "phone": "+52 892 635 3997",
+    "email": "info@residenciaparaadultosmayorescasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Hermosillo, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1118,
+      "move_in_fee": 559,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.58,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Los Pinos",
+    "address": "332 Blvd. Benito Juárez",
+    "city": "Ciudad Obregón",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "31632",
+    "phone": "+52 546 745 3245",
+    "email": "info@casadeasistencialospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Obregón, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 859,
+      "move_in_fee": 429,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.15,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Villa Dorada",
+    "address": "900 Calle Central",
+    "city": "Hermosillo",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "40946",
+    "phone": "+52 534 492 2219",
+    "email": "info@centrodecuidadosvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Hermosillo, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 894,
+      "move_in_fee": 447,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.32,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "689 Av. Revolución",
+    "city": "Mazatlán",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "33950",
+    "phone": "+52 667 286 6549",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Mazatlán, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1151,
+      "move_in_fee": 575,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.5,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Casa Blanca",
+    "address": "300 Av. Principal",
+    "city": "Ciudad Obregón",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "11932",
+    "phone": "+52 159 566 3871",
+    "email": "info@casaderetirocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Obregón, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 909,
+      "move_in_fee": 454,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.67,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Nuevo Amanecer",
+    "address": "278 Calle Central",
+    "city": "Mazatlán",
+    "state": "SON",
+    "country": "MX",
+    "zip_code": "30156",
+    "phone": "+52 916 799 9807",
+    "email": "info@casaderetironuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Mazatlán, Sonora",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1114,
+      "move_in_fee": 557,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.74,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Nuevo Amanecer",
+    "address": "999 Av. Revolución",
+    "city": "Villahermosa",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "45180",
+    "phone": "+52 526 962 3036",
+    "email": "info@centrodedíanuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Villahermosa, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1189,
+      "move_in_fee": 594,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.86,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "315 Calle Central",
+    "city": "Cárdenas",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "33369",
+    "phone": "+52 695 686 2169",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Cárdenas, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 905,
+      "move_in_fee": 452,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.61,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Nuevo Amanecer",
+    "address": "460 Av. Principal",
+    "city": "Villahermosa",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "41934",
+    "phone": "+52 635 572 2749",
+    "email": "info@casaderetironuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Villahermosa, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 873,
+      "move_in_fee": 436,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.7,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Nuevo Amanecer",
+    "address": "429 Calle Central",
+    "city": "Cárdenas",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "18021",
+    "phone": "+52 586 971 6278",
+    "email": "info@centrogerontologiconuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Cárdenas, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 839,
+      "move_in_fee": 419,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.36,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar San Miguel",
+    "address": "859 Calle Central",
+    "city": "Villahermosa",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "50452",
+    "phone": "+52 325 191 4800",
+    "email": "info@casahogarsanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Villahermosa, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1000,
+      "move_in_fee": 500,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.02,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Los Pinos",
+    "address": "703 Av. Revolución",
+    "city": "Cárdenas",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "32130",
+    "phone": "+52 124 560 9157",
+    "email": "info@centrogerontologicolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Cárdenas, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 848,
+      "move_in_fee": 424,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.87,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Los Pinos",
+    "address": "738 Calle Central",
+    "city": "Villahermosa",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "71501",
+    "phone": "+52 213 362 3263",
+    "email": "info@residenciaparaadultosmayoreslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Villahermosa, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 820,
+      "move_in_fee": 410,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.08,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Casa Blanca",
+    "address": "137 Av. Principal",
+    "city": "Villahermosa",
+    "state": "TAB",
+    "country": "MX",
+    "zip_code": "26320",
+    "phone": "+52 277 317 1046",
+    "email": "info@casahogarcasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Villahermosa, Tabasco",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 926,
+      "move_in_fee": 463,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.29,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Casa Blanca",
+    "address": "541 Calle Central",
+    "city": "Ciudad Victoria",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "98345",
+    "phone": "+52 673 479 5281",
+    "email": "info@casaderetirocasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Victoria, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1070,
+      "move_in_fee": 535,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.3,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Casa Blanca",
+    "address": "404 Calle Central",
+    "city": "Reynosa",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "80849",
+    "phone": "+52 552 952 3921",
+    "email": "info@casadeasistenciacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Reynosa, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 974,
+      "move_in_fee": 487,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.54,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Nuevo Amanecer",
+    "address": "123 Calle Central",
+    "city": "Ciudad Victoria",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "92210",
+    "phone": "+52 465 487 9738",
+    "email": "info@centrodedíanuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Victoria, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1125,
+      "move_in_fee": 562,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.38,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "379 Av. Principal",
+    "city": "Ciudad Victoria",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "98359",
+    "phone": "+52 846 537 2137",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Ciudad Victoria, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1160,
+      "move_in_fee": 580,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.49,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia El Jardín",
+    "address": "230 Av. Revolución",
+    "city": "Tampico",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "40797",
+    "phone": "+52 250 827 6176",
+    "email": "info@casadeasistenciaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tampico, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 957,
+      "move_in_fee": 478,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.33,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados San Antonio",
+    "address": "395 Calle Central",
+    "city": "Tampico",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "83383",
+    "phone": "+52 243 837 6940",
+    "email": "info@centrodecuidadossanantonio.mx",
+    "description": "Centro público certificado por el DIF en Tampico, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 866,
+      "move_in_fee": 433,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.89,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Villa Dorada",
+    "address": "644 Calle Central",
+    "city": "Reynosa",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "65837",
+    "phone": "+52 559 422 7906",
+    "email": "info@casadeasistenciavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Reynosa, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 954,
+      "move_in_fee": 477,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.03,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Los Pinos",
+    "address": "621 Av. Revolución",
+    "city": "Reynosa",
+    "state": "TAMS",
+    "country": "MX",
+    "zip_code": "69891",
+    "phone": "+52 640 424 9885",
+    "email": "info@casaderetirolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Reynosa, Tamaulipas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1098,
+      "move_in_fee": 549,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.0,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Guadalupe",
+    "address": "784 Blvd. Benito Juárez",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "96435",
+    "phone": "+52 102 203 5484",
+    "email": "info@casahogarguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1000,
+      "move_in_fee": 500,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.3,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Villa Dorada",
+    "address": "208 Calle Central",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "37910",
+    "phone": "+52 960 933 2317",
+    "email": "info@centrodedíavilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1105,
+      "move_in_fee": 552,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.21,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Los Pinos",
+    "address": "585 Blvd. Benito Juárez",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "15795",
+    "phone": "+52 469 759 8499",
+    "email": "info@casaderetirolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 809,
+      "move_in_fee": 404,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.68,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados El Jardín",
+    "address": "749 Av. Principal",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "84380",
+    "phone": "+52 782 277 1248",
+    "email": "info@centrodecuidadoseljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1177,
+      "move_in_fee": 588,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.82,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Los Pinos",
+    "address": "472 Av. Revolución",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "82689",
+    "phone": "+52 842 327 5635",
+    "email": "info@centrogerontologicolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1154,
+      "move_in_fee": 577,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.7,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San Antonio",
+    "address": "698 Av. Principal",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "63197",
+    "phone": "+52 621 535 6158",
+    "email": "info@centrodedíasanantonio.mx",
+    "description": "Centro público certificado por el DIF en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 967,
+      "move_in_fee": 483,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.89,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "463 Calle Central",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "92944",
+    "phone": "+52 243 849 2467",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1198,
+      "move_in_fee": 599,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.04,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Los Pinos",
+    "address": "725 Blvd. Benito Juárez",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "25902",
+    "phone": "+52 777 173 9280",
+    "email": "info@centrodedíalospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1140,
+      "move_in_fee": 570,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.32,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Nuevo Amanecer",
+    "address": "394 Av. Revolución",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "50250",
+    "phone": "+52 661 890 6882",
+    "email": "info@centrodecuidadosnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1116,
+      "move_in_fee": 558,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.59,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "439 Calle Central",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "82921",
+    "phone": "+52 332 376 4579",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1002,
+      "move_in_fee": 501,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.7,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar San José",
+    "address": "192 Blvd. Benito Juárez",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "98467",
+    "phone": "+52 561 295 8122",
+    "email": "info@casahogarsanjose.mx",
+    "description": "Centro público certificado por el DIF en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1019,
+      "move_in_fee": 509,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.22,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Santa María",
+    "address": "660 Av. Revolución",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "23003",
+    "phone": "+52 943 767 6953",
+    "email": "info@centrodecuidadossantamaría.mx",
+    "description": "Centro público certificado por el DIF en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 985,
+      "move_in_fee": 492,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.36,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día El Jardín",
+    "address": "480 Blvd. Benito Juárez",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "66805",
+    "phone": "+52 839 132 9031",
+    "email": "info@centrodedíaeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1082,
+      "move_in_fee": 541,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.01,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Nuevo Amanecer",
+    "address": "760 Blvd. Benito Juárez",
+    "city": "Tlaxcala",
+    "state": "TLAX",
+    "country": "MX",
+    "zip_code": "34001",
+    "phone": "+52 913 999 6294",
+    "email": "info@centrodedíanuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Tlaxcala, Tlaxcala",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1171,
+      "move_in_fee": 585,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.38,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Villa Dorada",
+    "address": "596 Calle Central",
+    "city": "Orizaba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "15312",
+    "phone": "+52 180 403 2264",
+    "email": "info@casaderetirovilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Orizaba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1011,
+      "move_in_fee": 505,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.85,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Casa Blanca",
+    "address": "425 Av. Revolución",
+    "city": "Córdoba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "34701",
+    "phone": "+52 423 609 5101",
+    "email": "info@casadeasistenciacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Córdoba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1128,
+      "move_in_fee": 564,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.8,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Nuevo Amanecer",
+    "address": "138 Blvd. Benito Juárez",
+    "city": "Orizaba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "55598",
+    "phone": "+52 199 880 1761",
+    "email": "info@centrodedíanuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Orizaba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1163,
+      "move_in_fee": 581,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.14,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores San Miguel",
+    "address": "764 Av. Principal",
+    "city": "Xalapa",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "49252",
+    "phone": "+52 466 946 1278",
+    "email": "info@residenciaparaadultosmayoressanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Xalapa, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 932,
+      "move_in_fee": 466,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.54,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Asistencia Casa Blanca",
+    "address": "270 Blvd. Benito Juárez",
+    "city": "Córdoba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "50485",
+    "phone": "+52 817 579 6930",
+    "email": "info@casadeasistenciacasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Córdoba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1112,
+      "move_in_fee": 556,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.59,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Casa Blanca",
+    "address": "467 Av. Revolución",
+    "city": "Córdoba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "66606",
+    "phone": "+52 843 712 3245",
+    "email": "info@casahogarcasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Córdoba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 884,
+      "move_in_fee": 442,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.2,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Santa María",
+    "address": "304 Calle Central",
+    "city": "Orizaba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "73487",
+    "phone": "+52 923 461 7557",
+    "email": "info@casahogarsantamaría.mx",
+    "description": "Centro público certificado por el DIF en Orizaba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1155,
+      "move_in_fee": 577,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.25,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Guadalupe",
+    "address": "827 Calle Central",
+    "city": "Orizaba",
+    "state": "VER",
+    "country": "MX",
+    "zip_code": "72126",
+    "phone": "+52 284 724 5830",
+    "email": "info@casaderetiroguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Orizaba, Veracruz",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1080,
+      "move_in_fee": 540,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.33,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día Santa María",
+    "address": "692 Blvd. Benito Juárez",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "87757",
+    "phone": "+52 324 959 8195",
+    "email": "info@centrodedíasantamaría.mx",
+    "description": "Centro público certificado por el DIF en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1137,
+      "move_in_fee": 568,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.41,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Guadalupe",
+    "address": "535 Blvd. Benito Juárez",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "17616",
+    "phone": "+52 250 228 4646",
+    "email": "info@centrodecuidadosguadalupe.mx",
+    "description": "Centro público certificado por el DIF en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 906,
+      "move_in_fee": 453,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.46,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro Gerontológico Nuevo Amanecer",
+    "address": "573 Calle Central",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "68653",
+    "phone": "+52 400 374 5762",
+    "email": "info@centrogerontologiconuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 882,
+      "move_in_fee": 441,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.03,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Villa Dorada",
+    "address": "661 Calle Central",
+    "city": "Zacatecas",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "93461",
+    "phone": "+52 801 862 6028",
+    "email": "info@residenciaparaadultosmayoresvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Zacatecas, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 927,
+      "move_in_fee": 463,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.83,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Los Pinos",
+    "address": "119 Av. Revolución",
+    "city": "Zacatecas",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "96554",
+    "phone": "+52 489 828 8664",
+    "email": "info@casaderetirolospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Zacatecas, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1090,
+      "move_in_fee": 545,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Cuidados Los Pinos",
+    "address": "211 Calle Central",
+    "city": "Zacatecas",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "34137",
+    "phone": "+52 770 699 7826",
+    "email": "info@centrodecuidadoslospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Zacatecas, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1069,
+      "move_in_fee": 534,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.28,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro El Jardín",
+    "address": "999 Calle Central",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "25286",
+    "phone": "+52 927 596 2151",
+    "email": "info@casaderetiroeljardín.mx",
+    "description": "Instalación privada registrada ante INAPAM en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 896,
+      "move_in_fee": 448,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.15,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Nuevo Amanecer",
+    "address": "433 Calle Central",
+    "city": "Zacatecas",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "35570",
+    "phone": "+52 281 236 5471",
+    "email": "info@casahogarnuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Zacatecas, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 984,
+      "move_in_fee": 492,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.07,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Centro de Día San Miguel",
+    "address": "743 Blvd. Benito Juárez",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "22363",
+    "phone": "+52 671 334 6677",
+    "email": "info@centrodedíasanmiguel.mx",
+    "description": "Centro público certificado por el DIF en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1111,
+      "move_in_fee": 555,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.55,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro Nuevo Amanecer",
+    "address": "780 Calle Central",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "71656",
+    "phone": "+52 972 660 5876",
+    "email": "info@casaderetironuevoamanecer.mx",
+    "description": "Instalación privada registrada ante INAPAM en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1030,
+      "move_in_fee": 515,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.75,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Villa Dorada",
+    "address": "854 Calle Central",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "51762",
+    "phone": "+52 331 389 3420",
+    "email": "info@casahogarvilladorada.mx",
+    "description": "Instalación privada registrada ante INAPAM en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 804,
+      "move_in_fee": 402,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.24,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa Hogar Los Pinos",
+    "address": "222 Av. Principal",
+    "city": "Fresnillo",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "30908",
+    "phone": "+52 262 391 5365",
+    "email": "info@casahogarlospinos.mx",
+    "description": "Instalación privada registrada ante INAPAM en Fresnillo, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1186,
+      "move_in_fee": 593,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.14,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Casa de Retiro San José",
+    "address": "415 Blvd. Benito Juárez",
+    "city": "Zacatecas",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "37619",
+    "phone": "+52 919 603 8583",
+    "email": "info@casaderetirosanjose.mx",
+    "description": "Centro público certificado por el DIF en Zacatecas, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 1163,
+      "move_in_fee": 581,
+      "currency": "USD"
+    },
+    "data_source_note": "DIF - Sistema Nacional",
+    "rating": 4.71,
+    "subscription_tier": "verified"
+  },
+  {
+    "name": "Residencia para Adultos Mayores Casa Blanca",
+    "address": "345 Calle Central",
+    "city": "Zacatecas",
+    "state": "ZAC",
+    "country": "MX",
+    "zip_code": "41746",
+    "phone": "+52 887 215 6932",
+    "email": "info@residenciaparaadultosmayorescasablanca.mx",
+    "description": "Instalación privada registrada ante INAPAM en Zacatecas, Zacatecas",
+    "care_types": [
+      "Assisted Living"
+    ],
+    "amenities": [
+      "Jardines",
+      "Sala de estar",
+      "Comedor comunitario",
+      "Área de terapia",
+      "Capilla",
+      "Biblioteca"
+    ],
+    "price_range": {
+      "monthly_rent": 878,
+      "move_in_fee": 439,
+      "currency": "USD"
+    },
+    "data_source_note": "INAPAM Registro Nacional",
+    "rating": 4.59,
+    "subscription_tier": "verified"
+  }
+]

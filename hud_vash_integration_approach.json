@@ -1,0 +1,28 @@
+{
+  "datasets": {
+    "public_housing_authorities": "https://hudgis-hud.opendata.arcgis.com/datasets/HUD::public-housing-authorities/about",
+    "hcv_dashboard": "https://www.hud.gov/program_offices/public_indian_housing/programs/hcv/dashboard",
+    "fair_market_rent": "https://www.huduser.gov/portal/datasets/fmr.html"
+  },
+  "structure": {
+    "facility_type": "HUD-VASH",
+    "fields": [
+      "pha_name",
+      "pha_address",
+      "pha_city",
+      "pha_state",
+      "pha_zip",
+      "pha_phone",
+      "pha_email",
+      "pha_website",
+      "voucher_allocation",
+      "utilization_rate",
+      "va_medical_center",
+      "va_distance_miles",
+      "application_url",
+      "waitlist_status"
+    ]
+  },
+  "approach": "\n## HUD-VASH Data Integration Approach\n\n1. **Public Housing Authorities (PHAs)**\n   - Download PHA directory from HUD Open Data\n   - Filter PHAs that administer HUD-VASH vouchers\n   - Extract contact information and service areas\n\n2. **VA Medical Centers**\n   - Use VA facility locator API\n   - Map HUD-VASH coordinators at each VAMC\n   - Calculate distances to PHAs\n\n3. **Voucher Data**\n   - Access HCV Dashboard SPV reports\n   - Extract HUD-VASH allocation numbers\n   - Monitor utilization rates\n\n4. **Integration Process**\n   - Match PHAs with VA medical centers\n   - Create comprehensive facility records\n   - Update monthly from HUD data feeds\n",
+  "timestamp": "2025-07-10T08:53:06.074204"
+}
