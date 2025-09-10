@@ -289,20 +289,52 @@ export function CommunityDetailsHeader({
           />
         </div>
         
-        {/* Featured Badge and Action Buttons - Moved Below Carousel */}
-        <div className="flex justify-between items-center px-6 py-3 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
-          {/* Featured Badge */}
-          <div>
-            {community.brandId && (
-              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white text-sm font-bold px-4 py-2 shadow-lg">
-                <Star className="w-4 h-4 mr-2" />
-                FEATURED EXCELLENCE
-              </Badge>
+        {/* Featured Badge, Photo Thumbnails and Action Buttons - Combined Row */}
+        <div className="flex justify-between items-center px-3 sm:px-6 py-2 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+          {/* Photo Thumbnails - Compact Strip */}
+          <div className="flex-1 flex items-center space-x-1 overflow-x-auto max-w-[60%] sm:max-w-[70%]">
+            {getCombinedPhotos().length > 1 && getCombinedPhotos().slice(0, 10).map((photo, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  // Send event to carousel to change photo
+                  const carousel = document.querySelector('.carousel-main-image');
+                  if (carousel) {
+                    carousel.dispatchEvent(new CustomEvent('goToPhoto', { detail: { index } }));
+                  }
+                }}
+                className={`relative flex-shrink-0 w-10 h-8 sm:w-12 sm:h-10 rounded overflow-hidden border-2 transition-all hover:scale-110 ${
+                  index === 0 
+                    ? "border-blue-500 shadow-md" 
+                    : "border-gray-300 dark:border-gray-600 opacity-80 hover:opacity-100"
+                }`}
+                title={`View photo ${index + 1}`}
+              >
+                <img
+                  src={typeof photo === 'string' ? photo : photo.image_url || photo.url}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    img.style.filter = 'brightness(0.5)';
+                  }}
+                />
+                {index === 0 && (
+                  <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                    <div className="w-1 h-1 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </button>
+            ))}
+            {getCombinedPhotos().length > 10 && (
+              <div className="flex-shrink-0 px-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                +{getCombinedPhotos().length - 10} more
+              </div>
             )}
           </div>
           
           {/* Action Buttons */}
-          <div className="flex space-x-3">
+          <div className="flex items-center space-x-2 ml-3">
             {onFavoriteToggle && (
               <button
                 onClick={onFavoriteToggle}

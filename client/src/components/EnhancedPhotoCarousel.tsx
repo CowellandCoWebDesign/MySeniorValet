@@ -428,41 +428,6 @@ export function EnhancedPhotoCarousel({
           )}
         </div>
 
-        {/* Enhanced Thumbnail Strip with Validation Indicators */}
-        {photos.length > 1 && (
-          <div className="absolute bottom-4 left-4 right-16 flex space-x-2 overflow-x-auto">
-            {photos.map((photo, index) => {
-              const validation = photoValidation[photo];
-              return (
-                <button
-                  key={index}
-                  onClick={() => goToPhoto(index)}
-                  className={`relative flex-shrink-0 w-12 h-8 rounded overflow-hidden border-2 transition-all ${
-                    index === currentIndex 
-                      ? "border-white shadow-lg" 
-                      : "border-transparent opacity-70 hover:opacity-100"
-                  }`}
-                >
-                  <img
-                    src={photo}
-                    alt={`Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      img.style.filter = 'brightness(0.5)';
-                    }}
-                  />
-                  {/* Validation indicator on thumbnail */}
-                  {showValidation && validation && !validation.isValid && (
-                    <div className="absolute inset-0 bg-red-500/30 flex items-center justify-center">
-                      <AlertTriangle className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
 
         {/* Overall Photo Health Indicator */}
         {showValidation && validationSummary && (
