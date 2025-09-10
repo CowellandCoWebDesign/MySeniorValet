@@ -711,12 +711,6 @@ function HeroSectionWithTransformingSearch() {
           <div className="flex flex-col gap-1">
             {/* First Line */}
             <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-                <span className="mr-0.5 text-[10px] sm:text-xs">🤖</span> AI-Assisted Research
-              </div>
-            </div>
-            {/* Second Line */}
-            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
               <div className="flex items-center text-[9px] sm:text-[10px] text-emerald-300 font-semibold bg-emerald-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
                 <span className="mr-0.5 text-[10px] sm:text-xs">💲</span> Online Bill Payment
               </div>
