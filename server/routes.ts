@@ -40,6 +40,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Keep auth bypass for super admin access
   const { setupAuthBypass } = await import('./auth-bypass');
   await setupAuthBypass(app);
+  
+  // Apply security monitoring middleware to detect and log threats
+  const { securityMonitoringMiddleware } = await import('./security-monitor');
+  app.use(securityMonitoringMiddleware);
 
   // Initialize community stats cache on startup (non-blocking)
   communityStatsCache.initialize().catch(error => {
