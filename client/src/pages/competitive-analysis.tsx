@@ -177,70 +177,57 @@ export default function CompetitiveAnalysis() {
         }} />
       </div>
 
-      {/* Header with enhanced styling and Thinker image - Added proper spacing for sticky header */}
-      <div className="relative h-[550px] text-white overflow-hidden" style={{ paddingTop: '80px' }}>
-        {/* Thinker Background Image with full visibility */}
+      {/* Header with Thinker image - NO TEXT OVERLAY */}
+      <div className="relative h-[400px] overflow-hidden" style={{ paddingTop: '80px' }}>
+        {/* Thinker Background Image with FULL visibility */}
         <img 
           src={heroThinkerImage}
           alt="The Thinker contemplating market analysis"
           className="absolute inset-0 w-full h-full object-cover z-0"
         />
-        
-        {/* Content positioned at top 40% only */}
-        <div className="absolute top-0 left-0 right-0 h-[40%] z-20 pt-20">
-          <div className="h-full flex items-start pt-6">
-            <div className="max-w-7xl mx-auto px-4 w-full">
-              {/* Compact content container */}
-              <div className="bg-black/70 backdrop-blur-sm rounded-xl p-4 sm:p-6">
-                <Link href="/">
-                  <Button 
-                    variant="ghost" 
-                    className="text-white hover:bg-white/20 mb-3 text-sm transition-all duration-300"
-                  >
-                    ← Back to Home
-                  </Button>
-                </Link>
-                
-                <div className="space-y-3">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold flex items-center gap-3 animate-fadeIn">
-                    <div className="p-2 bg-white/10 rounded-lg">
-                      <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8" />
-                    </div>
-                    <span className="text-white">
-                      Competitive Market Analysis
-                    </span>
-                  </h1>
-                  
-                  <p className="text-sm sm:text-base text-white/90 max-w-2xl leading-snug animate-fadeIn animation-delay-200">
-                    Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-2 animate-fadeIn animation-delay-300">
-                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 text-xs hover:bg-white/30 transition-all duration-300">
-                      <Brain className="w-3 h-3 mr-1" />
-                      Perplexity AI Powered
-                    </Badge>
-                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 text-xs hover:bg-white/30 transition-all duration-300">
-                      <Globe className="w-3 h-3 mr-1" />
-                      Live Web Search
-                    </Badge>
-                    <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-3 py-1 text-xs hover:bg-white/30 transition-all duration-300">
-                      <BarChart3 className="w-3 h-3 mr-1" />
-                      Real-Time Data
-                    </Badge>
-                  </div>
-                </div>
+      </div>
+      
+      {/* Content Section - BELOW the image */}
+      <div className="bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 dark:from-gray-900 dark:via-blue-900/30 dark:to-emerald-900/20 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <Link href="/">
+            <Button 
+              variant="outline" 
+              className="mb-4 transition-all duration-300 hover:scale-105"
+            >
+              ← Back to Home
+            </Button>
+          </Link>
+          
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold flex items-center gap-3 animate-fadeIn">
+              <div className="p-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl text-white">
+                <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Competitive Market Analysis
+              </span>
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-3xl leading-relaxed animate-fadeIn animation-delay-200">
+              Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
+            </p>
+            
+            <div className="flex flex-wrap gap-3 animate-fadeIn animation-delay-300">
+              <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 px-4 py-2 text-sm hover:scale-105 transition-all duration-300">
+                <Brain className="w-4 h-4 mr-2" />
+                Perplexity AI Powered
+              </Badge>
+              <Badge className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 px-4 py-2 text-sm hover:scale-105 transition-all duration-300">
+                <Globe className="w-4 h-4 mr-2" />
+                Live Web Search
+              </Badge>
+              <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700 px-4 py-2 text-sm hover:scale-105 transition-all duration-300">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Real-Time Data
+              </Badge>
             </div>
           </div>
-        </div>
-        
-        {/* Wave decoration at bottom */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg className="w-full h-12" viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 48h1440V0c-120 28-240 48-360 48S840 28 720 28 480 48 360 48 120 28 0 28v20z" 
-                  fill="currentColor" className="text-gray-50 dark:text-gray-900" />
-          </svg>
         </div>
       </div>
 
