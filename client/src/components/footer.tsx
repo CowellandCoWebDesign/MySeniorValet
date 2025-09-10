@@ -90,7 +90,12 @@ export function Footer() {
               <h3 className="text-sm font-semibold mb-3 text-white">For Families</h3>
               <ul className="space-y-2 text-xs text-gray-300">
                 <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
-                <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Explore All</Link></li>
+                <li><Link href="/family-collaboration-center" className="hover:text-blue-400 transition-colors">Family Collaboration Center</Link></li>
+                <li><Link href="/resident-portal" className="hover:text-blue-400 transition-colors">Resident Portal</Link></li>
+                <li><Link href="/tour-tracker" className="hover:text-blue-400 transition-colors">Tour Tracker</Link></li>
+                <li><Link href="/tourmate" className="hover:text-blue-400 transition-colors">TourMate</Link></li>
+                <li><Link href="/competitive-analysis" className="hover:text-blue-400 transition-colors">Market Analysis</Link></li>
+                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
                 <li><Link href="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
                 <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
               </ul>
