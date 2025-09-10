@@ -25,20 +25,12 @@ export function setupSocialAuth(app: any) {
     // Determine the correct redirect URI based on environment
     let redirectUri: string;
     
-    // Check if we're in production by looking at the host or using environment variable
+    // Always use the current host for the redirect URI
     const host = req.get('host');
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                         host?.includes('myseniorvalet.com') ||
-                         host?.includes('myseniorvalet.replit.app');
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
     
-    if (isProduction) {
-      // In production, always use the custom domain
-      redirectUri = 'https://www.myseniorvalet.com/api/auth/google/callback';
-    } else {
-      // In development, use the current host
-      const protocol = req.protocol;
-      redirectUri = `${protocol}://${host}/api/auth/google/callback`;
-    }
+    // Use the actual host the request came from
+    redirectUri = `${protocol}://${host}/api/auth/google/callback`;
     
     console.log('Google OAuth redirect URI:', redirectUri);
     
@@ -62,19 +54,12 @@ export function setupSocialAuth(app: any) {
       // Determine the correct redirect URI based on environment (must match what was sent in the auth request)
       let redirectUri: string;
       
+      // Always use the current host for the redirect URI
       const host = req.get('host');
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                         host?.includes('myseniorvalet.com') ||
-                         host?.includes('myseniorvalet.replit.app');
+      const protocol = req.get('x-forwarded-proto') || req.protocol;
       
-      if (isProduction) {
-        // In production, always use the custom domain
-        redirectUri = 'https://www.myseniorvalet.com/api/auth/google/callback';
-      } else {
-        // In development, use the current host
-        const protocol = req.protocol;
-        redirectUri = `${protocol}://${host}/api/auth/google/callback`;
-      }
+      // Use the actual host the request came from
+      redirectUri = `${protocol}://${host}/api/auth/google/callback`;
       
       console.log('Google OAuth callback redirect URI:', redirectUri);
 
@@ -167,17 +152,12 @@ export function setupSocialAuth(app: any) {
     // Determine the correct redirect URI based on environment
     let redirectUri: string;
     
+    // Always use the current host for the redirect URI
     const host = req.get('host');
-    const isProduction = process.env.NODE_ENV === 'production' || 
-                         host?.includes('myseniorvalet.com') ||
-                         host?.includes('myseniorvalet.replit.app');
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
     
-    if (isProduction) {
-      redirectUri = 'https://www.myseniorvalet.com/api/auth/facebook/callback';
-    } else {
-      const protocol = req.protocol;
-      redirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
-    }
+    // Use the actual host the request came from
+    redirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
     
     const fbAuthUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
       `client_id=${process.env.FACEBOOK_APP_ID}` +
@@ -199,17 +179,11 @@ export function setupSocialAuth(app: any) {
 
       // Determine the correct redirect URI based on environment
       const host = req.get('host');
-      const isProduction = process.env.NODE_ENV === 'production' || 
-                         host?.includes('myseniorvalet.com') ||
-                         host?.includes('myseniorvalet.replit.app');
+      const protocol = req.get('x-forwarded-proto') || req.protocol;
       
+      // Use the actual host the request came from
       let redirectUri: string;
-      if (isProduction) {
-        redirectUri = 'https://www.myseniorvalet.com/api/auth/facebook/callback';
-      } else {
-        const protocol = req.protocol;
-        redirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
-      }
+      redirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
 
       // Exchange code for access token
       const tokenResponse = await axios.get(
