@@ -447,7 +447,7 @@ export const legalDocumentVersions = pgTable("legal_document_versions", {
     lastModified?: string;
     template?: string;
   }>().default({}),
-  supersededVersionId: integer("superseded_version_id").references(() => legalDocumentVersions.id),
+  supersededVersionId: integer("superseded_version_id"),
   isActive: boolean("is_active").default(false),
   viewCount: integer("view_count").default(0),
   downloadCount: integer("download_count").default(0),
@@ -3577,10 +3577,7 @@ export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit(
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
   id: true,
-  createdAt: true,
-  updatedAt: true,
-  isRead: true,
-  readAt: true,
+  createdAt: true
 });
 
 // Add missing type exports for messaging
@@ -3608,16 +3605,13 @@ export type SelectMessage = typeof messages.$inferSelect;
 export const insertMessageTemplateSchema = createInsertSchema(messageTemplates).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
-  useCount: true,
+  updatedAt: true
 });
 
 export const insertTourSchema = createInsertSchema(tours).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
-  reminderSent: true,
-  feedbackSubmitted: true,
+  updatedAt: true
 });
 
 // Enhanced tour creation schema for the comprehensive tour tracker
@@ -3780,7 +3774,7 @@ export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type Favorite = typeof favorites.$inferSelect;
 export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
 export type SearchHistoryEntry = typeof searchHistory.$inferSelect;
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
+// export type InsertMessage = z.infer<typeof insertMessageSchema>; // Duplicate removed
 export type Message = typeof messages.$inferSelect;
 export type InsertMessageTemplate = z.infer<typeof insertMessageTemplateSchema>;
 export type MessageTemplate = typeof messageTemplates.$inferSelect;
