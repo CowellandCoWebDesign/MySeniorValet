@@ -608,7 +608,7 @@ export default function ApiIntegrationHub({ corporateId, viewMode = 'admin' }: A
                 <div className="flex gap-2">
                   <Input
                     type={showApiKey ? "text" : "password"}
-                    value="sk_live_abc123xyz789def456ghi012jkl345"
+                    value={import.meta.env.VITE_STRIPE_API_KEY || "****-****-****-****"}
                     readOnly
                     className="font-mono text-sm"
                   />
@@ -623,7 +623,17 @@ export default function ApiIntegrationHub({ corporateId, viewMode = 'admin' }: A
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      navigator.clipboard.writeText('sk_live_abc123xyz789def456ghi012jkl345');
+                      const apiKey = import.meta.env.VITE_STRIPE_API_KEY || "****-****-****-****";
+                      if (apiKey && apiKey !== "****-****-****-****") {
+                        navigator.clipboard.writeText(apiKey);
+                      } else {
+                        toast({
+                          title: 'Error',
+                          description: 'API key not configured. Please set VITE_STRIPE_API_KEY environment variable.',
+                          variant: 'destructive',
+                        });
+                        return;
+                      }
                       toast({
                         title: 'Copied',
                         description: 'API key copied to clipboard',
