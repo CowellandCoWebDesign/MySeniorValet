@@ -5,6 +5,7 @@
 
 import { Router } from 'express';
 import { cityVerificationQueue } from '../services/city-verification-queue';
+import { enhancedCityVerification } from '../services/enhanced-city-verification';
 
 const router = Router();
 
@@ -133,6 +134,41 @@ router.post('/api/verification/start-automated', async (req, res) => {
     });
   } catch (error: any) {
     console.error('Error starting automated verification:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
+/**
+ * Enhanced bulk city search - find ALL communities at once
+ */
+router.post('/api/perplexity/city-bulk-search', async (req, res) => {
+  try {
+    const { city, state } = req.body;
+    
+    if (!city || !state) {
+      return res.status(400).json({
+        success: false,
+        error: 'City and state are required'
+      });
+    }
+    
+    console.log(`🔍 Starting enhanced bulk search for ${city}, ${state}`);
+    
+    // Use enhanced verification service
+    const result = await enhancedCityVerification.verifyEntireCity(city, state);
+    
+    res.json({
+      success: result.success,
+      message: result.message,
+      discoveredCount: result.discoveredCount,
+      stats: result.stats,
+      duration: result.duration
+    });
+  } catch (error: any) {
+    console.error('Enhanced bulk search error:', error);
     res.status(500).json({
       success: false,
       error: error.message

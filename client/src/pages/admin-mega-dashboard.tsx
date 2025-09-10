@@ -102,6 +102,11 @@ const DataQualityDashboard = lazy(() => import("@/components/DataQualityDashboar
   default: module.DataQualityDashboard
 })));
 
+// Lazy load Verification Dashboard
+const VerificationDashboard = lazy(() => import("@/components/admin/VerificationDashboard").then(module => ({
+  default: module.VerificationDashboard
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -2807,6 +2812,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <CheckCircle2 className="h-4 w-4 mr-2" />
               Validation
             </TabsTrigger>
+            <TabsTrigger value="verification">
+              <Database className="h-4 w-4 mr-2" />
+              DB Verification
+            </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -3230,6 +3239,17 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </div>
             }>
               <MasterValidationSystem />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="verification" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading database verification dashboard...</span>
+              </div>
+            }>
+              <VerificationDashboard />
             </Suspense>
           </TabsContent>
         </Tabs>
