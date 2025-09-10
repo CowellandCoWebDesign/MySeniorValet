@@ -42,40 +42,95 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
   
   // Global discovery search endpoint
   app.post('/api/global-discovery/search', async (req, res) => {
+    // Declare variables outside try block to avoid scope issues
+    let existingCommunities: any[] = [];
+    let query = '';
+    let searchType: string | undefined = undefined;
+    let limit = 30;
+    
     try {
-      const { query, searchType, limit } = globalSearchSchema.parse(req.body);
+      const parsed = globalSearchSchema.parse(req.body);
+      query = parsed.query;
+      searchType = parsed.searchType;
+      limit = parsed.limit;
       
       console.log(`🌍 Global Discovery Search: "${query}" (type: ${searchType || 'auto-detect'})`);
       
-      // Step 1: Check if we already have communities matching this query in our database
-      let existingCommunities: any[] = [];
+      // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities!
+      // Parse location from query (e.g., "Dallas, Texas" -> city: Dallas, state: Texas)
+      const queryParts = query.split(',').map(p => p.trim());
+      const citySearch = queryParts[0] || query;
+      const stateSearch = queryParts[1] || '';
       
-      // Try to find existing communities first
-      const searchTerms = query.toLowerCase().split(' ');
-      const locationSearch = searchTerms.some(term => 
-        term.length > 2 && !['for', 'in', 'at', 'the', 'senior', 'living', 'care'].includes(term)
-      );
+      // First try exact city match
+      existingCommunities = await db.select()
+        .from(communities)
+        .where(
+          and(
+            sql`LOWER(${communities.city}) = ${citySearch.toLowerCase()}`,
+            stateSearch ? sql`LOWER(${communities.state}) LIKE ${stateSearch.toLowerCase() + '%'}` : sql`true`,
+            eq(communities.isVerified, true) // Only return verified communities
+          )
+        )
+        .limit(50); // Get more results from database
       
-      if (locationSearch) {
-        // Search by location (city, state, country)
-        existingCommunities = await db.select()
+      // If not enough results, broaden search
+      if (existingCommunities.length < 15) {
+        const searchTerms = query.toLowerCase().split(' ').filter(term => 
+          term.length > 2 && !['for', 'in', 'at', 'the', 'senior', 'living', 'care'].includes(term)
+        );
+        
+        const additionalResults = await db.select()
           .from(communities)
           .where(
-            or(
-              ...searchTerms.map(term => 
-                or(
-                  like(communities.city, `%${term}%`),
-                  like(communities.state, `%${term}%`),
-                  like(communities.country, `%${term}%`),
-                  like(communities.name, `%${term}%`)
+            and(
+              or(
+                ...searchTerms.map(term => 
+                  or(
+                    sql`LOWER(${communities.city}) LIKE ${'%' + term + '%'}`,
+                    sql`LOWER(${communities.state}) LIKE ${'%' + term + '%'}`,
+                    sql`LOWER(${communities.name}) LIKE ${'%' + term + '%'}`
+                  )
                 )
-              )
+              ),
+              eq(communities.isVerified, true)
             )
           )
-          .limit(15);
+          .limit(50 - existingCommunities.length);
+        
+        // Combine and deduplicate
+        const existingIds = new Set(existingCommunities.map(c => c.id));
+        additionalResults.forEach(result => {
+          if (!existingIds.has(result.id)) {
+            existingCommunities.push(result);
+          }
+        });
       }
       
-      // Step 2: Use Perplexity to search globally for communities
+      console.log(`💾 Found ${existingCommunities.length} existing communities in database`);
+      
+      // If we have enough results from database, return immediately
+      if (existingCommunities.length >= 15) {
+        return res.json({
+          success: true,
+          query: query,
+          searchType: searchType || 'database',
+          results: existingCommunities.slice(0, limit),
+          metadata: {
+            totalFound: existingCommunities.length,
+            existingCount: existingCommunities.length,
+            discoveredCount: 0,
+            sources: ['Database'],
+            searchLocation: query,
+            timestamp: new Date().toISOString(),
+            aiConfidence: 100,
+            dataSource: 'Database (33k+ verified communities)'
+          },
+          message: `Found ${existingCommunities.length} verified communities in ${query}`
+        });
+      }
+      
+      // Step 2: Only use AI if database doesn't have enough results (< 15)
       const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
       if (!perplexityApiKey) {
         console.error('❌ Perplexity API key not configured');
@@ -103,7 +158,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000); // 20 second timeout
+      const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout
       
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
@@ -160,9 +215,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               }
             }
           },
-          temperature: 0.5,
-          max_tokens: 4000,
-          top_p: 0.95,
+          temperature: 0.2, // Lower temperature for more accurate results
+          max_tokens: 2000, // Reduce for faster response
+          top_p: 0.9,
           stream: false
         })
       }).finally(() => clearTimeout(timeout));
@@ -310,18 +365,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 careTypes: discovered.careTypes || ['Unknown'],
                 photos: discovered.photos || [],
                 
-                // Auto-approve discovered communities
+                // Store as pending for verification - DO NOT auto-approve
                 discoverySource: 'Global Discovery Search',
                 discoveryDate: new Date(),
-                enrichmentStatus: 'completed', // Auto-approved (using valid enum value)
+                enrichmentStatus: 'pending', // Requires verification
                 enrichmentHistory: [{
                   timestamp: new Date().toISOString(),
                   source: 'Perplexity Global Search',
                   fieldsUpdated: ['initial_discovery'],
-                  autoApproved: true
+                  autoApproved: false
                 }],
-                data_source: 'AI Discovery',
-                isVerified: true, // Immediately verified and active
+                data_source: 'AI Discovery (Pending Verification)',
+                isVerified: false, // Requires verification before becoming active
               })
               .returning();
             
@@ -357,7 +412,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           data_source: 'AI Discovery',
           isDiscovered: true,
           confidence: originalData?.confidence || 90,
-          verificationStatus: 'verified', // Auto-approved
+          verificationStatus: 'pending', // Requires verification
           citations: citations, // Include Perplexity citations
           // Add fields needed for community details view
           photos: saved.photos || [],
