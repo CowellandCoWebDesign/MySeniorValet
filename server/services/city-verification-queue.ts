@@ -52,7 +52,7 @@ export class CityVerificationQueue {
         state: communities.state,
         city: communities.city,
         totalCount: sql<number>`COUNT(*)`,
-        unverifiedCount: sql<number>`COUNT(CASE WHEN verification_status IS NULL OR verification_status = '' THEN 1 END)`,
+        unverifiedCount: sql<number>`COUNT(CASE WHEN is_verified = false OR is_verified IS NULL THEN 1 END)`,
       })
       .from(communities)
       .where(and(
@@ -61,7 +61,7 @@ export class CityVerificationQueue {
         sql`${communities.state} NOT IN ('ON', 'QC', 'BC', 'AB', 'SK', 'NS', 'MB', 'NB', 'NL', 'PE', 'NT', 'YT', 'NU')` // Exclude Canadian provinces
       ))
       .groupBy(communities.state, communities.city)
-      .having(sql`COUNT(CASE WHEN verification_status IS NULL OR verification_status = '' THEN 1 END) > 0`)
+      .having(sql`COUNT(CASE WHEN is_verified = false OR is_verified IS NULL THEN 1 END) > 0`)
       .orderBy(desc(sql`COUNT(*)`))
       .limit(limit * 2); // Get more to apply priority scoring
     
@@ -136,7 +136,7 @@ export class CityVerificationQueue {
     
     try {
       // Get all communities in this city
-      const cityCommun        ities = await db
+      const cityCommunities = await db
         .select()
         .from(communities)
         .where(and(
@@ -150,7 +150,7 @@ export class CityVerificationQueue {
       // Process each community
       for (const community of cityCommunities) {
         // Skip if already verified
-        if (community.verification_status === 'verified') {
+        if (community.isVerified === true) {
           result.skipped++;
           continue;
         }
@@ -169,7 +169,7 @@ export class CityVerificationQueue {
             await db
               .update(communities)
               .set({
-                verification_status: 'verified',
+                isVerified: true,
                 website: verificationData.officialWebsite || community.website,
                 phone: verificationData.phone || community.phone,
                 address: verificationData.address || community.address,
@@ -187,7 +187,7 @@ export class CityVerificationQueue {
             await db
               .update(communities)
               .set({
-                verification_status: 'not_found',
+                isVerified: false,
                 updated_at: new Date()
               })
               .where(eq(communities.id, community.id));
@@ -272,9 +272,9 @@ export class CityVerificationQueue {
     const stats = await db
       .select({
         totalCities: sql<number>`COUNT(DISTINCT city || ',' || state)`,
-        verifiedCities: sql<number>`COUNT(DISTINCT CASE WHEN verification_status = 'verified' THEN city || ',' || state END)`,
+        verifiedCities: sql<number>`COUNT(DISTINCT CASE WHEN is_verified = true THEN city || ',' || state END)`,
         totalCommunities: sql<number>`COUNT(*)`,
-        verifiedCommunities: sql<number>`COUNT(CASE WHEN verification_status = 'verified' THEN 1 END)`
+        verifiedCommunities: sql<number>`COUNT(CASE WHEN is_verified = true THEN 1 END)`
       })
       .from(communities)
       .where(sql`${communities.state} NOT IN ('ON', 'QC', 'BC', 'AB', 'SK', 'NS', 'MB', 'NB', 'NL', 'PE', 'NT', 'YT', 'NU')`); // US only

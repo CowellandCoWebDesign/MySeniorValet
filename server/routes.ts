@@ -77,6 +77,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ message: `Circuit breaker for ${service} has been reset` });
   });
   
+  // Register City Verification routes
+  const cityVerificationRoutes = await import('./routes/city-verification-routes');
+  app.use(cityVerificationRoutes.default);
+  
   // Register Atria expansion routes
   const { atriaRoutes } = await import('./routes/atria-routes');
   app.use('/api/atria', atriaRoutes);
