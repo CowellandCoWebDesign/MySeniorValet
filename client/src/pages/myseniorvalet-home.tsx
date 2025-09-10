@@ -680,6 +680,67 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         </div>
+        
+        {/* Quick Action Buttons - Moved from Community Directory Section */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
+          <div className="grid grid-cols-4 gap-2">
+            {/* Traditional Browse */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/map-search';
+              }}
+              className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+              <div className="flex flex-col items-center">
+                <Search className="h-5 w-5 mb-1" />
+                <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
+                <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
+              </div>
+            </Button>
+
+            {/* AI Intelligence */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/ai-search-intelligence?mode=simplified';
+              }}
+              className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <Sparkles className="h-5 w-5 mb-1" />
+                <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
+                <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
+              </div>
+            </Button>
+
+            {/* Live Heatmap */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/availability-heatmap';
+              }}
+              className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <Flame className="h-5 w-5 mb-1 animate-pulse" />
+                <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
+                <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
+              </div>
+            </Button>
+
+            {/* Market Analysis */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/competitive-analysis';
+              }}
+              className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <TrendingUp className="h-5 w-5 mb-1" />
+                <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
+                <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
+              </div>
+            </Button>
+          </div>
+        </div>
         </div>
           
           {/* Search Results - Premium Glass Design */}
@@ -1660,64 +1721,6 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  {/* Horizontal Action Buttons Row */}
-                  <div className="mb-4 grid grid-cols-4 gap-2">
-                    {/* Traditional Search */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/map-search';
-                      }}
-                      className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-                      <div className="flex flex-col items-center">
-                        <Search className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
-                    </Button>
-
-                    {/* AI Intelligence */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/ai-search-intelligence?mode=simplified';
-                      }}
-                      className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <Sparkles className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
-                      </div>
-                    </Button>
-
-                    {/* Live Heatmap */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/availability-heatmap';
-                      }}
-                      className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <Flame className="h-5 w-5 mb-1 animate-pulse" />
-                        <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
-                      </div>
-                    </Button>
-
-                    {/* Market Analysis */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/competitive-analysis';
-                      }}
-                      className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <TrendingUp className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
-                      </div>
-                    </Button>
-                  </div>
 
                   {/* AI Intelligence Box */}
                   <div className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
