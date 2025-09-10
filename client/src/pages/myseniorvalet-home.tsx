@@ -463,45 +463,9 @@ function HeroSectionWithTransformingSearch() {
             </h1>
             
             {/* Platform Description - Larger and More Readable */}
-            <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-1 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
+            <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
               AI-powered platform for transparent senior living — compare communities, pricing, and reviews, book tours instantly, reserve with ease, and access local care and resources — all in one place.
             </p>
-            
-            {/* Privacy Message - Separate Line */}
-            <p className="text-sm sm:text-base md:text-lg text-white/90 font-bold mb-2 sm:mb-3 max-w-2xl mx-auto drop-shadow-lg animate-fade-in-delayed">
-              Without having to give away your information 🔥
-            </p>
-            
-            {/* Combined Trust & Value Badges - Three Lines */}
-            <div className="flex flex-col gap-1 mt-2 mb-2">
-              {/* First Line */}
-              <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🤖</span> AI-Assisted Research
-                </div>
-              </div>
-              {/* Second Line */}
-              <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-                <div className="flex items-center text-[9px] sm:text-[10px] text-emerald-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">💲</span> Online Bill Payment
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-cyan-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">🖥️</span> Resident Portal
-                </div>
-                <div className="flex items-center text-[9px] sm:text-[10px] text-pink-300 font-semibold">
-                  <span className="mr-0.5 text-[10px] sm:text-xs">👨‍👩‍👧‍👦</span> Family Collaboration Center
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -739,6 +703,39 @@ function HeroSectionWithTransformingSearch() {
                 <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
               </div>
             </Button>
+          </div>
+        </div>
+        
+        {/* Combined Trust & Value Badges - Moved Below Buttons */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
+          <div className="flex flex-col gap-1">
+            {/* First Line */}
+            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🤖</span> AI-Assisted Research
+              </div>
+            </div>
+            {/* Second Line */}
+            <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+              <div className="flex items-center text-[9px] sm:text-[10px] text-emerald-300 font-semibold bg-emerald-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">💲</span> Online Bill Payment
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-cyan-300 font-semibold bg-cyan-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">🖥️</span> Resident Portal
+              </div>
+              <div className="flex items-center text-[9px] sm:text-[10px] text-pink-300 font-semibold bg-pink-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                <span className="mr-0.5 text-[10px] sm:text-xs">👨‍👩‍👧‍👦</span> Family Collaboration Center
+              </div>
+            </div>
           </div>
         </div>
         </div>
