@@ -202,9 +202,9 @@ router.post("/schedule", async (req, res) => {
                 <li>Track visitor engagement metrics</li>
                 <li>Export tour data for reporting</li>
               </ul>
-              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/admin-mega-dashboard" 
+              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/community-portal" 
                  style="display: inline-block; background: #10B981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
-                Access Community Dashboard
+                Access Your Community Portal
               </a>
             </div>
             
