@@ -2726,6 +2726,20 @@ export const vendorServices = pgTable("vendor_services", {
   index("vendor_services_active_idx").on(table.isActive),
 ]);
 
+// Site Settings - Store global configuration like theme settings
+export const siteSettings = pgTable("site_settings", {
+  id: serial("id").primaryKey(),
+  settingKey: varchar("setting_key", { length: 100 }).notNull().unique(),
+  settingValue: text("setting_value").notNull(),
+  settingType: varchar("setting_type", { length: 50 }).default('json'), // 'json', 'string', 'number', 'boolean'
+  description: text("description"),
+  isPublic: boolean("is_public").default(false), // Whether this setting can be exposed to frontend
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("site_settings_key_idx").on(table.settingKey),
+]);
+
 // AI Usage Logs - Track AI provider usage for cost monitoring
 export const aiUsageLogs = pgTable("ai_usage_logs", {
   id: serial("id").primaryKey(),
@@ -2809,6 +2823,15 @@ export const vendorSubscriptionPlans = pgTable("vendor_subscription_plans", {
   index("vendor_subscription_plans_slug_idx").on(table.slug),
   index("vendor_subscription_plans_active_idx").on(table.isActive),
 ]);
+
+// Export schemas for site settings
+export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
+export type SelectSiteSetting = typeof siteSettings.$inferSelect;
 
 // Export schemas for AI usage logs
 export const insertAiUsageLogSchema = createInsertSchema(aiUsageLogs).omit({

@@ -45,6 +45,15 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { format, subDays, startOfWeek, startOfMonth, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { useLocation } from "wouter";
 
 // Lazy load the enhanced heatmap component for better performance
@@ -210,6 +219,8 @@ export default function AdminMegaDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [systemHealth, setSystemHealth] = useState<any>(null);
   const [liveActivity, setLiveActivity] = useState<any>(null);
+  const [showThemeSettings, setShowThemeSettings] = useState(false);
+  const [themeSettings, setThemeSettings] = useState<any>(null);
   const [systemHealthExpanded, setSystemHealthExpanded] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState('communities');
   const [pulseEffect, setPulseEffect] = useState(false); // From admin-creative
@@ -495,6 +506,22 @@ export default function AdminMegaDashboard() {
     return () => clearInterval(interval);
   }, []);
   
+  // Fetch theme settings when dialog opens
+  useEffect(() => {
+    if (showThemeSettings) {
+      apiRequest('GET', '/api/admin/theme-settings')
+        .then((data) => {
+          setThemeSettings(data.theme);
+        })
+        .catch(() => {
+          toast({ 
+            title: 'Error loading theme settings',
+            variant: 'destructive'
+          });
+        });
+    }
+  }, [showThemeSettings]);
+
   // Fetch live activity when on activity tab
   useEffect(() => {
     if (activeTab === 'activity') {
@@ -2956,11 +2983,8 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     variant="outline" 
                     className="h-24 flex-col"
                     onClick={() => {
-                      toast({
-                        title: "Theme Settings",
-                        description: "Theme customization coming soon!",
-                        variant: "default",
-                      });
+                      // Open theme settings dialog
+                      setShowThemeSettings(true);
                     }}
                   >
                     <Palette className="h-6 w-6 mb-2" />
@@ -3254,6 +3278,199 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Theme Settings Dialog */}
+      {showThemeSettings && (
+        <Dialog open={showThemeSettings} onOpenChange={setShowThemeSettings}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Palette className="h-5 w-5" />
+                Theme Settings
+              </DialogTitle>
+              <DialogDescription>
+                Customize the platform appearance and user experience
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-6">
+              {/* Theme Presets */}
+              <div>
+                <Label>Theme Presets</Label>
+                <div className="grid grid-cols-4 gap-2 mt-2">
+                  <Button
+                    variant="outline"
+                    className="h-20 flex flex-col"
+                    onClick={() => {
+                      const cosmicTheme = {
+                        primaryColor: 'hsl(222, 47%, 11%)',
+                        darkMode: true,
+                        cosmicBackground: true
+                      };
+                      apiRequest('POST', '/api/admin/theme-settings', cosmicTheme)
+                        .then(() => {
+                          toast({ title: 'Theme updated to Cosmic Night' });
+                          setShowThemeSettings(false);
+                        });
+                    }}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-900 to-purple-900 mb-1" />
+                    <span className="text-xs">Cosmic Night</span>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="h-20 flex flex-col"
+                    onClick={() => {
+                      const lightTheme = {
+                        primaryColor: 'hsl(0, 0%, 100%)',
+                        darkMode: false,
+                        cosmicBackground: false
+                      };
+                      apiRequest('POST', '/api/admin/theme-settings', lightTheme)
+                        .then(() => {
+                          toast({ title: 'Theme updated to Clean Light' });
+                          setShowThemeSettings(false);
+                        });
+                    }}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-white border mb-1" />
+                    <span className="text-xs">Clean Light</span>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="h-20 flex flex-col"
+                    onClick={() => {
+                      const oceanTheme = {
+                        primaryColor: 'hsl(210, 80%, 50%)',
+                        darkMode: false,
+                        cosmicBackground: false
+                      };
+                      apiRequest('POST', '/api/admin/theme-settings', oceanTheme)
+                        .then(() => {
+                          toast({ title: 'Theme updated to Ocean Blue' });
+                          setShowThemeSettings(false);
+                        });
+                    }}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-blue-500 mb-1" />
+                    <span className="text-xs">Ocean Blue</span>
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="h-20 flex flex-col"
+                    onClick={() => {
+                      const forestTheme = {
+                        primaryColor: 'hsl(140, 60%, 40%)',
+                        darkMode: false,
+                        cosmicBackground: false
+                      };
+                      apiRequest('POST', '/api/admin/theme-settings', forestTheme)
+                        .then(() => {
+                          toast({ title: 'Theme updated to Forest Green' });
+                          setShowThemeSettings(false);
+                        });
+                    }}
+                  >
+                    <div className="h-8 w-8 rounded-full bg-green-600 mb-1" />
+                    <span className="text-xs">Forest Green</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* Dark Mode Toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Dark Mode</Label>
+                  <p className="text-sm text-muted-foreground">Enable dark theme for better night viewing</p>
+                </div>
+                <Switch
+                  checked={themeSettings?.darkMode ?? true}
+                  onCheckedChange={(checked) => {
+                    const newSettings = { ...themeSettings, darkMode: checked };
+                    setThemeSettings(newSettings);
+                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
+                  }}
+                />
+              </div>
+
+              {/* Cosmic Background Toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Cosmic Background</Label>
+                  <p className="text-sm text-muted-foreground">Show space-themed background imagery</p>
+                </div>
+                <Switch
+                  checked={themeSettings?.cosmicBackground ?? true}
+                  onCheckedChange={(checked) => {
+                    const newSettings = { ...themeSettings, cosmicBackground: checked };
+                    setThemeSettings(newSettings);
+                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
+                  }}
+                />
+              </div>
+
+              {/* Animations Toggle */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Animations</Label>
+                  <p className="text-sm text-muted-foreground">Enable smooth transitions and effects</p>
+                </div>
+                <Switch
+                  checked={themeSettings?.animations ?? true}
+                  onCheckedChange={(checked) => {
+                    const newSettings = { ...themeSettings, animations: checked };
+                    setThemeSettings(newSettings);
+                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
+                  }}
+                />
+              </div>
+
+              {/* Font Size */}
+              <div>
+                <Label>Font Size</Label>
+                <Select
+                  value={themeSettings?.fontSize || 'medium'}
+                  onValueChange={(value) => {
+                    const newSettings = { ...themeSettings, fontSize: value };
+                    setThemeSettings(newSettings);
+                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
+                  }}
+                >
+                  <SelectTrigger className="mt-2">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="small">Small</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="large">Large</SelectItem>
+                    <SelectItem value="xlarge">Extra Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Apply Button */}
+              <div className="flex justify-end gap-2 pt-4 border-t">
+                <Button variant="outline" onClick={() => setShowThemeSettings(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={() => {
+                  toast({ 
+                    title: 'Theme Settings Applied',
+                    description: 'Your theme changes have been saved successfully'
+                  });
+                  setShowThemeSettings(false);
+                  window.location.reload(); // Reload to apply theme changes
+                }}>
+                  Apply & Reload
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
