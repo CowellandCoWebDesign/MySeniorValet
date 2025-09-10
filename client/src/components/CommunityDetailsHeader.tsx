@@ -36,7 +36,6 @@ export function CommunityDetailsHeader({
   onTourClick
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
-  const [isReVerifying, setIsReVerifying] = useState(false);
   
   // Determine if community needs data quality review
   const needsDataReview = () => {
@@ -56,31 +55,31 @@ export function CommunityDetailsHeader({
     return false;
   };
   
-  const handleReVerify = async () => {
-    if (isReVerifying) return;
-    
-    setIsReVerifying(true);
+  const handleFlagCommunity = async () => {
     try {
-      const response = await fetch('/api/communities/re-verify', {
+      const response = await fetch('/api/admin/flag-community', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           communityId: community.id,
           communityName: community.name,
           city: community.city,
-          state: community.state
+          state: community.state,
+          reason: 'needs_review',
+          flaggedAt: new Date().toISOString()
         })
       });
       
       if (response.ok) {
-        const result = await response.json();
-        // Reload page to show updated data
-        window.location.reload();
+        // Show brief confirmation without reloading
+        const flagBtn = document.querySelector('.flag-button');
+        if (flagBtn) {
+          flagBtn.classList.add('text-orange-500');
+          flagBtn.setAttribute('title', 'Community flagged for admin review');
+        }
       }
     } catch (error) {
-      console.error('Re-verification failed:', error);
-    } finally {
-      setIsReVerifying(false);
+      console.error('Failed to flag community:', error);
     }
   };
   // Get amenity icon
@@ -332,6 +331,17 @@ export function CommunityDetailsHeader({
             >
               <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
+            
+            {/* Flag for Review Button */}
+            {needsDataReview() && (
+              <button
+                onClick={handleFlagCommunity}
+                className="flag-button p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                title="Flag this community for admin review"
+              >
+                <Flag className="w-5 h-5 text-orange-500 hover:text-orange-600" />
+              </button>
+            )}
           </div>
         </div>
         
@@ -432,37 +442,15 @@ export function CommunityDetailsHeader({
           {/* Rating, Care Type and Badges Section */}
           <div className="px-6 pb-4">
             <div className="flex flex-wrap items-center gap-4">
-              {/* Rating Badge with Review Button */}
-              <div className="inline-flex items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
-                  <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                  <span className="font-bold text-gray-900 dark:text-white">
-                    {community.googleRating || '4.2'}
-                  </span>
-                  <span className="text-gray-600 dark:text-gray-400 text-sm">
-                    ({community.googleReviewCount || '47'} reviews)
-                  </span>
-                </div>
-                {needsDataReview() && (
-                  <button
-                    onClick={handleReVerify}
-                    disabled={isReVerifying}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 rounded-lg border border-orange-300 dark:border-orange-700 hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-all group"
-                    title="This community needs data quality review. Click to re-verify with AI."
-                  >
-                    {isReVerifying ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span className="text-xs font-medium">Verifying...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Flag className="w-4 h-4 group-hover:animate-pulse" />
-                        <span className="text-xs font-medium">Needs Review</span>
-                      </>
-                    )}
-                  </button>
-                )}
+              {/* Rating Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <span className="font-bold text-gray-900 dark:text-white">
+                  {community.googleRating || '4.2'}
+                </span>
+                <span className="text-gray-600 dark:text-gray-400 text-sm">
+                  ({community.googleReviewCount || '47'} reviews)
+                </span>
               </div>
               
               {/* Care Type Badge */}
