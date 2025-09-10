@@ -335,10 +335,11 @@ export default function AdminMegaDashboard() {
     const results: any[] = [];
     
     // First verify Golden Data Rule compliance
+    let communityCount = 0; // Declare outside try block
     try {
       const communitiesResponse = await fetch('/api/communities/count');
       const communitiesData = await communitiesResponse.json();
-      const communityCount = parseInt(communitiesData.count);
+      communityCount = parseInt(communitiesData.count) || 0; // Assign value with fallback
       
       results.push({
         component: 'Golden Data Rule Compliance',
