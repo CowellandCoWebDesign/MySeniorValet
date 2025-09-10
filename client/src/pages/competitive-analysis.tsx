@@ -702,20 +702,41 @@ export default function CompetitiveAnalysis() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {analysisMutation.data.communityMentions.map((communityName: string, index: number) => {
-                  const isMatched = analysisMutation.data.matchedCommunities?.some(
+                  const matchedCommunity = analysisMutation.data.matchedCommunities?.find(
                     mc => mc.name.toLowerCase() === communityName.toLowerCase()
                   );
-                  return (
-                    <div key={index} className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 transition-colors">
+                  const isMatched = !!matchedCommunity;
+                  
+                  // If matched, link to the community page; otherwise, link to search
+                  const content = (
+                    <div className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 hover:border-blue-400 dark:hover:border-blue-600 transition-all cursor-pointer transform hover:scale-[1.02] hover:shadow-md">
                       <Home className="w-5 h-5 text-blue-500 flex-shrink-0" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
-                      {isMatched && (
-                        <span className="ml-auto" title="Available in our database">
+                      {isMatched ? (
+                        <span className="ml-auto" title="Available in our database - Click to view">
                           <CheckCircle className="w-4 h-4 text-emerald-500" />
+                        </span>
+                      ) : (
+                        <span className="ml-auto text-xs text-gray-500 dark:text-gray-400" title="Click to search for this community">
+                          <Search className="w-4 h-4" />
                         </span>
                       )}
                     </div>
                   );
+                  
+                  if (isMatched && matchedCommunity) {
+                    return (
+                      <Link key={index} href={`/community/${matchedCommunity.id}`}>
+                        {content}
+                      </Link>
+                    );
+                  } else {
+                    return (
+                      <Link key={index} href={`/?q=${encodeURIComponent(communityName)}`}>
+                        {content}
+                      </Link>
+                    );
+                  }
                 })}
               </div>
             </CardContent>
