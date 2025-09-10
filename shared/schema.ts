@@ -2726,64 +2726,6 @@ export const vendorServices = pgTable("vendor_services", {
   index("vendor_services_active_idx").on(table.isActive),
 ]);
 
-// Site Settings - Store global configuration like theme settings
-export const siteSettings = pgTable("site_settings", {
-  id: serial("id").primaryKey(),
-  settingKey: varchar("setting_key", { length: 100 }).notNull().unique(),
-  settingValue: text("setting_value").notNull(),
-  settingType: varchar("setting_type", { length: 50 }).default('json'), // 'json', 'string', 'number', 'boolean'
-  description: text("description"),
-  isPublic: boolean("is_public").default(false), // Whether this setting can be exposed to frontend
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("site_settings_key_idx").on(table.settingKey),
-]);
-
-// AI Usage Logs - Track AI provider usage for cost monitoring
-export const aiUsageLogs = pgTable("ai_usage_logs", {
-  id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id),
-  
-  // Provider Information
-  provider: varchar("provider", { length: 50 }).notNull(), // 'perplexity', 'claude', 'chatgpt', 'openai'
-  model: varchar("model", { length: 100 }).notNull(),
-  endpoint: varchar("endpoint", { length: 255 }),
-  
-  // Usage Details
-  action: varchar("action", { length: 100 }).notNull(), // 'search', 'analysis', 'generation', 'verification'
-  context: varchar("context", { length: 255 }), // Where it was used: 'community_search', 'chat', 'discovery_mode'
-  
-  // Tokens & Cost
-  inputTokens: integer("input_tokens").default(0),
-  outputTokens: integer("output_tokens").default(0),
-  totalTokens: integer("total_tokens").default(0),
-  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 6 }), // In USD
-  
-  // Request/Response
-  prompt: text("prompt"),
-  response: text("response"),
-  requestDuration: integer("request_duration"), // Milliseconds
-  
-  // Error Tracking
-  success: boolean("success").default(true),
-  errorMessage: text("error_message"),
-  errorCode: varchar("error_code", { length: 50 }),
-  
-  // Metadata
-  metadata: jsonb("metadata").$type<Record<string, any>>(),
-  sessionId: varchar("session_id", { length: 100 }),
-  ip: varchar("ip", { length: 45 }),
-  userAgent: text("user_agent"),
-  
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("ai_usage_logs_provider_idx").on(table.provider),
-  index("ai_usage_logs_user_idx").on(table.userId),
-  index("ai_usage_logs_action_idx").on(table.action),
-  index("ai_usage_logs_created_at_idx").on(table.createdAt),
-]);
-
 // Vendor Subscription Plans
 export const vendorSubscriptionPlans = pgTable("vendor_subscription_plans", {
   id: serial("id").primaryKey(),
@@ -2823,23 +2765,6 @@ export const vendorSubscriptionPlans = pgTable("vendor_subscription_plans", {
   index("vendor_subscription_plans_slug_idx").on(table.slug),
   index("vendor_subscription_plans_active_idx").on(table.isActive),
 ]);
-
-// Export schemas for site settings
-export const insertSiteSettingSchema = createInsertSchema(siteSettings).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
-export type InsertSiteSetting = z.infer<typeof insertSiteSettingSchema>;
-export type SelectSiteSetting = typeof siteSettings.$inferSelect;
-
-// Export schemas for AI usage logs
-export const insertAiUsageLogSchema = createInsertSchema(aiUsageLogs).omit({
-  id: true,
-  createdAt: true,
-});
-export type InsertAiUsageLog = z.infer<typeof insertAiUsageLogSchema>;
-export type SelectAiUsageLog = typeof aiUsageLogs.$inferSelect;
 
 // Vendor Leads & Commissions
 export const vendorLeads = pgTable("vendor_leads", {

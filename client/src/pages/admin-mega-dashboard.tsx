@@ -45,13 +45,6 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { format, subDays, startOfWeek, startOfMonth, differenceInDays } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { useLocation } from "wouter";
 
 // Lazy load the enhanced heatmap component for better performance
@@ -217,8 +210,6 @@ export default function AdminMegaDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [systemHealth, setSystemHealth] = useState<any>(null);
   const [liveActivity, setLiveActivity] = useState<any>(null);
-  const [showThemeSettings, setShowThemeSettings] = useState(false);
-  const [themeSettings, setThemeSettings] = useState<any>(null);
   const [systemHealthExpanded, setSystemHealthExpanded] = useState(false);
   const [selectedMetric, setSelectedMetric] = useState('communities');
   const [pulseEffect, setPulseEffect] = useState(false); // From admin-creative
@@ -335,11 +326,10 @@ export default function AdminMegaDashboard() {
     const results: any[] = [];
     
     // First verify Golden Data Rule compliance
-    let communityCount = 0; // Declare outside try block
     try {
       const communitiesResponse = await fetch('/api/communities/count');
       const communitiesData = await communitiesResponse.json();
-      communityCount = parseInt(communitiesData.count) || 0; // Assign value with fallback
+      const communityCount = parseInt(communitiesData.count);
       
       results.push({
         component: 'Golden Data Rule Compliance',
@@ -505,22 +495,6 @@ export default function AdminMegaDashboard() {
     return () => clearInterval(interval);
   }, []);
   
-  // Fetch theme settings when dialog opens
-  useEffect(() => {
-    if (showThemeSettings) {
-      apiRequest('GET', '/api/admin/theme-settings')
-        .then((data) => {
-          setThemeSettings(data.theme);
-        })
-        .catch(() => {
-          toast({ 
-            title: 'Error loading theme settings',
-            variant: 'destructive'
-          });
-        });
-    }
-  }, [showThemeSettings]);
-
   // Fetch live activity when on activity tab
   useEffect(() => {
     if (activeTab === 'activity') {
@@ -1226,10 +1200,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{(metrics?.platform?.totalCommunities || 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold">{metrics.platform.totalCommunities.toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
-            <span className="text-green-600">+{metrics?.platform?.growthRate || 0}%</span> from last month
+            <span className="text-green-600">+{metrics.platform.growthRate}%</span> from last month
           </div>
         </CardContent>
       </Card>
@@ -1242,10 +1216,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{(metrics?.platform?.totalUsers || 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold">{metrics.platform.totalUsers.toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <Activity className="h-3 w-3 mr-1" />
-            {metrics?.engagement?.dailyActiveUsers || 0} daily active
+            {metrics.engagement.dailyActiveUsers} daily active
           </div>
         </CardContent>
       </Card>
@@ -1258,10 +1232,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${(metrics?.platform?.monthlyRevenue || 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold">${metrics.platform.monthlyRevenue.toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
-            ARPU: ${metrics?.financial?.arpu || 0}
+            ARPU: ${metrics.financial.arpu}
           </div>
         </CardContent>
       </Card>
@@ -1274,10 +1248,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{(metrics?.ai?.totalRequests || 0).toLocaleString()}</div>
+          <div className="text-2xl font-bold">{metrics.ai.totalRequests.toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <DollarSign className="h-3 w-3 mr-1" />
-            Cost: ${(metrics?.ai?.costs?.total || 0).toFixed(2)}
+            Cost: ${metrics.ai.costs.total.toFixed(2)}
           </div>
         </CardContent>
       </Card>
@@ -1542,7 +1516,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">MRR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${(metrics?.financial?.revenue?.month || 0).toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${metrics.financial.revenue.month.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1550,7 +1524,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">ARR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${(metrics?.financial?.revenue?.year || 0).toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${metrics.financial.revenue.year.toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1688,8 +1662,8 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metrics?.performance?.uptime || 99.9}%</div>
-              <Progress value={metrics?.performance?.uptime || 99.9} className="mt-2" />
+              <div className="text-2xl font-bold">{metrics.performance.uptime}%</div>
+              <Progress value={metrics.performance.uptime} className="mt-2" />
             </CardContent>
           </Card>
           
@@ -1701,9 +1675,9 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metrics?.performance?.responseTime || 0}ms</div>
-              <div className={`text-xs ${(metrics?.performance?.responseTime || 0) < 200 ? 'text-green-600' : 'text-yellow-600'}`}>
-                {(metrics?.performance?.responseTime || 0) < 200 ? 'Excellent' : 'Good'}
+              <div className="text-2xl font-bold">{metrics.performance.responseTime}ms</div>
+              <div className={`text-xs ${metrics.performance.responseTime < 200 ? 'text-green-600' : 'text-yellow-600'}`}>
+                {metrics.performance.responseTime < 200 ? 'Excellent' : 'Good'}
               </div>
             </CardContent>
           </Card>
@@ -1716,9 +1690,9 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metrics?.performance?.errorRate || 0}%</div>
-              <div className={`text-xs ${(metrics?.performance?.errorRate || 0) < 1 ? 'text-green-600' : 'text-red-600'}`}>
-                {(metrics?.performance?.errorRate || 0) < 1 ? 'Normal' : 'High'}
+              <div className="text-2xl font-bold">{metrics.performance.errorRate}%</div>
+              <div className={`text-xs ${metrics.performance.errorRate < 1 ? 'text-green-600' : 'text-red-600'}`}>
+                {metrics.performance.errorRate < 1 ? 'Normal' : 'High'}
               </div>
             </CardContent>
           </Card>
@@ -1728,25 +1702,25 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">API Calls</span>
-              <span className="text-sm text-muted-foreground">{(metrics?.performance?.apiCalls || 0).toLocaleString()} today</span>
+              <span className="text-sm text-muted-foreground">{metrics.performance.apiCalls.toLocaleString()} today</span>
             </div>
-            <Progress value={Math.min(((metrics?.performance?.apiCalls || 0) / 100000) * 100, 100)} />
+            <Progress value={Math.min((metrics.performance.apiCalls / 100000) * 100, 100)} />
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Cache Hit Rate</span>
-              <span className="text-sm text-muted-foreground">{metrics?.performance?.cacheHitRate || 0}%</span>
+              <span className="text-sm text-muted-foreground">{metrics.performance.cacheHitRate}%</span>
             </div>
-            <Progress value={metrics?.performance?.cacheHitRate || 0} />
+            <Progress value={metrics.performance.cacheHitRate} />
           </div>
           
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Database Queries</span>
-              <span className="text-sm text-muted-foreground">{(metrics?.performance?.dbQueries || 0).toLocaleString()}/min</span>
+              <span className="text-sm text-muted-foreground">{metrics.performance.dbQueries.toLocaleString()}/min</span>
             </div>
-            <Progress value={Math.min(((metrics?.performance?.dbQueries || 0) / 1000) * 100, 100)} />
+            <Progress value={Math.min((metrics.performance.dbQueries / 1000) * 100, 100)} />
           </div>
         </div>
       </CardContent>
@@ -2982,8 +2956,11 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     variant="outline" 
                     className="h-24 flex-col"
                     onClick={() => {
-                      // Open theme settings dialog
-                      setShowThemeSettings(true);
+                      toast({
+                        title: "Theme Settings",
+                        description: "Theme customization coming soon!",
+                        variant: "default",
+                      });
                     }}
                   >
                     <Palette className="h-6 w-6 mb-2" />
@@ -3277,199 +3254,6 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </TabsContent>
         </Tabs>
       </div>
-
-      {/* Theme Settings Dialog */}
-      {showThemeSettings && (
-        <Dialog open={showThemeSettings} onOpenChange={setShowThemeSettings}>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Palette className="h-5 w-5" />
-                Theme Settings
-              </DialogTitle>
-              <DialogDescription>
-                Customize the platform appearance and user experience
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-6">
-              {/* Theme Presets */}
-              <div>
-                <Label>Theme Presets</Label>
-                <div className="grid grid-cols-4 gap-2 mt-2">
-                  <Button
-                    variant="outline"
-                    className="h-20 flex flex-col"
-                    onClick={() => {
-                      const cosmicTheme = {
-                        primaryColor: 'hsl(222, 47%, 11%)',
-                        darkMode: true,
-                        cosmicBackground: true
-                      };
-                      apiRequest('POST', '/api/admin/theme-settings', cosmicTheme)
-                        .then(() => {
-                          toast({ title: 'Theme updated to Cosmic Night' });
-                          setShowThemeSettings(false);
-                        });
-                    }}
-                  >
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-900 to-purple-900 mb-1" />
-                    <span className="text-xs">Cosmic Night</span>
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="h-20 flex flex-col"
-                    onClick={() => {
-                      const lightTheme = {
-                        primaryColor: 'hsl(0, 0%, 100%)',
-                        darkMode: false,
-                        cosmicBackground: false
-                      };
-                      apiRequest('POST', '/api/admin/theme-settings', lightTheme)
-                        .then(() => {
-                          toast({ title: 'Theme updated to Clean Light' });
-                          setShowThemeSettings(false);
-                        });
-                    }}
-                  >
-                    <div className="h-8 w-8 rounded-full bg-white border mb-1" />
-                    <span className="text-xs">Clean Light</span>
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="h-20 flex flex-col"
-                    onClick={() => {
-                      const oceanTheme = {
-                        primaryColor: 'hsl(210, 80%, 50%)',
-                        darkMode: false,
-                        cosmicBackground: false
-                      };
-                      apiRequest('POST', '/api/admin/theme-settings', oceanTheme)
-                        .then(() => {
-                          toast({ title: 'Theme updated to Ocean Blue' });
-                          setShowThemeSettings(false);
-                        });
-                    }}
-                  >
-                    <div className="h-8 w-8 rounded-full bg-blue-500 mb-1" />
-                    <span className="text-xs">Ocean Blue</span>
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="h-20 flex flex-col"
-                    onClick={() => {
-                      const forestTheme = {
-                        primaryColor: 'hsl(140, 60%, 40%)',
-                        darkMode: false,
-                        cosmicBackground: false
-                      };
-                      apiRequest('POST', '/api/admin/theme-settings', forestTheme)
-                        .then(() => {
-                          toast({ title: 'Theme updated to Forest Green' });
-                          setShowThemeSettings(false);
-                        });
-                    }}
-                  >
-                    <div className="h-8 w-8 rounded-full bg-green-600 mb-1" />
-                    <span className="text-xs">Forest Green</span>
-                  </Button>
-                </div>
-              </div>
-
-              {/* Dark Mode Toggle */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Dark Mode</Label>
-                  <p className="text-sm text-muted-foreground">Enable dark theme for better night viewing</p>
-                </div>
-                <Switch
-                  checked={themeSettings?.darkMode ?? true}
-                  onCheckedChange={(checked) => {
-                    const newSettings = { ...themeSettings, darkMode: checked };
-                    setThemeSettings(newSettings);
-                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
-                  }}
-                />
-              </div>
-
-              {/* Cosmic Background Toggle */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Cosmic Background</Label>
-                  <p className="text-sm text-muted-foreground">Show space-themed background imagery</p>
-                </div>
-                <Switch
-                  checked={themeSettings?.cosmicBackground ?? true}
-                  onCheckedChange={(checked) => {
-                    const newSettings = { ...themeSettings, cosmicBackground: checked };
-                    setThemeSettings(newSettings);
-                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
-                  }}
-                />
-              </div>
-
-              {/* Animations Toggle */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Animations</Label>
-                  <p className="text-sm text-muted-foreground">Enable smooth transitions and effects</p>
-                </div>
-                <Switch
-                  checked={themeSettings?.animations ?? true}
-                  onCheckedChange={(checked) => {
-                    const newSettings = { ...themeSettings, animations: checked };
-                    setThemeSettings(newSettings);
-                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
-                  }}
-                />
-              </div>
-
-              {/* Font Size */}
-              <div>
-                <Label>Font Size</Label>
-                <Select
-                  value={themeSettings?.fontSize || 'medium'}
-                  onValueChange={(value) => {
-                    const newSettings = { ...themeSettings, fontSize: value };
-                    setThemeSettings(newSettings);
-                    apiRequest('POST', '/api/admin/theme-settings', newSettings);
-                  }}
-                >
-                  <SelectTrigger className="mt-2">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="small">Small</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="large">Large</SelectItem>
-                    <SelectItem value="xlarge">Extra Large</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Apply Button */}
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button variant="outline" onClick={() => setShowThemeSettings(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => {
-                  toast({ 
-                    title: 'Theme Settings Applied',
-                    description: 'Your theme changes have been saved successfully'
-                  });
-                  setShowThemeSettings(false);
-                  window.location.reload(); // Reload to apply theme changes
-                }}>
-                  Apply & Reload
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
     </div>
   );
 }
