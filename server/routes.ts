@@ -827,90 +827,176 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Feedback for incorrect external links
+  // Feedback for incorrect external links - NOW WITH SELF-HEALING AI
   app.post('/api/feedback/incorrect-link', async (req, res) => {
     try {
       const { reportedUrl, pageUrl, userAgent, timestamp } = req.body;
       
-      console.log('📝 Incorrect link reported:', {
+      console.log('🤖 Self-healing triggered for incorrect link:', {
         reportedUrl,
         pageUrl,
-        timestamp,
-        userAgent
+        timestamp
       });
 
       // Extract community ID from the page URL if possible
       const communityIdMatch = pageUrl?.match(/community\/(\d+)/);
       const communityId = communityIdMatch ? parseInt(communityIdMatch[1]) : null;
 
-      // Store feedback in database for tracking
+      if (!communityId) {
+        console.log('⚠️ Could not extract community ID from URL');
+      }
+
+      // Get community details for AI re-verification
+      let community = null;
+      let correctedUrl = null;
+      let aiFixSuccessful = false;
+      
       if (communityId) {
         try {
-          // Store in community_reports table for tracking
-          await db.insert(schema.communityReports).values({
-            communityId,
-            reportType: 'analytics',
-            reportDate: new Date().toISOString().split('T')[0],
-            reportData: {
-              issue: 'incorrect_website_url',
-              reportedUrl,
-              pageUrl,
-              timestamp,
-              userAgent
-            },
-            generatedBy: null,
-            emailSent: false
-          });
-          console.log('✅ Feedback stored in database');
+          // Get the community details
+          [community] = await db
+            .select()
+            .from(schema.communities)
+            .where(eq(schema.communities.id, communityId))
+            .limit(1);
+
+          if (community) {
+            console.log(`🔍 Re-verifying community: ${community.name} in ${community.city}, ${community.state}`);
+            
+            // Use Perplexity AI to find the correct website
+            const { SimplifiedPerplexityService } = await import('./simplified-perplexity-service');
+            const perplexityService = new SimplifiedPerplexityService();
+            
+            try {
+              const intelligence = await perplexityService.findExactCommunity(
+                community.name,
+                community.city,
+                community.state
+              );
+
+              if (intelligence.found && intelligence.officialWebsite) {
+                correctedUrl = intelligence.officialWebsite;
+                
+                // Update the community with the correct website
+                await db
+                  .update(schema.communities)
+                  .set({ 
+                    website: correctedUrl,
+                    isVerified: true
+                  })
+                  .where(eq(schema.communities.id, communityId));
+                
+                console.log(`✅ Website auto-corrected: ${reportedUrl} → ${correctedUrl}`);
+                aiFixSuccessful = true;
+
+                // Clear potentially incorrect photos if they were from the wrong website
+                if (community.photos && Array.isArray(community.photos)) {
+                  const photosFromWrongSite = (community.photos as any[]).filter(photo => {
+                    if (typeof photo === 'string' && reportedUrl) {
+                      const wrongDomain = new URL(reportedUrl).hostname;
+                      return photo.includes(wrongDomain);
+                    }
+                    return false;
+                  });
+
+                  if (photosFromWrongSite.length > 0) {
+                    // Remove photos from the wrong website
+                    const cleanedPhotos = (community.photos as any[]).filter(photo => {
+                      if (typeof photo === 'string' && reportedUrl) {
+                        const wrongDomain = new URL(reportedUrl).hostname;
+                        return !photo.includes(wrongDomain);
+                      }
+                      return true;
+                    });
+
+                    await db
+                      .update(schema.communities)
+                      .set({ photos: cleanedPhotos })
+                      .where(eq(schema.communities.id, communityId));
+                    
+                    console.log(`🧹 Removed ${photosFromWrongSite.length} photos from incorrect website`);
+                  }
+                }
+              } else {
+                console.log('⚠️ AI could not find a better website URL');
+              }
+            } catch (aiError) {
+              console.error('AI verification failed:', aiError);
+            }
+          }
         } catch (dbError) {
-          console.error('Failed to store feedback in database:', dbError);
+          console.error('Failed to get community details:', dbError);
         }
       }
 
       // Send notification emails to BOTH admin addresses
       const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      const emailSubject = aiFixSuccessful 
+        ? '✅ Incorrect Link Auto-Fixed - MySeniorValet'
+        : '🚨 Incorrect Link Reported (Manual Review Needed) - MySeniorValet';
+      
       const emailPromises = adminEmails.map(email => 
         sendEmail({
           to: email,
           from: 'notifications@myseniorvalet.com',
-          subject: '🚨 Incorrect External Link Reported - MySeniorValet',
-          text: `A user has reported an incorrect external link on MySeniorValet.
-        
-Reported URL: ${reportedUrl}
-Found on page: ${pageUrl}
-Community ID: ${communityId || 'Unknown'}
-Reported at: ${timestamp}
-User Agent: ${userAgent}
-
-Please review and update the link accuracy for this community.`,
+          subject: emailSubject,
+          text: aiFixSuccessful 
+            ? `AI Self-Healing Successfully Fixed an Incorrect Link\n\nCommunity: ${community?.name || 'Unknown'}\nLocation: ${community?.city}, ${community?.state}\nIncorrect URL: ${reportedUrl}\nCorrected URL: ${correctedUrl}\n\nThe website has been automatically updated and any photos from the incorrect website have been removed.`
+            : `A user reported an incorrect link that needs manual review.\n\nReported URL: ${reportedUrl}\nFound on page: ${pageUrl}\nCommunity: ${community?.name || 'Unknown'}\n\nAI verification was unable to automatically fix this issue. Please review manually.`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: #ef4444; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
-                <h2 style="margin: 0;">🚨 Incorrect External Link Reported</h2>
+              <div style="background: ${aiFixSuccessful ? '#10b981' : '#ef4444'}; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                <h2 style="margin: 0;">${aiFixSuccessful ? '✅ Self-Healing Success!' : '🚨 Manual Review Needed'}</h2>
               </div>
               <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
-                <p style="margin-top: 0;">A user has reported an incorrect external link on MySeniorValet.</p>
-                <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
-                  <tr>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Reported URL:</strong></td>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><a href="${reportedUrl}" target="_blank" style="color: #3b82f6;">${reportedUrl}</a></td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Found on page:</strong></td>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><a href="${pageUrl}" target="_blank" style="color: #3b82f6;">${pageUrl}</a></td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Community ID:</strong></td>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${communityId || 'Not detected'}</td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Reported at:</strong></td>
-                    <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${new Date(timestamp).toLocaleString()}</td>
-                  </tr>
-                </table>
-                <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 6px; margin-top: 20px;">
-                  <p style="margin: 0; color: #991b1b;"><strong>Action Required:</strong> Please review and update the link accuracy for this community in the admin dashboard.</p>
-                </div>
+                ${aiFixSuccessful ? `
+                  <p style="margin-top: 0; font-size: 16px; color: #059669;"><strong>AI has automatically fixed the incorrect website!</strong></p>
+                  <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Community:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${community?.name || 'Unknown'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Location:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${community?.city}, ${community?.state}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: #fee2e2;"><strong>Old (Incorrect) URL:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: #fee2e2;"><s>${reportedUrl}</s></td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: #dcfce7;"><strong>New (Correct) URL:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: #dcfce7;"><a href="${correctedUrl}" target="_blank" style="color: #059669; font-weight: bold;">${correctedUrl}</a></td>
+                    </tr>
+                  </table>
+                  <div style="background: #dcfce7; border: 1px solid #86efac; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                    <p style="margin: 0; color: #15803d;"><strong>Actions Taken:</strong></p>
+                    <ul style="color: #15803d; margin: 10px 0 0 20px;">
+                      <li>Website URL automatically corrected using AI verification</li>
+                      <li>Photos from incorrect website removed (if any)</li>
+                      <li>Community marked as verified</li>
+                    </ul>
+                  </div>
+                ` : `
+                  <p style="margin-top: 0;">A user reported an incorrect link that requires manual review.</p>
+                  <table style="border-collapse: collapse; width: 100%; margin: 20px 0;">
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Reported URL:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><a href="${reportedUrl}" target="_blank" style="color: #3b82f6;">${reportedUrl}</a></td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Community:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;">${community?.name || 'Not detected'}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><strong>Page URL:</strong></td>
+                      <td style="padding: 12px; border: 1px solid #e5e7eb; background: white;"><a href="${pageUrl}" target="_blank" style="color: #3b82f6;">${pageUrl}</a></td>
+                    </tr>
+                  </table>
+                  <div style="background: #fef2f2; border: 1px solid #fecaca; padding: 15px; border-radius: 6px; margin-top: 20px;">
+                    <p style="margin: 0; color: #991b1b;"><strong>Manual Action Required:</strong> AI was unable to automatically verify the correct website. Please review and update manually.</p>
+                  </div>
+                `}
               </div>
             </div>
           `
@@ -931,7 +1017,11 @@ Please review and update the link accuracy for this community.`,
 
       res.json({ 
         success: true, 
-        message: 'Thank you for your feedback! Our team will review and correct this link.' 
+        message: aiFixSuccessful 
+          ? `Thank you! We've automatically corrected the website to: ${correctedUrl}`
+          : 'Thank you for your feedback! Our team will review and correct this link.',
+        autoFixed: aiFixSuccessful,
+        correctedUrl: aiFixSuccessful ? correctedUrl : undefined
       });
     } catch (error) {
       console.error('Error processing link feedback:', error);

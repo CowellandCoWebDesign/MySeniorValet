@@ -52,11 +52,26 @@ export function ExternalLinkWarning({ href, children, className, domain }: Exter
       });
 
       if (response.ok) {
-        toast({
-          title: "Thank you for your feedback!",
-          description: "We'll review this link and work on improving our accuracy.",
-          variant: "default",
-        });
+        const result = await response.json();
+        
+        if (result.autoFixed && result.correctedUrl) {
+          toast({
+            title: "🎉 Link Automatically Fixed!",
+            description: `We've corrected the website to: ${result.correctedUrl}. The page will refresh to show the update.`,
+            variant: "default",
+          });
+          
+          // Refresh the page after a short delay to show the corrected link
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+        } else {
+          toast({
+            title: "Thank you for your feedback!",
+            description: "We'll review this link and work on improving our accuracy.",
+            variant: "default",
+          });
+        }
       } else {
         throw new Error('Failed to submit feedback');
       }
