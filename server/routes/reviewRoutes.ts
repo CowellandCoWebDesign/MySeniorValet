@@ -340,15 +340,16 @@ export function registerReviewRoutes(app: Express) {
       }
 
       // Search for reviews using Perplexity with enhanced prompt
-      const searchQuery = `Find current reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Include:
-        1. Google Reviews rating (X out of 5 stars) and total review count
-        2. Recent Google review snippets with dates
-        3. Yelp rating and review count if available
-        4. Recent Yelp review excerpts
-        5. Care.com reviews and ratings if available
-        6. SeniorAdvisor or A Place for Mom reviews if available
-        7. Direct links to review pages on each platform
-        Please provide actual review quotes and specific ratings from 2024-2025.`;
+      const searchQuery = `Find ALL reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Search Google, Yelp, Care.com, SeniorAdvisor, A Place for Mom, Facebook, and any other review sites. Include:
+        1. Google Reviews: Overall rating (X out of 5 stars), total review count, and actual review quotes
+        2. Yelp: Overall rating, review count, and specific review excerpts
+        3. Care.com: Ratings and any available reviews
+        4. SeniorAdvisor.com: Ratings and review content
+        5. A Place for Mom: Ratings and reviews
+        6. Facebook Reviews: Ratings and review text if available
+        7. Any other review platforms with this community
+        8. Direct links to each review page
+        IMPORTANT: Include ALL reviews from any year, not just recent ones. Search thoroughly across all platforms. If a community has reviews from 2020, 2021, 2022, 2023, 2024, or 2025, include them all.`;
       
       const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
       

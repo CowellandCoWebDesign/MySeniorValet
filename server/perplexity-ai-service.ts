@@ -105,6 +105,9 @@ CRITICAL INSTRUCTIONS:
           return_related_questions: false,
           search_domain_filter: [],  // Search all domains for maximum photo coverage
           search_recency_filter: undefined,  // No time restriction - get all available data for transparency
+          web_search_options: {
+            search_context_size: "high"  // Maximum search depth for comprehensive review discovery
+          },
           stream: false
         },
         {
