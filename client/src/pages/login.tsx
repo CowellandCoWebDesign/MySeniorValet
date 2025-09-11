@@ -263,7 +263,7 @@ export default function LoginPage() {
 
         {/* Trust Indicators */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Trusted by families nationwide</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Researched and discovered by families nationwide</p>
           <div className="flex justify-center items-center space-x-6 text-gray-400 dark:text-gray-500">
             <div className="flex items-center space-x-1">
               <Shield className="h-4 w-4" />

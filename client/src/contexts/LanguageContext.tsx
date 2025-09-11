@@ -63,7 +63,7 @@ const translations = {
     'emergency.subtitle': 'Get immediate assistance',
     'accessibility.title': 'Accessibility Settings',
     'accessibility.subtitle': 'Customize your viewing experience',
-    'platform.description': 'The trusted platform for authentic senior living community information',
+    'platform.description': 'The research platform for authentic senior living community information',
     'platform.coverage': 'Now serving {{count}} communities across North America',
     'platform.bilingual': 'Full bilingual support for Quebec communities',
     'canada.title': 'Canadian Coverage',

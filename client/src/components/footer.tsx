@@ -104,7 +104,7 @@ export function Footer() {
     { src: AuthenticReviews, title: 'Real Reviews Only', description: 'Authentic testimonials - no fake reviews ever' },
     { src: GovResources, title: 'Government Resources', description: 'HUD, Medicare, Medicaid, Veterans benefits - all in one place' },
     { src: AlwaysAvailable, title: '24/7 Access', description: 'Always there when you need us - day or night' },
-    { src: VendorMarket, title: 'Vendor Marketplace', description: 'Trusted senior services and products in one location' },
+    { src: VendorMarket, title: 'Vendor Marketplace', description: 'Researched and discovered senior services and products in one location' },
     { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection' },
     { src: FreeForFamilies, title: 'Free Forever', description: 'Always free for families - that\'s our promise' },
     // Senior-Targeted Social Media Ads
@@ -180,7 +180,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-xs text-gray-400 mb-3 max-w-sm">
-              The trusted platform for authentic senior living community information.
+              The research platform for authentic senior living community information.
             </p>
             <div className="flex space-x-2">
               <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">

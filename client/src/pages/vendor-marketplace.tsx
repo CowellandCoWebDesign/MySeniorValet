@@ -86,7 +86,7 @@ export default function VendorMarketplace() {
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Senior Services & Vendor Marketplace</h1>
           <p className="text-xl opacity-90 mb-8">
-            Trusted services and products to support your senior living journey
+            Researched and discovered services and products to support your senior living journey
           </p>
           
           {/* Statistics Row */}
@@ -228,7 +228,7 @@ export default function VendorMarketplace() {
                               <Badge className="ml-2 bg-blue-600 text-white">Featured</Badge>
                             </CardTitle>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {vendor.description || 'Trusted senior service provider'}
+                              {vendor.description || 'Researched senior service provider'}
                             </p>
                           </div>
                           {vendor.logoUrl && (
@@ -356,7 +356,7 @@ export default function VendorMarketplace() {
         <div className="mt-12 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-8 text-center">
           <h3 className="text-2xl font-bold mb-4">Ready to Grow Your Senior Service Business?</h3>
           <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-            Join thousands of trusted vendors already connecting with families through MySeniorValet. 
+            Join thousands of researched vendors already connecting with families through MySeniorValet. 
             Get started today and claim your 50% discount before it expires!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">

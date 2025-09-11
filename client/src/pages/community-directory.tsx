@@ -770,7 +770,7 @@ export default function CommunityDirectory() {
             </h2>
             <p className="text-lg text-gray-300 max-w-4xl mx-auto">
               From industry giants to luxury boutiques, each brand brings unique strengths. 
-              Here's your guide to America's most trusted senior living providers.
+              Here's your guide to America's researched and discovered senior living providers.
             </p>
           </div>
           

@@ -98,7 +98,7 @@ export default function Contact() {
     { src: AuthenticReviews, title: 'Real Reviews Only', description: 'Authentic testimonials from real families - no fake reviews or paid endorsements' },
     { src: GovResources, title: 'Government Resources Hub', description: 'HUD, Medicare, Medicaid, Veterans benefits - all government programs in one place' },
     { src: AlwaysAvailable, title: '24/7 Platform Access', description: 'Always there when you need us - research communities anytime, day or night' },
-    { src: VendorMarket, title: 'Senior Vendor Marketplace', description: 'Trusted senior services and products - from medical equipment to home care' },
+    { src: VendorMarket, title: 'Senior Vendor Marketplace', description: 'Researched and discovered senior services and products - from medical equipment to home care' },
     { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection with military-grade security' },
     { src: FreeForFamilies, title: 'Free Forever Promise', description: 'Always free for families - communities pay, families never do' },
     // Senior-Targeted Social Media Advertising

@@ -364,7 +364,7 @@ export default function CommunityPortal() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Trusted by Families</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Researched by Families</span>
             </div>
           </div>
         </div>
