@@ -5,6 +5,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
+import { PerplexityAIService } from "../perplexity-ai-service";
 
 export function registerReviewRoutes(app: Express) {
   // Get reviews for a community
@@ -67,7 +68,6 @@ export function registerReviewRoutes(app: Express) {
         .values({
           ...validatedData,
           userId,
-          source: 'MySeniorValet',
           verified: true,
           helpful: 0
         })
@@ -314,4 +314,241 @@ export function registerReviewRoutes(app: Express) {
       res.status(500).json({ message: 'Failed to report review' });
     }
   });
+
+  // Fetch external reviews using Perplexity AI
+  app.post('/api/communities/:communityId/reviews/fetch-external', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      const perplexity = new PerplexityAIService();
+
+      if (!perplexity.isConfigured()) {
+        return res.status(400).json({ 
+          message: 'Perplexity AI is not configured',
+          fallbackData: true 
+        });
+      }
+
+      // Get community details
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+
+      // Search for reviews using Perplexity with enhanced prompt
+      const searchQuery = `Find current reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Include:
+        1. Google Reviews rating (X out of 5 stars) and total review count
+        2. Recent Google review snippets with dates
+        3. Yelp rating and review count if available
+        4. Recent Yelp review excerpts
+        5. Care.com reviews and ratings if available
+        6. SeniorAdvisor or A Place for Mom reviews if available
+        7. Direct links to review pages on each platform
+        Please provide actual review quotes and specific ratings from 2024-2025.`;
+      
+      const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
+      
+      console.log('Fetching external reviews for:', context);
+      const result = await perplexity.searchRealTime(searchQuery, context);
+
+      // Parse the response to extract review data
+      const extractedData = {
+        googleRating: extractGoogleRating(result.summary),
+        yelpRating: extractYelpRating(result.summary),
+        externalReviews: extractReviewSnippets(result.summary),
+        sources: result.sources || [],
+        lastUpdated: new Date().toISOString(),
+        images: result.images || [],
+        rawSummary: result.summary // Keep raw summary for debugging
+      };
+
+      // Update community with fresh review data
+      const updateData: any = {
+        lastExternalReviewFetch: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Update ratings if found
+      if (extractedData.googleRating) {
+        updateData.googleRating = extractedData.googleRating.rating;
+        updateData.googleReviewCount = extractedData.googleRating.count;
+      }
+
+      if (extractedData.yelpRating) {
+        updateData.yelpRating = extractedData.yelpRating.rating;
+        updateData.yelpReviewCount = extractedData.yelpRating.count;
+      }
+
+      // Store extracted reviews in JSON fields
+      if (extractedData.externalReviews.yelp?.length > 0) {
+        updateData.yelpReviews = extractedData.externalReviews.yelp;
+      }
+      if (extractedData.externalReviews.carecom?.length > 0) {
+        updateData.careComReviews = extractedData.externalReviews.carecom;
+      }
+      if (extractedData.externalReviews.seniorAdvisor?.length > 0) {
+        updateData.seniorAdvisorReviews = extractedData.externalReviews.seniorAdvisor;
+      }
+      if (extractedData.externalReviews.aplaceformom?.length > 0) {
+        updateData.aplaceformomReviews = extractedData.externalReviews.aplaceformom;
+      }
+
+      await db
+        .update(communities)
+        .set(updateData)
+        .where(eq(communities.id, communityId));
+
+      res.json({
+        success: true,
+        data: extractedData,
+        message: 'External reviews fetched successfully',
+        poweredBy: 'Perplexity AI',
+        disclaimer: 'Reviews are sourced from third-party platforms and may not reflect current conditions'
+      });
+    } catch (error) {
+      console.error('Error fetching external reviews:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch external reviews',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        fallbackData: true 
+      });
+    }
+  });
+}
+
+// Helper functions to extract review data from Perplexity response
+function extractGoogleRating(text: string): { rating: string; count: number } | null {
+  // Multiple patterns to catch different formats
+  const patterns = [
+    /Google.*?(\d+(?:\.\d+)?)\/5.*?(\d+)\s*reviews?/i,
+    /Google Reviews?:?\s*(\d+(?:\.\d+)?)\/5.*?(\d+)/i,
+    /(\d+(?:\.\d+)?)\/5\s*stars?.*?Google.*?(\d+)\s*reviews?/i,
+    /Google.*?rated?\s*(\d+(?:\.\d+)?)\/5.*?based on\s*(\d+)/i
+  ];
+  
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return {
+        rating: match[1],
+        count: parseInt(match[2])
+      };
+    }
+  }
+  return null;
+}
+
+function extractYelpRating(text: string): { rating: number; count: number } | null {
+  const patterns = [
+    /Yelp.*?(\d+(?:\.\d+)?)\/5.*?(\d+)\s*reviews?/i,
+    /Yelp Reviews?:?\s*(\d+(?:\.\d+)?)\/5.*?(\d+)/i,
+    /(\d+(?:\.\d+)?)\/5\s*stars?.*?Yelp.*?(\d+)\s*reviews?/i,
+    /Yelp.*?rated?\s*(\d+(?:\.\d+)?)\/5.*?based on\s*(\d+)/i
+  ];
+  
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return {
+        rating: parseFloat(match[1]),
+        count: parseInt(match[2])
+      };
+    }
+  }
+  return null;
+}
+
+function extractReviewSnippets(text: string): {
+  yelp: any[];
+  carecom: any[];
+  seniorAdvisor: any[];
+  aplaceformom: any[];
+} {
+  const reviews = {
+    yelp: [] as any[],
+    carecom: [] as any[],
+    seniorAdvisor: [] as any[],
+    aplaceformom: [] as any[]
+  };
+
+  // Extract quoted reviews - looking for text in quotes
+  const quotedReviews = text.match(/[""'']([^""'']{20,500})[""'']/g) || [];
+  
+  quotedReviews.forEach(quote => {
+    const cleanQuote = quote.replace(/[""'']/g, '').trim();
+    
+    // Try to determine source from context
+    const context = text.substring(
+      Math.max(0, text.indexOf(quote) - 100),
+      Math.min(text.length, text.indexOf(quote) + quote.length + 100)
+    );
+    
+    // Categorize by source mention in nearby text
+    if (/yelp/i.test(context)) {
+      reviews.yelp.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context),
+        source: 'Yelp',
+        date: extractDateFromContext(context) || new Date().toISOString()
+      });
+    } else if (/care\.com/i.test(context)) {
+      reviews.carecom.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context),
+        source: 'Care.com',
+        date: extractDateFromContext(context) || new Date().toISOString()
+      });
+    } else if (/senioradvisor/i.test(context)) {
+      reviews.seniorAdvisor.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context),
+        source: 'SeniorAdvisor',
+        date: extractDateFromContext(context) || new Date().toISOString()
+      });
+    } else if (/place\s+for\s+mom/i.test(context)) {
+      reviews.aplaceformom.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context),
+        source: 'A Place for Mom',
+        date: extractDateFromContext(context) || new Date().toISOString()
+      });
+    } else if (/google/i.test(context)) {
+      // Google reviews can be added to Yelp array for now
+      reviews.yelp.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context),
+        source: 'Google',
+        date: extractDateFromContext(context) || new Date().toISOString()
+      });
+    }
+  });
+
+  return reviews;
+}
+
+function extractRatingNearQuote(context: string): number {
+  const ratingMatch = context.match(/(\d+(?:\.\d+)?)\/5/);
+  return ratingMatch ? parseFloat(ratingMatch[1]) : 4.0; // Default to 4.0 if no rating found
+}
+
+function extractDateFromContext(context: string): string | null {
+  // Look for date patterns
+  const datePatterns = [
+    /(\d{1,2}\/\d{1,2}\/\d{2,4})/,
+    /(\w+\s+\d{1,2},?\s+\d{4})/,
+    /(\d{1,2}\s+\w+\s+ago)/,
+    /(\d{4}-\d{2}-\d{2})/
+  ];
+  
+  for (const pattern of datePatterns) {
+    const match = context.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+  return null;
 }
