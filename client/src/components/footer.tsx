@@ -40,6 +40,18 @@ import VendorMarket from '@assets/generated_images/Vendor_marketplace_1bcaf6d8.p
 import DataPrivacy from '@assets/generated_images/Data_privacy_fortress_7678436a.png';
 import FreeForFamilies from '@assets/generated_images/Free_for_families_223f28a6.png';
 
+// Senior-Targeted Social Media Advertising Images - Fourth Set
+import SeniorCoupleFinding from '@assets/generated_images/Senior_couple_finding_home_a8966462.png';
+import ActiveLifestyle from '@assets/generated_images/Active_senior_lifestyle_06b713a9.png';
+import StayingConnected from '@assets/generated_images/Senior_staying_connected_b57da68f.png';
+import VeteransHousing from '@assets/generated_images/Veterans_housing_support_ec161a50.png';
+import LuxuryLiving from '@assets/generated_images/Luxury_senior_living_606b10b5.png';
+import CommunityConnection from '@assets/generated_images/Community_connection_social_4e398aeb.png';
+import SimpleTech from '@assets/generated_images/Simple_technology_use_626d34ff.png';
+import AffordableHousing from '@assets/generated_images/Affordable_housing_options_76e5e402.png';
+import JoyfulMoments from '@assets/generated_images/Joyful_senior_moments_ffa83232.png';
+import EmpoweredResearch from '@assets/generated_images/Empowered_senior_research_82415146.png';
+
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
     queryKey: ["/api/platform/stats/formatted"],
@@ -82,7 +94,18 @@ export function Footer() {
     { src: AlwaysAvailable, title: '24/7 Access', description: 'Always there when you need us - day or night' },
     { src: VendorMarket, title: 'Vendor Marketplace', description: 'Trusted senior services and products in one location' },
     { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection' },
-    { src: FreeForFamilies, title: 'Free Forever', description: 'Always free for families - that\'s our promise' }
+    { src: FreeForFamilies, title: 'Free Forever', description: 'Always free for families - that\'s our promise' },
+    // Senior-Targeted Social Media Ads
+    { src: SeniorCoupleFinding, title: 'Find Your Perfect Home', description: 'Happy seniors discovering their ideal community - Instagram/Facebook ad' },
+    { src: ActiveLifestyle, title: 'Live Your Best Life', description: 'Active senior lifestyle communities - perfect for Facebook advertising' },
+    { src: StayingConnected, title: 'Stay Connected', description: 'Video calling with family - Instagram Stories format (9:16)' },
+    { src: VeteransHousing, title: 'Serving Those Who Served', description: 'Veterans housing support - LinkedIn professional ad format' },
+    { src: LuxuryLiving, title: 'Discover Luxury Living', description: 'Elegant senior communities - Instagram square post' },
+    { src: CommunityConnection, title: 'Your Community Awaits', description: 'Diverse seniors together - Twitter/X header format' },
+    { src: SimpleTech, title: 'Easy as 1-2-3', description: 'Simple technology for seniors - Instagram minimalist ad' },
+    { src: AffordableHousing, title: 'Affordable Living Solutions', description: 'HUD housing options - Facebook carousel ad format' },
+    { src: JoyfulMoments, title: 'Find Your Joy', description: 'Seniors dancing and celebrating - Pinterest pin format (3:4)' },
+    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowered senior research - YouTube thumbnail format' }
   ];
 
   return (
@@ -207,9 +230,9 @@ export function Footer() {
 
         {/* Contact Us & Brand Gallery Section */}
         <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
-          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 30 Unique Designs</h3>
+          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 40 Unique Designs</h3>
           <p className="text-xs text-gray-400 mb-4">
-            Explore 30 creative interpretations of MySeniorValet, including brand styles, features, and our core promises. 
+            Explore 40 creative interpretations of MySeniorValet, including brand styles, features, promises, and social media ads. 
             Click any image to view details. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
           </p>
           

@@ -40,6 +40,18 @@ import VendorMarket from '@assets/generated_images/Vendor_marketplace_1bcaf6d8.p
 import DataPrivacy from '@assets/generated_images/Data_privacy_fortress_7678436a.png';
 import FreeForFamilies from '@assets/generated_images/Free_for_families_223f28a6.png';
 
+// Senior-Targeted Social Media Advertising Images - Fourth Set
+import SeniorCoupleFinding from '@assets/generated_images/Senior_couple_finding_home_a8966462.png';
+import ActiveLifestyle from '@assets/generated_images/Active_senior_lifestyle_06b713a9.png';
+import StayingConnected from '@assets/generated_images/Senior_staying_connected_b57da68f.png';
+import VeteransHousing from '@assets/generated_images/Veterans_housing_support_ec161a50.png';
+import LuxuryLiving from '@assets/generated_images/Luxury_senior_living_606b10b5.png';
+import CommunityConnection from '@assets/generated_images/Community_connection_social_4e398aeb.png';
+import SimpleTech from '@assets/generated_images/Simple_technology_use_626d34ff.png';
+import AffordableHousing from '@assets/generated_images/Affordable_housing_options_76e5e402.png';
+import JoyfulMoments from '@assets/generated_images/Joyful_senior_moments_ffa83232.png';
+import EmpoweredResearch from '@assets/generated_images/Empowered_senior_research_82415146.png';
+
 export default function Contact() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
 
@@ -76,7 +88,18 @@ export default function Contact() {
     { src: AlwaysAvailable, title: '24/7 Platform Access', description: 'Always there when you need us - research communities anytime, day or night' },
     { src: VendorMarket, title: 'Senior Vendor Marketplace', description: 'Trusted senior services and products - from medical equipment to home care' },
     { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection with military-grade security' },
-    { src: FreeForFamilies, title: 'Free Forever Promise', description: 'Always free for families - communities pay, families never do' }
+    { src: FreeForFamilies, title: 'Free Forever Promise', description: 'Always free for families - communities pay, families never do' },
+    // Senior-Targeted Social Media Advertising
+    { src: SeniorCoupleFinding, title: 'Find Your Perfect Home', description: 'Happy seniors discovering their ideal community together - perfect for Instagram/Facebook ads' },
+    { src: ActiveLifestyle, title: 'Live Your Best Life', description: 'Stay active and engaged in vibrant senior communities - Facebook advertising ready' },
+    { src: StayingConnected, title: 'Stay Connected with Family', description: 'Video calling made easy - Instagram Stories format (9:16 vertical)' },
+    { src: VeteransHousing, title: 'Veterans Housing Support', description: 'Serving those who served us - LinkedIn professional advertising format' },
+    { src: LuxuryLiving, title: 'Discover Luxury Living', description: 'Elegant senior living at its finest - Instagram square post ready' },
+    { src: CommunityConnection, title: 'Your Community Awaits', description: 'Diverse, welcoming communities - Twitter/X header format for social media' },
+    { src: SimpleTech, title: 'Technology Made Simple', description: 'Easy as 1-2-3 for seniors - minimalist Instagram ad design' },
+    { src: AffordableHousing, title: 'Affordable Housing Solutions', description: 'HUD and subsidized housing options - Facebook carousel ad format' },
+    { src: JoyfulMoments, title: 'Find Your Joy', description: 'Celebrate life in senior communities - Pinterest pin format (3:4 vertical)' },
+    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowering seniors with information - YouTube thumbnail format ready' }
   ];
 
   return (
@@ -245,7 +268,7 @@ export default function Contact() {
       <section className="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">MySeniorValet Brand Gallery</h2>
-          <p className="text-center text-gray-600 mb-8">Explore 30 unique AI-generated interpretations of our brand, features, and promises</p>
+          <p className="text-center text-gray-600 mb-8">Explore 40 unique AI-generated images including brand styles, features, promises, and social media ads</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {brandImages.map((image, index) => (
