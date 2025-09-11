@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -64,6 +64,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(new Set());
   const [lastPerplexityUpdate, setLastPerplexityUpdate] = useState<string | null>(null);
   const [perplexityCitations, setPerplexityCitations] = useState<string[]>([]);
+  const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
 
   // Fetch reviews from database
   const { data: databaseReviews = [], isLoading: isLoadingDbReviews } = useQuery({
@@ -111,6 +112,15 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
       });
     }
   });
+
+  // Automatically fetch external reviews when component mounts
+  useEffect(() => {
+    if (!hasInitiallyFetched && community?.id) {
+      setHasInitiallyFetched(true);
+      // Fetch external reviews from Perplexity API
+      fetchExternalReviewsMutation.mutate();
+    }
+  }, [community?.id, hasInitiallyFetched]);
 
   // Extract external reviews from community data
   const externalReviews = useMemo(() => {
