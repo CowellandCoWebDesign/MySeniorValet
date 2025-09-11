@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -1965,6 +1965,195 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
+
+            {/* Senior Living News & Research Section - Transparency for Families */}
+            <Card className="md:col-span-2 border-2 border-red-500 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20">
+              <CardHeader>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 text-white">
+                      <FileText className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl mb-1">Senior Living News & Research</CardTitle>
+                      <CardDescription className="font-semibold">Critical Information Every Family Needs to Know</CardDescription>
+                    </div>
+                  </div>
+                  <Badge className="bg-red-500 text-white animate-pulse">BREAKING</Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Left Column - Current Crisis Data */}
+                  <div className="space-y-4">
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                      <h4 className="font-bold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5" />
+                        The Hidden Cost Crisis (2025 Data)
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <li className="flex items-start gap-2">
+                          <span className="text-red-500">•</span>
+                          <span><strong>$131,583/year</strong> - Average private nursing home room cost</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-red-500">•</span>
+                          <span><strong>90% of families</strong> say these costs are "impossible" to pay</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-red-500">•</span>
+                          <span><strong>20-30% hidden fees</strong> above advertised rates industry-wide</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-red-500">•</span>
+                          <span>Families forced to <strong>sell homes</strong> to afford care</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-red-500">•</span>
+                          <span><strong>"Forgotten Middle"</strong> - Too rich for Medicaid, too poor for private</span>
+                        </li>
+                      </ul>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
+                        Sources: KFF Health News, Governing.com, SeniorLiving.org 2025
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                      <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-2 flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Caregiver Burnout Epidemic
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span><strong>53 million Americans</strong> provide unpaid care</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span>Average <strong>24.4 hours/week</strong> of caregiving</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span>Only <strong>23% report good mental health</strong></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span><strong>650,000+ jobs lost</strong> due to caregiving demands</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-500">•</span>
+                          <span><strong>53% can't navigate</strong> healthcare system</span>
+                        </li>
+                      </ul>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
+                        Sources: Alzheimer's Association, Guardian Life, CDC 2024
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right Column - Industry Problems & Solutions */}
+                  <div className="space-y-4">
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                      <h4 className="font-bold text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-2">
+                        <AlertOctagon className="h-5 w-5" />
+                        Industry Deception Exposed
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-500">•</span>
+                          <span><strong>Senate investigating</strong> "A Place for Mom" for steering to unsafe facilities</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-500">•</span>
+                          <span><strong>37 fake 5-star reviews</strong> posted same day (StoryPoint facility)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-500">•</span>
+                          <span><strong>1/3 of "Best of" facilities</strong> had safety violations</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-500">•</span>
+                          <span><strong>FTC fines $52,000</strong> per fake review violation</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-purple-500">•</span>
+                          <span>Referral services take <strong>hidden commissions</strong></span>
+                        </li>
+                      </ul>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
+                        Sources: Washington Post, Senate Committee on Aging, FTC 2024
+                      </p>
+                    </div>
+
+                    <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                      <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2">
+                        <Home className="h-5 w-5" />
+                        Housing Crisis Reality
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-500">•</span>
+                          <span><strong>520,000+ seniors</strong> on affordable housing waitlists</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-500">•</span>
+                          <span>Average wait: <strong>2.5 years</strong> for Section 8</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-500">•</span>
+                          <span>Only <strong>25% of eligible</strong> get assistance</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-500">•</span>
+                          <span><strong>33% lonely</strong>, 50% higher dementia risk</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-blue-500">•</span>
+                          <span><strong>No new HUD funding</strong> since 2012</span>
+                        </li>
+                      </ul>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
+                        Sources: HUD.gov, LiveOn NY, Urban Institute 2024
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Bar */}
+                <div className="mt-6 p-4 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-lg">
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
+                      <div>
+                        <p className="font-bold text-gray-900 dark:text-gray-100">MySeniorValet Solution</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Transparency, No Hidden Fees, Real Data Only</p>
+                      </div>
+                    </div>
+                    <Button 
+                      className="bg-gradient-to-r from-red-500 to-orange-500 text-white hover:opacity-90"
+                      onClick={() => window.location.href = '/senior-news'}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Read Full Research & Citations
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Latest Updates Ticker */}
+                <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                  <div className="flex items-center gap-2 text-xs">
+                    <Badge className="bg-red-500 text-white">LATEST</Badge>
+                    <div className="animate-marquee whitespace-nowrap">
+                      <span className="text-gray-700 dark:text-gray-300">
+                        📰 FTC bans fake reviews with $52K fines • 🏛️ Senate investigates referral services • 
+                        💰 Nursing home costs hit $131K/year • 🏠 520,000 seniors on housing waitlists • 
+                        😔 33% of seniors report loneliness • 💔 53M family caregivers struggling
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Trusted Senior Service Providers - Enhanced Promotional Section */}
             <Link href="/senior-services">
