@@ -1805,8 +1805,8 @@ export default function MySeniorValetHome() {
                       <li>• MySeniorValet is a RESEARCH-ONLY platform providing market transparency</li>
                       <li>• All data is aggregated from public sources with citations</li>
                       <li>• This is NOT a recommendation, endorsement, or referral service</li>
-                      <li>• We do NOT receive kickbacks or commissions for listings</li>
-                      <li>• Premium partners are clearly marked with "PAID PARTNERSHIP" badges</li>
+                      <li>• We may receive affiliate commissions from clearly marked partners</li>
+                      <li>• Current affiliate partners: Amazon and 1-800-Flowers</li>
                       <li>• Always verify information independently before making decisions</li>
                     </ul>
                   </div>
@@ -1819,25 +1819,21 @@ export default function MySeniorValetHome() {
                   <div className="flex gap-3 mb-6">
                     {/* Left side - Premium Partners & Public Listings */}
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      {/* Premium Partners Section */}
+                      {/* Affiliate Partners Section */}
                       <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
                         <div className="flex items-center gap-2 mb-2">
                           <Star className="h-4 w-4 text-purple-500 animate-pulse" />
-                          <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Premium Partners</span>
-                          <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">PAID</Badge>
+                          <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
+                          <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <Truck className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">United Van Lines™</span>
+                            <ShoppingCart className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Car className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">Uber Health™</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Shield className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">Life Alert™</span>
+                            <Gift className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
                           </div>
                         </div>
                       </div>

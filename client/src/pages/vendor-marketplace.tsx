@@ -115,8 +115,8 @@ export default function VendorMarketplace() {
       <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
         <div className="container mx-auto px-4 py-3">
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-            Vendors shown are for your convenience and do not imply partnership. 
-            MySeniorValet does not currently receive compensation from these listings.
+            Vendors shown are for your convenience. MySeniorValet may receive affiliate commissions from select partners 
+            (currently Amazon and 1-800-Flowers). All affiliate relationships are clearly disclosed.
           </p>
         </div>
       </div>
