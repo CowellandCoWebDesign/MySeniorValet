@@ -155,6 +155,33 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Bottom Row: Other sections */}
+        <div className="flex gap-8 mb-6">
+          
+          {/* For Vendors */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3 text-white">For Vendors</h3>
+            <ul className="space-y-2 text-xs text-gray-300">
+              <li><Link href="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
+              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
+              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
+              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
+            </ul>
+          </div>
+          
+          {/* Legal */}
+          <div>
+            <h3 className="text-sm font-semibold mb-3 text-white">Legal</h3>
+            <ul className="space-y-2 text-xs text-gray-300">
+              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
+              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
+              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
+              <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
+              <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
+            </ul>
+          </div>
+        </div>
+
         {/* Contact Us & Brand Gallery Section */}
         <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
           <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 20 Unique Designs</h3>
@@ -220,33 +247,6 @@ export function Footer() {
             </div>
           </div>
         )}
-
-        {/* Bottom Row: Other sections */}
-        <div className="flex gap-8 mb-6">
-          
-          {/* For Vendors */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Vendors</h3>
-            <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
-              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
-              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
-              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
-            </ul>
-          </div>
-          
-          {/* Legal */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">Legal</h3>
-            <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
-              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
-              <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
-            </ul>
-          </div>
-        </div>
         
         {/* Compact Bottom Bar */}
         <div className="border-t border-purple-500/30 mt-6 pt-4 bg-gray-950/50 backdrop-blur-sm -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
