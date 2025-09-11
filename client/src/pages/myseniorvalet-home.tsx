@@ -61,6 +61,7 @@ import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_market
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { LegalNoticeModal } from "@/components/LegalNoticeModal";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
@@ -1788,47 +1789,87 @@ export default function MySeniorValetHome() {
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Global Business & Services Discovery</CardTitle>
+                  <CardTitle className="text-2xl mb-2">🔬 Research Platform: Business & Services Discovery</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Find Any Service Provider Worldwide
+                    Market Transparency Through Public Data Citations
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
+                  {/* Legal Disclaimers - Prominent Position */}
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
+                    <p className="text-xs font-bold text-red-700 dark:text-red-300 mb-2 flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      IMPORTANT LEGAL NOTICE
+                    </p>
+                    <ul className="text-xs text-red-600 dark:text-red-400 space-y-1">
+                      <li>• MySeniorValet is a RESEARCH-ONLY platform providing market transparency</li>
+                      <li>• All data is aggregated from public sources with citations</li>
+                      <li>• This is NOT a recommendation, endorsement, or referral service</li>
+                      <li>• We do NOT receive kickbacks or commissions for listings</li>
+                      <li>• Premium partners are clearly marked with "PAID PARTNERSHIP" badges</li>
+                      <li>• Always verify information independently before making decisions</li>
+                    </ul>
+                  </div>
+                  
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🌍 Discover ANY business globally - moving services, law firms, restaurants, tech companies, and millions more
+                    🌍 Research global businesses & services - All information cited from public sources for transparency
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
                   <div className="flex gap-3 mb-6">
-                    {/* Left side - Vendor count and Checkmarks */}
+                    {/* Left side - Premium Partners & Public Listings */}
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Vendors</span>
+                      {/* Premium Partners Section */}
+                      <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star className="h-4 w-4 text-purple-500 animate-pulse" />
+                          <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Premium Partners</span>
+                          <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">PAID</Badge>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Truck className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">United Van Lines™</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Car className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">Uber Health™</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Shield className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">Life Alert™</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Public Research Data */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <Globe className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
                       </div>
                     </div>
                     
                     {/* Right side - Maximum Height Scrollable Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🛒</span> Preview
+                        <span>📊</span> Research Categories (Citation-Based)
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
@@ -1958,8 +1999,20 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
+                  {/* Additional Legal Notice */}
+                  <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
+                      <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                      <span>
+                        <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
+                        All sources are cited. Premium partnerships are transparently disclosed. We protect against false steering claims through complete transparency.
+                      </span>
+                    </p>
+                  </div>
+                  
                   <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Explore Directory</span>
+                    <Search className="mr-2 h-4 w-4" />
+                    <span className="font-semibold">Research Businesses & Services</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
@@ -2155,155 +2208,6 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
 
-            {/* Trusted Senior Service Providers - Enhanced Promotional Section */}
-            <Link href="/senior-services">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Shopping Sign Image at top of card */}
-                <div className="relative h-64 w-full">
-                  <img 
-                    src={RetroShoppingSign} 
-                    alt="Retro shopping center neon sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg">
-                    <span className="text-3xl">⭐</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 animate-pulse">
-                    TRUSTED PARTNERS
-                  </Badge>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">⭐ Trusted Senior Service Providers</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Premium Partners Serving Families Nationwide
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🏆 Connect with 3,600+ verified service providers & vendors - Our comprehensive network delivering excellence in senior care
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Featured Partners */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Shield className="h-5 w-5 text-purple-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Premium Partners</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Life Alert™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Guardian™</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Service Categories Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🎯</span> Service Categories
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚚</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Moving & Relocation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Transport</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pharmacy Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Home Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🍽️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Meal Delivery</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">⚖️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Legal Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">♿</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Equipment</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💰</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Financial Planning</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌟</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Adult Day Care</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-purple-600 dark:text-purple-400 mt-2 font-medium">
-                        15+ Service Categories
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Trust Indicators */}
-                  <div className="mb-4 p-3 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">✅ Why Choose Our Partners?</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Background Verified</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Licensed & Insured</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">24/7 Support</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Senior Discounts</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Quality Guaranteed</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white group-hover:shadow-lg transition-all relative overflow-hidden">
-                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                    <Star className="mr-2 h-4 w-4 animate-pulse" />
-                    <span className="font-semibold">Explore Trusted Partners</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
 
             {/* Senior Healthcare Services Directory */}
             <Link href="/senior-healthcare-directory">
@@ -3662,6 +3566,9 @@ export default function MySeniorValetHome() {
         onOpenChange={setShowRemovalModal}
         entityType="vendor"
       />
+      
+      {/* Legal Notice Modal for First-Time Visitors */}
+      <LegalNoticeModal />
       
       {/* One-Touch Emergency Contact Shortcut - DISABLED to prevent React rendering failure */}
       {/* <EmergencyButton userId={undefined} /> */}
