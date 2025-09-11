@@ -2842,7 +2842,7 @@ export default function CommunityDetail() {
               <TabsContent value="reviews" className="space-y-6 mt-6">
                 <CommunityReviews 
                   community={community} 
-                  currentUserId={authQuery.data?.user?.id}
+                  currentUserId={undefined}
                 />
               </TabsContent>
                   
