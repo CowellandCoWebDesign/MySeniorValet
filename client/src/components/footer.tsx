@@ -52,6 +52,18 @@ import AffordableHousing from '@assets/generated_images/Affordable_housing_optio
 import JoyfulMoments from '@assets/generated_images/Joyful_senior_moments_ffa83232.png';
 import EmpoweredResearch from '@assets/generated_images/Empowered_senior_research_82415146.png';
 
+// Societal Problem-Solving Images - Fifth Set (Based on 2025 Research)
+import StopHiddenFees from '@assets/generated_images/Stop_hidden_fees_1a69939b.png';
+import EndIsolation from '@assets/generated_images/End_senior_isolation_34c204db.png';
+import CaregiverRelief from '@assets/generated_images/Caregiver_burden_relief_e57d31cb.png';
+import HousingCrisis from '@assets/generated_images/Housing_waitlist_crisis_4ede02f7.png';
+import ExposeFakes from '@assets/generated_images/Expose_fake_reviews_489c337c.png';
+import SaveHomes from '@assets/generated_images/Save_family_homes_178759a8.png';
+import NoHarassment from '@assets/generated_images/No_sales_harassment_9e83d2b5.png';
+import NavigateMaze from '@assets/generated_images/Healthcare_maze_navigation_20660f54.png';
+import ForgottenMiddle from '@assets/generated_images/Forgotten_middle_solution_4526d569.png';
+import IntegrityFirst from '@assets/generated_images/Integrity_over_corruption_360394d9.png';
+
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
     queryKey: ["/api/platform/stats/formatted"],
@@ -105,7 +117,18 @@ export function Footer() {
     { src: SimpleTech, title: 'Easy as 1-2-3', description: 'Simple technology for seniors - Instagram minimalist ad' },
     { src: AffordableHousing, title: 'Affordable Living Solutions', description: 'HUD housing options - Facebook carousel ad format' },
     { src: JoyfulMoments, title: 'Find Your Joy', description: 'Seniors dancing and celebrating - Pinterest pin format (3:4)' },
-    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowered senior research - YouTube thumbnail format' }
+    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowered senior research - YouTube thumbnail format' },
+    // Societal Problem-Solving Images (2025 Crisis Research)
+    { src: StopHiddenFees, title: 'Stop The $131K Hidden Fees', description: 'Average nursing home costs destroying families - we show real prices upfront' },
+    { src: EndIsolation, title: 'End The Isolation Epidemic', description: '33% of seniors lonely, 50% higher dementia risk - connect families instantly' },
+    { src: CaregiverRelief, title: '53 Million Caregivers Drowning', description: 'Only 23% have good mental health - we simplify the overwhelming system' },
+    { src: HousingCrisis, title: '520,000 Seniors Waiting', description: 'Years-long HUD waitlists - we show all available affordable housing now' },
+    { src: ExposeFakes, title: 'Expose Fake Reviews', description: 'Senate investigating referral services - we use only verified authentic data' },
+    { src: SaveHomes, title: 'Save Your Family Home', description: 'Families forced to sell homes for care costs - find affordable options first' },
+    { src: NoHarassment, title: 'No Sales Harassment Ever', description: 'No commissions, no bias, no endless calls - your peace protected' },
+    { src: NavigateMaze, title: 'Navigate Healthcare Maze', description: '53% cant navigate system - we illuminate the clear path forward' },
+    { src: ForgottenMiddle, title: 'The Forgotten Middle Crisis', description: 'Too rich for Medicaid, too poor for private - we show ALL options' },
+    { src: IntegrityFirst, title: 'Integrity Over Corruption', description: 'While others take commissions, we stand for truth and transparency' }
   ];
 
   return (
@@ -230,9 +253,9 @@ export function Footer() {
 
         {/* Contact Us & Brand Gallery Section */}
         <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
-          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 40 Unique Designs</h3>
+          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 50 Unique Designs</h3>
           <p className="text-xs text-gray-400 mb-4">
-            Explore 40 creative interpretations of MySeniorValet, including brand styles, features, promises, and social media ads. 
+            Explore 50 powerful images addressing real societal problems, brand styles, features, and social campaigns. 
             Click any image to view details. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
           </p>
           

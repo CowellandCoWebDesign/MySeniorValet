@@ -52,6 +52,18 @@ import AffordableHousing from '@assets/generated_images/Affordable_housing_optio
 import JoyfulMoments from '@assets/generated_images/Joyful_senior_moments_ffa83232.png';
 import EmpoweredResearch from '@assets/generated_images/Empowered_senior_research_82415146.png';
 
+// Societal Problem-Solving Images - Fifth Set (Based on 2025 Research)
+import StopHiddenFees from '@assets/generated_images/Stop_hidden_fees_1a69939b.png';
+import EndIsolation from '@assets/generated_images/End_senior_isolation_34c204db.png';
+import CaregiverRelief from '@assets/generated_images/Caregiver_burden_relief_e57d31cb.png';
+import HousingCrisis from '@assets/generated_images/Housing_waitlist_crisis_4ede02f7.png';
+import ExposeFakes from '@assets/generated_images/Expose_fake_reviews_489c337c.png';
+import SaveHomes from '@assets/generated_images/Save_family_homes_178759a8.png';
+import NoHarassment from '@assets/generated_images/No_sales_harassment_9e83d2b5.png';
+import NavigateMaze from '@assets/generated_images/Healthcare_maze_navigation_20660f54.png';
+import ForgottenMiddle from '@assets/generated_images/Forgotten_middle_solution_4526d569.png';
+import IntegrityFirst from '@assets/generated_images/Integrity_over_corruption_360394d9.png';
+
 export default function Contact() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
 
@@ -99,7 +111,18 @@ export default function Contact() {
     { src: SimpleTech, title: 'Technology Made Simple', description: 'Easy as 1-2-3 for seniors - minimalist Instagram ad design' },
     { src: AffordableHousing, title: 'Affordable Housing Solutions', description: 'HUD and subsidized housing options - Facebook carousel ad format' },
     { src: JoyfulMoments, title: 'Find Your Joy', description: 'Celebrate life in senior communities - Pinterest pin format (3:4 vertical)' },
-    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowering seniors with information - YouTube thumbnail format ready' }
+    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowering seniors with information - YouTube thumbnail format ready' },
+    // Societal Problem-Solving Images (Based on 2025 Crisis Research)
+    { src: StopHiddenFees, title: 'Stop The $131,583 Hidden Fees', description: 'Nursing homes average $131K/year with hidden fees - MySeniorValet shows everything upfront' },
+    { src: EndIsolation, title: 'End The Isolation Epidemic', description: '33% of seniors are lonely with 50% higher dementia risk - we connect families instantly' },
+    { src: CaregiverRelief, title: '53 Million Caregivers Need Relief', description: 'Only 23% of caregivers have good mental health - we simplify the overwhelming system' },
+    { src: HousingCrisis, title: '520,000 Seniors on Waitlists', description: 'Years-long HUD housing waitlists - MySeniorValet shows all available affordable housing now' },
+    { src: ExposeFakes, title: 'Expose The Fake Review Scandal', description: 'Senate investigating referral services for fake reviews - we use only verified authentic data' },
+    { src: SaveHomes, title: 'Save Your Family Home', description: 'Families forced to sell homes for care costs - find affordable options before its too late' },
+    { src: NoHarassment, title: 'No Sales Harassment Ever', description: 'No commissions, no bias, no endless sales calls - your peace and privacy protected' },
+    { src: NavigateMaze, title: 'Navigate The Healthcare Maze', description: '53% of families cant navigate the system - MySeniorValet illuminates the clear path' },
+    { src: ForgottenMiddle, title: 'Help for the Forgotten Middle', description: 'Too rich for Medicaid, too poor for private pay - we show ALL available options' },
+    { src: IntegrityFirst, title: 'Integrity Over Corruption', description: 'While competitors take commissions from facilities, we stand for truth and transparency' }
   ];
 
   return (
@@ -268,7 +291,7 @@ export default function Contact() {
       <section className="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">MySeniorValet Brand Gallery</h2>
-          <p className="text-center text-gray-600 mb-8">Explore 40 unique AI-generated images including brand styles, features, promises, and social media ads</p>
+          <p className="text-center text-gray-600 mb-8">Explore 50 powerful images addressing real societal problems, brand identity, and marketing campaigns</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {brandImages.map((image, index) => (
