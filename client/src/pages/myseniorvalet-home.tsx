@@ -414,14 +414,14 @@ function HeroSectionWithTransformingSearch() {
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'h-screen'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'h-auto min-h-[60vh] sm:h-screen'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
         <div 
-          className={`absolute inset-0 ${isSearchActive ? 'h-screen' : 'h-full'} w-full cursor-pointer`}
+          className={`absolute inset-0 ${isSearchActive ? 'h-full sm:h-screen' : 'h-full'} w-full cursor-pointer`}
           onClick={(e) => {
             // Only trigger if clicking the background image directly
             const target = e.target as HTMLElement;
@@ -453,9 +453,9 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
+        <div className="relative z-10 flex flex-col h-full px-2 sm:px-4 py-4 sm:py-0">
         {/* Hero Title - Positioned at Very Top */}
-        <div className="w-full text-center pt-1 sm:pt-2">
+        <div className="w-full text-center pt-2 sm:pt-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Single Line */}
             <h1 className="text-base sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-3 whitespace-nowrap">
@@ -470,7 +470,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
 
         {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-end pb-8 sm:pb-16 md:pb-24'}`}>
+        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center sm:justify-end pb-4 sm:pb-8 md:pb-16 lg:pb-24'}`}>
         
         {/* Key Value Props - Above Search */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-3">
