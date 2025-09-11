@@ -116,7 +116,7 @@ export function LegalNoticeModal() {
                   <div>
                     <p className="font-semibold text-gray-900 dark:text-gray-100">Transparency Commitment</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Any featured partners, paid placements, or affiliate relationships are clearly marked with badges 
+                      Any featured partners, paid placements, affiliate relationships, or subscription services are clearly marked with badges 
                       and disclosures. We protect against false steering claims through complete transparency.
                     </p>
                   </div>
@@ -136,11 +136,31 @@ export function LegalNoticeModal() {
                 </p>
               </div>
 
+              {/* Revenue Model Disclosure */}
+              <div className="bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800 rounded-lg p-4 mb-4">
+                <h4 className="font-bold text-indigo-900 dark:text-indigo-100 mb-2 flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Revenue Model & Services
+                </h4>
+                <p className="text-sm text-gray-700 dark:text-gray-300">
+                  MySeniorValet generates revenue through:
+                </p>
+                <ul className="text-sm text-gray-600 dark:text-gray-400 mt-2 ml-5 list-disc space-y-1">
+                  <li>Subscription services for communities and vendors who choose to enhance their presence</li>
+                  <li>Affiliate marketing partnerships (clearly disclosed when present)</li>
+                  <li>Premium features and tools for business users</li>
+                </ul>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                  All paid relationships and affiliate links are transparently disclosed to maintain trust and comply with FTC guidelines.
+                </p>
+              </div>
+
               {/* Disclaimer */}
               <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                   <strong className="text-red-700 dark:text-red-400">DISCLAIMER:</strong> MySeniorValet is not a placement agency, 
-                  referral service, or care advisor. We do not receive commissions or fees for placements. 
+                  referral service, or care advisor. While we may earn affiliate commissions from clearly marked partnerships, 
+                  these relationships do not influence the neutrality of our research platform. 
                   Information provided is for research purposes only and should not be considered professional advice. 
                   Always consult qualified professionals for legal, medical, financial, or care-related decisions.
                 </p>
@@ -163,8 +183,8 @@ export function LegalNoticeModal() {
                 >
                   I understand that MySeniorValet is a research-only platform providing publicly available information 
                   with citations. I acknowledge that all information must be independently verified and that MySeniorValet 
-                  does not provide recommendations or endorsements. I understand that any featured partners or paid 
-                  placements will be clearly marked.
+                  does not provide recommendations or endorsements. I understand that any featured partners, paid 
+                  placements, subscription services, or affiliate relationships will be clearly marked and disclosed.
                 </Label>
               </div>
             </div>
