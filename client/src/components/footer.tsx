@@ -1,68 +1,7 @@
 import { Link } from "wouter";
-import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store, X } from "lucide-react";
+import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
-
-// MySeniorValet Brand Gallery Images - First Set
-import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
-import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
-import Watercolor from '@assets/generated_images/Watercolor_art_style_c8d65f22.png';
-import Chrome3D from '@assets/generated_images/3D_chrome_space_c4ebf60f.png';
-import ArtDeco from '@assets/generated_images/Art_deco_vintage_a3fbda53.png';
-import Minimalist from '@assets/generated_images/Minimalist_Scandinavian_ff548e0c.png';
-import ZenGarden from '@assets/generated_images/Zen_garden_style_f7dcf60c.png';
-import Corporate from '@assets/generated_images/Corporate_professional_d257ef18.png';
-import Nature from '@assets/generated_images/Nature_organic_24298b0b.png';
-import Cyberpunk from '@assets/generated_images/Cyberpunk_neon_f9432e52.png';
-
-// MySeniorValet Feature & Advertising Images - Second Set
-import TransparentPricing from '@assets/generated_images/Transparent_pricing_feature_36337349.png';
-import FamilyCollab from '@assets/generated_images/Family_collaboration_tool_8925b86e.png';
-import AISearch from '@assets/generated_images/AI_search_engine_6c0b9a2f.png';
-import TourMate from '@assets/generated_images/TourMate_scheduling_dd8d9491.png';
-import VerifiedData from '@assets/generated_images/Verified_data_trust_888d702e.png';
-import InteractiveMap from '@assets/generated_images/Interactive_map_coverage_c4598da0.png';
-import StainedGlass from '@assets/generated_images/Stained_glass_spiritual_f5cf7954.png';
-import EmergencyContact from '@assets/generated_images/Emergency_contact_system_db900e8c.png';
-import ComparisonDash from '@assets/generated_images/Comparison_dashboard_2d6c7912.png';
-import CrystalPrism from '@assets/generated_images/Crystal_prism_clarity_43494b4e.png';
-
-// MySeniorValet Marketing & Promise Images - Third Set
-import FamilyCollabCenter from '@assets/generated_images/Family_collaboration_center_2d7b3c57.png';
-import NoSpam from '@assets/generated_images/No_spam_promise_a9f5006c.png';
-import HealthcareTransparency from '@assets/generated_images/Healthcare_transparency_8c8499e3.png';
-import Lighthouse from '@assets/generated_images/Lighthouse_guidance_24a5518c.png';
-import AuthenticReviews from '@assets/generated_images/Authentic_reviews_only_5c21a64c.png';
-import GovResources from '@assets/generated_images/Government_resources_hub_c796fe4e.png';
-import AlwaysAvailable from '@assets/generated_images/24/7_always_available_f9934bb4.png';
-import VendorMarket from '@assets/generated_images/Vendor_marketplace_1bcaf6d8.png';
-import DataPrivacy from '@assets/generated_images/Data_privacy_fortress_7678436a.png';
-import FreeForFamilies from '@assets/generated_images/Free_for_families_223f28a6.png';
-
-// Senior-Targeted Social Media Advertising Images - Fourth Set
-import SeniorCoupleFinding from '@assets/generated_images/Senior_couple_finding_home_a8966462.png';
-import ActiveLifestyle from '@assets/generated_images/Active_senior_lifestyle_06b713a9.png';
-import StayingConnected from '@assets/generated_images/Senior_staying_connected_b57da68f.png';
-import VeteransHousing from '@assets/generated_images/Veterans_housing_support_ec161a50.png';
-import LuxuryLiving from '@assets/generated_images/Luxury_senior_living_606b10b5.png';
-import CommunityConnection from '@assets/generated_images/Community_connection_social_4e398aeb.png';
-import SimpleTech from '@assets/generated_images/Simple_technology_use_626d34ff.png';
-import AffordableHousing from '@assets/generated_images/Affordable_housing_options_76e5e402.png';
-import JoyfulMoments from '@assets/generated_images/Joyful_senior_moments_ffa83232.png';
-import EmpoweredResearch from '@assets/generated_images/Empowered_senior_research_82415146.png';
-
-// Societal Problem-Solving Images - Fifth Set (Based on 2025 Research)
-import StopHiddenFees from '@assets/generated_images/Stop_hidden_fees_1a69939b.png';
-import EndIsolation from '@assets/generated_images/End_senior_isolation_34c204db.png';
-import CaregiverRelief from '@assets/generated_images/Caregiver_burden_relief_e57d31cb.png';
-import HousingCrisis from '@assets/generated_images/Housing_waitlist_crisis_4ede02f7.png';
-import ExposeFakes from '@assets/generated_images/Expose_fake_reviews_489c337c.png';
-import SaveHomes from '@assets/generated_images/Save_family_homes_178759a8.png';
-import NoHarassment from '@assets/generated_images/No_sales_harassment_9e83d2b5.png';
-import NavigateMaze from '@assets/generated_images/Healthcare_maze_navigation_20660f54.png';
-import ForgottenMiddle from '@assets/generated_images/Forgotten_middle_solution_4526d569.png';
-import IntegrityFirst from '@assets/generated_images/Integrity_over_corruption_360394d9.png';
 
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
@@ -70,66 +9,6 @@ export function Footer() {
     refetchInterval: 30 * 60 * 1000, // Refetch every 30 minutes
     staleTime: 15 * 60 * 1000, // Consider data stale after 15 minutes
   });
-
-  const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
-
-  const brandImages = [
-    // Brand Style Images
-    { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic' },
-    { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology' },
-    { src: Watercolor, title: 'Watercolor Art', description: 'Artistic creative interpretation' },
-    { src: Chrome3D, title: '3D Chrome', description: 'Futuristic cosmic design' },
-    { src: ArtDeco, title: 'Art Deco', description: 'Vintage glamour style' },
-    { src: Minimalist, title: 'Minimalist', description: 'Clean Scandinavian design' },
-    { src: ZenGarden, title: 'Zen Garden', description: 'Peaceful Japanese aesthetic' },
-    { src: Corporate, title: 'Corporate', description: 'Professional business branding' },
-    { src: Nature, title: 'Nature', description: 'Organic environmental theme' },
-    { src: Cyberpunk, title: 'Cyberpunk', description: 'Neon futuristic vibe' },
-    // Feature & Advertising Images
-    { src: TransparentPricing, title: 'Transparent Pricing', description: 'No hidden fees - clear pricing for all' },
-    { src: FamilyCollab, title: 'Family Collaboration', description: 'Bringing families together in care decisions' },
-    { src: AISearch, title: 'AI-Powered Search', description: 'Intelligent search across 33,000+ communities' },
-    { src: TourMate, title: 'TourMate™ Scheduling', description: 'Book tours instantly with one click' },
-    { src: VerifiedData, title: 'Verified Data', description: '99.8% accuracy with Golden Data Rule' },
-    { src: InteractiveMap, title: 'Interactive Map', description: 'Complete coverage across North America' },
-    { src: StainedGlass, title: 'Spiritual Care', description: 'Timeless elegance in senior care' },
-    { src: EmergencyContact, title: 'Emergency System', description: 'One-touch emergency contact feature' },
-    { src: ComparisonDash, title: 'Compare Communities', description: 'Side-by-side community comparisons' },
-    { src: CrystalPrism, title: 'Crystal Clear', description: 'Transparency and clarity in all we do' },
-    // Marketing & Promise Images - NEW SET
-    { src: FamilyCollabCenter, title: 'Family Collaboration Center', description: 'Unite families in care decisions with shared research tools' },
-    { src: NoSpam, title: 'No Spam Promise', description: 'Your peace protected - no endless calls, texts, or emails' },
-    { src: HealthcareTransparency, title: 'Healthcare Transparency', description: 'Finally, clear pricing and honest information in healthcare' },
-    { src: Lighthouse, title: 'Guiding Light', description: 'Your beacon through the fog of senior care decisions' },
-    { src: AuthenticReviews, title: 'Real Reviews Only', description: 'Authentic testimonials - no fake reviews ever' },
-    { src: GovResources, title: 'Government Resources', description: 'HUD, Medicare, Medicaid, Veterans benefits - all in one place' },
-    { src: AlwaysAvailable, title: '24/7 Access', description: 'Always there when you need us - day or night' },
-    { src: VendorMarket, title: 'Vendor Marketplace', description: 'Researched and discovered senior services and products in one location' },
-    { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection' },
-    { src: FreeForFamilies, title: 'Free Forever', description: 'Always free for families - that\'s our promise' },
-    // Senior-Targeted Social Media Ads
-    { src: SeniorCoupleFinding, title: 'Find Your Perfect Home', description: 'Happy seniors discovering their ideal community - Instagram/Facebook ad' },
-    { src: ActiveLifestyle, title: 'Live Your Best Life', description: 'Active senior lifestyle communities - perfect for Facebook advertising' },
-    { src: StayingConnected, title: 'Stay Connected', description: 'Video calling with family - Instagram Stories format (9:16)' },
-    { src: VeteransHousing, title: 'Serving Those Who Served', description: 'Veterans housing support - LinkedIn professional ad format' },
-    { src: LuxuryLiving, title: 'Discover Luxury Living', description: 'Elegant senior communities - Instagram square post' },
-    { src: CommunityConnection, title: 'Your Community Awaits', description: 'Diverse seniors together - Twitter/X header format' },
-    { src: SimpleTech, title: 'Easy as 1-2-3', description: 'Simple technology for seniors - Instagram minimalist ad' },
-    { src: AffordableHousing, title: 'Affordable Living Solutions', description: 'HUD housing options - Facebook carousel ad format' },
-    { src: JoyfulMoments, title: 'Find Your Joy', description: 'Seniors dancing and celebrating - Pinterest pin format (3:4)' },
-    { src: EmpoweredResearch, title: 'Knowledge is Power', description: 'Empowered senior research - YouTube thumbnail format' },
-    // Societal Problem-Solving Images (2025 Crisis Research)
-    { src: StopHiddenFees, title: 'Stop The $131K Hidden Fees', description: 'Average nursing home costs destroying families - we show real prices upfront' },
-    { src: EndIsolation, title: 'End The Isolation Epidemic', description: '33% of seniors lonely, 50% higher dementia risk - connect families instantly' },
-    { src: CaregiverRelief, title: '53 Million Caregivers Drowning', description: 'Only 23% have good mental health - we simplify the overwhelming system' },
-    { src: HousingCrisis, title: '520,000 Seniors Waiting', description: 'Years-long HUD waitlists - we show all available affordable housing now' },
-    { src: ExposeFakes, title: 'Expose Fake Reviews', description: 'Senate investigating referral services - we use only verified authentic data' },
-    { src: SaveHomes, title: 'Save Your Family Home', description: 'Families forced to sell homes for care costs - find affordable options first' },
-    { src: NoHarassment, title: 'No Sales Harassment Ever', description: 'No commissions, no bias, no endless calls - your peace protected' },
-    { src: NavigateMaze, title: 'Navigate Healthcare Maze', description: '53% cant navigate system - we illuminate the clear path forward' },
-    { src: ForgottenMiddle, title: 'The Forgotten Middle Crisis', description: 'Too rich for Medicaid, too poor for private - we show ALL options' },
-    { src: IntegrityFirst, title: 'Integrity Over Corruption', description: 'While others take commissions, we stand for truth and transparency' }
-  ];
 
   return (
     <footer className="relative text-white border-t-2 border-purple-600 overflow-hidden min-h-[600px]" 
@@ -246,76 +125,11 @@ export function Footer() {
               <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
               <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
               <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
+              <li><Link href="/legal-notice" className="hover:text-blue-400 transition-colors">Legal Notice</Link></li>
               <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
             </ul>
           </div>
         </div>
-
-        {/* Contact Us & Brand Gallery Section */}
-        <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
-          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 50 Unique Designs</h3>
-          <p className="text-xs text-gray-400 mb-4">
-            Explore 50 powerful images addressing real societal problems, brand styles, features, and social campaigns. 
-            Click any image to view details. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
-          </p>
-          
-          {/* Image Gallery Grid - Now with 20 images */}
-          <div className="grid grid-cols-5 md:grid-cols-10 gap-2 mb-4">
-            {brandImages.map((image, index) => (
-              <div 
-                key={index}
-                className="relative group cursor-pointer transform transition-all duration-300 hover:scale-110 hover:z-10"
-                onClick={() => setSelectedImage(image)}
-              >
-                <img 
-                  src={image.src} 
-                  alt={image.title}
-                  className="w-full h-16 object-cover rounded-md border border-purple-500/30 hover:border-purple-400"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md">
-                  <div className="absolute bottom-0 left-0 right-0 p-1">
-                    <p className="text-[8px] text-white font-semibold truncate">{image.title}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="flex flex-wrap gap-3 text-xs">
-            <Link href="/contact" className="text-blue-400 hover:text-blue-300 transition-colors">Full Contact Form</Link>
-            <span className="text-gray-600">•</span>
-            <a href="mailto:admin@myseniorvalet.com" className="text-gray-400 hover:text-blue-400 transition-colors">Admin: admin@myseniorvalet.com</a>
-            <span className="text-gray-600">•</span>
-            <a href="mailto:billing@myseniorvalet.com" className="text-gray-400 hover:text-blue-400 transition-colors">Billing: billing@myseniorvalet.com</a>
-          </div>
-        </div>
-
-        {/* Modal for selected image */}
-        {selectedImage && (
-          <div 
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
-            onClick={() => setSelectedImage(null)}
-          >
-            <div className="relative max-w-4xl max-h-[90vh] p-4" onClick={(e) => e.stopPropagation()}>
-              <button 
-                onClick={() => setSelectedImage(null)}
-                className="absolute top-2 right-2 z-10 p-2 bg-gray-900/80 rounded-full hover:bg-gray-800 transition-colors"
-              >
-                <X className="h-5 w-5 text-white" />
-              </button>
-              <img 
-                src={selectedImage.src} 
-                alt={selectedImage.title}
-                className="max-w-full max-h-[70vh] object-contain rounded-lg shadow-2xl"
-              />
-              <div className="text-center text-white mt-4">
-                <h3 className="text-lg font-bold mb-1">{selectedImage.title}</h3>
-                <p className="text-sm text-gray-300">{selectedImage.description}</p>
-                <p className="text-xs text-gray-400 mt-2">MySeniorValet - AI-Generated Brand & Feature Visualization</p>
-              </div>
-            </div>
-          </div>
-        )}
         
         {/* Compact Bottom Bar */}
         <div className="border-t border-purple-500/30 mt-6 pt-4 bg-gray-950/50 backdrop-blur-sm -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">

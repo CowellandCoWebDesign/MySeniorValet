@@ -61,7 +61,6 @@ import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_market
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
-import { LegalNoticeModal } from "@/components/LegalNoticeModal";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
@@ -3564,9 +3563,6 @@ export default function MySeniorValetHome() {
         onOpenChange={setShowRemovalModal}
         entityType="vendor"
       />
-      
-      {/* Legal Notice Modal for First-Time Visitors */}
-      <LegalNoticeModal />
       
       {/* One-Touch Emergency Contact Shortcut - DISABLED to prevent React rendering failure */}
       {/* <EmergencyButton userId={undefined} /> */}
