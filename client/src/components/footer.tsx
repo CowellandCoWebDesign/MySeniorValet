@@ -28,6 +28,18 @@ import EmergencyContact from '@assets/generated_images/Emergency_contact_system_
 import ComparisonDash from '@assets/generated_images/Comparison_dashboard_2d6c7912.png';
 import CrystalPrism from '@assets/generated_images/Crystal_prism_clarity_43494b4e.png';
 
+// MySeniorValet Marketing & Promise Images - Third Set
+import FamilyCollabCenter from '@assets/generated_images/Family_collaboration_center_2d7b3c57.png';
+import NoSpam from '@assets/generated_images/No_spam_promise_a9f5006c.png';
+import HealthcareTransparency from '@assets/generated_images/Healthcare_transparency_8c8499e3.png';
+import Lighthouse from '@assets/generated_images/Lighthouse_guidance_24a5518c.png';
+import AuthenticReviews from '@assets/generated_images/Authentic_reviews_only_5c21a64c.png';
+import GovResources from '@assets/generated_images/Government_resources_hub_c796fe4e.png';
+import AlwaysAvailable from '@assets/generated_images/24/7_always_available_f9934bb4.png';
+import VendorMarket from '@assets/generated_images/Vendor_marketplace_1bcaf6d8.png';
+import DataPrivacy from '@assets/generated_images/Data_privacy_fortress_7678436a.png';
+import FreeForFamilies from '@assets/generated_images/Free_for_families_223f28a6.png';
+
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
     queryKey: ["/api/platform/stats/formatted"],
@@ -59,7 +71,18 @@ export function Footer() {
     { src: StainedGlass, title: 'Spiritual Care', description: 'Timeless elegance in senior care' },
     { src: EmergencyContact, title: 'Emergency System', description: 'One-touch emergency contact feature' },
     { src: ComparisonDash, title: 'Compare Communities', description: 'Side-by-side community comparisons' },
-    { src: CrystalPrism, title: 'Crystal Clear', description: 'Transparency and clarity in all we do' }
+    { src: CrystalPrism, title: 'Crystal Clear', description: 'Transparency and clarity in all we do' },
+    // Marketing & Promise Images - NEW SET
+    { src: FamilyCollabCenter, title: 'Family Collaboration Center', description: 'Unite families in care decisions with shared research tools' },
+    { src: NoSpam, title: 'No Spam Promise', description: 'Your peace protected - no endless calls, texts, or emails' },
+    { src: HealthcareTransparency, title: 'Healthcare Transparency', description: 'Finally, clear pricing and honest information in healthcare' },
+    { src: Lighthouse, title: 'Guiding Light', description: 'Your beacon through the fog of senior care decisions' },
+    { src: AuthenticReviews, title: 'Real Reviews Only', description: 'Authentic testimonials - no fake reviews ever' },
+    { src: GovResources, title: 'Government Resources', description: 'HUD, Medicare, Medicaid, Veterans benefits - all in one place' },
+    { src: AlwaysAvailable, title: '24/7 Access', description: 'Always there when you need us - day or night' },
+    { src: VendorMarket, title: 'Vendor Marketplace', description: 'Trusted senior services and products in one location' },
+    { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection' },
+    { src: FreeForFamilies, title: 'Free Forever', description: 'Always free for families - that\'s our promise' }
   ];
 
   return (
@@ -184,9 +207,9 @@ export function Footer() {
 
         {/* Contact Us & Brand Gallery Section */}
         <div className="mb-6 p-4 bg-gray-900/60 backdrop-blur-sm rounded-lg border border-purple-500/20">
-          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 20 Unique Designs</h3>
+          <h3 className="text-sm font-semibold mb-3 text-white">Contact Us & Brand Gallery - 30 Unique Designs</h3>
           <p className="text-xs text-gray-400 mb-4">
-            Explore 20 creative interpretations of MySeniorValet, including brand styles and feature highlights for advertising. 
+            Explore 30 creative interpretations of MySeniorValet, including brand styles, features, and our core promises. 
             Click any image to view details. Contact us at <a href="mailto:hello@myseniorvalet.com" className="text-blue-400 hover:text-blue-300">hello@myseniorvalet.com</a>
           </p>
           

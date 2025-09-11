@@ -28,6 +28,18 @@ import EmergencyContact from '@assets/generated_images/Emergency_contact_system_
 import ComparisonDash from '@assets/generated_images/Comparison_dashboard_2d6c7912.png';
 import CrystalPrism from '@assets/generated_images/Crystal_prism_clarity_43494b4e.png';
 
+// MySeniorValet Marketing & Promise Images - Third Set
+import FamilyCollabCenter from '@assets/generated_images/Family_collaboration_center_2d7b3c57.png';
+import NoSpam from '@assets/generated_images/No_spam_promise_a9f5006c.png';
+import HealthcareTransparency from '@assets/generated_images/Healthcare_transparency_8c8499e3.png';
+import Lighthouse from '@assets/generated_images/Lighthouse_guidance_24a5518c.png';
+import AuthenticReviews from '@assets/generated_images/Authentic_reviews_only_5c21a64c.png';
+import GovResources from '@assets/generated_images/Government_resources_hub_c796fe4e.png';
+import AlwaysAvailable from '@assets/generated_images/24/7_always_available_f9934bb4.png';
+import VendorMarket from '@assets/generated_images/Vendor_marketplace_1bcaf6d8.png';
+import DataPrivacy from '@assets/generated_images/Data_privacy_fortress_7678436a.png';
+import FreeForFamilies from '@assets/generated_images/Free_for_families_223f28a6.png';
+
 export default function Contact() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
 
@@ -53,7 +65,18 @@ export default function Contact() {
     { src: StainedGlass, title: 'Spiritual Care', description: 'Timeless elegance in senior care with dignity and respect' },
     { src: EmergencyContact, title: 'Emergency System', description: 'One-touch emergency contact feature for immediate assistance' },
     { src: ComparisonDash, title: 'Compare Communities', description: 'Side-by-side community comparisons for informed decision-making' },
-    { src: CrystalPrism, title: 'Crystal Clear', description: 'Transparency and clarity in everything we do - the MySeniorValet promise' }
+    { src: CrystalPrism, title: 'Crystal Clear', description: 'Transparency and clarity in everything we do - the MySeniorValet promise' },
+    // Marketing & Promise Images - NEW SET
+    { src: FamilyCollabCenter, title: 'Family Collaboration Center', description: 'Unite families in care decisions with shared research tools and real-time updates' },
+    { src: NoSpam, title: 'No Spam Promise', description: 'Your peace protected - we never sell your data or allow endless sales calls' },
+    { src: HealthcareTransparency, title: 'Healthcare Transparency', description: 'Finally, clear pricing and honest information in healthcare - no more hidden costs' },
+    { src: Lighthouse, title: 'Guiding Light', description: 'Your beacon through the fog of senior care decisions - we light the way forward' },
+    { src: AuthenticReviews, title: 'Real Reviews Only', description: 'Authentic testimonials from real families - no fake reviews or paid endorsements' },
+    { src: GovResources, title: 'Government Resources Hub', description: 'HUD, Medicare, Medicaid, Veterans benefits - all government programs in one place' },
+    { src: AlwaysAvailable, title: '24/7 Platform Access', description: 'Always there when you need us - research communities anytime, day or night' },
+    { src: VendorMarket, title: 'Senior Vendor Marketplace', description: 'Trusted senior services and products - from medical equipment to home care' },
+    { src: DataPrivacy, title: 'Data Privacy Fortress', description: 'Your data is never sold - HIPAA compliant protection with military-grade security' },
+    { src: FreeForFamilies, title: 'Free Forever Promise', description: 'Always free for families - communities pay, families never do' }
   ];
 
   return (
@@ -222,7 +245,7 @@ export default function Contact() {
       <section className="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">MySeniorValet Brand Gallery</h2>
-          <p className="text-center text-gray-600 mb-8">Explore 20 unique AI-generated interpretations of our brand and features</p>
+          <p className="text-center text-gray-600 mb-8">Explore 30 unique AI-generated interpretations of our brand, features, and promises</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {brandImages.map((image, index) => (
