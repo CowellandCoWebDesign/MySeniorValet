@@ -25,8 +25,7 @@ export function LegalNoticeModal() {
     
     // Small delay to ensure smooth page load
     setTimeout(() => {
-      // TEMPORARILY DISABLED - Set to false to prevent blocking the site
-      if (false && (!hasSeenLegalNotice || hasSeenLegalNotice !== "true")) {
+      if (!hasSeenLegalNotice || hasSeenLegalNotice !== "true") {
         setIsOpen(true);
       }
       setIsLoading(false);
