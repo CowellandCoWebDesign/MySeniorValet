@@ -127,14 +127,22 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     const reviews: any[] = [];
     
     // Process Yelp reviews (can include Google reviews)
-    if ((community as any).yelpReviews && Array.isArray((community as any).yelpReviews)) {
-      (community as any).yelpReviews.forEach((review: any, index: number) => {
+    if ((community as any).yelpReviews) {
+      // Handle both array and single object formats
+      const yelpData = Array.isArray((community as any).yelpReviews) 
+        ? (community as any).yelpReviews 
+        : [(community as any).yelpReviews];
+      
+      yelpData.forEach((review: any, index: number) => {
+        // Skip empty or invalid reviews
+        if (!review || (!review.text && !review.excerpt && !review.content)) return;
+        
         reviews.push({
           id: `yelp-${index}`,
           source: review.source || 'Yelp',
           rating: review.rating || 4,
           title: review.title || (review.source === 'Google' ? 'Google Review' : review.source === 'Facebook' ? 'Facebook Review' : 'Yelp Review'),
-          content: review.text || review.excerpt || '',
+          content: review.text || review.excerpt || review.content || '',
           userName: review.user?.name || review.author || (review.source === 'Google' ? 'Google User' : review.source === 'Facebook' ? 'Facebook User' : 'Yelp User'),
           createdAt: review.time_created || review.date || new Date().toISOString(),
           verified: true,
@@ -147,14 +155,20 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
 
     // Process Care.com reviews
-    if ((community as any).careComReviews && Array.isArray((community as any).careComReviews)) {
-      (community as any).careComReviews.forEach((review: any, index: number) => {
+    if ((community as any).careComReviews) {
+      const carecomData = Array.isArray((community as any).careComReviews)
+        ? (community as any).careComReviews
+        : [(community as any).careComReviews];
+      
+      carecomData.forEach((review: any, index: number) => {
+        if (!review || (!review.text && !review.review && !review.content)) return;
+        
         reviews.push({
           id: `carecom-${index}`,
           source: review.source || 'Care.com',
           rating: review.rating || 4,
           title: review.title || 'Care.com Review',
-          content: review.text || review.review || '',
+          content: review.text || review.review || review.content || '',
           userName: review.reviewer || review.author || 'Care.com User',
           createdAt: review.date || new Date().toISOString(),
           verified: true,
@@ -167,14 +181,20 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
 
     // Process SeniorAdvisor reviews (can include Assisted Living Center reviews)
-    if ((community as any).seniorAdvisorReviews && Array.isArray((community as any).seniorAdvisorReviews)) {
-      (community as any).seniorAdvisorReviews.forEach((review: any, index: number) => {
+    if ((community as any).seniorAdvisorReviews) {
+      const seniorAdvisorData = Array.isArray((community as any).seniorAdvisorReviews)
+        ? (community as any).seniorAdvisorReviews
+        : [(community as any).seniorAdvisorReviews];
+      
+      seniorAdvisorData.forEach((review: any, index: number) => {
+        if (!review || (!review.text && !review.review && !review.content)) return;
+        
         reviews.push({
           id: `senioradvisor-${index}`,
           source: review.source || 'SeniorAdvisor',
           rating: review.overall_rating || review.rating || 4,
           title: review.title || (review.source === 'Assisted Living Center' ? 'Assisted Living Center Review' : 'SeniorAdvisor Review'),
-          content: review.text || review.review || '',
+          content: review.text || review.review || review.content || '',
           userName: review.reviewer_name || review.author || (review.source === 'Assisted Living Center' ? 'Verified Reviewer' : 'SeniorAdvisor User'),
           createdAt: review.review_date || review.date || new Date().toISOString(),
           verified: true,
@@ -187,14 +207,20 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
 
     // Process A Place for Mom reviews
-    if ((community as any).aplaceformomReviews && Array.isArray((community as any).aplaceformomReviews)) {
-      (community as any).aplaceformomReviews.forEach((review: any, index: number) => {
+    if ((community as any).aplaceformomReviews) {
+      const apfmData = Array.isArray((community as any).aplaceformomReviews)
+        ? (community as any).aplaceformomReviews
+        : [(community as any).aplaceformomReviews];
+      
+      apfmData.forEach((review: any, index: number) => {
+        if (!review || (!review.text && !review.content && !review.review)) return;
+        
         reviews.push({
           id: `apfm-${index}`,
           source: review.source || 'A Place for Mom',
           rating: review.rating || 4,
           title: review.title || 'A Place for Mom Review',
-          content: review.text || review.content || '',
+          content: review.text || review.content || review.review || '',
           userName: review.author || 'APFM User',
           createdAt: review.date || new Date().toISOString(),
           verified: true,

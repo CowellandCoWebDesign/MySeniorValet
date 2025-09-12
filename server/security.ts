@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { auditService } from './audit';
 
 // Rate limiting store (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -288,7 +289,6 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     
     // Log to security audit
     try {
-      const { auditService } = require('./audit');
       auditService.logSuspiciousActivity(req, 'Injection attack detected', {
         patterns: suspiciousPatterns.map(p => p.source),
         requestData: { body: req.body, query: req.query },
