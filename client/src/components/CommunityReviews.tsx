@@ -80,8 +80,8 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const fetchExternalReviewsMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest(
-        `/api/communities/${community.id}/reviews/fetch-external`,
-        'POST'
+        'POST',
+        `/api/communities/${community.id}/reviews/fetch-external`
       );
       return response;
     },
@@ -305,7 +305,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   // Submit review mutation
   const submitReview = useMutation({
     mutationFn: async (data: ReviewFormData) => {
-      return apiRequest('/api/reviews', 'POST', {
+      return apiRequest('POST', '/api/reviews', {
         communityId: community.id,
         rating: data.rating,
         title: data.title,
@@ -334,7 +334,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   // Mark review as helpful
   const markHelpful = useMutation({
     mutationFn: async (reviewId: number) => {
-      return apiRequest(`/api/reviews/${reviewId}/helpful`, 'POST');
+      return apiRequest('POST', `/api/reviews/${reviewId}/helpful`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'reviews'] });
