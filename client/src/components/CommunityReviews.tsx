@@ -723,19 +723,51 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
               <div className="mt-2">
                 <p className="text-xs text-purple-700 dark:text-purple-400 mb-1">Sources:</p>
                 <div className="flex flex-wrap gap-1">
-                  {perplexityCitations.slice(0, 5).map((citation, index) => (
-                    <a
-                      key={index}
-                      href={citation}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 underline"
-                      data-testid={`link-citation-${index}`}
-                    >
-                      <Link2 className="h-3 w-3" />
-                      Source {index + 1}
-                    </a>
-                  ))}
+                  {perplexityCitations.slice(0, 5).map((citation, index) => {
+                    // Extract domain name from URL
+                    let sourceName = `Source ${index + 1}`;
+                    try {
+                      const url = new URL(citation);
+                      const hostname = url.hostname;
+                      // Remove www. prefix and extract meaningful site name
+                      sourceName = hostname
+                        .replace(/^www\./, '')
+                        .replace(/\.(com|org|net|gov|edu).*$/, '')
+                        .split('.')
+                        .map(part => {
+                          // Special handling for known senior living sites
+                          if (part === 'aplaceformom') return 'A Place for Mom';
+                          if (part === 'senioradvisor') return 'SeniorAdvisor';
+                          if (part === 'caring') return 'Caring.com';
+                          if (part === 'seniorliving') return 'SeniorLiving.org';
+                          if (part === 'assistedlivingcenter') return 'Assisted Living Center';
+                          if (part === 'seniorly') return 'Seniorly';
+                          if (part === 'seniorcare') return 'SeniorCare';
+                          if (part === 'seniorhomes') return 'SeniorHomes';
+                          if (part === 'whereyoulivematters') return 'Where You Live Matters';
+                          if (part === 'seniorhousingnet') return 'Senior Housing Net';
+                          // Capitalize other names
+                          return part.charAt(0).toUpperCase() + part.slice(1);
+                        })
+                        .join(' ');
+                    } catch (e) {
+                      // If URL parsing fails, keep the default
+                    }
+                    
+                    return (
+                      <a
+                        key={index}
+                        href={citation}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 underline"
+                        data-testid={`link-citation-${index}`}
+                      >
+                        <Link2 className="h-3 w-3" />
+                        {sourceName}
+                      </a>
+                    );
+                  })}
                   {perplexityCitations.length > 5 && (
                     <span className="text-xs text-purple-600 dark:text-purple-400">
                       +{perplexityCitations.length - 5} more
