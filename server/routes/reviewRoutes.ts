@@ -821,13 +821,21 @@ function parseInspectionData(summary: string): any {
     lastInspectionDate: null
   };
 
+  // Clean markdown formatting from the summary
+  const cleanedSummary = summary
+    .replace(/\*\*/g, '') // Remove bold markdown
+    .replace(/\*/g, '')   // Remove italic markdown
+    .replace(/##/g, '')   // Remove headers
+    .replace(/\n\n+/g, ' ') // Replace multiple newlines with space
+    .trim();
+
   // Extract overall summary
-  const summaryMatch = summary.match(/(?:Overall|Summary|Inspection findings?)[\s:]+([^.]+\.)/i);
+  const summaryMatch = cleanedSummary.match(/(?:Overall|Summary|Inspection findings?)[\s:]+([^.]+\.)/i);
   if (summaryMatch) {
     inspectionData.summary = summaryMatch[1].trim();
   } else {
     // Use first few sentences as summary
-    const sentences = summary.split('.').slice(0, 3).join('.').trim();
+    const sentences = cleanedSummary.split('.').slice(0, 3).join('.').trim();
     inspectionData.summary = sentences || 'Inspection data available. Click to view details.';
   }
 
@@ -840,7 +848,7 @@ function parseInspectionData(summary: string): any {
 
   violationPatterns.forEach(pattern => {
     let match;
-    while ((match = pattern.exec(summary)) !== null) {
+    while ((match = pattern.exec(cleanedSummary)) !== null) {
       const violationText = match[1].trim();
       
       // Extract date if present
@@ -873,7 +881,7 @@ function parseInspectionData(summary: string): any {
 
   inspectionPatterns.forEach(pattern => {
     let match;
-    while ((match = pattern.exec(summary)) !== null) {
+    while ((match = pattern.exec(cleanedSummary)) !== null) {
       const inspectionText = match[1].trim();
       
       // Extract date
@@ -908,7 +916,7 @@ function parseInspectionData(summary: string): any {
   });
 
   // Extract star rating if available
-  const starMatch = summary.match(/(\d+(?:\.\d+)?)\s*(?:out of\s*)?5\s*stars?|(\d+(?:\.\d+)?)\s*star\s+rating/i);
+  const starMatch = cleanedSummary.match(/(\d+(?:\.\d+)?)\s*(?:out of\s*)?5\s*stars?|(\d+(?:\.\d+)?)\s*star\s+rating/i);
   if (starMatch) {
     inspectionData.starRating = parseFloat(starMatch[1] || starMatch[2]);
   }

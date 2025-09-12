@@ -126,6 +126,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
       return response;
     },
     onSuccess: (data) => {
+      setInspectionLoading(false);
       if (data.inspectionData) {
         setInspectionData(data.inspectionData);
         setInspectionCitations(data.citations || []);
@@ -137,6 +138,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
       }
     },
     onError: (error: any) => {
+      setInspectionLoading(false);
       console.error('Error fetching inspection data:', error);
       toast({
         title: "Failed to Fetch Inspections",
@@ -783,12 +785,12 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
               {/* Display inspection summary */}
               {inspectionData.summary && (
                 <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-gray-900 dark:text-gray-100">
                     <ClipboardCheck className="h-4 w-4" />
                     Inspection Summary
                   </h4>
-                  <p className="text-sm text-gray-700 dark:text-gray-300">
-                    {inspectionData.summary}
+                  <p className="text-sm text-gray-700 dark:text-gray-200">
+                    {inspectionData.summary.replace(/\*\*/g, '').replace(/\*/g, '').trim()}
                   </p>
                 </div>
               )}
@@ -802,13 +804,13 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                   </h4>
                   <ul className="space-y-2">
                     {inspectionData.violations.map((violation: any, index: number) => (
-                      <li key={index} className="text-sm text-gray-700 dark:text-gray-300">
+                      <li key={index} className="text-sm text-gray-700 dark:text-gray-200">
                         <div className="flex items-start gap-2">
                           <span className="text-red-500 mt-1">•</span>
                           <div>
-                            <p className="font-medium">{violation.type || 'Violation'}</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
-                              {violation.date} - {violation.description}
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{violation.type || 'Violation'}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-300">
+                              {violation.date} - {violation.description.replace(/\*\*/g, '').replace(/\*/g, '').trim()}
                             </p>
                             {violation.status && (
                               <Badge variant={violation.status === 'Resolved' ? 'default' : 'destructive'} className="mt-1">
@@ -832,11 +834,11 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                   </h4>
                   <div className="space-y-2">
                     {inspectionData.inspections.map((inspection: any, index: number) => (
-                      <div key={index} className="text-sm text-gray-700 dark:text-gray-300 border-b pb-2 last:border-0">
+                      <div key={index} className="text-sm text-gray-700 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0">
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="font-medium">{inspection.type || 'State Inspection'}</p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                            <p className="font-medium text-gray-900 dark:text-gray-100">{inspection.type || 'State Inspection'}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-300">
                               {inspection.date}
                             </p>
                           </div>
@@ -845,8 +847,8 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                           </Badge>
                         </div>
                         {inspection.findings && (
-                          <p className="text-xs mt-1 text-gray-600 dark:text-gray-400">
-                            {inspection.findings}
+                          <p className="text-xs mt-1 text-gray-600 dark:text-gray-300">
+                            {inspection.findings.replace(/\*\*/g, '').replace(/\*/g, '').trim()}
                           </p>
                         )}
                       </div>
