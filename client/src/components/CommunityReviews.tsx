@@ -17,7 +17,7 @@ import {
   Star, MessageSquare, ThumbsUp, Shield, CheckCircle, AlertCircle, 
   TrendingUp, Calendar, Filter, PlusCircle, Info, ExternalLink,
   Globe, MapPin, Users, Award, ChevronDown, ChevronUp, Loader2,
-  RefreshCw, Sparkles, Link2
+  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -65,6 +65,9 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const [lastPerplexityUpdate, setLastPerplexityUpdate] = useState<string | null>(null);
   const [perplexityCitations, setPerplexityCitations] = useState<string[]>([]);
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
+  const [inspectionData, setInspectionData] = useState<any>(null);
+  const [inspectionLoading, setInspectionLoading] = useState(false);
+  const [inspectionCitations, setInspectionCitations] = useState<string[]>([]);
 
   // Fetch reviews from database
   const { data: databaseReviews = [], isLoading: isLoadingDbReviews } = useQuery({
@@ -107,6 +110,37 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
       toast({
         title: "Update Failed",
         description: error.message || "Could not fetch external reviews. Using cached data.",
+        variant: "destructive",
+        duration: 4000
+      });
+    }
+  });
+
+  // Mutation to fetch inspection data from Perplexity
+  const fetchInspectionsMutation = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest(
+        'POST',
+        `/api/communities/${community.id}/inspections/fetch`
+      );
+      return response;
+    },
+    onSuccess: (data) => {
+      if (data.inspectionData) {
+        setInspectionData(data.inspectionData);
+        setInspectionCitations(data.citations || []);
+        toast({
+          title: "Inspection Data Retrieved",
+          description: "Successfully fetched inspection and violation information",
+          duration: 3000
+        });
+      }
+    },
+    onError: (error: any) => {
+      console.error('Error fetching inspection data:', error);
+      toast({
+        title: "Failed to Fetch Inspections",
+        description: error.message || "Could not retrieve inspection data at this time.",
         variant: "destructive",
         duration: 4000
       });
@@ -698,6 +732,185 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
               </Button>
             )}
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Inspection & Violations Section */}
+      <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <FileSearch className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              <span>Inspection Reports & Violations</span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setInspectionLoading(true);
+                fetchInspectionsMutation.mutate();
+              }}
+              disabled={inspectionLoading || fetchInspectionsMutation.isPending}
+            >
+              {(inspectionLoading || fetchInspectionsMutation.isPending) ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Researching...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Research Inspections
+                </>
+              )}
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!inspectionData ? (
+            <div className="text-center py-8">
+              <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-orange-400" />
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                No inspection data available yet
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                Click "Research Inspections" to search public records for inspection reports, 
+                health violations, and compliance information for this community.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {/* Display inspection summary */}
+              {inspectionData.summary && (
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2">
+                    <ClipboardCheck className="h-4 w-4" />
+                    Inspection Summary
+                  </h4>
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    {inspectionData.summary}
+                  </p>
+                </div>
+              )}
+
+              {/* Display recent violations if any */}
+              {inspectionData.violations && inspectionData.violations.length > 0 && (
+                <div className="bg-red-50 dark:bg-red-950/20 p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-red-700 dark:text-red-400">
+                    <AlertTriangle className="h-4 w-4" />
+                    Recent Violations
+                  </h4>
+                  <ul className="space-y-2">
+                    {inspectionData.violations.map((violation: any, index: number) => (
+                      <li key={index} className="text-sm text-gray-700 dark:text-gray-300">
+                        <div className="flex items-start gap-2">
+                          <span className="text-red-500 mt-1">•</span>
+                          <div>
+                            <p className="font-medium">{violation.type || 'Violation'}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {violation.date} - {violation.description}
+                            </p>
+                            {violation.status && (
+                              <Badge variant={violation.status === 'Resolved' ? 'default' : 'destructive'} className="mt-1">
+                                {violation.status}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Display inspection history */}
+              {inspectionData.inspections && inspectionData.inspections.length > 0 && (
+                <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                  <h4 className="font-semibold mb-2 flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                    <Shield className="h-4 w-4" />
+                    Inspection History
+                  </h4>
+                  <div className="space-y-2">
+                    {inspectionData.inspections.map((inspection: any, index: number) => (
+                      <div key={index} className="text-sm text-gray-700 dark:text-gray-300 border-b pb-2 last:border-0">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-medium">{inspection.type || 'State Inspection'}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-400">
+                              {inspection.date}
+                            </p>
+                          </div>
+                          <Badge variant={inspection.result === 'Passed' ? 'default' : 'secondary'}>
+                            {inspection.result || 'Completed'}
+                          </Badge>
+                        </div>
+                        {inspection.findings && (
+                          <p className="text-xs mt-1 text-gray-600 dark:text-gray-400">
+                            {inspection.findings}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Citations for inspection data */}
+              {inspectionCitations.length > 0 && (
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
+                    <Sparkles className="h-3 w-3 inline mr-1" />
+                    Inspection data powered by Perplexity AI • Sources:
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {inspectionCitations.map((citation, index) => {
+                      let sourceName = `Source ${index + 1}`;
+                      try {
+                        const url = new URL(citation);
+                        const hostname = url.hostname;
+                        sourceName = hostname
+                          .replace(/^www\./, '')
+                          .replace(/\.(com|org|net|gov|edu).*$/, '')
+                          .split('.')
+                          .map(part => {
+                            if (part === 'medicare') return 'Medicare.gov';
+                            if (part === 'cms') return 'CMS.gov';
+                            if (part === 'health') return 'Health Department';
+                            if (part === 'state') return 'State Records';
+                            return part.charAt(0).toUpperCase() + part.slice(1);
+                          })
+                          .join(' ');
+                      } catch (e) {
+                        // If URL parsing fails, keep the default
+                      }
+                      
+                      return (
+                        <a
+                          key={index}
+                          href={citation}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300 underline"
+                        >
+                          <Link2 className="h-3 w-3" />
+                          {sourceName}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Disclaimer */}
+              <Alert className="border-orange-200 bg-orange-50 dark:bg-orange-950/20">
+                <Info className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  Inspection data is sourced from public records and third-party platforms. 
+                  Always verify current compliance status directly with the community and relevant regulatory agencies.
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
         </CardContent>
       </Card>
 
