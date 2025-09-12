@@ -5,7 +5,8 @@ import { sql } from 'drizzle-orm';
 
 export async function generateSitemap(req: Request, res: Response) {
   try {
-    const domain = process.env.PRODUCTION_URL || `https://${req.hostname}`;
+    // Always use production domain for sitemap generation
+    const domain = process.env.PRODUCTION_URL || 'https://www.myseniorvalet.com';
     
     // Start XML sitemap
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';

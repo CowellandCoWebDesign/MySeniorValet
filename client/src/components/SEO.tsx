@@ -18,8 +18,8 @@ interface SEOProps {
 }
 
 export function SEO({
-  title = "MySeniorValet - Find Senior Living Communities Near You | 35,182+ Verified Locations",
-  description = "Search 35,182+ senior living communities across USA, Canada, Mexico, Peru, Cuba, Costa Rica & Panama with transparent pricing, verified HUD rates, real availability. Compare assisted living, memory care, nursing homes near you. No hidden fees, no referral markups.",
+  title = "MySeniorValet - Find Senior Living Communities Near You | 35,264+ Verified Locations",
+  description = "Search 35,264+ senior living communities across USA, Canada, Mexico, Peru, Cuba, Costa Rica & Panama with transparent pricing, verified HUD rates, real availability. Compare assisted living, memory care, nursing homes near you. No hidden fees, no referral markups.",
   keywords = "senior living near me, assisted living costs, memory care facilities, HUD senior housing, nursing home prices, independent living communities, retirement homes, elder care, senior apartments",
   image = "/og-image.jpg",
   url = "https://www.myseniorvalet.com",
@@ -30,8 +30,12 @@ export function SEO({
   location,
 }: SEOProps) {
   const fullTitle = title.includes("MySeniorValet") ? title : `${title} | MySeniorValet`;
-  const fullUrl = url.startsWith("http") ? url : `https://www.myseniorvalet.com${url}`;
-  const fullImage = image.startsWith("http") ? image : `https://www.myseniorvalet.com${image}`;
+  // Always use production domain for all URLs
+  const productionDomain = "https://www.myseniorvalet.com";
+  const fullUrl = url.startsWith("http") ? url : `${productionDomain}${url}`;
+  const fullImage = image.startsWith("http") ? image : `${productionDomain}${image}`;
+  // Use provided canonical URL or default to the current page URL
+  const finalCanonicalUrl = canonicalUrl || fullUrl;
 
   // Generate location-specific keywords
   const locationKeywords = location
@@ -52,8 +56,8 @@ export function SEO({
       <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
       <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"} />
       
-      {/* Canonical URL */}
-      {canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+      {/* Canonical URL - always include for SEO */}
+      <link rel="canonical" href={finalCanonicalUrl} />
       
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
