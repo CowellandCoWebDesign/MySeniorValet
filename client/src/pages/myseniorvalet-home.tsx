@@ -1769,7 +1769,7 @@ export default function MySeniorValetHome() {
               </Card>
 
             {/* Senior Marketplace */}
-            <Link href="/senior-marketplace">
+            <Link to="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Shopping Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2015,7 +2015,7 @@ export default function MySeniorValetHome() {
             </Link>
 
             {/* Senior Healthcare Services Directory */}
-            <Link href="/senior-healthcare-directory">
+            <Link to="/senior-healthcare-directory">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Medical Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2213,7 +2213,7 @@ export default function MySeniorValetHome() {
             </Link>
 
             {/* Resident Portal - Comprehensive Dashboard */}
-            <Link href="/resident-dashboard">
+            <Link to="/resident-dashboard">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Cosmic Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2403,7 +2403,7 @@ export default function MySeniorValetHome() {
             </Link>
 
             {/* Senior Resources and Support Center */}
-            <Link href="/senior-resources-center">
+            <Link to="/senior-resources-center">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Library Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2638,7 +2638,7 @@ export default function MySeniorValetHome() {
 
             {/* Family & Partner Services Section - NEW ROW */}
             {/* Family Collaboration Center Card */}
-            <Link href="/family-collaboration">
+            <Link to="/family-collaboration">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Family Living Room Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2773,7 +2773,7 @@ export default function MySeniorValetHome() {
             </Link>
 
             {/* Community Onboarding Card */}
-            <Link href="/community-portal">
+            <Link to="/community-portal">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Real Estate Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2958,7 +2958,7 @@ export default function MySeniorValetHome() {
             </Link>
 
             {/* Services Directory Card */}
-            <Link href="/vendor-marketplace-tiers">
+            <Link to="/vendor-marketplace-tiers">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Partnership Sign Image at top of card */}
                 <div className="relative h-64 w-full">

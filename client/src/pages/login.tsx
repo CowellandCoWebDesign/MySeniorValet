@@ -187,7 +187,7 @@ export default function LoginPage() {
               
               {/* Forgot Password Link */}
               <div className="flex justify-end">
-                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
                   Forgot password?
                 </Link>
               </div>
@@ -225,7 +225,7 @@ export default function LoginPage() {
             
             {/* Sign Up Link */}
             <div className="text-center">
-              <Link href="/signup">
+              <Link to="/signup">
                 <Button variant="outline" className="w-full h-12">
                   <Users className="h-5 w-5 mr-2" />
                   Create an Account
@@ -253,7 +253,7 @@ export default function LoginPage() {
             <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{" "}
-                <Link href="/signup" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                <Link to="/signup" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
                   Sign up here
                 </Link>
               </p>

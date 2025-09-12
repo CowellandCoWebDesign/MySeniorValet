@@ -118,7 +118,7 @@ export default function CommunityPortalModern() {
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link to="/" className="flex items-center space-x-3">
               <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-2 rounded-xl">
                 <Building className="w-6 h-6 text-white" />
               </div>
@@ -432,25 +432,25 @@ export default function CommunityPortalModern() {
             <div>
               <h4 className="text-white font-semibold mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="#features" className="hover:text-white">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-white">Pricing</Link></li>
-                <li><Link href="/demo" className="hover:text-white">Demo</Link></li>
+                <li><Link to="#features" className="hover:text-white">Features</Link></li>
+                <li><Link to="/pricing" className="hover:text-white">Pricing</Link></li>
+                <li><Link to="/demo" className="hover:text-white">Demo</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/about" className="hover:text-white">About</Link></li>
-                <li><Link href="/contact" className="hover:text-white">Contact</Link></li>
-                <li><Link href="/careers" className="hover:text-white">Careers</Link></li>
+                <li><Link to="/about" className="hover:text-white">About</Link></li>
+                <li><Link to="/contact" className="hover:text-white">Contact</Link></li>
+                <li><Link to="/careers" className="hover:text-white">Careers</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="text-white font-semibold mb-4">Legal</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/privacy" className="hover:text-white">Privacy</Link></li>
-                <li><Link href="/terms" className="hover:text-white">Terms</Link></li>
-                <li><Link href="/security" className="hover:text-white">Security</Link></li>
+                <li><Link to="/privacy" className="hover:text-white">Privacy</Link></li>
+                <li><Link to="/terms" className="hover:text-white">Terms</Link></li>
+                <li><Link to="/security" className="hover:text-white">Security</Link></li>
               </ul>
             </div>
           </div>

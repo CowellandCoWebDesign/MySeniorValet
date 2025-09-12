@@ -1614,7 +1614,7 @@ export default function CommunityDirectory() {
           )}
             
         <div className="text-center mt-8">
-          <Link href="/search?brand=Oakmont">
+          <Link to="/search?brand=Oakmont">
             <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
               Explore All 106 Oakmont Communities
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -1770,7 +1770,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/map-search?state=HI">
+              <Link to="/map-search?state=HI">
                 <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Hawaii Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -1943,7 +1943,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/map-search?city=Fort Worth&state=Texas">
+              <Link to="/map-search?city=Fort Worth&state=Texas">
                 <Button size="lg" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Fort Worth Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2139,7 +2139,7 @@ export default function CommunityDirectory() {
                 ))}
                 
                 {/* Action Card at the end */}
-                <Link href="/search?certified=hud">
+                <Link to="/search?certified=hud">
                   <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -2343,7 +2343,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/map-search?state=NY">
+              <Link to="/map-search?state=NY">
                 <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All New York Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2437,7 +2437,7 @@ export default function CommunityDirectory() {
             ) : ((canadianCommunities as any)?.communities || []).length === 0 ? (
               <>
                 {/* Show promotional card when no communities available */}
-                <Link href="/search?location=canada">
+                <Link to="/search?location=canada">
                   <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -2511,7 +2511,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🏝️ Puerto Rico Communities
               </h2>
-              <Link href="/search?location=Puerto Rico">
+              <Link to="/search?location=Puerto Rico">
                 <Button variant="outline" className="flex items-center gap-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20">
                   View All Puerto Rico
                   <ArrowRight className="w-4 h-4" />
@@ -2586,7 +2586,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇵🇪 Peru Communities
               </h2>
-              <Link href="/search?location=Peru">
+              <Link to="/search?location=Peru">
                 <Button variant="outline" className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20">
                   View All Peru
                   <ArrowRight className="w-4 h-4" />
@@ -2796,7 +2796,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/search?location=Cuba">
+              <Link to="/search?location=Cuba">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Cuba Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2815,7 +2815,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇨🇷 Costa Rica Communities
               </h2>
-              <Link href="/search?location=Costa Rica">
+              <Link to="/search?location=Costa Rica">
                 <Button variant="outline" className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20">
                   View All Costa Rica
                   <ArrowRight className="w-4 h-4" />
@@ -2883,7 +2883,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇵🇦 Panama Communities
               </h2>
-              <Link href="/search?location=Panama">
+              <Link to="/search?location=Panama">
                 <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
                   View All Panama
                   <ArrowRight className="w-4 h-4" />

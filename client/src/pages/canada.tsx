@@ -55,7 +55,7 @@ export default function CanadaPage() {
         <div className="px-4 py-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Link href="/">
+              <Link to="/">
                 <div className="flex items-center space-x-1.5 cursor-pointer hover:opacity-80 transition-opacity">
                   <div className="w-6 h-6 bg-white rounded-md flex items-center justify-center">
                     <span className="text-red-600 text-lg">🍁</span>
@@ -67,10 +67,10 @@ export default function CanadaPage() {
             <div className="flex items-center space-x-3">
               <LanguageSwitcher />
               <ThemeToggle />
-              <Link href="/login" className="text-white hover:text-red-200 transition-colors font-medium text-sm">
+              <Link to="/login" className="text-white hover:text-red-200 transition-colors font-medium text-sm">
                 Sign In
               </Link>
-              <Link href="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
+              <Link to="/signup" className="bg-white/20 backdrop-blur-sm text-white px-3 py-1.5 rounded-xl hover:bg-white/30 transition-all duration-200 font-medium shadow-lg hover:shadow-xl text-sm">
                 Sign Up
               </Link>
             </div>
@@ -178,7 +178,7 @@ export default function CanadaPage() {
                   : 'Explore senior living options across Canada'}
               </p>
             </div>
-            <Link href="/map-search?country=canada">
+            <Link to="/map-search?country=canada">
               <Button variant="outline" className="hidden sm:flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 {language === 'fr' ? 'Voir sur la carte' : 'View on Map'}
@@ -377,7 +377,7 @@ export default function CanadaPage() {
                 <p className="text-gray-600 dark:text-gray-300 mb-4">
                   Links to provincial health authorities and senior care programs across Canada
                 </p>
-                <Link href="/resources/provincial-health">
+                <Link to="/resources/provincial-health">
                   <span className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-2 cursor-pointer">
                     Explore Provincial Resources <ChevronRight className="w-4 h-4" />
                   </span>
@@ -434,7 +434,7 @@ export default function CanadaPage() {
               ? 'MySeniorValet Canada - Votre guide pour la vie des aînés au Canada'
               : 'MySeniorValet Canada - Your guide to senior living in Canada'}
           </p>
-          <Link href="/">
+          <Link to="/">
             <span className="text-blue-400 hover:text-blue-300 cursor-pointer">
               {language === 'fr' ? 'Retour à MySeniorValet' : 'Back to MySeniorValet'}
             </span>

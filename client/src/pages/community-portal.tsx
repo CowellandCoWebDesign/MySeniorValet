@@ -438,7 +438,7 @@ export default function CommunityPortal() {
                     Choose your tier below
                   </li>
                 </ol>
-                <Link href="/">
+                <Link to="/">
                   <Button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white">
                     <Crown className="w-4 h-4 mr-2" />
                     Search & Claim Now

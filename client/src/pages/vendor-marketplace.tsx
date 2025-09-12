@@ -79,7 +79,7 @@ export default function VendorMarketplace() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4">
-          <Link href="/">
+          <Link to="/">
             <Button variant="ghost" className="text-white hover:text-gray-200 mb-4">
               ← Back to Home
             </Button>
@@ -360,7 +360,7 @@ export default function VendorMarketplace() {
             Get started today and claim your 50% discount before it expires!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/vendor-signup">
+            <Link to="/vendor-signup">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl">
                 <Sparkles className="w-5 h-5 mr-2" />
                 Become a Verified Partner

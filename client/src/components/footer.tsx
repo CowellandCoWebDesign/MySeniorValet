@@ -79,25 +79,25 @@ export function Footer() {
             <div>
               <h3 className="text-sm font-semibold mb-3 text-white">For Communities</h3>
               <ul className="space-y-2 text-xs text-gray-300">
-                <li><Link href="/claim-community" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
-                <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
-                <li><Link href="/community-benefits" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
-                <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
+                <li><Link to="/claim-community" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
+                <li><Link to="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
+                <li><Link to="/community-benefits" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
+                <li><Link to="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
               </ul>
             </div>
             
             <div>
               <h3 className="text-sm font-semibold mb-3 text-white">For Families</h3>
               <ul className="space-y-2 text-xs text-gray-300">
-                <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
-                <li><Link href="/family-collaboration-center" className="hover:text-blue-400 transition-colors">Family Collaboration Center</Link></li>
-                <li><Link href="/resident-portal" className="hover:text-blue-400 transition-colors">Resident Portal</Link></li>
-                <li><Link href="/tour-tracker" className="hover:text-blue-400 transition-colors">Tour Tracker</Link></li>
-                <li><Link href="/tourmate" className="hover:text-blue-400 transition-colors">TourMate</Link></li>
-                <li><Link href="/competitive-analysis" className="hover:text-blue-400 transition-colors">Market Analysis</Link></li>
-                <li><Link href="/dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
-                <li><Link href="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
-                <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
+                <li><Link to="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
+                <li><Link to="/family-collaboration-center" className="hover:text-blue-400 transition-colors">Family Collaboration Center</Link></li>
+                <li><Link to="/resident-portal" className="hover:text-blue-400 transition-colors">Resident Portal</Link></li>
+                <li><Link to="/tour-tracker" className="hover:text-blue-400 transition-colors">Tour Tracker</Link></li>
+                <li><Link to="/tourmate" className="hover:text-blue-400 transition-colors">TourMate</Link></li>
+                <li><Link to="/competitive-analysis" className="hover:text-blue-400 transition-colors">Market Analysis</Link></li>
+                <li><Link to="/dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
+                <li><Link to="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
+                <li><Link to="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
               </ul>
             </div>
           </div>
@@ -110,10 +110,10 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold mb-3 text-white">For Vendors</h3>
             <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
-              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
-              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
-              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
+              <li><Link to="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
+              <li><Link to="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
+              <li><Link to="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
+              <li><Link to="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
             </ul>
           </div>
           
@@ -121,12 +121,12 @@ export function Footer() {
           <div>
             <h3 className="text-sm font-semibold mb-3 text-white">Legal</h3>
             <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
-              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
-              <li><Link href="/legal-notice" className="hover:text-blue-400 transition-colors">Legal Notice</Link></li>
-              <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
+              <li><Link to="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
+              <li><Link to="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
+              <li><Link to="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
+              <li><Link to="/legal-notice" className="hover:text-blue-400 transition-colors">Legal Notice</Link></li>
+              <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
             </ul>
           </div>
         </div>
@@ -145,23 +145,23 @@ export function Footer() {
             
             {/* Quick links and dashboard access - right side */}
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 text-xs">
-              <Link href="/veterans" className="text-gray-400 hover:text-blue-400 transition-colors">Veterans</Link>
+              <Link to="/veterans" className="text-gray-400 hover:text-blue-400 transition-colors">Veterans</Link>
               <span className="text-gray-600">•</span>
-              <Link href="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy</Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy</Link>
               <span className="text-gray-600">•</span>
-              <Link href="/terms-of-service" className="text-gray-400 hover:text-blue-400 transition-colors">Terms</Link>
+              <Link to="/terms-of-service" className="text-gray-400 hover:text-blue-400 transition-colors">Terms</Link>
               <span className="text-gray-600">•</span>
-              <Link href="/accessibility" className="text-gray-400 hover:text-blue-400 transition-colors">Accessibility</Link>
+              <Link to="/accessibility" className="text-gray-400 hover:text-blue-400 transition-colors">Accessibility</Link>
               
               {/* Dashboard Access - Compact */}
               <div className="flex items-center gap-2 ml-2 pl-3 border-l border-gray-600">
-                <Link href="/super-admin" className="text-gray-400 hover:text-blue-400 transition-colors" title="Admin Dashboard">
+                <Link to="/super-admin" className="text-gray-400 hover:text-blue-400 transition-colors" title="Admin Dashboard">
                   <Settings className="h-3.5 w-3.5" />
                 </Link>
-                <Link href="/community-portal" className="text-green-400 hover:text-green-300 transition-colors" title="Community Dashboard">
+                <Link to="/community-portal" className="text-green-400 hover:text-green-300 transition-colors" title="Community Dashboard">
                   <User className="h-3.5 w-3.5" />
                 </Link>
-                <Link href="/vendor-dashboard" className="text-purple-400 hover:text-purple-300 transition-colors" title="Vendor Dashboard">
+                <Link to="/vendor-dashboard" className="text-purple-400 hover:text-purple-300 transition-colors" title="Vendor Dashboard">
                   <Store className="h-3.5 w-3.5" />
                 </Link>
               </div>
