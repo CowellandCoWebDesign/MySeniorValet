@@ -403,16 +403,55 @@ export function registerReviewRoutes(app: Express) {
       }
 
       // Search for reviews using Perplexity with enhanced prompt
-      const searchQuery = `Find ALL reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Search Google, Yelp, Care.com, SeniorAdvisor, A Place for Mom, Facebook, and any other review sites. Include:
-        1. Google Reviews: Overall rating (X out of 5 stars), total review count, and actual review quotes
-        2. Yelp: Overall rating, review count, and specific review excerpts
-        3. Care.com: Ratings and any available reviews
-        4. SeniorAdvisor.com: Ratings and review content
-        5. A Place for Mom: Ratings and reviews
-        6. Facebook Reviews: Ratings and review text if available
-        7. Any other review platforms with this community
-        8. Direct links to each review page
-        IMPORTANT: Include ALL reviews from any year, not just recent ones. Search thoroughly across all platforms. If a community has reviews from 2020, 2021, 2022, 2023, 2024, or 2025, include them all.`;
+      const searchQuery = `Find ALL reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. 
+
+**CRITICAL: I need the actual review text/quotes, not just summaries. Please provide reviews in this exact format:**
+
+**Google Reviews:**
+- Rating: X.X/5 (Y total reviews)
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- Review 2: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- URL: [Google Maps/Reviews link]
+
+**Yelp Reviews:**
+- Rating: X.X/5 (Y total reviews)  
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- Review 2: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- URL: [Yelp business page link]
+
+**Care.com Reviews:**
+- Rating: X.X/5 (Y total reviews)
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- URL: [Care.com profile link]
+
+**SeniorAdvisor.com Reviews:**
+- Rating: X.X/5 (Y total reviews)
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- URL: [SeniorAdvisor profile link]
+
+**A Place for Mom Reviews:**
+- Rating: X.X/5 (Y total reviews)
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- URL: [A Place for Mom profile link]
+
+**Facebook Reviews:**
+- Rating: X.X/5 (Y total reviews)
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+- URL: [Facebook page link]
+
+**Other Review Sites:**
+- Platform: [Name]
+- Rating: X.X/5 (Y total reviews)
+- Review 1: "EXACT QUOTE FROM ACTUAL REVIEW" - Reviewer Name - Date
+
+REQUIREMENTS:
+1. Search Google Reviews, Yelp, Care.com, SeniorAdvisor, A Place for Mom, Facebook, and ANY other review platforms
+2. Include ACTUAL REVIEW TEXT in quotes, not paraphrases or summaries
+3. Include reviewer names and dates when available
+4. Include direct URLs to each review platform
+5. Find reviews from ALL years (2020-2025), not just recent ones
+6. If no reviews exist on a platform, clearly state "No reviews found"
+7. Search thoroughly - many senior living communities have reviews but they may be under slightly different names or addresses`;
       
       const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
       
@@ -577,107 +616,331 @@ function extractReviewSnippets(text: string): {
     aplaceformom: [] as any[]
   };
 
-  // First, extract platform-specific ratings and counts
+  console.log('🔍 Starting review extraction from text length:', text.length);
+  console.log('📝 First 500 chars of text:', text.substring(0, 500));
+  
+  // Extract platform-specific ratings and counts
   const platformRatings = extractPlatformRatings(text);
+  console.log('📊 Platform ratings found:', platformRatings);
   
   // Extract URLs for each platform
   const urls = extractReviewUrls(text);
+  console.log('🔗 URLs found:', urls);
   
-  // Extract quoted reviews - looking for text in quotes
-  const quotedReviews = text.match(/[""'']([^""'']{20,500})[""'']/g) || [];
+  // Enhanced patterns to match the new structured format
+  const structuredPatterns = [
+    // Pattern for: "Review 1: "EXACT QUOTE" - Reviewer Name - Date"
+    /(?:Review\s+\d+|Review):\s*[""]([^""]{15,500})[""](?:\s*-\s*([^-\n]+?)(?:\s*-\s*([^-\n]+?))?)?/gi,
+    
+    // Pattern for bullet point reviews: "- "EXACT QUOTE" - Reviewer Name - Date"
+    /-\s*[""]([^""]{15,500})[""](?:\s*-\s*([^-\n]+?)(?:\s*-\s*([^-\n]+?))?)?/gi,
+    
+    // Pattern for numbered reviews: "1. "EXACT QUOTE" - Reviewer Name - Date"
+    /\d+\.\s*[""]([^""]{15,500})[""](?:\s*-\s*([^-\n]+?)(?:\s*-\s*([^-\n]+?))?)?/gi,
+    
+    // Pattern for quotes with context: "Quote content" followed by attribution
+    /[""]([^""]{15,500})[""](?:\s*(?:-|by|from|–)\s*([^-\n,]{3,50}?)(?:\s*[-,–]\s*([^-\n]{3,30}?))?)?/gi,
+    
+    // Fallback patterns for less structured content
+    /(?:said|wrote|commented|reviewed):\s*[""]([^""]{15,500})[""](?:\s*-?\s*([^-\n]{3,50}?))?/gi,
+    
+    // Single quotes
+    /(?:Review\s+\d+|Review):\s*['']([^'']{15,500})[''](?:\s*-\s*([^-\n]+?)(?:\s*-\s*([^-\n]+?))?)?/gi,
+    /-\s*['']([^'']{15,500})[''](?:\s*-\s*([^-\n]+?)(?:\s*-\s*([^-\n]+?))?)?/gi,
+    
+    // Generic quoted content with minimum length
+    /[""]([^""]{20,500})[""](?:\s*-\s*([^-\n]{3,50}?))?/gi,
+    /['']([^'']{20,500})[''](?:\s*-\s*([^-\n]{3,50}?))?/gi,
+    
+    // Standard quotes
+    /"([^"]{20,500})"(?:\s*-\s*([^-\n]{3,50}?))?/gi,
+    /'([^']{20,500})'(?:\s*-\s*([^-\n]{3,50}?))?/gi
+  ];
+
+  // Extract all potential review matches
+  const allMatches: Array<{ text: string; author?: string; date?: string; originalMatch: string; source?: string }> = [];
   
-  // Also look for review patterns without quotes (e.g., "Review: ..." or "- ...")
-  const reviewPatterns = [
-    /(?:Review|Comment|Feedback)\s*[:\-]\s*([^\n]{20,500})/gi,
-    /^\s*[-•]\s*([^\n]{20,500})$/gm,
-    /"([^"]{20,500})"/g,
-    /'([^']{20,500})'/g
+  structuredPatterns.forEach((pattern, index) => {
+    let match;
+    pattern.lastIndex = 0; // Reset regex
+    
+    while ((match = pattern.exec(text)) !== null) {
+      const reviewText = match[1]?.trim();
+      const author = match[2]?.trim();
+      const date = match[3]?.trim();
+      
+      if (reviewText && reviewText.length >= 15) {
+        // Skip obvious non-reviews (instructions, metadata, etc.)
+        if (isValidReview(reviewText)) {
+          allMatches.push({
+            text: reviewText,
+            author: author || 'Anonymous',
+            date: date || new Date().toISOString(),
+            originalMatch: match[0],
+            source: detectSourceFromContext(text, match.index!)
+          });
+        }
+      }
+    }
+    console.log(`📝 Pattern ${index + 1} found ${allMatches.length} total matches so far`);
+  });
+
+  console.log(`🎯 Total valid review matches found: ${allMatches.length}`);
+
+  // Deduplicate reviews based on content similarity
+  const uniqueReviews = deduplicateReviews(allMatches);
+  console.log(`✨ Unique reviews after deduplication: ${uniqueReviews.length}`);
+
+  // Categorize reviews by source
+  uniqueReviews.forEach((review, index) => {
+    const contextSource = review.source || detectSourceFromFullText(text, review.text);
+    console.log(`📍 Review ${index + 1} detected source: ${contextSource} | Text: ${review.text.substring(0, 100)}...`);
+    
+    const reviewObj = {
+      text: review.text,
+      rating: extractRatingFromReviewContext(text, review.text) || getDefaultRatingForSource(contextSource, platformRatings),
+      source: contextSource,
+      author: review.author,
+      date: parseDate(review.date),
+      url: getUrlForSource(contextSource, urls),
+      verified: true,
+      helpful: 0
+    };
+
+    switch (contextSource) {
+      case 'Google':
+      case 'Yelp':
+        reviews.yelp.push({ ...reviewObj, source: contextSource });
+        break;
+      case 'Care.com':
+        reviews.carecom.push(reviewObj);
+        break;
+      case 'SeniorAdvisor':
+      case 'Assisted Living Center':
+        reviews.seniorAdvisor.push(reviewObj);
+        break;
+      case 'A Place for Mom':
+        reviews.aplaceformom.push(reviewObj);
+        break;
+      default:
+        // Default to Yelp for unclassified reviews
+        reviews.yelp.push({ ...reviewObj, source: 'External Review' });
+    }
+  });
+
+  // Add platform summaries for platforms with ratings but no extracted reviews
+  addPlatformSummaries(reviews, platformRatings, urls);
+  
+  console.log('📋 Final review counts:', {
+    yelp: reviews.yelp.length,
+    carecom: reviews.carecom.length,
+    seniorAdvisor: reviews.seniorAdvisor.length,
+    aplaceformom: reviews.aplaceformom.length
+  });
+
+  return reviews;
+}
+
+// Helper function to validate if a text snippet is actually a review
+function isValidReview(text: string): boolean {
+  // Skip if text is too short
+  if (text.length < 15) return false;
+  
+  // Skip obvious non-reviews (instructions, metadata, etc.)
+  const invalidPatterns = [
+    /^(Review|Comment|Feedback|Find|Search|Include|Important|Critical|Requirements|Please provide|Look for|Based on|According to)/i,
+    /^\s*(1\.|2\.|3\.|4\.|5\.|6\.|7\.|8\.|9\.|10\.)/,
+    /^(Rating|URL|Platform|Source|Date|Overall|Total|Number of)/i,
+    /^(No reviews|Reviews not found|Unable to find|Could not locate)/i,
+    /^(X\.X\/5|EXACT QUOTE|Reviewer Name)/i,
+    /^[\-\*\+\•]/,
+    /^\s*\[/,
+    /^https?:\/\//,
+    /^www\./,
+    /^\d+\s+(reviews?|ratings?|stars?)/i
   ];
   
-  const allReviews = [...quotedReviews];
-  reviewPatterns.forEach(pattern => {
-    const matches = text.match(pattern) || [];
-    allReviews.push(...matches);
-  });
-  
-  // Deduplicate reviews
-  const uniqueReviews = Array.from(new Set(allReviews));
-  
-  uniqueReviews.forEach(quote => {
-    const cleanQuote = quote.replace(/[""'']/g, '').replace(/^[\s\-•:]+/, '').trim();
-    
-    // Skip if it's not actually a review (e.g., instructions, metadata)
-    if (/^(Review|Comment|Feedback|Find|Search|Include|Important)/i.test(cleanQuote)) {
-      return;
+  for (const pattern of invalidPatterns) {
+    if (pattern.test(text)) {
+      console.log(`🚫 Filtered out invalid text: ${text.substring(0, 50)}...`);
+      return false;
     }
-    
-    // Try to determine source from context
-    const quoteIndex = text.indexOf(quote);
-    const context = text.substring(
-      Math.max(0, quoteIndex - 200),
-      Math.min(text.length, quoteIndex + quote.length + 200)
-    );
-    
-    // Categorize by source mention in nearby text
-    if (/yelp/i.test(context)) {
-      reviews.yelp.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || platformRatings.yelp?.rating || 4.0,
-        source: 'Yelp',
-        date: extractDateFromContext(context) || new Date().toISOString(),
-        url: urls.yelp
-      });
-    } else if (/care\.com|care dot com/i.test(context)) {
-      reviews.carecom.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || platformRatings.carecom?.rating || 4.0,
-        source: 'Care.com',
-        date: extractDateFromContext(context) || new Date().toISOString(),
-        url: urls.carecom
-      });
-    } else if (/senior\s*advisor/i.test(context)) {
-      reviews.seniorAdvisor.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || platformRatings.seniorAdvisor?.rating || 4.0,
-        source: 'SeniorAdvisor',
-        date: extractDateFromContext(context) || new Date().toISOString(),
-        url: urls.seniorAdvisor
-      });
-    } else if (/(?:a\s+)?place\s+for\s+mom|APFM/i.test(context)) {
-      reviews.aplaceformom.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || platformRatings.aplaceformom?.rating || 4.0,
-        source: 'A Place for Mom',
-        date: extractDateFromContext(context) || new Date().toISOString(),
-        url: urls.aplaceformom
-      });
-    } else if (/google/i.test(context)) {
-      reviews.yelp.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || platformRatings.google?.rating || 4.0,
-        source: 'Google',
-        date: extractDateFromContext(context) || new Date().toISOString(),
-        url: urls.google
-      });
-    } else if (/facebook/i.test(context)) {
-      reviews.yelp.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || 4.0,
-        source: 'Facebook',
-        date: extractDateFromContext(context) || new Date().toISOString(),
-        url: urls.facebook
-      });
-    } else if (/assisted\s*living\s*center/i.test(context)) {
-      reviews.seniorAdvisor.push({
-        text: cleanQuote,
-        rating: extractRatingNearQuote(context) || 4.0,
-        source: 'Assisted Living Center',
-        date: extractDateFromContext(context) || new Date().toISOString()
-      });
-    }
-  });
+  }
   
-  // Add platform ratings as summary if we found them but no individual reviews
+  // Check if it contains review-like content
+  const reviewIndicators = [
+    /\b(staff|care|service|room|food|facility|activities|family|recommend|love|hate|excellent|terrible|clean|dirty|friendly|helpful)\b/i,
+    /\b(mom|dad|parent|grandmother|grandfather|senior|elderly|resident|visitor)\b/i,
+    /\b(quality|experience|stay|lived|visit|moved|place|home|community)\b/i,
+    /\b(would|could|should|very|really|quite|extremely|highly)\b/i
+  ];
+  
+  const hasReviewContent = reviewIndicators.some(pattern => pattern.test(text));
+  
+  if (!hasReviewContent) {
+    console.log(`🤔 Text may not be review content: ${text.substring(0, 50)}...`);
+  }
+  
+  return hasReviewContent;
+}
+
+// Helper function to detect source from immediate context around a match
+function detectSourceFromContext(fullText: string, matchIndex: number): string {
+  const contextSize = 300;
+  const start = Math.max(0, matchIndex - contextSize);
+  const end = Math.min(fullText.length, matchIndex + contextSize);
+  const context = fullText.substring(start, end).toLowerCase();
+  
+  console.log(`🔍 Context for source detection: ${context.substring(0, 100)}...`);
+  
+  // Check for platform mentions in order of specificity
+  if (/\*\*google\s+reviews?\*\*|google\s+reviews?:|google:\s*\d+/i.test(context)) return 'Google';
+  if (/\*\*yelp\s+reviews?\*\*|yelp\s+reviews?:|yelp:\s*\d+/i.test(context)) return 'Yelp';
+  if (/\*\*care\.com\s+reviews?\*\*|care\.com\s+reviews?:|care\.com:\s*\d+/i.test(context)) return 'Care.com';
+  if (/\*\*senioradvisor\s+reviews?\*\*|senioradvisor\.com|senior\s*advisor/i.test(context)) return 'SeniorAdvisor';
+  if (/\*\*a\s+place\s+for\s+mom\s+reviews?\*\*|place\s+for\s+mom|aplaceformom/i.test(context)) return 'A Place for Mom';
+  if (/\*\*facebook\s+reviews?\*\*|facebook\s+reviews?:|facebook:\s*\d+/i.test(context)) return 'Facebook';
+  if (/assisted\s+living\s+center/i.test(context)) return 'Assisted Living Center';
+  
+  return 'Unknown';
+}
+
+// Helper function to deduplicate reviews based on content similarity
+function deduplicateReviews(reviews: Array<{ text: string; author?: string; date?: string; originalMatch: string; source?: string }>): Array<{ text: string; author?: string; date?: string; originalMatch: string; source?: string }> {
+  const unique: Array<{ text: string; author?: string; date?: string; originalMatch: string; source?: string }> = [];
+  
+  for (const review of reviews) {
+    const isDuplicate = unique.some(existing => {
+      // Check for exact text match
+      if (existing.text === review.text) return true;
+      
+      // Check for high similarity (80% match)
+      const similarity = calculateTextSimilarity(existing.text, review.text);
+      return similarity > 0.8;
+    });
+    
+    if (!isDuplicate) {
+      unique.push(review);
+    } else {
+      console.log(`🔄 Removing duplicate review: ${review.text.substring(0, 50)}...`);
+    }
+  }
+  
+  return unique;
+}
+
+// Helper function to detect source from full text search
+function detectSourceFromFullText(fullText: string, reviewText: string): string {
+  const textIndex = fullText.indexOf(reviewText);
+  if (textIndex === -1) return 'Unknown';
+  
+  // Look in a larger context around the review
+  const contextSize = 500;
+  const start = Math.max(0, textIndex - contextSize);
+  const end = Math.min(fullText.length, textIndex + reviewText.length + contextSize);
+  const context = fullText.substring(start, end).toLowerCase();
+  
+  // Platform detection with section headers
+  const sections = fullText.split(/\*\*([^*]+)\*\*/);
+  let currentSection = 'Unknown';
+  
+  for (let i = 0; i < sections.length; i += 2) {
+    const content = sections[i] || '';
+    const nextHeader = sections[i + 1] || '';
+    
+    if (content.includes(reviewText)) {
+      if (/google\s+reviews?/i.test(nextHeader)) currentSection = 'Google';
+      else if (/yelp\s+reviews?/i.test(nextHeader)) currentSection = 'Yelp';
+      else if (/care\.com\s+reviews?/i.test(nextHeader)) currentSection = 'Care.com';
+      else if (/senioradvisor\s+reviews?/i.test(nextHeader)) currentSection = 'SeniorAdvisor';
+      else if (/place\s+for\s+mom\s+reviews?/i.test(nextHeader)) currentSection = 'A Place for Mom';
+      else if (/facebook\s+reviews?/i.test(nextHeader)) currentSection = 'Facebook';
+      break;
+    }
+  }
+  
+  return currentSection;
+}
+
+// Helper function to extract rating from review context
+function extractRatingFromReviewContext(fullText: string, reviewText: string): number | null {
+  const textIndex = fullText.indexOf(reviewText);
+  if (textIndex === -1) return null;
+  
+  // Look for rating in nearby context
+  const contextSize = 200;
+  const start = Math.max(0, textIndex - contextSize);
+  const end = Math.min(fullText.length, textIndex + reviewText.length + contextSize);
+  const context = fullText.substring(start, end);
+  
+  return extractRatingNearQuote(context);
+}
+
+// Helper function to get default rating for a source
+function getDefaultRatingForSource(source: string, platformRatings: Record<string, { rating: number; count: number; source: string }>): number {
+  const sourceMap: Record<string, string> = {
+    'Google': 'google',
+    'Yelp': 'yelp',
+    'Care.com': 'carecom',
+    'SeniorAdvisor': 'seniorAdvisor',
+    'A Place for Mom': 'aplaceformom',
+    'Assisted Living Center': 'assistedLiving'
+  };
+  
+  const key = sourceMap[source];
+  if (key && platformRatings[key]) {
+    return platformRatings[key].rating;
+  }
+  
+  return 4.0; // Default rating
+}
+
+// Helper function to parse dates properly
+function parseDate(dateStr: string): string {
+  if (!dateStr || dateStr === 'Anonymous') return new Date().toISOString();
+  
+  // If it's already an ISO string, return it
+  if (/^\d{4}-\d{2}-\d{2}T/.test(dateStr)) return dateStr;
+  
+  // If it contains "ago", convert it
+  if (/ago/i.test(dateStr)) {
+    return convertRelativeDate(dateStr);
+  }
+  
+  // Try to parse the date
+  try {
+    const parsed = new Date(dateStr);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toISOString();
+    }
+  } catch (e) {
+    // Fall back to current date
+  }
+  
+  return new Date().toISOString();
+}
+
+// Helper function to get URL for source
+function getUrlForSource(source: string, urls: Record<string, string | undefined>): string | undefined {
+  const sourceMap: Record<string, string> = {
+    'Google': 'google',
+    'Yelp': 'yelp',
+    'Care.com': 'carecom',
+    'SeniorAdvisor': 'seniorAdvisor',
+    'A Place for Mom': 'aplaceformom',
+    'Facebook': 'facebook'
+  };
+  
+  const key = sourceMap[source];
+  return key ? urls[key] : undefined;
+}
+
+// Helper function to add platform summaries
+function addPlatformSummaries(
+  reviews: { yelp: any[]; carecom: any[]; seniorAdvisor: any[]; aplaceformom: any[] },
+  platformRatings: Record<string, { rating: number; count: number; source: string }>,
+  urls: Record<string, string | undefined>
+): void {
   Object.entries(platformRatings).forEach(([platform, data]) => {
     if (data && data.count > 0) {
       const platformReviews = {
@@ -685,26 +948,42 @@ function extractReviewSnippets(text: string): {
         'google': reviews.yelp, // Google reviews go in yelp array
         'carecom': reviews.carecom,
         'seniorAdvisor': reviews.seniorAdvisor,
-        'aplaceformom': reviews.aplaceformom
+        'aplaceformom': reviews.aplaceformom,
+        'assistedLiving': reviews.seniorAdvisor
       };
       
       const targetArray = platformReviews[platform as keyof typeof platformReviews];
       if (targetArray && targetArray.length === 0) {
         // Add a summary entry if no individual reviews were found
         targetArray.push({
-          text: `Based on ${data.count} reviews`,
+          text: `Based on ${data.count} reviews on ${data.source}`,
           rating: data.rating,
           source: data.source,
           date: new Date().toISOString(),
           isSummary: true,
           totalReviews: data.count,
-          url: urls[platform as keyof typeof urls]
+          url: urls[platform as keyof typeof urls],
+          verified: true,
+          helpful: 0
         });
+        console.log(`📝 Added summary for ${data.source}: ${data.rating}/5 (${data.count} reviews)`);
       }
     }
   });
+}
 
-  return reviews;
+// Helper function to calculate text similarity
+function calculateTextSimilarity(text1: string, text2: string): number {
+  const words1 = text1.toLowerCase().split(/\s+/);
+  const words2 = text2.toLowerCase().split(/\s+/);
+  
+  const set1 = new Set(words1);
+  const set2 = new Set(words2);
+  
+  const intersection = new Set([...set1].filter(x => set2.has(x)));
+  const union = new Set([...set1, ...set2]);
+  
+  return intersection.size / union.size;
 }
 
 // New helper function to extract platform-specific ratings
