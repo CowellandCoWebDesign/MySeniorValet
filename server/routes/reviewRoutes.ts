@@ -315,6 +315,69 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
+  // Fetch inspection data using Perplexity AI
+  app.post('/api/communities/:communityId/inspections/fetch', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      const perplexity = new PerplexityAIService();
+
+      if (!perplexity.isConfigured()) {
+        return res.status(400).json({ 
+          message: 'Perplexity AI is not configured',
+          fallbackData: true 
+        });
+      }
+
+      // Get community details
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+
+      // Search for inspection data using Perplexity
+      const searchQuery = `Search for government inspection reports, health violations, compliance records, and regulatory findings for "${community.name}" senior living facility located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Include:
+        1. Medicare.gov Nursing Home Compare data and star ratings if available
+        2. State health department inspection reports and citations
+        3. CMS (Centers for Medicare & Medicaid Services) inspection results
+        4. Recent health violations or deficiencies
+        5. Fire safety inspection results
+        6. Any regulatory actions, fines, or penalties
+        7. Complaint investigation results
+        8. Staffing violations or concerns
+        9. Quality measure scores
+        10. Infection control citations (especially COVID-19 related)
+        Include dates, severity levels, and whether violations were corrected. Search state databases, Medicare.gov, and any public records available.`;
+      
+      const context = `${community.name} senior living facility at ${community.address}, ${community.city}, ${community.state}`;
+      
+      console.log('Fetching inspection data for:', context);
+      const result = await perplexity.searchRealTime(searchQuery, context);
+
+      // Parse the inspection data from the response
+      const inspectionData = parseInspectionData(result.summary);
+      
+      // Return the structured inspection data
+      res.json({
+        success: true,
+        inspectionData,
+        citations: result.sources || [],
+        lastUpdated: new Date().toISOString()
+      });
+
+    } catch (error) {
+      console.error('Error fetching inspection data:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch inspection data',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Fetch external reviews using Perplexity AI
   app.post('/api/communities/:communityId/reviews/fetch-external', async (req, res) => {
     try {
@@ -746,6 +809,115 @@ function extractDateFromContext(context: string): string | null {
     }
   }
   return null;
+}
+
+// Helper function to parse inspection data from Perplexity response
+function parseInspectionData(summary: string): any {
+  const inspectionData: any = {
+    summary: '',
+    violations: [],
+    inspections: [],
+    starRating: null,
+    lastInspectionDate: null
+  };
+
+  // Extract overall summary
+  const summaryMatch = summary.match(/(?:Overall|Summary|Inspection findings?)[\s:]+([^.]+\.)/i);
+  if (summaryMatch) {
+    inspectionData.summary = summaryMatch[1].trim();
+  } else {
+    // Use first few sentences as summary
+    const sentences = summary.split('.').slice(0, 3).join('.').trim();
+    inspectionData.summary = sentences || 'Inspection data available. Click to view details.';
+  }
+
+  // Extract violations
+  const violationPatterns = [
+    /(?:violation|deficiency|citation|non-compliance)[s]?:?\s*([^.]+)/gi,
+    /(?:failed|cited for|found to have)\s+([^.]+)/gi,
+    /(?:Level [A-Z]|Severity [A-Z]|Class [IVX]+)\s+(?:violation|deficiency)[s]?:?\s*([^.]+)/gi
+  ];
+
+  violationPatterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(summary)) !== null) {
+      const violationText = match[1].trim();
+      
+      // Extract date if present
+      const dateMatch = violationText.match(/\(([^)]+)\)/);
+      const date = dateMatch ? dateMatch[1] : 'Date not specified';
+      
+      // Determine severity
+      let severity = 'Standard';
+      if (/immediate jeopardy|severe|critical/i.test(violationText)) {
+        severity = 'Severe';
+      } else if (/moderate|significant/i.test(violationText)) {
+        severity = 'Moderate';
+      }
+      
+      inspectionData.violations.push({
+        type: severity + ' Violation',
+        description: violationText.replace(/\([^)]+\)/, '').trim(),
+        date: date,
+        status: /corrected|resolved|fixed/i.test(violationText) ? 'Resolved' : 'Pending'
+      });
+    }
+  });
+
+  // Extract inspection history
+  const inspectionPatterns = [
+    /(?:inspection|survey|audit)\s+(?:on|conducted|performed)?\s*([^.]+)/gi,
+    /(?:Medicare|State|Health Department|CMS)\s+inspection[s]?:?\s*([^.]+)/gi,
+    /(?:passed|failed|completed)\s+(?:inspection|survey)\s+([^.]+)/gi
+  ];
+
+  inspectionPatterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(summary)) !== null) {
+      const inspectionText = match[1].trim();
+      
+      // Extract date
+      const dateMatch = inspectionText.match(/(?:on\s+)?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4}|\d{4})/);
+      const date = dateMatch ? dateMatch[1] : 'Date not specified';
+      
+      // Determine result
+      let result = 'Completed';
+      if (/passed|no violations|compliant/i.test(inspectionText)) {
+        result = 'Passed';
+      } else if (/failed|violations found|deficiencies/i.test(inspectionText)) {
+        result = 'Failed';
+      }
+      
+      // Determine type
+      let type = 'State Inspection';
+      if (/Medicare|CMS/i.test(inspectionText)) {
+        type = 'Medicare/CMS Inspection';
+      } else if (/fire|safety/i.test(inspectionText)) {
+        type = 'Fire Safety Inspection';
+      } else if (/health department/i.test(inspectionText)) {
+        type = 'Health Department Inspection';
+      }
+      
+      inspectionData.inspections.push({
+        type: type,
+        date: date,
+        result: result,
+        findings: inspectionText.substring(0, 200)
+      });
+    }
+  });
+
+  // Extract star rating if available
+  const starMatch = summary.match(/(\d+(?:\.\d+)?)\s*(?:out of\s*)?5\s*stars?|(\d+(?:\.\d+)?)\s*star\s+rating/i);
+  if (starMatch) {
+    inspectionData.starRating = parseFloat(starMatch[1] || starMatch[2]);
+  }
+
+  // Remove duplicates
+  inspectionData.violations = inspectionData.violations.slice(0, 5); // Limit to 5 most relevant
+  inspectionData.inspections = inspectionData.inspections.slice(0, 5); // Limit to 5 most recent
+
+  return inspectionData;
 }
 
 // Helper to convert relative dates like "2 months ago" to actual dates
