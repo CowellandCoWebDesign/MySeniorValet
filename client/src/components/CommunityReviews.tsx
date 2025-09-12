@@ -126,20 +126,22 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const externalReviews = useMemo(() => {
     const reviews: any[] = [];
     
-    // Process Yelp reviews
+    // Process Yelp reviews (can include Google reviews)
     if ((community as any).yelpReviews && Array.isArray((community as any).yelpReviews)) {
       (community as any).yelpReviews.forEach((review: any, index: number) => {
         reviews.push({
           id: `yelp-${index}`,
-          source: 'Yelp',
+          source: review.source || 'Yelp',
           rating: review.rating || 4,
-          title: 'Yelp Review',
+          title: review.title || (review.source === 'Google' ? 'Google Review' : review.source === 'Facebook' ? 'Facebook Review' : 'Yelp Review'),
           content: review.text || review.excerpt || '',
-          userName: review.user?.name || 'Yelp User',
+          userName: review.user?.name || review.author || (review.source === 'Google' ? 'Google User' : review.source === 'Facebook' ? 'Facebook User' : 'Yelp User'),
           createdAt: review.time_created || review.date || new Date().toISOString(),
           verified: true,
           helpful: 0,
-          url: review.url
+          url: review.url,
+          isSummary: review.isSummary,
+          totalReviews: review.totalReviews
         });
       });
     }
@@ -149,31 +151,37 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
       (community as any).careComReviews.forEach((review: any, index: number) => {
         reviews.push({
           id: `carecom-${index}`,
-          source: 'Care.com',
+          source: review.source || 'Care.com',
           rating: review.rating || 4,
           title: review.title || 'Care.com Review',
-          content: review.review || review.text || '',
-          userName: review.reviewer || 'Care.com User',
+          content: review.text || review.review || '',
+          userName: review.reviewer || review.author || 'Care.com User',
           createdAt: review.date || new Date().toISOString(),
           verified: true,
-          helpful: 0
+          helpful: 0,
+          url: review.url,
+          isSummary: review.isSummary,
+          totalReviews: review.totalReviews
         });
       });
     }
 
-    // Process SeniorAdvisor reviews
+    // Process SeniorAdvisor reviews (can include Assisted Living Center reviews)
     if ((community as any).seniorAdvisorReviews && Array.isArray((community as any).seniorAdvisorReviews)) {
       (community as any).seniorAdvisorReviews.forEach((review: any, index: number) => {
         reviews.push({
           id: `senioradvisor-${index}`,
-          source: 'SeniorAdvisor',
+          source: review.source || 'SeniorAdvisor',
           rating: review.overall_rating || review.rating || 4,
-          title: review.title || 'SeniorAdvisor Review',
-          content: review.review || review.text || '',
-          userName: review.reviewer_name || 'SeniorAdvisor User',
+          title: review.title || (review.source === 'Assisted Living Center' ? 'Assisted Living Center Review' : 'SeniorAdvisor Review'),
+          content: review.text || review.review || '',
+          userName: review.reviewer_name || review.author || (review.source === 'Assisted Living Center' ? 'Verified Reviewer' : 'SeniorAdvisor User'),
           createdAt: review.review_date || review.date || new Date().toISOString(),
           verified: true,
-          helpful: 0
+          helpful: 0,
+          url: review.url,
+          isSummary: review.isSummary,
+          totalReviews: review.totalReviews
         });
       });
     }
@@ -183,14 +191,17 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
       (community as any).aplaceformomReviews.forEach((review: any, index: number) => {
         reviews.push({
           id: `apfm-${index}`,
-          source: 'A Place for Mom',
+          source: review.source || 'A Place for Mom',
           rating: review.rating || 4,
           title: review.title || 'A Place for Mom Review',
-          content: review.content || review.text || '',
+          content: review.text || review.content || '',
           userName: review.author || 'APFM User',
           createdAt: review.date || new Date().toISOString(),
           verified: true,
-          helpful: 0
+          helpful: 0,
+          url: review.url,
+          isSummary: review.isSummary,
+          totalReviews: review.totalReviews
         });
       });
     }
@@ -219,38 +230,75 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         Yelp: { rating: community.yelpRating || 0, count: parseInt(community.yelpReviewCount?.toString() || '0') },
         'Care.com': 0,
         'SeniorAdvisor': 0,
-        'A Place for Mom': 0
+        'A Place for Mom': 0,
+        'Assisted Living Center': 0,
+        'Facebook': 0
       }
     };
 
     if (allReviews.length > 0) {
       let totalRating = 0;
-      allReviews.forEach(review => {
-        totalRating += review.rating;
+      let actualReviewCount = 0;
+      
+      allReviews.forEach((review: any) => {
+        // If it's a summary entry, use totalReviews count
+        const reviewCount = review.isSummary && review.totalReviews ? review.totalReviews : 1;
+        actualReviewCount += reviewCount;
+        totalRating += review.rating * reviewCount;
+        
         const roundedRating = Math.round(review.rating);
         if (roundedRating >= 1 && roundedRating <= 5) {
-          stats.distribution[roundedRating]++;
+          stats.distribution[roundedRating] += reviewCount;
         }
         
-        // Count by source
-        if (review.source === 'MySeniorValet') stats.sources.MySeniorValet++;
-        else if (review.source === 'Care.com') stats.sources['Care.com']++;
-        else if (review.source === 'SeniorAdvisor') stats.sources['SeniorAdvisor']++;
-        else if (review.source === 'A Place for Mom') stats.sources['A Place for Mom']++;
+        // Count by source (including summary reviews)
+        if (review.source === 'MySeniorValet') {
+          stats.sources.MySeniorValet += reviewCount;
+        } else if (review.source === 'Google') {
+          if (!stats.sources.Google.count && review.totalReviews) {
+            stats.sources.Google.count = review.totalReviews;
+            stats.sources.Google.rating = review.rating;
+          }
+        } else if (review.source === 'Yelp') {
+          if (!stats.sources.Yelp.count && review.totalReviews) {
+            stats.sources.Yelp.count = review.totalReviews;
+            stats.sources.Yelp.rating = review.rating;
+          }
+        } else if (review.source === 'Care.com') {
+          stats.sources['Care.com'] += reviewCount;
+        } else if (review.source === 'SeniorAdvisor') {
+          stats.sources['SeniorAdvisor'] += reviewCount;
+        } else if (review.source === 'A Place for Mom') {
+          stats.sources['A Place for Mom'] += reviewCount;
+        } else if (review.source === 'Assisted Living Center') {
+          stats.sources['Assisted Living Center'] += reviewCount;
+        } else if (review.source === 'Facebook') {
+          stats.sources['Facebook'] += reviewCount;
+        }
       });
       
-      stats.averageRating = totalRating / allReviews.length;
+      stats.averageRating = actualReviewCount > 0 ? totalRating / actualReviewCount : 0;
+      stats.totalReviews = actualReviewCount;
     }
 
-    // Include Google and Yelp aggregated ratings
-    const totalWithExternal = stats.totalReviews + stats.sources.Google.count + stats.sources.Yelp.count;
-    if (totalWithExternal > 0) {
+    // Include Google and Yelp aggregated ratings if not already included
+    const googleCount = stats.sources.Google.count;
+    const yelpCount = stats.sources.Yelp.count;
+    const totalWithExternal = stats.totalReviews + 
+                              (googleCount > 0 && !allReviews.some((r: any) => r.source === 'Google' && r.totalReviews) ? googleCount : 0) +
+                              (yelpCount > 0 && !allReviews.some((r: any) => r.source === 'Yelp' && r.totalReviews) ? yelpCount : 0);
+    
+    if (totalWithExternal > stats.totalReviews) {
       const googleRatingNum = parseFloat(stats.sources.Google.rating as any) || 0;
       const yelpRatingNum = stats.sources.Yelp.rating || 0;
+      const additionalGoogle = googleCount > 0 && !allReviews.some((r: any) => r.source === 'Google' && r.totalReviews) ? googleCount : 0;
+      const additionalYelp = yelpCount > 0 && !allReviews.some((r: any) => r.source === 'Yelp' && r.totalReviews) ? yelpCount : 0;
+      
       const weightedTotal = (stats.averageRating * stats.totalReviews) + 
-                           (googleRatingNum * stats.sources.Google.count) + 
-                           (yelpRatingNum * stats.sources.Yelp.count);
+                           (googleRatingNum * additionalGoogle) + 
+                           (yelpRatingNum * additionalYelp);
       stats.averageRating = weightedTotal / totalWithExternal;
+      stats.totalReviews = totalWithExternal;
     }
 
     return stats;

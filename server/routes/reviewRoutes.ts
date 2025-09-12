@@ -428,7 +428,9 @@ function extractGoogleRating(text: string): { rating: string; count: number } | 
     /Google.*?(\d+(?:\.\d+)?)\/5.*?(\d+)\s*reviews?/i,
     /Google Reviews?:?\s*(\d+(?:\.\d+)?)\/5.*?(\d+)/i,
     /(\d+(?:\.\d+)?)\/5\s*stars?.*?Google.*?(\d+)\s*reviews?/i,
-    /Google.*?rated?\s*(\d+(?:\.\d+)?)\/5.*?based on\s*(\d+)/i
+    /Google.*?rated?\s*(\d+(?:\.\d+)?)\/5.*?based on\s*(\d+)/i,
+    /Google:?\s*(\d+(?:\.\d+)?)\/5\s*(?:\(|stars?,?\s*)?(\d+)\s*(?:reviews?|ratings?)/i,
+    /Google\s+(?:Reviews?|Rating)?:?\s*(\d+(?:\.\d+)?)\s*(?:out of\s*)?5\s*(?:stars?)?.*?(\d+)\s*(?:reviews?|ratings?)/i
   ];
   
   for (const pattern of patterns) {
@@ -436,10 +438,27 @@ function extractGoogleRating(text: string): { rating: string; count: number } | 
     if (match) {
       return {
         rating: match[1],
-        count: parseInt(match[2])
+        count: parseInt(match[2]) || 0
       };
     }
   }
+  
+  // Try to find Google rating without count
+  const ratingOnlyPatterns = [
+    /Google:?\s*(\d+(?:\.\d+)?)\/5/i,
+    /Google\s+(?:Reviews?|Rating)?:?\s*(\d+(?:\.\d+)?)\s*(?:out of\s*)?5/i
+  ];
+  
+  for (const pattern of ratingOnlyPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return {
+        rating: match[1],
+        count: 0
+      };
+    }
+  }
+  
   return null;
 }
 
@@ -448,7 +467,9 @@ function extractYelpRating(text: string): { rating: number; count: number } | nu
     /Yelp.*?(\d+(?:\.\d+)?)\/5.*?(\d+)\s*reviews?/i,
     /Yelp Reviews?:?\s*(\d+(?:\.\d+)?)\/5.*?(\d+)/i,
     /(\d+(?:\.\d+)?)\/5\s*stars?.*?Yelp.*?(\d+)\s*reviews?/i,
-    /Yelp.*?rated?\s*(\d+(?:\.\d+)?)\/5.*?based on\s*(\d+)/i
+    /Yelp.*?rated?\s*(\d+(?:\.\d+)?)\/5.*?based on\s*(\d+)/i,
+    /Yelp:?\s*(\d+(?:\.\d+)?)\/5\s*(?:\(|stars?,?\s*)?(\d+)\s*(?:reviews?|ratings?)/i,
+    /Yelp\s+(?:Reviews?|Rating)?:?\s*(\d+(?:\.\d+)?)\s*(?:out of\s*)?5\s*(?:stars?)?.*?(\d+)\s*(?:reviews?|ratings?)/i
   ];
   
   for (const pattern of patterns) {
@@ -456,10 +477,27 @@ function extractYelpRating(text: string): { rating: number; count: number } | nu
     if (match) {
       return {
         rating: parseFloat(match[1]),
-        count: parseInt(match[2])
+        count: parseInt(match[2]) || 0
       };
     }
   }
+  
+  // Try to find Yelp rating without count
+  const ratingOnlyPatterns = [
+    /Yelp:?\s*(\d+(?:\.\d+)?)\/5/i,
+    /Yelp\s+(?:Reviews?|Rating)?:?\s*(\d+(?:\.\d+)?)\s*(?:out of\s*)?5/i
+  ];
+  
+  for (const pattern of ratingOnlyPatterns) {
+    const match = text.match(pattern);
+    if (match) {
+      return {
+        rating: parseFloat(match[1]),
+        count: 0
+      };
+    }
+  }
+  
   return null;
 }
 
@@ -476,64 +514,213 @@ function extractReviewSnippets(text: string): {
     aplaceformom: [] as any[]
   };
 
+  // First, extract platform-specific ratings and counts
+  const platformRatings = extractPlatformRatings(text);
+  
+  // Extract URLs for each platform
+  const urls = extractReviewUrls(text);
+  
   // Extract quoted reviews - looking for text in quotes
   const quotedReviews = text.match(/[""'']([^""'']{20,500})[""'']/g) || [];
   
-  quotedReviews.forEach(quote => {
-    const cleanQuote = quote.replace(/[""'']/g, '').trim();
+  // Also look for review patterns without quotes (e.g., "Review: ..." or "- ...")
+  const reviewPatterns = [
+    /(?:Review|Comment|Feedback)\s*[:\-]\s*([^\n]{20,500})/gi,
+    /^\s*[-•]\s*([^\n]{20,500})$/gm,
+    /"([^"]{20,500})"/g,
+    /'([^']{20,500})'/g
+  ];
+  
+  const allReviews = [...quotedReviews];
+  reviewPatterns.forEach(pattern => {
+    const matches = text.match(pattern) || [];
+    allReviews.push(...matches);
+  });
+  
+  // Deduplicate reviews
+  const uniqueReviews = Array.from(new Set(allReviews));
+  
+  uniqueReviews.forEach(quote => {
+    const cleanQuote = quote.replace(/[""'']/g, '').replace(/^[\s\-•:]+/, '').trim();
+    
+    // Skip if it's not actually a review (e.g., instructions, metadata)
+    if (/^(Review|Comment|Feedback|Find|Search|Include|Important)/i.test(cleanQuote)) {
+      return;
+    }
     
     // Try to determine source from context
+    const quoteIndex = text.indexOf(quote);
     const context = text.substring(
-      Math.max(0, text.indexOf(quote) - 100),
-      Math.min(text.length, text.indexOf(quote) + quote.length + 100)
+      Math.max(0, quoteIndex - 200),
+      Math.min(text.length, quoteIndex + quote.length + 200)
     );
     
     // Categorize by source mention in nearby text
     if (/yelp/i.test(context)) {
       reviews.yelp.push({
         text: cleanQuote,
-        rating: extractRatingNearQuote(context),
+        rating: extractRatingNearQuote(context) || platformRatings.yelp?.rating || 4.0,
         source: 'Yelp',
-        date: extractDateFromContext(context) || new Date().toISOString()
+        date: extractDateFromContext(context) || new Date().toISOString(),
+        url: urls.yelp
       });
-    } else if (/care\.com/i.test(context)) {
+    } else if (/care\.com|care dot com/i.test(context)) {
       reviews.carecom.push({
         text: cleanQuote,
-        rating: extractRatingNearQuote(context),
+        rating: extractRatingNearQuote(context) || platformRatings.carecom?.rating || 4.0,
         source: 'Care.com',
-        date: extractDateFromContext(context) || new Date().toISOString()
+        date: extractDateFromContext(context) || new Date().toISOString(),
+        url: urls.carecom
       });
-    } else if (/senioradvisor/i.test(context)) {
+    } else if (/senior\s*advisor/i.test(context)) {
       reviews.seniorAdvisor.push({
         text: cleanQuote,
-        rating: extractRatingNearQuote(context),
+        rating: extractRatingNearQuote(context) || platformRatings.seniorAdvisor?.rating || 4.0,
         source: 'SeniorAdvisor',
-        date: extractDateFromContext(context) || new Date().toISOString()
+        date: extractDateFromContext(context) || new Date().toISOString(),
+        url: urls.seniorAdvisor
       });
-    } else if (/place\s+for\s+mom/i.test(context)) {
+    } else if (/(?:a\s+)?place\s+for\s+mom|APFM/i.test(context)) {
       reviews.aplaceformom.push({
         text: cleanQuote,
-        rating: extractRatingNearQuote(context),
+        rating: extractRatingNearQuote(context) || platformRatings.aplaceformom?.rating || 4.0,
         source: 'A Place for Mom',
-        date: extractDateFromContext(context) || new Date().toISOString()
+        date: extractDateFromContext(context) || new Date().toISOString(),
+        url: urls.aplaceformom
       });
     } else if (/google/i.test(context)) {
-      // Google reviews can be added to Yelp array for now
       reviews.yelp.push({
         text: cleanQuote,
-        rating: extractRatingNearQuote(context),
+        rating: extractRatingNearQuote(context) || platformRatings.google?.rating || 4.0,
         source: 'Google',
+        date: extractDateFromContext(context) || new Date().toISOString(),
+        url: urls.google
+      });
+    } else if (/facebook/i.test(context)) {
+      reviews.yelp.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context) || 4.0,
+        source: 'Facebook',
+        date: extractDateFromContext(context) || new Date().toISOString(),
+        url: urls.facebook
+      });
+    } else if (/assisted\s*living\s*center/i.test(context)) {
+      reviews.seniorAdvisor.push({
+        text: cleanQuote,
+        rating: extractRatingNearQuote(context) || 4.0,
+        source: 'Assisted Living Center',
         date: extractDateFromContext(context) || new Date().toISOString()
       });
+    }
+  });
+  
+  // Add platform ratings as summary if we found them but no individual reviews
+  Object.entries(platformRatings).forEach(([platform, data]) => {
+    if (data && data.count > 0) {
+      const platformReviews = {
+        'yelp': reviews.yelp,
+        'google': reviews.yelp, // Google reviews go in yelp array
+        'carecom': reviews.carecom,
+        'seniorAdvisor': reviews.seniorAdvisor,
+        'aplaceformom': reviews.aplaceformom
+      };
+      
+      const targetArray = platformReviews[platform as keyof typeof platformReviews];
+      if (targetArray && targetArray.length === 0) {
+        // Add a summary entry if no individual reviews were found
+        targetArray.push({
+          text: `Based on ${data.count} reviews`,
+          rating: data.rating,
+          source: data.source,
+          date: new Date().toISOString(),
+          isSummary: true,
+          totalReviews: data.count,
+          url: urls[platform as keyof typeof urls]
+        });
+      }
     }
   });
 
   return reviews;
 }
 
-function extractRatingNearQuote(context: string): number {
-  const ratingMatch = context.match(/(\d+(?:\.\d+)?)\/5/);
-  return ratingMatch ? parseFloat(ratingMatch[1]) : 4.0; // Default to 4.0 if no rating found
+// New helper function to extract platform-specific ratings
+function extractPlatformRatings(text: string): Record<string, { rating: number; count: number; source: string }> {
+  const ratings: Record<string, { rating: number; count: number; source: string }> = {};
+  
+  // Pattern for platform ratings: "Platform: X.X/5, Y reviews" or "Platform: X.X/5 (Y reviews)"
+  const platformPatterns = [
+    { name: 'seniorAdvisor', pattern: /Senior\s*Advisor:?\s*(\d+(?:\.\d+)?)\/5(?:\s*(?:stars?)?[,\s]+(\d+)\s*reviews?)?/i, source: 'SeniorAdvisor' },
+    { name: 'aplaceformom', pattern: /(?:A\s+)?Place\s+for\s+Mom:?\s*(\d+(?:\.\d+)?)\/5(?:\s*(?:stars?)?[,\s]+(\d+)\s*reviews?)?/i, source: 'A Place for Mom' },
+    { name: 'carecom', pattern: /Care\.com:?\s*(\d+(?:\.\d+)?)\/5(?:\s*(?:stars?)?[,\s]+(\d+)\s*reviews?)?/i, source: 'Care.com' },
+    { name: 'yelp', pattern: /Yelp:?\s*(\d+(?:\.\d+)?)\/5(?:\s*(?:stars?)?[,\s]+(\d+)\s*reviews?)?/i, source: 'Yelp' },
+    { name: 'google', pattern: /Google:?\s*(\d+(?:\.\d+)?)\/5(?:\s*(?:stars?)?[,\s]+(\d+)\s*reviews?)?/i, source: 'Google' },
+    { name: 'assistedLiving', pattern: /Assisted\s+Living\s+Center:?\s*(\d+(?:\.\d+)?)\/5(?:\s*(?:stars?)?[,\s]+(\d+)\s*reviews?)?/i, source: 'Assisted Living Center' }
+  ];
+  
+  platformPatterns.forEach(({ name, pattern, source }) => {
+    const match = text.match(pattern);
+    if (match) {
+      ratings[name] = {
+        rating: parseFloat(match[1]),
+        count: match[2] ? parseInt(match[2]) : 0,
+        source
+      };
+    }
+  });
+  
+  return ratings;
+}
+
+// New helper function to extract review URLs
+function extractReviewUrls(text: string): Record<string, string | undefined> {
+  const urls: Record<string, string | undefined> = {};
+  
+  // Extract all URLs from the text
+  const urlPattern = /https?:\/\/[^\s<>"]+/gi;
+  const allUrls = text.match(urlPattern) || [];
+  
+  allUrls.forEach(url => {
+    const cleanUrl = url.replace(/[\.,;\)\]\}]+$/, ''); // Remove trailing punctuation
+    
+    if (/yelp\.com/i.test(cleanUrl)) {
+      urls.yelp = cleanUrl;
+    } else if (/care\.com/i.test(cleanUrl)) {
+      urls.carecom = cleanUrl;
+    } else if (/senioradvisor\.com/i.test(cleanUrl)) {
+      urls.seniorAdvisor = cleanUrl;
+    } else if (/aplaceformom\.com/i.test(cleanUrl)) {
+      urls.aplaceformom = cleanUrl;
+    } else if (/google\.com\/maps/i.test(cleanUrl)) {
+      urls.google = cleanUrl;
+    } else if (/facebook\.com/i.test(cleanUrl)) {
+      urls.facebook = cleanUrl;
+    }
+  });
+  
+  return urls;
+}
+
+function extractRatingNearQuote(context: string): number | null {
+  // Look for various rating patterns
+  const patterns = [
+    /(\d+(?:\.\d+)?)\/5/,
+    /(\d+(?:\.\d+)?)\s*(?:out of\s*)?5\s*stars?/i,
+    /(\d+(?:\.\d+)?)\s*stars?/i,
+    /rated?\s*(\d+(?:\.\d+)?)/i
+  ];
+  
+  for (const pattern of patterns) {
+    const match = context.match(pattern);
+    if (match) {
+      const rating = parseFloat(match[1]);
+      if (rating >= 1 && rating <= 5) {
+        return rating;
+      }
+    }
+  }
+  
+  return null;
 }
 
 function extractDateFromContext(context: string): string | null {
@@ -542,14 +729,44 @@ function extractDateFromContext(context: string): string | null {
     /(\d{1,2}\/\d{1,2}\/\d{2,4})/,
     /(\w+\s+\d{1,2},?\s+\d{4})/,
     /(\d{1,2}\s+\w+\s+ago)/,
-    /(\d{4}-\d{2}-\d{2})/
+    /(\d{4}-\d{2}-\d{2})/,
+    /(\w+\s+\d{4})/,  // Month Year
+    /(\d{1,2}\s+(?:days?|weeks?|months?|years?)\s+ago)/i
   ];
   
   for (const pattern of datePatterns) {
     const match = context.match(pattern);
     if (match) {
-      return match[1];
+      // Try to convert relative dates to actual dates
+      const dateStr = match[1];
+      if (/ago/i.test(dateStr)) {
+        return convertRelativeDate(dateStr);
+      }
+      return dateStr;
     }
   }
   return null;
+}
+
+// Helper to convert relative dates like "2 months ago" to actual dates
+function convertRelativeDate(relativeStr: string): string {
+  const now = new Date();
+  const match = relativeStr.match(/(\d+)\s+(days?|weeks?|months?|years?)\s+ago/i);
+  
+  if (match) {
+    const amount = parseInt(match[1]);
+    const unit = match[2].toLowerCase();
+    
+    if (unit.startsWith('day')) {
+      now.setDate(now.getDate() - amount);
+    } else if (unit.startsWith('week')) {
+      now.setDate(now.getDate() - (amount * 7));
+    } else if (unit.startsWith('month')) {
+      now.setMonth(now.getMonth() - amount);
+    } else if (unit.startsWith('year')) {
+      now.setFullYear(now.getFullYear() - amount);
+    }
+  }
+  
+  return now.toISOString();
 }
