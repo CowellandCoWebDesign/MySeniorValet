@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Globe, ExternalLink, RefreshCw, CheckCircle, 
   MapPin, DollarSign, Phone, Search, Camera, Info,
-  Building, Heart, Brain, Home, Sparkles, ChevronDown, ChevronRight
+  Building, Heart, Brain, Home, Sparkles, ChevronDown, ChevronRight, MessageSquare
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
@@ -81,6 +81,7 @@ export function LiveWebIntelligence({
   const [hasTriedLoading, setHasTriedLoading] = useState(false);
   const [perplexityExpanded, setPerplexityExpanded] = useState(true);
   const [claudeExpanded, setClaudeExpanded] = useState(true);
+  const [chatgptExpanded, setChatgptExpanded] = useState(true);
 
   // Use mutation for fetching
   const fetchIntelligence = useMutation({
@@ -459,12 +460,13 @@ export function LiveWebIntelligence({
   }
 
   // Check if we have parallel AI results
-  const hasParallelResults = verificationReport?.verificationResults?.perplexity || verificationReport?.verificationResults?.claude;
+  const hasParallelResults = verificationReport?.verificationResults?.perplexity || verificationReport?.verificationResults?.claude || verificationReport?.verificationResults?.chatgpt;
   
-  // If we have parallel results, show both AIs in separate sections
+  // If we have parallel results, show all three AIs in separate sections
   if (hasParallelResults) {
     const perplexityData = verificationReport?.verificationResults?.perplexity;
     const claudeData = verificationReport?.verificationResults?.claude;
+    const chatgptData = verificationReport?.verificationResults?.chatgpt;
     
     return (
       <div className="space-y-4">
@@ -611,6 +613,90 @@ export function LiveWebIntelligence({
           </Card>
         )}
         
+        {/* ChatGPT AI Section */}
+        {chatgptData && (
+          <Card className={cn(
+            "transition-all duration-300",
+            chatgptExpanded && "ring-2 ring-green-500/20"
+          )}>
+            <CardHeader 
+              className="pb-4 cursor-pointer"
+              onClick={() => setChatgptExpanded(!chatgptExpanded)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <MessageSquare className="h-6 w-6 text-green-600" />
+                    ChatGPT 4o Intelligence
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Advanced GPT-4o model • Deep analysis and insights
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setChatgptExpanded(!chatgptExpanded);
+                  }}
+                  className="h-8 w-8"
+                >
+                  {chatgptExpanded ? 
+                    <ChevronDown className="h-4 w-4" /> : 
+                    <ChevronRight className="h-4 w-4" />
+                  }
+                </Button>
+              </div>
+            </CardHeader>
+            
+            {chatgptExpanded && (
+              <CardContent className="space-y-4 pt-0">
+                {chatgptData.error ? (
+                  <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/10">
+                    <Info className="h-4 w-4 text-yellow-600" />
+                    <AlertDescription>
+                      ChatGPT is temporarily unavailable. Please try again later.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="p-4 rounded-lg bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: formatAIResponse(chatgptData.summary) }} />
+                    </div>
+                    {chatgptData.sources && chatgptData.sources.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-800">
+                        <p className="text-xs font-medium text-green-700 dark:text-green-300 mb-2">Sources:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {chatgptData.sources.slice(0, 3).map((source: string, idx: number) => (
+                            <a 
+                              key={idx}
+                              href={source}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-green-600 hover:text-green-800 underline flex items-center gap-1"
+                            >
+                              Source {idx + 1}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {!chatgptData.sources?.length && (
+                      <div className="mt-4 pt-4 border-t border-green-200 dark:border-green-800">
+                        <p className="text-xs text-muted-foreground">
+                          This analysis is powered by OpenAI's GPT-4o model, the most advanced language model available.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        )}
+        
         {/* Refresh Button */}
         <div className="flex justify-center pt-2">
           <Button 
@@ -623,7 +709,7 @@ export function LiveWebIntelligence({
             size="sm"
           >
             <RefreshCw className="h-4 w-4 mr-2" />
-            Refresh Both AI Analyses
+            Refresh All AI Analyses
           </Button>
         </div>
       </div>

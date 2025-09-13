@@ -154,5 +154,72 @@ export const ChatGPTIntelligenceService = {
       console.error('ChatGPT cross-check error:', error);
       throw error;
     }
+  },
+
+  // ChatGPT Web Search for Community Information (parallel with Perplexity and Claude)
+  async searchCommunityWebInfo(query: string, context?: string) {
+    try {
+      const systemPrompt = `You are a senior living research expert using GPT-4o to provide accurate, detailed information about senior communities. 
+      Your task is to analyze and provide comprehensive information based on your knowledge, focusing on transparency and helping families make informed decisions.
+      
+      IMPORTANT: You MUST format your response as a valid JSON object with the following structure:
+      {
+        "summary": "A comprehensive overview of what you found",
+        "sources": ["List of relevant sources or references"],
+        "images": ["Any relevant image URLs if available"],
+        "pricing": "Any pricing information found",
+        "website": "Official website if known",
+        "phone": "Phone number if known",
+        "address": "Full address if known",
+        "careTypes": ["Types of care offered"],
+        "amenities": ["List of amenities"],
+        "certifications": ["Any certifications or accreditations"],
+        "yearEstablished": "Year if known",
+        "capacity": "Number of beds or units if known",
+        "specializations": ["Any special programs or focus areas"]
+      }`;
+
+      const userPrompt = `Research the following senior living community and provide comprehensive information:
+      
+      Search Query: ${query}
+      ${context ? `Additional Context: ${context}` : ''}
+      
+      Please provide detailed, accurate information about this community including pricing, services, contact details, and any other relevant information that would help families make informed decisions.`;
+
+      const response = await openai.chat.completions.create({
+        model: DEFAULT_MODEL,
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ],
+        response_format: { type: "json_object" },
+        temperature: 0.7,
+        max_tokens: 2000
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || '{}');
+      
+      // Transform to match expected format for parallel search
+      return {
+        summary: result.summary || 'No information found',
+        sources: result.sources || [],
+        images: result.images || [],
+        metadata: {
+          pricing: result.pricing,
+          website: result.website,
+          phone: result.phone,
+          address: result.address,
+          careTypes: result.careTypes,
+          amenities: result.amenities,
+          certifications: result.certifications,
+          yearEstablished: result.yearEstablished,
+          capacity: result.capacity,
+          specializations: result.specializations
+        }
+      };
+    } catch (error) {
+      console.error('ChatGPT search error:', error);
+      throw error;
+    }
   }
 };

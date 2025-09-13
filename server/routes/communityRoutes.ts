@@ -855,7 +855,8 @@ export function registerCommunityRoutes(app: Express) {
           },
           // Include parallel AI results if available
           perplexity: enrichmentResult.parallelSearchResults?.perplexity,
-          claude: enrichmentResult.parallelSearchResults?.claude
+          claude: enrichmentResult.parallelSearchResults?.claude,
+          chatgpt: enrichmentResult.parallelSearchResults?.chatgpt
         },
         
         // Consensus data
