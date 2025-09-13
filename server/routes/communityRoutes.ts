@@ -788,6 +788,34 @@ export function registerCommunityRoutes(app: Express) {
         forceRefresh || false
       );
       
+      // Additionally call Grok and Gemini for enhanced multi-AI perspectives
+      const [community] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
+      
+      let grokResponse = null;
+      let geminiResponse = null;
+      
+      if (community) {
+        const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
+        
+        // Call Grok AI
+        try {
+          const { GrokAIService } = await import('../grok-ai-service');
+          grokResponse = await GrokAIService.searchAndAnalyze(searchQuery);
+        } catch (error) {
+          console.error('Grok service error:', error);
+          grokResponse = { success: false, error: 'Grok service unavailable' };
+        }
+        
+        // Call Gemini AI
+        try {
+          const { GeminiAIService } = await import('../gemini-ai-service');
+          geminiResponse = await GeminiAIService.searchAndAnalyze(searchQuery);
+        } catch (error) {
+          console.error('Gemini service error:', error);
+          geminiResponse = { success: false, error: 'Gemini service unavailable' };
+        }
+      }
+      
       // Update database with discovered information
       if (enrichmentResult.searchResults?.summary) {
         const updates: any = {};
@@ -855,7 +883,27 @@ export function registerCommunityRoutes(app: Express) {
           },
           // Include parallel AI results if available
           perplexity: enrichmentResult.parallelSearchResults?.perplexity,
-          claude: enrichmentResult.parallelSearchResults?.claude
+          claude: enrichmentResult.parallelSearchResults?.claude,
+          grok: grokResponse?.success ? {
+            summary: grokResponse.content,
+            aiService: 'Grok AI (xAI)',
+            model: grokResponse.model,
+            timestamp: grokResponse.timestamp
+          } : {
+            summary: 'Grok AI is temporarily unavailable. Please check back later.',
+            aiService: 'Grok AI (xAI)',
+            error: grokResponse?.error
+          },
+          gemini: geminiResponse?.success ? {
+            summary: geminiResponse.content,
+            aiService: 'Google Gemini',
+            model: geminiResponse.model,
+            timestamp: geminiResponse.timestamp
+          } : {
+            summary: 'Gemini AI is temporarily unavailable. Please check back later.',
+            aiService: 'Google Gemini',
+            error: geminiResponse?.error
+          }
         },
         
         // Consensus data
