@@ -383,7 +383,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       <div className="absolute top-4 right-4 z-10">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
           <Sparkles className="w-3 h-3 mr-1" />
-          Powered by Perplexity AI
+          Powered by AI Intelligence
         </div>
       </div>
 
@@ -616,7 +616,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <Globe className="w-5 h-5 mr-2 text-indigo-600" />
                     What We Found About {community?.name}
                   </h4>
-                  <p className="text-xs text-muted-foreground">Powered by Perplexity AI</p>
+                  <p className="text-xs text-muted-foreground">Powered by {verificationReport?.aiService || 'AI Intelligence'}</p>
                 </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search

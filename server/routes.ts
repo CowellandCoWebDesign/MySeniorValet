@@ -71,6 +71,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   if (process.env.NODE_ENV === 'development') {
     const testPerplexityRoutes = await import('./routes/test-perplexity');
     app.use(testPerplexityRoutes.default);
+    
+    // Register AI fallback test routes
+    const testAIFallbackRoutes = await import('./routes/test-ai-fallback-route');
+    app.use(testAIFallbackRoutes.default);
   }
   
   // Register Circuit Breaker health endpoint
