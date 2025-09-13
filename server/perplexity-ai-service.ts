@@ -87,6 +87,104 @@ export class PerplexityAIService {
     };
   }
 
+  // New method to call both AIs in parallel
+  async searchRealTimeParallel(query: string, context?: string): Promise<{
+    perplexity?: {
+      summary: string;
+      sources: string[];
+      images?: string[];
+      aiService: string;
+      error?: string;
+    };
+    claude?: {
+      summary: string;
+      sources: string[];
+      images?: string[];
+      aiService: string;
+      error?: string;
+    };
+  }> {
+    console.log('🔍 Starting parallel AI search for:', query.substring(0, 100));
+    console.log('   Context provided:', !!context);
+    console.log('   Perplexity configured:', !!this.apiKey);
+    console.log('   Claude configured:', !!this.claudeApiKey);
+
+    const promises: Promise<any>[] = [];
+    const results: any = {};
+
+    // Add Perplexity promise if configured
+    if (this.apiKey) {
+      promises.push(
+        this.callPerplexity(query, context)
+          .then(result => {
+            console.log('✅ Perplexity search successful');
+            results.perplexity = {
+              ...result,
+              aiService: 'Perplexity AI'
+            };
+          })
+          .catch(error => {
+            console.error('❌ Perplexity API failed:', error.message);
+            results.perplexity = {
+              summary: 'Perplexity AI is temporarily unavailable. Please check back later for real-time web search results.',
+              sources: [],
+              images: [],
+              aiService: 'Perplexity AI',
+              error: error.message
+            };
+          })
+      );
+    }
+
+    // Add Claude promise if configured
+    if (this.claudeApiKey) {
+      promises.push(
+        this.callClaudeForSearch(query, context)
+          .then(result => {
+            console.log('✅ Claude search successful');
+            results.claude = {
+              ...result,
+              aiService: 'Claude AI'
+            };
+          })
+          .catch(error => {
+            console.error('❌ Claude API failed:', error.message);
+            results.claude = {
+              summary: 'Claude AI is temporarily unavailable. Please try again later.',
+              sources: [],
+              images: [],
+              aiService: 'Claude AI',
+              error: error.message
+            };
+          })
+      );
+    }
+
+    // Wait for all promises to settle
+    await Promise.allSettled(promises);
+
+    // If neither service is configured, return empty results
+    if (!results.perplexity && !results.claude) {
+      console.error('⚠️ No AI services configured');
+      return {
+        perplexity: {
+          summary: 'Perplexity AI is not configured. Contact support to enable real-time web search.',
+          sources: [],
+          images: [],
+          aiService: 'Perplexity AI'
+        },
+        claude: {
+          summary: 'Claude AI is not configured. Contact support to enable AI-powered insights.',
+          sources: [],
+          images: [],
+          aiService: 'Claude AI'
+        }
+      };
+    }
+
+    return results;
+  }
+
   private async callPerplexity(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
     try {
       const systemPrompt = `You are a senior living research expert providing structured, comprehensive information for families making critical decisions.

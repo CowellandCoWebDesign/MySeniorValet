@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { 
   Globe, ExternalLink, RefreshCw, CheckCircle, 
   MapPin, DollarSign, Phone, Search, Camera, Info,
-  Building, Heart, Brain, Home, Sparkles
+  Building, Heart, Brain, Home, Sparkles, ChevronDown, ChevronRight
 } from 'lucide-react';
 import { cn } from "@/lib/utils";
 
@@ -47,6 +47,27 @@ interface LiveWebIntelligenceProps {
   verificationReport?: any;
 }
 
+// Helper function to format AI responses with proper HTML
+function formatAIResponse(text: string): string {
+  if (!text) return '';
+  
+  // Convert markdown-style bold to HTML bold
+  let formatted = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // Convert section headers to proper formatting
+  formatted = formatted.replace(/^## (.*?)$/gm, '<h3 class="font-semibold text-base mt-4 mb-2">$1</h3>');
+  formatted = formatted.replace(/^### (.*?)$/gm, '<h4 class="font-medium text-sm mt-3 mb-1">$1</h4>');
+  
+  // Convert line breaks to HTML breaks
+  formatted = formatted.replace(/\n/g, '<br/>');
+  
+  // Convert bullet points to proper lists
+  formatted = formatted.replace(/^[•\-\*]\s+(.*?)$/gm, '<li class="ml-4">$1</li>');
+  formatted = formatted.replace(/(<li.*?<\/li>)/gs, '<ul class="list-disc list-inside space-y-1">$1</ul>');
+  
+  return formatted;
+}
+
 export function LiveWebIntelligence({ 
   communityId,
   communityName, 
@@ -58,6 +79,8 @@ export function LiveWebIntelligence({
   const [intelligence, setIntelligence] = useState<CommunityIntelligence | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasTriedLoading, setHasTriedLoading] = useState(false);
+  const [perplexityExpanded, setPerplexityExpanded] = useState(true);
+  const [claudeExpanded, setClaudeExpanded] = useState(true);
 
   // Use mutation for fetching
   const fetchIntelligence = useMutation({
@@ -96,13 +119,15 @@ export function LiveWebIntelligence({
     if (verificationReport && !intelligence) {
       console.log('Using verification report data directly:', verificationReport);
       
-      // Extract data from verification report
+      // Extract data from verification report - Now includes both AI responses
       const webIntel = verificationReport?.verificationResults?.webIntelligence || 
                       verificationReport?.webIntelligence ||
                       {};
-      const perplexityData = verificationReport?.verificationResults?.perplexityData || 
+      const perplexityData = verificationReport?.verificationResults?.perplexity || 
+                            verificationReport?.verificationResults?.perplexityData || 
                             verificationReport?.perplexityData ||
                             {};
+      const claudeData = verificationReport?.verificationResults?.claude || {};
       
       // Parse the perplexity response properly
       let parsedDescription = '';
@@ -433,7 +458,179 @@ export function LiveWebIntelligence({
     );
   }
 
-  // Display found intelligence
+  // Check if we have parallel AI results
+  const hasParallelResults = verificationReport?.verificationResults?.perplexity || verificationReport?.verificationResults?.claude;
+  
+  // If we have parallel results, show both AIs in separate sections
+  if (hasParallelResults) {
+    const perplexityData = verificationReport?.verificationResults?.perplexity;
+    const claudeData = verificationReport?.verificationResults?.claude;
+    
+    return (
+      <div className="space-y-4">
+        {/* Perplexity AI Section */}
+        {perplexityData && (
+          <Card className={cn(
+            "transition-all duration-300",
+            perplexityExpanded && "ring-2 ring-blue-500/20"
+          )}>
+            <CardHeader 
+              className="pb-4 cursor-pointer"
+              onClick={() => setPerplexityExpanded(!perplexityExpanded)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Globe className="h-6 w-6 text-blue-600" />
+                    Perplexity AI Intelligence
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Real-time web search • Updated information from across the internet
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPerplexityExpanded(!perplexityExpanded);
+                  }}
+                  className="h-8 w-8"
+                >
+                  {perplexityExpanded ? 
+                    <ChevronDown className="h-4 w-4" /> : 
+                    <ChevronRight className="h-4 w-4" />
+                  }
+                </Button>
+              </div>
+            </CardHeader>
+            
+            {perplexityExpanded && (
+              <CardContent className="space-y-4 pt-0">
+                {perplexityData.error ? (
+                  <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/10">
+                    <Info className="h-4 w-4 text-yellow-600" />
+                    <AlertDescription>
+                      Perplexity AI is temporarily unavailable. Please check back later for real-time search results.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: formatAIResponse(perplexityData.summary) }} />
+                    </div>
+                    {perplexityData.sources && perplexityData.sources.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+                        <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-2">Sources:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {perplexityData.sources.slice(0, 3).map((source: string, idx: number) => (
+                            <a 
+                              key={idx}
+                              href={source}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+                            >
+                              Source {idx + 1}
+                              <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        )}
+        
+        {/* Claude AI Section */}
+        {claudeData && (
+          <Card className={cn(
+            "transition-all duration-300",
+            claudeExpanded && "ring-2 ring-purple-500/20"
+          )}>
+            <CardHeader 
+              className="pb-4 cursor-pointer"
+              onClick={() => setClaudeExpanded(!claudeExpanded)}
+            >
+              <div className="flex items-start justify-between">
+                <div className="space-y-2">
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <Brain className="h-6 w-6 text-purple-600" />
+                    Claude AI Analysis
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Comprehensive analysis • AI-powered insights and knowledge
+                  </CardDescription>
+                </div>
+                <Button 
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setClaudeExpanded(!claudeExpanded);
+                  }}
+                  className="h-8 w-8"
+                >
+                  {claudeExpanded ? 
+                    <ChevronDown className="h-4 w-4" /> : 
+                    <ChevronRight className="h-4 w-4" />
+                  }
+                </Button>
+              </div>
+            </CardHeader>
+            
+            {claudeExpanded && (
+              <CardContent className="space-y-4 pt-0">
+                {claudeData.error ? (
+                  <Alert className="border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/10">
+                    <Info className="h-4 w-4 text-yellow-600" />
+                    <AlertDescription>
+                      Claude AI is temporarily unavailable. Please try again later.
+                    </AlertDescription>
+                  </Alert>
+                ) : (
+                  <div className="p-4 rounded-lg bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800">
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                      <div dangerouslySetInnerHTML={{ __html: formatAIResponse(claudeData.summary) }} />
+                    </div>
+                    {claudeData.sources && claudeData.sources.length > 0 && (
+                      <div className="mt-4 pt-4 border-t border-purple-200 dark:border-purple-800">
+                        <p className="text-xs font-medium text-purple-700 dark:text-purple-300 mb-2">Additional Information:</p>
+                        <p className="text-xs text-muted-foreground">
+                          This analysis is based on Claude's comprehensive knowledge base and may not reflect the most recent updates.
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
+        )}
+        
+        {/* Refresh Button */}
+        <div className="flex justify-center pt-2">
+          <Button 
+            onClick={() => {
+              setIntelligence(null);
+              setHasTriedLoading(false);
+              fetchIntelligence.mutate();
+            }}
+            variant="outline"
+            size="sm"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh Both AI Analyses
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  
+  // Display found intelligence (fallback to original display if no parallel results)
   return (
     <Card className={cn(
       "transition-all duration-300",
@@ -447,7 +644,7 @@ export function LiveWebIntelligence({
               AI Generated Community Overview
             </CardTitle>
             <CardDescription className="text-sm">
-              Verified information from web sources • Powered by Perplexity AI
+              Verified information from web sources • Powered by AI
             </CardDescription>
           </div>
           <Button 

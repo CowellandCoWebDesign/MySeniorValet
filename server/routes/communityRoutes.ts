@@ -40,7 +40,7 @@ export function registerCommunityRoutes(app: Express) {
         .select({ count: sql`count(*)` })
         .from(communities);
       
-      res.json({ count: count.toString() });
+      res.json({ count: String(count) });
     } catch (error) {
       console.error("Error getting community count:", error);
       res.status(500).json({ error: "Failed to get community count" });
@@ -278,12 +278,12 @@ export function registerCommunityRoutes(app: Express) {
       if (subtypes) {
         const subtypeArray = (subtypes as string).split(',');
         conditions.push(
-          inArray(communities.communitySubtype, subtypeArray)
+          inArray(communities.communitySubtype as any, subtypeArray)
         );
       }
 
       if (conditions.length > 0) {
-        query = query.where(and(...conditions));
+        query = query.where(and(...conditions)) as any;
       }
 
       const result = await query
@@ -535,10 +535,10 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
-            gte(communities.latitude, south),
-            lte(communities.latitude, north),
-            gte(communities.longitude, west),
-            lte(communities.longitude, east)
+            sql`CAST(${communities.latitude} AS DECIMAL) >= ${south}`,
+            sql`CAST(${communities.latitude} AS DECIMAL) <= ${north}`,
+            sql`CAST(${communities.longitude} AS DECIMAL) >= ${west}`,
+            sql`CAST(${communities.longitude} AS DECIMAL) <= ${east}`
           )
         )
         .limit(1000);
@@ -595,7 +595,7 @@ export function registerCommunityRoutes(app: Express) {
             pricingForData = `$${Math.round(numericPrice)}/month`;
           }
         } else if (community.priceRange && typeof community.priceRange === 'object') {
-          monthlyRent = community.priceRange.monthly_rent || community.priceRange.monthlyRent;
+          monthlyRent = (community.priceRange as any).monthly_rent || (community.priceRange as any).monthlyRent;
           if (monthlyRent) {
             priceDisplay = `$${monthlyRent}`;
             pricingForData = `$${monthlyRent}/month`;
@@ -639,8 +639,8 @@ export function registerCommunityRoutes(app: Express) {
         );
 
       res.json({ 
-        total: parseInt(hudCount[0].count),
-        withPricing: parseInt(hudWithPricing[0].count)
+        total: parseInt(String(hudCount[0].count)),
+        withPricing: parseInt(String(hudWithPricing[0].count))
       });
     } catch (error) {
       console.error("Error fetching HUD count:", error);
@@ -681,9 +681,9 @@ export function registerCommunityRoutes(app: Express) {
           )
         );
 
-      const totalCommunities = parseInt(totalCount[0].count);
-      const communitiesWithPricing = parseInt(withPricingCount[0].count);
-      const hudCommunitiesWithPricing = parseInt(hudWithPricing[0].count);
+      const totalCommunities = parseInt(String(totalCount[0].count));
+      const communitiesWithPricing = parseInt(String(withPricingCount[0].count));
+      const hudCommunitiesWithPricing = parseInt(String(hudWithPricing[0].count));
       const pricingCoveragePercentage = Math.round((communitiesWithPricing / totalCommunities) * 100);
 
       res.json({ 
@@ -852,7 +852,10 @@ export function registerCommunityRoutes(app: Express) {
             lastUpdated: enrichmentResult.lastUpdated,
             searchContent: enrichmentResult.searchResults?.summary,
             sources: enrichmentResult.searchResults?.sources || []
-          }
+          },
+          // Include parallel AI results if available
+          perplexity: enrichmentResult.parallelSearchResults?.perplexity,
+          claude: enrichmentResult.parallelSearchResults?.claude
         },
         
         // Consensus data

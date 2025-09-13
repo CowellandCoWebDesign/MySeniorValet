@@ -42,6 +42,24 @@ interface SimpleEnrichmentResult {
     summary: string;
     sources: string[];
   };
+  
+  // Parallel AI results
+  parallelSearchResults?: {
+    perplexity?: {
+      summary: string;
+      sources: string[];
+      images?: string[];
+      aiService: string;
+      error?: string;
+    };
+    claude?: {
+      summary: string;
+      sources: string[];
+      images?: string[];
+      aiService: string;
+      error?: string;
+    };
+  };
 }
 
 export class SimpleEnrichmentService {
@@ -76,12 +94,24 @@ export class SimpleEnrichmentService {
     
     console.log(`🔍 Starting simple enrichment for ${community.name}`);
     
-    // Step 3: Search for community information (single Perplexity call)
+    // Step 3: Search for community information (parallel Perplexity and Claude calls)
     const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
     
     let searchResults;
+    let parallelResults;
     try {
-      searchResults = await perplexityService.searchRealTime(searchQuery);
+      // Get both AI responses in parallel
+      parallelResults = await perplexityService.searchRealTimeParallel(searchQuery);
+      
+      // Use Perplexity as primary if available, otherwise use Claude
+      if (parallelResults.perplexity && !parallelResults.perplexity.error) {
+        searchResults = parallelResults.perplexity;
+      } else if (parallelResults.claude) {
+        searchResults = parallelResults.claude;
+      } else {
+        // Return minimal data if both fail
+        return this.createMinimalResult(community);
+      }
     } catch (error) {
       console.error('Search failed:', error);
       // Return minimal data if search fails
@@ -98,7 +128,7 @@ export class SimpleEnrichmentService {
       community.name
     );
     
-    // Step 6: Build simple result with enhanced photo sources
+    // Step 6: Build simple result with enhanced photo sources and parallel AI results
     const result: SimpleEnrichmentResult = {
       communityId: community.id,
       communityName: community.name,
@@ -112,7 +142,8 @@ export class SimpleEnrichmentService {
       searchResults: {
         summary: searchResults.summary || '',
         sources: searchResults.sources || [] // Keep the original Perplexity sources for display
-      }
+      },
+      parallelSearchResults: parallelResults // Include both AI responses
     };
     
     // Step 7: Cache the result
