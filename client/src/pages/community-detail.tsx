@@ -616,7 +616,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <Globe className="w-5 h-5 mr-2 text-indigo-600" />
                     What We Found About {community?.name}
                   </h4>
-                  <p className="text-xs text-muted-foreground">Powered by {verificationReport?.aiService || 'AI Intelligence'}</p>
+                  <p className="text-xs text-muted-foreground">Powered by {localVerificationReport?.aiService || 'AI Intelligence'}</p>
                 </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search
