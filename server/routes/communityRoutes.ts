@@ -793,27 +793,50 @@ export function registerCommunityRoutes(app: Express) {
       
       let grokResponse = null;
       let geminiResponse = null;
+      let deepseekResponse = null;
       
       if (community) {
         const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
         
-        // Call Grok AI
-        try {
-          const { GrokAIService } = await import('../grok-ai-service');
-          grokResponse = await GrokAIService.searchAndAnalyze(searchQuery);
-        } catch (error) {
-          console.error('Grok service error:', error);
-          grokResponse = { success: false, error: 'Grok service unavailable' };
-        }
+        // Call all AI services in parallel for faster response
+        const aiPromises = [];
         
-        // Call Gemini AI
-        try {
-          const { GeminiAIService } = await import('../gemini-ai-service');
-          geminiResponse = await GeminiAIService.searchAndAnalyze(searchQuery);
-        } catch (error) {
-          console.error('Gemini service error:', error);
-          geminiResponse = { success: false, error: 'Gemini service unavailable' };
-        }
+        // Grok AI
+        aiPromises.push(
+          import('../grok-ai-service').then(({ GrokAIService }) => 
+            GrokAIService.searchAndAnalyze(searchQuery)
+          ).catch(error => {
+            console.error('Grok service error:', error);
+            return { success: false, error: 'Grok service unavailable' };
+          })
+        );
+        
+        // Gemini AI
+        aiPromises.push(
+          import('../gemini-ai-service').then(({ GeminiAIService }) => 
+            GeminiAIService.searchAndAnalyze(searchQuery)
+          ).catch(error => {
+            console.error('Gemini service error:', error);
+            return { success: false, error: 'Gemini service unavailable' };
+          })
+        );
+        
+        // DeepSeek AI
+        aiPromises.push(
+          import('../deepseek-ai-service').then(({ DeepSeekAIService }) => 
+            DeepSeekAIService.searchAndAnalyze(searchQuery)
+          ).catch(error => {
+            console.error('DeepSeek service error:', error);
+            return { success: false, error: 'DeepSeek service unavailable' };
+          })
+        );
+        
+        // Wait for all AI services to respond
+        const [grokResult, geminiResult, deepseekResult] = await Promise.allSettled(aiPromises);
+        
+        grokResponse = grokResult.status === 'fulfilled' ? grokResult.value : { success: false, error: 'Grok failed' };
+        geminiResponse = geminiResult.status === 'fulfilled' ? geminiResult.value : { success: false, error: 'Gemini failed' };
+        deepseekResponse = deepseekResult.status === 'fulfilled' ? deepseekResult.value : { success: false, error: 'DeepSeek failed' };
       }
       
       // Update database with discovered information
@@ -903,6 +926,17 @@ export function registerCommunityRoutes(app: Express) {
             summary: 'Gemini AI is temporarily unavailable. Please check back later.',
             aiService: 'Google Gemini',
             error: geminiResponse?.error
+          },
+          deepseek: deepseekResponse?.success ? {
+            summary: deepseekResponse.content,
+            aiService: 'DeepSeek R1',
+            model: deepseekResponse.model,
+            costSavings: deepseekResponse.costSavings,
+            timestamp: deepseekResponse.timestamp
+          } : {
+            summary: 'DeepSeek AI is temporarily unavailable. Please check back later.',
+            aiService: 'DeepSeek R1',
+            error: deepseekResponse?.error
           }
         },
         
