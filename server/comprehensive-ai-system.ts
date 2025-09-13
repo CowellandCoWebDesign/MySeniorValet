@@ -98,7 +98,7 @@ Provide comprehensive analysis focusing on:
 Return JSON with detailed reasoning for each community.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -123,7 +123,7 @@ Analyze:
 Return detailed JSON care plan with timeline and budget projections.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -149,7 +149,7 @@ Identify:
 Return comprehensive risk analysis with specific concerns and recommendations.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -300,7 +300,7 @@ Determine:
 Provide care level recommendations with medical reasoning.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -326,7 +326,7 @@ Create:
 Ensure all voices are heard and decisions are collaborative.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }]
     });
@@ -354,7 +354,7 @@ Develop:
 Make transition as smooth as possible for senior and family.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 2000,
       messages: [{ role: 'user', content: prompt }]
     });

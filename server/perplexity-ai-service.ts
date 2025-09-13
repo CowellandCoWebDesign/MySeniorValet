@@ -1,14 +1,13 @@
 import axios from 'axios';
 import Anthropic from '@anthropic-ai/sdk';
-import { ChatGPTIntelligenceService } from './openai-intelligence';
 
 // Initialize Claude as fallback
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!
 });
 
-// Use Claude 3.5 Sonnet for reliable quality
-const CLAUDE_MODEL = "claude-3-5-sonnet-20241022";
+// Use the latest Claude model
+const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
 export interface PerplexityResponse {
   id: string;
@@ -32,16 +31,14 @@ export class PerplexityAIService {
   private apiKey: string;
   private baseUrl = 'https://api.perplexity.ai/chat/completions';
   private claudeApiKey: string;
-  private openaiApiKey: string;
   
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || '';
     this.claudeApiKey = process.env.ANTHROPIC_API_KEY || '';
-    this.openaiApiKey = process.env.OPENAI_API_KEY || '';
   }
 
   isConfigured(): boolean {
-    return !!this.apiKey || !!this.claudeApiKey || !!this.openaiApiKey;
+    return !!this.apiKey || !!this.claudeApiKey;
   }
 
   async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
@@ -90,7 +87,7 @@ export class PerplexityAIService {
     };
   }
 
-  // New method to call all three AIs in parallel
+  // New method to call both AIs in parallel
   async searchRealTimeParallel(query: string, context?: string): Promise<{
     perplexity?: {
       summary: string;
@@ -106,19 +103,11 @@ export class PerplexityAIService {
       aiService: string;
       error?: string;
     };
-    chatgpt?: {
-      summary: string;
-      sources: string[];
-      images?: string[];
-      aiService: string;
-      error?: string;
-    };
   }> {
     console.log('🔍 Starting parallel AI search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
     console.log('   Perplexity configured:', !!this.apiKey);
     console.log('   Claude configured:', !!this.claudeApiKey);
-    console.log('   ChatGPT configured:', !!this.openaiApiKey);
 
     const promises: Promise<any>[] = [];
     const results: any = {};
@@ -171,35 +160,11 @@ export class PerplexityAIService {
       );
     }
 
-    // Add ChatGPT promise if configured
-    if (this.openaiApiKey) {
-      promises.push(
-        ChatGPTIntelligenceService.searchCommunityWebInfo(query, context)
-          .then(result => {
-            console.log('✅ ChatGPT search successful');
-            results.chatgpt = {
-              ...result,
-              aiService: 'ChatGPT 4o'
-            };
-          })
-          .catch(error => {
-            console.error('❌ ChatGPT API failed:', error.message);
-            results.chatgpt = {
-              summary: 'ChatGPT is temporarily unavailable. Please try again later.',
-              sources: [],
-              images: [],
-              aiService: 'ChatGPT 4o',
-              error: error.message
-            };
-          })
-      );
-    }
-
     // Wait for all promises to settle
     await Promise.allSettled(promises);
 
-    // If no services are configured, return empty results
-    if (!results.perplexity && !results.claude && !results.chatgpt) {
+    // If neither service is configured, return empty results
+    if (!results.perplexity && !results.claude) {
       console.error('⚠️ No AI services configured');
       return {
         perplexity: {
@@ -213,12 +178,6 @@ export class PerplexityAIService {
           sources: [],
           images: [],
           aiService: 'Claude AI'
-        },
-        chatgpt: {
-          summary: 'ChatGPT is not configured. Contact support to enable GPT-4o insights.',
-          sources: [],
-          images: [],
-          aiService: 'ChatGPT 4o'
         }
       };
     }

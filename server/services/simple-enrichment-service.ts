@@ -59,13 +59,6 @@ interface SimpleEnrichmentResult {
       aiService: string;
       error?: string;
     };
-    chatgpt?: {
-      summary: string;
-      sources: string[];
-      images?: string[];
-      aiService: string;
-      error?: string;
-    };
   };
 }
 
@@ -101,24 +94,22 @@ export class SimpleEnrichmentService {
     
     console.log(`🔍 Starting simple enrichment for ${community.name}`);
     
-    // Step 3: Search for community information (parallel Perplexity, Claude, and ChatGPT calls)
+    // Step 3: Search for community information (parallel Perplexity and Claude calls)
     const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
     
     let searchResults;
     let parallelResults;
     try {
-      // Get all three AI responses in parallel
+      // Get both AI responses in parallel
       parallelResults = await perplexityService.searchRealTimeParallel(searchQuery);
       
-      // Use Perplexity as primary if available, then Claude, then ChatGPT
+      // Use Perplexity as primary if available, otherwise use Claude
       if (parallelResults.perplexity && !parallelResults.perplexity.error) {
         searchResults = parallelResults.perplexity;
-      } else if (parallelResults.claude && !parallelResults.claude.error) {
+      } else if (parallelResults.claude) {
         searchResults = parallelResults.claude;
-      } else if (parallelResults.chatgpt && !parallelResults.chatgpt.error) {
-        searchResults = parallelResults.chatgpt;
       } else {
-        // Return minimal data if all three fail
+        // Return minimal data if both fail
         return this.createMinimalResult(community);
       }
     } catch (error) {
