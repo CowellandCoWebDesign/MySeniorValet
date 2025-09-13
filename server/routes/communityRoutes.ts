@@ -91,8 +91,8 @@ export function registerCommunityRoutes(app: Express) {
       const trending = await db
         .select()
         .from(communities)
-        .where(gte(communities.rating, 4.0))
-        .orderBy(desc(communities.rating))
+        .where(sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`)
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(20);
 
       const enrichedTrending = await Promise.all(
@@ -186,7 +186,7 @@ export function registerCommunityRoutes(app: Express) {
             eq(communities.state, 'WA')
           )
         )
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(20);
 
       const enrichedCoastal = await Promise.all(
@@ -261,7 +261,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Rating filter
       if (rating) {
-        conditions.push(gte(communities.rating, parseFloat(rating as string)));
+        conditions.push(sql`CAST(${communities.rating} AS DECIMAL) >= ${parseFloat(rating as string)}`);
       }
 
       // Features filter
@@ -336,7 +336,7 @@ export function registerCommunityRoutes(app: Express) {
               sql`LOWER(${communities.name}) LIKE '%hawaii%'`
             )
           )
-          .orderBy(desc(communities.rating))
+          .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
           .limit(20);
       } else if (location.toLowerCase() === 'mexico') {
         // For Mexico, search for communities with Mexico in the name or Mexican cities
@@ -359,7 +359,7 @@ export function registerCommunityRoutes(app: Express) {
               sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`
             )
           )
-          .orderBy(desc(communities.rating))
+          .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
           .limit(20);
           
         // If no Mexico communities found, use Perplexity to get real-time data
@@ -456,7 +456,7 @@ export function registerCommunityRoutes(app: Express) {
               eq(communities.city, location)
             )
           )
-          .orderBy(desc(communities.rating))
+          .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
           .limit(20);
       }
       
@@ -898,7 +898,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(eq(communities.state, state as string))
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json({ communities: stateCommunities });
@@ -931,7 +931,7 @@ export function registerCommunityRoutes(app: Express) {
       }
       
       const cityCommunities = await query
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json({ communities: cityCommunities });
@@ -954,7 +954,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(eq(communities.country, country as string))
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json({ communities: countryCommunities });
@@ -971,7 +971,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(isNotNull(communities.hudPropertyId))
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json(hudProperties);
@@ -1004,7 +1004,7 @@ export function registerCommunityRoutes(app: Express) {
             eq(communities.state, 'NU')
           )
         )
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json({ communities: canadianCommunities });
@@ -1023,7 +1023,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           eq(communities.state, 'PR')
         )
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json({ communities: puertoRicoCommunities });
@@ -1042,7 +1042,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           eq(communities.country, 'Mexico')
         )
-        .orderBy(desc(communities.rating))
+        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
       res.json({ communities: mexicanCommunities });
@@ -1319,12 +1319,12 @@ export function registerCommunityRoutes(app: Express) {
 
           // Query for current availability and pricing with full context
           const careTypesStr = community.careTypes?.join(', ') || 'senior living';
-          const communityDetails = `${community.name} ${community.communityType || 'senior living'} community${community.bedCount ? ` with ${community.bedCount} beds` : ''} offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zip || ''}`;
+          const communityDetails = `${community.name} ${community.communitySubtype || 'senior living'} community offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zipCode || ''}`;
           
           const availabilityQuery = `What is the current availability and pricing at ${communityDetails}? Include: 
           1. Current monthly pricing ranges for ${careTypesStr}
           2. Any waitlist information or room availability
-          3. Market rates for similar ${community.communityType || 'senior living'} communities in ${community.city}, ${community.state}
+          3. Market rates for similar ${community.communitySubtype || 'senior living'} communities in ${community.city}, ${community.state}
           4. Pricing for different care levels (Independent Living, Assisted Living, Memory Care) if available`;
           
           const availabilityResult = await perplexityService.searchRealTime(
@@ -1335,7 +1335,7 @@ export function registerCommunityRoutes(app: Express) {
           // Query for recent news and updates with pricing focus
           const newsQuery = `What are the latest news, pricing updates, or changes at ${communityDetails}? Include: 
           1. Recent pricing changes or promotions for ${careTypesStr}
-          2. Current market rates in ${community.city}, ${community.state} for ${community.communityType || 'senior living'}
+          2. Current market rates in ${community.city}, ${community.state} for ${community.communitySubtype || 'senior living'}
           3. Any recent events, staff changes, renovations from 2024-2025
           4. Average costs for ${careTypesStr} in the ${community.state} area`;
           
@@ -1496,7 +1496,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Store contribution in audit logs for now (until we create dedicated table)
       await db.insert(auditLogs).values({
-        userId: contributorEmail, // Using email as user identifier
+        userId: null, // No authenticated user for anonymous contributions
         action: 'community_contribution',
         entityType: 'communities',
         entityId: communityId.toString(),
@@ -1567,9 +1567,9 @@ export function registerCommunityRoutes(app: Express) {
         };
 
         // Extract key information from search results
-        if (searchResults) {
+        if (searchResults && searchResults.summary) {
           // Simple parsing - in production this would be more sophisticated
-          const lines = searchResults.split('\n').filter(line => line.trim());
+          const lines = searchResults.summary.split('\n').filter(line => line.trim());
           
           // Try to identify news items
           const newsItems = lines.slice(0, 2).map(line => ({
