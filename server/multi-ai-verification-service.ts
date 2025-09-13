@@ -381,7 +381,7 @@ Respond with JSON only:
 }`;
 
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514', // Latest Claude model
+        model: 'claude-3-opus-20240229', // Claude 3 Opus - Maximum quality
         max_tokens: 1024,
         messages: [{ 
           role: 'user', 
@@ -397,7 +397,7 @@ Respond with JSON only:
       try {
         const parsed = JSON.parse(responseText);
         return {
-          source: 'Claude Sonnet 4.0',
+          source: 'Claude 3 Opus',
           verified: parsed.verified || false,
           confidence: parsed.confidence || 0,
           findings: parsed.findings || [],
@@ -407,7 +407,7 @@ Respond with JSON only:
       } catch {
         // Fallback if not valid JSON
         return {
-          source: 'Claude Sonnet 4.0',
+          source: 'Claude 3 Opus',
           verified: true,
           confidence: 75,
           findings: [responseText],

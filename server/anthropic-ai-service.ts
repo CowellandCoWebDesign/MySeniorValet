@@ -1,12 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 /*
-The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
-If the user doesn't specify a model, always prefer using "claude-sonnet-4-20250514" as it is the latest model.
+Using Claude 3 Opus (claude-3-opus-20240229) for maximum response quality.
+This is Anthropic's most powerful model, providing the highest quality responses for senior living searches.
 */
 
 // <important_do_not_delete>
-const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
+const DEFAULT_MODEL_STR = "claude-3-opus-20240229";
 // </important_do_not_delete>
 
 const anthropic = new Anthropic({

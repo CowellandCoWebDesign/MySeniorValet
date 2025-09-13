@@ -6,8 +6,8 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!
 });
 
-// Use the latest Claude model
-const CLAUDE_MODEL = "claude-sonnet-4-20250514";
+// Use Claude 3 Opus for maximum quality
+const CLAUDE_MODEL = "claude-3-opus-20240229";
 
 export interface PerplexityResponse {
   id: string;
