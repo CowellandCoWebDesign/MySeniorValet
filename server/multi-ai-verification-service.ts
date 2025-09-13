@@ -381,7 +381,7 @@ Respond with JSON only:
 }`;
 
       const response = await anthropic.messages.create({
-        model: 'claude-3-opus-20240229', // Claude 3 Opus - Maximum quality
+        model: 'claude-3-5-sonnet-20241022', // Claude 3.5 Sonnet - Reliable quality
         max_tokens: 1024,
         messages: [{ 
           role: 'user', 

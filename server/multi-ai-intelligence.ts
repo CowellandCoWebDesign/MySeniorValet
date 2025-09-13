@@ -78,7 +78,7 @@ Provide detailed reasoning and confidence scores (0-100) for each recommendation
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-opus-20240229",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }]
       });
@@ -111,7 +111,7 @@ Provide actionable timeline with cost projections.`;
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-opus-20240229",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }]
       });
@@ -181,7 +181,7 @@ Highlight RED FLAGS and provide specific recommendations.`;
 
     try {
       const response = await anthropic.messages.create({
-        model: "claude-3-opus-20240229",
+        model: "claude-3-5-sonnet-20241022",
         max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }]
       });

@@ -1,12 +1,12 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 /*
-Using Claude 3 Opus (claude-3-opus-20240229) for maximum response quality.
-This is Anthropic's most powerful model, providing the highest quality responses for senior living searches.
+Using Claude 3.5 Sonnet (claude-3-5-sonnet-20241022) for high-quality responses.
+This is Anthropic's latest stable model, providing reliable responses for senior living searches.
 */
 
 // <important_do_not_delete>
-const DEFAULT_MODEL_STR = "claude-3-opus-20240229";
+const DEFAULT_MODEL_STR = "claude-3-5-sonnet-20241022";
 // </important_do_not_delete>
 
 const anthropic = new Anthropic({
