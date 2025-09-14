@@ -1429,7 +1429,6 @@ export function registerAdminRoutes(app: Express) {
         totalCost: 12.40,
         breakdown: {
           perplexity: { calls: 150, cost: 5.20 },
-          openai: { calls: 75, cost: 3.80 },
           claude: { calls: 45, cost: 2.10 },
           sendgrid: { calls: 200, cost: 1.30 }
         },

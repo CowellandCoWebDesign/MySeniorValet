@@ -1209,7 +1209,7 @@ export function registerAIRoutes(app: Express) {
           break;
         case 'medical':
           result = {
-            ai: 'ChatGPT 5.0 Medical',
+            ai: 'Claude Medical Analysis',
             specialty: 'Healthcare Quality',
             analysis: 'Medical services and staff credentials verified',
             ratings: { medicalCare: 4.8, staffing: 4.6, emergency: 4.9 },

@@ -80,7 +80,6 @@ router.get('/api/test/discovery-mode', async (req, res) => {
 router.get('/api/test/ai-health', async (req, res) => {
   const perplexityConfigured = !!process.env.PERPLEXITY_API_KEY;
   const claudeConfigured = !!process.env.ANTHROPIC_API_KEY;
-  const openaiConfigured = !!process.env.OPENAI_API_KEY;
   
   // Test each service
   let perplexityWorking = false;
@@ -108,10 +107,6 @@ router.get('/api/test/ai-health', async (req, res) => {
         working: claudeConfigured,
         note: claudeConfigured ? 'Active as primary/fallback' : 'Not configured'
       },
-      openai: {
-        configured: openaiConfigured,
-        note: 'Available as tertiary option'
-      }
     },
     fallbackActive: !perplexityWorking && claudeConfigured,
     message: claudeConfigured ? 

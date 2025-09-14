@@ -611,7 +611,7 @@ export const NEURAL_API_TIERS: KrakenTier[] = [
     price: 4999,
     features: {
       ai_endpoints: ['all'],
-      multi_ai_access: true, // Access to Claude, ChatGPT, Perplexity
+      multi_ai_access: true, // Access to Claude, Perplexity
       neural_calls: 10000,
       response_time: 'priority',
       accuracy_level: 'enhanced',

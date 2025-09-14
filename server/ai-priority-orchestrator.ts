@@ -295,18 +295,7 @@ export class AIPriorityOrchestrator {
       }
     }
     
-    // Test ChatGPT
-    if (this.aiStatus.chatgpt) {
-      try {
-        await this.callChatGPT({ 
-          query: "Test connection", 
-          type: 'analysis' 
-        });
-        results.chatgpt = true;
-      } catch {
-        results.chatgpt = false;
-      }
-    }
+    // Service removed
     
     // Test Perplexity
     if (this.aiStatus.perplexity) {
@@ -318,18 +307,7 @@ export class AIPriorityOrchestrator {
       }
     }
     
-    // Test Gemini
-    if (this.aiStatus.gemini) {
-      try {
-        await this.callGemini({ 
-          query: "Test connection", 
-          type: 'analysis' 
-        });
-        results.gemini = true;
-      } catch {
-        results.gemini = false;
-      }
-    }
+    // Service removed
     
     // Grok status
     results.grok = grokService.getCapabilities().realTimeFactChecking;

@@ -68,7 +68,6 @@ class ProductionLaunchAudit {
       'STRIPE_SECRET_KEY',
       'VITE_STRIPE_PUBLIC_KEY',
       'SENDGRID_API_KEY',
-      'OPENAI_API_KEY',
       'PERPLEXITY_API_KEY',
       'ANTHROPIC_API_KEY',
       'SESSION_SECRET',
@@ -566,14 +565,7 @@ class ProductionLaunchAudit {
         });
       }
 
-      if (process.env.OPENAI_API_KEY) {
-        this.addResult({
-          category: 'Search',
-          test: 'AI Enhancement (OpenAI)',
-          status: 'PASS',
-          message: '✅ OpenAI integration configured'
-        });
-      }
+      // Service removed from codebase
 
     } catch (error: any) {
       this.addResult({

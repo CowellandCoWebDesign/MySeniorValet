@@ -145,11 +145,10 @@ export function registerPlatformRoutes(app: Express) {
   app.get('/api/ai/orchestra/status', async (req, res) => {
     res.json({
       status: 'operational',
-      activeProviders: ['claude', 'openai', 'perplexity'],
+      activeProviders: ['claude', 'perplexity'],
       totalProviders: 3,
       healthStatus: {
         claude: 'healthy',
-        openai: 'healthy',
         perplexity: 'healthy'
       },
       crossValidation: {

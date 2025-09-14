@@ -75,35 +75,7 @@ export class AITrackerService {
     }
   }
 
-  /**
-   * Track ChatGPT API call
-   */
-  async trackChatGPTCall(communityId: number, responseData: any, tokensUsed: number, responseTime: number) {
-    try {
-      // Track in-memory
-      trackAIUsage('chatgpt', true);
-      
-      // Store in database
-      await db.insert(communityEnrichmentHistory).values({
-        communityId,
-        enrichmentType: 'ai_analysis',
-        aiProvider: 'chatgpt',
-        dataEnriched: responseData,
-        verificationStatus: 'completed',
-        metadata: {
-          ai_provider: 'chatgpt',
-          cost: 0.002,
-          tokens_used: tokensUsed,
-          response_time: responseTime
-        }
-      });
-      
-      console.log(`📊 Tracked ChatGPT API call for community ${communityId}`);
-    } catch (error) {
-      console.error('Error tracking ChatGPT call:', error);
-      trackAIUsage('chatgpt', false);
-    }
-  }
+  // Removed tracking method for discontinued service
 
   /**
    * Get AI usage statistics for a specific time period
@@ -120,7 +92,6 @@ export class AITrackerService {
       const summary = {
         perplexity: stats.filter(s => s.aiProvider === 'perplexity').length,
         claude: stats.filter(s => s.aiProvider === 'claude').length,
-        chatgpt: stats.filter(s => s.aiProvider === 'chatgpt').length,
         totalCost: stats.reduce((sum, s) => {
           const cost = s.metadata?.cost || 0;
           return sum + cost;
