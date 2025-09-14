@@ -27,10 +27,18 @@ router.get('/api/search/unified', async (req, res) => {
       userId
     } = req.query;
     
+    // If no query, return empty results instead of 400 error
     if (!query || typeof query !== 'string') {
-      return res.status(400).json({
-        error: 'Query parameter is required',
-        _version: 'unified_v1'
+      return res.status(200).json({
+        communities: [],
+        totalResults: 0,
+        searchMetadata: {
+          query: '',
+          searchType: 'empty',
+          processingTime: 0
+        },
+        suggestions: [],
+        _version: 'unified_v1_kraken'
       });
     }
     
@@ -73,10 +81,18 @@ router.post('/api/search/unified', async (req, res) => {
       userId
     } = req.body;
     
+    // If no query, return empty results instead of 400 error
     if (!query || typeof query !== 'string') {
-      return res.status(400).json({
-        error: 'Query parameter is required',
-        _version: 'unified_v1'
+      return res.status(200).json({
+        communities: [],
+        totalResults: 0,
+        searchMetadata: {
+          query: '',
+          searchType: 'empty',
+          processingTime: 0
+        },
+        suggestions: [],
+        _version: 'unified_v1_kraken'
       });
     }
     
@@ -207,11 +223,8 @@ router.get('/api/search', async (req, res) => {
   res.redirect(`/api/search/unified?q=${encodeURIComponent(query as string)}`);
 });
 
-router.get('/api/communities/search', async (req, res) => {
-  // Redirect to unified search
-  const query = req.query.q || req.query.query || req.query.name || '';
-  res.redirect(`/api/search/unified?q=${encodeURIComponent(query as string)}`);
-});
+// REMOVED: /api/communities/search redirect - this was conflicting with the actual implementation
+// The actual implementation exists in locationRoutes.ts and communityRoutes.ts
 
 router.post('/api/ai/search', async (req, res) => {
   // Redirect to natural language search

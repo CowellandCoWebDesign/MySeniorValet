@@ -106,46 +106,11 @@ router.get("/api/locations/stats", async (req, res) => {
   }
 });
 
-// Search communities by location
-router.get("/api/communities/search", async (req, res) => {
-  try {
-    const { state, city, limit = "20", offset = "0" } = req.query;
-    
-    let conditions = [];
-    if (state) {
-      conditions.push(eq(communities.state, state as string));
-    }
-    if (city) {
-      conditions.push(eq(communities.city, city as string));
-    }
-    
-    const results = await db
-      .select()
-      .from(communities)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(
-        desc(communities.rating),
-        asc(communities.name)
-      )
-      .limit(parseInt(limit as string))
-      .offset(parseInt(offset as string));
-    
-    const total = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(communities)
-      .where(conditions.length > 0 ? and(...conditions) : undefined);
-    
-    res.json({
-      results,
-      total: total[0].count,
-      limit: parseInt(limit as string),
-      offset: parseInt(offset as string),
-    });
-  } catch (error) {
-    console.error("Error searching communities:", error);
-    res.status(500).json({ error: "Failed to search communities" });
-  }
-});
+// REMOVED: /api/communities/search endpoint
+// This endpoint has been moved to comprehensiveSearchRoutes.ts
+// to avoid conflicts and provide better search functionality
+// The comprehensive search engine supports both GET and POST,
+// handles query parameters, and provides more advanced features
 
 // Get all states for sitemap
 router.get("/api/locations/states", async (req, res) => {
