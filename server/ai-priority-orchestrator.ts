@@ -12,7 +12,7 @@
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
+// import OpenAI from 'openai'; // DISABLED: OpenAI too expensive
 // import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 import { perplexityService } from './perplexity-ai-service';
 import { grokService } from './xai-grok-integration';
@@ -22,9 +22,10 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!
 });
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!
-});
+// DISABLED: OpenAI too expensive (disabled by user request)
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY!
+// });
 
 // const genai = new GoogleGenAI({
 //   apiKey: process.env.GEMINI_API_KEY!
@@ -68,7 +69,7 @@ export class AIPriorityOrchestrator {
   constructor() {
     this.aiStatus = {
       claude: !!process.env.ANTHROPIC_API_KEY,
-      chatgpt: !!process.env.OPENAI_API_KEY,
+      chatgpt: false, // DISABLED: OpenAI too expensive
       perplexity: !!process.env.PERPLEXITY_API_KEY,
       gemini: !!process.env.GEMINI_API_KEY,
       grok: !!process.env.XAI_API_KEY
@@ -76,7 +77,7 @@ export class AIPriorityOrchestrator {
 
     console.log('🚀 AI Priority Orchestrator initialized:');
     console.log('  1️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (Primary - Web Search)' : '❌ Missing API key');
-    console.log('  2️⃣ ChatGPT:', this.aiStatus.chatgpt ? '✅ Active (Secondary - Analysis)' : '❌ Missing API key');
+    console.log('  2️⃣ ChatGPT: ❌ Disabled (too expensive)');
     console.log('  3️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Backup)' : '❌ Missing API key');
     console.log('  ❌ Gemini: Removed from orchestration');
     console.log('  ❌ Grok: Removed from orchestration');
@@ -209,31 +210,9 @@ export class AIPriorityOrchestrator {
    * Call ChatGPT-5 API (Priority 1)
    */
   private async callChatGPT(request: AIAnalysisRequest): Promise<any> {
-    try {
-      const systemPrompt = this.getSystemPrompt(request.type);
-      const userPrompt = this.buildPrompt(request);
-
-      const response = await openai.chat.completions.create({
-        model: CHATGPT_MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        response_format: { type: 'json_object' },
-        max_completion_tokens: 2000, // GPT-5 uses max_completion_tokens instead of max_tokens
-        temperature: 0.7,
-        reasoning_effort: 'medium' // New GPT-5 parameter for balanced reasoning
-      });
-
-      const content = response.choices[0]?.message?.content;
-      if (content) {
-        return JSON.parse(content);
-      }
-      return null;
-    } catch (error) {
-      console.error('ChatGPT API error:', error);
-      throw error;
-    }
+    // DISABLED: OpenAI/ChatGPT disabled - too expensive
+    console.log('❌ ChatGPT service requested but is disabled (too expensive)');
+    throw new Error('OpenAI/ChatGPT service is disabled - too expensive');
   }
 
   /**
