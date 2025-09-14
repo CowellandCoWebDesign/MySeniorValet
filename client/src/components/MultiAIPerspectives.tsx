@@ -343,7 +343,7 @@ export function MultiAIPerspectives({
             <Brain className="h-5 w-5 text-purple-600 dark:text-purple-400" />
             Multi-AI Intelligence Report
           </h3>
-          {analysis && (
+          {analysis && analysis.metadata?.timestamp && (
             <p className="text-sm text-muted-foreground mt-1">
               Last updated: {new Date(analysis.metadata.timestamp).toLocaleString()}
             </p>
