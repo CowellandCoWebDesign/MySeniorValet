@@ -6,6 +6,7 @@
 import { db } from '../db';
 import { communities, healthcareServiceTypes } from '@shared/schema';
 import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull, not } from 'drizzle-orm';
+import { MultiAIOrchestrator } from '../multi-ai-orchestrator';
 
 export interface SearchFilters {
   careTypes?: string[];
@@ -36,6 +37,25 @@ export interface SearchResult {
     fallbackMessage?: string;
     originalFiltersRequested?: SearchFilters;
     includesHealthcare?: boolean; // Indicates if healthcare results are included
+    aiConsensus?: { // Multi-AI consensus data
+      insights: string[];
+      recommendations: string[];
+      warnings: string[];
+      pricing?: {
+        average: number;
+        range: { min: number; max: number };
+        confidence: number;
+        sources: string[];
+      };
+    };
+    aiSources?: { // Which AIs contributed
+      perplexity?: boolean;
+      claude?: boolean;
+      grok?: boolean;
+      gemini?: boolean;
+      deepseek?: boolean;
+      totalResponding: number;
+    };
   };
   facets: {
     states: { name: string; count: number }[];
@@ -143,61 +163,141 @@ export class ComprehensiveSearchEngine {
       healthcareTypeFacets = healthcareResults.facets;
     }
     
-    // DISCOVERY MODE AI INTEGRATION
+    // ENHANCED DISCOVERY MODE WITH MULTI-AI ORCHESTRATOR
+    let aiConsensus: any = null;
+    let aiSources: any = null;
+    
     if (discoveryMode) {
       try {
-        // Import Perplexity service for Discovery Mode
-        const { perplexityService } = await import('../perplexity-ai-service');
+        console.log(`🚀 Discovery Mode: Engaging Multi-AI Orchestrator for query: "${query}"`);
         
-        // Construct intelligent search query for AI
-        let aiQuery = `Find senior living communities `;
-        if (query.includes(',')) {
-          aiQuery += `in ${query}`;
-        } else {
-          aiQuery += `matching "${query}"`;
-        }
-        
-        // Add filter context to AI query
-        if (filters.careTypes && filters.careTypes.length > 0) {
-          aiQuery += ` offering ${filters.careTypes.join(' or ')}`;
-        }
-        if (filters.priceMin || filters.priceMax) {
-          if (filters.priceMin && filters.priceMax) {
-            aiQuery += ` with pricing between $${filters.priceMin} and $${filters.priceMax} per month`;
-          } else if (filters.priceMin) {
-            aiQuery += ` starting from $${filters.priceMin} per month`;
-          } else {
-            aiQuery += ` under $${filters.priceMax} per month`;
+        // Use Multi-AI Orchestrator to discover communities from all 5 AI services
+        const multiAIResults = await MultiAIOrchestrator.discoverCommunities(
+          query,
+          {
+            filters,
+            careTypes: filters.careTypes,
+            priceRange: filters.priceMin || filters.priceMax ? {
+              min: filters.priceMin,
+              max: filters.priceMax
+            } : undefined
           }
-        }
+        );
         
-        aiQuery += '. 🌍 Search worldwide - include communities from any country (USA, Canada, Australia, UK, Europe, Asia, etc.). Include contact information, websites, and specify the country/location for each community found.';
-        
-        console.log(`🤖 Discovery Mode Query: ${aiQuery}`);
-        
-        // Get AI-powered suggestions with automatic fallback
-        const aiResponse = await perplexityService.searchRealTime(aiQuery);
-        
-        // Check if we got a valid response
-        if (aiResponse && aiResponse.summary) {
-          aiSuggestions = {
-            summary: aiResponse.summary,
-            sources: aiResponse.sources || [],
-            images: aiResponse.images || []
+        // Extract consensus and AI sources
+        if (multiAIResults && multiAIResults.success) {
+          // Build AI consensus data
+          aiConsensus = multiAIResults.consensus || {
+            insights: [],
+            recommendations: [],
+            warnings: []
           };
           
-          if (aiResponse.sources && aiResponse.sources.length > 0) {
-            console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
+          // Track which AIs responded
+          aiSources = {
+            perplexity: false,
+            claude: false,
+            grok: false,
+            gemini: false,
+            deepseek: false,
+            totalResponding: multiAIResults.aiSources || 0
+          };
+          
+          // Mark successful AI services
+          if (multiAIResults.metadata) {
+            const successfulServices = multiAIResults.metadata.successfulServices || 0;
+            console.log(`✨ Discovery Mode: ${successfulServices} AI services provided insights`);
+          }
+          
+          // Build AI suggestions from discovered communities
+          const discoveredCommunities = multiAIResults.communities || [];
+          
+          if (discoveredCommunities.length > 0) {
+            // Format discovered communities into readable suggestions
+            const communityList = discoveredCommunities
+              .slice(0, 10) // Limit to top 10
+              .map(c => {
+                let details = `• **${c.name}**`;
+                if (c.city) details += ` - ${c.city}`;
+                if (c.state || c.country) details += `, ${c.state || c.country}`;
+                if (c.phone) details += ` | 📞 ${c.phone}`;
+                if (c.website) details += ` | 🌐 ${c.website}`;
+                if (c.pricing) details += ` | 💰 ${c.pricing}`;
+                if (c.confidence) details += ` | Confidence: ${c.confidence}%`;
+                if (c.sources && c.sources.length > 0) {
+                  details += ` | Sources: ${c.sources.join(', ')}`;
+                }
+                return details;
+              })
+              .join('\n');
+            
+            aiSuggestions = {
+              summary: `🌍 Multi-AI Discovery found ${discoveredCommunities.length} communities worldwide:\n\n${communityList}\n\n💡 **AI Consensus:** ${aiConsensus.insights.length > 0 ? aiConsensus.insights[0] : 'Multiple AI services analyzed your search to provide these results.'}\n\n🤖 **Contributing AIs:** ${multiAIResults.aiSources} services provided data`,
+              sources: multiAIResults.sources || [],
+              images: multiAIResults.images || [],
+              communities: discoveredCommunities,
+              aiMetadata: {
+                totalFound: discoveredCommunities.length,
+                aiSources: multiAIResults.aiSources,
+                consensus: aiConsensus
+              }
+            };
+            
+            discoveryMessage = `🔮 Multi-AI Discovery Mode: ${multiAIResults.aiSources} AI services searched worldwide to find ${discoveredCommunities.length} communities matching your criteria.`;
           } else {
-            console.log(`✨ Discovery Mode provided AI-generated suggestions`);
+            // No communities found even with multi-AI search
+            aiSuggestions = {
+              summary: `Multi-AI search completed across ${multiAIResults.aiSources} services. No exact matches found for "${query}". Try:\n• Searching for nearby cities\n• Using broader search terms\n• Contacting communities directly for availability`,
+              sources: [],
+              images: [],
+              communities: []
+            };
+            
+            discoveryMessage = `🔮 Multi-AI Discovery Mode: ${multiAIResults.aiSources} AI services searched but found no exact matches. Try adjusting your search criteria.`;
           }
         } else {
-          console.log('⚠️ Discovery Mode: AI response was empty, using fallback message');
-          aiSuggestions = {
-            summary: `AI search is temporarily unavailable. Please try searching with more specific terms or contact communities directly for information.`,
-            sources: [],
-            images: []
-          };
+          // Fallback to original Perplexity-only approach if Multi-AI fails
+          console.log('⚠️ Multi-AI Orchestrator failed, falling back to Perplexity');
+          const { perplexityService } = await import('../perplexity-ai-service');
+          
+          let aiQuery = `Find senior living communities `;
+          if (query.includes(',')) {
+            aiQuery += `in ${query}`;
+          } else {
+            aiQuery += `matching "${query}"`;
+          }
+          
+          if (filters.careTypes && filters.careTypes.length > 0) {
+            aiQuery += ` offering ${filters.careTypes.join(' or ')}`;
+          }
+          if (filters.priceMin || filters.priceMax) {
+            if (filters.priceMin && filters.priceMax) {
+              aiQuery += ` with pricing between $${filters.priceMin} and $${filters.priceMax} per month`;
+            } else if (filters.priceMin) {
+              aiQuery += ` starting from $${filters.priceMin} per month`;
+            } else {
+              aiQuery += ` under $${filters.priceMax} per month`;
+            }
+          }
+          
+          aiQuery += '. 🌍 Search worldwide - include communities from any country (USA, Canada, Australia, UK, Europe, Asia, etc.). Include contact information, websites, and specify the country/location for each community found.';
+          
+          const aiResponse = await perplexityService.searchRealTime(aiQuery);
+          
+          if (aiResponse && aiResponse.summary) {
+            aiSuggestions = {
+              summary: aiResponse.summary,
+              sources: aiResponse.sources || [],
+              images: aiResponse.images || []
+            };
+            aiSources = { perplexity: true, totalResponding: 1 };
+          } else {
+            aiSuggestions = {
+              summary: `AI search is temporarily unavailable. Please try searching with more specific terms or contact communities directly for information.`,
+              sources: [],
+              images: []
+            };
+          }
         }
       } catch (error: any) {
         console.error('🚨 Discovery Mode error:', error.message);
@@ -211,6 +311,71 @@ export class ComprehensiveSearchEngine {
           sources: [],
           images: []
         };
+        aiSources = { totalResponding: 0 };
+      }
+    }
+    
+    // PRICING ANALYSIS: Use Multi-AI for pricing queries
+    if (!discoveryMode && intentScores && intentScores.price > 0.5 && results.length > 0) {
+      try {
+        console.log(`💰 Detected pricing search, analyzing with Multi-AI Orchestrator`);
+        
+        // Analyze pricing for top results
+        const topCommunities = results.slice(0, 3);
+        const pricingPromises = topCommunities.map(community => 
+          MultiAIOrchestrator.analyzePricing(community)
+        );
+        
+        const pricingResults = await Promise.allSettled(pricingPromises);
+        
+        // Aggregate pricing insights
+        const pricingInsights: any[] = [];
+        pricingResults.forEach((result, index) => {
+          if (result.status === 'fulfilled' && result.value.success) {
+            const community = topCommunities[index];
+            const pricing = result.value.pricing;
+            
+            // Update community with AI-analyzed pricing
+            if (pricing) {
+              community.aiPricing = {
+                average: pricing.average,
+                median: pricing.median,
+                range: { min: pricing.min, max: pricing.max },
+                confidence: pricing.confidence,
+                aiServices: pricing.aiServices,
+                lastUpdated: new Date().toISOString()
+              };
+              
+              pricingInsights.push({
+                community: community.name,
+                pricing: `$${pricing.min.toLocaleString()} - $${pricing.max.toLocaleString()}/month`,
+                confidence: `${pricing.confidence}%`,
+                sources: pricing.sources?.length || 0
+              });
+            }
+          }
+        });
+        
+        // Add pricing insights to consensus
+        if (pricingInsights.length > 0) {
+          if (!aiConsensus) {
+            aiConsensus = { insights: [], recommendations: [], warnings: [] };
+          }
+          aiConsensus.insights.push(
+            `AI-analyzed pricing for ${pricingInsights.length} communities based on multiple sources`
+          );
+          aiConsensus.pricing = {
+            communities: pricingInsights,
+            lastAnalyzed: new Date().toISOString()
+          };
+          
+          if (!aiSources) {
+            aiSources = { totalResponding: 0 };
+          }
+          aiSources.pricingAnalysis = true;
+        }
+      } catch (error) {
+        console.error('Pricing analysis error:', error);
       }
     }
     
@@ -228,6 +393,9 @@ export class ComprehensiveSearchEngine {
         fallbackMessage: discoveryMode ? discoveryMessage : undefined,
         originalFiltersRequested: discoveryMode ? originalFilters : undefined,
         includesHealthcare: isHealthcareSearch,
+        // Add AI consensus and sources
+        aiConsensus: aiConsensus || undefined,
+        aiSources: aiSources || undefined,
         // Add AI suggestions as part of extended metadata
         ...(discoveryMode && aiSuggestions ? { aiSuggestions } : {})
       } as any,
