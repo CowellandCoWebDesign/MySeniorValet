@@ -199,6 +199,18 @@ export class SimpleEnrichmentService {
   }
   
   /**
+   * Validate if a string is a valid URL
+   */
+  private isValidUrl(urlString: string): boolean {
+    try {
+      const url = new URL(urlString);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  }
+  
+  /**
    * Extract photos from Perplexity search results
    */
   private async extractPhotosFromSearch(
@@ -209,8 +221,11 @@ export class SimpleEnrichmentService {
     const photos = [];
     const sources = searchResults.sources || [];
     
-    // Extract photos from Perplexity sources
-    for (const source of sources.slice(0, 3)) { // Check first 3 sources
+    // Filter out non-URL sources (like "Claude AI Analysis" text)
+    const validUrls = sources.filter((source: string) => this.isValidUrl(source));
+    
+    // Extract photos from valid URLs only
+    for (const source of validUrls.slice(0, 3)) { // Check first 3 valid sources
       try {
         // Extract domain name for source attribution
         let sourceName = 'website';
@@ -236,8 +251,8 @@ export class SimpleEnrichmentService {
       }
     }
     
-    // Also try the official website if different from sources
-    if (website && !sources.includes(website)) {
+    // Also try the official website if it's a valid URL and different from sources
+    if (website && this.isValidUrl(website) && !validUrls.includes(website)) {
       try {
         let websiteName = 'official-website';
         try {
@@ -261,90 +276,57 @@ export class SimpleEnrichmentService {
       }
     }
     
-    // If still no photos, generate realistic CDN URLs from known directory patterns
+    // If still no photos, use placeholder photos instead of generating fake URLs
     if (photos.length === 0) {
-      const directoryPhotos = this.generateDirectoryPhotos(communityName, sources);
-      photos.push(...directoryPhotos);
+      const placeholderPhotos = this.getPlaceholderPhotos(communityName);
+      photos.push(...placeholderPhotos);
     }
     
     return photos.slice(0, 15); // Return up to 15 photos
   }
   
   /**
-   * Generate realistic directory photos when scraping fails
+   * Get placeholder photos when no real photos are available
    */
-  private generateDirectoryPhotos(communityName: string, sources: string[]): any[] {
-    const photos = [];
-    const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+  private getPlaceholderPhotos(communityName: string): any[] {
+    // Use actual static images from the public folder or attached assets
+    const placeholderUrls = [
+      '/hero-senior-community.svg',
+      '/hero-gentleman-stars.jpg',
+      '/starry-night-hero.png',
+      '/community-placeholder-1.jpg',
+      '/community-placeholder-2.jpg',
+      '/community-placeholder-3.jpg'
+    ];
     
-    // Check if any directory sites are in sources
-    for (const source of sources) {
-      const sourceLower = source.toLowerCase();
-      
-      if (sourceLower.includes('caring.com')) {
-        photos.push(
-          {
-            url: `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/${communitySlug}/exterior.jpg`,
-            source: 'caring.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/${communitySlug}/lobby.jpg`,
-            source: 'caring.com',
-            isAuthentic: true
-          }
-        );
-      } else if (sourceLower.includes('seniorhomes.com')) {
-        photos.push(
-          {
-            url: `https://images.seniorhomes.com/photos/${communitySlug}/front-entrance.jpg`,
-            source: 'seniorhomes.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://images.seniorhomes.com/photos/${communitySlug}/dining-room.jpg`,
-            source: 'seniorhomes.com',
-            isAuthentic: true
-          }
-        );
-      } else if (sourceLower.includes('seniorly.com')) {
-        photos.push(
-          {
-            url: `https://images.seniorly.com/community-photos/${communitySlug}-exterior.webp`,
-            source: 'seniorly.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://images.seniorly.com/community-photos/${communitySlug}-common.webp`,
-            source: 'seniorly.com',
-            isAuthentic: true
-          }
-        );
-      } else if (sourceLower.includes('aplaceformom.com')) {
-        photos.push(
-          {
-            url: `https://images.aplaceformom.com/communities/${communitySlug}/exterior.jpg`,
-            source: 'aplaceformom.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://images.aplaceformom.com/communities/${communitySlug}/interior.jpg`,
-            source: 'aplaceformom.com',
-            isAuthentic: true
-          }
-        );
-      }
-    }
+    // Return subset of placeholders to vary the display
+    const startIdx = Math.abs(communityName.length % 3);
+    const selectedPlaceholders = placeholderUrls.slice(startIdx, startIdx + 3);
     
-    return photos;
+    return selectedPlaceholders.map(url => ({
+      url,
+      source: 'placeholder',
+      isAuthentic: false
+    }));
   }
   
   /**
-   * Simple website photo scraper
+   * Simple website photo scraper with validation
    */
   private async scrapeWebsitePhotos(url: string): Promise<string[]> {
+    // Validate URL before attempting to fetch
+    if (!this.isValidUrl(url)) {
+      console.log(`⚠️ Invalid URL for photo scraping: ${url}`);
+      return [];
+    }
+    
     try {
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        timeout: 5000, // 5 second timeout
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; MSVBot/1.0)'
+        }
+      } as any);
       const html = await response.text();
       
       // Simple image extraction
