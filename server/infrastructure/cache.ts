@@ -81,6 +81,21 @@ export class ScalableCache {
     return true;
   }
 
+  /**
+   * Get time to live for a cache entry in milliseconds
+   */
+  getTimeToLive(key: string): number {
+    if (this.isDevelopment) {
+      return 0;
+    }
+
+    const entry = this.cache.get(key);
+    if (!entry) return 0;
+
+    const ttl = entry.expiresAt - Date.now();
+    return ttl > 0 ? ttl : 0;
+  }
+
   delete(key: string): boolean {
     return this.cache.delete(key);
   }

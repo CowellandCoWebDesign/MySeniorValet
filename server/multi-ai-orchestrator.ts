@@ -9,6 +9,7 @@ import { AnthropicAIService } from './anthropic-ai-service';
 import { GrokAIService } from './grok-ai-service';
 import { GeminiAIService } from './gemini-ai-service';
 import { DeepSeekAIService } from './deepseek-ai-service';
+import { ScalableCache } from './infrastructure/cache';
 
 // Create instances of AI services (only for services that use instance methods)
 const perplexityService = new PerplexityAIService();
@@ -16,6 +17,12 @@ const anthropicService = new AnthropicAIService();
 
 // Default timeout for AI services (10 seconds)
 const DEFAULT_AI_TIMEOUT = 10000;
+
+// Cache for AI responses - 5 minute TTL to prevent duplicate calls
+const aiResponseCache = new ScalableCache(1000, 5 * 60 * 1000);
+
+// Track AI calls in progress to prevent concurrent duplicate calls
+const aiCallsInProgress = new Map<string, Promise<MultiAIResult>>();
 
 export interface AIResponse {
   service: string;
@@ -124,9 +131,42 @@ export class MultiAIOrchestrator {
   }
 
   /**
-   * Execute search across all 5 AI services in parallel with timeout handling
+   * Execute search across all 5 AI services in parallel with timeout handling and caching
    */
   static async searchAllAIs(query: string, context?: any): Promise<MultiAIResult> {
+    // Generate cache key based on query
+    const cacheKey = `ai_multi:${query.substring(0, 100)}`;
+    
+    // Check if a call is already in progress for this query
+    if (aiCallsInProgress.has(cacheKey)) {
+      console.log(`⏳ Multi-AI call already in progress for query, waiting...`);
+      return aiCallsInProgress.get(cacheKey)!;
+    }
+    
+    // Check cache first
+    const cached = aiResponseCache.get<MultiAIResult>(cacheKey);
+    if (cached) {
+      console.log(`✅ Using cached Multi-AI response (5-minute cache)`);
+      return cached;
+    }
+    
+    // Create promise for this AI call and track it
+    const aiCallPromise = this.performSearchAllAIs(query, context, cacheKey);
+    aiCallsInProgress.set(cacheKey, aiCallPromise);
+    
+    try {
+      const result = await aiCallPromise;
+      return result;
+    } finally {
+      // Clean up tracking
+      aiCallsInProgress.delete(cacheKey);
+    }
+  }
+  
+  /**
+   * Perform the actual multi-AI search
+   */
+  private static async performSearchAllAIs(query: string, context: any, cacheKey: string): Promise<MultiAIResult> {
     const startTime = Date.now();
     console.log(`🚀 Multi-AI Orchestrator: Processing query across 5 AI services with ${DEFAULT_AI_TIMEOUT}ms timeout`);
     
@@ -209,7 +249,7 @@ export class MultiAIOrchestrator {
       console.log(`⚠️ Returning partial results from ${successCount}/${aiServices.length} services`);
     }
     
-    return {
+    const result: MultiAIResult = {
       query,
       responses,
       consensus,
@@ -222,6 +262,14 @@ export class MultiAIOrchestrator {
         partialResults
       }
     };
+    
+    // Cache the result if we got at least one successful response
+    if (successCount > 0) {
+      aiResponseCache.set(cacheKey, result);
+      console.log(`💾 Cached multi-AI response for 5 minutes`);
+    }
+    
+    return result;
   }
   
   /**

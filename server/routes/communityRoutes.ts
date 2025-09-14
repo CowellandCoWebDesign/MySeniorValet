@@ -938,55 +938,44 @@ export function registerCommunityRoutes(app: Express) {
         forceRefresh || false
       );
       
-      // Additionally call Grok and Gemini for enhanced multi-AI perspectives
-      const [community] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
-      
+      // Extract additional AI perspectives from the enrichment result
+      // The simpleEnrichmentService already calls multiple AIs (Perplexity and Claude)
+      // And we have cached results, so we don't need to call them again
       let grokResponse = null;
       let geminiResponse = null;
       let deepseekResponse = null;
       
-      if (community) {
-        const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
+      // Check if we already have multi-AI results from the enrichment
+      const parallelResults = enrichmentResult.parallelSearchResults;
+      if (parallelResults) {
+        // We already have these results from the enrichment service
+        console.log(`✅ Using existing multi-AI results from enrichment service`);
         
-        // Call all AI services in parallel for faster response
-        const aiPromises = [];
+        // Map the existing results to expected format
+        if (parallelResults.perplexity) {
+          // Already handled by enrichmentResult
+        }
+        if (parallelResults.claude) {
+          // Already handled by enrichmentResult
+        }
+      } else if (!forceRefresh) {
+        // Only call additional AIs if we don't have cached results and not forcing refresh
+        // Use the multi-AI orchestrator which has its own caching
+        const [community] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
         
-        // Grok AI
-        aiPromises.push(
-          import('../grok-ai-service').then(({ GrokAIService }) => 
-            GrokAIService.searchAndAnalyze(searchQuery)
-          ).catch(error => {
-            console.error('Grok service error:', error);
-            return { success: false, error: 'Grok service unavailable' };
-          })
-        );
-        
-        // Gemini AI
-        aiPromises.push(
-          import('../gemini-ai-service').then(({ GeminiAIService }) => 
-            GeminiAIService.searchAndAnalyze(searchQuery)
-          ).catch(error => {
-            console.error('Gemini service error:', error);
-            return { success: false, error: 'Gemini service unavailable' };
-          })
-        );
-        
-        // DeepSeek AI
-        aiPromises.push(
-          import('../deepseek-ai-service').then(({ DeepSeekAIService }) => 
-            DeepSeekAIService.searchAndAnalyze(searchQuery)
-          ).catch(error => {
-            console.error('DeepSeek service error:', error);
-            return { success: false, error: 'DeepSeek service unavailable' };
-          })
-        );
-        
-        // Wait for all AI services to respond
-        const [grokResult, geminiResult, deepseekResult] = await Promise.allSettled(aiPromises);
-        
-        grokResponse = grokResult.status === 'fulfilled' ? grokResult.value : { success: false, error: 'Grok failed' };
-        geminiResponse = geminiResult.status === 'fulfilled' ? geminiResult.value : { success: false, error: 'Gemini failed' };
-        deepseekResponse = deepseekResult.status === 'fulfilled' ? deepseekResult.value : { success: false, error: 'DeepSeek failed' };
+        if (community) {
+          const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
+          
+          // Use the MultiAIOrchestrator which has caching built-in
+          const multiAIResult = await MultiAIOrchestrator.searchAllAIs(searchQuery, community);
+          
+          // Extract individual responses
+          grokResponse = multiAIResult.responses.grok || { success: false, error: 'Grok unavailable' };
+          geminiResponse = multiAIResult.responses.gemini || { success: false, error: 'Gemini unavailable' };
+          deepseekResponse = multiAIResult.responses.deepseek || { success: false, error: 'DeepSeek unavailable' };
+          
+          console.log(`🤖 Multi-AI responses: Grok=${grokResponse.success}, Gemini=${geminiResponse.success}, DeepSeek=${deepseekResponse.success}`);
+        }
       }
       
       // Update database with discovered information

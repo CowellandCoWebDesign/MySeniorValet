@@ -9,8 +9,11 @@ import { eq } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
 import { ScalableCache } from '../infrastructure/cache';
 
-// 7-day cache (like Google) for web enrichment data with proper attribution
-const enrichmentCache = new ScalableCache(1000, 7 * 24 * 60 * 60 * 1000);
+// 5-minute cache for web enrichment data to prevent duplicate API calls
+const enrichmentCache = new ScalableCache(1000, 5 * 60 * 1000); // 5 minutes
+
+// Track enrichments in progress to prevent concurrent calls
+const enrichmentInProgress = new Map<number, Promise<SimpleEnrichmentResult>>();
 
 interface SimpleEnrichmentResult {
   communityId: number;
@@ -65,18 +68,25 @@ interface SimpleEnrichmentResult {
 export class SimpleEnrichmentService {
   
   /**
-   * Main enrichment function - simple and direct
+   * Main enrichment function - simple and direct with deduplication
    */
   async enrichCommunity(
     communityId: number,
     forceRefresh: boolean = false
   ): Promise<SimpleEnrichmentResult> {
     
-    // Step 1: Check cache
+    // Step 1: Check if enrichment is already in progress for this community
+    if (!forceRefresh && enrichmentInProgress.has(communityId)) {
+      console.log(`⏳ Enrichment already in progress for community ${communityId}, waiting...`);
+      return enrichmentInProgress.get(communityId)!;
+    }
+    
+    // Step 2: Check cache
     if (!forceRefresh) {
       const cached = enrichmentCache.get<SimpleEnrichmentResult>(`enrich:${communityId}`);
       if (cached) {
-        console.log(`✅ Using cached enrichment for community ${communityId}`);
+        const ttl = (enrichmentCache as any).getTimeToLive ? (enrichmentCache as any).getTimeToLive(`enrich:${communityId}`) : 0;
+        console.log(`✅ Using cached enrichment for community ${communityId}${ttl > 0 ? ` (expires in ${Math.round(ttl / 1000)}s)` : ''}`);
         return cached;
       }
     }
@@ -94,7 +104,24 @@ export class SimpleEnrichmentService {
     
     console.log(`🔍 Starting simple enrichment for ${community.name}`);
     
-    // Step 3: Search for community information (parallel Perplexity and Claude calls)
+    // Create a promise for this enrichment and track it
+    const enrichmentPromise = this.performEnrichment(community);
+    enrichmentInProgress.set(communityId, enrichmentPromise);
+    
+    try {
+      const result = await enrichmentPromise;
+      return result;
+    } finally {
+      // Clean up tracking
+      enrichmentInProgress.delete(communityId);
+    }
+  }
+  
+  /**
+   * Perform the actual enrichment - separated for better tracking
+   */
+  private async performEnrichment(community: any): Promise<SimpleEnrichmentResult> {
+    // Search for community information (parallel Perplexity and Claude calls)
     const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
     
     let searchResults;
@@ -146,10 +173,10 @@ export class SimpleEnrichmentService {
       parallelSearchResults: parallelResults // Include both AI responses
     };
     
-    // Step 7: Cache the result
-    enrichmentCache.set(`enrich:${communityId}`, result, 7 * 24 * 60 * 60 * 1000);
+    // Cache the result with 5-minute TTL
+    enrichmentCache.set(`enrich:${community.id}`, result);
     
-    console.log(`✅ Enrichment complete: ${photos.length} photos, ${result.verificationStatus} status`);
+    console.log(`✅ Enrichment complete: ${photos.length} photos, ${result.verificationStatus} status (cached for 5 minutes)`);
     
     return result;
   }
