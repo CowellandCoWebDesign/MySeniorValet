@@ -4,7 +4,6 @@ import { eq, isNull, sql, and, or } from 'drizzle-orm';
 import { MultiAIOrchestrator } from './multi-ai-intelligence';
 import { AnthropicAIService } from './ai-services';
 import Anthropic from '@anthropic-ai/sdk';
-import { OpenAI } from 'openai';
 
 interface EnrichmentResult {
   communityId: number;
@@ -19,12 +18,10 @@ interface EnrichmentResult {
 export class CommunityEnrichmentService {
   private multiAI: MultiAIOrchestrator;
   private anthropic: Anthropic;
-  private openai: OpenAI;
 
   constructor() {
     this.multiAI = new MultiAIOrchestrator();
     this.anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-    this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
   // Fix incomplete subtype tagging
@@ -111,14 +108,15 @@ export class CommunityEnrichmentService {
     Respond with just the subtype string, nothing else.`;
 
     try {
-      const response = await this.openai.chat.completions.create({
-        model: "gpt-4o",
+      // Use Anthropic Claude for classification
+      const response = await this.anthropic.messages.create({
+        model: "claude-3-5-sonnet-20241022",
         messages: [{ role: "user", content: prompt }],
         max_tokens: 50,
         temperature: 0.3
       });
 
-      const subtype = response.choices[0]?.message?.content?.trim();
+      const subtype = response.content[0]?.text?.trim();
       
       // Validate the response
       const validSubtypes = [
@@ -226,8 +224,8 @@ export class CommunityEnrichmentService {
     
     Write 2-3 sentences explaining what these care types mean. Use general knowledge only.`;
 
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4o",
+    const response = await this.anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 150,
       temperature: 0.7

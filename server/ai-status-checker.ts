@@ -4,18 +4,15 @@
  */
 
 import { Anthropic } from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
 
 interface AIStatus {
   claude: { working: boolean; message: string };
-  openai: { working: boolean; message: string };
   perplexity: { working: boolean; message: string };
 }
 
 export async function checkAllAIStatus(): Promise<AIStatus> {
   const results: AIStatus = {
     claude: { working: false, message: '' },
-    openai: { working: false, message: '' },
     perplexity: { working: false, message: '' }
   };
 
@@ -35,24 +32,6 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
     }
   } catch (error: any) {
     results.claude.message = error.message?.includes('credit balance') ? 'Credit balance too low' : 'API Error';
-  }
-
-  // Test OpenAI
-  try {
-    if (!process.env.OPENAI_API_KEY) {
-      results.openai.message = 'API key not found';
-    } else {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      await openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [{ role: 'user', content: 'test' }],
-        max_tokens: 10
-      });
-      results.openai.working = true;
-      results.openai.message = 'Working';
-    }
-  } catch (error: any) {
-    results.openai.message = error.message?.includes('quota') ? 'Quota exceeded' : 'API Error';
   }
 
   // Test Perplexity

@@ -1,10 +1,5 @@
-import OpenAI from 'openai';
-
-// DeepSeek uses OpenAI-compatible API
-const deepseek = new OpenAI({ 
-  baseURL: "https://api.deepseek.com", 
-  apiKey: process.env.DEEPSEEK_API_KEY! 
-});
+// DeepSeek service temporarily disabled
+const deepseek: any = null;
 
 export class DeepSeekAIService {
   static async searchAndAnalyze(query: string, context?: string): Promise<any> {
@@ -39,7 +34,7 @@ Include specific recommendations and considerations based on the query.`;
         content,
         model: 'deepseek-reasoner',
         aiService: 'DeepSeek R1',
-        costSavings: '98% cheaper than GPT-4',
+        costSavings: '98% cost savings',
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {

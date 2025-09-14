@@ -394,7 +394,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     let isVerified = false;
     let isIdentityVerified = false;
     let isNameMatch = false;
-    let chatgptVerification = null;
+    let aiVerification = null;
     let verificationError = null;
     
     // First, do a quick check if the data likely matches
@@ -417,7 +417,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       verificationScore += 15; // Care type match
     }
     
-    // If we have reasonable confidence, try ChatGPT verification but don't block on it
+    // If we have reasonable confidence, try AI verification but don't block on it
     if (verificationScore >= 50) {
       try {
         const verificationService = new MultiAIVerificationService();
@@ -441,7 +441,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         
         console.log(`🔍 Running multi-AI verification for ${communityName} (pre-score: ${verificationScore})...`);
         
-        // Use full multi-AI orchestration: Perplexity → Claude → ChatGPT
+        // Use full multi-AI orchestration: Perplexity → Claude
         const verificationPromise = verificationService.verifyRealTimeData(
           0, // communityId placeholder
           communityName, 
@@ -458,23 +458,23 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           // Extract verification results from the full orchestration
           const verificationObj = fullVerification as any;
           const claudeVerif = verificationObj.verificationResults?.claudeVerification;
-          const chatgptVerif = verificationObj.verificationResults?.chatgptVerification;
+          // ChatGPT removed from verification
           const consensus = verificationObj.consensus;
           
           // Log AI orchestration status
           console.log(`🎭 AI Orchestration Status:`, {
             perplexity: verificationObj.aiOrchestra?.perplexity?.status,
             claude: verificationObj.aiOrchestra?.claude?.status,
-            chatgpt: verificationObj.aiOrchestra?.chatgpt?.status,
+            // ChatGPT removed
             consensus: consensus?.agreementLevel
           });
           
-          // Use Claude verification if available (primary), otherwise ChatGPT (fallback)
-          chatgptVerification = claudeVerif || chatgptVerif;
+          // Use Claude verification if available
+          aiVerification = claudeVerif;
           
-          if (chatgptVerification) {
-            isIdentityVerified = chatgptVerification?.identityVerified === true;
-            isNameMatch = chatgptVerification?.nameMatch === 'exact' || chatgptVerification?.nameMatch === 'partial';
+          if (aiVerification) {
+            isIdentityVerified = aiVerification?.identityVerified === true;
+            isNameMatch = aiVerification?.nameMatch === 'exact' || aiVerification?.nameMatch === 'partial';
             isVerified = isIdentityVerified && isNameMatch;
           } else if (consensus?.confidenceScore >= 50) {
             // Use consensus if individual verifications failed
@@ -586,8 +586,8 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         videoTour: mediaAssets.videoTour
       },
       verified: true,
-      identityVerified: chatgptVerification?.identityVerified || false,
-      nameMatch: chatgptVerification?.nameMatch,
+      identityVerified: aiVerification?.identityVerified || false,
+      nameMatch: aiVerification?.nameMatch,
       pricing: extractedPricing,
       timestamp: new Date().toISOString()
     };

@@ -11,125 +11,48 @@ import { perplexityService } from "../perplexity-ai-service";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { aiPriorityOrchestrator } from "../ai-priority-orchestrator";
 import { discoveredCommunityService } from "../services/discovered-community-service";
-import OpenAI from "openai";
 
 const multiAIOrchestrator = new MultiAIOrchestrator();
 
-// Initialize OpenAI with GPT-5 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-// Generate comprehensive AI insights using ChatGPT-5
+// Generate comprehensive AI insights
 async function generateDeepCommunityInsights(communities: any[], location: string, careTypes?: string[], priceRange?: any): Promise<any> {
-  try {
-    if (!communities || communities.length === 0) {
-      return {
-        interpretation: "No communities found matching your criteria.",
-        comparativeAnalysis: null,
-        marketInsights: null
-      };
-    }
-
-    // Prepare community data for analysis
-    const communityData = communities.slice(0, 10).map(c => ({
-      name: c.name,
-      city: c.city,
-      state: c.state,
-      price: c.rentPerMonth || c.priceRange || "Contact for pricing",
-      rating: c.rating || "No rating",
-      careTypes: c.careTypes || [],
-      amenities: c.amenities || [],
-      isHUD: c.hudPropertyId ? true : false,
-      communityType: c.communitySubtype || "Traditional Senior Living"
-    }));
-
-    const prompt = `You are an expert senior living advisor analyzing real communities in ${location}. Provide deep, comparative insights about these communities:
-
-Communities Found:
-${JSON.stringify(communityData, null, 2)}
-
-Search Criteria:
-- Location: ${location}
-- Care Types: ${careTypes?.join(', ') || 'All types'}
-- Budget: ${priceRange ? `$${priceRange.min || 0} - $${priceRange.max || 'unlimited'}` : 'Flexible'}
-
-Please provide a comprehensive analysis including:
-1. Key differences between the communities
-2. Price comparison and value assessment
-3. Best matches for different care needs
-4. Location advantages of each area
-5. Hidden gems or standout features
-6. Recommendations based on the search criteria
-
-Format your response as JSON with:
-{
-  "interpretation": "User-friendly summary of what was found",
-  "comparativeAnalysis": {
-    "priceComparison": "Analysis of pricing across communities",
-    "valueLeaders": ["Top value communities and why"],
-    "premiumOptions": ["Premium communities and their benefits"],
-    "hudAffordable": ["HUD properties if available"]
-  },
-  "locationInsights": {
-    "bestNeighborhoods": ["Top areas and why"],
-    "accessibility": "Transportation and medical facility access",
-    "communityDensity": "Number of options in each area"
-  },
-  "careTypeMatch": {
-    "bestForIndependent": "Community name and reason",
-    "bestForAssisted": "Community name and reason",
-    "bestForMemoryCare": "Community name and reason"
-  },
-  "topRecommendations": [
-    {
-      "name": "Community name",
-      "strengths": ["Key advantages"],
-      "considerations": ["Things to consider"],
-      "idealFor": "Type of resident this suits best"
-    }
-  ],
-  "marketTrends": "Current market conditions and availability in the area",
-  "actionableAdvice": "Next steps for the user"
-}`;
-
-    // Using GPT-4o for secondary analysis (Claude now primary)
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [
-        {
-          role: "system",
-          content: "You are MySeniorValet's AI advisor, providing deep insights about real senior living communities. Use GPT-5's advanced reasoning to compare and analyze communities comprehensively."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      max_tokens: 2000,
-      temperature: 0.7,
-      response_format: { type: "json_object" }
-    });
-
-    const insights = JSON.parse(response.choices[0].message.content || "{}");
-    return insights;
-
-  } catch (error) {
-    console.error("Error generating deep AI insights:", error);
-    // Fallback to basic insights
+  // Return basic insights without AI analysis
+  if (!communities || communities.length === 0) {
     return {
-      interpretation: `Found ${communities.length} communities in ${location} matching your search criteria.`,
-      comparativeAnalysis: {
-        priceComparison: "Various pricing options available",
-        valueLeaders: communities.slice(0, 3).map(c => c.name),
-        premiumOptions: [],
-        hudAffordable: communities.filter(c => c.hudPropertyId).map(c => c.name)
-      },
-      topRecommendations: communities.slice(0, 3).map(c => ({
-        name: c.name,
-        strengths: ["Matches search criteria"],
-        idealFor: "Seniors seeking quality care"
-      }))
+      interpretation: "No communities found matching your criteria.",
+      comparativeAnalysis: null,
+      marketInsights: null
     };
   }
+
+  // Provide basic analysis based on data
+  return {
+    interpretation: `Found ${communities.length} communities in ${location} matching your search criteria.`,
+    comparativeAnalysis: {
+      priceComparison: "Various pricing options available",
+      valueLeaders: communities.slice(0, 3).map(c => c.name),
+      premiumOptions: [],
+      hudAffordable: communities.filter(c => c.hudPropertyId).map(c => c.name)
+    },
+    locationInsights: {
+      bestNeighborhoods: communities.slice(0, 3).map(c => c.city),
+      accessibility: "Check individual communities for details",
+      communityDensity: `${communities.length} options available`
+    },
+    careTypeMatch: {
+      bestForIndependent: communities.find(c => c.careTypes?.includes('Independent Living'))?.name || "Various options available",
+      bestForAssisted: communities.find(c => c.careTypes?.includes('Assisted Living'))?.name || "Various options available",
+      bestForMemoryCare: communities.find(c => c.careTypes?.includes('Memory Care'))?.name || "Various options available"
+    },
+    topRecommendations: communities.slice(0, 3).map(c => ({
+      name: c.name,
+      strengths: ["Matches search criteria"],
+      considerations: ["Contact for more details"],
+      idealFor: "Seniors seeking quality care"
+    })),
+    marketTrends: "Contact communities directly for current availability",
+    actionableAdvice: "Contact your top choices to schedule tours and check availability"
+  };
 }
 
 export function registerAIRoutes(app: Express) {
@@ -180,7 +103,7 @@ export function registerAIRoutes(app: Express) {
             const enhancedData = await response.json();
             console.log(`✅ AI Search enhanced search succeeded with ${enhancedData.communities?.length || 0} results`);
             
-            // Generate deep AI insights using ChatGPT-5 (in background for performance)
+            // Generate deep AI insights (in background for performance)
             let deepInsights = {
               interpretation: `Found ${enhancedData.communities?.length || 0} communities in ${location}`,
               comparativeAnalysis: null,

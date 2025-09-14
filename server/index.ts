@@ -309,7 +309,6 @@ app.use((req, res, next) => {
     console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 27, 2025):');
     console.log('  1️⃣ Perplexity (Primary - Web Search) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
     console.log('  2️⃣ Claude (Secondary - Analysis) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  3️⃣ ChatGPT (Tertiary - Backup) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
     console.log('  Note: Claude provides superior analysis capabilities as secondary AI');
     console.log('');
     console.log('📄 DOCUMENSO DOCUMENT SIGNING:');

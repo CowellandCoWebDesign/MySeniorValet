@@ -2,7 +2,7 @@
  * API Circuit Breaker Implementation
  * 
  * Provides resilience for external API calls with automatic fallback
- * and recovery mechanisms for Perplexity, Claude, and ChatGPT
+ * and recovery mechanisms for Perplexity and Claude
  */
 
 import CircuitBreaker from 'opossum';
@@ -24,7 +24,7 @@ interface CommunityVerificationResult {
   address?: string;
   pricing?: any;
   sources: string[];
-  verifiedBy: 'perplexity' | 'claude' | 'chatgpt' | 'cache' | 'fallback';
+  verifiedBy: 'perplexity' | 'claude' | 'cache' | 'fallback';
 }
 
 export class APICircuitBreaker {
@@ -75,22 +75,6 @@ export class APICircuitBreaker {
     );
     
     this.breakers.set('claude', claudeBreaker);
-    
-    // ChatGPT Circuit Breaker (Tertiary)
-    const chatgptBreaker = new CircuitBreaker(
-      async (communityName: string, location: string) => {
-        return await this.callChatGPTWithRetry(communityName, location);
-      },
-      {
-        timeout: 20000,
-        errorThresholdPercentage: 70,
-        resetTimeout: 15000,
-        volumeThreshold: 5,
-        name: 'ChatGPT'
-      }
-    );
-    
-    this.breakers.set('chatgpt', chatgptBreaker);
     
     // Setup monitoring for all breakers
     this.setupMonitoring();
@@ -174,20 +158,10 @@ export class APICircuitBreaker {
         console.log(`✅ Claude verification successful (fallback)`);
         return { ...result, verifiedBy: 'claude' };
       } catch (claudeError: any) {
-        console.log(`⚠️ Claude failed: ${claudeError.message}`);
+        console.log(`❌ All AI services failed: ${claudeError.message}`);
         
-        // Try tertiary (ChatGPT)
-        try {
-          const chatgptBreaker = this.breakers.get('chatgpt')!;
-          const result = await chatgptBreaker.fire(communityName, location);
-          console.log(`✅ ChatGPT verification successful (final fallback)`);
-          return { ...result, verifiedBy: 'chatgpt' };
-        } catch (chatgptError: any) {
-          console.log(`❌ All AI services failed: ${chatgptError.message}`);
-          
-          // Return cached or degraded response
-          return this.getCachedOrDegradedResponse(communityName, location);
-        }
+        // Return cached or degraded response
+        return this.getCachedOrDegradedResponse(communityName, location);
       }
     }
   }
@@ -236,28 +210,6 @@ export class APICircuitBreaker {
         // TODO: Implement Claude API call
         // For now, throw to simulate unavailability
         throw new Error('Claude integration not yet implemented');
-      },
-      {
-        retries: 2,
-        factor: 2,
-        minTimeout: 1000,
-        maxTimeout: 5000
-      }
-    );
-  }
-  
-  /**
-   * ChatGPT API call with retry logic (placeholder - implement when ChatGPT is integrated)
-   */
-  private async callChatGPTWithRetry(
-    communityName: string, 
-    location: string
-  ): Promise<CommunityVerificationResult> {
-    return await pRetry(
-      async () => {
-        // TODO: Implement ChatGPT API call
-        // For now, throw to simulate unavailability
-        throw new Error('ChatGPT integration not yet implemented');
       },
       {
         retries: 2,

@@ -589,7 +589,7 @@ class AdminDashboardTester {
         vendorType: 'technology' as const,
         serviceCategories: ['AI', 'Machine Learning'],
         metadata: {
-          models: ['gpt-5', 'claude', 'perplexity'],
+          models: ['claude', 'perplexity'],
           usage: { current: 5000, limit: 10000 }
         }
       };

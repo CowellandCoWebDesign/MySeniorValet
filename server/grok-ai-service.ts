@@ -1,9 +1,5 @@
-import OpenAI from 'openai';
-
-const grok = new OpenAI({ 
-  baseURL: "https://api.x.ai/v1", 
-  apiKey: process.env.XAI_API_KEY! 
-});
+// Grok service temporarily disabled
+const grok: any = null;
 
 export class GrokAIService {
   static async searchAndAnalyze(query: string, context?: string): Promise<any> {

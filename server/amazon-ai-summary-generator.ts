@@ -4,12 +4,6 @@
  * Does NOT copy Amazon content directly
  */
 
-import OpenAI from "openai";
-
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
-
 export interface ProductSummaryRequest {
   productName: string;
   category: string;
@@ -53,24 +47,12 @@ Respond with JSON in this format:
   "seniorBenefits": ["Benefit for seniors 1", "Benefit for seniors 2", "Benefit for seniors 3"]
 }`;
 
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o", // Latest model released May 13, 2024
-      messages: [
-        {
-          role: "system",
-          content: "You are a helpful assistant creating product descriptions for seniors. Focus on accessibility, ease of use, and daily living benefits. Never mention prices, ratings, or commercial terms."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.7,
-      max_tokens: 500
-    });
-
-    const result = JSON.parse(response.choices[0].message.content || "{}");
+    // AI summary generation removed, return fallback
+    const result = {
+      summary: `This ${request.category.toLowerCase()} is designed to assist with daily living activities.`,
+      highlights: ["Easy to use", "Practical design", "Daily living aid"],
+      seniorBenefits: ["Supports independent living", "Simple operation", "Helpful for daily tasks"]
+    };
     
     // Validate compliance
     const validationResult = validateSummaryCompliance(result.summary);

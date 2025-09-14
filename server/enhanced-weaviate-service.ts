@@ -163,7 +163,7 @@ class EnhancedWeaviateService {
         host: process.env.WEAVIATE_REST_ENDPOINT.replace('https://', '').replace('http://', ''),
         apiKey: new ApiKey(process.env.WEAVIATE_API_KEY),
         headers: {
-          'X-OpenAI-Api-Key': process.env.OPENAI_API_KEY || '',
+          // OpenAI removed
           'X-Anthropic-Api-Key': process.env.ANTHROPIC_API_KEY || '',
         },
       });
@@ -225,16 +225,9 @@ class EnhancedWeaviateService {
     const schema = {
       class: this.className,
       description: 'Enhanced senior living communities with AI-native search and personalization',
-      vectorizer: 'text2vec-openai',
+      vectorizer: 'none',
       moduleConfig: {
-        'text2vec-openai': {
-          model: 'text-embedding-3-large', // Higher accuracy
-          type: 'text',
-          dimensions: 3072
-        },
-        'generative-openai': {
-          model: 'gpt-4o'
-        }
+        // Vectorization disabled - OpenAI removed
       },
       properties: [
         // Core Identity
@@ -293,12 +286,9 @@ class EnhancedWeaviateService {
     const schema = {
       class: this.userProfileClass,
       description: 'User profiles for personalized senior living recommendations',
-      vectorizer: 'text2vec-openai',
+      vectorizer: 'none',
       moduleConfig: {
-        'text2vec-openai': {
-          model: 'text-embedding-3-small',
-          type: 'text'
-        }
+        // Vectorization disabled - OpenAI removed
       },
       properties: [
         { name: 'userId', dataType: ['text'], description: 'User identifier' },

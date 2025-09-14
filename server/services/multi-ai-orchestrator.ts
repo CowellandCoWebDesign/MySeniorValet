@@ -1,8 +1,7 @@
-import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 
 // Multi-AI Orchestrator Service for AI Map Intelligence
-// Combines ChatGPT, Perplexity, and Claude for comprehensive analysis
+// Combines Perplexity and Claude for comprehensive analysis
 
 interface AIProvider {
   name: string;
@@ -10,16 +9,11 @@ interface AIProvider {
 }
 
 class MultiAIOrchestrator {
-  private openai: OpenAI | null = null;
   private anthropic: Anthropic | null = null;
   private perplexityApiKey: string | null = null;
 
   constructor() {
     // Initialize AI services if API keys are available
-    if (process.env.OPENAI_API_KEY) {
-      this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    }
-    
     if (process.env.ANTHROPIC_API_KEY) {
       this.anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     }
@@ -49,13 +43,12 @@ class MultiAIOrchestrator {
     // Run parallel AI analysis
     const analyses = await Promise.allSettled([
       this.analyzeWithClaude(context),
-      this.analyzeWithChatGPT(context),
       this.analyzeWithPerplexity(context)
     ]);
 
     // Combine results from all AI providers
     analyses.forEach((result, index) => {
-      const providerName = ['Claude', 'ChatGPT', 'Perplexity'][index];
+      const providerName = ['Claude', 'Perplexity'][index];
       if (result.status === 'fulfilled' && result.value) {
         results.providers.push(providerName);
         
@@ -117,44 +110,6 @@ class MultiAIOrchestrator {
       }
     } catch (error) {
       console.error('Claude analysis error:', error);
-      return null;
-    }
-  }
-
-  // ChatGPT Analysis - Focus on detailed recommendations
-  private async analyzeWithChatGPT(context: any) {
-    if (!this.openai) return null;
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o', // Using latest GPT-4o model
-        messages: [
-          {
-            role: 'system',
-            content: 'You are an expert in senior living analysis. Provide detailed, actionable recommendations in JSON format.'
-          },
-          {
-            role: 'user',
-            content: `Analyze this senior living area:
-              Location: ${context.location}
-              Communities found: ${context.totalCommunities}
-              
-              Provide:
-              1. Market analysis
-              2. Quality indicators
-              3. Pricing insights
-              4. Family decision factors
-              
-              Return as JSON with insights and recommendations arrays.`
-          }
-        ],
-        response_format: { type: 'json_object' }
-      });
-
-      const content = response.choices[0].message.content;
-      return content ? JSON.parse(content) : null;
-    } catch (error) {
-      console.error('ChatGPT analysis error:', error);
       return null;
     }
   }
@@ -221,7 +176,6 @@ class MultiAIOrchestrator {
     // Get enhancements from each AI
     const aiEnhancements = await Promise.allSettled([
       this.getClaudeSearchEnhancement(query),
-      this.getChatGPTSearchEnhancement(query),
       this.getPerplexitySearchEnhancement(query)
     ]);
 
@@ -281,28 +235,6 @@ class MultiAIOrchestrator {
       }
     } catch (error) {
       console.error('Claude search enhancement error:', error);
-      return null;
-    }
-  }
-
-  private async getChatGPTSearchEnhancement(query: string) {
-    if (!this.openai) return null;
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [
-          {
-            role: 'user',
-            content: `Enhance this senior living search: "${query}". Return JSON with enhancedQuery, filters, and expansions.`
-          }
-        ],
-        response_format: { type: 'json_object' }
-      });
-
-      return JSON.parse(response.choices[0].message.content || '{}');
-    } catch (error) {
-      console.error('ChatGPT search enhancement error:', error);
       return null;
     }
   }
@@ -369,7 +301,6 @@ class MultiAIOrchestrator {
     // Get matching scores from each AI
     const aiMatches = await Promise.allSettled([
       this.getClaudeMatches(userPreferences, communities),
-      this.getChatGPTMatches(userPreferences, communities),
       this.getPerplexityContext(userPreferences)
     ]);
 
@@ -435,28 +366,6 @@ class MultiAIOrchestrator {
       }
     } catch (error) {
       console.error('Claude matching error:', error);
-      return null;
-    }
-  }
-
-  private async getChatGPTMatches(preferences: any, communities: any[]) {
-    if (!this.openai) return null;
-
-    try {
-      const response = await this.openai.chat.completions.create({
-        model: 'gpt-4o',
-        messages: [{
-          role: 'user',
-          content: `Score these communities (0-100) based on preferences. Return JSON array with id, score, reason.
-            Preferences: ${JSON.stringify(preferences)}
-            Communities: ${JSON.stringify(communities.slice(0, 20))}`
-        }],
-        response_format: { type: 'json_object' }
-      });
-
-      return JSON.parse(response.choices[0].message.content || '{}');
-    } catch (error) {
-      console.error('ChatGPT matching error:', error);
       return null;
     }
   }

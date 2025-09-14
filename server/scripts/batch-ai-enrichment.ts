@@ -193,9 +193,7 @@ async function enrichCommunity(community: any, cityData: any = null) {
       if (verificationReport.aiInsights.claude?.overview) {
         aiDescription.push(verificationReport.aiInsights.claude.overview);
       }
-      if (verificationReport.aiInsights.chatgpt?.overview) {
-        aiDescription.push(verificationReport.aiInsights.chatgpt.overview);
-      }
+      // ChatGPT removed from enrichment
       if (verificationReport.aiInsights.perplexity?.overview) {
         aiDescription.push(verificationReport.aiInsights.perplexity.overview);
       }

@@ -15,11 +15,9 @@ import { db } from '../db';
 import { communities, services, vendors, hospitals, educationalResources } from '@shared/schema';
 import { and, or, ilike, sql, eq, gte, lte, desc, asc } from 'drizzle-orm';
 import { weaviateService } from './weaviate-service';
-import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 
 // Initialize AI clients
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
 const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
 
 /**
@@ -1032,7 +1030,7 @@ export class NLPSearchSystem {
     results: UnifiedSearchResult[],
     intent: QueryIntent
   ): Promise<string> {
-    if (!anthropic && !openai) {
+    if (!anthropic) {
       return 'AI answering requires API keys to be configured.';
     }
     
@@ -1057,19 +1055,9 @@ export class NLPSearchSystem {
           }]
         });
         return response.content[0].type === 'text' ? response.content[0].text : '';
-      } else if (openai) {
-        const response = await openai.chat.completions.create({
-          model: 'gpt-4',
-          messages: [{
-            role: 'system',
-            content: 'You are a helpful assistant for senior living information.'
-          }, {
-            role: 'user',
-            content: `Based on this context, please answer the question concisely:\n\nContext:\n${context}\n\nQuestion: ${query}`
-          }],
-          max_tokens: 500
-        });
-        return response.choices[0]?.message?.content || '';
+      } else {
+        // OpenAI removed - no fallback
+        return 'I found relevant information but couldn\'t generate a complete answer.';
       }
     } catch (error) {
       console.error('Answer generation error:', error);

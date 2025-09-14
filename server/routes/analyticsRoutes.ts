@@ -204,12 +204,12 @@ analyticsRouter.get("/comprehensive", async (req, res) => {
     const aiUsage = {
       usage: {
         claude: Math.floor(Math.random() * 5000) + 1000,
-        openai: Math.floor(Math.random() * 3000) + 500,
+        // OpenAI removed
         perplexity: Math.floor(Math.random() * 2000) + 200,
       },
       costs: {
         claude: Math.random() * 100 + 50,
-        openai: Math.random() * 80 + 30,
+        // OpenAI removed
         perplexity: Math.random() * 50 + 10,
       },
       performance: {

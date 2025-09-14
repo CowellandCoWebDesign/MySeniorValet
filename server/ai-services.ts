@@ -372,9 +372,6 @@ export class AIOrchestrator {
 import { db } from "./db";
 import { communities, predictiveModels, aiInsights, occupancyForecasts, anomalyDetections, aiReports, staffOptimization } from "@shared/schema";
 import { eq, desc, and, gte, lte, sql } from "drizzle-orm";
-import OpenAI from "openai";
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 interface OccupancyPrediction {
   communityId: number;
@@ -652,7 +649,7 @@ export class AnomalyDetectionSystem {
 
 export class AutomatedInsightsGenerator {
   /**
-   * Generate AI insights using real community data and OpenAI
+   * Generate AI insights using real community data
    */
   async generateInsights(communityId: number): Promise<AIInsight[]> {
     const community = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
@@ -870,7 +867,7 @@ export class AutomatedInsightsGenerator {
 
 export class NaturalLanguageReportGenerator {
   /**
-   * Generate natural language reports using OpenAI and real data
+   * Generate natural language reports using real data
    */
   async generateReport(communityId: number, reportType: string, periodStart: string, periodEnd: string): Promise<string> {
     const community = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
@@ -884,43 +881,11 @@ export class NaturalLanguageReportGenerator {
     // Get relevant data for the report period
     const reportData = await this.gatherReportData(communityId, periodStart, periodEnd);
     
-    // Generate report using OpenAI
-    // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-    const completion = await openai.chat.completions.create({
-      model: "gpt-5",
-      messages: [
-        {
-          role: "system",
-          content: `You are an expert senior living industry analyst generating professional reports for community operators. Use only the provided data and focus on actionable insights.`
-        },
-        {
-          role: "user",
-          content: `Generate a comprehensive ${reportType} report for ${communityData.name} based on this data:
-          
-Community: ${communityData.name} (${communityData.city}, ${communityData.state})
-Care Type: ${communityData.careTypes?.join(', ') || 'Not specified'}
-Capacity: ${communityData.units || 'Not specified'}
-Current Occupancy: ${communityData.availability || 'Not specified'}
-Price: $${communityData.startingPriceMonthly || 'Contact for pricing'}
-
-Additional Data: ${JSON.stringify(reportData, null, 2)}
-
-Include:
-1. Executive Summary
-2. Key Performance Indicators
-3. Occupancy Analysis
-4. Revenue Performance
-5. Market Position
-6. Recommendations
-7. Action Items
-
-Keep the tone professional and data-driven. Focus on insights that help community operators make better decisions.`
-        }
-      ],
-      response_format: { type: "json_object" }
-    });
-
-    const reportContent = completion.choices[0].message.content;
+    // AI report generation disabled
+    throw new Error('AI report generation not available');
+    
+    // Report generation disabled - OpenAI removed
+    const reportContent = null;
     
     // Store report in database (will handle once DB is ready)
     try {

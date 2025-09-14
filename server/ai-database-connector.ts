@@ -1,12 +1,6 @@
 import { db } from './db';
 import { communities } from '@shared/schema';
 import { sql, and, or } from 'drizzle-orm';
-import OpenAI from 'openai';
-
-// Initialize OpenAI for embeddings (optional - only if vector search is needed)
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export class AIDatabaseConnector {
   private vectorEnabled: boolean = false;
@@ -144,7 +138,8 @@ export class AIDatabaseConnector {
 
   // Generate embeddings for semantic search
   private async generateEmbedding(text: string): Promise<number[]> {
-    const response = await openai.embeddings.create({
+    // Embedding generation removed
+    throw new Error('Embedding generation not available');
       model: 'text-embedding-3-small',
       input: text,
     });

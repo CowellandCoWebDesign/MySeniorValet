@@ -1,9 +1,4 @@
-import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
-
-const openai = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY 
-});
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || ''
@@ -121,16 +116,9 @@ export async function generateThematicImage(vendorName: string): Promise<string 
     
     console.log(`Generating image for ${vendorName} with AI-enhanced prompt:`, enhancedPrompt);
     
-    const response = await openai.images.generate({
-      model: "dall-e-3",
-      prompt: enhancedPrompt,
-      n: 1,
-      size: "1024x1024",
-      quality: "standard",
-      style: "natural"
-    });
-
-    return response.data?.[0]?.url || null;
+    // Image generation temporarily disabled (OpenAI removed)
+    console.log(`Image prompt ready for ${vendorName}:`, enhancedPrompt);
+    return null; // Return null until alternative image generation is implemented
   } catch (error) {
     console.error(`Error generating image for ${vendorName}:`, error);
     return null;

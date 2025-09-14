@@ -62,7 +62,7 @@ class WeaviateService {
         host: process.env.WEAVIATE_REST_ENDPOINT.replace('https://', '').replace('http://', ''),
         apiKey: new ApiKey(process.env.WEAVIATE_API_KEY),
         headers: {
-          'X-OpenAI-Api-Key': process.env.OPENAI_API_KEY || '', // For vectorization
+          // Vectorization disabled - OpenAI removed
         },
       });
 
@@ -93,12 +93,9 @@ class WeaviateService {
         const classDefinition = {
           class: this.className,
           description: 'Senior living communities with semantic search capabilities',
-          vectorizer: 'text2vec-openai',
+          vectorizer: 'none',
           moduleConfig: {
-            'text2vec-openai': {
-              model: 'text-embedding-3-small',
-              type: 'text',
-            },
+            // Vectorization disabled - OpenAI removed
           },
           vectorIndexConfig: {
             distance: 'cosine',

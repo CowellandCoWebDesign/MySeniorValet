@@ -803,12 +803,7 @@ export function registerAdminRoutes(app: Express) {
             avgLatency: null, // Requires request timing middleware
             note: "Anthropic API tracking not yet implemented"
           },
-          openai: { 
-            requests: null, // Requires OpenAI API usage tracking
-            cost: null, // Requires OpenAI billing integration
-            avgLatency: null, // Requires request timing middleware
-            note: "OpenAI API tracking not yet implemented"
-          },
+          // OpenAI removed from codebase
           perplexity: { 
             requests: null, // Requires Perplexity API usage tracking
             cost: null, // Requires Perplexity billing integration
