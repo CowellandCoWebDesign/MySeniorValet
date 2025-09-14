@@ -1,6 +1,7 @@
 /**
  * Multi-AI Orchestrator for MySeniorValet
  * Coordinates 5 AI services for comprehensive senior living intelligence
+ * Enhanced with timeout handling and partial result support
  */
 
 import { PerplexityAIService } from './perplexity-ai-service';
@@ -9,12 +10,12 @@ import { GrokAIService } from './grok-ai-service';
 import { GeminiAIService } from './gemini-ai-service';
 import { DeepSeekAIService } from './deepseek-ai-service';
 
-// Create instances of AI services
+// Create instances of AI services (only for services that use instance methods)
 const perplexityService = new PerplexityAIService();
 const anthropicService = new AnthropicAIService();
-const grokService = new GrokAIService();
-const geminiService = new GeminiAIService();
-const deepSeekService = new DeepSeekAIService();
+
+// Default timeout for AI services (10 seconds)
+const DEFAULT_AI_TIMEOUT = 10000;
 
 export interface AIResponse {
   service: string;
@@ -26,6 +27,7 @@ export interface AIResponse {
   timestamp: string;
   processingTime?: number;
   costEstimate?: string;
+  status?: 'success' | 'timeout' | 'error' | 'skipped';
 }
 
 export interface MultiAIResult {
@@ -52,132 +54,146 @@ export interface MultiAIResult {
     totalProcessingTime: number;
     successfulServices: number;
     failedServices: number;
+    timeoutServices: number;
     timestamp: string;
+    partialResults: boolean;
   };
 }
 
 export class MultiAIOrchestrator {
   /**
-   * Execute search across all 5 AI services in parallel
+   * Wrapper function to add timeout to any promise
+   */
+  private static async withTimeout<T>(
+    promise: Promise<T>, 
+    timeoutMs: number, 
+    serviceName: string
+  ): Promise<T> {
+    return Promise.race([
+      promise,
+      new Promise<T>((_, reject) => 
+        setTimeout(() => reject(new Error(`${serviceName} timeout after ${timeoutMs}ms`)), timeoutMs)
+      )
+    ]);
+  }
+
+  /**
+   * Execute a single AI service call with timeout handling
+   */
+  private static async callAIService(
+    serviceName: string,
+    serviceCall: () => Promise<any>,
+    timeout: number = DEFAULT_AI_TIMEOUT
+  ): Promise<AIResponse> {
+    const startTime = Date.now();
+    
+    try {
+      const result = await this.withTimeout(serviceCall(), timeout, serviceName);
+      const processingTime = Date.now() - startTime;
+      
+      // Handle successful response
+      if (result) {
+        return {
+          service: serviceName,
+          success: true,
+          content: result.content || result.summary || result.response || '',
+          data: result,
+          model: result.model || serviceName,
+          timestamp: new Date().toISOString(),
+          processingTime,
+          status: 'success'
+        };
+      } else {
+        throw new Error('Empty response from service');
+      }
+    } catch (error: any) {
+      const processingTime = Date.now() - startTime;
+      const isTimeout = error.message?.includes('timeout');
+      
+      console.log(`⚠️ ${serviceName} ${isTimeout ? 'timed out' : 'failed'}: ${error.message}`);
+      
+      return {
+        service: serviceName,
+        success: false,
+        error: error.message || `${serviceName} failed`,
+        timestamp: new Date().toISOString(),
+        processingTime,
+        status: isTimeout ? 'timeout' : 'error'
+      };
+    }
+  }
+
+  /**
+   * Execute search across all 5 AI services in parallel with timeout handling
    */
   static async searchAllAIs(query: string, context?: any): Promise<MultiAIResult> {
     const startTime = Date.now();
-    console.log(`🚀 Multi-AI Orchestrator: Processing query across 5 AI services`);
+    console.log(`🚀 Multi-AI Orchestrator: Processing query across 5 AI services with ${DEFAULT_AI_TIMEOUT}ms timeout`);
     
-    // Prepare all AI calls
-    const aiCalls = [
-      // Perplexity - Web Search
-      perplexityService.searchRealTime(query, context)
-        .then(result => ({
-          success: true,
-          content: result.summary,
-          data: result,
-          service: 'perplexity',
-          model: 'perplexity-online',
-          timestamp: new Date().toISOString()
-        }))
-        .catch(error => ({
-          service: 'perplexity',
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        })),
-      
-      // Claude - Deep Analysis
-      anthropicService.searchCommunity(query, context)
-        .then(result => ({
-          success: true,
-          content: result.response,
-          data: result,
-          service: 'claude',
-          model: result.model || 'claude-3',
-          timestamp: new Date().toISOString()
-        }))
-        .catch(error => ({
-          service: 'claude',
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        })),
-      
-      // Grok - Real-time Data
-      grokService.searchAndAnalyze(query, context)
-        .then(result => ({
-          success: true,
-          content: result.content,
-          data: result,
-          service: 'grok',
-          model: 'grok-2',
-          timestamp: new Date().toISOString()
-        }))
-        .catch(error => ({
-          service: 'grok',
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        })),
-      
-      // Gemini - Cost-effective Analysis
-      geminiService.searchAndAnalyze(query, context)
-        .then(result => ({
-          success: true,
-          content: result.content,
-          data: result,
-          service: 'gemini',
-          model: 'gemini-pro',
-          timestamp: new Date().toISOString()
-        }))
-        .catch(error => ({
-          service: 'gemini',
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        })),
-      
-      // DeepSeek - Deep Reasoning
-      deepSeekService.searchAndAnalyze(query, context)
-        .then(result => ({
-          success: true,
-          content: result.content,
-          data: result,
-          service: 'deepseek',
-          model: 'deepseek-v2',
-          timestamp: new Date().toISOString()
-        }))
-        .catch(error => ({
-          service: 'deepseek',
-          success: false,
-          error: error.message,
-          timestamp: new Date().toISOString()
-        }))
+    // Define all AI service calls
+    const aiServices = [
+      {
+        name: 'perplexity',
+        call: () => perplexityService.searchRealTime(query, context)
+      },
+      {
+        name: 'claude',
+        call: () => anthropicService.searchAndAnalyze(query, context)
+      },
+      {
+        name: 'grok',
+        call: () => GrokAIService.searchAndAnalyze(query, context)
+      },
+      {
+        name: 'gemini',
+        call: () => GeminiAIService.searchAndAnalyze(query, context)
+      },
+      {
+        name: 'deepseek',
+        call: () => DeepSeekAIService.searchAndAnalyze(query, context)
+      }
     ];
     
-    // Execute all AI calls in parallel
-    const results = await Promise.allSettled(aiCalls);
+    // Execute all AI calls in parallel with timeout handling
+    const servicePromises = aiServices.map(service => 
+      this.callAIService(service.name, service.call)
+    );
+    
+    // Use Promise.allSettled to get all results regardless of failures
+    const results = await Promise.allSettled(servicePromises);
     
     // Process results
     const responses: MultiAIResult['responses'] = {};
     let successCount = 0;
     let failCount = 0;
+    let timeoutCount = 0;
     
     results.forEach((result, index) => {
-      const aiNames = ['perplexity', 'claude', 'grok', 'gemini', 'deepseek'];
-      const aiName = aiNames[index];
+      const serviceName = aiServices[index].name;
       
       if (result.status === 'fulfilled') {
-        responses[aiName as keyof MultiAIResult['responses']] = result.value;
-        if (result.value.success) {
+        const response = result.value;
+        responses[serviceName as keyof MultiAIResult['responses']] = response;
+        
+        if (response.success) {
           successCount++;
+          console.log(`✅ ${serviceName}: Success (${response.processingTime}ms)`);
+        } else if (response.status === 'timeout') {
+          timeoutCount++;
+          console.log(`⏱️ ${serviceName}: Timeout`);
         } else {
           failCount++;
+          console.log(`❌ ${serviceName}: Failed`);
         }
       } else {
+        // This shouldn't happen with our error handling, but just in case
         failCount++;
-        responses[aiName as keyof MultiAIResult['responses']] = {
-          service: aiName,
+        responses[serviceName as keyof MultiAIResult['responses']] = {
+          service: serviceName,
           success: false,
-          error: 'Service failed to respond',
-          timestamp: new Date().toISOString()
+          error: 'Unexpected failure',
+          timestamp: new Date().toISOString(),
+          status: 'error'
         };
       }
     });
@@ -186,7 +202,12 @@ export class MultiAIOrchestrator {
     const consensus = this.generateConsensus(responses);
     
     const totalTime = Date.now() - startTime;
-    console.log(`✅ Multi-AI processing complete: ${successCount} successful, ${failCount} failed in ${totalTime}ms`);
+    const partialResults = successCount < aiServices.length;
+    
+    console.log(`✅ Multi-AI processing complete: ${successCount} successful, ${failCount} failed, ${timeoutCount} timed out in ${totalTime}ms`);
+    if (partialResults) {
+      console.log(`⚠️ Returning partial results from ${successCount}/${aiServices.length} services`);
+    }
     
     return {
       query,
@@ -196,13 +217,15 @@ export class MultiAIOrchestrator {
         totalProcessingTime: totalTime,
         successfulServices: successCount,
         failedServices: failCount,
-        timestamp: new Date().toISOString()
+        timeoutServices: timeoutCount,
+        timestamp: new Date().toISOString(),
+        partialResults
       }
     };
   }
   
   /**
-   * Get pricing estimates from all AIs
+   * Get pricing estimates from all AIs with timeout handling
    */
   static async analyzePricing(communityInfo: any): Promise<any> {
     console.log(`💰 Multi-AI Pricing Analysis for ${communityInfo.name}`);
@@ -214,28 +237,38 @@ export class MultiAIOrchestrator {
     // Extract pricing from each AI response
     const prices: number[] = [];
     const priceDetails: any[] = [];
+    const aiPerspectives: any[] = [];
     
-    Object.values(results.responses).forEach(response => {
-      if (response?.success && response.content) {
-        // Extract prices using regex
-        const priceMatches = response.content.match(/\$[\d,]+/g);
-        if (priceMatches) {
-          priceMatches.forEach(match => {
-            const price = parseInt(match.replace(/[$,]/g, ''));
-            if (price > 500 && price < 20000) { // Reasonable monthly price range
-              prices.push(price);
-              priceDetails.push({
-                source: response.service,
-                price,
-                context: response.content.substring(0, 200)
-              });
-            }
-          });
+    Object.entries(results.responses).forEach(([serviceName, response]) => {
+      if (response) {
+        // Add AI perspective even if failed
+        aiPerspectives.push({
+          service: serviceName,
+          status: response.status || (response.success ? 'success' : 'error'),
+          processingTime: response.processingTime
+        });
+        
+        if (response.success && response.content) {
+          // Extract prices using regex
+          const priceMatches = response.content.match(/\$[\d,]+/g);
+          if (priceMatches) {
+            priceMatches.forEach(match => {
+              const price = parseInt(match.replace(/[$,]/g, ''));
+              if (price > 500 && price < 20000) { // Reasonable monthly price range
+                prices.push(price);
+                priceDetails.push({
+                  source: response.service,
+                  price,
+                  context: response.content ? response.content.substring(0, 200) : ''
+                });
+              }
+            });
+          }
         }
       }
     });
     
-    // Calculate consensus pricing
+    // Calculate consensus pricing even with partial results
     if (prices.length > 0) {
       prices.sort((a, b) => a - b);
       const average = Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length);
@@ -250,21 +283,28 @@ export class MultiAIOrchestrator {
           max: prices[prices.length - 1],
           confidence: Math.min(95, 60 + (results.metadata.successfulServices * 7)),
           sources: priceDetails,
-          aiServices: results.metadata.successfulServices
+          aiServices: results.metadata.successfulServices,
+          totalServices: 5,
+          partialResults: results.metadata.partialResults
         },
-        rawResponses: results.responses
+        aiPerspectives,
+        rawResponses: results.responses,
+        metadata: results.metadata
       };
     }
     
+    // Return partial failure with details about which services responded
     return {
       success: false,
-      message: 'Unable to determine pricing from AI analysis',
-      rawResponses: results.responses
+      message: `Unable to determine pricing. ${results.metadata.successfulServices} of 5 AI services responded.`,
+      aiPerspectives,
+      rawResponses: results.responses,
+      metadata: results.metadata
     };
   }
   
   /**
-   * Enhanced Discovery Mode using all AIs
+   * Enhanced Discovery Mode using all AIs with timeout handling
    */
   static async discoverCommunities(location: string, requirements?: any): Promise<any> {
     console.log(`🔮 Multi-AI Discovery Mode for ${location}`);
@@ -275,11 +315,19 @@ export class MultiAIOrchestrator {
     
     // Extract communities from all AI responses
     const discoveredCommunities = new Map<string, any>();
+    const aiContributions: any = {};
     
-    Object.values(results.responses).forEach(response => {
+    Object.entries(results.responses).forEach(([serviceName, response]) => {
+      aiContributions[serviceName] = {
+        status: response?.status || 'unknown',
+        communitiesFound: 0
+      };
+      
       if (response?.success && response.content) {
         // Parse communities from response
         const communities = this.extractCommunitiesFromText(response.content, location);
+        aiContributions[serviceName].communitiesFound = communities.length;
+        
         communities.forEach(community => {
           const key = `${community.name}-${community.city}`.toLowerCase();
           if (!discoveredCommunities.has(key)) {
@@ -310,13 +358,15 @@ export class MultiAIOrchestrator {
       communities: communitiesArray,
       totalFound: communitiesArray.length,
       aiSources: results.metadata.successfulServices,
+      aiContributions,
       consensus: results.consensus,
-      metadata: results.metadata
+      metadata: results.metadata,
+      partialResults: results.metadata.partialResults
     };
   }
   
   /**
-   * Compare communities using all AI perspectives
+   * Compare communities using all AI perspectives with timeout handling
    */
   static async compareCommunities(communities: any[]): Promise<any> {
     const compareQuery = `Compare these senior living communities: ${communities.map(c => c.name).join(', ')}. Analyze pricing, care quality, amenities, location, and value. Provide rankings and recommendations.`;
@@ -327,23 +377,36 @@ export class MultiAIOrchestrator {
     const comparisons: any = {
       rankings: [],
       insights: [],
-      recommendations: []
+      recommendations: [],
+      aiPerspectives: []
     };
     
-    Object.values(results.responses).forEach(response => {
+    Object.entries(results.responses).forEach(([serviceName, response]) => {
+      const perspective = {
+        service: serviceName,
+        status: response?.status || 'unknown',
+        analysis: null as any
+      };
+      
       if (response?.success && response.content) {
+        perspective.analysis = response.content;
         comparisons.insights.push({
           source: response.service,
           analysis: response.content
         });
       }
+      
+      comparisons.aiPerspectives.push(perspective);
     });
     
     return {
-      success: true,
+      success: results.metadata.successfulServices > 0,
       comparisons,
       aiPerspectives: results.metadata.successfulServices,
-      consensus: results.consensus
+      totalServices: 5,
+      consensus: results.consensus,
+      metadata: results.metadata,
+      partialResults: results.metadata.partialResults
     };
   }
   
@@ -355,10 +418,13 @@ export class MultiAIOrchestrator {
     const recommendations: string[] = [];
     const warnings: string[] = [];
     const prices: number[] = [];
+    let successfulResponses = 0;
     
-    // Analyze each successful response
+    // Analyze each response
     Object.values(responses).forEach(response => {
       if (response?.success && response.content) {
+        successfulResponses++;
+        
         // Extract key insights (first significant sentence)
         const sentences = response.content.split(/[.!?]+/).filter(s => s.trim().length > 20);
         if (sentences.length > 0) {
@@ -398,11 +464,17 @@ export class MultiAIOrchestrator {
     }
     
     // Add key recommendations
-    if (insights.length > 0) {
-      recommendations.push('Multiple AI sources have analyzed this query');
+    if (successfulResponses > 0) {
+      recommendations.push(`${successfulResponses} AI source${successfulResponses > 1 ? 's' : ''} analyzed this query`);
     }
     if (prices.length > 2) {
       recommendations.push(`Pricing estimates available from ${prices.length} sources`);
+    }
+    
+    // Add warning if partial results
+    const totalServices = Object.keys(responses).length;
+    if (successfulResponses < totalServices) {
+      warnings.push(`Partial results: ${totalServices - successfulResponses} service(s) did not respond`);
     }
     
     return {

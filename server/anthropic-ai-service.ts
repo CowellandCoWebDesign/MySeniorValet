@@ -224,4 +224,58 @@ export class AnthropicAIService {
       return 'Analysis unavailable at this time';
     }
   }
+
+  // Method for Multi-AI Orchestrator compatibility
+  async searchAndAnalyze(query: string, context?: any): Promise<any> {
+    try {
+      console.log('🤖 Claude AI Request:', { query: query.substring(0, 100), hasContext: !!context });
+      
+      const systemPrompt = `You are Claude, an AI assistant specializing in comprehensive analysis of senior living communities.
+Provide detailed, thoughtful insights about senior living facilities, care quality, pricing, and services.
+Focus on depth of analysis and nuanced understanding of family needs.`;
+
+      const userPrompt = context 
+        ? `Context: ${JSON.stringify(context)}\n\nQuery: ${query}\n\nProvide comprehensive analysis including pricing insights, care quality indicators, important considerations, and personalized recommendations.`
+        : `${query}\n\nProvide comprehensive analysis including all relevant insights and recommendations.`;
+
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 1500,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: userPrompt }
+        ],
+      });
+
+      const content = response.content[0].type === 'text' ? response.content[0].text : '';
+      
+      console.log('✅ Claude response received:', content.substring(0, 200));
+      
+      return {
+        success: true,
+        content,
+        response: content, // For backward compatibility
+        model: DEFAULT_MODEL_STR,
+        aiService: 'Claude AI (Anthropic)',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error: any) {
+      console.error('❌ Claude AI Error:', error.message);
+      
+      // Check if it's an authentication error
+      if (error.message?.includes('401') || error.message?.includes('authentication')) {
+        return {
+          success: false,
+          error: 'Claude API authentication failed - please check your API key',
+          aiService: 'Claude AI (Anthropic)'
+        };
+      }
+      
+      return {
+        success: false,
+        error: error.message || 'Claude AI service temporarily unavailable',
+        aiService: 'Claude AI (Anthropic)'
+      };
+    }
+  }
 }

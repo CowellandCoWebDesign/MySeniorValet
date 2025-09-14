@@ -2252,5 +2252,64 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Test endpoint for Multi-AI Orchestrator timeout handling
+  app.get("/api/test/multi-ai-timeout", async (req, res) => {
+    try {
+      console.log("🧪 Testing Multi-AI Orchestrator timeout handling...");
+      
+      const testQuery = "What are the best senior living communities in San Francisco, CA?";
+      const startTime = Date.now();
+      
+      // Call the Multi-AI Orchestrator with the test query
+      const results = await MultiAIOrchestrator.searchAllAIs(testQuery, { 
+        testMode: true,
+        location: "San Francisco, CA" 
+      });
+      
+      const totalTime = Date.now() - startTime;
+      
+      // Analyze the results
+      const serviceStatuses = Object.entries(results.responses).map(([service, response]) => ({
+        service,
+        status: response?.status || (response?.success ? 'success' : 'unknown'),
+        success: response?.success || false,
+        processingTime: response?.processingTime || null,
+        hasContent: !!(response?.content),
+        errorMessage: response?.error || null
+      }));
+      
+      res.json({
+        success: true,
+        testResults: {
+          query: testQuery,
+          totalProcessingTime: totalTime,
+          expectedTimeout: 10000, // 10 seconds
+          timedOutProperly: totalTime < 15000, // Should complete within 15 seconds
+          metadata: results.metadata,
+          serviceStatuses,
+          consensus: results.consensus,
+          summary: {
+            totalServices: 5,
+            successfulServices: results.metadata.successfulServices,
+            failedServices: results.metadata.failedServices,
+            timeoutServices: results.metadata.timeoutServices,
+            partialResults: results.metadata.partialResults
+          }
+        },
+        message: results.metadata.partialResults 
+          ? `Test complete: Returned partial results from ${results.metadata.successfulServices}/5 services`
+          : `Test complete: All ${results.metadata.successfulServices} services responded successfully`
+      });
+      
+    } catch (error) {
+      console.error("Test endpoint error:", error);
+      res.status(500).json({ 
+        success: false,
+        error: "Test failed",
+        message: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
 
 }

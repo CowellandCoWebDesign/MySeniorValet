@@ -78,19 +78,50 @@ export function MultiAIPerspectives({
   realTimeData,
   onAnalysisComplete 
 }: MultiAIPerspectivesProps) {
-  const [analysis, setAnalysis] = useState<MultiAIAnalysis | null>(
-    realTimeData?.multiAIAnalysis || null
-  );
+  // Check if multiAIAnalysis is an error response
+  const isErrorResponse = (data: any): boolean => {
+    return data && typeof data.error === 'string';
+  };
+
+  // Initialize state with proper error checking
+  const [analysis, setAnalysis] = useState<MultiAIAnalysis | null>(() => {
+    if (!realTimeData?.multiAIAnalysis) return null;
+    if (isErrorResponse(realTimeData.multiAIAnalysis)) return null;
+    if (!realTimeData.multiAIAnalysis.metadata) return null;
+    return realTimeData.multiAIAnalysis;
+  });
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => {
+    if (realTimeData?.multiAIAnalysis && isErrorResponse(realTimeData.multiAIAnalysis)) {
+      return realTimeData.multiAIAnalysis.error;
+    }
+    return null;
+  });
   const [selectedTab, setSelectedTab] = useState('overview');
 
   useEffect(() => {
-    if (realTimeData?.multiAIAnalysis) {
-      setAnalysis(realTimeData.multiAIAnalysis);
-      if (onAnalysisComplete) {
-        onAnalysisComplete(realTimeData.multiAIAnalysis);
-      }
+    if (!realTimeData?.multiAIAnalysis) {
+      return;
+    }
+    
+    // Check if it's an error response
+    if (isErrorResponse(realTimeData.multiAIAnalysis)) {
+      setError(realTimeData.multiAIAnalysis.error);
+      setAnalysis(null);
+      return;
+    }
+    
+    // Ensure it has required metadata field before setting
+    if (!realTimeData.multiAIAnalysis.metadata) {
+      setError('Invalid multi-AI analysis data received');
+      setAnalysis(null);
+      return;
+    }
+    
+    setAnalysis(realTimeData.multiAIAnalysis);
+    setError(null);
+    if (onAnalysisComplete) {
+      onAnalysisComplete(realTimeData.multiAIAnalysis);
     }
   }, [realTimeData, onAnalysisComplete]);
 
@@ -113,10 +144,24 @@ export function MultiAIPerspectives({
       const data = await response.json();
       
       if (data.realTimeData?.multiAIAnalysis) {
-        setAnalysis(data.realTimeData.multiAIAnalysis);
-        if (onAnalysisComplete) {
-          onAnalysisComplete(data.realTimeData.multiAIAnalysis);
+        const multiAIData = data.realTimeData.multiAIAnalysis;
+        
+        // Check if it's an error response
+        if (isErrorResponse(multiAIData)) {
+          setError(multiAIData.error || 'Multi-AI analysis temporarily unavailable');
+          setAnalysis(null);
+        } else if (multiAIData.metadata) {
+          // Only set as analysis if it has the required structure
+          setAnalysis(multiAIData);
+          if (onAnalysisComplete) {
+            onAnalysisComplete(multiAIData);
+          }
+        } else {
+          setError('Invalid multi-AI analysis data received');
+          setAnalysis(null);
         }
+      } else {
+        setError('No multi-AI analysis data available');
       }
     } catch (err) {
       console.error('Error fetching multi-AI analysis:', err);
@@ -336,7 +381,7 @@ export function MultiAIPerspectives({
 
   return (
     <div className="space-y-6">
-      {/* Header with refresh button */}
+      {/* Header with refresh button - always shown */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-semibold flex items-center gap-2">
@@ -385,7 +430,7 @@ export function MultiAIPerspectives({
       )}
 
       {/* Analysis content */}
-      {analysis && (
+      {analysis && analysis.metadata && (
         <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-4">
           <TabsList className="grid grid-cols-4 w-full">
             <TabsTrigger value="overview">Overview</TabsTrigger>
@@ -400,7 +445,7 @@ export function MultiAIPerspectives({
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    {analysis.metadata.successfulServices}
+                    {analysis.metadata?.successfulServices || 0}
                   </div>
                   <p className="text-xs text-muted-foreground">Active AIs</p>
                 </CardContent>
@@ -408,7 +453,7 @@ export function MultiAIPerspectives({
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    {(analysis.metadata.totalProcessingTime / 1000).toFixed(1)}s
+                    {analysis.metadata?.totalProcessingTime ? (analysis.metadata.totalProcessingTime / 1000).toFixed(1) : '0.0'}s
                   </div>
                   <p className="text-xs text-muted-foreground">Response Time</p>
                 </CardContent>
@@ -465,11 +510,11 @@ export function MultiAIPerspectives({
 
           <TabsContent value="services" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {renderAIServiceCard('perplexity', analysis.responses.perplexity)}
-              {renderAIServiceCard('claude', analysis.responses.claude)}
-              {renderAIServiceCard('grok', analysis.responses.grok)}
-              {renderAIServiceCard('gemini', analysis.responses.gemini)}
-              {renderAIServiceCard('deepseek', analysis.responses.deepseek)}
+              {analysis.responses && renderAIServiceCard('perplexity', analysis.responses.perplexity)}
+              {analysis.responses && renderAIServiceCard('claude', analysis.responses.claude)}
+              {analysis.responses && renderAIServiceCard('grok', analysis.responses.grok)}
+              {analysis.responses && renderAIServiceCard('gemini', analysis.responses.gemini)}
+              {analysis.responses && renderAIServiceCard('deepseek', analysis.responses.deepseek)}
             </div>
           </TabsContent>
 
