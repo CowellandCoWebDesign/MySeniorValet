@@ -61,6 +61,14 @@ import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_market
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { 
+  AIServiceBadge, 
+  AISourcesDisplay, 
+  PricingConsensus, 
+  AIConsensusDisplay, 
+  DiscoveryModeIndicator,
+  AIEnhancedBadge 
+} from "@/components/AIServiceBadges";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
@@ -89,7 +97,13 @@ if (typeof document !== 'undefined') {
 function HeroSectionWithTransformingSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
+  const [searchResults, setSearchResults] = useState<any>({ 
+    results: [], 
+    metadata: null, 
+    aiConsensus: null, 
+    aiSources: null, 
+    discoveryMessage: null 
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
@@ -156,15 +170,15 @@ function HeroSectionWithTransformingSearch() {
     setIsLoading(true);
 
     try {
-      // Discovery mode for Communities - use global discovery to find facilities
+      // Discovery mode for Communities - use enhanced multi-AI search
       if (viewMode === 'discover' && searchCategory === 'communities') {
-        // Call global discovery endpoint to find actual facilities
-        const response = await fetch('/api/global-discovery/search', {
+        // Call enhanced search endpoint with discovery mode
+        const response = await fetch('/api/communities/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query: query,
-            searchType: 'location',
+            discoveryMode: true,
             limit: 20
           })
         });
@@ -258,8 +272,16 @@ function HeroSectionWithTransformingSearch() {
       } else {
         // Regular search for list/map view - use comprehensive search for communities
         if (searchCategory === 'communities') {
-          // Use the comprehensive search endpoint for community searches
-          const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
+          // Use the enhanced search endpoint for community searches
+          const response = await fetch('/api/communities/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query: query,
+              discoveryMode: viewMode === 'discover',
+              limit: 50
+            })
+          });
           
           if (!response.ok) {
             // Fallback to unified search
@@ -268,20 +290,16 @@ function HeroSectionWithTransformingSearch() {
             const data = await response.json();
             const communities = data.communities || [];
             
-            // Extract Discovery Mode data from searchMetadata
-            const metadata = data.searchMetadata || {};
-            
+            // Extract AI consensus and Discovery Mode data
             setSearchResults({ 
               results: communities, 
               metadata: {
                 total: data.total,
-                searchMetadata: metadata,
-                suggestions: data.suggestions,
-                // Discovery Mode specific data
-                discoveryMode: metadata.discoveryMode,
-                discoveryMessage: metadata.discoveryMessage,
-                aiSuggestions: metadata.aiSuggestions
-              }
+                suggestions: data.suggestions
+              },
+              aiConsensus: data.aiConsensus,
+              aiSources: data.aiSources,
+              discoveryMessage: data.discoveryMessage
             });
           }
         } else {
@@ -773,12 +791,38 @@ function HeroSectionWithTransformingSearch() {
                     </div>
                   )}
                   
+                  {/* Discovery Mode Indicator */}
+                  {searchResults?.discoveryMessage && (
+                    <div className="mb-4">
+                      <DiscoveryModeIndicator
+                        message={searchResults.discoveryMessage}
+                        services={searchResults?.aiSources ? Object.keys(searchResults.aiSources).filter(k => k !== 'total' && searchResults.aiSources[k]) : []}
+                        loading={isLoading}
+                      />
+                    </div>
+                  )}
+
+                  {/* AI Consensus Display */}
+                  {searchResults?.aiConsensus && (
+                    <div className="mb-4">
+                      <AIConsensusDisplay consensus={searchResults.aiConsensus} compact={false} />
+                    </div>
+                  )}
+
+                  {/* AI Sources Display */}
+                  {searchResults?.aiSources && searchResults.aiSources.total > 0 && (
+                    <div className="mb-3">
+                      <AISourcesDisplay sources={searchResults.aiSources} animated={true} size="sm" />
+                    </div>
+                  )}
+                  
                   {/* Regular Search Results List */}
                   {/* Regular Results Header - Glass Morphism */}
                   <div className="">
                     <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
-                      <h3 className="text-lg font-semibold text-white">
-                        {searchQuery ? (
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold text-white">
+                          {searchQuery ? (
                           <>
                             Found {searchResults?.results?.length || 0}
                             {searchCategory === 'services' ? ' services' : 
@@ -796,8 +840,12 @@ function HeroSectionWithTransformingSearch() {
                              searchCategory === 'resources' ? ' Resources' : ' Communities'}
                             {' Found'}
                           </span>
+                          )}
+                        </h3>
+                        {searchResults?.aiEnhanced && (
+                          <AIEnhancedBadge size="sm" />
                         )}
-                      </h3>
+                      </div>
                     </div>
                   </div>
                 </>
@@ -972,10 +1020,24 @@ function HeroSectionWithTransformingSearch() {
                                 </div>
                               </div>
                             ) : (
-                              <FeaturedExcellenceCard
-                                community={item}
-                                index={index}
-                              />
+                              <div className="relative">
+                                {/* AI Enhanced Badge for Individual Community */}
+                                {item.aiEnhanced && (
+                                  <div className="absolute top-2 right-2 z-10">
+                                    <AIEnhancedBadge size="sm" />
+                                  </div>
+                                )}
+                                {/* AI Pricing Consensus for Community */}
+                                {item.aiPricing && (
+                                  <div className="mb-2">
+                                    <PricingConsensus pricing={item.aiPricing} />
+                                  </div>
+                                )}
+                                <FeaturedExcellenceCard
+                                  community={item}
+                                  index={index}
+                                />
+                              </div>
                             )}
                           </motion.div>
                         ))}
