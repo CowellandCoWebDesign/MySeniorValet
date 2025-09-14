@@ -22,6 +22,7 @@ interface AIResponse {
   model?: string;
   timestamp: string;
   processingTime?: number;
+  status?: 'success' | 'timeout' | 'error' | 'pending';
 }
 
 interface MultiAIAnalysis {
@@ -60,6 +61,8 @@ interface MultiAIAnalysis {
     totalProcessingTime: number;
     successfulServices: number;
     failedServices: number;
+    timeoutServices?: number;
+    partialResults?: boolean;
     timestamp: string;
   };
   cacheExpiry?: string;
@@ -173,6 +176,7 @@ export function MultiAIPerspectives({
 
   const getServiceStatus = (response?: AIResponse) => {
     if (!response) return 'pending';
+    if (response.status) return response.status;
     if (response.success) return 'success';
     if (response.error) return 'error';
     return 'pending';
@@ -199,8 +203,9 @@ export function MultiAIPerspectives({
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
+        key={serviceName}
       >
-        <Card className={`${service.bgLight} ${service.borderColor} border-2`}>
+        <Card className={`${service.bgLight} ${service.borderColor} border-2 h-full`}>
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -211,7 +216,13 @@ export function MultiAIPerspectives({
                 {status === 'success' && (
                   <Badge variant="outline" className="bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300">
                     <CheckCircle className="h-3 w-3 mr-1" />
-                    Active
+                    Success
+                  </Badge>
+                )}
+                {status === 'timeout' && (
+                  <Badge variant="outline" className="bg-orange-50 dark:bg-orange-950/30 text-orange-700 dark:text-orange-300">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Timeout
                   </Badge>
                 )}
                 {status === 'error' && (
@@ -222,6 +233,7 @@ export function MultiAIPerspectives({
                 )}
                 {status === 'pending' && (
                   <Badge variant="outline" className="bg-gray-50 dark:bg-gray-950/30">
+                    <Loader2 className="h-3 w-3 mr-1 animate-spin" />
                     Pending
                   </Badge>
                 )}
@@ -229,19 +241,21 @@ export function MultiAIPerspectives({
             </div>
             <p className="text-sm text-muted-foreground mt-1">{service.description}</p>
           </CardHeader>
-          {response && response.success && (
-            <CardContent>
+          <CardContent>
+            {status === 'success' && response?.content && (
               <div className="space-y-3">
-                {response.content && (
-                  <div className="text-sm space-y-2">
-                    <div className="font-medium text-muted-foreground">Analysis:</div>
-                    <div className="bg-white dark:bg-gray-950 p-3 rounded-lg">
-                      {response.content.split('\n').slice(0, 3).map((line, idx) => (
-                        <p key={idx} className="mb-1">{line}</p>
-                      ))}
-                    </div>
+                <div className="text-sm space-y-2">
+                  <div className="font-medium text-muted-foreground">Analysis:</div>
+                  <div className="bg-white dark:bg-gray-950 p-3 rounded-lg max-h-48 overflow-y-auto">
+                    {response.content.split('\n').slice(0, 5).map((line, idx) => {
+                      if (!line.trim()) return null;
+                      return <p key={idx} className="mb-1 text-sm">{line}</p>;
+                    })}
+                    {response.content.split('\n').length > 5 && (
+                      <p className="text-xs text-muted-foreground mt-2 italic">... view more in detailed analysis</p>
+                    )}
                   </div>
-                )}
+                </div>
                 {response.processingTime && (
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
@@ -249,8 +263,41 @@ export function MultiAIPerspectives({
                   </div>
                 )}
               </div>
-            </CardContent>
-          )}
+            )}
+            
+            {status === 'timeout' && (
+              <div className="text-sm">
+                <div className="flex items-center gap-2 text-orange-600 dark:text-orange-400">
+                  <Clock className="h-4 w-4" />
+                  <span className="font-medium">Response timed out</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  This service took longer than 10 seconds to respond. The analysis is continuing with other AI services.
+                </p>
+              </div>
+            )}
+            
+            {status === 'error' && response?.error && (
+              <div className="text-sm">
+                <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="font-medium">Service Error</span>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  {response.error}
+                </p>
+              </div>
+            )}
+            
+            {status === 'pending' && !response && (
+              <div className="text-sm text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Waiting for response...</span>
+                </div>
+              </div>
+            )}
+          </CardContent>
         </Card>
       </motion.div>
     );
@@ -441,13 +488,29 @@ export function MultiAIPerspectives({
 
           <TabsContent value="overview" className="space-y-4">
             {/* Summary stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-2xl font-bold text-green-600 dark:text-green-400">
                     {analysis.metadata?.successfulServices || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">Active AIs</p>
+                  <p className="text-xs text-muted-foreground">Successful</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
+                    {analysis.metadata?.timeoutServices || 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Timeouts</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="pt-6">
+                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {analysis.metadata?.failedServices || 0}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Failed</p>
                 </CardContent>
               </Card>
               <Card>
@@ -455,7 +518,7 @@ export function MultiAIPerspectives({
                   <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                     {analysis.metadata?.totalProcessingTime ? (analysis.metadata.totalProcessingTime / 1000).toFixed(1) : '0.0'}s
                   </div>
-                  <p className="text-xs text-muted-foreground">Response Time</p>
+                  <p className="text-xs text-muted-foreground">Total Time</p>
                 </CardContent>
               </Card>
               <Card>
@@ -463,18 +526,21 @@ export function MultiAIPerspectives({
                   <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                     {analysis.consensus?.insights?.length || 0}
                   </div>
-                  <p className="text-xs text-muted-foreground">Key Insights</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">
-                    {analysis.consensus?.warnings?.length || 0}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Alerts</p>
+                  <p className="text-xs text-muted-foreground">Insights</p>
                 </CardContent>
               </Card>
             </div>
+
+            {/* Partial results notice */}
+            {analysis.metadata?.partialResults && (
+              <Alert className="border-yellow-200 dark:border-yellow-800 bg-yellow-50 dark:bg-yellow-950/30">
+                <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                <AlertDescription>
+                  <span className="font-medium">Partial Results:</span> Some AI services timed out or failed.
+                  The analysis is based on {analysis.metadata.successfulServices} out of 5 AI services.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Quick insights */}
             {renderInsightsAndWarnings()}
@@ -509,12 +575,37 @@ export function MultiAIPerspectives({
           </TabsContent>
 
           <TabsContent value="services" className="space-y-4">
+            {/* Show status summary if partial results */}
+            {analysis.metadata?.partialResults && (
+              <Alert className="border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30">
+                <AlertCircle className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <AlertDescription>
+                  <div className="font-medium mb-1">AI Service Status:</div>
+                  <div className="flex gap-4 text-xs">
+                    <span className="text-green-600 dark:text-green-400">
+                      ✓ {analysis.metadata.successfulServices} Responded
+                    </span>
+                    {analysis.metadata.timeoutServices && analysis.metadata.timeoutServices > 0 && (
+                      <span className="text-orange-600 dark:text-orange-400">
+                        ⏱ {analysis.metadata.timeoutServices} Timed Out
+                      </span>
+                    )}
+                    {analysis.metadata.failedServices > 0 && (
+                      <span className="text-red-600 dark:text-red-400">
+                        ✗ {analysis.metadata.failedServices} Failed
+                      </span>
+                    )}
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {analysis.responses && renderAIServiceCard('perplexity', analysis.responses.perplexity)}
-              {analysis.responses && renderAIServiceCard('claude', analysis.responses.claude)}
-              {analysis.responses && renderAIServiceCard('grok', analysis.responses.grok)}
-              {analysis.responses && renderAIServiceCard('gemini', analysis.responses.gemini)}
-              {analysis.responses && renderAIServiceCard('deepseek', analysis.responses.deepseek)}
+              {renderAIServiceCard('perplexity', analysis.responses?.perplexity)}
+              {renderAIServiceCard('claude', analysis.responses?.claude)}
+              {renderAIServiceCard('grok', analysis.responses?.grok)}
+              {renderAIServiceCard('gemini', analysis.responses?.gemini)}
+              {renderAIServiceCard('deepseek', analysis.responses?.deepseek)}
             </div>
           </TabsContent>
 
