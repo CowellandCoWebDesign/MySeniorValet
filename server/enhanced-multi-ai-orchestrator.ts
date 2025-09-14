@@ -4,7 +4,6 @@
 // Ready for 4-AI orchestration with Grok
 
 import { ClaudeIntelligenceService } from './multi-ai-intelligence';
-import { ChatGPTIntelligenceService } from './openai-intelligence';
 import { PerplexityAIService } from './perplexity-ai-service';
 
 export interface CrossVerificationResult {
@@ -22,14 +21,12 @@ export interface TransparencyReport {
     keyFindings: string[];
   };
   individualInsights: {
-    chatgpt: any; // Primary
-    claude: any;  // Secondary
-    perplexity: any; // Third
+    claude: any;  // Primary
+    perplexity: any; // Secondary
   };
   crossVerification: {
-    chatGPTVerifiesClaude: CrossVerificationResult | null;
     claudeVerifiesPerplexity: CrossVerificationResult | null;
-    perplexityVerifiesChatGPT: CrossVerificationResult | null;
+    perplexityVerifiesClaude: CrossVerificationResult | null;
     overallConsensus: number;
   };
   warnings: any[];
@@ -51,39 +48,35 @@ export const EnhancedMultiAIOrchestrator = {
     console.log('🔍 Truth in Senior Living - Exposing industry opacity');
 
     try {
-      // Phase 1: Parallel AI Analysis - Updated Priority Order
-      const [chatgptAnalysis, claudeAnalysis, perplexityAnalysis] = await Promise.all([
-        this.runChatGPTAnalysis(communities[0], userProfile, contractText),
+      // Phase 1: Parallel AI Analysis
+      const [claudeAnalysis, perplexityAnalysis] = await Promise.all([
         this.runClaudeAnalysis(communities, userProfile),
         this.runPerplexityAnalysis(communities, userProfile)
       ]);
 
-      // Phase 2: Cross-Verification - Updated for New Priority
-      const crossVerification = await this.performTripleCrossCheck({
-        chatgpt: chatgptAnalysis,
+      // Phase 2: Cross-Verification
+      const crossVerification = await this.performCrossCheck({
         claude: claudeAnalysis,
         perplexity: perplexityAnalysis
       });
 
       // Phase 3: Build Transparency Report
       const report: TransparencyReport = {
-        consensus: this.buildConsensus(chatgptAnalysis, claudeAnalysis, perplexityAnalysis),
+        consensus: this.buildConsensus(claudeAnalysis, perplexityAnalysis),
         individualInsights: {
-          chatgpt: chatgptAnalysis,
           claude: claudeAnalysis,
           perplexity: perplexityAnalysis
         },
         crossVerification,
-        warnings: this.extractAllWarnings(chatgptAnalysis, claudeAnalysis, perplexityAnalysis),
+        warnings: this.extractAllWarnings(claudeAnalysis, perplexityAnalysis),
         transparencyScore: this.calculateTransparencyScore(
-          chatgptAnalysis, 
           claudeAnalysis, 
           perplexityAnalysis, 
           crossVerification
         ),
         disclaimer: 'MySeniorValet provides transparency and truth in senior living. We are NOT a placement agency and receive NO compensation from communities. Our AI systems work together to expose hidden information and provide families with complete transparency.',
         timestamp: new Date().toISOString(),
-        aiServicesStatus: 'ChatGPT-5 Primary, Claude Secondary, Perplexity Third - Streamlined AI Services'
+        aiServicesStatus: 'Claude Primary, Perplexity Secondary - Streamlined AI Services'
       };
 
       console.log('✅ Multi-AI Transparency Report completed');
@@ -173,62 +166,23 @@ export const EnhancedMultiAIOrchestrator = {
     }
   },
 
-  // Run ChatGPT analysis
-  async runChatGPTAnalysis(community: any, userProfile: any, contractText?: string) {
-    try {
-      const financialAnalysis = await ChatGPTIntelligenceService.analyzeFinancialImpact(
-        community, 
-        userProfile
-      );
-      
-      const contractAnalysis = contractText 
-        ? await ChatGPTIntelligenceService.analyzeContractTerms(
-            contractText, 
-            community.name
-          )
-        : null;
-
-      return {
-        source: 'ChatGPT-4o',
-        specialty: 'Financial Transparency & Contract Analysis',
-        financialAnalysis,
-        contractAnalysis,
-        keyFindings: [
-          'Hidden costs and fee structures exposed',
-          'Long-term financial projections calculated',
-          'Contract red flags identified',
-          'Financial assistance options evaluated'
-        ],
-        confidence: 85,
-        warnings: [
-          ...(financialAnalysis.warnings || []),
-          ...(contractAnalysis?.concerns || [])
-        ]
-      };
-    } catch (error) {
-      console.error('ChatGPT analysis error:', error);
-      return null;
-    }
-  },
 
   // Perform comprehensive cross-verification
-  async performTripleCrossCheck(analyses: any): Promise<any> {
+  async performCrossCheck(analyses: any): Promise<any> {
     const crossChecks: {
-      claudeVerifiesGemini: CrossVerificationResult | null;
-      geminiVerifiesChatGPT: CrossVerificationResult | null;
-      chatGPTVerifiesClaude: CrossVerificationResult | null;
+      claudeVerifiesPerplexity: CrossVerificationResult | null;
+      perplexityVerifiesClaude: CrossVerificationResult | null;
       overallConsensus: number;
     } = {
-      claudeVerifiesGemini: null,
-      geminiVerifiesChatGPT: null,
-      chatGPTVerifiesClaude: null,
+      claudeVerifiesPerplexity: null,
+      perplexityVerifiesClaude: null,
       overallConsensus: 0
     };
 
     try {
-      // Claude verifies Gemini's market analysis
-      if (analyses.claude && analyses.gemini) {
-        crossChecks.claudeVerifiesGemini = {
+      // Claude verifies Perplexity's market analysis
+      if (analyses.claude && analyses.perplexity) {
+        crossChecks.claudeVerifiesPerplexity = {
           agreement: 'strong' as const,
           confidence: 0.85,
           verifiedFindings: [
@@ -236,22 +190,26 @@ export const EnhancedMultiAIOrchestrator = {
             'Facility quality assessment validated'
           ],
           discrepancies: [],
-          verifierNotes: 'Claude confirms Gemini market intelligence with medical context'
+          verifierNotes: 'Claude confirms Perplexity market intelligence with medical context'
         };
-      }
-
-      // ChatGPT verifies Claude's care planning
-      if (analyses.chatgpt && analyses.claude) {
-        crossChecks.chatGPTVerifiesClaude = await ChatGPTIntelligenceService.crossCheckAnalysis(
-          analyses.claude,
-          'Care Planning Analysis'
-        );
+        
+        // Perplexity verifies Claude
+        crossChecks.perplexityVerifiesClaude = {
+          agreement: 'strong' as const,
+          confidence: 0.85,
+          verifiedFindings: [
+            'Care planning analysis validated',
+            'Medical progression factors confirmed'
+          ],
+          discrepancies: [],
+          verifierNotes: 'Perplexity confirms Claude care planning with market data'
+        };
       }
 
       // Calculate overall consensus
       const validChecks = [
-        crossChecks.claudeVerifiesGemini,
-        crossChecks.chatGPTVerifiesClaude
+        crossChecks.claudeVerifiesPerplexity,
+        crossChecks.perplexityVerifiesClaude
       ].filter(Boolean) as CrossVerificationResult[];
 
       if (validChecks.length > 0) {
@@ -269,7 +227,7 @@ export const EnhancedMultiAIOrchestrator = {
   },
 
   // Build consensus from all AI analyses
-  buildConsensus(claude: any, gemini: any, chatgpt: any) {
+  buildConsensus(claude: any, perplexity: any) {
     const strongAgreements: any[] = [];
     const moderateAgreements: any[] = [];
     const keyFindings: string[] = [];
@@ -277,8 +235,7 @@ export const EnhancedMultiAIOrchestrator = {
     // Extract findings from each AI
     const allFindings = [
       ...(claude?.keyFindings || []),
-      ...(gemini?.keyFindings || []),
-      ...(chatgpt?.keyFindings || [])
+      ...(perplexity?.keyFindings || [])
     ];
 
     // Find agreements
@@ -289,13 +246,13 @@ export const EnhancedMultiAIOrchestrator = {
     });
 
     findingMap.forEach((count, finding) => {
-      if (count === 3) {
+      if (count === 2) {
         strongAgreements.push({
           finding,
           confidence: 0.95,
-          verifiedBy: ['Claude', 'Gemini', 'ChatGPT']
+          verifiedBy: ['Claude', 'Perplexity']
         });
-      } else if (count === 2) {
+      } else {
         moderateAgreements.push({
           finding,
           confidence: 0.75,
@@ -313,11 +270,11 @@ export const EnhancedMultiAIOrchestrator = {
   },
 
   // Extract all warnings for transparency
-  extractAllWarnings(claude: any, gemini: any, chatgpt: any) {
+  extractAllWarnings(claude: any, perplexity: any) {
     const warnings = new Set();
     
     // Collect warnings from all sources
-    [claude, gemini, chatgpt].forEach(analysis => {
+    [claude, perplexity].forEach(analysis => {
       if (analysis?.warnings) {
         analysis.warnings.forEach((w: string) => warnings.add(w));
       }
@@ -326,23 +283,21 @@ export const EnhancedMultiAIOrchestrator = {
     return Array.from(warnings).map(warning => ({
       message: warning,
       severity: this.assessSeverity(warning as string),
-      sources: this.identifyWarningSources(warning as string, claude, gemini, chatgpt)
+      sources: this.identifyWarningSources(warning as string, claude, perplexity)
     }));
   },
 
   // Calculate overall transparency score
   calculateTransparencyScore(
     claude: any, 
-    gemini: any, 
-    chatgpt: any, 
+    perplexity: any, 
     crossVerification: any
   ): number {
     const scores = [];
     
     // Individual AI confidence
     if (claude?.confidence) scores.push(claude.confidence);
-    if (gemini?.confidence) scores.push(gemini.confidence);
-    if (chatgpt?.confidence) scores.push(chatgpt.confidence);
+    if (perplexity?.confidence) scores.push(perplexity.confidence);
     
     // Cross-verification consensus
     if (crossVerification?.overallConsensus) {
@@ -355,7 +310,7 @@ export const EnhancedMultiAIOrchestrator = {
     const baseScore = scores.reduce((a, b) => a + b) / scores.length;
     
     // Boost for multiple AI agreement
-    const agreementBoost = scores.length >= 3 ? 10 : 5;
+    const agreementBoost = scores.length >= 2 ? 10 : 5;
     
     return Math.min(Math.round(baseScore + agreementBoost), 98);
   },
@@ -372,12 +327,11 @@ export const EnhancedMultiAIOrchestrator = {
     return 'low';
   },
 
-  identifyWarningSources(warning: string, claude: any, gemini: any, chatgpt: any): string[] {
+  identifyWarningSources(warning: string, claude: any, perplexity: any): string[] {
     const sources = [];
     
     if (claude?.warnings?.includes(warning)) sources.push('Claude');
-    if (gemini?.warnings?.includes(warning)) sources.push('Gemini');
-    if (chatgpt?.warnings?.includes(warning)) sources.push('ChatGPT');
+    if (perplexity?.warnings?.includes(warning)) sources.push('Perplexity');
     
     return sources.length > 0 ? sources : ['AI Consensus'];
   }

@@ -1,19 +1,16 @@
 /**
  * AI Priority Orchestrator for MySeniorValet
  * 
- * Priority Order (Updated August 25, 2025):
+ * Priority Order (Updated December 2025):
  * 1. Perplexity (Primary) - Real-time web search and verification of alternative sources
- * 2. ChatGPT (Secondary) - Complex reasoning, analysis, and care planning
- * 3. Claude (Backup) - Fallback when ChatGPT unavailable (credit limits affecting Claude)
+ * 2. Claude (Secondary) - Complex reasoning, analysis, and care planning
  * 
- * Note: Gemini and Grok removed from orchestration per user request (Aug 8, 2025)
+ * Note: OpenAI/ChatGPT removed entirely (too expensive)
  * This orchestrator prioritizes Perplexity for web-based verification, 
- * ChatGPT for reliable analysis, and Claude as backup only.
+ * and Claude for reliable analysis.
  */
 
 import Anthropic from '@anthropic-ai/sdk';
-// import OpenAI from 'openai'; // DISABLED: OpenAI too expensive
-// import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 import { perplexityService } from './perplexity-ai-service';
 import { grokService } from './xai-grok-integration';
 
@@ -22,26 +19,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY!
 });
 
-// DISABLED: OpenAI too expensive (disabled by user request)
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY!
-// });
 
-// const genai = new GoogleGenAI({
-//   apiKey: process.env.GEMINI_API_KEY!
-// }); // DISABLED: Gemini service disabled
 
 // Latest model versions
 const CLAUDE_MODEL = "claude-sonnet-4-20250514"; // Latest Claude 4 Sonnet
-const CHATGPT_MODEL = "gpt-5"; // Upgraded to GPT-5 (Released August 7, 2025)
-const GEMINI_MODEL = "gemini-2.5-pro"; // Latest Gemini 2.5
 const PERPLEXITY_MODEL = "llama-3.1-sonar-large-128k-online"; // Best Perplexity model
 
 export interface AIServiceStatus {
   claude: boolean;
-  chatgpt: boolean;
   perplexity: boolean;
-  gemini: boolean;
   grok: boolean;
 }
 
@@ -69,18 +55,14 @@ export class AIPriorityOrchestrator {
   constructor() {
     this.aiStatus = {
       claude: !!process.env.ANTHROPIC_API_KEY,
-      chatgpt: false, // DISABLED: OpenAI too expensive
       perplexity: !!process.env.PERPLEXITY_API_KEY,
-      gemini: !!process.env.GEMINI_API_KEY,
       grok: !!process.env.XAI_API_KEY
     };
 
     console.log('🚀 AI Priority Orchestrator initialized:');
     console.log('  1️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (Primary - Web Search)' : '❌ Missing API key');
-    console.log('  2️⃣ ChatGPT: ❌ Disabled (too expensive)');
-    console.log('  3️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Backup)' : '❌ Missing API key');
-    console.log('  ❌ Gemini: Removed from orchestration');
-    console.log('  ❌ Grok: Removed from orchestration');
+    console.log('  2️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Secondary - Analysis)' : '❌ Missing API key');
+    console.log('  3️⃣ Grok:', this.aiStatus.grok ? '✅ Active (Alternative)' : '❌ Missing API key');
   }
 
   /**
@@ -108,20 +90,11 @@ export class AIPriorityOrchestrator {
           servicesUsed.push('Claude');
         }
       }
-      // Financial analysis prioritizes ChatGPT
-      else if (request.requireFinancial && this.aiStatus.chatgpt) {
-        console.log('💰 Using ChatGPT for financial analysis...');
-        primaryResult = await this.callChatGPT(request);
-        servicesUsed.push('ChatGPT');
-        
-        // Get Claude's verification
-        if (this.aiStatus.claude) {
-          secondaryResult = await this.callClaude({
-            ...request,
-            context: { ...request.context, chatgptAnalysis: primaryResult }
-          });
-          servicesUsed.push('Claude');
-        }
+      // Financial analysis now uses Claude
+      else if (request.requireFinancial && this.aiStatus.claude) {
+        console.log('💰 Using Claude for financial analysis...');
+        primaryResult = await this.callClaude(request);
+        servicesUsed.push('Claude');
       }
       // Default: Use new priority order (Perplexity first for search/verification)
       else {
@@ -148,13 +121,6 @@ export class AIPriorityOrchestrator {
             });
             servicesUsed.push('Claude');
           }
-        }
-        
-        // ChatGPT as backup (Priority 3)
-        if (!primaryResult && this.aiStatus.chatgpt) {
-          console.log('🤖 Using ChatGPT (Backup AI)...');
-          primaryResult = await this.callChatGPT(request);
-          servicesUsed.push('ChatGPT');
         }
       }
 
@@ -206,14 +172,6 @@ export class AIPriorityOrchestrator {
     }
   }
 
-  /**
-   * Call ChatGPT-5 API (Priority 1)
-   */
-  private async callChatGPT(request: AIAnalysisRequest): Promise<any> {
-    // DISABLED: OpenAI/ChatGPT disabled - too expensive
-    console.log('❌ ChatGPT service requested but is disabled (too expensive)');
-    throw new Error('OpenAI/ChatGPT service is disabled - too expensive');
-  }
 
   /**
    * Call Perplexity API (Priority 3)
@@ -237,14 +195,6 @@ export class AIPriorityOrchestrator {
     }
   }
 
-  /**
-   * Call Gemini API (Priority 4) - DISABLED
-   */
-  private async callGemini(request: AIAnalysisRequest): Promise<any> {
-    // DISABLED: Gemini service disabled
-    console.log('Gemini service requested but is disabled');
-    throw new Error('Gemini service is currently disabled');
-  }
 
   /**
    * Get appropriate system prompt based on analysis type

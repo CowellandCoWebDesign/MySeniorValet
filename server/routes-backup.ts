@@ -6049,7 +6049,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Three-market verification test as recommended by OpenAI
+  // Three-market verification test
   app.post("/api/communities/three-market-test", async (req, res) => {
     try {
       const testMarkets = [
@@ -11523,17 +11523,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // OpenAI Natural Language Search
-  app.post('/api/openai/natural-search', isAuthenticated, async (req, res) => {
-    try {
-      const { openAIIntegration } = await import('./openai-integration');
-      const results = await openAIIntegration.processNaturalLanguageSearch(req.body);
-      res.json(results);
-    } catch (error) {
-      console.error('OpenAI search error:', error);
-      res.status(500).json({ message: 'Natural language search unavailable' });
-    }
-  });
 
   // Premium Stripe Features
   app.post('/api/stripe/family-collaboration', isAuthenticated, async (req, res) => {
@@ -12803,13 +12792,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         services: {
           claude: !!process.env.ANTHROPIC_API_KEY,
           gemini: !!process.env.GEMINI_API_KEY,
-          chatgpt: !!process.env.OPENAI_API_KEY,
           grok: !!process.env.XAI_API_KEY  // Ready when available
         },
         activeAIs: [
           process.env.ANTHROPIC_API_KEY ? 'Claude 4.0 Sonnet' : null,
-          process.env.GEMINI_API_KEY ? 'Gemini 2.5 Flash' : null,
-          process.env.OPENAI_API_KEY ? 'ChatGPT-4o' : null
+          process.env.GEMINI_API_KEY ? 'Gemini 2.5 Flash' : null
         ].filter(Boolean),
         capabilities: [
           'Multi-AI Cross-Verification',
@@ -12904,7 +12891,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       switch(type) {
         case 'financial':
           result = {
-            ai: 'ChatGPT-4o',
+            ai: 'Claude 4.0 Sonnet',
             specialty: 'Financial Transparency',
             analysis: 'Hidden costs and fee structures analyzed',
             warnings: ['Review annual fee increases', 'Check move-out penalties'],

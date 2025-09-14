@@ -3,7 +3,6 @@ import { communities } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { AnthropicAIService } from "./anthropic-ai-service";
 import { perplexityService } from "./perplexity-ai-service";
-import { openAIIntegration } from "./openai-integration";
 
 const anthropicService = new AnthropicAIService();
 
@@ -91,32 +90,13 @@ export class AIDataQualityAnalyzer {
       perplexityAnalysis = "Perplexity analysis unavailable";
     }
 
-    // OpenAI Analysis
-    let openAIAnalysis = "";
-    try {
-      const openaiResponse = await openaiIntegration.analyzeDataQuality({
-        totalCommunities: metrics.total_communities,
-        duplicateRecords: metrics.duplicate_records,
-        dataCompleteness: {
-          phone: ((metrics.has_phone / metrics.total_communities) * 100).toFixed(1),
-          website: ((metrics.has_website / metrics.total_communities) * 100).toFixed(1),
-          amenities: ((metrics.has_amenities / metrics.total_communities) * 100).toFixed(1),
-          photos: ((metrics.has_photos / metrics.total_communities) * 100).toFixed(1)
-        }
-      });
-      openAIAnalysis = openaiResponse;
-    } catch (error) {
-      console.error("OpenAI analysis error:", error);
-      openAIAnalysis = "OpenAI analysis unavailable";
-    }
 
     return {
       metrics,
       duplicates: duplicates.slice(0, 10),
       aiAnalysis: {
         claude: claudeAnalysis,
-        perplexity: perplexityAnalysis,
-        openai: openAIAnalysis
+        perplexity: perplexityAnalysis
       },
       recommendations: [
         "Immediate: Remove 980 duplicate records (3.73% of database)",

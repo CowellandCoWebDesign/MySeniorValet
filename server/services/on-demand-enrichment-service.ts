@@ -3,7 +3,6 @@ import { communities } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { CommunityEnrichmentService } from "../community-enrichment-service";
 import { WebsiteScraperService } from "../website-scraper-service";
-import { OpenAIIntegration } from "../openai-integration";
 
 interface EnrichmentResult {
   success: boolean;
@@ -19,12 +18,10 @@ export class OnDemandEnrichmentService {
   
   private communityEnrichmentService: CommunityEnrichmentService;
   private websiteScraperService: WebsiteScraperService;
-  private openAIIntegration: OpenAIIntegration;
 
   constructor() {
     this.communityEnrichmentService = new CommunityEnrichmentService();
     this.websiteScraperService = new WebsiteScraperService();
-    this.openAIIntegration = new OpenAIIntegration();
   }
 
   /**
@@ -188,26 +185,6 @@ export class OnDemandEnrichmentService {
         result.protectedFieldsSkipped.push('email');
       }
 
-      // Generate AI description if needed and not already present
-      if (!community.description || community.description.length < 100) {
-        try {
-          const aiDescription = await this.openAIIntegration.generateCommunityDescription({
-            name: community.name,
-            city: community.city,
-            state: community.state,
-            careTypes: community.careTypes,
-            amenities: scrapedData?.amenities || community.amenities || [],
-            services: scrapedData?.services || community.services || []
-          });
-          
-          if (aiDescription) {
-            updates.description = aiDescription;
-            result.fieldsUpdated.push('description');
-          }
-        } catch (error) {
-          console.error(`Failed to generate AI description for community ${communityId}:`, error);
-        }
-      }
 
       // Add enrichment source tracking
       // TODO: Fix JSON field update - temporarily disabled to allow enrichment to work
