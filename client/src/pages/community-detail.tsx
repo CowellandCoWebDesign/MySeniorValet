@@ -52,6 +52,7 @@ import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
+import { MultiAIPerspectives } from '@/components/MultiAIPerspectives';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -2844,6 +2845,16 @@ export default function CommunityDetail() {
                     )}
                   </CardHeader>
                 </Card>
+
+                {/* Multi-AI Perspectives - NEW! */}
+                <MultiAIPerspectives
+                  communityId={community.id}
+                  communityName={community.name}
+                  realTimeData={community.realTimeData}
+                  onAnalysisComplete={(data) => {
+                    console.log('Multi-AI analysis complete:', data);
+                  }}
+                />
 
                 {/* Real-Time AI Insights */}
                 {(() => {

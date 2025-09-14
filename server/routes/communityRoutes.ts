@@ -23,6 +23,22 @@ import { onDemandEnrichmentService } from "../services/on-demand-enrichment-serv
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
 import { simpleEnrichmentService } from "../services/simple-enrichment-service";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
+import { MultiAIOrchestrator } from "../multi-ai-orchestrator";
+
+// AI Response Caching (in-memory cache for simplicity, can be upgraded to Redis)
+const aiResponseCache = new Map<string, any>();
+
+async function getCachedAIResponse(key: string): Promise<any> {
+  return aiResponseCache.get(key);
+}
+
+async function cacheAIResponse(key: string, data: any): Promise<void> {
+  aiResponseCache.set(key, data);
+  // Auto-cleanup after 1 hour
+  setTimeout(() => {
+    aiResponseCache.delete(key);
+  }, 3600000);
+}
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -1332,7 +1348,7 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
-      // Initialize Perplexity real-time data
+      // Initialize real-time data structure
       let realTimeData = {
         lastUpdated: new Date().toISOString(),
         currentAvailability: null as string | null,
@@ -1343,11 +1359,13 @@ export function registerCommunityRoutes(app: Express) {
         upcomingEvents: [] as string[],
         staffUpdates: [] as string[],
         sources: [] as string[],
-        photos: [] as string[]  // Add photos from Perplexity search
+        photos: [] as string[],  // Photos from various AI sources
+        multiAIAnalysis: null as any // Multi-AI orchestrator results
       };
 
-      // Only fetch real-time data if explicitly requested (to prevent 39-second delays)
+      // Only fetch real-time data if explicitly requested (to prevent delays)
       const fetchRealtime = req.query.realtime === 'true';
+      const fetchMultiAI = req.query.multiAI === 'true'; // New flag for multi-AI analysis
       
       // Use Perplexity to get real-time information about the community (only when requested)
       const perplexityService = new PerplexityAIService();
@@ -1532,6 +1550,63 @@ export function registerCommunityRoutes(app: Express) {
         } catch (perplexityError) {
           console.log("Perplexity enrichment skipped:", perplexityError);
           // Continue without real-time data if Perplexity fails
+        }
+      }
+
+      // Multi-AI Orchestrator Analysis (when requested)
+      if (fetchMultiAI) {
+        try {
+          console.log(`🤖 Initiating Multi-AI analysis for ${community.name}`);
+          
+          // Check cache first (1-hour cache to reduce API costs)
+          const cacheKey = `multiAI_${communityId}`;
+          const cachedData = await getCachedAIResponse(cacheKey);
+          
+          if (cachedData && cachedData.timestamp && 
+              (Date.now() - new Date(cachedData.timestamp).getTime()) < 3600000) { // 1 hour cache
+            console.log(`📦 Using cached Multi-AI data for ${community.name}`);
+            realTimeData.multiAIAnalysis = cachedData;
+          } else {
+            // Execute Multi-AI analysis
+            const communityInfo = {
+              id: communityId,
+              name: community.name,
+              city: community.city,
+              state: community.state,
+              address: community.address,
+              careTypes: community.careTypes,
+              communitySubtype: community.communitySubtype
+            };
+            
+            // Get comprehensive analysis from all 5 AI services
+            const multiAIResults = await MultiAIOrchestrator.searchAllAIs(
+              `Provide comprehensive analysis of ${community.name} senior living community in ${community.city}, ${community.state}. Include current pricing, availability, recent news, quality ratings, and market position.`,
+              communityInfo
+            );
+            
+            // Get pricing consensus from all AIs
+            const pricingAnalysis = await MultiAIOrchestrator.analyzePricing(communityInfo);
+            
+            // Combine results
+            realTimeData.multiAIAnalysis = {
+              ...multiAIResults,
+              pricingAnalysis,
+              timestamp: new Date().toISOString(),
+              cacheExpiry: new Date(Date.now() + 3600000).toISOString() // 1 hour expiry
+            };
+            
+            // Cache the results
+            await cacheAIResponse(cacheKey, realTimeData.multiAIAnalysis);
+            
+            console.log(`✅ Multi-AI analysis complete with ${multiAIResults.metadata.successfulServices} services`);
+          }
+        } catch (multiAIError) {
+          console.error("Multi-AI Orchestrator error:", multiAIError);
+          // Continue without multi-AI data if it fails
+          realTimeData.multiAIAnalysis = {
+            error: "Multi-AI analysis temporarily unavailable",
+            timestamp: new Date().toISOString()
+          };
         }
       }
 
