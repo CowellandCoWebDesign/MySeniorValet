@@ -1686,6 +1686,10 @@ export function registerCommunityRoutes(app: Express) {
           // Filter out placeholder images and deduplicate
           realTimeData.photos = [...new Set(allImages)].filter(url => {
             if (!url) return false;
+            // Safely handle url (might be string or object)
+            const urlString = typeof url === 'string' ? url : (url?.url || url?.href || '');
+            if (!urlString) return false;
+            
             const placeholderPatterns = [
               '/api/placeholder/',
               'placeholder.com',
@@ -1695,7 +1699,7 @@ export function registerCommunityRoutes(app: Express) {
               'dummyimage.com',
               'lorempixel.com'
             ];
-            return !placeholderPatterns.some(pattern => url.toLowerCase().includes(pattern));
+            return !placeholderPatterns.some(pattern => urlString.toLowerCase().includes(pattern));
           });
 
           // Combine sources

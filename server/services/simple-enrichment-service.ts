@@ -263,24 +263,51 @@ export class SimpleEnrichmentService {
     const photos: any[] = [];
     const sources = searchResults.sources || [];
     
-    // First, check if Perplexity returned images directly
-    if (searchResults.images && Array.isArray(searchResults.images) && searchResults.images.length > 0) {
-      console.log(`📸 Found ${searchResults.images.length} images from Perplexity AI`);
-      searchResults.images.forEach((imageUrl: string) => {
-        if (imageUrl && this.isValidUrl(imageUrl)) {
-          photos.push({
-            url: imageUrl,
-            source: 'Perplexity AI',
-            isAuthentic: true
-          });
+    // First, try to extract images from citation OG:image tags (SIMPLE approach)
+    const stockDomains = ['istockphoto.com', 'shutterstock.com', 'pexels.com', 'unsplash.com', 'gettyimages.com'];
+    
+    // Extract photos from citation URLs (first 3 non-stock sources)
+    const validSources = sources.filter((source: string) => {
+      if (!this.isValidUrl(source)) return false;
+      try {
+        const url = new URL(source);
+        return !stockDomains.some(domain => url.hostname.includes(domain));
+      } catch {
+        return false;
+      }
+    });
+    
+    // Try to get OG:image from each valid source (simplified approach)
+    for (const sourceUrl of validSources.slice(0, 3)) {
+      try {
+        const response = await fetch(sourceUrl, {
+          headers: { 'User-Agent': 'Mozilla/5.0' },
+          timeout: 3000
+        });
+        const html = await response.text();
+        
+        // Simple OG:image extraction
+        const ogImageMatch = html.match(/<meta\s+property=["']og:image["']\s+content=["']([^"']+)["']/i);
+        if (ogImageMatch && ogImageMatch[1]) {
+          const imageUrl = ogImageMatch[1];
+          if (this.isValidUrl(imageUrl)) {
+            photos.push({
+              url: imageUrl,
+              source: new URL(sourceUrl).hostname.replace('www.', ''),
+              isAuthentic: true
+            });
+            console.log(`📸 Found OG:image from ${sourceUrl}`);
+          }
         }
-      });
+      } catch (error) {
+        // Skip this source
+      }
     }
     
-    // If we already have photos from Perplexity, return them
+    // If we got photos from OG:image tags, return them
     if (photos.length > 0) {
-      console.log(`✅ Using ${photos.length} images from Perplexity AI search`);
-      return photos.slice(0, 15); // Return up to 15 photos
+      console.log(`✅ Found ${photos.length} real photos from citation OG:images`);
+      return photos.slice(0, 5); // Return up to 5 photos
     }
     
     // Otherwise, fall back to scraping from sources
