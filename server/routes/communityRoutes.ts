@@ -1737,10 +1737,13 @@ export function registerCommunityRoutes(app: Express) {
               communitySubtype: community.communitySubtype
             };
             
-            // Get comprehensive analysis from all 5 AI services
+            // Get comprehensive analysis from AI services (excluding Grok & Gemini which are used for reviews)
             const multiAIResults = await MultiAIOrchestrator.searchAllAIs(
               `Provide comprehensive analysis of ${community.name} senior living community in ${community.city}, ${community.state}. Include current pricing, availability, recent news, quality ratings, and market position.`,
-              communityInfo
+              { 
+                ...communityInfo,
+                excludeServices: ['grok', 'gemini']  // These are used exclusively for reviews analysis
+              }
             );
             
             // Get pricing consensus from all AIs

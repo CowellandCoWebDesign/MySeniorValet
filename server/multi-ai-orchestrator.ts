@@ -142,10 +142,24 @@ export class MultiAIOrchestrator {
 
   /**
    * Execute search across all 5 AI services in parallel with timeout handling and caching
+   * @param query - The search query to send to AI services
+   * @param context - Additional context including includeServices and excludeServices options
+   * @param context.includeServices - Array of service names to include (e.g., ['grok', 'gemini'])
+   * @param context.excludeServices - Array of service names to exclude (e.g., ['grok', 'gemini'])
    */
   static async searchAllAIs(query: string, context?: any): Promise<MultiAIResult> {
-    // Generate cache key based on query
-    const cacheKey = `ai_multi:${query.substring(0, 100)}`;
+    // Extract service filtering options from context
+    const includeServices = context?.includeServices as string[] | undefined;
+    const excludeServices = context?.excludeServices as string[] | undefined;
+    
+    // Generate cache key based on query and service filters
+    let cacheKeySuffix = '';
+    if (includeServices) {
+      cacheKeySuffix = `:inc-${includeServices.sort().join(',')}`;
+    } else if (excludeServices) {
+      cacheKeySuffix = `:exc-${excludeServices.sort().join(',')}`;
+    }
+    const cacheKey = `ai_multi:${query.substring(0, 100)}${cacheKeySuffix}`;
     
     // Check if a call is already in progress for this query
     if (aiCallsInProgress.has(cacheKey)) {
@@ -183,11 +197,13 @@ export class MultiAIOrchestrator {
    */
   private static async performSearchAllAIs(query: string, context: any, cacheKey: string): Promise<MultiAIResult> {
     const startTime = Date.now();
-    console.log(`🚀 Multi-AI Orchestrator: Processing query across 5 AI services with ${DEFAULT_AI_TIMEOUT}ms timeout`);
-    console.log(`⚡ Web Search Enabled for: Perplexity, Grok, DeepSeek`);
+    
+    // Extract service filtering options from context
+    const includeServices = context?.includeServices as string[] | undefined;
+    const excludeServices = context?.excludeServices as string[] | undefined;
     
     // Define all AI service calls with capabilities
-    const aiServices = [
+    const allAiServices = [
       {
         name: 'perplexity',
         call: () => perplexityService.searchRealTime(query, context),
@@ -219,6 +235,37 @@ export class MultiAIOrchestrator {
         timeout: DEEPSEEK_TIMEOUT // Use specific DeepSeek timeout for reasoning
       }
     ];
+    
+    // Filter services based on include/exclude options
+    let aiServices = allAiServices;
+    let fallbackDeepSeek = false;
+    
+    if (includeServices && includeServices.length > 0) {
+      // Include only specified services
+      aiServices = allAiServices.filter(service => includeServices.includes(service.name));
+      
+      // If DeepSeek is not in the include list, we'll use it as a fallback
+      if (!includeServices.includes('deepseek')) {
+        fallbackDeepSeek = true;
+      }
+      
+      console.log(`🎯 Multi-AI Orchestrator: Using only ${includeServices.join(', ')} (${aiServices.length} services)`);
+    } else if (excludeServices && excludeServices.length > 0) {
+      // Exclude specified services
+      aiServices = allAiServices.filter(service => !excludeServices.includes(service.name));
+      console.log(`🚫 Multi-AI Orchestrator: Excluding ${excludeServices.join(', ')} (using ${aiServices.length} services)`);
+    } else {
+      // Use all services (default behavior)
+      console.log(`🚀 Multi-AI Orchestrator: Processing query across all ${aiServices.length} AI services`);
+    }
+    
+    // Show which services have web search capabilities
+    const webSearchServices = aiServices
+      .filter(s => s.capabilities.includes('web-search'))
+      .map(s => s.name.charAt(0).toUpperCase() + s.name.slice(1));
+    if (webSearchServices.length > 0) {
+      console.log(`⚡ Web Search Enabled for: ${webSearchServices.join(', ')}`);
+    }
     
     // Execute all AI calls in parallel with timeout handling
     const servicePromises = aiServices.map(service => 
@@ -266,15 +313,42 @@ export class MultiAIOrchestrator {
       }
     });
     
+    // Fallback to DeepSeek if all primary services failed and DeepSeek is available as fallback
+    if (fallbackDeepSeek && successCount === 0 && aiServices.length > 0) {
+      console.log(`⚠️ All ${aiServices.length} primary services failed. Falling back to DeepSeek...`);
+      
+      // Find DeepSeek service
+      const deepSeekService = allAiServices.find(s => s.name === 'deepseek');
+      if (deepSeekService) {
+        const deepSeekResponse = await this.callAIService(
+          deepSeekService.name,
+          deepSeekService.call,
+          deepSeekService.timeout
+        );
+        
+        responses['deepseek'] = deepSeekResponse;
+        
+        if (deepSeekResponse.success) {
+          successCount++;
+          console.log(`✅ DeepSeek fallback: Success (${deepSeekResponse.processingTime}ms)`);
+        } else {
+          failCount++;
+          console.log(`❌ DeepSeek fallback: Failed`);
+        }
+      }
+    }
+    
     // Generate consensus from successful responses
     const consensus = this.generateConsensus(responses);
     
     const totalTime = Date.now() - startTime;
-    const partialResults = successCount < aiServices.length;
+    // Calculate total services used (including fallback DeepSeek if it was triggered)
+    const totalServicesUsed = aiServices.length + (fallbackDeepSeek && responses['deepseek'] ? 1 : 0);
+    const partialResults = successCount < totalServicesUsed;
     
     console.log(`✅ Multi-AI processing complete: ${successCount} successful, ${failCount} failed, ${timeoutCount} timed out in ${totalTime}ms`);
     if (partialResults) {
-      console.log(`⚠️ Returning partial results from ${successCount}/${aiServices.length} services`);
+      console.log(`⚠️ Returning partial results from ${successCount}/${totalServicesUsed} services`);
     }
     
     const result: MultiAIResult = {
