@@ -35,6 +35,14 @@ export class PerplexityAIService {
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || '';
     this.claudeApiKey = process.env.ANTHROPIC_API_KEY || '';
+    
+    // Log API key configuration status (without exposing the actual key)
+    if (this.apiKey) {
+      const keyLen = this.apiKey.length;
+      console.log(`📤 Perplexity API Key configured: ${this.apiKey.substring(0, 8)}...${this.apiKey.substring(keyLen - 4)} (${keyLen} chars)`);
+    } else {
+      console.error('⚠️ PERPLEXITY_API_KEY not found in environment variables');
+    }
   }
 
   isConfigured(): boolean {

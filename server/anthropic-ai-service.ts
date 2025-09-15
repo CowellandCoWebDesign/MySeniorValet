@@ -120,59 +120,7 @@ Return a JSON object with these fields:
   }
 }
 
-// Add AnthropicAIService class for compatibility with orchestrator
-export class AnthropicAIService {
-  async searchCommunityInfo(query: string): Promise<{ success: boolean; data: string; insights?: string[]; recommendations?: string[] }> {
-    try {
-      const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 2048,
-        temperature: 0.7,
-        system: `You are MySeniorValet's AI analyst providing comprehensive insights about senior living communities.
-        Analyze the query and provide detailed, actionable information for families researching senior care options.
-        Focus on practical advice, market insights, and clear recommendations.`,
-        messages: [
-          { role: 'user', content: query }
-        ],
-      }, {
-        timeout: 30000 // 30 second timeout
-      });
-
-      const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
-      
-      // Extract insights and recommendations from the response
-      const insights: string[] = [];
-      const recommendations: string[] = [];
-      
-      // Look for bullet points or numbered lists for insights
-      const insightMatches = responseText.match(/(?:^|\n)[-•*]\s*(.+)/gm);
-      if (insightMatches) {
-        insights.push(...insightMatches.slice(0, 3).map(m => m.replace(/^[-•*]\s*/, '').trim()));
-      }
-      
-      // Look for recommendation patterns
-      const recMatches = responseText.match(/(?:recommend|suggest|consider|should)\s*:?\s*([^.]+\.))/gi);
-      if (recMatches) {
-        recommendations.push(...recMatches.slice(0, 3).map(m => m.replace(/^(?:recommend|suggest|consider|should)\s*:?\s*/i, '').trim()));
-      }
-      
-      return {
-        success: true,
-        data: responseText,
-        insights,
-        recommendations
-      };
-    } catch (error) {
-      console.error('Claude analysis error:', error);
-      return {
-        success: false,
-        data: 'Unable to generate analysis at this time. Please try again later.',
-        insights: [],
-        recommendations: []
-      };
-    }
-  }
-}
+// Export functions that will be used by the class below
 
 export async function generateSearchSuggestions(partialQuery: string): Promise<string[]> {
   try {
@@ -240,11 +188,63 @@ Provide a 2-3 sentence summary of what was found and any helpful context.`
   }
 }
 
-// Export class for build compatibility
+// Export AnthropicAIService class for build compatibility and orchestrator
 export class AnthropicAIService {
   static interpretSearchQuery = interpretSearchQuery;
   static generateSearchSuggestions = generateSearchSuggestions;
   static enhanceSearchResults = enhanceSearchResults;
+  
+  // Method for orchestrator compatibility
+  async searchCommunityInfo(query: string): Promise<{ success: boolean; data: string; insights?: string[]; recommendations?: string[] }> {
+    try {
+      const response = await anthropic.messages.create({
+        model: DEFAULT_MODEL_STR,
+        max_tokens: 2048,
+        temperature: 0.7,
+        system: `You are MySeniorValet's AI analyst providing comprehensive insights about senior living communities.
+        Analyze the query and provide detailed, actionable information for families researching senior care options.
+        Focus on practical advice, market insights, and clear recommendations.`,
+        messages: [
+          { role: 'user', content: query }
+        ],
+      }, {
+        timeout: 30000 // 30 second timeout
+      });
+
+      const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
+      
+      // Extract insights and recommendations from the response
+      const insights: string[] = [];
+      const recommendations: string[] = [];
+      
+      // Look for bullet points or numbered lists for insights
+      const insightMatches = responseText.match(/(?:^|\n)[-•*]\s*(.+)/gm);
+      if (insightMatches) {
+        insights.push(...insightMatches.slice(0, 3).map(m => m.replace(/^[-•*]\s*/, '').trim()));
+      }
+      
+      // Look for recommendation patterns
+      const recMatches = responseText.match(/(?:recommend|suggest|consider|should)\s*:?\s*([^.]+\.)/gi);
+      if (recMatches) {
+        recommendations.push(...recMatches.slice(0, 3).map(m => m.replace(/^(?:recommend|suggest|consider|should)\s*:?\s*/i, '').trim()));
+      }
+      
+      return {
+        success: true,
+        data: responseText,
+        insights,
+        recommendations
+      };
+    } catch (error) {
+      console.error('Claude analysis error:', error);
+      return {
+        success: false,
+        data: 'Unable to generate analysis at this time. Please try again later.',
+        insights: [],
+        recommendations: []
+      };
+    }
+  }
   
   // Instance methods for AI matching compatibility
   isConfigured(): boolean {
