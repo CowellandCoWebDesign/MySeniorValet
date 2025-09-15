@@ -68,7 +68,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
   const [dataIsFresh, setDataIsFresh] = useState(false);
-  const [showRefreshButton, setShowRefreshButton] = useState(false);
+  const [showRefreshButton, setShowRefreshButton] = useState(true); // Always show refresh button
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
   
   const fetchAnalysis = async (forceRefresh: boolean = false) => {
     if (!community?.city || !community?.state) return;
@@ -218,9 +220,29 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   };
   
-  // DISABLED AUTO-LOADING - This was causing excessive Perplexity API calls
-  // Analysis should only happen on user request, not automatically on page load
-  // useEffect removed to prevent auto-triggering - users can click refresh button instead
+  // Manual refresh function - USER-TRIGGERED ONLY
+  const handleManualRefresh = () => {
+    if (!isLoading && cooldownRemaining === 0) {
+      fetchAnalysis(true); // Force refresh when user clicks
+    }
+  };
+  
+  // Check if we have cached data on mount (but don't fetch new data)
+  useEffect(() => {
+    if (community?.enrichmentData && community?.enrichmentDataExpiry) {
+      const expiryDate = new Date(community.enrichmentDataExpiry);
+      const now = new Date();
+      
+      if (expiryDate > now) {
+        // Show cached data if available
+        setAnalysis(community.enrichmentData);
+        setDataIsFresh(true);
+        const timeUntilExpiry = expiryDate.getTime() - now.getTime();
+        const daysUntilExpiry = Math.ceil(timeUntilExpiry / (1000 * 60 * 60 * 24));
+        console.log(`📊 Showing cached analysis, expires in ${daysUntilExpiry} days`);
+      }
+    }
+  }, [community?.id]);
   
   // Don't render anything if there's no analysis and not loading
   if (!isLoading && !analysis) {
@@ -345,19 +367,56 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
   );
 };
 
-// Real-time AI Insights Component - Enhanced with Multi-AI Verification
+// Real-time AI Insights Component - USER-TRIGGERED ONLY to control API costs
 const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
-  // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
-
-  // Track if we've already started verification to prevent duplicates
-  const [hasStartedVerification, setHasStartedVerification] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
   
-  // DISABLED AUTO-VERIFICATION - This was causing excessive Perplexity API calls
-  // Verification should only happen on user request, not automatically
-  // useEffect removed to prevent auto-triggering
+  // Manual refresh function - user-triggered only
+  const handleManualRefresh = async () => {
+    if (isVerifying || cooldownRemaining > 0) return;
+    
+    setIsVerifying(true);
+    try {
+      const response = await fetch(`/api/communities/${community.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ forceRefresh: true, userTriggered: true })
+      });
+      
+      const report = await response.json();
+      
+      if (report.error && report.nextRefreshAvailable) {
+        const nextTime = new Date(report.nextRefreshAvailable);
+        const remaining = Math.max(0, nextTime.getTime() - Date.now());
+        setCooldownRemaining(Math.ceil(remaining / 1000));
+        // Start countdown timer
+        const timer = setInterval(() => {
+          setCooldownRemaining(prev => {
+            if (prev <= 1) {
+              clearInterval(timer);
+              return 0;
+            }
+            return prev - 1;
+          });
+        }, 1000);
+      } else {
+        setLocalVerificationReport(report);
+        setLastRefreshTime(new Date());
+        if (onVerificationReport) onVerificationReport(report);
+        if (report?.verificationResults?.webIntelligence?.images && onPhotosUpdate) {
+          onPhotosUpdate(report.verificationResults.webIntelligence.images);
+        }
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   // Show loading or placeholder content while waiting for data
   const hasData = realTimeData || localVerificationReport;
