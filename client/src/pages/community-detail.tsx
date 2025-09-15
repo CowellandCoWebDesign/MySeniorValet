@@ -218,17 +218,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   };
   
-  // Automatically load analysis when component mounts or community changes - BUT CHECK CACHE FIRST
-  useEffect(() => {
-    // Reset state when community changes
-    setAnalysis(null);
-    setIsExpanded(true);
-    setDataIsFresh(false);
-    setShowRefreshButton(false);
-    
-    // Only fetch if we don't have fresh cached data
-    fetchAnalysis(false); // Pass false to check cache first
-  }, [community?.id, community?.name, community?.city, community?.state]);
+  // DISABLED AUTO-LOADING - This was causing excessive Perplexity API calls
+  // Analysis should only happen on user request, not automatically on page load
+  // useEffect removed to prevent auto-triggering - users can click refresh button instead
   
   // Don't render anything if there's no analysis and not loading
   if (!isLoading && !analysis) {
@@ -363,41 +355,9 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
   
-  // Trigger verification when component mounts (only once)
-  useEffect(() => {
-    if (community?.id && !hasStartedVerification && !localVerificationReport) {
-      setHasStartedVerification(true);
-      setIsVerifying(true);
-      
-      // Call simplified verification endpoint
-      fetch(`/api/communities/${community.id}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: false })
-      })
-      .then(res => res.json())
-      .then(report => {
-        console.log('Verification report received:', report);
-        setLocalVerificationReport(report);
-        // Also update parent state if callback provided
-        if (onVerificationReport) {
-          console.log('Calling onVerificationReport callback with:', report);
-          onVerificationReport(report);
-        }
-        // Update photos if we got any
-        if (report?.verificationResults?.webIntelligence?.images && onPhotosUpdate) {
-          onPhotosUpdate(report.verificationResults.webIntelligence.images);
-        }
-      })
-      .catch(error => {
-        console.error('Verification error:', error);
-        setHasStartedVerification(false); // Allow retry on error
-      })
-      .finally(() => {
-        setIsVerifying(false);
-      });
-    }
-  }, [community?.id]);
+  // DISABLED AUTO-VERIFICATION - This was causing excessive Perplexity API calls
+  // Verification should only happen on user request, not automatically
+  // useEffect removed to prevent auto-triggering
 
   // Show loading or placeholder content while waiting for data
   const hasData = realTimeData || localVerificationReport;
