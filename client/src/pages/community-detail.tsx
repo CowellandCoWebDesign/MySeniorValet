@@ -416,12 +416,19 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Live Web Intelligence moved to avoid duplicate photo display */}
-        {/* Content moved to tabs section to prevent competing carousels */}
+        {/* Photo Carousel from Live Web Intelligence */}
+        {community && (
+          <LiveWebIntelligence 
+            communityId={community.id}
+            communityName={community.name}
+            city={community.city}
+            state={community.state}
+            autoLoad={true}
+            verificationReport={localVerificationReport}
+          />
+        )}
         
-        {/* Removed redundant sections - all content is now shown in the "What We Found About" section below */}
-
-          {/* Data Sources */}
+        {/* Data Sources */}
           {realTimeData?.sources && realTimeData?.sources.length > 0 && (
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
