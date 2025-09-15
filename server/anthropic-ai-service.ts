@@ -11,8 +11,6 @@ const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
-  timeout: 45000, // 45 seconds timeout to match orchestrator
-  maxRetries: 0, // Disable automatic retries to respect timeout
 });
 
 export interface SearchIntent {
@@ -81,9 +79,6 @@ Return a JSON object with these fields:
       messages: [
         { role: 'user', content: userPrompt }
       ],
-    }, {
-      // Override timeout for this specific call
-      timeout: 45000
     });
 
     // Extract the JSON from the response
@@ -120,8 +115,6 @@ Return a JSON object with these fields:
   }
 }
 
-// Export functions that will be used by the class below
-
 export async function generateSearchSuggestions(partialQuery: string): Promise<string[]> {
   try {
     const response = await anthropic.messages.create({
@@ -140,9 +133,6 @@ Examples:
           content: `Generate search suggestions for: "${partialQuery}"\n\nReturn as JSON array.`
         }
       ],
-    }, {
-      // Override timeout for this specific call
-      timeout: 45000
     });
 
     const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
@@ -176,9 +166,6 @@ ${results.slice(0, 3).map(r => `- ${r.name} in ${r.city}, ${r.state}`).join('\n'
 Provide a 2-3 sentence summary of what was found and any helpful context.`
         }
       ],
-    }, {
-      // Override timeout for this specific call
-      timeout: 45000
     });
 
     return response.content[0].type === 'text' ? response.content[0].text : '';
@@ -188,63 +175,11 @@ Provide a 2-3 sentence summary of what was found and any helpful context.`
   }
 }
 
-// Export AnthropicAIService class for build compatibility and orchestrator
+// Export class for build compatibility
 export class AnthropicAIService {
   static interpretSearchQuery = interpretSearchQuery;
   static generateSearchSuggestions = generateSearchSuggestions;
   static enhanceSearchResults = enhanceSearchResults;
-  
-  // Method for orchestrator compatibility
-  async searchCommunityInfo(query: string): Promise<{ success: boolean; data: string; insights?: string[]; recommendations?: string[] }> {
-    try {
-      const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 2048,
-        temperature: 0.7,
-        system: `You are MySeniorValet's AI analyst providing comprehensive insights about senior living communities.
-        Analyze the query and provide detailed, actionable information for families researching senior care options.
-        Focus on practical advice, market insights, and clear recommendations.`,
-        messages: [
-          { role: 'user', content: query }
-        ],
-      }, {
-        timeout: 30000 // 30 second timeout
-      });
-
-      const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
-      
-      // Extract insights and recommendations from the response
-      const insights: string[] = [];
-      const recommendations: string[] = [];
-      
-      // Look for bullet points or numbered lists for insights
-      const insightMatches = responseText.match(/(?:^|\n)[-•*]\s*(.+)/gm);
-      if (insightMatches) {
-        insights.push(...insightMatches.slice(0, 3).map(m => m.replace(/^[-•*]\s*/, '').trim()));
-      }
-      
-      // Look for recommendation patterns
-      const recMatches = responseText.match(/(?:recommend|suggest|consider|should)\s*:?\s*([^.]+\.)/gi);
-      if (recMatches) {
-        recommendations.push(...recMatches.slice(0, 3).map(m => m.replace(/^(?:recommend|suggest|consider|should)\s*:?\s*/i, '').trim()));
-      }
-      
-      return {
-        success: true,
-        data: responseText,
-        insights,
-        recommendations
-      };
-    } catch (error) {
-      console.error('Claude analysis error:', error);
-      return {
-        success: false,
-        data: 'Unable to generate analysis at this time. Please try again later.',
-        insights: [],
-        recommendations: []
-      };
-    }
-  }
   
   // Instance methods for AI matching compatibility
   isConfigured(): boolean {
@@ -263,9 +198,6 @@ export class AnthropicAIService {
         messages: [
           { role: 'user', content: prompt }
         ],
-      }, {
-        // Override timeout for this specific call
-        timeout: 45000
       });
       
       return response.content[0].type === 'text' ? response.content[0].text : '';
@@ -284,72 +216,12 @@ export class AnthropicAIService {
         messages: [
           { role: 'user', content: prompt }
         ],
-      }, {
-        // Override timeout for this specific call
-        timeout: 45000
       });
       
       return response.content[0].type === 'text' ? response.content[0].text : '';
     } catch (error) {
       console.error('Error in AI text analysis:', error);
       return 'Analysis unavailable at this time';
-    }
-  }
-
-  // Method for Multi-AI Orchestrator compatibility
-  async searchAndAnalyze(query: string, context?: any): Promise<any> {
-    try {
-      console.log('🤖 Claude AI Request:', { query: query.substring(0, 100), hasContext: !!context });
-      
-      const systemPrompt = `You are Claude, an AI assistant specializing in comprehensive analysis of senior living communities.
-Provide detailed, thoughtful insights about senior living facilities, care quality, pricing, and services.
-Focus on depth of analysis and nuanced understanding of family needs.`;
-
-      const userPrompt = context 
-        ? `Context: ${JSON.stringify(context)}\n\nQuery: ${query}\n\nProvide comprehensive analysis including pricing insights, care quality indicators, important considerations, and personalized recommendations.`
-        : `${query}\n\nProvide comprehensive analysis including all relevant insights and recommendations.`;
-
-      const response = await anthropic.messages.create({
-        model: DEFAULT_MODEL_STR,
-        max_tokens: 1500,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ],
-      }, {
-        // Override timeout for this specific call
-        timeout: 45000
-      });
-
-      const content = response.content[0].type === 'text' ? response.content[0].text : '';
-      
-      console.log('✅ Claude response received:', content.substring(0, 200));
-      
-      return {
-        success: true,
-        content,
-        response: content, // For backward compatibility
-        model: DEFAULT_MODEL_STR,
-        aiService: 'Claude AI (Anthropic)',
-        timestamp: new Date().toISOString()
-      };
-    } catch (error: any) {
-      console.error('❌ Claude AI Error:', error.message);
-      
-      // Check if it's an authentication error
-      if (error.message?.includes('401') || error.message?.includes('authentication')) {
-        return {
-          success: false,
-          error: 'Claude API authentication failed - please check your API key',
-          aiService: 'Claude AI (Anthropic)'
-        };
-      }
-      
-      return {
-        success: false,
-        error: error.message || 'Claude AI service temporarily unavailable',
-        aiService: 'Claude AI (Anthropic)'
-      };
     }
   }
 }

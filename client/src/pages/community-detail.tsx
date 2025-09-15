@@ -296,10 +296,9 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
   );
 };
 
-// Real-time AI Insights Component - Enhanced with Claude Analysis
+// Real-time AI Insights Component - Enhanced with Multi-AI Verification
 const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
-  const aiAnalysis = realTimeData?.aiAnalysis || realTimeData?.claudeAnalysis; // Support both new and legacy field names
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
@@ -380,20 +379,12 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   return (
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-      {/* AI Intelligence Badges */}
-      <div className="absolute top-4 right-4 z-10 flex gap-2">
-        {localVerificationReport?.aiService && (
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-            <Sparkles className="w-3 h-3 mr-1" />
-            {localVerificationReport.aiService}
-          </div>
-        )}
-        {!localVerificationReport?.aiService && (
-          <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-            <Sparkles className="w-3 h-3 mr-1" />
-            AI Intelligence
-          </div>
-        )}
+      {/* Perplexity AI Badge */}
+      <div className="absolute top-4 right-4 z-10">
+        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+          <Sparkles className="w-3 h-3 mr-1" />
+          Powered by AI Intelligence
+        </div>
       </div>
 
       <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
@@ -416,19 +407,162 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {/* Photo Carousel from Live Web Intelligence */}
-        {community && (
-          <LiveWebIntelligence 
-            communityId={community.id}
-            communityName={community.name}
-            city={community.city}
-            state={community.state}
-            autoLoad={true}
-            verificationReport={localVerificationReport}
-          />
-        )}
+        {/* Live Web Intelligence moved to avoid duplicate photo display */}
+        {/* Content moved to tabs section to prevent competing carousels */}
         
-        {/* Data Sources */}
+        {/* Show sections even without real-time data - will populate when loaded */}
+        {(
+        <div className="space-y-6 mt-6">
+          {/* Current Availability & Pricing - Enhanced with Web Intelligence Data */}
+          {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
+              <h4 className="font-semibold text-lg mb-3 flex items-center">
+                <Activity className="w-5 h-5 mr-2 text-green-600" />
+                Current Availability & Pricing
+              </h4>
+              <div className="space-y-2">
+                {/* Pricing is now shown in LiveWebIntelligence component above */}
+                {realTimeData?.currentPricing && (
+                  <div className="flex items-start">
+                    <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
+                    <div>
+                      <p className="font-medium text-green-800 dark:text-green-200">Live Pricing Found:</p>
+                      {(() => {
+                        // Check if it's JSON string and parse it
+                        let pricingText = realTimeData.currentPricing;
+                        try {
+                          if (typeof pricingText === 'string' && pricingText.includes('{') && pricingText.includes('}')) {
+                            const parsed = JSON.parse(pricingText);
+                            pricingText = parsed.price || parsed.amount || parsed.text || JSON.stringify(parsed);
+                          }
+                        } catch (e) {
+                          // If it's not valid JSON, use as-is
+                        }
+                        return <p className="text-lg font-bold text-green-900 dark:text-green-100">{pricingText}</p>;
+                      })()}
+                    </div>
+                  </div>
+                )}
+                {realTimeData?.currentAvailability && (
+                  <div className="flex items-start">
+                    <CheckCircle className="w-4 h-4 mt-1 mr-2 text-blue-600" />
+                    <div>
+                      {(() => {
+                        // Check if it's JSON string and parse it
+                        let availabilityText = realTimeData.currentAvailability;
+                        try {
+                          if (typeof availabilityText === 'string' && availabilityText.includes('{') && availabilityText.includes('}')) {
+                            const parsed = JSON.parse(availabilityText);
+                            availabilityText = parsed.message || parsed.text || JSON.stringify(parsed);
+                          }
+                        } catch (e) {
+                          // If it's not valid JSON, use as-is
+                        }
+                        return <p className="text-sm text-gray-700 dark:text-gray-300">{availabilityText}</p>;
+                      })()}
+                    </div>
+                  </div>
+                )}
+                {realTimeData?.waitlistStatus && (
+                  <div className="flex items-start">
+                    <Clock className="w-4 h-4 mt-1 mr-2 text-orange-600" />
+                    <div>
+                      {(() => {
+                        // Check if it's JSON string and parse it
+                        let waitlistText = realTimeData.waitlistStatus;
+                        try {
+                          if (typeof waitlistText === 'string' && waitlistText.includes('{') && waitlistText.includes('}')) {
+                            const parsed = JSON.parse(waitlistText);
+                            waitlistText = parsed.message || parsed.text || parsed.status || JSON.stringify(parsed);
+                          }
+                        } catch (e) {
+                          // If it's not valid JSON, use as-is
+                        }
+                        return <p className="text-sm text-orange-800 dark:text-orange-200">{waitlistText}</p>;
+                      })()}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Community Highlights */}
+          {realTimeData?.communityHighlights && realTimeData?.communityHighlights.length > 0 && (
+            <div>
+              <h4 className="font-semibold text-lg mb-3 flex items-center">
+                <Award className="w-5 h-5 mr-2 text-purple-600" />
+                Community Achievements
+              </h4>
+              <div className="space-y-2">
+                {realTimeData?.communityHighlights.map((highlight: string, idx: number) => {
+                  // Check if highlight is JSON string and parse it
+                  let highlightText = highlight;
+                  try {
+                    if (typeof highlightText === 'string' && highlightText.includes('{') && highlightText.includes('}')) {
+                      const parsed = JSON.parse(highlightText);
+                      highlightText = parsed.text || parsed.highlight || parsed.message || JSON.stringify(parsed);
+                    }
+                  } catch (e) {
+                    // If it's not valid JSON, use as-is
+                  }
+                  return (
+                    <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                      <p className="text-sm text-purple-900 dark:text-purple-200">{highlightText}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Recent News & Updates */}
+          {(() => {
+            const news = parseDataArray(realTimeData?.recentNews);
+            return news.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <Info className="w-5 h-5 mr-2 text-blue-600" />
+                  Recent News & Updates
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                </h4>
+                <div className="space-y-2">
+                  {news.map((item: string, idx: number) => (
+                    <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border-l-4 border-blue-400">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        {item.replace(/^[-•]\s*/, '').trim()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Upcoming Events */}
+          {(() => {
+            const events = parseDataArray(realTimeData?.upcomingEvents);
+            return events.length > 0 && (
+              <div>
+                <h4 className="font-semibold text-lg mb-3 flex items-center">
+                  <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
+                  Upcoming Events
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                </h4>
+                <div className="space-y-2">
+                  {events.map((item: string, idx: number) => (
+                    <div key={idx} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400">
+                      <p className="text-sm text-orange-900 dark:text-orange-200">
+                        {item.replace(/^[-•]\s*/, '').trim()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Data Sources */}
           {realTimeData?.sources && realTimeData?.sources.length > 0 && (
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
@@ -482,7 +616,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <Globe className="w-5 h-5 mr-2 text-indigo-600" />
                     What We Found About {community?.name}
                   </h4>
-                  <p className="text-xs text-muted-foreground">Powered by {localVerificationReport?.aiService || 'AI Intelligence'}</p>
+                  <p className="text-xs text-muted-foreground">Powered by {verificationReport?.aiService || 'AI Intelligence'}</p>
                 </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search
@@ -843,6 +977,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
               </div>
             </div>
           </div>
+        </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -1027,7 +1163,7 @@ export default function CommunityDetail() {
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
   const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: [`/api/communities/${id}?realtime=true&claude=true`],
+    queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
     select: (data) => {
       // Log the raw API response to debug ID issues
@@ -2708,8 +2844,6 @@ export default function CommunityDetail() {
                     )}
                   </CardHeader>
                 </Card>
-
-                {/* Claude Analysis integrated into Live Intelligence Report */}
 
                 {/* Real-Time AI Insights */}
                 {(() => {

@@ -158,7 +158,7 @@ Last updated: August 7, 2025`;
 We collect information you provide directly, usage data, and location data to provide our services.
 
 ## 2. AI Processing
-Our platform uses multiple AI systems (Claude, Gemini, Perplexity) for search enhancement and data verification. All AI processing is conducted with privacy safeguards.
+Our platform uses multiple AI systems (Claude, Gemini, ChatGPT, Grok) for search enhancement and data verification. All AI processing is conducted with privacy safeguards.
 
 ## 3. How We Use Information
 - Provide and improve our services

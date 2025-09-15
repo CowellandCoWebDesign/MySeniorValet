@@ -1,13 +1,18 @@
 // Multi-AI Verification Service for MySeniorValet
-// Cross-verifies community information using Claude and Perplexity
+// Cross-verifies community information using Claude, ChatGPT-4o, and Perplexity
 // Provides transparency through multi-source verification
 
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { websiteScraperService } from './website-scraper-service';
 
 // Initialize AI clients
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
+});
+
+const openai = new OpenAI({ 
+  apiKey: process.env.OPENAI_API_KEY || '' 
 });
 
 interface VerificationResult {
@@ -31,10 +36,12 @@ interface MultiAIVerificationReport {
   aiOrchestra: {
     perplexity: { status: 'active' | 'inactive'; lastResponse: string };
     claude: { status: 'active' | 'inactive'; lastResponse: string };
+    chatgpt: { status: 'active' | 'inactive'; lastResponse: string };
   };
   verificationResults: {
     perplexityData: any;
     claudeVerification: VerificationResult | null;
+    chatgptVerification: VerificationResult | null;
     webIntelligence?: {
       images: Array<{ url: string; source: string }>;
       floorPlans: Array<{ url: string; source: string }>;
@@ -79,7 +86,7 @@ interface MultiAIVerificationReport {
 
 export class MultiAIVerificationService {
   
-  // Main verification method - verifies Perplexity data with Claude
+  // Main verification method - verifies Perplexity data with Claude and ChatGPT
   async verifyRealTimeData(
     communityId: number,
     communityName: string,
@@ -116,10 +123,15 @@ export class MultiAIVerificationService {
           status: 'inactive', 
           lastResponse: 'pending' 
         },
+        chatgpt: { 
+          status: 'inactive', 
+          lastResponse: 'pending' 
+        },
       },
       verificationResults: {
         perplexityData,
         claudeVerification: null,
+        chatgptVerification: null,
       },
       consensus: {
         agreementLevel: 'weak',
@@ -228,49 +240,62 @@ export class MultiAIVerificationService {
         };
       }
       
-      // Claude is the primary verifier for verification and enrichment
-      try {
-        const claudeResult = await this.verifyWithClaude(communityName, perplexityData, communityContext);
-        if (claudeResult) {
-          report.verificationResults.claudeVerification = claudeResult;
-          report.aiOrchestra.claude = {
-            status: 'active',
-            lastResponse: new Date().toISOString()
-          };
-        } else {
-          console.warn('Claude verification unavailable');
-          report.aiOrchestra.claude = {
-            status: 'inactive',
-            lastResponse: 'unavailable'
-          };
-        }
-      } catch (error) {
-        console.warn('Claude verification failed:', error);
+      // Restored original orchestration order: Claude primary, ChatGPT fallback
+      // Priority: Claude (Anthropic) for verification and enrichment, ChatGPT as backup
+      const [claudeResult, chatgptResult] = await Promise.allSettled([
+        this.verifyWithClaude(communityName, perplexityData, communityContext),
+        this.verifyWithChatGPT(communityName, perplexityData, communityContext)
+      ]);
+
+      // Process Claude verification first (primary verifier with enrichment capabilities)
+      if (claudeResult.status === 'fulfilled' && claudeResult.value) {
+        report.verificationResults.claudeVerification = claudeResult.value;
         report.aiOrchestra.claude = {
+          status: 'active',
+          lastResponse: new Date().toISOString()
+        };
+      } else {
+        console.warn('Claude verification unavailable, falling back to ChatGPT');
+        report.aiOrchestra.claude = {
+          status: 'inactive',
+          lastResponse: 'fallback_to_chatgpt'
+        };
+      }
+
+      // Process ChatGPT verification (fallback when Claude is unavailable)
+      if (chatgptResult.status === 'fulfilled' && chatgptResult.value) {
+        report.verificationResults.chatgptVerification = chatgptResult.value;
+        report.aiOrchestra.chatgpt = {
+          status: 'active',
+          lastResponse: new Date().toISOString()
+        };
+      } else {
+        console.warn('ChatGPT verification also failed:', chatgptResult);
+        report.aiOrchestra.chatgpt = {
           status: 'inactive',
           lastResponse: 'error'
         };
       }
 
-      // Build consensus from AI sources
+      // Build consensus from all three AI sources
       report.consensus = this.buildConsensus(
         perplexityData,
         report.verificationResults.claudeVerification,
-        null
+        report.verificationResults.chatgptVerification
       );
 
       // Extract contact information from AI responses
       report.contactInfo = this.extractContactInfo(
         perplexityData,
         report.verificationResults.claudeVerification,
-        null
+        report.verificationResults.chatgptVerification
       );
       
       // Extract address information from AI responses
       report.addressInfo = this.extractAddressInfo(
         perplexityData,
         report.verificationResults.claudeVerification,
-        null,
+        report.verificationResults.chatgptVerification,
         communityContext
       );
       
@@ -278,7 +303,7 @@ export class MultiAIVerificationService {
       report.pricing = this.extractPricingData(
         perplexityData,
         report.verificationResults.claudeVerification,
-        null,
+        report.verificationResults.chatgptVerification,
         scrapedPricing // Pass scraped pricing from official website
       );
 
@@ -396,18 +421,136 @@ Respond with JSON only:
     }
   }
 
+  // Verify with ChatGPT-4o - Focus on IDENTITY VERIFICATION & DATA VALIDATION
+  async verifyWithChatGPT(
+    communityName: string,
+    perplexityData: any,
+    communityContext?: any
+  ): Promise<VerificationResult | null> {
+    try {
+      const location = communityContext ? 
+        `${communityContext.city}, ${communityContext.state}` : 
+        'Location unknown';
+      
+      const careTypes = communityContext?.careTypes?.join(', ') || 'senior living';
+      const communityType = communityContext?.communityType || 'senior living community';
 
-  // Build consensus from AI sources
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o', // Latest GPT model
+        messages: [
+          {
+            role: 'system',
+            content: 'You are helping families research senior living communities. Be helpful and permissive - accept relevant information that would be useful to families, even if not a perfect name match. When communities have multiple locations, focus ONLY on the specific location requested. Respond with JSON only.'
+          },
+          {
+            role: 'user',
+            content: `CRITICAL DATA VERIFICATION TASK:
+
+🏢 DATABASE COMMUNITY (What we have):
+- Name: "${communityName}"
+- Location: ${location} 
+- Address: ${communityContext?.address || 'Not specified'}
+- ZIP Code: ${communityContext?.zipCode || 'Not specified'}
+
+🔍 WEB SEARCH RESULTS (What we found):
+${JSON.stringify(perplexityData, null, 2)}
+
+⚠️ CRITICAL: HANDLE MULTIPLE LOCATIONS PROPERLY
+- Large chains like Atria, Brookdale, Sunrise often have MULTIPLE locations in same city
+- Focus ONLY on the SPECIFIC address: ${communityContext?.address || 'Not specified'}
+- If multiple addresses found, extract ONLY data for ${location} location
+- DO NOT mix information from different addresses even if same brand name
+
+STEP 1 - IDENTITY VERIFICATION:
+Determine if the web results contain useful information about "${communityName}" at ${location}:
+1. Do the web results mention "${communityName}" or reasonable variations?
+2. Is the specific location ${location} clearly identified?
+3. **MULTIPLE LOCATION CHECK**: If chain with multiple locations:
+   - Verify this is the ${communityContext?.address || location} location specifically
+   - Don't mix data from other locations of the same chain
+4. **REASONABLE MATCHING**: Accept relevant community info:
+   - Official websites, parent company sites, directories all acceptable
+   - Focus on whether information helps families research THIS specific location
+
+STEP 2 - DATA EXTRACTION (location-specific only):
+Extract ALL data specific to the ${location} location of "${communityName}".
+Include information from the last 6 months (not just recent weeks).
+
+Respond in JSON format:
+{
+  "identityVerified": boolean (true if web results contain useful information about the community),
+  "nameMatch": "exact/partial/different",
+  "locationMatch": boolean,
+  "dataQualityScore": 0-100,
+  "verified": boolean (overall verification - false if wrong community),
+  "confidence": 0-100,
+  "findings": [
+    "ONLY facts about ${communityName} specifically",
+    "Verified pricing information for THIS community",
+    "Contact details and services confirmed",
+    "Current availability or status updates"
+  ],
+  "concerns": [
+    "Name confusion with other communities (e.g., Hilltop Springs vs Hilltop Estates)",
+    "Address mismatch indicates different community (e.g., 7 Hilltop vs 451 Hilltop)", 
+    "Web results appear to be about similarly named but different property",
+    "Missing ZIP Code and possible address discrepancies",
+    "Generally limited and vague information available"
+  ],
+  "recommendations": [
+    "Suggested verification steps for families",
+    "Red flags to investigate further",
+    "Questions to ask during direct contact"
+  ]
+}
+
+REMEMBER: Verify as true if the web data appears relevant and helpful for families researching "${communityName}" in ${location}. Be permissive - partial matches and similar information are valuable.`
+          }
+        ],
+        response_format: { type: 'json_object' }
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || '{}');
+      
+      // Enhanced verification with identity checking
+      const identityVerified = result.identityVerified || false;
+      const verified = identityVerified && (result.verified || false);
+      
+      return {
+        source: 'ChatGPT-4o',
+        verified,
+        confidence: verified ? (result.confidence || 0) : Math.max(0, (result.confidence || 0) - 50),
+        identityVerified,
+        nameMatch: result.nameMatch || 'different',
+        locationMatch: result.locationMatch || false,
+        findings: result.findings || [],
+        concerns: result.concerns || [],
+        recommendations: result.recommendations || []
+      };
+    } catch (error) {
+      console.error('ChatGPT verification error:', error);
+      return null;
+    }
+  }
+
+  // Build consensus from all AI sources
   private buildConsensus(
     perplexityData: any,
     claudeResult: VerificationResult | null,
+    chatgptResult: VerificationResult | null
   ): MultiAIVerificationReport['consensus'] {
     const verifiedFacts: string[] = [];
     const disputedFacts: string[] = [];
     const allFindings = new Set<string>();
     const allConcerns = new Set<string>();
 
-    // Use Claude results if available
+    // Since Claude is down, rely more heavily on Perplexity + ChatGPT combination
+    if (chatgptResult) {
+      chatgptResult.findings.forEach(f => allFindings.add(f));
+      chatgptResult.concerns.forEach(c => allConcerns.add(c));
+    }
+    
+    // Claude fallback (only if available)
     if (claudeResult) {
       claudeResult.findings.forEach(f => allFindings.add(f));
       claudeResult.concerns.forEach(c => allConcerns.add(c));
@@ -422,18 +565,22 @@ Respond with JSON only:
       confidenceScore += claudeResult.confidence;
       activeAIs++;
     }
+    if (chatgptResult) {
+      confidenceScore += chatgptResult.confidence;
+      activeAIs++;
+    }
 
     if (activeAIs > 0) {
       confidenceScore = Math.round(confidenceScore / activeAIs);
     }
 
-    // Consensus building with Claude and Perplexity
-    if (activeAIs >= 1 && claudeResult) {
-      // Check identity verification from Claude
-      const identityVerified = (claudeResult as any)?.identityVerified || false;
-      const nameMatch = (claudeResult as any)?.nameMatch === 'exact' || (claudeResult as any)?.nameMatch === 'partial';
+    // ENHANCED: Better consensus building with identity verification
+    if (activeAIs >= 1 && chatgptResult) {
+      // Check identity verification first
+      const identityVerified = (chatgptResult as any)?.identityVerified || false;
+      const nameMatch = (chatgptResult as any)?.nameMatch === 'exact' || (chatgptResult as any)?.nameMatch === 'partial';
       
-      if (identityVerified && nameMatch && claudeResult.verified && perplexityData?.sources?.length > 0) {
+      if (identityVerified && nameMatch && chatgptResult.verified && perplexityData?.sources?.length > 0) {
         if (confidenceScore >= 80) {
           agreementLevel = 'strong'; // High confidence with identity verification
         } else if (confidenceScore >= 65) {
@@ -442,6 +589,19 @@ Respond with JSON only:
       } else if (!identityVerified) {
         agreementLevel = 'conflicting'; // Flag when identity couldn't be verified
         disputedFacts.push('Community identity could not be verified from web search results');
+      }
+      
+      // Two AI verification (Claude + ChatGPT)
+      if (activeAIs === 2 && claudeResult) {
+        if (claudeResult.verified && chatgptResult.verified) {
+          if (confidenceScore >= 80) {
+            agreementLevel = 'strong';
+          } else if (confidenceScore >= 60) {
+            agreementLevel = 'moderate';
+          }
+        } else if (claudeResult.verified !== chatgptResult.verified) {
+          agreementLevel = 'conflicting';
+        }
       }
     }
 
@@ -489,6 +649,7 @@ Respond with JSON only:
   private extractPricingData(
     perplexityData: any,
     claudeResult: VerificationResult | null,
+    chatgptResult: VerificationResult | null,
     scrapedPricing?: any // Official website pricing from scraper
   ): MultiAIVerificationReport['pricing'] {
     try {
@@ -563,9 +724,10 @@ Respond with JSON only:
         }
       }
       
-      // Check if Claude mentioned specific pricing
+      // Check if Claude or ChatGPT mentioned specific pricing
       const allFindings = [
-        ...(claudeResult?.findings || [])
+        ...(claudeResult?.findings || []),
+        ...(chatgptResult?.findings || [])
       ];
       
       for (const finding of allFindings) {
@@ -579,7 +741,8 @@ Respond with JSON only:
       }
       
       if (extractedPricing) {
-        const confidence = claudeResult ? 70 : 60;
+        const confidence = (claudeResult && chatgptResult) ? 85 : 
+                          (claudeResult || chatgptResult) ? 70 : 60;
         
         return {
           verified: true,
@@ -684,7 +847,7 @@ Respond with JSON only:
   }
 
   // Extract contact information from AI responses
-  extractContactInfo(perplexityData: any, claudeResult: any): {
+  extractContactInfo(perplexityData: any, claudeResult: any, chatgptResult: any): {
     phone?: string;
     email?: string;
     website?: string;
@@ -697,7 +860,7 @@ Respond with JSON only:
       perplexityData?.searchContent || '',
       perplexityData?.summary || '',
       JSON.stringify(claudeResult || {}),  // Include full Claude response
-      '{}',  // Placeholder for removed service
+      JSON.stringify(chatgptResult || {}),  // Include full ChatGPT response
       JSON.stringify(perplexityData || {})  // Include full Perplexity data
     ].join(' ');
     
@@ -784,7 +947,7 @@ Respond with JSON only:
   }
 
   // Extract address information from AI responses
-  extractAddressInfo(perplexityData: any, claudeResult: any, communityContext: any): {
+  extractAddressInfo(perplexityData: any, claudeResult: any, chatgptResult: any, communityContext: any): {
     address?: string;
     city?: string;
     state?: string;
@@ -798,7 +961,7 @@ Respond with JSON only:
       perplexityData?.searchContent || '',
       perplexityData?.summary || '',
       JSON.stringify(claudeResult || {}),
-      '{}',  // Placeholder for removed service
+      JSON.stringify(chatgptResult || {}),
       JSON.stringify(perplexityData || {})
     ].join(' ');
     

@@ -1,5 +1,13 @@
 import axios from 'axios';
-import { GrokAIService } from './grok-ai-service';
+import Anthropic from '@anthropic-ai/sdk';
+
+// Initialize Claude as fallback
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!
+});
+
+// Use the latest Claude model
+const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
 export interface PerplexityResponse {
   id: string;
@@ -22,212 +30,61 @@ export interface PerplexityResponse {
 export class PerplexityAIService {
   private apiKey: string;
   private baseUrl = 'https://api.perplexity.ai/chat/completions';
+  private claudeApiKey: string;
   
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || '';
-    
-    // Log API key configuration status (without exposing the actual key)
-    if (this.apiKey) {
-      const keyLen = this.apiKey.length;
-      console.log(`📤 Perplexity API Key configured: ${this.apiKey.substring(0, 8)}...${this.apiKey.substring(keyLen - 4)} (${keyLen} chars)`);
-    } else {
-      console.error('⚠️ PERPLEXITY_API_KEY not found in environment variables');
-    }
+    this.claudeApiKey = process.env.ANTHROPIC_API_KEY || '';
   }
 
   isConfigured(): boolean {
-    return !!this.apiKey;
+    return !!this.apiKey || !!this.claudeApiKey;
   }
 
-  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[]; aiService?: string }> {
+  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
     // Log the attempt
-    console.log('🔍 Starting optimized web search for:', query.substring(0, 100));
+    console.log('🔍 Attempting real-time search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
-    
-    // Try both services but prioritize Perplexity for images
-    let grokResult = null;
-    let perplexityResult = null;
-    
-    // TIER 1: Try Grok first (now with IMAGE EXTRACTION)
-    if (process.env.XAI_API_KEY) {
-      try {
-        console.log('🤖 Tier 1: Attempting Grok with native web search and image extraction...');
-        // Use the enhanced searchWithImages method for better image extraction
-        grokResult = await GrokAIService.searchWithImages(query, context);
-        
-        if (grokResult.success) {
-          // If Grok found images and Perplexity is not configured, return immediately
-          if (!this.apiKey || (grokResult.images && grokResult.images.length > 0)) {
-            console.log(`✅ Grok search successful with ${grokResult.images?.length || 0} images`);
-            return {
-              summary: grokResult.content,
-              sources: grokResult.sources || [],
-              images: grokResult.images || [], // Now includes real images from Grok
-              aiService: grokResult.aiService || 'Grok AI (with Image Extraction)'
-            };
-          }
-        }
-      } catch (error: any) {
-        console.error('⚠️ Tier 1 Grok failed:', error.message);
-      }
-    }
-    
-    // TIER 2: Try Perplexity for web search AND images
+    console.log('   Perplexity configured:', !!this.apiKey);
+    console.log('   Claude configured:', !!this.claudeApiKey);
+
+    // Try Perplexity first if configured
     if (this.apiKey) {
       try {
-        console.log('💰 Tier 2: Attempting Perplexity (for web search and images)...');
-        perplexityResult = await this.callPerplexity(query, context);
-        console.log('✅ Perplexity search successful, images found:', perplexityResult.images?.length || 0);
-        
-        // If we have both results, prefer Grok's text analysis but use Perplexity's images
-        if (grokResult?.success && perplexityResult) {
-          console.log('🔄 Combining Grok analysis with Perplexity images');
-          return {
-            summary: grokResult.content, // Use Grok's analysis
-            sources: [...(grokResult.sources || []), ...(perplexityResult.sources || [])],
-            images: perplexityResult.images || [], // Use Perplexity's images
-            aiService: 'Grok AI (xAI) with Perplexity Images'
-          };
-        }
-        
-        // If only Perplexity succeeded, use it
-        if (perplexityResult) {
-          return { ...perplexityResult, aiService: 'Perplexity AI (Web Search Specialist)' };
-        }
+        const result = await this.callPerplexity(query, context);
+        console.log('✅ Perplexity search successful');
+        return result;
       } catch (error: any) {
-        console.error('❌ Tier 2 Perplexity failed:', error.message);
+        console.error('❌ Perplexity API failed:', error.message);
+        console.error('   Response status:', error.response?.status);
+        console.error('   Response data type:', typeof error.response?.data);
+        
+        // Log if we got HTML instead of JSON
+        if (error.response?.data && typeof error.response.data === 'string' && error.response.data.includes('<html')) {
+          console.error('   ⚠️ Received HTML response instead of JSON - likely authentication or endpoint issue');
+        }
       }
     }
-    
-    // If Grok succeeded but Perplexity failed/not configured
-    if (grokResult?.success) {
-      console.log(`✅ Using Grok result with ${grokResult.images?.length || 0} images`);
-      return {
-        summary: grokResult.content,
-        sources: grokResult.sources || [],
-        images: grokResult.images || [], // Include any images Grok found
-        aiService: grokResult.aiService || 'Grok AI (with Image Extraction)'
-      };
+
+    // Fallback to Claude if available
+    if (this.claudeApiKey) {
+      console.log('🔄 Falling back to Claude for search...');
+      try {
+        const result = await this.callClaudeForSearch(query, context);
+        console.log('✅ Claude search successful');
+        return result;
+      } catch (error: any) {
+        console.error('❌ Claude fallback also failed:', error.message);
+      }
     }
 
-    // If both web search services fail, return a helpful error message
+    // If both fail, return a helpful error message
     console.error('⚠️ All AI services failed - returning basic response');
     return {
       summary: `Unable to perform real-time search for "${query}". Please try again later or contact the community directly for the most current information.`,
       sources: [],
-      images: [],
-      aiService: 'None Available'
+      images: []
     };
-  }
-
-  // New method to call both AIs in parallel
-  async searchRealTimeParallel(query: string, context?: string): Promise<{
-    perplexity?: {
-      summary: string;
-      sources: string[];
-      images?: string[];
-      aiService: string;
-      error?: string;
-    };
-    grok?: {
-      summary: string;
-      sources: string[];
-      images?: string[];
-      aiService: string;
-      error?: string;
-    };
-  }> {
-    console.log('🔍 Starting parallel AI search for:', query.substring(0, 100));
-    console.log('   Context provided:', !!context);
-    console.log('   Perplexity configured:', !!this.apiKey);
-    console.log('   Grok configured:', !!process.env.XAI_API_KEY);
-
-    const promises: Promise<any>[] = [];
-    const results: any = {};
-
-    // Add Perplexity promise if configured
-    if (this.apiKey) {
-      promises.push(
-        this.callPerplexity(query, context)
-          .then(result => {
-            console.log('✅ Perplexity search successful');
-            results.perplexity = {
-              ...result,
-              aiService: 'Perplexity AI'
-            };
-          })
-          .catch(error => {
-            console.error('❌ Perplexity API failed:', error.message);
-            results.perplexity = {
-              summary: 'Perplexity AI is temporarily unavailable. Please check back later for real-time web search results.',
-              sources: [],
-              images: [],
-              aiService: 'Perplexity AI',
-              error: error.message
-            };
-          })
-      );
-    }
-
-    // Add Grok promise if configured
-    if (process.env.XAI_API_KEY) {
-      promises.push(
-        GrokAIService.searchAndAnalyze(query, context)
-          .then(result => {
-            if (result.success) {
-              console.log('✅ Grok search successful');
-              results.grok = {
-                summary: result.content,
-                sources: result.sources || [],
-                images: [],
-                aiService: result.aiService || 'Grok AI (Native Web Search)'
-              };
-            } else {
-              results.grok = {
-                summary: 'Grok AI encountered an error. Please try again later.',
-                sources: [],
-                images: [],
-                aiService: 'Grok AI',
-                error: result.error
-              };
-            }
-          })
-          .catch(error => {
-            console.error('❌ Grok API failed:', error.message);
-            results.grok = {
-              summary: 'Grok AI is temporarily unavailable. Please try again later.',
-              sources: [],
-              images: [],
-              aiService: 'Grok AI',
-              error: error.message
-            };
-          })
-      );
-    }
-
-    // Wait for all promises to settle
-    await Promise.allSettled(promises);
-
-    // If neither service is configured, return empty results
-    if (!results.perplexity && !results.grok) {
-      console.error('⚠️ No AI services configured');
-      return {
-        perplexity: {
-          summary: 'Perplexity AI is not configured. Contact support to enable real-time web search.',
-          sources: [],
-          images: [],
-          aiService: 'Perplexity AI'
-        },
-        grok: {
-          summary: 'Grok AI is not configured. Contact support to enable native web search.',
-          sources: [],
-          images: [],
-          aiService: 'Grok AI'
-        }
-      };
-    }
-
-    return results;
   }
 
   private async callPerplexity(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
@@ -283,12 +140,12 @@ CRITICAL INSTRUCTIONS:
       // Log the request details for debugging
       console.log('📤 Perplexity API Request:');
       console.log('   URL:', this.baseUrl);
-      console.log('   Model: sonar');
+      console.log('   Model: sonar-pro');
       console.log('   Query length:', query.length);
       console.log('   Has API key:', !!this.apiKey);
 
       const requestBody = {
-        model: 'sonar',
+        model: 'sonar-pro',
         messages: [
           {
             role: 'system',
@@ -306,7 +163,6 @@ CRITICAL INSTRUCTIONS:
         return_related_questions: false,
         search_domain_filter: [],
         search_recency_filter: undefined,
-        search_context_size: 'low',
         stream: false
       };
 
@@ -369,6 +225,51 @@ CRITICAL INSTRUCTIONS:
     }
   }
 
+  private async callClaudeForSearch(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
+    const systemPrompt = `You are a senior living research expert. While I cannot access real-time web data, I can provide comprehensive information based on my knowledge.
+
+${context ? `SPECIFIC SEARCH TARGET: ${context}` : ''}
+
+Structure your response with these section headers:
+
+**OFFICIAL WEBSITE:**
+**DIRECTORY LISTINGS:**
+**CURRENT PRICING:**
+**CONTACT INFORMATION:**
+**CARE LEVELS OFFERED:**
+**KEY AMENITIES:**
+**AVAILABILITY STATUS:**
+**RECENT UPDATES:**
+**MANAGEMENT/OWNERSHIP:**
+
+For each section, provide the most helpful information available, or explain what the user should do to get current information (e.g., "Contact the community directly at..." or "Visit their website for current pricing").`;
+
+    try {
+      const response = await anthropic.messages.create({
+        model: CLAUDE_MODEL,
+        max_tokens: 2000,
+        temperature: 0.2,
+        system: systemPrompt,
+        messages: [
+          { role: 'user', content: query }
+        ]
+      });
+
+      const content = response.content[0];
+      if (content.type === 'text') {
+        return {
+          summary: content.text,
+          sources: ['Claude AI Analysis - Note: Real-time data not available. Contact communities directly for current information.'],
+          images: []
+        };
+      }
+
+      throw new Error('Unexpected Claude response format');
+    } catch (error: any) {
+      console.error('Claude API error:', error.message);
+      throw error;
+    }
+  }
 
   async enhanceCommunityData(communityName: string, location: string): Promise<{
     currentPricing?: string;

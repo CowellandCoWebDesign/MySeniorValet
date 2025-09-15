@@ -6,6 +6,9 @@
 import { db } from "./db";
 import { communities } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import OpenAI from "openai";
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export interface DataQualityReport {
   communityId: number;
@@ -112,48 +115,40 @@ export class DataQualityEnhancement {
       // Combine all review text
       const reviewText = allReviews.map(review => review.text).join(' ');
       
-      // Extract amenities and services from reviews using pattern matching
-      const amenitiesFound: string[] = [];
-      const servicesFound: string[] = [];
-      
-      // Common amenity patterns
-      const amenityPatterns = [
-        /swimming pool|pool/gi,
-        /fitness center|gym|exercise room/gi,
-        /library|reading room/gi,
-        /chapel|worship/gi,
-        /garden|courtyard/gi,
-        /dining room|restaurant/gi,
-        /beauty salon|barber shop|hair salon/gi,
-        /game room|recreation room/gi,
-        /theater|movie room/gi
-      ];
-      
-      // Common service patterns
-      const servicePatterns = [
-        /physical therapy|PT|rehab/gi,
-        /transportation|shuttle|van service/gi,
-        /housekeeping|cleaning service/gi,
-        /laundry service/gi,
-        /meal service|dining service/gi,
-        /medication management/gi
-      ];
-      
-      // Extract amenities
-      amenityPatterns.forEach(pattern => {
-        if (pattern.test(reviewText)) {
-          const match = pattern.source.split('|')[0].replace(/\\/g, '');
-          amenitiesFound.push(match);
-        }
+      // Use AI to extract amenities and services from reviews
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o", // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+        messages: [
+          {
+            role: "system",
+            content: `You are an expert at analyzing senior living community reviews to extract specific amenities and services mentioned. Focus on concrete, tangible features that families care about. 
+
+AMENITIES are physical features/spaces like:
+- Swimming pool, fitness center, library, chapel, garden, dining room, beauty salon, game room, theater, etc.
+
+SERVICES are care/support offerings like:
+- Physical therapy, transportation, housekeeping, laundry, meal service, medication management, etc.
+
+Respond with JSON in this exact format:
+{
+  "amenities": ["specific amenity 1", "specific amenity 2"],
+  "services": ["specific service 1", "specific service 2"]
+}
+
+Only include items specifically mentioned in the reviews. Be precise and avoid generic terms.`
+          },
+          {
+            role: "user",
+            content: `Extract amenities and services mentioned in these reviews for ${community.name}:\n\n${reviewText.substring(0, 2000)}`
+          }
+        ],
+        response_format: { type: "json_object" },
+        max_tokens: 500
       });
-      
-      // Extract services
-      servicePatterns.forEach(pattern => {
-        if (pattern.test(reviewText)) {
-          const match = pattern.source.split('|')[0].replace(/\\/g, '');
-          servicesFound.push(match);
-        }
-      });
+
+      const result = JSON.parse(response.choices[0].message.content || '{}');
+      const amenitiesFound = result.amenities || [];
+      const servicesFound = result.services || [];
 
       if (amenitiesFound.length > 0 || servicesFound.length > 0) {
         // Merge with existing amenities/services, avoiding duplicates

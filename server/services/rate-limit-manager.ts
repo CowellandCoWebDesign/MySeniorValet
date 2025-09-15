@@ -23,7 +23,6 @@ export class RateLimitManager {
     'api_tours': { points: 20, duration: 60 }, // 20 per minute
     'api_claims': { points: 5, duration: 3600 }, // 5 per hour
     'api_emergency': { points: 10, duration: 60 }, // 10 per minute (safety critical)
-    'api_ai_reviews': { points: 10, duration: 60, blockDuration: 300 }, // 10 per minute, block 5 min
     
     // Data endpoints - relaxed limits
     'data_map': { points: 100, duration: 60 }, // 100 per minute

@@ -238,10 +238,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const enhancedSearchRoutes = await import('./routes/enhanced-search-routes');
   app.use('/api/search', enhancedSearchRoutes.default);
   
-  // Register Comprehensive Search routes (must be before unified to avoid conflicts)
-  const comprehensiveSearchRoutes = await import('./routes/comprehensiveSearchRoutes');
-  app.use(comprehensiveSearchRoutes.default);
-  
   // 🐙 KRAKEN RELEASE: Register Unified Search Engine routes
   const unifiedSearchRoutes = await import('./routes/unifiedSearchRoutes');
   app.use(unifiedSearchRoutes.default);

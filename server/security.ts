@@ -98,7 +98,7 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
     "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com",
     "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com https://unpkg.com",
     "img-src 'self' data: https: blob: https://cdn.pixabay.com https://images.unsplash.com https://lh3.googleusercontent.com https://*.stripe.com",
-    "connect-src 'self' https: wss: ws: https://api.perplexity.ai https://api.anthropic.com https://www.google-analytics.com https://maps.googleapis.com https://api.stripe.com https://checkout.stripe.com",
+    "connect-src 'self' https: wss: ws: https://api.perplexity.ai https://api.anthropic.com https://api.openai.com https://www.google-analytics.com https://maps.googleapis.com https://api.stripe.com https://checkout.stripe.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.google.com",
     "object-src 'none'",

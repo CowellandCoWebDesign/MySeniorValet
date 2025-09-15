@@ -803,7 +803,12 @@ export function registerAdminRoutes(app: Express) {
             avgLatency: null, // Requires request timing middleware
             note: "Anthropic API tracking not yet implemented"
           },
-          // OpenAI removed from codebase
+          openai: { 
+            requests: null, // Requires OpenAI API usage tracking
+            cost: null, // Requires OpenAI billing integration
+            avgLatency: null, // Requires request timing middleware
+            note: "OpenAI API tracking not yet implemented"
+          },
           perplexity: { 
             requests: null, // Requires Perplexity API usage tracking
             cost: null, // Requires Perplexity billing integration
@@ -1429,6 +1434,7 @@ export function registerAdminRoutes(app: Express) {
         totalCost: 12.40,
         breakdown: {
           perplexity: { calls: 150, cost: 5.20 },
+          openai: { calls: 75, cost: 3.80 },
           claude: { calls: 45, cost: 2.10 },
           sendgrid: { calls: 200, cost: 1.30 }
         },

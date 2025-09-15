@@ -7,7 +7,7 @@
  * Revenue: B2B Only (Communities, Professionals, Healthcare, Vendors)
  * 
  * Neural Network Capabilities:
- * - Multi-AI Orchestration (Claude, Perplexity)
+ * - Multi-AI Orchestration (Claude, ChatGPT, Perplexity)
  * - Self-Healing Data Systems
  * - Predictive Analytics & Forecasting
  * - CRM/RMS Integrations (6+ providers)
@@ -37,7 +37,7 @@ export const FAMILY_TIER: KrakenTier = {
   features: {
     // Full Platform Access
     unified_ai_search: true,
-    multi_ai_insights: true, // Claude, Perplexity
+    multi_ai_insights: true, // Claude, ChatGPT, Perplexity
     neural_search: true,
     semantic_understanding: true,
     trilingual_support: true, // English, French, Spanish
@@ -611,7 +611,7 @@ export const NEURAL_API_TIERS: KrakenTier[] = [
     price: 4999,
     features: {
       ai_endpoints: ['all'],
-      multi_ai_access: true, // Access to Claude, Perplexity
+      multi_ai_access: true, // Access to Claude, ChatGPT, Perplexity
       neural_calls: 10000,
       response_time: 'priority',
       accuracy_level: 'enhanced',

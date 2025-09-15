@@ -24,7 +24,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { formatDistanceToNow } from 'date-fns';
 import type { Community } from '@shared/schema';
-import { AIReviewsAnalysis } from './AIReviewsAnalysis';
 
 // Review submission schema
 const reviewSchema = z.object({
@@ -484,16 +483,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
 
   return (
     <div className="space-y-6">
-      {/* AI-Powered Review Analysis */}
-      <AIReviewsAnalysis 
-        communityId={community.id}
-        communityName={community.name}
-        communityCity={community.city}
-        communityState={community.state}
-      />
-
-      {/* Header Section - Only show if we have reviews */}
-      {(statistics.totalReviews > 0 || statistics.sources.Google.count > 0 || statistics.sources.Yelp.count > 0) && (
+      {/* Header Section */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -702,9 +692,8 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
           </div>
         </CardContent>
       </Card>
-      )}
 
-      {/* Filters and Sorting - Always show */}
+      {/* Filters and Sorting */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-4">

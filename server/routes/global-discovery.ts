@@ -647,7 +647,31 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           results.providers['claude'] = { error: 'Failed to query Claude' };
         }
       }
-      // ChatGPT removed from codebase
+      
+      // Test with ChatGPT
+      if (process.env.OPENAI_API_KEY) {
+        try {
+          const OpenAI = require('openai');
+          const openai = new OpenAI.default({ apiKey: process.env.OPENAI_API_KEY });
+          const gptResponse = await openai.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [{
+              role: 'system',
+              content: 'List real senior living facilities with accurate location data.'
+            }, {
+              role: 'user',
+              content: `Find senior living communities in ${query}. List real facility names and addresses.`
+            }],
+            temperature: 0.1,
+            max_tokens: 1000
+          });
+          results.providers['chatgpt'] = {
+            response: gptResponse.choices[0]?.message?.content?.substring(0, 500)
+          };
+        } catch (e) {
+          results.providers['chatgpt'] = { error: 'Failed to query ChatGPT' };
+        }
+      }
       
       // Summarize findings
       const activeProviders = Object.keys(results.providers).filter(p => !results.providers[p].error);

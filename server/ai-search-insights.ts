@@ -1,4 +1,7 @@
+import OpenAI from 'openai';
 import { PerplexityAIService } from './perplexity-ai-service';
+
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 interface CommunityInsight {
   id: number;
@@ -80,7 +83,7 @@ export class AISearchInsights {
         priceAnalysis,
         webSearchInsights,
         recommendations,
-        generatedBy: ['Perplexity Web Search', 'Claude AI', 'Real-Time Data'],
+        generatedBy: ['Perplexity Web Search', 'Claude AI', 'ChatGPT-4o', 'Real-Time Data'],
         timestamp: new Date().toISOString()
       };
       
@@ -440,9 +443,25 @@ export class AISearchInsights {
         summaryParts.push(`across ${states.join(', ')}`);
       }
       
-      // AI enhancement removed
+      // If we have OpenAI configured, enhance with AI
+      if (process.env.OPENAI_API_KEY) {
+        const prompt = `Create a brief, helpful 2-sentence market overview from these parts: ${summaryParts.join(', ')}. Focus on what matters most to families searching for senior care.`;
+        
+        try {
+          const response = await openai.chat.completions.create({
+            model: 'gpt-5', // Upgraded to GPT-5 (Released August 7, 2025)
+            messages: [{ role: 'user', content: prompt }],
+            max_completion_tokens: 100, // GPT-5 uses max_completion_tokens instead of max_tokens
+            reasoning_effort: 'low' // New GPT-5 parameter for quick insights
+          });
+          
+          return response.choices[0].message.content || summaryParts.join(', ') + '.';
+        } catch (aiError) {
+          console.error('AI enhancement failed:', aiError);
+        }
+      }
       
-      // Use assembled summary
+      // Fallback to assembled summary
       return summaryParts.join(', ') + '.';
       
     } catch (error) {

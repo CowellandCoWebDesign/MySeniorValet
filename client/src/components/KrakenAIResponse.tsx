@@ -84,7 +84,7 @@ export function KrakenAIResponse({ query, onQueryChange, onCommunityMatches }: K
         answer: krakenData.answer || generateIntelligentResponse(query, recommendations),
         confidence: krakenData.confidence || 0.85,
         sources: krakenData.sources || generateSources(recommendations),
-        recommendations: recommendations, // Show all recommendations
+        recommendations: recommendations.slice(0, 6), // Show top 6 recommendations
         insights: krakenData.insights || generateInsights(query, recommendations),
         metadata: {
           processingTime: krakenData.processingTime || 150,
@@ -373,7 +373,7 @@ Examples:
                 {showRecommendations && (
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {response.recommendations.map((community, index) => (
+                      {response.recommendations.slice(0, 6).map((community, index) => (
                         <div key={community.id || index} className="transform hover:scale-105 transition-transform duration-200">
                           <EnhancedCommunityCard 
                             community={community}

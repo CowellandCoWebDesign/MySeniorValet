@@ -248,13 +248,6 @@ export function CommunityDetailsHeader({
     ? extractedAmenities.slice(0, 6) // Show up to 6 amenities
     : ["24-Hour Care", "Dining Services", "Activities", "Transportation", "Housekeeping", "Social Programs"];
 
-  // Default placeholder photos for communities without images
-  const defaultPhotos = [
-    { image_url: '/hero-senior-community.svg', isPlaceholder: true },
-    { image_url: '/hero-gentleman-stars.jpg', isPlaceholder: true },
-    { image_url: '/starry-night-hero.png', isPlaceholder: true }
-  ];
-  
   // Get combined photos from database and web intelligence
   const getCombinedPhotos = () => {
     const photos = [];
@@ -279,11 +272,6 @@ export function CommunityDetailsHeader({
         };
       });
       photos.push(...webPhotos);
-    }
-    
-    // If no real photos found, use placeholder photos
-    if (photos.length === 0) {
-      return defaultPhotos;
     }
     
     return photos;

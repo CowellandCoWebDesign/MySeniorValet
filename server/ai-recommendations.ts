@@ -1,4 +1,8 @@
+import OpenAI from "openai";
 import { Community } from "@shared/schema";
+
+// the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 export interface RecommendationRequest {
   careNeeds: string[];
@@ -34,8 +38,26 @@ export class AIRecommendationEngine {
     try {
       const prompt = this.buildRecommendationPrompt(request, availableCommunities);
       
-      // AI recommendations disabled - use fallback
-      const result = {};
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are a senior living expert who helps families find the perfect care community. 
+            Analyze communities based on care needs, budget, location, and family priorities. 
+            Focus on pricing transparency, availability, trusted reviews, and licensing compliance.
+            Consider medical restrictions as disqualifiers and highlight service differentiators.
+            Respond with JSON in the specified format.`
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        response_format: { type: "json_object" }
+      });
+
+      const result = JSON.parse(response.choices[0].message.content || "{}");
       return this.processAIRecommendations(result, availableCommunities);
     } catch (error) {
       console.error("Error generating AI recommendations:", error);
@@ -165,8 +187,8 @@ export class AIRecommendationEngine {
 
   async generateComparisonInsights(communities: Community[]): Promise<string> {
     try {
-      // AI comparison disabled
-      const result = {};
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o",
         messages: [
           {
             role: "system",

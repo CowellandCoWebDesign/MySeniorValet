@@ -1,18 +1,11 @@
 import { communities } from '@shared/schema';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
-import { ScalableCache } from '../infrastructure/cache';
 
 /**
  * Community Photo Enrichment Service
  * NO STOCK PHOTOS - Only real photos from verified sources
  */
-
-// Cache for photo enrichment results - 5 minute TTL
-const photoEnrichmentCache = new ScalableCache(500, 5 * 60 * 1000);
-
-// Track enrichments in progress to prevent concurrent calls
-const photoEnrichmentInProgress = new Map<number, Promise<any>>();
 
 export class CommunityPhotoEnrichment {
   /**
@@ -64,53 +57,19 @@ export class CommunityPhotoEnrichment {
   }
   
   /**
-   * Check community photos - remove any stock photos with caching
+   * Check community photos - remove any stock photos
    */
   static async enrichCommunityIfNeeded(community: any): Promise<any> {
-    if (!community || !community.id) return community;
+    if (!community) return community;
     
-    const cacheKey = `photo_enrich:${community.id}`;
+    // Get only real photos (no stock photos)
+    const realPhotos = this.getEnrichedPhotosForCommunity(community);
     
-    // Check if enrichment is already in progress
-    if (photoEnrichmentInProgress.has(community.id)) {
-      console.log(`⏳ Photo enrichment already in progress for community ${community.id}, waiting...`);
-      return photoEnrichmentInProgress.get(community.id)!;
-    }
-    
-    // Check cache first
-    const cached = photoEnrichmentCache.get(cacheKey);
-    if (cached) {
-      console.log(`✅ Using cached photo enrichment for community ${community.id}`);
-      return cached;
-    }
-    
-    // Create enrichment promise and track it
-    const enrichmentPromise = (async () => {
-      // Get only real photos (no stock photos)
-      const realPhotos = this.getEnrichedPhotosForCommunity(community);
-      
-      // Create enriched community
-      const enrichedCommunity = {
-        ...community,
-        photos: realPhotos.length > 0 ? realPhotos : []
-      };
-      
-      // Cache the result
-      photoEnrichmentCache.set(cacheKey, enrichedCommunity);
-      
-      return enrichedCommunity;
-    })();
-    
-    // Track the enrichment
-    photoEnrichmentInProgress.set(community.id, enrichmentPromise);
-    
-    try {
-      const result = await enrichmentPromise;
-      return result;
-    } finally {
-      // Clean up tracking
-      photoEnrichmentInProgress.delete(community.id);
-    }
+    // Return community with only real photos
+    return {
+      ...community,
+      photos: realPhotos.length > 0 ? realPhotos : []
+    };
   }
   
   /**

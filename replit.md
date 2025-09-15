@@ -24,16 +24,7 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform, featuring "Lear
 - **CRITICAL REMOVAL AUTHORIZATION RULE**: NO removal of functionality, features, or code sections without EXPLICIT user authorization. Any removal attempt must first be confirmed with user. This includes search results, UI components, data displays, or any existing functionality. Before proposing any removal, provide an IN-DEPTH explanation that includes: (1) What exactly will be removed, (2) Why the removal is being considered, (3) What impact the removal will have on functionality, (4) What alternative solutions exist, (5) Expected user experience changes after removal. Only proceed with removal after receiving explicit approval.
 
 ## System Architecture
-The platform is built with a modern web stack, emphasizing transparency and user engagement. It features Fortune 500-level executive intelligence through a competitive analysis page and executive summary dashboard, showcasing market position, data confidence, AI insights, and strategic recommendations. 
-
-**Multi-AI Intelligence System (5 AI Services)**:
-- **Claude (Anthropic)**: Deep analysis, care planning, complex reasoning
-- **Grok (xAI)**: Real-time data from X/Twitter, social insights
-- **Gemini (Google)**: Visual analysis, ultra-low cost operations ($0.10-0.40/M tokens)
-- **DeepSeek R1**: Ultra-cheap deep reasoning (2% of GPT-4 costs)
-- **Perplexity**: Live web search and verification (primary for web data)
-
-All 5 AIs work in parallel through the Multi-AI Orchestrator, providing diverse perspectives and 85-95% cost savings. Web enrichment data is cached for 7 days.
+The platform is built with a modern web stack, emphasizing transparency and user engagement. It features Fortune 500-level executive intelligence through a competitive analysis page and executive summary dashboard, showcasing market position, data confidence, AI insights, and strategic recommendations. Perplexity AI is treated as an intelligent business analyst, with its responses displayed unfiltered and with source attribution. Web enrichment data from Perplexity API is cached for 7 days.
 
 **Technical Implementations**:
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components. Uses Vite for build.

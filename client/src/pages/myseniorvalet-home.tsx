@@ -61,14 +61,6 @@ import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_market
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
-import { 
-  AIServiceBadge, 
-  AISourcesDisplay, 
-  PricingConsensus, 
-  AIConsensusDisplay, 
-  DiscoveryModeIndicator,
-  AIEnhancedBadge 
-} from "@/components/AIServiceBadges";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
@@ -97,13 +89,7 @@ if (typeof document !== 'undefined') {
 function HeroSectionWithTransformingSearch() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
-  const [searchResults, setSearchResults] = useState<any>({ 
-    results: [], 
-    metadata: null, 
-    aiConsensus: null, 
-    aiSources: null, 
-    discoveryMessage: null 
-  });
+  const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
@@ -170,15 +156,15 @@ function HeroSectionWithTransformingSearch() {
     setIsLoading(true);
 
     try {
-      // Discovery mode for Communities - use enhanced multi-AI search
+      // Discovery mode for Communities - use global discovery to find facilities
       if (viewMode === 'discover' && searchCategory === 'communities') {
-        // Call enhanced search endpoint with discovery mode
-        const response = await fetch('/api/communities/search', {
+        // Call global discovery endpoint to find actual facilities
+        const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query: query,
-            discoveryMode: true,
+            searchType: 'location',
             limit: 20
           })
         });
@@ -272,35 +258,30 @@ function HeroSectionWithTransformingSearch() {
       } else {
         // Regular search for list/map view - use comprehensive search for communities
         if (searchCategory === 'communities') {
-          // Use the enhanced search endpoint for community searches
-          const response = await fetch('/api/communities/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              query: query,
-              discoveryMode: viewMode === 'discover',
-              limit: 50
-            })
-          });
+          // Use the comprehensive search endpoint for community searches
+          const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
           
           if (!response.ok) {
             // Fallback to unified search
             await handleUnifiedSearch(query);
           } else {
             const data = await response.json();
-            // Fix: API returns 'results' not 'communities'
-            const communities = data.results || data.communities || [];
+            const communities = data.communities || [];
             
-            // Extract AI consensus and Discovery Mode data
+            // Extract Discovery Mode data from searchMetadata
+            const metadata = data.searchMetadata || {};
+            
             setSearchResults({ 
               results: communities, 
               metadata: {
-                total: data.totalResults || data.total || communities.length,
-                suggestions: data.suggestions || data.metadata?.suggestions
-              },
-              aiConsensus: data.aiConsensus || data.metadata?.aiConsensus,
-              aiSources: data.aiSources || data.metadata?.aiSources,
-              discoveryMessage: data.discoveryMessage || data.metadata?.discoveryMessage
+                total: data.total,
+                searchMetadata: metadata,
+                suggestions: data.suggestions,
+                // Discovery Mode specific data
+                discoveryMode: metadata.discoveryMode,
+                discoveryMessage: metadata.discoveryMessage,
+                aiSuggestions: metadata.aiSuggestions
+              }
             });
           }
         } else {
@@ -621,26 +602,26 @@ function HeroSectionWithTransformingSearch() {
             
             {/* View Mode Tabs - Matching Top Tab Style */}
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-2xl">
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-xl ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
                     viewMode === 'list'
-                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white border-purple-400/50 shadow-lg transform scale-105'
+                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">🔍</span>
-                  <span>Database Search</span>
+                  <span className="text-xs sm:text-sm">📋</span>
+                  <span>List</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-xl ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
                     viewMode === 'map'
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white border-green-400/50 shadow-lg transform scale-105'
+                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-green-400/50 hover:text-white'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -649,14 +630,14 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-xl ${
+                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
                     viewMode === 'discover'
-                      ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white border-purple-400/50 shadow-lg transform scale-105'
+                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">🌍</span>
-                  <span>Web Search</span>
+                  <span className="text-xs sm:text-sm">🔮</span>
+                  <span>Discovery mode</span>
                 </button>
               </div>
             </div>
@@ -792,38 +773,12 @@ function HeroSectionWithTransformingSearch() {
                     </div>
                   )}
                   
-                  {/* Discovery Mode Indicator */}
-                  {searchResults?.discoveryMessage && (
-                    <div className="mb-4">
-                      <DiscoveryModeIndicator
-                        message={searchResults.discoveryMessage}
-                        services={searchResults?.aiSources ? Object.keys(searchResults.aiSources).filter(k => k !== 'total' && searchResults.aiSources[k]) : []}
-                        loading={isLoading}
-                      />
-                    </div>
-                  )}
-
-                  {/* AI Consensus Display */}
-                  {searchResults?.aiConsensus && (
-                    <div className="mb-4">
-                      <AIConsensusDisplay consensus={searchResults.aiConsensus} compact={false} />
-                    </div>
-                  )}
-
-                  {/* AI Sources Display */}
-                  {searchResults?.aiSources && searchResults.aiSources.total > 0 && (
-                    <div className="mb-3">
-                      <AISourcesDisplay sources={searchResults.aiSources} animated={true} size="sm" />
-                    </div>
-                  )}
-                  
                   {/* Regular Search Results List */}
                   {/* Regular Results Header - Glass Morphism */}
                   <div className="">
                     <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-semibold text-white">
-                          {searchQuery ? (
+                      <h3 className="text-lg font-semibold text-white">
+                        {searchQuery ? (
                           <>
                             Found {searchResults?.results?.length || 0}
                             {searchCategory === 'services' ? ' services' : 
@@ -841,12 +796,8 @@ function HeroSectionWithTransformingSearch() {
                              searchCategory === 'resources' ? ' Resources' : ' Communities'}
                             {' Found'}
                           </span>
-                          )}
-                        </h3>
-                        {searchResults?.aiEnhanced && (
-                          <AIEnhancedBadge size="sm" />
                         )}
-                      </div>
+                      </h3>
                     </div>
                   </div>
                 </>
@@ -1021,24 +972,10 @@ function HeroSectionWithTransformingSearch() {
                                 </div>
                               </div>
                             ) : (
-                              <div className="relative">
-                                {/* AI Enhanced Badge for Individual Community */}
-                                {item.aiEnhanced && (
-                                  <div className="absolute top-2 right-2 z-10">
-                                    <AIEnhancedBadge size="sm" />
-                                  </div>
-                                )}
-                                {/* AI Pricing Consensus for Community */}
-                                {item.aiPricing && (
-                                  <div className="mb-2">
-                                    <PricingConsensus pricing={item.aiPricing} />
-                                  </div>
-                                )}
-                                <FeaturedExcellenceCard
-                                  community={item}
-                                  index={index}
-                                />
-                              </div>
+                              <FeaturedExcellenceCard
+                                community={item}
+                                index={index}
+                              />
                             )}
                           </motion.div>
                         ))}

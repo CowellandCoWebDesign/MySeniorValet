@@ -119,10 +119,10 @@ export function registerPlatformRoutes(app: Express) {
     });
   });
 
-  app.get('/api/ai/health/claude', async (req, res) => {
+  app.get('/api/ai/health/openai', async (req, res) => {
     res.json({
       status: 'healthy',
-      provider: 'Claude (Anthropic)',
+      provider: 'OpenAI (ChatGPT)',
       responseTime: 98,
       lastChecked: new Date().toISOString(),
       credits: 'active',
@@ -145,10 +145,11 @@ export function registerPlatformRoutes(app: Express) {
   app.get('/api/ai/orchestra/status', async (req, res) => {
     res.json({
       status: 'operational',
-      activeProviders: ['claude', 'perplexity'],
+      activeProviders: ['claude', 'openai', 'perplexity'],
       totalProviders: 3,
       healthStatus: {
         claude: 'healthy',
+        openai: 'healthy',
         perplexity: 'healthy'
       },
       crossValidation: {
