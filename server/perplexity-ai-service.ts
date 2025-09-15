@@ -44,14 +44,19 @@ export class PerplexityAIService {
     console.log('🔍 Starting optimized web search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
     
+    // Try both services but prioritize Perplexity for images
+    let grokResult = null;
+    let perplexityResult = null;
+    
     // TIER 1: Try Grok first (has NATIVE web search built-in)
     if (process.env.XAI_API_KEY) {
       try {
         console.log('🤖 Tier 1: Attempting Grok with native real-time web search...');
-        const grokResult = await GrokAIService.searchAndAnalyze(query, context);
+        grokResult = await GrokAIService.searchAndAnalyze(query, context);
         
-        if (grokResult.success) {
-          console.log('✅ Grok search successful with native web access');
+        if (grokResult.success && !this.apiKey) {
+          // If Perplexity is not configured, return Grok result immediately
+          console.log('✅ Grok search successful (Perplexity not configured for images)');
           return {
             summary: grokResult.content,
             sources: grokResult.sources || [],
@@ -64,16 +69,42 @@ export class PerplexityAIService {
       }
     }
     
-    // TIER 2: Try Perplexity if configured (PAID - purpose-built for web search)
+    // TIER 2: Try Perplexity for web search AND images
     if (this.apiKey) {
       try {
-        console.log('💰 Tier 2: Attempting Perplexity (purpose-built for web search)...');
-        const result = await this.callPerplexity(query, context);
-        console.log('✅ Perplexity search successful');
-        return { ...result, aiService: 'Perplexity AI (Web Search Specialist)' };
+        console.log('💰 Tier 2: Attempting Perplexity (for web search and images)...');
+        perplexityResult = await this.callPerplexity(query, context);
+        console.log('✅ Perplexity search successful, images found:', perplexityResult.images?.length || 0);
+        
+        // If we have both results, prefer Grok's text analysis but use Perplexity's images
+        if (grokResult?.success && perplexityResult) {
+          console.log('🔄 Combining Grok analysis with Perplexity images');
+          return {
+            summary: grokResult.content, // Use Grok's analysis
+            sources: [...(grokResult.sources || []), ...(perplexityResult.sources || [])],
+            images: perplexityResult.images || [], // Use Perplexity's images
+            aiService: 'Grok AI (xAI) with Perplexity Images'
+          };
+        }
+        
+        // If only Perplexity succeeded, use it
+        if (perplexityResult) {
+          return { ...perplexityResult, aiService: 'Perplexity AI (Web Search Specialist)' };
+        }
       } catch (error: any) {
         console.error('❌ Tier 2 Perplexity failed:', error.message);
       }
+    }
+    
+    // If Grok succeeded but Perplexity failed/not configured
+    if (grokResult?.success) {
+      console.log('✅ Using Grok result (Perplexity unavailable for images)');
+      return {
+        summary: grokResult.content,
+        sources: grokResult.sources || [],
+        images: [],
+        aiService: grokResult.aiService || 'Grok AI (Native Web Search)'
+      };
     }
 
     // If both web search services fail, return a helpful error message
