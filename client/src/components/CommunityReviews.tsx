@@ -492,7 +492,8 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         communityState={community.state}
       />
 
-      {/* Header Section */}
+      {/* Header Section - Only show if we have reviews */}
+      {(statistics.totalReviews > 0 || statistics.sources.Google.count > 0 || statistics.sources.Yelp.count > 0) && (
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -701,8 +702,9 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
           </div>
         </CardContent>
       </Card>
+      )}
 
-      {/* Filters and Sorting */}
+      {/* Filters and Sorting - Always show */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-wrap gap-4">

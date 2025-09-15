@@ -1711,55 +1711,28 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
 
-      // Claude Analysis to augment Perplexity Live Intelligence (when requested)
+      // Store the AI analysis with the actual service that was used
+      // Instead of making another call to Claude, use the data we already fetched
       if (fetchClaude) {
-        try {
-          console.log(`🤖 Fetching Claude analysis to augment Live Intelligence for ${community.name}`);
+        // Use the realTimeData that was already populated from Perplexity/Grok calls
+        if (realTimeData.currentPricing || realTimeData.currentAvailability || realTimeData.recentNews.length > 0) {
+          // Combine all the information we already have
+          const combinedContent = [
+            realTimeData.currentAvailability,
+            realTimeData.currentPricing ? `Current pricing: ${realTimeData.currentPricing}` : null,
+            realTimeData.waitlistStatus,
+            ...realTimeData.recentNews.slice(0, 2)
+          ].filter(Boolean).join(' ');
           
-          // Check cache first (1-hour cache to reduce API costs)
-          const cacheKey = `claude_${communityId}`;
-          const cachedData = await getCachedAIResponse(cacheKey);
-          
-          if (cachedData && cachedData.timestamp && 
-              (Date.now() - new Date(cachedData.timestamp).getTime()) < 3600000) { // 1 hour cache
-            console.log(`📦 Using cached Claude analysis for ${community.name}`);
-            realTimeData.claudeAnalysis = cachedData;
-          } else {
-            // Get Claude's deep analysis
-            const { AnthropicAIService } = await import('../anthropic-ai-service');
-            const anthropicService = new AnthropicAIService();
-            
-            const claudeQuery = `Provide deep analysis of ${community.name} senior living community in ${community.city}, ${community.state}. Focus on:
-            1. Care quality insights and reputation
-            2. Value assessment based on pricing and services
-            3. Notable strengths and potential concerns
-            4. Recommendations for families considering this community
-            5. How it compares to similar communities in the area`;
-            
-            const claudeResponse = await anthropicService.searchCommunityInfo(claudeQuery);
-            
-            if (claudeResponse.success && claudeResponse.data) {
-              realTimeData.claudeAnalysis = {
-                content: claudeResponse.data,
-                insights: claudeResponse.insights || [],
-                recommendations: claudeResponse.recommendations || [],
-                timestamp: new Date().toISOString(),
-                cacheExpiry: new Date(Date.now() + 3600000).toISOString() // 1 hour expiry
-              };
-              
-              // Cache the results
-              await cacheAIResponse(cacheKey, realTimeData.claudeAnalysis);
-              console.log(`✅ Claude analysis complete for ${community.name}`);
-            } else {
-              console.log(`⚠️ Claude analysis returned no data for ${community.name}`);
-            }
-          }
-        } catch (claudeError) {
-          console.error("Claude analysis error:", claudeError);
-          // Continue without Claude data if it fails
-          realTimeData.claudeAnalysis = {
-            error: "Claude analysis temporarily unavailable",
-            timestamp: new Date().toISOString()
+          realTimeData.aiAnalysis = {
+            content: combinedContent || 'Contact the community directly for the most current information.',
+            insights: realTimeData.communityHighlights || [],
+            recommendations: ['Contact the community for a tour', 'Ask about current promotions', 'Verify pricing and availability'],
+            timestamp: new Date().toISOString(),
+            aiService: realTimeData.sources && realTimeData.sources.length > 0 ? 
+              (realTimeData.sources[0].includes('Grok') ? 'Grok AI (Native Web Search)' : 'Perplexity AI (Web Search Specialist)') : 
+              'AI Analysis',
+            sources: realTimeData.sources || []
           };
         }
       }

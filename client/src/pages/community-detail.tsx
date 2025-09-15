@@ -299,7 +299,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 // Real-time AI Insights Component - Enhanced with Claude Analysis
 const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
-  const claudeAnalysis = realTimeData?.claudeAnalysis;
+  const aiAnalysis = realTimeData?.aiAnalysis || realTimeData?.claudeAnalysis; // Support both new and legacy field names
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
@@ -419,27 +419,27 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         {/* Live Web Intelligence moved to avoid duplicate photo display */}
         {/* Content moved to tabs section to prevent competing carousels */}
         
-        {/* Claude Deep Analysis Section */}
-        {claudeAnalysis && claudeAnalysis.content && (
+        {/* AI Deep Analysis Section */}
+        {aiAnalysis && aiAnalysis.content && (
           <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
             <h4 className="font-semibold text-lg mb-3 flex items-center">
               <Brain className="w-5 h-5 mr-2 text-indigo-600" />
-              Claude AI Deep Analysis
+              {aiAnalysis.aiService || 'AI Deep Analysis'}
               <Badge className="ml-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200">
                 Advanced Insights
               </Badge>
             </h4>
             <div className="space-y-3">
               <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                {claudeAnalysis.content}
+                {aiAnalysis.content}
               </p>
               
-              {/* Claude Recommendations */}
-              {claudeAnalysis.recommendations && claudeAnalysis.recommendations.length > 0 && (
+              {/* AI Recommendations */}
+              {aiAnalysis.recommendations && aiAnalysis.recommendations.length > 0 && (
                 <div className="mt-4 pt-3 border-t border-indigo-200 dark:border-indigo-700">
                   <p className="font-medium text-sm mb-2 text-indigo-700 dark:text-indigo-300">Key Recommendations:</p>
                   <ul className="space-y-1">
-                    {claudeAnalysis.recommendations.map((rec: string, idx: number) => (
+                    {aiAnalysis.recommendations.map((rec: string, idx: number) => (
                       <li key={idx} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
                         <CheckCircle className="w-4 h-4 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
                         {rec}
@@ -449,12 +449,12 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 </div>
               )}
               
-              {/* Claude Insights */}
-              {claudeAnalysis.insights && claudeAnalysis.insights.length > 0 && (
+              {/* AI Insights */}
+              {aiAnalysis.insights && aiAnalysis.insights.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-indigo-200 dark:border-indigo-700">
                   <p className="font-medium text-sm mb-2 text-indigo-700 dark:text-indigo-300">Notable Insights:</p>
                   <div className="space-y-1">
-                    {claudeAnalysis.insights.map((insight: string, idx: number) => (
+                    {aiAnalysis.insights.map((insight: string, idx: number) => (
                       <div key={idx} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
                         <Sparkles className="w-4 h-4 mr-2 text-purple-500 flex-shrink-0 mt-0.5" />
                         {insight}
