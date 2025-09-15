@@ -306,6 +306,7 @@ CRITICAL INSTRUCTIONS:
         return_related_questions: false,
         search_domain_filter: [],
         search_recency_filter: undefined,
+        search_context_size: 'low',
         stream: false
       };
 

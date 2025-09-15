@@ -224,6 +224,7 @@ IMPORTANT:
           return_related_questions: false,
           search_recency_filter: "month",
           search_domain_filter: [], // Remove restrictions to get more sources
+          search_context_size: 'low', // Use low context to minimize costs
           top_k: 10, // Get more results
           presence_penalty: 0,
           frequency_penalty: 0.5
@@ -417,7 +418,8 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
           return_citations: true,
           return_images: false,
           return_related_questions: false,
-          search_recency_filter: "month"
+          search_recency_filter: "month",
+          search_context_size: 'low' // Use low context to minimize costs
         })
       });
 
