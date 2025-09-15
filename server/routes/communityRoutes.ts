@@ -40,7 +40,7 @@ export function registerCommunityRoutes(app: Express) {
         .select({ count: sql`count(*)` })
         .from(communities);
       
-      res.json({ count: Number(count).toString() });
+      res.json({ count: count.toString() });
     } catch (error) {
       console.error("Error getting community count:", error);
       res.status(500).json({ error: "Failed to get community count" });
@@ -91,8 +91,8 @@ export function registerCommunityRoutes(app: Express) {
       const trending = await db
         .select()
         .from(communities)
-        .where(sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`)
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .where(gte(communities.rating, 4.0))
+        .orderBy(desc(communities.rating))
         .limit(20);
 
       const enrichedTrending = await Promise.all(
@@ -186,7 +186,7 @@ export function registerCommunityRoutes(app: Express) {
             eq(communities.state, 'WA')
           )
         )
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(20);
 
       const enrichedCoastal = await Promise.all(
@@ -261,7 +261,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Rating filter
       if (rating) {
-        conditions.push(sql`CAST(${communities.rating} AS DECIMAL) >= ${parseFloat(rating as string)}`);
+        conditions.push(gte(communities.rating, parseFloat(rating as string)));
       }
 
       // Features filter
@@ -278,12 +278,12 @@ export function registerCommunityRoutes(app: Express) {
       if (subtypes) {
         const subtypeArray = (subtypes as string).split(',');
         conditions.push(
-          sql`${communities.communitySubtype} = ANY(${subtypeArray})`
+          inArray(communities.communitySubtype, subtypeArray)
         );
       }
 
       if (conditions.length > 0) {
-        query = query.where(and(...conditions)) as any;
+        query = query.where(and(...conditions));
       }
 
       const result = await query
@@ -336,7 +336,7 @@ export function registerCommunityRoutes(app: Express) {
               sql`LOWER(${communities.name}) LIKE '%hawaii%'`
             )
           )
-          .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+          .orderBy(desc(communities.rating))
           .limit(20);
       } else if (location.toLowerCase() === 'mexico') {
         // For Mexico, search for communities with Mexico in the name or Mexican cities
@@ -359,7 +359,7 @@ export function registerCommunityRoutes(app: Express) {
               sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`
             )
           )
-          .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+          .orderBy(desc(communities.rating))
           .limit(20);
           
         // If no Mexico communities found, use Perplexity to get real-time data
@@ -456,7 +456,7 @@ export function registerCommunityRoutes(app: Express) {
               eq(communities.city, location)
             )
           )
-          .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+          .orderBy(desc(communities.rating))
           .limit(20);
       }
       
@@ -535,10 +535,10 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
-            sql`CAST(${communities.latitude} AS DECIMAL) >= ${south}`,
-            sql`CAST(${communities.latitude} AS DECIMAL) <= ${north}`,
-            sql`CAST(${communities.longitude} AS DECIMAL) >= ${west}`,
-            sql`CAST(${communities.longitude} AS DECIMAL) <= ${east}`
+            gte(communities.latitude, south),
+            lte(communities.latitude, north),
+            gte(communities.longitude, west),
+            lte(communities.longitude, east)
           )
         )
         .limit(1000);
@@ -595,7 +595,7 @@ export function registerCommunityRoutes(app: Express) {
             pricingForData = `$${Math.round(numericPrice)}/month`;
           }
         } else if (community.priceRange && typeof community.priceRange === 'object') {
-          monthlyRent = (community.priceRange as any).monthly_rent || (community.priceRange as any).monthlyRent;
+          monthlyRent = community.priceRange.monthly_rent || community.priceRange.monthlyRent;
           if (monthlyRent) {
             priceDisplay = `$${monthlyRent}`;
             pricingForData = `$${monthlyRent}/month`;
@@ -898,7 +898,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(eq(communities.state, state as string))
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json({ communities: stateCommunities });
@@ -931,7 +931,7 @@ export function registerCommunityRoutes(app: Express) {
       }
       
       const cityCommunities = await query
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json({ communities: cityCommunities });
@@ -954,7 +954,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(eq(communities.country, country as string))
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json({ communities: countryCommunities });
@@ -971,7 +971,7 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(isNotNull(communities.hudPropertyId))
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json(hudProperties);
@@ -1004,7 +1004,7 @@ export function registerCommunityRoutes(app: Express) {
             eq(communities.state, 'NU')
           )
         )
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json({ communities: canadianCommunities });
@@ -1023,7 +1023,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           eq(communities.state, 'PR')
         )
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json({ communities: puertoRicoCommunities });
@@ -1042,7 +1042,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           eq(communities.country, 'Mexico')
         )
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(desc(communities.rating))
         .limit(100);
       
       res.json({ communities: mexicanCommunities });
@@ -1319,12 +1319,12 @@ export function registerCommunityRoutes(app: Express) {
 
           // Query for current availability and pricing with full context
           const careTypesStr = community.careTypes?.join(', ') || 'senior living';
-          const communityDetails = `${community.name} ${community.communitySubtype || 'senior living'} community offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zipCode || ''}`;
+          const communityDetails = `${community.name} ${community.communityType || 'senior living'} community${community.bedCount ? ` with ${community.bedCount} beds` : ''} offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zip || ''}`;
           
           const availabilityQuery = `What is the current availability and pricing at ${communityDetails}? Include: 
           1. Current monthly pricing ranges for ${careTypesStr}
           2. Any waitlist information or room availability
-          3. Market rates for similar ${community.communitySubtype || 'senior living'} communities in ${community.city}, ${community.state}
+          3. Market rates for similar ${community.communityType || 'senior living'} communities in ${community.city}, ${community.state}
           4. Pricing for different care levels (Independent Living, Assisted Living, Memory Care) if available`;
           
           const availabilityResult = await perplexityService.searchRealTime(
@@ -1335,7 +1335,7 @@ export function registerCommunityRoutes(app: Express) {
           // Query for recent news and updates with pricing focus
           const newsQuery = `What are the latest news, pricing updates, or changes at ${communityDetails}? Include: 
           1. Recent pricing changes or promotions for ${careTypesStr}
-          2. Current market rates in ${community.city}, ${community.state} for ${community.communitySubtype || 'senior living'}
+          2. Current market rates in ${community.city}, ${community.state} for ${community.communityType || 'senior living'}
           3. Any recent events, staff changes, renovations from 2024-2025
           4. Average costs for ${careTypesStr} in the ${community.state} area`;
           
@@ -1496,7 +1496,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Store contribution in audit logs for now (until we create dedicated table)
       await db.insert(auditLogs).values({
-        userId: null as any, // No authenticated user for anonymous contributions
+        userId: contributorEmail, // Using email as user identifier
         action: 'community_contribution',
         entityType: 'communities',
         entityId: communityId.toString(),
@@ -1567,9 +1567,9 @@ export function registerCommunityRoutes(app: Express) {
         };
 
         // Extract key information from search results
-        if (searchResults && searchResults.summary) {
+        if (searchResults) {
           // Simple parsing - in production this would be more sophisticated
-          const lines = searchResults.summary.split('\n').filter(line => line.trim());
+          const lines = searchResults.split('\n').filter(line => line.trim());
           
           // Try to identify news items
           const newsItems = lines.slice(0, 2).map(line => ({
@@ -1578,7 +1578,7 @@ export function registerCommunityRoutes(app: Express) {
           }));
           
           if (newsItems.length > 0) {
-            insights.recentNews = newsItems as any[];
+            insights.recentNews = newsItems;
           }
 
           // Extract reputation and area insights
@@ -1627,9 +1627,9 @@ export function registerCommunityRoutes(app: Express) {
           communityName: newCommunity.name,
           city: newCommunity.city,
           state: newCommunity.state,
-          type: (newCommunity as any).type || 'Senior Living',
+          type: newCommunity.type,
           services: newCommunity.services || [],
-          addedBy: (req.user as any)?.email || 'system'
+          addedBy: req.user?.email || 'system'
         });
       } catch (notificationError) {
         console.error('Error sending internal community notification:', notificationError);
@@ -1650,7 +1650,7 @@ export function registerCommunityRoutes(app: Express) {
   app.put("/api/communities/:id", requireAuth, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const userId = (req.user as any)?.id;
+      const userId = req.user?.id;
       
       // First check if this user owns/claimed this community
       const [claimedCommunity] = await db
@@ -1659,12 +1659,12 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           and(
             eq(claimedCommunities.communityId, communityId),
-            eq(claimedCommunities.ownerId, userId)
+            eq(claimedCommunities.userId, userId)
           )
         );
       
       // Check if user is admin
-      const isAdminUser = (req.user as any)?.role === 'admin' || (req.user as any)?.role === 'super_admin';
+      const isAdminUser = req.user?.role === 'admin' || req.user?.role === 'super_admin';
       
       if (!claimedCommunity && !isAdminUser) {
         return res.status(403).json({ error: "You don't have permission to update this community" });
@@ -1781,7 +1781,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
-            sql`CAST(${communities.rating} AS DECIMAL) >= 4.5`,
+            gte(communities.rating, 4.5),
             sql`${communities.photos}::text[] != '{}' AND array_length(${communities.photos}::text[], 1) > 0`
           )
         )
@@ -1819,9 +1819,7 @@ export function registerCommunityRoutes(app: Express) {
       // Google Places enrichment
       if (enrichmentType === 'all' || enrichmentType === 'google') {
         try {
-          // Google Places integration disabled to prevent API charges
-          // const googleData = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
-          const googleData = null;
+          const googleData = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
           enrichmentResults.google = {
             success: !!googleData,
             data: googleData
@@ -1829,7 +1827,7 @@ export function registerCommunityRoutes(app: Express) {
         } catch (error) {
           enrichmentResults.google = {
             success: false,
-            error: (error as any).message
+            error: error.message
           };
         }
       }
@@ -1837,17 +1835,15 @@ export function registerCommunityRoutes(app: Express) {
       // Photo enrichment
       if (enrichmentType === 'all' || enrichmentType === 'photos') {
         try {
-          // Systematic photo enrichment service not available
-          // const photoData = await systematicPhotoEnrichment.enrichSingleCommunity(community);
-          const photoData = null;
+          const photoData = await systematicPhotoEnrichment.enrichSingleCommunity(community);
           enrichmentResults.photos = {
             success: !!photoData,
-            photosAdded: (photoData as any)?.photosAdded || 0
+            photosAdded: photoData?.photosAdded || 0
           };
         } catch (error) {
           enrichmentResults.photos = {
             success: false,
-            error: (error as any).message
+            error: error.message
           };
         }
       }
@@ -1855,7 +1851,7 @@ export function registerCommunityRoutes(app: Express) {
       // Care type classification
       if (enrichmentType === 'all' || enrichmentType === 'careTypes') {
         try {
-          const careTypes = await careTypeClassifier.classifyCareTypes(community.name, community.description || '');
+          const careTypes = await careTypeClassifier.classifyCommunity(community);
           if (careTypes && careTypes.length > 0) {
             await db
               .update(communities)
@@ -1870,7 +1866,7 @@ export function registerCommunityRoutes(app: Express) {
         } catch (error) {
           enrichmentResults.careTypes = {
             success: false,
-            error: (error as any).message
+            error: error.message
           };
         }
       }
@@ -1917,13 +1913,12 @@ export function registerCommunityRoutes(app: Express) {
 
           // Enrich based on type
           if (enrichmentType === 'all' || enrichmentType === 'photos') {
-            // Systematic photo enrichment service not available
-            // await systematicPhotoEnrichment.enrichSingleCommunity(community);
+            await systematicPhotoEnrichment.enrichSingleCommunity(community);
             enriched = true;
           }
 
           if (enrichmentType === 'all' || enrichmentType === 'careTypes') {
-            const careTypes = await careTypeClassifier.classifyCareTypes(community.name, community.description || '');
+            const careTypes = await careTypeClassifier.classifyCommunity(community);
             if (careTypes && careTypes.length > 0) {
               await db
                 .update(communities)
@@ -1947,7 +1942,7 @@ export function registerCommunityRoutes(app: Express) {
             id: community.id,
             name: community.name,
             status: 'failed',
-            error: (error as any).message
+            error: error.message
           });
         }
       }

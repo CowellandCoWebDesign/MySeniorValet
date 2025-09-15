@@ -1,13 +1,4 @@
 import axios from 'axios';
-import Anthropic from '@anthropic-ai/sdk';
-
-// Initialize Claude as fallback
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!
-});
-
-// Use the latest Claude model
-const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
 export interface PerplexityResponse {
   id: string;
@@ -30,64 +21,20 @@ export interface PerplexityResponse {
 export class PerplexityAIService {
   private apiKey: string;
   private baseUrl = 'https://api.perplexity.ai/chat/completions';
-  private claudeApiKey: string;
   
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || '';
-    this.claudeApiKey = process.env.ANTHROPIC_API_KEY || '';
   }
 
   isConfigured(): boolean {
-    return !!this.apiKey || !!this.claudeApiKey;
+    return !!this.apiKey;
   }
 
   async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
-    // Log the attempt
-    console.log('🔍 Attempting real-time search for:', query.substring(0, 100));
-    console.log('   Context provided:', !!context);
-    console.log('   Perplexity configured:', !!this.apiKey);
-    console.log('   Claude configured:', !!this.claudeApiKey);
-
-    // Try Perplexity first if configured
-    if (this.apiKey) {
-      try {
-        const result = await this.callPerplexity(query, context);
-        console.log('✅ Perplexity search successful');
-        return result;
-      } catch (error: any) {
-        console.error('❌ Perplexity API failed:', error.message);
-        console.error('   Response status:', error.response?.status);
-        console.error('   Response data type:', typeof error.response?.data);
-        
-        // Log if we got HTML instead of JSON
-        if (error.response?.data && typeof error.response.data === 'string' && error.response.data.includes('<html')) {
-          console.error('   ⚠️ Received HTML response instead of JSON - likely authentication or endpoint issue');
-        }
-      }
+    if (!this.isConfigured()) {
+      throw new Error('Perplexity API key not configured');
     }
 
-    // Fallback to Claude if available
-    if (this.claudeApiKey) {
-      console.log('🔄 Falling back to Claude for search...');
-      try {
-        const result = await this.callClaudeForSearch(query, context);
-        console.log('✅ Claude search successful');
-        return result;
-      } catch (error: any) {
-        console.error('❌ Claude fallback also failed:', error.message);
-      }
-    }
-
-    // If both fail, return a helpful error message
-    console.error('⚠️ All AI services failed - returning basic response');
-    return {
-      summary: `Unable to perform real-time search for "${query}". Please try again later or contact the community directly for the most current information.`,
-      sources: [],
-      images: []
-    };
-  }
-
-  private async callPerplexity(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
     try {
       const systemPrompt = `You are a senior living research expert providing structured, comprehensive information for families making critical decisions.
 
@@ -137,137 +84,57 @@ CRITICAL INSTRUCTIONS:
 6. Be specific with pricing when found, but provide market context when exact pricing isn't available
 7. Always provide helpful, actionable information - never just say "not available"`;
 
-      // Log the request details for debugging
-      console.log('📤 Perplexity API Request:');
-      console.log('   URL:', this.baseUrl);
-      console.log('   Model: sonar-pro');
-      console.log('   Query length:', query.length);
-      console.log('   Has API key:', !!this.apiKey);
-
-      const requestBody = {
-        model: 'sonar-pro',
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt
-          },
-          {
-            role: 'user',
-            content: query
-          }
-        ],
-        max_tokens: 2000,
-        temperature: 0.2,
-        top_p: 0.9,
-        return_images: true,
-        return_related_questions: false,
-        search_domain_filter: [],
-        search_recency_filter: undefined,
-        stream: false
-      };
-
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
-        requestBody,
+        {
+          model: 'sonar-pro',  // Use best model for comprehensive, accurate results
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt
+            },
+            {
+              role: 'user',
+              content: query
+            }
+          ],
+          max_tokens: 2000,  // Full responses for complete transparency
+          temperature: 0.2,
+          top_p: 0.9,
+          return_images: true,  // Include images from search results
+          return_related_questions: false,
+          search_domain_filter: [],  // Search all domains for maximum photo coverage
+          search_recency_filter: undefined,  // No time restriction - get all available data for transparency
+          web_search_options: {
+            search_context_size: "high"  // Maximum search depth for comprehensive review discovery
+          },
+          stream: false
+        },
         {
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          timeout: 30000, // 30 second timeout
-          validateStatus: (status) => status < 500 // Don't throw on 4xx errors
+            'Content-Type': 'application/json'
+          }
         }
       );
-
-      // Check if we got a valid response
-      if (response.status === 401) {
-        throw new Error('Perplexity API authentication failed - invalid API key');
-      }
-
-      if (response.status === 403) {
-        throw new Error('Perplexity API access denied - check API permissions');
-      }
-
-      if (response.status >= 400) {
-        throw new Error(`Perplexity API error: ${response.status} ${response.statusText}`);
-      }
 
       const summary = response.data.choices[0]?.message?.content || 'No results found';
       const sources = response.data.citations || [];
       const images = response.data.images || [];
       
-      // Log successful response
-      console.log('📥 Perplexity Response:');
-      console.log('   Summary length:', summary.length);
-      console.log('   Sources found:', sources.length);
-      console.log('   Images found:', images.length);
+      // Log the unfiltered Perplexity response for debugging
+      console.log('\n=== UNFILTERED PERPLEXITY RESPONSE ===');
+      console.log(`Query: ${query}`);
+      console.log('Raw Response:');
+      console.log(summary);
+      console.log('Sources:', sources);
+      console.log('Images found:', images?.length || 0);
+      console.log('=== END PERPLEXITY RESPONSE ===\n');
       
       return { summary, sources, images };
     } catch (error: any) {
-      // Enhanced error logging
-      console.error('🚨 Perplexity API Error Details:');
-      console.error('   Error type:', error.constructor.name);
-      console.error('   Error message:', error.message);
-      console.error('   Response status:', error.response?.status);
-      console.error('   Response headers:', error.response?.headers);
-      
-      // Check if we got HTML error page
-      if (error.response?.data && typeof error.response.data === 'string') {
-        const dataPreview = error.response.data.substring(0, 200);
-        console.error('   Response preview:', dataPreview);
-        if (dataPreview.includes('<!DOCTYPE') || dataPreview.includes('<html')) {
-          throw new Error('Perplexity API returned HTML error page instead of JSON - likely endpoint or auth issue');
-        }
-      }
-      
-      throw error;
-    }
-  }
-
-  private async callClaudeForSearch(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
-    const systemPrompt = `You are a senior living research expert. While I cannot access real-time web data, I can provide comprehensive information based on my knowledge.
-
-${context ? `SPECIFIC SEARCH TARGET: ${context}` : ''}
-
-Structure your response with these section headers:
-
-**OFFICIAL WEBSITE:**
-**DIRECTORY LISTINGS:**
-**CURRENT PRICING:**
-**CONTACT INFORMATION:**
-**CARE LEVELS OFFERED:**
-**KEY AMENITIES:**
-**AVAILABILITY STATUS:**
-**RECENT UPDATES:**
-**MANAGEMENT/OWNERSHIP:**
-
-For each section, provide the most helpful information available, or explain what the user should do to get current information (e.g., "Contact the community directly at..." or "Visit their website for current pricing").`;
-
-    try {
-      const response = await anthropic.messages.create({
-        model: CLAUDE_MODEL,
-        max_tokens: 2000,
-        temperature: 0.2,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: query }
-        ]
-      });
-
-      const content = response.content[0];
-      if (content.type === 'text') {
-        return {
-          summary: content.text,
-          sources: ['Claude AI Analysis - Note: Real-time data not available. Contact communities directly for current information.'],
-          images: []
-        };
-      }
-
-      throw new Error('Unexpected Claude response format');
-    } catch (error: any) {
-      console.error('Claude API error:', error.message);
-      throw error;
+      console.error('Perplexity API error:', error.response?.data || error.message);
+      throw new Error('Failed to search real-time data');
     }
   }
 

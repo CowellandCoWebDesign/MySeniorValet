@@ -84,7 +84,7 @@ export class ComprehensiveSearchEngine {
     }
     
     // Add sorting based on search type
-    searchQuery = this.applySorting(searchQuery as any, searchType, query);
+    searchQuery = this.applySorting(searchQuery, searchType, query);
     
     // Execute with pagination
     let results = await searchQuery
@@ -97,7 +97,7 @@ export class ComprehensiveSearchEngine {
       countQuery = countQuery.where(and(...conditions));
     }
     let [{ count }] = await countQuery;
-    let totalResults = Number(count) || 0;
+    let totalResults = parseInt(count.toString());
     
     // DISCOVERY MODE: Use AI only when NO results are found
     let discoveryMode = false;
@@ -175,42 +175,18 @@ export class ComprehensiveSearchEngine {
         
         console.log(`🤖 Discovery Mode Query: ${aiQuery}`);
         
-        // Get AI-powered suggestions with automatic fallback
+        // Get AI-powered suggestions
         const aiResponse = await perplexityService.searchRealTime(aiQuery);
-        
-        // Check if we got a valid response
-        if (aiResponse && aiResponse.summary) {
-          aiSuggestions = {
-            summary: aiResponse.summary,
-            sources: aiResponse.sources || [],
-            images: aiResponse.images || []
-          };
-          
-          if (aiResponse.sources && aiResponse.sources.length > 0) {
-            console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
-          } else {
-            console.log(`✨ Discovery Mode provided AI-generated suggestions`);
-          }
-        } else {
-          console.log('⚠️ Discovery Mode: AI response was empty, using fallback message');
-          aiSuggestions = {
-            summary: `AI search is temporarily unavailable. Please try searching with more specific terms or contact communities directly for information.`,
-            sources: [],
-            images: []
-          };
-        }
-      } catch (error: any) {
-        console.error('🚨 Discovery Mode error:', error.message);
-        // Provide a helpful fallback message when AI fails
         aiSuggestions = {
-          summary: `Discovery Mode is temporarily limited. Try these search tips:
-• Search by city and state (e.g., "Sacramento, CA")
-• Use specific care types (e.g., "memory care")
-• Try nearby cities if your exact location shows no results
-• Contact communities directly for the most current information`,
-          sources: [],
-          images: []
+          summary: aiResponse.summary,
+          sources: aiResponse.sources,
+          images: aiResponse.images
         };
+        
+        console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
+      } catch (error) {
+        console.error('Discovery Mode error:', error);
+        // Continue without AI suggestions if there's an error
       }
     }
     
@@ -224,13 +200,11 @@ export class ComprehensiveSearchEngine {
         filters,
         processingTime: Date.now() - startTime,
         suggestions,
-        fallbackApplied: discoveryMode,
-        fallbackMessage: discoveryMode ? discoveryMessage : undefined,
-        originalFiltersRequested: discoveryMode ? originalFilters : undefined,
-        includesHealthcare: isHealthcareSearch,
-        // Add AI suggestions as part of extended metadata
-        ...(discoveryMode && aiSuggestions ? { aiSuggestions } : {})
-      } as any,
+        discoveryMode: discoveryMode as any,
+        discoveryMessage: discoveryMode ? discoveryMessage : undefined as any,
+        aiSuggestions: discoveryMode ? aiSuggestions : undefined as any,
+        includesHealthcare: isHealthcareSearch
+      },
       facets: {
         ...facets,
         healthcareTypes: healthcareTypeFacets
@@ -533,7 +507,7 @@ export class ComprehensiveSearchEngine {
   
   private getDominantIntent(scores: any): string {
     const entries = Object.entries(scores);
-    const dominant = entries.reduce((a: any, b: any) => (a[1] as number) > (b[1] as number) ? a : b);
+    const dominant = entries.reduce((a, b) => a[1] > b[1] ? a : b);
     return dominant[0];
   }
   
@@ -868,11 +842,11 @@ export class ComprehensiveSearchEngine {
     }
     
     if (filters.rating !== undefined) {
-      conditions.push(gte(sql`CAST(${communities.rating} AS DECIMAL)`, filters.rating));
+      conditions.push(gte(communities.rating, filters.rating));
     }
   }
   
-  private applySorting(query: any, searchType: string, searchQuery: string): any {
+  private applySorting(query: any, searchType: string, searchQuery: string) {
     // Normalize the search query for comparison
     const normalizedSearch = searchQuery?.toLowerCase().trim() || '';
     
@@ -941,7 +915,7 @@ export class ComprehensiveSearchEngine {
       .limit(10);
     
     return {
-      states: states.map(s => ({ name: s.state, count: Number(s.count) || 0 })),
+      states: states.map(s => ({ name: s.state, count: parseInt(s.count.toString()) })),
       careTypes: [], // TODO: Implement
       priceRanges: [], // TODO: Implement  
       ratings: [] // TODO: Implement
@@ -1043,10 +1017,10 @@ export class ComprehensiveSearchEngine {
       
       // Build facets from results
       const facets = services
-        .filter(s => s.count && Number(s.count) > 0)
+        .filter(s => s.count > 0)
         .map(s => ({
           name: s.displayName,
-          count: Number(s.count) || 0
+          count: s.count
         }))
         .slice(0, 10); // Top 10 facets
       

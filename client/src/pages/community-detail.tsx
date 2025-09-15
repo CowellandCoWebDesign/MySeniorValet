@@ -308,38 +308,19 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   
   // Trigger verification when component mounts (only once)
   useEffect(() => {
-    // Add proper ID validation and logging
-    const communityId = community?.id;
-    
-    // Log the community object for debugging
-    console.log('RealTimeInsights received community:', { id: communityId, name: community?.name });
-    
-    // Validate that we have a proper community ID (not 1, not undefined, not null)
-    const isValidId = communityId && communityId !== 1 && communityId > 100;
-    
-    if (!isValidId) {
-      console.warn('Invalid community ID detected in RealTimeInsights:', communityId, 'Expected a valid ID > 100');
-      // Don't proceed with verification if ID is invalid
-      return;
-    }
-    
-    if (communityId && !hasStartedVerification && !localVerificationReport) {
-      console.log(`Starting verification for community ${communityId} - ${community?.name}`);
+    if (community?.id && !hasStartedVerification && !localVerificationReport) {
       setHasStartedVerification(true);
       setIsVerifying(true);
       
-      // Call simplified verification endpoint with validated ID
-      const verifyUrl = `/api/communities/${communityId}/verify`;
-      console.log('Calling verification endpoint:', verifyUrl);
-      
-      fetch(verifyUrl, {
+      // Call simplified verification endpoint
+      fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ forceRefresh: false })
       })
       .then(res => res.json())
       .then(report => {
-        console.log('Verification report received for community', communityId, ':', report);
+        console.log('Verification report received:', report);
         setLocalVerificationReport(report);
         // Also update parent state if callback provided
         if (onVerificationReport) {
@@ -352,7 +333,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         }
       })
       .catch(error => {
-        console.error(`Verification error for community ${communityId}:`, error);
+        console.error('Verification error:', error);
         setHasStartedVerification(false); // Allow retry on error
       })
       .finally(() => {
@@ -383,7 +364,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       <div className="absolute top-4 right-4 z-10">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
           <Sparkles className="w-3 h-3 mr-1" />
-          Powered by AI Intelligence
+          Powered by Perplexity AI
         </div>
       </div>
 
@@ -616,7 +597,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <Globe className="w-5 h-5 mr-2 text-indigo-600" />
                     What We Found About {community?.name}
                   </h4>
-                  <p className="text-xs text-muted-foreground">Powered by {verificationReport?.aiService || 'AI Intelligence'}</p>
+                  <p className="text-xs text-muted-foreground">Powered by Perplexity AI</p>
                 </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search
@@ -1165,14 +1146,6 @@ export default function CommunityDetail() {
   const { data: community, isLoading, error } = useQuery<Community>({
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
-    select: (data) => {
-      // Log the raw API response to debug ID issues
-      console.log('API Response for community', id, ':', { id: data?.id, name: data?.name });
-      if (data && data.id !== Number(id)) {
-        console.warn('ID MISMATCH: URL ID', id, 'does not match API response ID', data.id);
-      }
-      return data;
-    }
   });
 
   // Reset all state when community ID changes (but don't return early)
@@ -1203,17 +1176,13 @@ export default function CommunityDetail() {
 
   // Trigger verification immediately when community loads
   React.useEffect(() => {
-    // Use the ID from URL params as primary source of truth
-    const verificationId = community?.id || Number(id);
-    
-    // Validate ID before proceeding
-    if (verificationId && verificationId > 100 && !hasStartedVerification && !verificationReport) {
-      console.log('🚀 Starting photo and data verification for community:', community?.name, 'ID:', verificationId);
+    if (community?.id && !hasStartedVerification && !verificationReport) {
+      console.log('🚀 Starting photo and data verification for community:', community.name);
       setHasStartedVerification(true);
       setIsVerifying(true);
       
-      // Call verification endpoint with validated ID
-      fetch(`/api/communities/${verificationId}/verify`, {
+      // Call verification endpoint
+      fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ forceRefresh: false })
@@ -2846,22 +2815,13 @@ export default function CommunityDetail() {
                 </Card>
 
                 {/* Real-Time AI Insights */}
-                {(() => {
-                  // Log what we're passing to RealTimeInsights
-                  console.log('Passing to RealTimeInsights - Community ID:', community?.id, 'Name:', community?.name);
-                  if (community?.id <= 100) {
-                    console.warn('WARNING: Community ID appears invalid:', community?.id);
-                  }
-                  return (
-                    <RealTimeInsights 
-                      key={`real-time-insights-${community.id}`}
-                      community={community}
-                      marketAnalysisData={marketAnalysisData} 
-                      onVerificationReport={setVerificationReport}
-                      onPhotosUpdate={undefined}
-                    />
-                  );
-                })()}
+                <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={undefined}
+                />
 
                 {/* Intelligent Pricing Prediction */}
                 <IntelligentPricingPrediction 
