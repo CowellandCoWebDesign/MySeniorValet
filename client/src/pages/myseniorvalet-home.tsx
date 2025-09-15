@@ -621,26 +621,26 @@ function HeroSectionWithTransformingSearch() {
             
             {/* View Mode Tabs - Matching Top Tab Style */}
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className="flex gap-2">
+              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-2xl">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-xl ${
                     viewMode === 'list'
-                      ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white border-purple-400/50 shadow-lg transform scale-105'
-                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">📋</span>
-                  <span>List</span>
+                  <span className="text-xs sm:text-sm">🔍</span>
+                  <span>Database Search</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-xl ${
                     viewMode === 'map'
-                      ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white border-green-400/50 shadow-lg transform scale-105'
-                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-green-400/50 hover:text-white'
+                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -649,14 +649,14 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 rounded-xl ${
                     viewMode === 'discover'
-                      ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white border-purple-400/50 shadow-lg transform scale-105'
-                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
+                      ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">🔮</span>
-                  <span>Discovery mode</span>
+                  <span className="text-xs sm:text-sm">🌍</span>
+                  <span>Web Search</span>
                 </button>
               </div>
             </div>
