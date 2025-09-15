@@ -819,19 +819,14 @@ export function LiveWebIntelligence({
                 <Sparkles className="h-4 w-4 text-teal-600" />
                 Amenities & Features
               </h4>
-              <div className="grid grid-cols-2 gap-2">
-                {intelligence?.amenities?.slice(0, 8).map((amenity, idx) => (
+              <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto">
+                {intelligence?.amenities?.map((amenity, idx) => (
                   <div key={idx} className="flex items-center gap-2 p-2 rounded-lg bg-white dark:bg-gray-900 border border-teal-200 dark:border-teal-800">
                     <CheckCircle className="h-3 w-3 text-teal-600 flex-shrink-0" />
                     <span className="text-xs font-medium">{amenity}</span>
                   </div>
                 ))}
               </div>
-              {intelligence.amenities.length > 8 && (
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  +{intelligence.amenities.length - 8} more amenities
-                </p>
-              )}
             </div>
           )}
 
@@ -842,8 +837,8 @@ export function LiveWebIntelligence({
                 <Camera className="h-4 w-4" />
                 Photos from Official Website
               </h4>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {intelligence?.photos?.slice(0, 6).map((photo, idx) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-96 overflow-y-auto">
+                {intelligence?.photos?.map((photo, idx) => (
                   <div key={idx} className="aspect-square rounded-lg overflow-hidden bg-muted">
                     <img 
                       src={photo} 

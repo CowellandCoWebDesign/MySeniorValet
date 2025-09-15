@@ -246,14 +246,11 @@ export function MultiAIPerspectives({
               <div className="space-y-3">
                 <div className="text-sm space-y-2">
                   <div className="font-medium text-muted-foreground">Analysis:</div>
-                  <div className="bg-white dark:bg-gray-950 p-3 rounded-lg max-h-48 overflow-y-auto">
-                    {response.content.split('\n').slice(0, 5).map((line, idx) => {
+                  <div className="bg-white dark:bg-gray-950 p-3 rounded-lg max-h-96 overflow-y-auto">
+                    {response.content.split('\n').map((line, idx) => {
                       if (!line.trim()) return null;
                       return <p key={idx} className="mb-1 text-sm">{line}</p>;
                     })}
-                    {response.content.split('\n').length > 5 && (
-                      <p className="text-xs text-muted-foreground mt-2 italic">... view more in detailed analysis</p>
-                    )}
                   </div>
                 </div>
                 {response.processingTime && (
