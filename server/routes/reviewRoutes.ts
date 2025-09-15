@@ -6,6 +6,7 @@ import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 import { PerplexityAIService } from "../perplexity-ai-service";
+import { MultiAIOrchestrator } from "../multi-ai-orchestrator";
 
 export function registerReviewRoutes(app: Express) {
   // Get reviews for a community
@@ -521,6 +522,223 @@ REQUIREMENTS:
       });
     }
   });
+
+  // AI-powered reviews analysis using Grok and Gemini
+  app.post('/api/communities/:communityId/reviews/ai-analysis', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      const { communityName, communityCity, communityState } = req.body;
+
+      if (!communityName || !communityCity || !communityState) {
+        return res.status(400).json({ 
+          message: 'Community name, city, and state are required' 
+        });
+      }
+
+      console.log(`🤖 AI Reviews Analysis requested for ${communityName}, ${communityCity}, ${communityState}`);
+
+      // Get existing reviews from database
+      const existingReviews = await db
+        .select()
+        .from(reviews)
+        .where(eq(reviews.communityId, communityId))
+        .limit(100);
+
+      // Prepare review data for AI analysis
+      const reviewTexts = existingReviews
+        .map(r => r.reviewText)
+        .filter((text): text is string => text !== null && text !== undefined && text.length > 20)
+        .join('\n\n');
+
+      const reviewsQuery = reviewTexts.length > 0 
+        ? `Analyze these reviews for ${communityName}: ${reviewTexts.substring(0, 3000)}`
+        : `Find and analyze reviews for ${communityName} senior living in ${communityCity}, ${communityState}`;
+
+      // Use orchestrator with only Grok and Gemini for reviews
+      const aiResponses = await MultiAIOrchestrator.searchAllAIs(
+        reviewsQuery,
+        { 
+          name: communityName, 
+          city: communityCity, 
+          state: communityState,
+          includeServices: ['grok', 'gemini'],  // Only use Grok and Gemini for reviews
+          timeout: 10000  // 10 second timeout for reviews analysis
+        }
+      );
+
+      // Helper functions for extracting data from AI responses
+      const extractSentiment = (text: string | undefined): string => {
+        if (!text) return 'mixed';
+        const lowerText = text.toLowerCase();
+        if (lowerText.includes('positive') || lowerText.includes('excellent') || lowerText.includes('highly rated')) {
+          return 'positive';
+        } else if (lowerText.includes('negative') || lowerText.includes('poor') || lowerText.includes('concerning')) {
+          return 'negative';
+        }
+        return 'mixed';
+      };
+
+      const extractBulletPoints = (text: string | undefined): string[] => {
+        if (!text) return [];
+        const lines = text.split('\n');
+        return lines
+          .filter(line => line.trim().match(/^[-•*]\s+/))
+          .map(line => line.replace(/^[-•*]\s+/, '').trim())
+          .slice(0, 5);
+      };
+
+      const extractNumber = (text: string | undefined, keyword: string): number | undefined => {
+        if (!text) return undefined;
+        const regex = new RegExp(`(\\d+)\\s*${keyword}`, 'i');
+        const match = text.match(regex);
+        return match ? parseInt(match[1]) : undefined;
+      };
+
+      const extractTrends = (text: string | undefined): string[] => {
+        if (!text) return [];
+        const keywords = ['trending', 'recent', 'latest', 'new'];
+        const trends: string[] = [];
+        if (text) {
+          keywords.forEach(keyword => {
+            const regex = new RegExp(`${keyword}[^.]*`, 'gi');
+            const matches = text.match(regex);
+            if (matches) {
+              trends.push(...matches.map(m => m.trim()).slice(0, 2));
+            }
+          });
+        }
+        return trends.slice(0, 3);
+      };
+
+      const extractRating = (text: string | undefined): number => {
+        if (!text) return 0;
+        const ratingMatch = text.match(/(\d+(?:\.\d+)?)\s*(?:out of\s*)?(?:\/)?5/i);
+        return ratingMatch ? parseFloat(ratingMatch[1]) : 0;
+      };
+
+      const extractPositiveThemes = (text: string | undefined): string[] => {
+        if (!text) return [];
+        const positiveKeywords = ['excellent', 'great', 'wonderful', 'caring', 'clean', 'professional', 'friendly'];
+        const themes: string[] = [];
+        if (text) {
+          positiveKeywords.forEach(keyword => {
+            if (text.toLowerCase().includes(keyword)) {
+              const regex = new RegExp(`[^.]*${keyword}[^.]*`, 'gi');
+              const matches = text.match(regex);
+              if (matches && matches[0]) {
+                themes.push(matches[0].trim().substring(0, 100));
+              }
+            }
+          });
+        }
+        return themes.slice(0, 4);
+      };
+
+      const extractNegativeThemes = (text: string | undefined): string[] => {
+        if (!text) return [];
+        const negativeKeywords = ['poor', 'bad', 'terrible', 'dirty', 'understaffed', 'expensive', 'neglect'];
+        const themes: string[] = [];
+        if (text) {
+          negativeKeywords.forEach(keyword => {
+            if (text.toLowerCase().includes(keyword)) {
+              const regex = new RegExp(`[^.]*${keyword}[^.]*`, 'gi');
+              const matches = text.match(regex);
+              if (matches && matches[0]) {
+                themes.push(matches[0].trim().substring(0, 100));
+              }
+            }
+          });
+        }
+        return themes.slice(0, 4);
+      };
+
+      const extractRecommendations = (text: string | undefined): string[] => {
+        if (!text) return [];
+        const recKeywords = ['recommend', 'suggest', 'should', 'consider', 'advice'];
+        const recommendations: string[] = [];
+        if (text) {
+          recKeywords.forEach(keyword => {
+            const regex = new RegExp(`[^.]*${keyword}[^.]*`, 'gi');
+            const matches = text.match(regex);
+            if (matches) {
+              recommendations.push(...matches.map(m => m.trim().substring(0, 150)));
+            }
+          });
+        }
+        return recommendations.slice(0, 3);
+      };
+
+      const determineSentimentConsensus = (responses: any): 'positive' | 'mixed' | 'negative' => {
+        const sentiments: string[] = [];
+        if (responses.responses?.grok?.content) {
+          sentiments.push(extractSentiment(responses.responses.grok.content));
+        }
+        if (responses.responses?.gemini?.content) {
+          sentiments.push(extractSentiment(responses.responses.gemini.content));
+        }
+        
+        const positiveCount = sentiments.filter(s => s === 'positive').length;
+        const negativeCount = sentiments.filter(s => s === 'negative').length;
+        
+        if (positiveCount > negativeCount) return 'positive';
+        if (negativeCount > positiveCount) return 'negative';
+        return 'mixed';
+      };
+
+      const calculateAverageRating = (responses: any): number => {
+        const ratings: number[] = [];
+        if (responses.responses?.grok?.content) {
+          const rating = extractRating(responses.responses.grok.content);
+          if (rating > 0) ratings.push(rating);
+        }
+        if (responses.responses?.gemini?.content) {
+          const rating = extractRating(responses.responses.gemini.content);
+          if (rating > 0) ratings.push(rating);
+        }
+        
+        if (ratings.length === 0) return 0;
+        return ratings.reduce((sum, r) => sum + r, 0) / ratings.length;
+      };
+
+      // Format the analysis response
+      const analysis = {
+        grok: aiResponses.responses?.grok ? {
+          sentiment: extractSentiment(aiResponses.responses.grok.content),
+          socialInsights: extractBulletPoints(aiResponses.responses.grok.content),
+          twitterMentions: extractNumber(aiResponses.responses.grok.content, 'mentions'),
+          recentTrends: extractTrends(aiResponses.responses.grok.content),
+          sources: aiResponses.responses.grok.sources || []
+        } : null,
+        gemini: aiResponses.responses?.gemini ? {
+          overallRating: extractRating(aiResponses.responses.gemini.content),
+          positiveThemes: extractPositiveThemes(aiResponses.responses.gemini.content),
+          negativeThemes: extractNegativeThemes(aiResponses.responses.gemini.content),
+          summary: aiResponses.responses.gemini.content?.substring(0, 500),
+          recommendations: extractRecommendations(aiResponses.responses.gemini.content)
+        } : null,
+        consensus: {
+          sentiment: determineSentimentConsensus(aiResponses),
+          averageRating: calculateAverageRating(aiResponses),
+          keyHighlights: aiResponses.consensus?.insights || [],
+          warnings: aiResponses.consensus?.warnings || []
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      res.json({ 
+        success: true,
+        analysis,
+        cached: false
+      });
+
+    } catch (error) {
+      console.error('Error in AI reviews analysis:', error);
+      res.status(500).json({ 
+        message: 'Failed to perform AI analysis',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
 }
 
 // Helper functions to extract review data from Perplexity response
@@ -701,7 +919,7 @@ function extractReviewSnippets(text: string): {
       rating: extractRatingFromReviewContext(text, review.text) || getDefaultRatingForSource(contextSource, platformRatings),
       source: contextSource,
       author: review.author,
-      date: parseDate(review.date),
+      date: review.date ? parseDate(review.date) : new Date().toISOString(),
       url: getUrlForSource(contextSource, urls),
       verified: true,
       helpful: 0

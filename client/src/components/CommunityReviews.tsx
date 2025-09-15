@@ -484,6 +484,14 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
 
   return (
     <div className="space-y-6">
+      {/* AI-Powered Review Analysis */}
+      <AIReviewsAnalysis 
+        communityId={community.id}
+        communityName={community.name}
+        communityCity={community.city}
+        communityState={community.state}
+      />
+
       {/* Header Section */}
       <Card>
         <CardHeader>
