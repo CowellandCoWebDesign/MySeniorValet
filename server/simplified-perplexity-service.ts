@@ -196,7 +196,7 @@ If "${communityName}" is not found exactly, still provide all the market data an
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -404,7 +404,7 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar',
           messages: [
             {
               role: 'user',

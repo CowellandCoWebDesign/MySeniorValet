@@ -283,12 +283,12 @@ CRITICAL INSTRUCTIONS:
       // Log the request details for debugging
       console.log('📤 Perplexity API Request:');
       console.log('   URL:', this.baseUrl);
-      console.log('   Model: sonar-pro');
+      console.log('   Model: sonar');
       console.log('   Query length:', query.length);
       console.log('   Has API key:', !!this.apiKey);
 
       const requestBody = {
-        model: 'sonar-pro',
+        model: 'sonar',
         messages: [
           {
             role: 'system',
