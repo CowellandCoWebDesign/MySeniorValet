@@ -421,14 +421,29 @@ export class SimpleEnrichmentService {
           continue;
         }
         
-        // Skip logos, icons, and ensure it's a valid image format
+        // Skip logos, icons, error pages, and ensure it's a valid image format
         const validExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
         const hasValidExtension = validExtensions.some(ext => imgUrl.toLowerCase().includes(ext));
         
-        if (!imgUrl.includes('logo') && 
-            !imgUrl.includes('icon') && 
-            !imgUrl.includes('.svg') &&
-            hasValidExtension) {
+        // Filter out bad images
+        const badPatterns = [
+          'logo',
+          'icon',
+          '404',
+          'error',
+          'not-found',
+          'missing',
+          'placeholder',
+          '/vi/ID/', // YouTube broken thumbnails
+          '/app/themes/', // Theme resources
+          '/dist/resources/', // Distribution resources
+          'default-image',
+          'no-image'
+        ];
+        
+        const isGoodImage = !badPatterns.some(pattern => imgUrl.toLowerCase().includes(pattern.toLowerCase()));
+        
+        if (isGoodImage && !imgUrl.includes('.svg') && hasValidExtension) {
           photos.push(imgUrl);
         }
       }

@@ -225,11 +225,11 @@ FORMAT YOUR RESPONSE WITH:
       }
       
       const systemPrompt = `You are a web search expert with access to real-time internet data. 
-Your task is to find information and images about senior living communities.
+Your task is to find SPECIFIC information and ACTUAL PHOTOS about senior living communities.
 
 Return your response as valid JSON with this exact structure:
 {
-  "summary": "Brief description of what you found",
+  "summary": "Detailed description with specific facts about the community",
   "website": "Official website URL if found",
   "phone": "Phone number if found",
   "images": [
@@ -238,21 +238,36 @@ Return your response as valid JSON with this exact structure:
   "sources": ["list of website URLs you consulted"]
 }
 
-IMPORTANT:
-- Use your native web search to find REAL information
-- Include ONLY actual image URLs you find on websites (jpg, png, webp, etc)
-- Do NOT include placeholder or stock photo site URLs
-- If you cannot find images, return empty images array
-- All URLs must be real and currently accessible`;
+CRITICAL RULES FOR IMAGES:
+- ONLY include actual photos of the senior living community (building exteriors, rooms, amenities)
+- NEVER include:
+  * 404 error page images
+  * Generic placeholder images
+  * Stock photos from image libraries
+  * YouTube thumbnails with "/vi/ID/" in the URL
+  * Images with "404", "error", "placeholder" in the filename
+  * Images from CDN paths like "/app/themes/" or "/dist/resources/"
+- Images must be actual photos of the specific community
+- If no real photos are found, return empty images array
+
+SUMMARY REQUIREMENTS:
+- Include specific details: number of units, care levels offered, year established
+- Mention actual amenities and services
+- Include pricing information if available
+- Be factual and specific, not generic`;
 
       const userPrompt = `Search the web for: ${query}
 ${communityName ? `Community name: ${communityName}` : ''}
 
+IMPORTANT: Find REAL, SPECIFIC information about this exact community.
+
 Find and return:
 1. Official website (if exists)
-2. Phone number (if available)
-3. Actual image URLs from the community's website or legitimate senior living directories
-4. Brief factual summary
+2. Phone number (if available)  
+3. ACTUAL PHOTOS of the community building, rooms, or amenities (NOT error pages or placeholders)
+4. Detailed factual summary with specific information about THIS community
+
+Be specific and factual. If the community doesn't exist or has no online presence, say so clearly.
 
 Return as JSON.`;
 
@@ -272,13 +287,29 @@ Return as JSON.`;
       try {
         const jsonData = JSON.parse(content);
         
-        // Transform images to expected format
-        const images = (jsonData.images || []).map((img: any) => ({
-          url: img.url,
-          source: 'Grok Web Search',
-          description: img.description || '',
-          isAuthentic: true
-        }));
+        // Transform and filter images to expected format
+        const images = (jsonData.images || [])
+          .filter((img: any) => {
+            // Filter out bad images
+            const badPatterns = [
+              '404',
+              'error',
+              'placeholder',
+              '/vi/ID/',
+              'not-found',
+              'missing',
+              '/app/themes/',
+              '/dist/resources/'
+            ];
+            const url = img.url?.toLowerCase() || '';
+            return !badPatterns.some(pattern => url.includes(pattern.toLowerCase()));
+          })
+          .map((img: any) => ({
+            url: img.url,
+            source: 'Grok Web Search',
+            description: img.description || '',
+            isAuthentic: true
+          }));
         
         console.log(`✅ Grok structured search found ${images.length} images`);
         
