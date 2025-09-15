@@ -15,8 +15,9 @@ import { ScalableCache } from './infrastructure/cache';
 const perplexityService = new PerplexityAIService();
 const anthropicService = new AnthropicAIService();
 
-// Default timeout for AI services (10 seconds)
-const DEFAULT_AI_TIMEOUT = 10000;
+// Default timeout for AI services (30 seconds for web search operations)
+const DEFAULT_AI_TIMEOUT = 30000;
+const WEB_SEARCH_TIMEOUT = 30000;
 
 // Cache for AI responses - 5 minute TTL to prevent duplicate calls
 const aiResponseCache = new ScalableCache(1000, 5 * 60 * 1000);
@@ -35,6 +36,8 @@ export interface AIResponse {
   processingTime?: number;
   costEstimate?: string;
   status?: 'success' | 'timeout' | 'error' | 'skipped';
+  features?: string[];
+  sources?: string[];
 }
 
 export interface MultiAIResult {
@@ -99,7 +102,7 @@ export class MultiAIOrchestrator {
       const processingTime = Date.now() - startTime;
       
       // Handle successful response
-      if (result) {
+      if (result && result.success !== false) {
         return {
           service: serviceName,
           success: true,
@@ -108,7 +111,9 @@ export class MultiAIOrchestrator {
           model: result.model || serviceName,
           timestamp: new Date().toISOString(),
           processingTime,
-          status: 'success'
+          status: 'success',
+          features: result.features || [],
+          sources: result.sources || []
         };
       } else {
         throw new Error('Empty response from service');
@@ -169,34 +174,45 @@ export class MultiAIOrchestrator {
   private static async performSearchAllAIs(query: string, context: any, cacheKey: string): Promise<MultiAIResult> {
     const startTime = Date.now();
     console.log(`🚀 Multi-AI Orchestrator: Processing query across 5 AI services with ${DEFAULT_AI_TIMEOUT}ms timeout`);
+    console.log(`⚡ Web Search Enabled for: Perplexity, Grok, DeepSeek`);
     
-    // Define all AI service calls
+    // Define all AI service calls with capabilities
     const aiServices = [
       {
         name: 'perplexity',
-        call: () => perplexityService.searchRealTime(query, context)
+        call: () => perplexityService.searchRealTime(query, context),
+        capabilities: ['web-search', 'real-time', 'citations'],
+        timeout: WEB_SEARCH_TIMEOUT
       },
       {
         name: 'claude',
-        call: () => anthropicService.searchAndAnalyze(query, context)
+        call: () => anthropicService.searchAndAnalyze(query, context),
+        capabilities: ['analysis', 'reasoning'],
+        timeout: DEFAULT_AI_TIMEOUT
       },
       {
         name: 'grok',
-        call: () => GrokAIService.searchAndAnalyze(query, context)
+        call: () => GrokAIService.searchAndAnalyze(query, context),
+        capabilities: ['web-search', 'real-time', 'x-twitter', 'citations'],
+        timeout: WEB_SEARCH_TIMEOUT
       },
       {
         name: 'gemini',
-        call: () => GeminiAIService.searchAndAnalyze(query, context)
+        call: () => GeminiAIService.searchAndAnalyze(query, context),
+        capabilities: ['analysis', 'multimodal'],
+        timeout: DEFAULT_AI_TIMEOUT
       },
       {
         name: 'deepseek',
-        call: () => DeepSeekAIService.searchAndAnalyze(query, context)
+        call: () => DeepSeekAIService.searchAndAnalyze(query, context),
+        capabilities: ['web-search', 'deep-reasoning', 'cost-effective', 'citations'],
+        timeout: WEB_SEARCH_TIMEOUT
       }
     ];
     
     // Execute all AI calls in parallel with timeout handling
     const servicePromises = aiServices.map(service => 
-      this.callAIService(service.name, service.call)
+      this.callAIService(service.name, service.call, service.timeout)
     );
     
     // Use Promise.allSettled to get all results regardless of failures
@@ -217,7 +233,9 @@ export class MultiAIOrchestrator {
         
         if (response.success) {
           successCount++;
-          console.log(`✅ ${serviceName}: Success (${response.processingTime}ms)`);
+          const features = response.features?.length ? ` [${response.features.join(', ')}]` : '';
+          const sourceCount = response.sources?.length ? ` (${response.sources.length} sources)` : '';
+          console.log(`✅ ${serviceName}: Success (${response.processingTime}ms)${features}${sourceCount}`);
         } else if (response.status === 'timeout') {
           timeoutCount++;
           console.log(`⏱️ ${serviceName}: Timeout`);
@@ -466,12 +484,24 @@ export class MultiAIOrchestrator {
     const recommendations: string[] = [];
     const warnings: string[] = [];
     const prices: number[] = [];
+    const allSources = new Set<string>();
     let successfulResponses = 0;
+    let webSearchCount = 0;
     
     // Analyze each response
     Object.values(responses).forEach(response => {
       if (response?.success && response.content) {
         successfulResponses++;
+        
+        // Track web search capabilities
+        if (response.features?.includes('web-search') || response.sources?.length) {
+          webSearchCount++;
+        }
+        
+        // Collect all sources
+        if (response.sources) {
+          response.sources.forEach(source => allSources.add(source));
+        }
         
         // Extract key insights (first significant sentence)
         const sentences = response.content.split(/[.!?]+/).filter(s => s.trim().length > 20);
@@ -507,13 +537,19 @@ export class MultiAIOrchestrator {
         average: Math.round(prices.reduce((sum, p) => sum + p, 0) / prices.length),
         range: { min: prices[0], max: prices[prices.length - 1] },
         confidence: Math.min(95, 60 + (prices.length * 10)),
-        sources: Object.keys(responses).filter(key => responses[key as keyof typeof responses]?.success)
+        sources: Array.from(allSources)
       };
     }
     
     // Add key recommendations
     if (successfulResponses > 0) {
       recommendations.push(`${successfulResponses} AI source${successfulResponses > 1 ? 's' : ''} analyzed this query`);
+    }
+    if (webSearchCount > 0) {
+      recommendations.push(`${webSearchCount} AI${webSearchCount > 1 ? 's' : ''} provided real-time web search results`);
+    }
+    if (allSources.size > 0) {
+      recommendations.push(`${allSources.size} unique web sources referenced`);
     }
     if (prices.length > 2) {
       recommendations.push(`Pricing estimates available from ${prices.length} sources`);
