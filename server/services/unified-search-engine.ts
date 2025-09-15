@@ -271,66 +271,98 @@ export class UnifiedSearchEngine {
     try {
       let conditions = [];
       
-      // CRITICAL FIX: Always search the raw query in name and management company fields
-      // This ensures company names like "Atria", "Brookdale" are found
-      const rawQuery = intent.extractedEntities.query || '';
-      if (rawQuery && rawQuery.trim()) {
-        // Remove common punctuation that might interfere with search
-        const cleanQuery = rawQuery.replace(/[,\-]/g, ' ').trim();
-        const searchTerms = cleanQuery.split(' ').filter(term => term.length > 1);
-        
-        const searchConditions = [];
-        
-        if (searchTerms.length > 0) {
-          // Create OR conditions for each term - more permissive search
-          const termConditions = searchTerms.map(term =>
-            or(
-              ilike(communities.name, `%${term}%`),
-              ilike(communities.managementCompany, `%${term}%`),
-              ilike(communities.city, `%${term}%`),
-              ilike(communities.state, `%${term}%`)
-            )
-          );
-          
-          // Combine all term conditions with OR
-          if (termConditions.length > 0) {
-            searchConditions.push(...termConditions);
-          }
-        }
-        
-        // Also try the full query as a single search term (for exact matches)
-        searchConditions.push(
-          ilike(communities.name, `%${rawQuery}%`)
-        );
-        searchConditions.push(
-          ilike(communities.managementCompany, `%${rawQuery}%`)
-        );
-        
-        // Combine all search conditions with OR logic for maximum permissiveness
-        if (searchConditions.length > 0) {
-          conditions.push(or(...searchConditions));
-        }
-      }
-      
-      // Additional location filter if detected (but don't rely solely on this)
-      if (intent.extractedEntities.location && intent.type === 'location') {
+      // CRITICAL FIX: Handle location searches properly - don't split city names
+      if (intent.type === 'location' && intent.extractedEntities.location) {
         const location = intent.extractedEntities.location;
         
         // Parse location for city/state
         const parts = location.split(',').map(p => p.trim());
         
         if (parts.length === 2) {
-          // City, State format (e.g., "Redding, CA")
+          // City, State format (e.g., "San Francisco, CA")
           const [city, state] = parts;
+          // Use comprehensive city matching with ILIKE for case-insensitive search
           conditions.push(
-            and(
-              ilike(communities.city, city),
-              or(
-                ilike(communities.state, state),
-                ilike(communities.state, `%${state}%`) // Handle full state names
+            or(
+              // Try exact match first
+              and(
+                ilike(communities.city, city),
+                or(
+                  ilike(communities.state, state),
+                  ilike(communities.state, `%${state}%`)
+                )
+              ),
+              // Then try partial matches
+              and(
+                ilike(communities.city, `%${city}%`),
+                or(
+                  ilike(communities.state, state),
+                  ilike(communities.state, `%${state}%`)
+                )
               )
             )
           );
+        } else if (parts.length === 1) {
+          // Single location term - could be city or state
+          // For cities like "San Francisco" without state
+          conditions.push(
+            or(
+              ilike(communities.city, location),
+              ilike(communities.city, `%${location}%`),
+              ilike(communities.state, location),
+              ilike(communities.state, `%${location}%`)
+            )
+          );
+        }
+      } else {
+        // Non-location searches - handle company names and general searches
+        const rawQuery = intent.extractedEntities.query || '';
+        if (rawQuery && rawQuery.trim()) {
+          const searchConditions = [];
+          
+          // IMPORTANT: For known multi-word cities, don't split them
+          const multiWordCities = ['san francisco', 'los angeles', 'new york', 'san diego', 'san jose', 'san antonio', 'las vegas'];
+          const isMultiWordCity = multiWordCities.some(city => rawQuery.toLowerCase().includes(city));
+          
+          if (isMultiWordCity || intent.type === 'name' || intent.type === 'company') {
+            // Don't split multi-word cities or company names
+            searchConditions.push(
+              or(
+                ilike(communities.name, `%${rawQuery}%`),
+                ilike(communities.managementCompany, `%${rawQuery}%`),
+                ilike(communities.city, `%${rawQuery}%`)
+              )
+            );
+          } else {
+            // For general searches, can split into terms
+            const cleanQuery = rawQuery.replace(/[,\-]/g, ' ').trim();
+            const searchTerms = cleanQuery.split(' ').filter(term => term.length > 1);
+            
+            // Search for full query first
+            searchConditions.push(
+              or(
+                ilike(communities.name, `%${rawQuery}%`),
+                ilike(communities.managementCompany, `%${rawQuery}%`),
+                ilike(communities.city, `%${rawQuery}%`)
+              )
+            );
+            
+            // Then add individual term searches for general queries
+            if (searchTerms.length > 1) {
+              const termConditions = searchTerms.map(term =>
+                or(
+                  ilike(communities.name, `%${term}%`),
+                  ilike(communities.managementCompany, `%${term}%`)
+                )
+              );
+              searchConditions.push(...termConditions);
+            }
+          }
+          
+          // Combine all search conditions with OR logic
+          if (searchConditions.length > 0) {
+            conditions.push(or(...searchConditions));
+          }
         }
       }
       

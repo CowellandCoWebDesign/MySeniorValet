@@ -866,23 +866,24 @@ export class ComprehensiveSearchEngine {
           );
           console.log(`🌍 Added state/province search for "${query}" (${stateCode})`);
         } else {
-          // It's likely a city name - be more specific
-          // Prioritize exact city matches, not partial name matches
-          conditions.push(
-            or(
-              // Exact city match (highest priority)
-              ilike(communities.city, query),
-              // City starts with query
-              ilike(communities.city, `${query}%`),
-              // City contains query (but not in community name)
-              and(
-                ilike(communities.city, `%${query}%`),
-                // Exclude results where it's just in the community name
-                sql`${communities.city} IS NOT NULL AND ${communities.city} != ''`
-              )
-            )
-          );
-          console.log(`🌍 Added specific city search for "${query}"`);
+          // It's likely a city name - search for it properly
+          // Use simple ILIKE for case-insensitive matching
+          const cityConditions = [];
+          
+          // Exact city match (highest priority) - case insensitive
+          cityConditions.push(ilike(communities.city, query));
+          
+          // City starts with query (for partial matches like "San" for "San Francisco")
+          cityConditions.push(ilike(communities.city, `${query}%`));
+          
+          // City contains query (for substring matches)
+          cityConditions.push(ilike(communities.city, `%${query}%`));
+          
+          // Combine with OR to match any condition
+          if (cityConditions.length > 0) {
+            conditions.push(or(...cityConditions));
+            console.log(`🌍 Added city search conditions for "${query}" (${cityConditions.length} patterns)`);
+          }
         }
       }
     }
