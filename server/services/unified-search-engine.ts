@@ -281,24 +281,21 @@ export class UnifiedSearchEngine {
         if (parts.length === 2) {
           // City, State format (e.g., "San Francisco, CA")
           const [city, state] = parts;
-          // Use comprehensive city matching with ILIKE for case-insensitive search
+          
+          // FIXED: Simplified query to ensure all matching communities are returned
+          // Use AND to match both city and state correctly
           conditions.push(
-            or(
-              // Try exact match first
-              and(
+            and(
+              // Match city (case-insensitive)
+              or(
                 ilike(communities.city, city),
-                or(
-                  ilike(communities.state, state),
-                  ilike(communities.state, `%${state}%`)
-                )
+                ilike(communities.city, `%${city}%`)
               ),
-              // Then try partial matches
-              and(
-                ilike(communities.city, `%${city}%`),
-                or(
-                  ilike(communities.state, state),
-                  ilike(communities.state, `%${state}%`)
-                )
+              // Match state (case-insensitive) 
+              or(
+                eq(communities.state, state.toUpperCase()),  // Most states are stored as uppercase
+                ilike(communities.state, state),
+                ilike(communities.state, `%${state}%`)
               )
             )
           );
