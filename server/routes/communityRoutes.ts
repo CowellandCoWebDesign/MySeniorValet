@@ -552,7 +552,7 @@ export function registerCommunityRoutes(app: Express) {
         if (locationCommunities.length === 0 && perplexityService.isConfigured()) {
           try {
             const searchResult = await perplexityService.searchRealTime(
-              'List top senior living communities in Mexico for American retirees with current pricing and availability 2025',
+              'List top senior living communities in Mexico for American retirees with current pricing and availability',
               'Focus on Tijuana, Guadalajara, Puerto Vallarta, Cancun, Playa del Carmen'
             );
             
@@ -1000,7 +1000,7 @@ export function registerCommunityRoutes(app: Express) {
         const [community] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
         
         if (community) {
-          const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
+          const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos current`;
           
           // Use the MultiAIOrchestrator which has caching built-in
           const multiAIResult = await MultiAIOrchestrator.searchAllAIs(searchQuery, community);
@@ -1597,7 +1597,7 @@ export function registerCommunityRoutes(app: Express) {
           const newsQuery = `What are the latest news, pricing updates, or changes at ${communityDetails}? Include: 
           1. Recent pricing changes or promotions for ${careTypesStr}
           2. Current market rates in ${community.city}, ${community.state} for ${community.communitySubtype || 'senior living'}
-          3. Any recent events, staff changes, renovations from 2024-2025
+          3. Any recent events, staff changes, renovations from recent years
           4. Average costs for ${careTypesStr} in the ${community.state} area`;
           
           const newsResult = await perplexityService.searchRealTime(
@@ -1838,7 +1838,7 @@ export function registerCommunityRoutes(app: Express) {
 
       try {
         // Construct search query for web search
-        const searchQuery = `"${communityName}" senior living community ${city} ${state} recent news updates reviews 2024 2025`;
+        const searchQuery = `"${communityName}" senior living community ${city} ${state} recent news updates reviews current`;
         
         // Fetch real-time insights
         const searchResults = await perplexityService.searchRealTime(searchQuery, 
