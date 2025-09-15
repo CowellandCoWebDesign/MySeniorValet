@@ -816,20 +816,19 @@ export class ComprehensiveSearchEngine {
         );
         console.log(`🌍 Added global city-country condition for "${city}" in "${region}"`);
       } else {
-        // City, State/Province search
+        // City, State/Province search - simplified to match database structure
         conditions.push(
-          or(
-            and(
-              ilike(communities.city, `%${city}%`),
-              ilike(communities.state, `%${regionCode}%`)
-            ),
-            and(
-              ilike(communities.city, `%${city}%`),
-              ilike(communities.state, `%${region}%`)
+          and(
+            ilike(communities.city, `%${city}%`),
+            or(
+              eq(communities.state, regionCode), // Exact match for state code (e.g., 'CA')
+              eq(communities.state, regionCode.toUpperCase()), // Try uppercase
+              ilike(communities.state, `%${regionCode}%`), // Fallback to ILIKE
+              ilike(communities.state, `%${region}%`) // Try full state name
             )
           )
         );
-        console.log(`🌍 Added global city-state condition for "${city}" in region="${region}"`);
+        console.log(`🌍 Added global city-state condition for "${city}" in region="${region}" (code: ${regionCode})`);
       }
       return conditions;
     }
