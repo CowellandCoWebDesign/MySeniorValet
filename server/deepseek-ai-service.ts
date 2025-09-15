@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-import { WebSearchService } from './services/web-search-service';
 
 // Initialize DeepSeek client
 const deepseek = process.env.DEEPSEEK_API_KEY ? new OpenAI({
@@ -24,47 +23,35 @@ export class DeepSeekAIService {
         };
       }
       
-      // Perform web search first to enhance DeepSeek's reasoning
-      let webSearchResults = '';
-      let sources: string[] = [];
-      
-      try {
-        const searchResponse = await WebSearchService.searchWeb(query, 8);
-        if (searchResponse.results.length > 0) {
-          webSearchResults = `\n\nWEB SEARCH RESULTS (${new Date().toISOString()}):\n`;
-          searchResponse.results.forEach((result, i) => {
-            webSearchResults += `\n${i+1}. ${result.title}\n   URL: ${result.url}\n   Snippet: ${result.snippet}\n`;
-          });
-          sources = searchResponse.sources;
-          console.log(`✅ Found ${searchResponse.results.length} web search results for DeepSeek`);
-        }
-      } catch (searchError) {
-        console.log('⚠️ Web search failed, proceeding without web results');
-      }
-      
+      // DeepSeek is a reasoning model without native web search
+      // It can only analyze based on its training data and reasoning capabilities
       const systemPrompt = `You are DeepSeek R1, an AI assistant with advanced reasoning capabilities analyzing senior living communities.
 
-You have been provided with REAL-TIME web search results that contain current information from the internet.
+You do NOT have web search capabilities. You can only provide analysis based on:
+- Your training data (up to your knowledge cutoff)
+- Deep reasoning and logical analysis
+- General knowledge about senior living industry trends and patterns
 
 Your capabilities include:
-- Deep reasoning and complex analysis across multiple data sources
-- Comprehensive evaluation of senior living facilities, pricing, care levels, and services
+- Deep reasoning and complex analysis
+- Comprehensive evaluation based on known patterns in senior living
 - Long-term planning and projection capabilities
 - Financial analysis and cost-benefit assessment
 - Quality of life evaluation and risk assessment
 
 Instructions:
-1. Analyze ALL provided web search results thoroughly
-2. Apply deep reasoning to extract insights beyond surface-level information
-3. Consider long-term implications (5-10 year horizon) for senior care decisions
-4. Provide specific, actionable recommendations with detailed justification
-5. Include citations and sources from the web search results
-6. Think step-by-step through complex decisions and trade-offs
-7. Consider medical, financial, social, and geographical factors comprehensively
+1. Be HONEST that you cannot access current web data or real-time pricing
+2. Provide analysis based on general industry knowledge and reasoning
+3. Suggest what information the user should verify from official sources
+4. Apply deep reasoning to provide valuable insights despite lack of real-time data
+5. Think step-by-step through complex decisions and trade-offs
+6. Consider medical, financial, social, and geographical factors comprehensively
 
-IMPORTANT: Base your analysis on the provided web search results. Reference specific sources when making claims about pricing, availability, or facility features.`;
+CRITICAL: You do NOT have web access. Be transparent about this limitation. Provide valuable reasoning and analysis but DO NOT claim to have current data.`;
 
-      const userPrompt = `${context ? `Context: ${context}\n\n` : ''}Query: ${query}${webSearchResults}\n\nProvide deep analysis with step-by-step reasoning.`;
+      const userPrompt = `${context ? `Context: ${context}\n\n` : ''}Query: ${query}
+
+Note: I do not have access to real-time web data. I'll provide analysis based on my knowledge and reasoning capabilities.`;
 
       const response = await deepseek.chat.completions.create({
         model: "deepseek-chat", // DeepSeek model
@@ -74,9 +61,6 @@ IMPORTANT: Base your analysis on the provided web search results. Reference spec
         ],
         max_tokens: 3000,
         temperature: 0.7
-      }, {
-        // Override timeout for this specific call
-        timeout: 45000
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -87,10 +71,10 @@ IMPORTANT: Base your analysis on the provided web search results. Reference spec
         success: true,
         content,
         model: 'deepseek-chat',
-        aiService: 'DeepSeek R1',
-        features: ['deep-reasoning', 'web-search', 'long-term-analysis', 'cost-analysis'],
+        aiService: 'DeepSeek R1 (Reasoning Only - No Web Search)',
+        features: ['deep-reasoning', 'long-term-analysis', 'cost-analysis'],
         costSavings: '98% cost savings vs GPT-4',
-        sources,
+        sources: [], // No web sources since DeepSeek doesn't have web access
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
@@ -106,232 +90,84 @@ IMPORTANT: Base your analysis on the provided web search results. Reference spec
   }
 
   /**
-   * REMOVED: simulateDeepSeekResponse method
-   * Violates Golden Data Rule - no synthetic/mock data allowed
-   * Returns error when API is not configured
+   * Generate structured JSON data from a prompt
    */
-  // Method removed to comply with Golden Data Rule
-  private static async simulateDeepSeekResponse_REMOVED(query: string, context?: string): Promise<any> {
+  static async generateStructuredData(prompt: string): Promise<any> {
     try {
-      // Get web search results
-      const searchResponse = await WebSearchService.searchWeb(query, 8);
-      
-      let content = `🧠 DeepSeek R1 Analysis (Simulated with Web Search)\n\n`;
-      content += `Based on comprehensive web search data from ${new Date().toLocaleDateString()}:\n\n`;
-      
-      if (searchResponse.results.length > 0) {
-        content += `📊 STEP 1: Data Collection\n`;
-        content += `Found ${searchResponse.results.length} relevant sources:\n`;
-        searchResponse.results.forEach((result, i) => {
-          content += `\n${i+1}. ${result.title}\n`;
-          content += `   Key Finding: ${result.snippet}\n`;
-        });
-        
-        content += `\n🔍 STEP 2: Deep Analysis\n`;
-        content += `Applying multi-factor reasoning:\n`;
-        content += `• Financial Impact: Senior living costs range from $2,500-$8,000/month based on care level\n`;
-        content += `• Long-term Projection: Expect 3-5% annual increases in costs\n`;
-        content += `• Care Progression: 70% of residents transition to higher care within 3 years\n`;
-        content += `• Quality Indicators: Staff ratios, Medicare ratings, and state inspections are key metrics\n`;
-        
-        content += `\n📈 STEP 3: Long-Term Planning (5-10 Year Horizon)\n`;
-        content += `• Year 1-2: Focus on maintaining independence with minimal support\n`;
-        content += `• Year 3-5: Likely transition to assisted living ($4,500-$6,000/month avg)\n`;
-        content += `• Year 5-10: Potential memory care needs ($6,000-$9,000/month avg)\n`;
-        content += `• Financial Planning: Consider long-term care insurance and Medicaid eligibility\n`;
-        
-        content += `\n💡 STEP 4: Risk Assessment\n`;
-        content += `• Primary Risks: Rapid health decline, financial depletion, facility closure\n`;
-        content += `• Mitigation Strategies: Choose financially stable communities, maintain reserves\n`;
-        content += `• Family Involvement: Regular visits and care coordination reduce negative outcomes by 40%\n`;
-        
-        if (context) {
-          content += `\n🎯 STEP 5: Personalized Recommendations\n`;
-          content += `Based on your specific context:\n`;
-          content += `1. Prioritize communities with flexible care levels to avoid future moves\n`;
-          content += `2. Consider Continuing Care Retirement Communities (CCRCs) for long-term stability\n`;
-          content += `3. Evaluate proximity to family for better support network\n`;
-          content += `4. Review financial sustainability for at least 7-10 years\n`;
-        }
-        
-        content += `\n📚 Sources Referenced:\n`;
-        searchResponse.sources.slice(0, 5).forEach((source, i) => {
-          content += `[${i+1}] ${source}\n`;
-        });
-      } else {
-        content += `Limited web data available. Providing general deep analysis for "${query}":\n\n`;
-        content += `🔬 Comprehensive Assessment Framework:\n`;
-        content += `1. Medical Needs Assessment (current and projected)\n`;
-        content += `2. Financial Sustainability Analysis (7-10 year horizon)\n`;
-        content += `3. Social and Quality of Life Factors\n`;
-        content += `4. Geographic and Family Proximity Considerations\n`;
-        content += `5. Risk Mitigation and Contingency Planning\n`;
-      }
-      
-      content += `\n\n💰 Note: This DeepSeek analysis provides 98% cost savings compared to GPT-4. `;
-      content += `For enhanced deep reasoning capabilities, configure the DEEPSEEK_API_KEY.`;
-      
-      return {
-        success: true,
-        content,
-        model: 'deepseek-simulated',
-        aiService: 'DeepSeek R1 (Simulated)',
-        features: ['web-search', 'deep-reasoning', 'long-term-planning'],
-        costSavings: '98% cost savings',
-        sources: searchResponse.sources,
-        timestamp: new Date().toISOString()
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: 'Failed to generate simulated DeepSeek response',
-        aiService: 'DeepSeek R1 (Simulated)'
-      };
-    }
-  }
-
-  static async deepAnalysis(communities: any[], userProfile: any): Promise<any> {
-    try {
-      console.log('🔬 DeepSeek Deep Analysis Request for', communities.length, 'communities');
-      
       if (!deepseek) {
         return {
           success: false,
-          error: 'DeepSeek deep analysis requires DEEPSEEK_API_KEY configuration',
+          error: 'DeepSeek API key not configured',
           aiService: 'DeepSeek R1'
         };
       }
       
-      const prompt = `Perform deep analysis of these senior living communities for the user profile:
-
-COMMUNITIES:
-${communities.map((c, i) => `
-${i+1}. ${c.name} - ${c.city}, ${c.state}
-   Type: ${c.communityType || 'Not specified'}
-   Price: ${c.priceRange?.min ? `$${c.priceRange.min}-$${c.priceRange.max}/month` : 'Contact for pricing'}
-   Care Levels: ${c.careLevels?.join(', ') || 'Not specified'}
-   ${c.description ? `Description: ${c.description.substring(0, 200)}...` : ''}
-`).join('\n')}
-
-USER PROFILE:
-${JSON.stringify(userProfile, null, 2)}
-
-Provide:
-1. Detailed suitability analysis for each community
-2. Long-term care progression planning (5-10 years)
-3. Financial sustainability assessment
-4. Risk factors and mitigation strategies
-5. Family involvement recommendations
-6. Quality of life projections
-7. Ranked recommendations with detailed reasoning
-
-Use deep reasoning to consider all factors including medical needs progression, financial planning with inflation, social needs, and geographic considerations.`;
-
+      const systemPrompt = `You are a data extraction expert. Extract structured information and return it as valid JSON.
+Be transparent that you don't have access to real-time data.`;
+      
       const response = await deepseek.chat.completions.create({
         model: "deepseek-chat",
         messages: [
-          { 
-            role: 'system', 
-            content: 'You are a senior living expert with deep analytical capabilities. Provide comprehensive, nuanced analysis considering all aspects of senior care planning.'
-          },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
-        max_tokens: 3000,
-        temperature: 0.6
-      }, {
-        // Override timeout for this specific call
-        timeout: 45000
+        response_format: { type: "json_object" },
+        max_tokens: 2000
       });
 
-      const content = response.choices[0]?.message?.content || '';
+      const content = response.choices[0]?.message?.content || '{}';
       
-      return {
-        success: true,
-        analysis: content,
-        model: 'deepseek-chat',
-        aiService: 'DeepSeek R1 Deep Analysis',
-        analysisType: 'comprehensive_care_planning',
-        timestamp: new Date().toISOString()
-      };
+      try {
+        const jsonData = JSON.parse(content);
+        return {
+          success: true,
+          data: jsonData,
+          model: 'deepseek-chat',
+          aiService: 'DeepSeek R1'
+        };
+      } catch (parseError) {
+        return {
+          success: false,
+          error: 'Failed to parse DeepSeek response as JSON',
+          rawContent: content,
+          aiService: 'DeepSeek R1'
+        };
+      }
     } catch (error: any) {
-      console.error('❌ DeepSeek Deep Analysis Error:', error.message);
+      console.error('❌ DeepSeek Structured Data Error:', error.message);
       return {
         success: false,
-        error: error.message || 'DeepSeek deep analysis unavailable',
+        error: error.message || 'DeepSeek service temporarily unavailable',
         aiService: 'DeepSeek R1'
       };
     }
   }
 
-  static async compareWithReasoning(communities: any[]): Promise<any> {
+  /**
+   * Analyze code or technical content
+   */
+  static async analyzeCode(code: string, question: string): Promise<any> {
     try {
-      const prompt = `Compare these senior living communities using deep reasoning:
-
-${communities.map((c, i) => `${i+1}. ${c.name} in ${c.city}, ${c.state}
-   - Type: ${c.communityType}
-   - Price: ${c.priceRange?.min ? `$${c.priceRange.min}-$${c.priceRange.max}` : 'Contact for pricing'}
-   - Care Levels: ${c.careLevels?.join(', ') || 'Not specified'}`).join('\n\n')}
-
-Apply deep reasoning to:
-1. Analyze value propositions beyond just price
-2. Evaluate care quality indicators
-3. Project future care needs and transitions
-4. Assess hidden costs and fees
-5. Compare lifestyle and social opportunities
-6. Analyze location advantages/disadvantages
-7. Provide decision framework for families
-
-Think step-by-step through each comparison factor.`;
-
       if (!deepseek) {
-        // Return simulated comparison
         return {
-          success: true,
-          content: `DeepSeek R1 Comparison Analysis (Simulated):
-          
-Based on deep reasoning analysis of ${communities.length} communities:
-
-📊 VALUE ANALYSIS:
-• Price ranges vary by 40-60% for similar care levels
-• Hidden costs can add 15-25% to advertised rates
-• Value optimization occurs at mid-tier pricing (avoiding both extremes)
-
-🏥 CARE QUALITY INDICATORS:
-• Staff-to-resident ratios are the #1 predictor of care quality
-• Medicare star ratings correlate with resident satisfaction (r=0.72)
-• State inspection records reveal compliance patterns
-
-📈 FUTURE PROJECTIONS:
-• 70% likelihood of care level increase within 3 years
-• Memory care needs affect 40% of residents by year 5
-• Communities with all care levels reduce transition stress by 85%
-
-💡 DECISION FRAMEWORK:
-1. Prioritize: Location (40%), Care Quality (30%), Cost (20%), Amenities (10%)
-2. Visit during meal times and activity periods for authentic assessment
-3. Review contracts for fee escalation clauses and exit terms
-4. Consider 7-10 year financial sustainability, not just current affordability`,
-          model: 'deepseek-simulated',
-          aiService: 'DeepSeek R1',
-          reasoningType: 'comparative_analysis',
-          timestamp: new Date().toISOString()
+          success: false,
+          error: 'DeepSeek API key not configured',
+          aiService: 'DeepSeek R1'
         };
       }
-
+      
+      const systemPrompt = `You are an expert code analyst. Analyze the provided code and answer the question with deep reasoning.`;
+      
+      const userPrompt = `Code:\n\`\`\`\n${code}\n\`\`\`\n\nQuestion: ${question}`;
+      
       const response = await deepseek.chat.completions.create({
         model: "deepseek-chat",
         messages: [
-          {
-            role: "system",
-            content: "You are an expert in senior living analysis. Use deep reasoning to provide comprehensive comparisons that help families make informed decisions."
-          },
-          { role: "user", content: prompt }
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
         ],
         max_tokens: 2500,
-        temperature: 0.6
-      }, {
-        // Override timeout for this specific call
-        timeout: 45000
+        temperature: 0.3 // Lower temperature for more precise technical analysis
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -341,14 +177,66 @@ Based on deep reasoning analysis of ${communities.length} communities:
         content,
         model: 'deepseek-chat',
         aiService: 'DeepSeek R1',
-        reasoningType: 'comparative_analysis',
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
-      console.error('❌ DeepSeek Comparison Error:', error.message);
+      console.error('❌ DeepSeek Code Analysis Error:', error.message);
       return {
         success: false,
-        error: error.message || 'DeepSeek comparison service unavailable',
+        error: error.message || 'DeepSeek service temporarily unavailable',
+        aiService: 'DeepSeek R1'
+      };
+    }
+  }
+
+  /**
+   * Perform deep multi-step reasoning
+   */
+  static async deepReasoning(problem: string, constraints?: string[]): Promise<any> {
+    try {
+      if (!deepseek) {
+        return {
+          success: false,
+          error: 'DeepSeek API key not configured',
+          aiService: 'DeepSeek R1'
+        };
+      }
+      
+      const systemPrompt = `You are DeepSeek R1, specialized in deep multi-step reasoning and complex problem solving.
+Break down problems systematically and think through each step carefully.
+Note: You do not have access to real-time data or web search.`;
+      
+      let userPrompt = `Problem: ${problem}`;
+      if (constraints && constraints.length > 0) {
+        userPrompt += `\n\nConstraints:\n${constraints.map(c => `• ${c}`).join('\n')}`;
+      }
+      userPrompt += `\n\nPlease provide step-by-step reasoning to solve this problem.`;
+      
+      const response = await deepseek.chat.completions.create({
+        model: "deepseek-chat",
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        max_tokens: 4000,
+        temperature: 0.5
+      });
+
+      const content = response.choices[0]?.message?.content || '';
+      
+      return {
+        success: true,
+        content,
+        model: 'deepseek-chat',
+        aiService: 'DeepSeek R1 (Deep Reasoning)',
+        reasoningType: 'multi-step',
+        timestamp: new Date().toISOString()
+      };
+    } catch (error: any) {
+      console.error('❌ DeepSeek Deep Reasoning Error:', error.message);
+      return {
+        success: false,
+        error: error.message || 'DeepSeek service temporarily unavailable',
         aiService: 'DeepSeek R1'
       };
     }
