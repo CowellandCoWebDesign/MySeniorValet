@@ -1737,12 +1737,19 @@ export function registerCommunityRoutes(app: Express) {
               communitySubtype: community.communitySubtype
             };
             
-            // Get comprehensive analysis from AI services (excluding Grok & Gemini which are used for reviews)
+            // Get comprehensive analysis from AI services
+            // Exclude Perplexity if Live Intelligence is active (to avoid duplicate calls)
+            // Always exclude Grok & Gemini (they're used exclusively for reviews)
+            const excludeServices = ['grok', 'gemini'];
+            if (fetchRealtime) {
+              excludeServices.push('perplexity'); // Avoid duplicate since Live Intelligence already provides Perplexity data
+            }
+            
             const multiAIResults = await MultiAIOrchestrator.searchAllAIs(
               `Provide comprehensive analysis of ${community.name} senior living community in ${community.city}, ${community.state}. Include current pricing, availability, recent news, quality ratings, and market position.`,
               { 
                 ...communityInfo,
-                excludeServices: ['grok', 'gemini']  // These are used exclusively for reviews analysis
+                excludeServices
               }
             );
             

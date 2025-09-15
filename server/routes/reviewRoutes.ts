@@ -7,6 +7,18 @@ import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 import { PerplexityAIService } from "../perplexity-ai-service";
 import { MultiAIOrchestrator } from "../multi-ai-orchestrator";
+import { RateLimitManager } from "../services/rate-limit-manager";
+import { ScalableCache } from "../infrastructure/cache";
+
+// Create cache for AI reviews analysis (30 minute TTL)
+const aiReviewsCache = new ScalableCache('ai-reviews', 1800); // 30 minutes
+
+// Input validation schema for AI reviews analysis
+const aiReviewsAnalysisSchema = z.object({
+  communityName: z.string().min(1).max(200),
+  communityCity: z.string().min(1).max(100),
+  communityState: z.string().min(1).max(50)
+});
 
 export function registerReviewRoutes(app: Express) {
   // Get reviews for a community
@@ -523,18 +535,45 @@ REQUIREMENTS:
     }
   });
 
-  // AI-powered reviews analysis using Grok and Gemini
+  // AI-powered reviews analysis using Grok and Gemini (with rate limiting and caching)
   app.post('/api/communities/:communityId/reviews/ai-analysis', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      const { communityName, communityCity, communityState } = req.body;
-
-      if (!communityName || !communityCity || !communityState) {
-        return res.status(400).json({ 
-          message: 'Community name, city, and state are required' 
+      
+      // Apply rate limiting (10 requests per minute per IP)
+      const clientIp = req.ip || req.socket.remoteAddress || 'unknown';
+      try {
+        await RateLimitManager.checkLimit('api_ai_reviews', clientIp);
+      } catch (rateLimitError) {
+        return res.status(429).json({ 
+          message: 'Too many requests. Please wait before requesting another AI analysis.',
+          retryAfter: 60 
         });
       }
+      
+      // Validate input data
+      const validationResult = aiReviewsAnalysisSchema.safeParse(req.body);
+      if (!validationResult.success) {
+        return res.status(400).json({ 
+          message: 'Invalid input data',
+          errors: validationResult.error.errors 
+        });
+      }
+      
+      const { communityName, communityCity, communityState } = validationResult.data;
 
+      // Check cache first
+      const cacheKey = `community_${communityId}_reviews_analysis`;
+      const cachedAnalysis = aiReviewsCache.get(cacheKey);
+      if (cachedAnalysis) {
+        console.log(`📦 Using cached AI reviews analysis for community ${communityId}`);
+        return res.json({ 
+          success: true,
+          analysis: cachedAnalysis,
+          cached: true
+        });
+      }
+      
       console.log(`🤖 AI Reviews Analysis requested for ${communityName}, ${communityCity}, ${communityState}`);
 
       // Get existing reviews from database
@@ -725,6 +764,10 @@ REQUIREMENTS:
         timestamp: new Date().toISOString()
       };
 
+      // Cache the analysis
+      aiReviewsCache.set(cacheKey, analysis);
+      console.log(`💾 Cached AI reviews analysis for community ${communityId} (30 minutes)`);
+      
       res.json({ 
         success: true,
         analysis,
