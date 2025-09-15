@@ -48,21 +48,24 @@ export class PerplexityAIService {
     let grokResult = null;
     let perplexityResult = null;
     
-    // TIER 1: Try Grok first (has NATIVE web search built-in)
+    // TIER 1: Try Grok first (now with IMAGE EXTRACTION)
     if (process.env.XAI_API_KEY) {
       try {
-        console.log('🤖 Tier 1: Attempting Grok with native real-time web search...');
-        grokResult = await GrokAIService.searchAndAnalyze(query, context);
+        console.log('🤖 Tier 1: Attempting Grok with native web search and image extraction...');
+        // Use the enhanced searchWithImages method for better image extraction
+        grokResult = await GrokAIService.searchWithImages(query, context);
         
-        if (grokResult.success && !this.apiKey) {
-          // If Perplexity is not configured, return Grok result immediately
-          console.log('✅ Grok search successful (Perplexity not configured for images)');
-          return {
-            summary: grokResult.content,
-            sources: grokResult.sources || [],
-            images: [],
-            aiService: grokResult.aiService || 'Grok AI (Native Web Search)'
-          };
+        if (grokResult.success) {
+          // If Grok found images and Perplexity is not configured, return immediately
+          if (!this.apiKey || (grokResult.images && grokResult.images.length > 0)) {
+            console.log(`✅ Grok search successful with ${grokResult.images?.length || 0} images`);
+            return {
+              summary: grokResult.content,
+              sources: grokResult.sources || [],
+              images: grokResult.images || [], // Now includes real images from Grok
+              aiService: grokResult.aiService || 'Grok AI (with Image Extraction)'
+            };
+          }
         }
       } catch (error: any) {
         console.error('⚠️ Tier 1 Grok failed:', error.message);
@@ -98,12 +101,12 @@ export class PerplexityAIService {
     
     // If Grok succeeded but Perplexity failed/not configured
     if (grokResult?.success) {
-      console.log('✅ Using Grok result (Perplexity unavailable for images)');
+      console.log(`✅ Using Grok result with ${grokResult.images?.length || 0} images`);
       return {
         summary: grokResult.content,
         sources: grokResult.sources || [],
-        images: [],
-        aiService: grokResult.aiService || 'Grok AI (Native Web Search)'
+        images: grokResult.images || [], // Include any images Grok found
+        aiService: grokResult.aiService || 'Grok AI (with Image Extraction)'
       };
     }
 

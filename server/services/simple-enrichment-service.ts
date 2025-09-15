@@ -260,7 +260,7 @@ export class SimpleEnrichmentService {
     website: string | null,
     communityName: string
   ): Promise<any[]> {
-    const photos = [];
+    const photos: any[] = [];
     const sources = searchResults.sources || [];
     
     // First, check if Perplexity returned images directly
