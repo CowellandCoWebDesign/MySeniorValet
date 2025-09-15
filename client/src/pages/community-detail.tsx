@@ -296,9 +296,10 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
   );
 };
 
-// Real-time AI Insights Component - Enhanced with Multi-AI Verification
+// Real-time AI Insights Component - Enhanced with Claude Analysis
 const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
+  const claudeAnalysis = realTimeData?.claudeAnalysis;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
   // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
@@ -379,12 +380,18 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   return (
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-      {/* Perplexity AI Badge */}
-      <div className="absolute top-4 right-4 z-10">
+      {/* AI Intelligence Badges */}
+      <div className="absolute top-4 right-4 z-10 flex gap-2">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
           <Sparkles className="w-3 h-3 mr-1" />
-          Powered by AI Intelligence
+          Perplexity AI
         </div>
+        {claudeAnalysis && (
+          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+            <Brain className="w-3 h-3 mr-1" />
+            Claude AI
+          </div>
+        )}
       </div>
 
       <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
@@ -409,6 +416,54 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       <CardContent className="pt-6">
         {/* Live Web Intelligence moved to avoid duplicate photo display */}
         {/* Content moved to tabs section to prevent competing carousels */}
+        
+        {/* Claude Deep Analysis Section */}
+        {claudeAnalysis && claudeAnalysis.content && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+            <h4 className="font-semibold text-lg mb-3 flex items-center">
+              <Brain className="w-5 h-5 mr-2 text-indigo-600" />
+              Claude AI Deep Analysis
+              <Badge className="ml-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200">
+                Advanced Insights
+              </Badge>
+            </h4>
+            <div className="space-y-3">
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                {claudeAnalysis.content}
+              </p>
+              
+              {/* Claude Recommendations */}
+              {claudeAnalysis.recommendations && claudeAnalysis.recommendations.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-indigo-200 dark:border-indigo-700">
+                  <p className="font-medium text-sm mb-2 text-indigo-700 dark:text-indigo-300">Key Recommendations:</p>
+                  <ul className="space-y-1">
+                    {claudeAnalysis.recommendations.map((rec: string, idx: number) => (
+                      <li key={idx} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                        <CheckCircle className="w-4 h-4 mr-2 text-green-500 flex-shrink-0 mt-0.5" />
+                        {rec}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {/* Claude Insights */}
+              {claudeAnalysis.insights && claudeAnalysis.insights.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-indigo-200 dark:border-indigo-700">
+                  <p className="font-medium text-sm mb-2 text-indigo-700 dark:text-indigo-300">Notable Insights:</p>
+                  <div className="space-y-1">
+                    {claudeAnalysis.insights.map((insight: string, idx: number) => (
+                      <div key={idx} className="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                        <Sparkles className="w-4 h-4 mr-2 text-purple-500 flex-shrink-0 mt-0.5" />
+                        {insight}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         
         {/* Show sections even without real-time data - will populate when loaded */}
         {(
@@ -1163,7 +1218,7 @@ export default function CommunityDetail() {
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
   const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: [`/api/communities/${id}`],
+    queryKey: [`/api/communities/${id}?realtime=true&claude=true`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
     select: (data) => {
       // Log the raw API response to debug ID issues

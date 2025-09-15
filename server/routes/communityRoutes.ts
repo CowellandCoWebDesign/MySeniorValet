@@ -1524,7 +1524,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Only fetch real-time data if explicitly requested (to prevent delays)
       const fetchRealtime = req.query.realtime === 'true';
-      const fetchMultiAI = req.query.multiAI === 'true'; // New flag for multi-AI analysis
+      const fetchClaude = req.query.claude === 'true' || req.query.multiAI === 'true'; // Fetch Claude analysis to augment Perplexity
       
       // Use Perplexity to get real-time information about the community (only when requested)
       const perplexityService = new PerplexityAIService();
@@ -1712,68 +1712,54 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
 
-      // Multi-AI Orchestrator Analysis (when requested)
-      if (fetchMultiAI) {
+      // Claude Analysis to augment Perplexity Live Intelligence (when requested)
+      if (fetchClaude) {
         try {
-          console.log(`🤖 Initiating Multi-AI analysis for ${community.name}`);
+          console.log(`🤖 Fetching Claude analysis to augment Live Intelligence for ${community.name}`);
           
           // Check cache first (1-hour cache to reduce API costs)
-          const cacheKey = `multiAI_${communityId}`;
+          const cacheKey = `claude_${communityId}`;
           const cachedData = await getCachedAIResponse(cacheKey);
           
           if (cachedData && cachedData.timestamp && 
               (Date.now() - new Date(cachedData.timestamp).getTime()) < 3600000) { // 1 hour cache
-            console.log(`📦 Using cached Multi-AI data for ${community.name}`);
-            realTimeData.multiAIAnalysis = cachedData;
+            console.log(`📦 Using cached Claude analysis for ${community.name}`);
+            realTimeData.claudeAnalysis = cachedData;
           } else {
-            // Execute Multi-AI analysis
-            const communityInfo = {
-              id: communityId,
-              name: community.name,
-              city: community.city,
-              state: community.state,
-              address: community.address,
-              careTypes: community.careTypes,
-              communitySubtype: community.communitySubtype
-            };
+            // Get Claude's deep analysis
+            const { AnthropicAIService } = await import('../anthropic-ai-service');
+            const anthropicService = new AnthropicAIService();
             
-            // Get comprehensive analysis from AI services
-            // Exclude Perplexity if Live Intelligence is active (to avoid duplicate calls)
-            // Always exclude Grok & Gemini (they're used exclusively for reviews)
-            const excludeServices = ['grok', 'gemini'];
-            if (fetchRealtime) {
-              excludeServices.push('perplexity'); // Avoid duplicate since Live Intelligence already provides Perplexity data
+            const claudeQuery = `Provide deep analysis of ${community.name} senior living community in ${community.city}, ${community.state}. Focus on:
+            1. Care quality insights and reputation
+            2. Value assessment based on pricing and services
+            3. Notable strengths and potential concerns
+            4. Recommendations for families considering this community
+            5. How it compares to similar communities in the area`;
+            
+            const claudeResponse = await anthropicService.searchCommunityInfo(claudeQuery);
+            
+            if (claudeResponse.success && claudeResponse.data) {
+              realTimeData.claudeAnalysis = {
+                content: claudeResponse.data,
+                insights: claudeResponse.insights || [],
+                recommendations: claudeResponse.recommendations || [],
+                timestamp: new Date().toISOString(),
+                cacheExpiry: new Date(Date.now() + 3600000).toISOString() // 1 hour expiry
+              };
+              
+              // Cache the results
+              await cacheAIResponse(cacheKey, realTimeData.claudeAnalysis);
+              console.log(`✅ Claude analysis complete for ${community.name}`);
+            } else {
+              console.log(`⚠️ Claude analysis returned no data for ${community.name}`);
             }
-            
-            const multiAIResults = await MultiAIOrchestrator.searchAllAIs(
-              `Provide comprehensive analysis of ${community.name} senior living community in ${community.city}, ${community.state}. Include current pricing, availability, recent news, quality ratings, and market position.`,
-              { 
-                ...communityInfo,
-                excludeServices
-              }
-            );
-            
-            // Get pricing consensus from all AIs
-            const pricingAnalysis = await MultiAIOrchestrator.analyzePricing(communityInfo);
-            
-            // Combine results
-            realTimeData.multiAIAnalysis = {
-              ...multiAIResults,
-              pricingAnalysis,
-              timestamp: new Date().toISOString(),
-              cacheExpiry: new Date(Date.now() + 3600000).toISOString() // 1 hour expiry
-            };
-            
-            // Cache the results
-            await cacheAIResponse(cacheKey, realTimeData.multiAIAnalysis);
-            
-            console.log(`✅ Multi-AI analysis complete with ${multiAIResults.metadata.successfulServices} services`);
           }
-        } catch (multiAIError) {
-          console.error("Multi-AI Orchestrator error:", multiAIError);
-          // Continue without multi-AI data if it fails
-          realTimeData.multiAIAnalysis = {
-            error: "Multi-AI analysis temporarily unavailable",
+        } catch (claudeError) {
+          console.error("Claude analysis error:", claudeError);
+          // Continue without Claude data if it fails
+          realTimeData.claudeAnalysis = {
+            error: "Claude analysis temporarily unavailable",
             timestamp: new Date().toISOString()
           };
         }
