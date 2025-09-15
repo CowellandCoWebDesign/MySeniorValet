@@ -1686,7 +1686,7 @@ export function registerCommunityRoutes(app: Express) {
           
           // Filter out placeholder images and deduplicate
           realTimeData.photos = [...new Set(allImages)].filter(url => {
-            if (!url) return false;
+            if (!url || typeof url !== 'string') return false;
             const placeholderPatterns = [
               '/api/placeholder/',
               'placeholder.com',
@@ -1737,9 +1737,9 @@ export function registerCommunityRoutes(app: Express) {
             4. Recommendations for families considering this community
             5. How it compares to similar communities in the area`;
             
-            const claudeResponse = await anthropicService.searchCommunityInfo(claudeQuery);
+            const claudeResponse = await anthropicService.searchAndAnalyze(claudeQuery);
             
-            if (claudeResponse.success && claudeResponse.data) {
+            if (claudeResponse && claudeResponse.success && claudeResponse.data) {
               realTimeData.claudeAnalysis = {
                 content: claudeResponse.data,
                 insights: claudeResponse.insights || [],
