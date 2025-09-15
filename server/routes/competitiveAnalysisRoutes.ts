@@ -5,7 +5,6 @@ import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { DiscoveredCommunityService } from '../services/discovered-community-service';
-import { perplexityGuard, AllowedCallType } from '../services/perplexity-guard';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
@@ -13,19 +12,9 @@ const discoveredCommunityService = new DiscoveredCommunityService();
 
 // Simplified Competitive Analysis using Perplexity-first approach with Enhanced Fuzzy Matching
 // OPTIMIZED: Uses database cache to reduce API calls by 90%+
-// PROTECTED: All API calls go through PerplexityGuard for budget enforcement
 router.post('/api/competitive-analysis', async (req, res) => {
   try {
-    const { location, type, communityName, communityId, forceRefresh = false, userTriggered = false } = req.body;
-    
-    // Require user action for new API calls (cost control)
-    if (!userTriggered && !communityId) {
-      return res.json({
-        success: false,
-        message: 'Click "Get Latest Analysis" to fetch competitive intelligence',
-        requiresUserAction: true
-      });
-    }
+    const { location, type, communityName, communityId, forceRefresh = false } = req.body;
     
     // If we have a community ID, look it up first
     if (communityId) {
@@ -75,55 +64,40 @@ router.post('/api/competitive-analysis', async (req, res) => {
           }
         }
         
-        // FETCH NEW DATA if needed - THROUGH PERPLEXITY GUARD
+        // FETCH NEW DATA if needed
         if (needsFetch) {
-          console.log(`🔄 Fetching fresh enrichment data for ${community.name} (user-triggered: ${userTriggered})...`);
+          console.log(`🔄 Fetching fresh enrichment data for ${community.name}...`);
           
-          // Use PerplexityGuard for ALL API calls
-          const guardResult = await perplexityGuard.makeGuardedCall({
-            query: `${community.name} ${community.city} ${community.state} senior living pricing amenities website phone 2025`,
-            context: `Competitive analysis for ${community.name}`,
-            callType: userTriggered ? AllowedCallType.USER_TRIGGERED_ANALYSIS : AllowedCallType.AUTO_REFRESH,
-            communityId: community.id,
-            forceRefresh,
-            cacheKey: `competitive:${communityId}`,
-            cacheDuration: 7 * 24 * 60 * 60 * 1000, // 7 days
-          });
-          
-          if (!guardResult.success) {
-            console.error(`❌ PerplexityGuard blocked call: ${guardResult.error}`);
-            
-            // Return appropriate error response
-            if (guardResult.error?.includes('budget')) {
-              return res.status(402).json({
-                error: 'Budget limit reached',
-                message: 'Monthly API budget has been exceeded. Analysis will resume next month.',
-                budgetExceeded: true
-              });
-            } else if (guardResult.error?.includes('cooldown')) {
-              return res.status(429).json({
-                error: 'Rate limited',
-                message: guardResult.error,
-                nextAllowedTime: guardResult.nextAllowedTime
-              });
-            } else {
-              return res.status(503).json({
-                error: 'Service unavailable',
-                message: 'AI analysis is temporarily disabled for cost control'
-              });
-            }
-          }
-          
-          // Process the guarded result
-          intelligence = guardResult.data;
-          
-          // Update last attempt timestamp after successful call
+          // Update last attempt timestamp
           await db
             .update(communities)
             .set({ 
               lastEnrichmentAttempt: new Date() 
             })
             .where(eq(communities.id, communityId));
+          
+          // First try enhanced service with fuzzy matching and multiple strategies
+          console.log(`🚀 Using Enhanced AI Enrichment with fuzzy matching for ${community.name}`);
+          const enhancedResult = await enhancedEnrichmentService.findCommunityWithStrategies(
+            community.id,
+            community.name,
+            community.city,
+            community.state,
+            community.address || undefined
+          );
+          
+          // Log enrichment summary
+          console.log(enhancedEnrichmentService.getEnrichmentSummary(enhancedResult));
+          
+          // Fall back to basic service if enhanced fails
+          intelligence = enhancedResult;
+          if (!enhancedResult.found) {
+            console.log(`💫 Falling back to basic Perplexity search...`);
+            intelligence = await simplifiedPerplexityService.getCommunityIntelligence(
+              community.name,
+              `${community.city}, ${community.state}`
+            );
+          }
           
           // SAVE TO DATABASE - Cache for 7 days
           const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now

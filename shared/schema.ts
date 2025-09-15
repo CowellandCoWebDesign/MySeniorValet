@@ -661,23 +661,6 @@ export const messageTemplates = pgTable("message_templates", {
   index("message_templates_category_idx").on(table.category),
 ]);
 
-// Perplexity API Usage Tracking - for budget control and monitoring
-export const perplexityUsage = pgTable("perplexity_usage", {
-  id: serial("id").primaryKey(),
-  callType: varchar("call_type").notNull(), // 'user_triggered_analysis', 'discovery_mode', etc.
-  query: text("query").notNull(), // The actual query sent to Perplexity
-  communityId: integer("community_id").references(() => communities.id),
-  userId: varchar("user_id").references(() => users.id),
-  cost: decimal("cost", { precision: 10, scale: 6 }).notNull(), // Cost in USD
-  responseTime: integer("response_time"), // Response time in milliseconds
-  fromCache: boolean("from_cache").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("perplexity_usage_created_at_idx").on(table.createdAt),
-  index("perplexity_usage_call_type_idx").on(table.callType),
-  index("perplexity_usage_community_id_idx").on(table.communityId),
-]);
-
 // Notification Preferences for messaging
 export const messagingNotifications = pgTable("messaging_notifications", {
   id: serial("id").primaryKey(),

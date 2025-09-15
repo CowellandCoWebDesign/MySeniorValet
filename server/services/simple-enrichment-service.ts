@@ -6,7 +6,7 @@
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
-import { perplexityGuard, AllowedCallType } from './perplexity-guard';
+import { perplexityService } from '../perplexity-ai-service';
 import { ScalableCache } from '../infrastructure/cache';
 
 // 7-day cache (like Google) for web enrichment data with proper attribution

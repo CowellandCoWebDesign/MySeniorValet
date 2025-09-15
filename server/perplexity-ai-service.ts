@@ -31,10 +31,6 @@ export class PerplexityAIService {
   }
 
   async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
-    // EMERGENCY STOP - Disable Perplexity to stop costs
-    console.log('⛔ PERPLEXITY DISABLED - Cost control measure');
-    return { summary: 'Perplexity temporarily disabled for cost control', sources: [], images: [] };
-    
     if (!this.isConfigured()) {
       throw new Error('Perplexity API key not configured');
     }
@@ -110,7 +106,7 @@ CRITICAL INSTRUCTIONS:
           search_domain_filter: [],  // Search all domains for maximum photo coverage
           search_recency_filter: undefined,  // No time restriction - get all available data for transparency
           web_search_options: {
-            search_context_size: "low"  // REDUCED TO LOW TO SAVE COSTS - was causing excessive charges
+            search_context_size: "high"  // Maximum search depth for comprehensive review discovery
           },
           stream: false
         },

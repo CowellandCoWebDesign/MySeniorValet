@@ -68,9 +68,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
   const [dataIsFresh, setDataIsFresh] = useState(false);
-  const [showRefreshButton, setShowRefreshButton] = useState(true); // Always show refresh button
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+  const [showRefreshButton, setShowRefreshButton] = useState(false);
   
   const fetchAnalysis = async (forceRefresh: boolean = false) => {
     if (!community?.city || !community?.state) return;
@@ -220,29 +218,17 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   };
   
-  // Manual refresh function - USER-TRIGGERED ONLY
-  const handleManualRefresh = () => {
-    if (!isLoading && cooldownRemaining === 0) {
-      fetchAnalysis(true); // Force refresh when user clicks
-    }
-  };
-  
-  // Check if we have cached data on mount (but don't fetch new data)
+  // Automatically load analysis when component mounts or community changes - BUT CHECK CACHE FIRST
   useEffect(() => {
-    if (community?.enrichmentData && community?.enrichmentDataExpiry) {
-      const expiryDate = new Date(community.enrichmentDataExpiry);
-      const now = new Date();
-      
-      if (expiryDate > now) {
-        // Show cached data if available
-        setAnalysis(community.enrichmentData);
-        setDataIsFresh(true);
-        const timeUntilExpiry = expiryDate.getTime() - now.getTime();
-        const daysUntilExpiry = Math.ceil(timeUntilExpiry / (1000 * 60 * 60 * 24));
-        console.log(`📊 Showing cached analysis, expires in ${daysUntilExpiry} days`);
-      }
-    }
-  }, [community?.id]);
+    // Reset state when community changes
+    setAnalysis(null);
+    setIsExpanded(true);
+    setDataIsFresh(false);
+    setShowRefreshButton(false);
+    
+    // Only fetch if we don't have fresh cached data
+    fetchAnalysis(false); // Pass false to check cache first
+  }, [community?.id, community?.name, community?.city, community?.state]);
   
   // Don't render anything if there's no analysis and not loading
   if (!isLoading && !analysis) {
@@ -367,56 +353,51 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
   );
 };
 
-// Real-time AI Insights Component - USER-TRIGGERED ONLY to control API costs
+// Real-time AI Insights Component - Enhanced with Multi-AI Verification
 const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
   const realTimeData = community?.realTimeData;
   const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
+  // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [cooldownRemaining, setCooldownRemaining] = useState<number>(0);
+
+  // Track if we've already started verification to prevent duplicates
+  const [hasStartedVerification, setHasStartedVerification] = useState(false);
   
-  // Manual refresh function - user-triggered only
-  const handleManualRefresh = async () => {
-    if (isVerifying || cooldownRemaining > 0) return;
-    
-    setIsVerifying(true);
-    try {
-      const response = await fetch(`/api/communities/${community.id}/verify`, {
+  // Trigger verification when component mounts (only once)
+  useEffect(() => {
+    if (community?.id && !hasStartedVerification && !localVerificationReport) {
+      setHasStartedVerification(true);
+      setIsVerifying(true);
+      
+      // Call simplified verification endpoint
+      fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: true, userTriggered: true })
-      });
-      
-      const report = await response.json();
-      
-      if (report.error && report.nextRefreshAvailable) {
-        const nextTime = new Date(report.nextRefreshAvailable);
-        const remaining = Math.max(0, nextTime.getTime() - Date.now());
-        setCooldownRemaining(Math.ceil(remaining / 1000));
-        // Start countdown timer
-        const timer = setInterval(() => {
-          setCooldownRemaining(prev => {
-            if (prev <= 1) {
-              clearInterval(timer);
-              return 0;
-            }
-            return prev - 1;
-          });
-        }, 1000);
-      } else {
+        body: JSON.stringify({ forceRefresh: false })
+      })
+      .then(res => res.json())
+      .then(report => {
+        console.log('Verification report received:', report);
         setLocalVerificationReport(report);
-        setLastRefreshTime(new Date());
-        if (onVerificationReport) onVerificationReport(report);
+        // Also update parent state if callback provided
+        if (onVerificationReport) {
+          console.log('Calling onVerificationReport callback with:', report);
+          onVerificationReport(report);
+        }
+        // Update photos if we got any
         if (report?.verificationResults?.webIntelligence?.images && onPhotosUpdate) {
           onPhotosUpdate(report.verificationResults.webIntelligence.images);
         }
-      }
-    } catch (error) {
-      console.error('Verification error:', error);
-    } finally {
-      setIsVerifying(false);
+      })
+      .catch(error => {
+        console.error('Verification error:', error);
+        setHasStartedVerification(false); // Allow retry on error
+      })
+      .finally(() => {
+        setIsVerifying(false);
+      });
     }
-  };
+  }, [community?.id]);
 
   // Show loading or placeholder content while waiting for data
   const hasData = realTimeData || localVerificationReport;
