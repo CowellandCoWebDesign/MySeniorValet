@@ -550,10 +550,50 @@ export class MultiAIOrchestrator {
           response.sources.forEach(source => allSources.add(source));
         }
         
-        // Extract key insights (first significant sentence)
+        // Extract meaningful insights from the response
+        const contentLower = response.content.toLowerCase();
         const sentences = response.content.split(/[.!?]+/).filter(s => s.trim().length > 20);
-        if (sentences.length > 0) {
+        
+        // Look for key insight indicators and extract relevant sentences
+        sentences.forEach((sentence, idx) => {
+          const sentenceLower = sentence.toLowerCase();
+          const trimmedSentence = sentence.trim();
+          
+          // Prioritize sentences with key information
+          if (
+            sentenceLower.includes('pricing') ||
+            sentenceLower.includes('cost') ||
+            sentenceLower.includes('average') ||
+            sentenceLower.includes('range') ||
+            sentenceLower.includes('assisted living') ||
+            sentenceLower.includes('memory care') ||
+            sentenceLower.includes('amenities') ||
+            sentenceLower.includes('features') ||
+            sentenceLower.includes('offers') ||
+            sentenceLower.includes('provides') ||
+            sentenceLower.includes('specializes') ||
+            sentenceLower.includes('reputation') ||
+            sentenceLower.includes('rated') ||
+            sentenceLower.includes('reviews') ||
+            sentenceLower.includes('important') ||
+            sentenceLower.includes('note that') ||
+            sentenceLower.includes('typically') ||
+            sentenceLower.includes('generally')
+          ) {
+            // Add service name prefix only for important insights
+            const insight = `${response.service}: ${trimmedSentence}`;
+            if (!insights.some(i => i.includes(trimmedSentence.substring(0, 50)))) {
+              insights.push(insight);
+            }
+          }
+        });
+        
+        // If no specific insights found, take the first 2 meaningful sentences
+        if (insights.filter(i => i.includes(response.service)).length === 0 && sentences.length > 0) {
           insights.push(`${response.service}: ${sentences[0].trim()}`);
+          if (sentences.length > 1) {
+            insights.push(`${response.service}: ${sentences[1].trim()}`);
+          }
         }
         
         // Extract prices
@@ -567,12 +607,18 @@ export class MultiAIOrchestrator {
           });
         }
         
-        // Look for warnings or concerns
-        if (response.content.toLowerCase().includes('warning') || 
-            response.content.toLowerCase().includes('concern') ||
-            response.content.toLowerCase().includes('be aware')) {
-          warnings.push(`${response.service} flagged a concern`);
-        }
+        // Look for warnings or concerns with more context
+        const warningIndicators = ['warning', 'concern', 'be aware', 'caution', 'note that', 'keep in mind', 'important', 'limitation'];
+        const warningSentences = sentences.filter(s => 
+          warningIndicators.some(indicator => s.toLowerCase().includes(indicator))
+        );
+        
+        warningSentences.forEach(sentence => {
+          const trimmedSentence = sentence.trim();
+          if (!warnings.some(w => w.includes(trimmedSentence.substring(0, 50)))) {
+            warnings.push(trimmedSentence);
+          }
+        });
       }
     });
     
@@ -588,18 +634,52 @@ export class MultiAIOrchestrator {
       };
     }
     
-    // Add key recommendations
-    if (successfulResponses > 0) {
-      recommendations.push(`${successfulResponses} AI source${successfulResponses > 1 ? 's' : ''} analyzed this query`);
-    }
-    if (webSearchCount > 0) {
-      recommendations.push(`${webSearchCount} AI${webSearchCount > 1 ? 's' : ''} provided real-time web search results`);
-    }
-    if (allSources.size > 0) {
-      recommendations.push(`${allSources.size} unique web sources referenced`);
-    }
-    if (prices.length > 2) {
-      recommendations.push(`Pricing estimates available from ${prices.length} sources`);
+    // Extract actionable recommendations from AI responses
+    Object.values(responses).forEach(response => {
+      if (response?.success && response.content) {
+        const contentLower = response.content.toLowerCase();
+        const sentences = response.content.split(/[.!?]+/).filter(s => s.trim().length > 20);
+        
+        sentences.forEach(sentence => {
+          const sentenceLower = sentence.toLowerCase();
+          const trimmedSentence = sentence.trim();
+          
+          // Look for recommendation indicators
+          if (
+            sentenceLower.includes('recommend') ||
+            sentenceLower.includes('suggest') ||
+            sentenceLower.includes('consider') ||
+            sentenceLower.includes('should') ||
+            sentenceLower.includes('advised') ||
+            sentenceLower.includes('best to') ||
+            sentenceLower.includes('important to') ||
+            sentenceLower.includes('make sure') ||
+            sentenceLower.includes('don\'t forget') ||
+            sentenceLower.includes('would benefit') ||
+            sentenceLower.includes('good idea')
+          ) {
+            if (!recommendations.some(r => r.includes(trimmedSentence.substring(0, 50)))) {
+              recommendations.push(trimmedSentence);
+            }
+          }
+        });
+      }
+    });
+    
+    // Add metadata recommendations if no specific ones found
+    if (recommendations.length === 0) {
+      if (successfulResponses > 0) {
+        recommendations.push(`${successfulResponses} AI source${successfulResponses > 1 ? 's' : ''} analyzed this community`);
+      }
+      if (webSearchCount > 0) {
+        recommendations.push(`Real-time data from ${webSearchCount} web-enabled AI${webSearchCount > 1 ? 's' : ''}`);
+      }
+      if (allSources.size > 0) {
+        recommendations.push(`Analysis based on ${allSources.size} verified sources`);
+      }
+      if (prices.length > 2) {
+        recommendations.push(`Multiple pricing data points available for accuracy`);
+      }
     }
     
     // Add warning if partial results
@@ -610,8 +690,8 @@ export class MultiAIOrchestrator {
     
     return {
       pricing: pricingConsensus,
-      insights: insights.slice(0, 5), // Top 5 insights
-      recommendations: recommendations.slice(0, 3),
+      insights: insights.slice(0, 10), // Top 10 insights for better coverage
+      recommendations: recommendations.slice(0, 5), // Show more recommendations
       warnings
     };
   }

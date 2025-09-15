@@ -246,10 +246,16 @@ export function MultiAIPerspectives({
               <div className="space-y-3">
                 <div className="text-sm space-y-2">
                   <div className="font-medium text-muted-foreground">Analysis:</div>
-                  <div className="bg-white dark:bg-gray-950 p-3 rounded-lg max-h-96 overflow-y-auto">
+                  <div className="bg-white dark:bg-gray-950 p-4 rounded-lg max-h-[600px] overflow-y-auto">
                     {response.content.split('\n').map((line, idx) => {
                       if (!line.trim()) return null;
-                      return <p key={idx} className="mb-1 text-sm">{line}</p>;
+                      // Handle bullet points and numbered lists
+                      const isBulletPoint = line.trim().match(/^[•\-\*]|^\d+\./); 
+                      return (
+                        <p key={idx} className={`mb-2 text-sm leading-relaxed ${isBulletPoint ? 'ml-4' : ''}`}>
+                          {line}
+                        </p>
+                      );
                     })}
                   </div>
                 </div>
@@ -560,9 +566,9 @@ export function MultiAIPerspectives({
                           <Badge variant="outline">{source.source}</Badge>
                           <span className="font-semibold">{formatPrice(source.price)}</span>
                         </div>
-                        <p className="text-xs text-muted-foreground truncate max-w-xs">
+                        <div className="text-sm text-muted-foreground mt-2">
                           {source.context}
-                        </p>
+                        </div>
                       </div>
                     ))}
                   </div>
