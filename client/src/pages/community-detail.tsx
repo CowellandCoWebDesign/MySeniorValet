@@ -136,6 +136,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          communityId: community.id, // CRITICAL: Send community ID for database persistence
           communityName: community.name, // Send the full community name
           location: `${community.city}, ${community.state}`,
           type: 'city',
