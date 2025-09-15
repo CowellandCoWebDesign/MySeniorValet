@@ -288,18 +288,19 @@ function HeroSectionWithTransformingSearch() {
             await handleUnifiedSearch(query);
           } else {
             const data = await response.json();
-            const communities = data.communities || [];
+            // Fix: API returns 'results' not 'communities'
+            const communities = data.results || data.communities || [];
             
             // Extract AI consensus and Discovery Mode data
             setSearchResults({ 
               results: communities, 
               metadata: {
-                total: data.total,
-                suggestions: data.suggestions
+                total: data.totalResults || data.total || communities.length,
+                suggestions: data.suggestions || data.metadata?.suggestions
               },
-              aiConsensus: data.aiConsensus,
-              aiSources: data.aiSources,
-              discoveryMessage: data.discoveryMessage
+              aiConsensus: data.aiConsensus || data.metadata?.aiConsensus,
+              aiSources: data.aiSources || data.metadata?.aiSources,
+              discoveryMessage: data.discoveryMessage || data.metadata?.discoveryMessage
             });
           }
         } else {
