@@ -241,8 +241,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     return null;
   }
 
-  // Local Market Analysis section removed - return null
-  return null;
+  // Return loading state or empty div to ensure data fetching happens
+  // The actual display is handled by LiveWebIntelligence component
+  return <div style={{ display: 'none' }} data-component="competitive-analysis-fetcher" />;
 };
 
 // Intelligent Pricing Prediction Component
