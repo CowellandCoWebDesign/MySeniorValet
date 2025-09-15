@@ -382,14 +382,16 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
       {/* AI Intelligence Badges */}
       <div className="absolute top-4 right-4 z-10 flex gap-2">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-          <Sparkles className="w-3 h-3 mr-1" />
-          Perplexity AI
-        </div>
-        {claudeAnalysis && (
-          <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-            <Brain className="w-3 h-3 mr-1" />
-            Claude AI
+        {localVerificationReport?.aiService && (
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+            <Sparkles className="w-3 h-3 mr-1" />
+            {localVerificationReport.aiService}
+          </div>
+        )}
+        {!localVerificationReport?.aiService && (
+          <div className="bg-gradient-to-r from-gray-600 to-gray-700 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+            <Sparkles className="w-3 h-3 mr-1" />
+            AI Intelligence
           </div>
         )}
       </div>

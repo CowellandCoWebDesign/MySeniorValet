@@ -1067,6 +1067,7 @@ export function registerCommunityRoutes(app: Express) {
         communityId: enrichmentResult.communityId,
         communityName: enrichmentResult.communityName,
         timestamp: enrichmentResult.lastUpdated,
+        aiService: enrichmentResult.searchResults?.aiService || 'Unknown', // Which AI service was used
         
         // Core verification data
         verificationResults: {
@@ -1077,11 +1078,9 @@ export function registerCommunityRoutes(app: Express) {
           perplexityData: {
             lastUpdated: enrichmentResult.lastUpdated,
             searchContent: enrichmentResult.searchResults?.summary,
-            sources: enrichmentResult.searchResults?.sources || []
+            sources: enrichmentResult.searchResults?.sources || [],
+            aiService: enrichmentResult.searchResults?.aiService || 'Unknown'
           },
-          // Include parallel AI results if available
-          perplexity: enrichmentResult.parallelSearchResults?.perplexity,
-          claude: enrichmentResult.parallelSearchResults?.claude,
           grok: grokResponse?.success ? {
             summary: grokResponse.content,
             aiService: 'Grok AI (xAI)',
