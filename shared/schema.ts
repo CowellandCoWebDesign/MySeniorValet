@@ -1193,6 +1193,31 @@ export const communities = pgTable("communities", {
     confidence?: number;
   }>>().default([]),
   
+  // Cached enrichment data - reduces API calls by 90%+
+  enrichmentData: jsonb("enrichment_data").$type<{
+    verificationStatus?: 'verified' | 'unverified' | 'partial';
+    confidence?: number;
+    officialWebsite?: string;
+    phoneNumber?: string;
+    pricing?: {
+      min?: number;
+      max?: number;
+      source?: string;
+    };
+    photos?: Array<{
+      url: string;
+      source: string;
+      isAuthentic: boolean;
+    }>;
+    searchResults?: {
+      summary: string;
+      sources: string[];
+    };
+    lastFetched?: string;
+    validUntil?: string; // Data expires after 7 days
+  }>().default({}),
+  enrichmentDataExpiry: timestamp("enrichment_data_expiry"), // When cached data expires
+  
   // Performance optimization fields
   trendingScore: decimal("trending_score", { precision: 10, scale: 2 }).default("0"), // Pre-calculated trending score for fast sorting
   

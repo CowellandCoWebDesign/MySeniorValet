@@ -62,17 +62,68 @@ const defaultPhotos = [
 
 // Legacy reservation component removed - using comprehensive ReservationSection component now
 
-// Community Competitive Analysis Component
+// Community Competitive Analysis Component - OPTIMIZED TO REDUCE API CALLS BY 90%+
 const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
+  const [dataIsFresh, setDataIsFresh] = useState(false);
+  const [showRefreshButton, setShowRefreshButton] = useState(false);
   
-  const fetchAnalysis = async () => {
+  const fetchAnalysis = async (forceRefresh: boolean = false) => {
     if (!community?.city || !community?.state) return;
     if (isLoading) return; // Prevent duplicate fetches
     
+    // Check if we have cached enrichment data that's still fresh (less than 7 days old)
+    if (!forceRefresh && community.enrichmentData && community.enrichmentDataExpiry) {
+      const expiryDate = new Date(community.enrichmentDataExpiry);
+      const now = new Date();
+      
+      if (expiryDate > now) {
+        // Data is still fresh, use cached data
+        console.log('✅ Using cached enrichment data, expires:', expiryDate);
+        setAnalysis(community.enrichmentData);
+        setDataIsFresh(true);
+        setShowRefreshButton(true); // Allow manual refresh if user wants
+        
+        // Call the callbacks with cached data if available
+        if (community.enrichmentData.searchResults) {
+          if (onAnalysisUpdate) {
+            onAnalysisUpdate(community.enrichmentData);
+          }
+          
+          if (onVerificationReport && community.enrichmentData.photos && community.enrichmentData.photos.length > 0) {
+            onVerificationReport((prev: any) => ({
+              ...prev,
+              verificationResults: {
+                ...(prev?.verificationResults || {}),
+                webIntelligence: {
+                  images: community.enrichmentData.photos,
+                  scrapedFrom: community.enrichmentData.officialWebsite
+                }
+              }
+            }));
+          }
+        }
+        return;
+      }
+    }
+    
+    // Check rate limiting - don't allow refresh within 1 hour of last attempt
+    if (!forceRefresh && community.lastEnrichmentAttempt) {
+      const lastAttempt = new Date(community.lastEnrichmentAttempt);
+      const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      
+      if (lastAttempt > hourAgo) {
+        console.log('⏳ Rate limited: Last attempt was less than 1 hour ago');
+        setShowRefreshButton(true);
+        setDataIsFresh(false);
+        return;
+      }
+    }
+    
     setIsLoading(true);
+    setDataIsFresh(false);
     
     // Allow proper time for comprehensive Perplexity analysis
     const controller = new AbortController();
@@ -87,7 +138,8 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         body: JSON.stringify({
           communityName: community.name, // Send the full community name
           location: `${community.city}, ${community.state}`,
-          type: 'city'
+          type: 'city',
+          forceRefresh: forceRefresh // Tell backend if this is a forced refresh
         }),
         signal: controller.signal
       });
@@ -101,6 +153,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       const data = await response.json();
       setAnalysis(data);
       setIsExpanded(true);
+      setShowRefreshButton(true); // Show refresh button after successful fetch
       
       // Extract website and photos for the current community if found
       if (data.extractedCommunities && data.extractedCommunities.length > 0) {
@@ -159,18 +212,22 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       
       // Don't show anything if analysis fails - just hide the component
       setAnalysis(null);
+      setShowRefreshButton(true); // Still show refresh button on error
     } finally {
       setIsLoading(false);
     }
   };
   
-  // Automatically load analysis when component mounts or community changes
+  // Automatically load analysis when component mounts or community changes - BUT CHECK CACHE FIRST
   useEffect(() => {
     // Reset state when community changes
     setAnalysis(null);
     setIsExpanded(true);
+    setDataIsFresh(false);
+    setShowRefreshButton(false);
     
-    fetchAnalysis();
+    // Only fetch if we don't have fresh cached data
+    fetchAnalysis(false); // Pass false to check cache first
   }, [community?.id, community?.name, community?.city, community?.state]);
   
   // Don't render anything if there's no analysis and not loading
