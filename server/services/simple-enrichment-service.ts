@@ -263,6 +263,27 @@ export class SimpleEnrichmentService {
     const photos = [];
     const sources = searchResults.sources || [];
     
+    // First, check if Perplexity returned images directly
+    if (searchResults.images && Array.isArray(searchResults.images) && searchResults.images.length > 0) {
+      console.log(`📸 Found ${searchResults.images.length} images from Perplexity AI`);
+      searchResults.images.forEach((imageUrl: string) => {
+        if (imageUrl && this.isValidUrl(imageUrl)) {
+          photos.push({
+            url: imageUrl,
+            source: 'Perplexity AI',
+            isAuthentic: true
+          });
+        }
+      });
+    }
+    
+    // If we already have photos from Perplexity, return them
+    if (photos.length > 0) {
+      console.log(`✅ Using ${photos.length} images from Perplexity AI search`);
+      return photos.slice(0, 15); // Return up to 15 photos
+    }
+    
+    // Otherwise, fall back to scraping from sources
     // Filter out non-URL sources (like "Claude AI Analysis" text)
     const validUrls = sources.filter((source: string) => this.isValidUrl(source));
     
