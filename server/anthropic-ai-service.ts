@@ -11,6 +11,8 @@ const DEFAULT_MODEL_STR = "claude-sonnet-4-20250514";
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 45000, // 45 seconds timeout to match orchestrator
+  maxRetries: 0, // Disable automatic retries to respect timeout
 });
 
 export interface SearchIntent {
@@ -79,6 +81,9 @@ Return a JSON object with these fields:
       messages: [
         { role: 'user', content: userPrompt }
       ],
+    }, {
+      // Override timeout for this specific call
+      timeout: 45000
     });
 
     // Extract the JSON from the response
@@ -133,6 +138,9 @@ Examples:
           content: `Generate search suggestions for: "${partialQuery}"\n\nReturn as JSON array.`
         }
       ],
+    }, {
+      // Override timeout for this specific call
+      timeout: 45000
     });
 
     const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
@@ -166,6 +174,9 @@ ${results.slice(0, 3).map(r => `- ${r.name} in ${r.city}, ${r.state}`).join('\n'
 Provide a 2-3 sentence summary of what was found and any helpful context.`
         }
       ],
+    }, {
+      // Override timeout for this specific call
+      timeout: 45000
     });
 
     return response.content[0].type === 'text' ? response.content[0].text : '';
@@ -198,6 +209,9 @@ export class AnthropicAIService {
         messages: [
           { role: 'user', content: prompt }
         ],
+      }, {
+        // Override timeout for this specific call
+        timeout: 45000
       });
       
       return response.content[0].type === 'text' ? response.content[0].text : '';
@@ -216,6 +230,9 @@ export class AnthropicAIService {
         messages: [
           { role: 'user', content: prompt }
         ],
+      }, {
+        // Override timeout for this specific call
+        timeout: 45000
       });
       
       return response.content[0].type === 'text' ? response.content[0].text : '';
@@ -245,6 +262,9 @@ Focus on depth of analysis and nuanced understanding of family needs.`;
         messages: [
           { role: 'user', content: userPrompt }
         ],
+      }, {
+        // Override timeout for this specific call
+        timeout: 45000
       });
 
       const content = response.content[0].type === 'text' ? response.content[0].text : '';

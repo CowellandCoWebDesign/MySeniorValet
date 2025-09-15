@@ -4,7 +4,9 @@ import { WebSearchService } from './services/web-search-service';
 // Initialize DeepSeek client
 const deepseek = process.env.DEEPSEEK_API_KEY ? new OpenAI({
   apiKey: process.env.DEEPSEEK_API_KEY,
-  baseURL: 'https://api.deepseek.com/v1'
+  baseURL: 'https://api.deepseek.com/v1',
+  timeout: 45000, // 45 seconds timeout to match orchestrator
+  maxRetries: 0, // Disable automatic retries to respect timeout
 }) : null;
 
 export class DeepSeekAIService {
@@ -68,6 +70,9 @@ IMPORTANT: Base your analysis on the provided web search results. Reference spec
         ],
         max_tokens: 3000,
         temperature: 0.7
+      }, {
+        // Override timeout for this specific call
+        timeout: 45000
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -228,6 +233,9 @@ Use deep reasoning to consider all factors including medical needs progression, 
         ],
         max_tokens: 3000,
         temperature: 0.6
+      }, {
+        // Override timeout for this specific call
+        timeout: 45000
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -316,6 +324,9 @@ Based on deep reasoning analysis of ${communities.length} communities:
         ],
         max_tokens: 2500,
         temperature: 0.6
+      }, {
+        // Override timeout for this specific call
+        timeout: 45000
       });
 
       const content = response.choices[0]?.message?.content || '';
