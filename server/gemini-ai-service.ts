@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { WebSearchService } from './services/web-search-service';
 
 // Initialize Gemini only if API key exists
 const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -18,39 +17,34 @@ export class GeminiAIService {
     try {
       console.log('🌟 Gemini AI Request:', { query: query.substring(0, 100), hasContext: !!context });
       
-      // First perform web search to get real-time data
-      let webSearchResults = '';
-      let sources: string[] = [];
-      
-      try {
-        const searchResponse = await WebSearchService.searchWeb(query, 8);
-        if (searchResponse.results.length > 0) {
-          webSearchResults = `\n\nWEB SEARCH RESULTS (${new Date().toISOString()}):\n`;
-          searchResponse.results.forEach((result, i) => {
-            webSearchResults += `\n${i+1}. ${result.title}\n   URL: ${result.url}\n   ${result.snippet}\n`;
-          });
-          sources = searchResponse.sources;
-          console.log(`✅ Found ${searchResponse.results.length} web search results for Gemini`);
-        }
-      } catch (searchError) {
-        console.log('⚠️ Web search failed, proceeding without web results');
-      }
+      // Gemini does not have native web search capabilities
+      // It can only analyze based on its training data
       
       // Use the cheaper gemini-1.5-flash model for cost efficiency (free tier)
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
-      const systemContext = `You are analyzing senior living information with access to real-time web search data.
+      const systemContext = `You are Google Gemini analyzing senior living information.
 
-Analyze the web search results provided and extract accurate, current information about:
-- Official websites and contact details
-- Current pricing and fees
-- Available care levels and services
-- Recent reviews and ratings
-- Availability and waitlist status
+IMPORTANT: You do NOT have access to real-time web data or current pricing information.
 
-Always cite sources when using web search data.`;
+You can provide analysis based on:
+- Your training data and general knowledge
+- Understanding of senior living industry patterns
+- General price ranges and typical services
+- Evaluation criteria for senior care facilities
+
+Be transparent that you cannot provide:
+- Current pricing or availability
+- Real-time data or recent updates
+- Specific contact information that may have changed
+- Recent reviews or current ratings
+
+Always advise users to:
+- Contact facilities directly for current pricing
+- Visit official websites for up-to-date information
+- Verify all details before making decisions`;
       
-      const prompt = `${systemContext}\n\n${context ? `Context: ${context}\n\n` : ''}Query: ${query}${webSearchResults}\n\nProvide comprehensive, accurate information based on the web search results above. Include specific details, prices, and cite your sources.`;
+      const prompt = `${systemContext}\n\n${context ? `Context: ${context}\n\n` : ''}Query: ${query}\n\nProvide helpful analysis while being transparent about your limitations regarding real-time data.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -62,9 +56,9 @@ Always cite sources when using web search data.`;
         success: true,
         content,
         model: 'gemini-1.5-flash',
-        aiService: 'Google Gemini (Free Tier)',
-        features: ['web-search', 'real-time-data'],
-        sources,
+        aiService: 'Google Gemini (No Web Search)',
+        features: ['general-analysis', 'pattern-recognition'],
+        sources: [], // No web sources since Gemini doesn't have web access
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
@@ -73,7 +67,7 @@ Always cite sources when using web search data.`;
       if (error.message?.includes('API_KEY')) {
         return {
           success: false,
-          error: 'Gemini API authentication failed - please check your API key',
+          error: 'Invalid or missing Gemini API key',
           aiService: 'Google Gemini'
         };
       }
@@ -86,7 +80,10 @@ Always cite sources when using web search data.`;
     }
   }
 
-  static async analyzeWithVision(imageBase64: string, prompt: string): Promise<any> {
+  /**
+   * Analyze images using Gemini Vision
+   */
+  static async analyzeImage(imageBase64: string, prompt: string): Promise<any> {
     if (!genAI) {
       return {
         success: false,
@@ -98,9 +95,9 @@ Always cite sources when using web search data.`;
     try {
       console.log('🖼️ Gemini Vision Request for image analysis');
       
+      // Use gemini-1.5-flash for vision (supports images)
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
-      // Convert base64 to image data
       const imagePart = {
         inlineData: {
           data: imageBase64,
@@ -108,7 +105,13 @@ Always cite sources when using web search data.`;
         }
       };
       
-      const result = await model.generateContent([prompt, imagePart]);
+      const visionPrompt = `Analyze this image of a senior living facility.
+Note: I cannot access real-time data about pricing or current availability.
+I can describe what I see and provide general insights based on the image.
+
+${prompt}`;
+      
+      const result = await model.generateContent([visionPrompt, imagePart]);
       const response = await result.response;
       const content = response.text();
       
@@ -129,6 +132,9 @@ Always cite sources when using web search data.`;
     }
   }
 
+  /**
+   * Generate structured JSON data
+   */
   static async generateStructuredData(prompt: string): Promise<any> {
     if (!genAI) {
       return {
@@ -142,13 +148,16 @@ Always cite sources when using web search data.`;
       const model = genAI.getGenerativeModel({ 
         model: 'gemini-1.5-flash',
         generationConfig: {
-          responseMimeType: 'application/json'
+          responseMimeType: "application/json"
         }
       });
       
-      const fullPrompt = `Extract structured data and return as valid JSON:\n\n${prompt}`;
+      const structuredPrompt = `Extract structured information and return as valid JSON.
+Be transparent that any pricing or availability data is based on general knowledge, not real-time information.
+
+${prompt}`;
       
-      const result = await model.generateContent(fullPrompt);
+      const result = await model.generateContent(structuredPrompt);
       const response = await result.response;
       const content = response.text();
       
@@ -178,7 +187,10 @@ Always cite sources when using web search data.`;
     }
   }
 
-  static async compareCommunitiesWithAI(communities: any[]): Promise<any> {
+  /**
+   * Batch process multiple queries efficiently
+   */
+  static async batchAnalyze(queries: string[]): Promise<any> {
     if (!genAI) {
       return {
         success: false,
@@ -190,38 +202,29 @@ Always cite sources when using web search data.`;
     try {
       const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
-      const prompt = `Compare these senior living communities and provide insights:
-      
-Communities:
-${communities.map((c, i) => `${i+1}. ${c.name} in ${c.city}, ${c.state}
-   - Type: ${c.communityType}
-   - Price: ${c.priceRange?.min ? `$${c.priceRange.min}-$${c.priceRange.max}` : 'Contact for pricing'}
-   - Care Levels: ${c.careLevels?.join(', ') || 'Not specified'}`).join('\n')}
-
-Provide:
-1. Quick comparison table of key differences
-2. Pricing analysis and value assessment
-3. Care level recommendations based on needs
-4. Location and accessibility insights
-5. Overall recommendations with reasoning`;
-
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const content = response.text();
+      const results = [];
+      for (const query of queries) {
+        const prompt = `Analyze this senior living query (note: I don't have real-time data): ${query}`;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        results.push({
+          query,
+          response: response.text()
+        });
+      }
       
       return {
         success: true,
-        content,
+        results,
         model: 'gemini-1.5-flash',
-        aiService: 'Google Gemini',
-        analysisType: 'community_comparison',
+        aiService: 'Google Gemini Batch',
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
-      console.error('❌ Gemini Comparison Error:', error.message);
+      console.error('❌ Gemini Batch Error:', error.message);
       return {
         success: false,
-        error: error.message || 'Gemini comparison service unavailable',
+        error: error.message || 'Gemini batch processing failed',
         aiService: 'Google Gemini'
       };
     }

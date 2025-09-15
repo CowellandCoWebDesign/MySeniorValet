@@ -1,6 +1,5 @@
 import axios from 'axios';
 import Anthropic from '@anthropic-ai/sdk';
-import { WebSearchService } from './services/web-search-service';
 import { GeminiAIService } from './gemini-ai-service';
 import { GrokAIService } from './grok-ai-service';
 import { DeepSeekAIService } from './deepseek-ai-service';
@@ -58,39 +57,33 @@ export class PerplexityAIService {
     console.log('🔍 Starting multi-tier search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
     
-    // TIER 1: Try WebSearchService first (FREE)
-    try {
-      console.log('🌐 Tier 1: Attempting free web search...');
-      const webSearchResponse = await WebSearchService.searchWeb(query, 8);
-      
-      if (webSearchResponse.results.length > 0) {
-        let summary = `Based on web search results from ${new Date().toLocaleDateString()}:\n\n`;
+    // TIER 1: Try Grok first (has NATIVE web search built-in)
+    if (process.env.XAI_API_KEY) {
+      try {
+        console.log('🤖 Tier 1: Attempting Grok with native real-time web search...');
+        const grokResult = await GrokAIService.searchAndAnalyze(query, context);
         
-        webSearchResponse.results.forEach((result, i) => {
-          summary += `${i+1}. **${result.title}**\n`;
-          summary += `   ${result.snippet}\n`;
-          summary += `   Source: ${result.url}\n\n`;
-        });
-        
-        console.log('✅ Free web search successful');
-        return {
-          summary,
-          sources: webSearchResponse.sources,
-          images: [],
-          aiService: 'WebSearchService (Free)'
-        };
+        if (grokResult.success) {
+          console.log('✅ Grok search successful with native web access');
+          return {
+            summary: grokResult.content,
+            sources: grokResult.sources || [],
+            images: [],
+            aiService: grokResult.aiService || 'Grok AI (Native Web Search)'
+          };
+        }
+      } catch (error: any) {
+        console.error('⚠️ Tier 1 Grok failed:', error.message);
       }
-    } catch (error: any) {
-      console.error('⚠️ Tier 1 web search failed:', error.message);
     }
     
-    // TIER 2: Try Gemini with web search (FREE TIER - 1,500 requests/day)
+    // TIER 2: Try Gemini (FREE TIER - 1,500 requests/day, but no web search)
     try {
-      console.log('🌟 Tier 2: Attempting Gemini (free tier) with web search...');
+      console.log('🌟 Tier 2: Attempting Gemini (free tier)...');
       const geminiResult = await GeminiAIService.searchAndAnalyze(query, context);
       
       if (geminiResult.success) {
-        console.log('✅ Gemini search successful (free tier)');
+        console.log('✅ Gemini analysis successful (free tier, no web search)');
         return {
           summary: geminiResult.content,
           sources: geminiResult.sources || [],
@@ -102,55 +95,35 @@ export class PerplexityAIService {
       console.error('⚠️ Tier 2 Gemini failed:', error.message);
     }
     
-    // TIER 3: Try Grok with web search (if configured)
-    if (process.env.XAI_API_KEY) {
-      try {
-        console.log('🤖 Tier 3: Attempting Grok with real-time data...');
-        const grokResult = await GrokAIService.searchAndAnalyze(query, context);
-        
-        if (grokResult.success) {
-          console.log('✅ Grok search successful');
-          return {
-            summary: grokResult.content,
-            sources: grokResult.sources || [],
-            images: [],
-            aiService: grokResult.aiService
-          };
-        }
-      } catch (error: any) {
-        console.error('⚠️ Tier 3 Grok failed:', error.message);
-      }
-    }
-    
-    // TIER 4: Try Perplexity if configured (PAID - only if still available)
+    // TIER 3: Try Perplexity if configured (PAID - has real web search)
     if (this.apiKey) {
       try {
-        console.log('💰 Tier 4: Attempting Perplexity (paid)...');
+        console.log('💰 Tier 3: Attempting Perplexity (paid with real web search)...');
         const result = await this.callPerplexity(query, context);
         console.log('✅ Perplexity search successful');
-        return { ...result, aiService: 'Perplexity AI (Paid)' };
+        return { ...result, aiService: 'Perplexity AI (Paid with Web Search)' };
       } catch (error: any) {
-        console.error('❌ Tier 4 Perplexity failed:', error.message);
+        console.error('❌ Tier 3 Perplexity failed:', error.message);
       }
     }
 
-    // TIER 5: Try DeepSeek R1 with web search (ULTRA LOW COST)
+    // TIER 4: Try DeepSeek R1 (ULTRA LOW COST - reasoning only, no web search)
     if (process.env.DEEPSEEK_API_KEY) {
-      console.log('🧠 Tier 5: Attempting DeepSeek R1 (ultra-low cost)...');
+      console.log('🧠 Tier 4: Attempting DeepSeek R1 (ultra-low cost reasoning)...');
       try {
         const deepseekResult = await DeepSeekAIService.searchAndAnalyze(query, context);
         
         if (deepseekResult.success) {
-          console.log('✅ DeepSeek R1 search successful');
+          console.log('✅ DeepSeek R1 analysis successful');
           return {
             summary: deepseekResult.content,
             sources: deepseekResult.sources || [],
             images: [],
-            aiService: deepseekResult.aiService || 'DeepSeek R1 (Ultra-Low Cost)'
+            aiService: deepseekResult.aiService || 'DeepSeek R1 (Reasoning Only)'
           };
         }
       } catch (error: any) {
-        console.error('❌ Tier 5 DeepSeek failed:', error.message);
+        console.error('❌ Tier 4 DeepSeek failed:', error.message);
       }
     }
 
