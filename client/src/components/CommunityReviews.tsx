@@ -24,6 +24,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { formatDistanceToNow } from 'date-fns';
 import type { Community } from '@shared/schema';
+import { AIReviewsAnalysis } from './AIReviewsAnalysis';
 
 // Review submission schema
 const reviewSchema = z.object({

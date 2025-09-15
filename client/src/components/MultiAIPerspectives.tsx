@@ -603,12 +603,9 @@ export function MultiAIPerspectives({
               </Alert>
             )}
             
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-2">
               {renderAIServiceCard('perplexity', analysis.responses?.perplexity)}
               {renderAIServiceCard('claude', analysis.responses?.claude)}
-              {renderAIServiceCard('grok', analysis.responses?.grok)}
-              {renderAIServiceCard('gemini', analysis.responses?.gemini)}
-              {renderAIServiceCard('deepseek', analysis.responses?.deepseek)}
             </div>
           </TabsContent>
 
