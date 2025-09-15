@@ -1,16 +1,5 @@
 import axios from 'axios';
-import Anthropic from '@anthropic-ai/sdk';
-import { GeminiAIService } from './gemini-ai-service';
 import { GrokAIService } from './grok-ai-service';
-import { DeepSeekAIService } from './deepseek-ai-service';
-
-// Initialize Claude as fallback
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY!
-});
-
-// Use the latest Claude model
-const CLAUDE_MODEL = "claude-sonnet-4-20250514";
 
 export interface PerplexityResponse {
   id: string;
@@ -33,11 +22,9 @@ export interface PerplexityResponse {
 export class PerplexityAIService {
   private apiKey: string;
   private baseUrl = 'https://api.perplexity.ai/chat/completions';
-  private claudeApiKey: string;
   
   constructor() {
     this.apiKey = process.env.PERPLEXITY_API_KEY || '';
-    this.claudeApiKey = process.env.ANTHROPIC_API_KEY || '';
     
     // Log API key configuration status (without exposing the actual key)
     if (this.apiKey) {
@@ -49,12 +36,12 @@ export class PerplexityAIService {
   }
 
   isConfigured(): boolean {
-    return !!this.apiKey || !!this.claudeApiKey;
+    return !!this.apiKey;
   }
 
   async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[]; aiService?: string }> {
     // Log the attempt
-    console.log('🔍 Starting multi-tier search for:', query.substring(0, 100));
+    console.log('🔍 Starting optimized web search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
     
     // TIER 1: Try Grok first (has NATIVE web search built-in)
@@ -77,57 +64,19 @@ export class PerplexityAIService {
       }
     }
     
-    // TIER 2: Try Gemini (FREE TIER - 1,500 requests/day, but no web search)
-    try {
-      console.log('🌟 Tier 2: Attempting Gemini (free tier)...');
-      const geminiResult = await GeminiAIService.searchAndAnalyze(query, context);
-      
-      if (geminiResult.success) {
-        console.log('✅ Gemini analysis successful (free tier, no web search)');
-        return {
-          summary: geminiResult.content,
-          sources: geminiResult.sources || [],
-          images: [],
-          aiService: geminiResult.aiService
-        };
-      }
-    } catch (error: any) {
-      console.error('⚠️ Tier 2 Gemini failed:', error.message);
-    }
-    
-    // TIER 3: Try Perplexity if configured (PAID - has real web search)
+    // TIER 2: Try Perplexity if configured (PAID - purpose-built for web search)
     if (this.apiKey) {
       try {
-        console.log('💰 Tier 3: Attempting Perplexity (paid with real web search)...');
+        console.log('💰 Tier 2: Attempting Perplexity (purpose-built for web search)...');
         const result = await this.callPerplexity(query, context);
         console.log('✅ Perplexity search successful');
-        return { ...result, aiService: 'Perplexity AI (Paid with Web Search)' };
+        return { ...result, aiService: 'Perplexity AI (Web Search Specialist)' };
       } catch (error: any) {
-        console.error('❌ Tier 3 Perplexity failed:', error.message);
+        console.error('❌ Tier 2 Perplexity failed:', error.message);
       }
     }
 
-    // TIER 4: Try DeepSeek R1 (ULTRA LOW COST - reasoning only, no web search)
-    if (process.env.DEEPSEEK_API_KEY) {
-      console.log('🧠 Tier 4: Attempting DeepSeek R1 (ultra-low cost reasoning)...');
-      try {
-        const deepseekResult = await DeepSeekAIService.searchAndAnalyze(query, context);
-        
-        if (deepseekResult.success) {
-          console.log('✅ DeepSeek R1 analysis successful');
-          return {
-            summary: deepseekResult.content,
-            sources: deepseekResult.sources || [],
-            images: [],
-            aiService: deepseekResult.aiService || 'DeepSeek R1 (Reasoning Only)'
-          };
-        }
-      } catch (error: any) {
-        console.error('❌ Tier 4 DeepSeek failed:', error.message);
-      }
-    }
-
-    // If all tiers fail, return a helpful error message
+    // If both web search services fail, return a helpful error message
     console.error('⚠️ All AI services failed - returning basic response');
     return {
       summary: `Unable to perform real-time search for "${query}". Please try again later or contact the community directly for the most current information.`,
@@ -146,7 +95,7 @@ export class PerplexityAIService {
       aiService: string;
       error?: string;
     };
-    claude?: {
+    grok?: {
       summary: string;
       sources: string[];
       images?: string[];
@@ -157,7 +106,7 @@ export class PerplexityAIService {
     console.log('🔍 Starting parallel AI search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
     console.log('   Perplexity configured:', !!this.apiKey);
-    console.log('   Claude configured:', !!this.claudeApiKey);
+    console.log('   Grok configured:', !!process.env.XAI_API_KEY);
 
     const promises: Promise<any>[] = [];
     const results: any = {};
@@ -186,24 +135,36 @@ export class PerplexityAIService {
       );
     }
 
-    // Add Claude promise if configured
-    if (this.claudeApiKey) {
+    // Add Grok promise if configured
+    if (process.env.XAI_API_KEY) {
       promises.push(
-        this.callClaudeForSearch(query, context)
+        GrokAIService.searchAndAnalyze(query, context)
           .then(result => {
-            console.log('✅ Claude search successful');
-            results.claude = {
-              ...result,
-              aiService: 'Claude AI'
-            };
+            if (result.success) {
+              console.log('✅ Grok search successful');
+              results.grok = {
+                summary: result.content,
+                sources: result.sources || [],
+                images: [],
+                aiService: result.aiService || 'Grok AI (Native Web Search)'
+              };
+            } else {
+              results.grok = {
+                summary: 'Grok AI encountered an error. Please try again later.',
+                sources: [],
+                images: [],
+                aiService: 'Grok AI',
+                error: result.error
+              };
+            }
           })
           .catch(error => {
-            console.error('❌ Claude API failed:', error.message);
-            results.claude = {
-              summary: 'Claude AI is temporarily unavailable. Please try again later.',
+            console.error('❌ Grok API failed:', error.message);
+            results.grok = {
+              summary: 'Grok AI is temporarily unavailable. Please try again later.',
               sources: [],
               images: [],
-              aiService: 'Claude AI',
+              aiService: 'Grok AI',
               error: error.message
             };
           })
@@ -214,7 +175,7 @@ export class PerplexityAIService {
     await Promise.allSettled(promises);
 
     // If neither service is configured, return empty results
-    if (!results.perplexity && !results.claude) {
+    if (!results.perplexity && !results.grok) {
       console.error('⚠️ No AI services configured');
       return {
         perplexity: {
@@ -223,11 +184,11 @@ export class PerplexityAIService {
           images: [],
           aiService: 'Perplexity AI'
         },
-        claude: {
-          summary: 'Claude AI is not configured. Contact support to enable AI-powered insights.',
+        grok: {
+          summary: 'Grok AI is not configured. Contact support to enable native web search.',
           sources: [],
           images: [],
-          aiService: 'Claude AI'
+          aiService: 'Grok AI'
         }
       };
     }
@@ -373,51 +334,6 @@ CRITICAL INSTRUCTIONS:
     }
   }
 
-  private async callClaudeForSearch(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
-    const systemPrompt = `You are a senior living research expert. While I cannot access real-time web data, I can provide comprehensive information based on my knowledge.
-
-${context ? `SPECIFIC SEARCH TARGET: ${context}` : ''}
-
-Structure your response with these section headers:
-
-**OFFICIAL WEBSITE:**
-**DIRECTORY LISTINGS:**
-**CURRENT PRICING:**
-**CONTACT INFORMATION:**
-**CARE LEVELS OFFERED:**
-**KEY AMENITIES:**
-**AVAILABILITY STATUS:**
-**RECENT UPDATES:**
-**MANAGEMENT/OWNERSHIP:**
-
-For each section, provide the most helpful information available, or explain what the user should do to get current information (e.g., "Contact the community directly at..." or "Visit their website for current pricing").`;
-
-    try {
-      const response = await anthropic.messages.create({
-        model: CLAUDE_MODEL,
-        max_tokens: 2000,
-        temperature: 0.2,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: query }
-        ]
-      });
-
-      const content = response.content[0];
-      if (content.type === 'text') {
-        return {
-          summary: content.text,
-          sources: ['Claude AI Analysis - Note: Real-time data not available. Contact communities directly for current information.'],
-          images: []
-        };
-      }
-
-      throw new Error('Unexpected Claude response format');
-    } catch (error: any) {
-      console.error('Claude API error:', error.message);
-      throw error;
-    }
-  }
 
   async enhanceCommunityData(communityName: string, location: string): Promise<{
     currentPricing?: string;
