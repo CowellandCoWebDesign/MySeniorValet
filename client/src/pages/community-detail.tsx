@@ -307,59 +307,12 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
   
-  // Trigger verification when component mounts (only once)
+  // Removed automatic verification to improve page load speed
+  // Verification is now handled by the parent component with a delay
   useEffect(() => {
-    // Add proper ID validation and logging
+    // Only log for debugging, don't trigger verification here
     const communityId = community?.id;
-    
-    // Log the community object for debugging
     console.log('RealTimeInsights received community:', { id: communityId, name: community?.name });
-    
-    // Validate that we have a proper community ID (not 1, not undefined, not null)
-    const isValidId = communityId && communityId !== 1 && communityId > 100;
-    
-    if (!isValidId) {
-      console.warn('Invalid community ID detected in RealTimeInsights:', communityId, 'Expected a valid ID > 100');
-      // Don't proceed with verification if ID is invalid
-      return;
-    }
-    
-    if (communityId && !hasStartedVerification && !localVerificationReport) {
-      console.log(`Starting verification for community ${communityId} - ${community?.name}`);
-      setHasStartedVerification(true);
-      setIsVerifying(true);
-      
-      // Call simplified verification endpoint with validated ID
-      const verifyUrl = `/api/communities/${communityId}/verify`;
-      console.log('Calling verification endpoint:', verifyUrl);
-      
-      fetch(verifyUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: false })
-      })
-      .then(res => res.json())
-      .then(report => {
-        console.log('Verification report received for community', communityId, ':', report);
-        setLocalVerificationReport(report);
-        // Also update parent state if callback provided
-        if (onVerificationReport) {
-          console.log('Calling onVerificationReport callback with:', report);
-          onVerificationReport(report);
-        }
-        // Update photos if we got any
-        if (report?.verificationResults?.webIntelligence?.images && onPhotosUpdate) {
-          onPhotosUpdate(report.verificationResults.webIntelligence.images);
-        }
-      })
-      .catch(error => {
-        console.error(`Verification error for community ${communityId}:`, error);
-        setHasStartedVerification(false); // Allow retry on error
-      })
-      .finally(() => {
-        setIsVerifying(false);
-      });
-    }
   }, [community?.id]);
 
   // Show loading or placeholder content while waiting for data
@@ -1217,8 +1170,9 @@ export default function CommunityDetail() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
+  // Load basic data first without expensive AI calls for faster page load
   const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: [`/api/communities/${id}?realtime=true&claude=true`],
+    queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
     select: (data) => {
       // Log the raw API response to debug ID issues
@@ -1256,37 +1210,43 @@ export default function CommunityDetail() {
     }
   }, [id]);
 
-  // Trigger verification immediately when community loads
+  // Delayed verification to improve initial page load speed
+  // Only verify after the page has loaded and user can see content
   React.useEffect(() => {
     // Use the ID from URL params as primary source of truth
     const verificationId = community?.id || Number(id);
     
     // Validate ID before proceeding
-    if (verificationId && verificationId > 100 && !hasStartedVerification && !verificationReport) {
-      console.log('🚀 Starting photo and data verification for community:', community?.name, 'ID:', verificationId);
-      setHasStartedVerification(true);
-      setIsVerifying(true);
+    if (verificationId && verificationId > 100 && !hasStartedVerification && !verificationReport && community) {
+      // Delay verification by 2 seconds to let the page render first
+      const timeoutId = setTimeout(() => {
+        console.log('🚀 Starting delayed photo and data verification for community:', community?.name, 'ID:', verificationId);
+        setHasStartedVerification(true);
+        setIsVerifying(true);
+        
+        // Call verification endpoint with validated ID
+        fetch(`/api/communities/${verificationId}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceRefresh: false })
+        })
+        .then(res => res.json())
+        .then(report => {
+          console.log('✅ Verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
+          setVerificationReport(report);
+        })
+        .catch(error => {
+          console.error('❌ Verification error:', error);
+          setHasStartedVerification(false); // Allow retry on error
+        })
+        .finally(() => {
+          setIsVerifying(false);
+        });
+      }, 2000); // 2 second delay
       
-      // Call verification endpoint with validated ID
-      fetch(`/api/communities/${verificationId}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: false })
-      })
-      .then(res => res.json())
-      .then(report => {
-        console.log('✅ Verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
-        setVerificationReport(report);
-      })
-      .catch(error => {
-        console.error('❌ Verification error:', error);
-        setHasStartedVerification(false); // Allow retry on error
-      })
-      .finally(() => {
-        setIsVerifying(false);
-      });
+      return () => clearTimeout(timeoutId);
     }
-  }, [community?.id, hasStartedVerification, verificationReport]);
+  }, [community?.id, hasStartedVerification, verificationReport, community]);
 
   // Navigate away if invalid ID (after all hooks have been called)
   React.useEffect(() => {

@@ -273,7 +273,7 @@ CRITICAL INSTRUCTIONS:
             'Content-Type': 'application/json',
             'Accept': 'application/json'
           },
-          timeout: 30000, // 30 second timeout
+          timeout: 10000, // 10 second timeout for faster failures
           validateStatus: (status) => status < 500 // Don't throw on 4xx errors
         }
       );
