@@ -15,12 +15,17 @@ import { ScalableCache } from './infrastructure/cache';
 const perplexityService = new PerplexityAIService();
 const anthropicService = new AnthropicAIService();
 
-// Default timeout for AI services (30 seconds for web search operations)
-const DEFAULT_AI_TIMEOUT = 30000;
-const WEB_SEARCH_TIMEOUT = 30000;
+// Default timeout for AI services (45 seconds for complex analysis, 30 seconds for web search)
+const DEFAULT_AI_TIMEOUT = 45000; // Increased to 45 seconds for Claude/Gemini analysis
+const WEB_SEARCH_TIMEOUT = 30000; // Keep 30 seconds for web search operations
+const CLAUDE_TIMEOUT = 45000; // Specific timeout for Claude's deep analysis
+const DEEPSEEK_TIMEOUT = 45000; // Specific timeout for DeepSeek's reasoning
 
 // Cache for AI responses - 5 minute TTL to prevent duplicate calls
 const aiResponseCache = new ScalableCache(1000, 5 * 60 * 1000);
+
+// Log cache hits/misses for debugging duplicate calls
+let cacheStats = { hits: 0, misses: 0, inProgress: 0 };
 
 // Track AI calls in progress to prevent concurrent duplicate calls
 const aiCallsInProgress = new Map<string, Promise<MultiAIResult>>();
@@ -144,16 +149,21 @@ export class MultiAIOrchestrator {
     
     // Check if a call is already in progress for this query
     if (aiCallsInProgress.has(cacheKey)) {
-      console.log(`⏳ Multi-AI call already in progress for query, waiting...`);
+      cacheStats.inProgress++;
+      console.log(`⏳ Multi-AI call already in progress for query (prevented duplicate), waiting... [Stats: ${cacheStats.hits} hits, ${cacheStats.misses} misses, ${cacheStats.inProgress} deduplicated]`);
       return aiCallsInProgress.get(cacheKey)!;
     }
     
     // Check cache first
     const cached = aiResponseCache.get<MultiAIResult>(cacheKey);
     if (cached) {
-      console.log(`✅ Using cached Multi-AI response (5-minute cache)`);
+      cacheStats.hits++;
+      console.log(`✅ Using cached Multi-AI response (5-minute cache) [Stats: ${cacheStats.hits} hits, ${cacheStats.misses} misses, ${cacheStats.inProgress} deduplicated]`);
       return cached;
     }
+    
+    cacheStats.misses++;
+    console.log(`🔍 Cache miss for Multi-AI query [Stats: ${cacheStats.hits} hits, ${cacheStats.misses} misses, ${cacheStats.inProgress} deduplicated]`);
     
     // Create promise for this AI call and track it
     const aiCallPromise = this.performSearchAllAIs(query, context, cacheKey);
@@ -188,7 +198,7 @@ export class MultiAIOrchestrator {
         name: 'claude',
         call: () => anthropicService.searchAndAnalyze(query, context),
         capabilities: ['analysis', 'reasoning'],
-        timeout: DEFAULT_AI_TIMEOUT
+        timeout: CLAUDE_TIMEOUT // Use specific Claude timeout for deep analysis
       },
       {
         name: 'grok',
@@ -206,7 +216,7 @@ export class MultiAIOrchestrator {
         name: 'deepseek',
         call: () => DeepSeekAIService.searchAndAnalyze(query, context),
         capabilities: ['web-search', 'deep-reasoning', 'cost-effective', 'citations'],
-        timeout: WEB_SEARCH_TIMEOUT
+        timeout: DEEPSEEK_TIMEOUT // Use specific DeepSeek timeout for reasoning
       }
     ];
     
@@ -318,17 +328,54 @@ export class MultiAIOrchestrator {
           // Extract prices using regex
           const priceMatches = response.content.match(/\$[\d,]+/g);
           if (priceMatches) {
+            // Collect all prices from this AI service
+            const servicePrices: number[] = [];
+            
             priceMatches.forEach(match => {
               const price = parseInt(match.replace(/[$,]/g, ''));
               if (price > 500 && price < 20000) { // Reasonable monthly price range
                 prices.push(price);
-                priceDetails.push({
-                  source: response.service,
-                  price,
-                  context: response.content ? response.content.substring(0, 200) : ''
-                });
+                servicePrices.push(price);
               }
             });
+            
+            // Create ONE consolidated entry per AI service (not per price)
+            if (servicePrices.length > 0) {
+              // Calculate average and range for this service
+              servicePrices.sort((a, b) => a - b);
+              const avgPrice = Math.round(servicePrices.reduce((sum, p) => sum + p, 0) / servicePrices.length);
+              const minPrice = servicePrices[0];
+              const maxPrice = servicePrices[servicePrices.length - 1];
+              
+              // Extract meaningful context (look for care levels or pricing details)
+              let contextSummary = '';
+              const contentLines = response.content.split('\n');
+              for (const line of contentLines) {
+                if (line.includes('$') || 
+                    line.toLowerCase().includes('assisted living') || 
+                    line.toLowerCase().includes('memory care') ||
+                    line.toLowerCase().includes('independent living') ||
+                    line.toLowerCase().includes('monthly') ||
+                    line.toLowerCase().includes('pricing')) {
+                  contextSummary = line.substring(0, 250);
+                  break;
+                }
+              }
+              
+              // If no specific context found, use first non-empty line
+              if (!contextSummary) {
+                contextSummary = contentLines.find(line => line.trim().length > 0)?.substring(0, 200) || '';
+              }
+              
+              // Add single consolidated entry for this AI service
+              priceDetails.push({
+                source: response.service,
+                price: avgPrice,
+                priceRange: servicePrices.length > 1 ? { min: minPrice, max: maxPrice } : null,
+                priceCount: servicePrices.length,
+                context: contextSummary
+              });
+            }
           }
         }
       }

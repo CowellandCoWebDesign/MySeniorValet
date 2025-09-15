@@ -15,6 +15,15 @@ const enrichmentCache = new ScalableCache(1000, 5 * 60 * 1000); // 5 minutes
 // Track enrichments in progress to prevent concurrent calls
 const enrichmentInProgress = new Map<number, Promise<SimpleEnrichmentResult>>();
 
+// Track cache statistics for debugging
+let enrichmentStats = { 
+  cacheHits: 0, 
+  cacheMisses: 0, 
+  inProgressDeduplicated: 0,
+  totalRequests: 0,
+  startTime: Date.now()
+};
+
 interface SimpleEnrichmentResult {
   communityId: number;
   communityName: string;
@@ -75,9 +84,13 @@ export class SimpleEnrichmentService {
     forceRefresh: boolean = false
   ): Promise<SimpleEnrichmentResult> {
     
+    enrichmentStats.totalRequests++;
+    const statsStr = `[Stats: ${enrichmentStats.cacheHits} hits, ${enrichmentStats.cacheMisses} misses, ${enrichmentStats.inProgressDeduplicated} dedup, ${enrichmentStats.totalRequests} total]`;
+    
     // Step 1: Check if enrichment is already in progress for this community
     if (!forceRefresh && enrichmentInProgress.has(communityId)) {
-      console.log(`⏳ Enrichment already in progress for community ${communityId}, waiting...`);
+      enrichmentStats.inProgressDeduplicated++;
+      console.log(`⏳ Enrichment already in progress for community ${communityId}, waiting... ${statsStr}`);
       return enrichmentInProgress.get(communityId)!;
     }
     
@@ -85,11 +98,14 @@ export class SimpleEnrichmentService {
     if (!forceRefresh) {
       const cached = enrichmentCache.get<SimpleEnrichmentResult>(`enrich:${communityId}`);
       if (cached) {
+        enrichmentStats.cacheHits++;
         const ttl = (enrichmentCache as any).getTimeToLive ? (enrichmentCache as any).getTimeToLive(`enrich:${communityId}`) : 0;
-        console.log(`✅ Using cached enrichment for community ${communityId}${ttl > 0 ? ` (expires in ${Math.round(ttl / 1000)}s)` : ''}`);
+        console.log(`✅ Using cached enrichment for community ${communityId}${ttl > 0 ? ` (expires in ${Math.round(ttl / 1000)}s)` : ''} ${statsStr}`);
         return cached;
       }
     }
+    
+    enrichmentStats.cacheMisses++;
     
     // Step 2: Get community from database
     const [community] = await db
@@ -102,7 +118,7 @@ export class SimpleEnrichmentService {
       throw new Error('Community not found');
     }
     
-    console.log(`🔍 Starting simple enrichment for ${community.name}`);
+    console.log(`🔍 Starting simple enrichment for ${community.name} (ID: ${community.id}) ${statsStr}`);
     
     // Create a promise for this enrichment and track it
     const enrichmentPromise = this.performEnrichment(community);
@@ -176,7 +192,10 @@ export class SimpleEnrichmentService {
     // Cache the result with 5-minute TTL
     enrichmentCache.set(`enrich:${community.id}`, result);
     
-    console.log(`✅ Enrichment complete: ${photos.length} photos, ${result.verificationStatus} status (cached for 5 minutes)`);
+    const cacheEfficiency = enrichmentStats.totalRequests > 0 
+      ? Math.round((enrichmentStats.cacheHits + enrichmentStats.inProgressDeduplicated) / enrichmentStats.totalRequests * 100)
+      : 0;
+    console.log(`✅ Enrichment complete: ${photos.length} photos, ${result.verificationStatus} status (cached for 5 minutes) - Cache efficiency: ${cacheEfficiency}%`);
     
     return result;
   }
