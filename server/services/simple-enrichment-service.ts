@@ -53,6 +53,7 @@ interface SimpleEnrichmentResult {
   searchResults?: {
     summary: string;
     sources: string[];
+    aiService?: string; // Which AI service was used
   };
   
   // Parallel AI results
@@ -137,22 +138,17 @@ export class SimpleEnrichmentService {
    * Perform the actual enrichment - separated for better tracking
    */
   private async performEnrichment(community: any): Promise<SimpleEnrichmentResult> {
-    // Search for community information (parallel Perplexity and Claude calls)
+    // Search for community information using multi-tier fallback system
     const searchQuery = `${community.name} ${community.city} ${community.state} senior living website phone pricing photos 2025`;
     
     let searchResults;
-    let parallelResults;
     try {
-      // Get both AI responses in parallel
-      parallelResults = await perplexityService.searchRealTimeParallel(searchQuery);
+      // Use the new multi-tier fallback system (FREE services first)
+      searchResults = await perplexityService.searchRealTime(searchQuery);
       
-      // Use Perplexity as primary if available, otherwise use Claude
-      if (parallelResults.perplexity && !parallelResults.perplexity.error) {
-        searchResults = parallelResults.perplexity;
-      } else if (parallelResults.claude) {
-        searchResults = parallelResults.claude;
-      } else {
-        // Return minimal data if both fail
+      // If we got no results at all, return minimal data
+      if (!searchResults || !searchResults.summary) {
+        console.log('⚠️ All AI services failed - returning minimal data');
         return this.createMinimalResult(community);
       }
     } catch (error) {
@@ -171,7 +167,7 @@ export class SimpleEnrichmentService {
       community.name
     );
     
-    // Step 6: Build simple result with enhanced photo sources and parallel AI results
+    // Step 6: Build simple result with enhanced photo sources and AI service info
     const result: SimpleEnrichmentResult = {
       communityId: community.id,
       communityName: community.name,
@@ -184,9 +180,9 @@ export class SimpleEnrichmentService {
       photos,
       searchResults: {
         summary: searchResults.summary || '',
-        sources: searchResults.sources || [] // Keep the original Perplexity sources for display
-      },
-      parallelSearchResults: parallelResults // Include both AI responses
+        sources: searchResults.sources || [],
+        aiService: searchResults.aiService || 'Unknown' // Include which AI service was used
+      }
     };
     
     // Cache the result with 5-minute TTL

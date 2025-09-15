@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { WebSearchService } from './services/web-search-service';
 
 // Initialize Gemini only if API key exists
 const geminiApiKey = process.env.GEMINI_API_KEY;
@@ -17,11 +18,39 @@ export class GeminiAIService {
     try {
       console.log('🌟 Gemini AI Request:', { query: query.substring(0, 100), hasContext: !!context });
       
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      // First perform web search to get real-time data
+      let webSearchResults = '';
+      let sources: string[] = [];
       
-      const prompt = context 
-        ? `Context about senior living community: ${context}\n\nTask: ${query}\n\nProvide detailed, accurate information focusing on practical details families need.`
-        : `${query}\n\nProvide comprehensive information about this senior living topic, including current data, pricing estimates, and practical advice.`;
+      try {
+        const searchResponse = await WebSearchService.searchWeb(query, 8);
+        if (searchResponse.results.length > 0) {
+          webSearchResults = `\n\nWEB SEARCH RESULTS (${new Date().toISOString()}):\n`;
+          searchResponse.results.forEach((result, i) => {
+            webSearchResults += `\n${i+1}. ${result.title}\n   URL: ${result.url}\n   ${result.snippet}\n`;
+          });
+          sources = searchResponse.sources;
+          console.log(`✅ Found ${searchResponse.results.length} web search results for Gemini`);
+        }
+      } catch (searchError) {
+        console.log('⚠️ Web search failed, proceeding without web results');
+      }
+      
+      // Use the cheaper gemini-1.5-flash model for cost efficiency (free tier)
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+      
+      const systemContext = `You are analyzing senior living information with access to real-time web search data.
+
+Analyze the web search results provided and extract accurate, current information about:
+- Official websites and contact details
+- Current pricing and fees
+- Available care levels and services
+- Recent reviews and ratings
+- Availability and waitlist status
+
+Always cite sources when using web search data.`;
+      
+      const prompt = `${systemContext}\n\n${context ? `Context: ${context}\n\n` : ''}Query: ${query}${webSearchResults}\n\nProvide comprehensive, accurate information based on the web search results above. Include specific details, prices, and cite your sources.`;
 
       const result = await model.generateContent(prompt);
       const response = await result.response;
@@ -32,8 +61,10 @@ export class GeminiAIService {
       return {
         success: true,
         content,
-        model: 'gemini-2.0-flash-exp',
-        aiService: 'Google Gemini',
+        model: 'gemini-1.5-flash',
+        aiService: 'Google Gemini (Free Tier)',
+        features: ['web-search', 'real-time-data'],
+        sources,
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
@@ -67,7 +98,7 @@ export class GeminiAIService {
     try {
       console.log('🖼️ Gemini Vision Request for image analysis');
       
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
       // Convert base64 to image data
       const imagePart = {
@@ -84,7 +115,7 @@ export class GeminiAIService {
       return {
         success: true,
         content,
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-1.5-flash',
         aiService: 'Google Gemini Vision',
         timestamp: new Date().toISOString()
       };
@@ -109,7 +140,7 @@ export class GeminiAIService {
 
     try {
       const model = genAI.getGenerativeModel({ 
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-1.5-flash',
         generationConfig: {
           responseMimeType: 'application/json'
         }
@@ -126,7 +157,7 @@ export class GeminiAIService {
         return {
           success: true,
           data: jsonData,
-          model: 'gemini-2.0-flash-exp',
+          model: 'gemini-1.5-flash',
           aiService: 'Google Gemini'
         };
       } catch (parseError) {
@@ -157,7 +188,7 @@ export class GeminiAIService {
     }
 
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
       const prompt = `Compare these senior living communities and provide insights:
       
@@ -181,7 +212,7 @@ Provide:
       return {
         success: true,
         content,
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-1.5-flash',
         aiService: 'Google Gemini',
         analysisType: 'community_comparison',
         timestamp: new Date().toISOString()

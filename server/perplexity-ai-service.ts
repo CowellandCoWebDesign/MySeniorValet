@@ -1,5 +1,8 @@
 import axios from 'axios';
 import Anthropic from '@anthropic-ai/sdk';
+import { WebSearchService } from './services/web-search-service';
+import { GeminiAIService } from './gemini-ai-service';
+import { GrokAIService } from './grok-ai-service';
 
 // Initialize Claude as fallback
 const anthropic = new Anthropic({
@@ -49,49 +52,106 @@ export class PerplexityAIService {
     return !!this.apiKey || !!this.claudeApiKey;
   }
 
-  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
+  async searchRealTime(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[]; aiService?: string }> {
     // Log the attempt
-    console.log('🔍 Attempting real-time search for:', query.substring(0, 100));
+    console.log('🔍 Starting multi-tier search for:', query.substring(0, 100));
     console.log('   Context provided:', !!context);
-    console.log('   Perplexity configured:', !!this.apiKey);
-    console.log('   Claude configured:', !!this.claudeApiKey);
-
-    // Try Perplexity first if configured
+    
+    // TIER 1: Try WebSearchService first (FREE)
+    try {
+      console.log('🌐 Tier 1: Attempting free web search...');
+      const webSearchResponse = await WebSearchService.searchWeb(query, 8);
+      
+      if (webSearchResponse.results.length > 0) {
+        let summary = `Based on web search results from ${new Date().toLocaleDateString()}:\n\n`;
+        
+        webSearchResponse.results.forEach((result, i) => {
+          summary += `${i+1}. **${result.title}**\n`;
+          summary += `   ${result.snippet}\n`;
+          summary += `   Source: ${result.url}\n\n`;
+        });
+        
+        console.log('✅ Free web search successful');
+        return {
+          summary,
+          sources: webSearchResponse.sources,
+          images: [],
+          aiService: 'WebSearchService (Free)'
+        };
+      }
+    } catch (error: any) {
+      console.error('⚠️ Tier 1 web search failed:', error.message);
+    }
+    
+    // TIER 2: Try Gemini with web search (FREE TIER - 1,500 requests/day)
+    try {
+      console.log('🌟 Tier 2: Attempting Gemini (free tier) with web search...');
+      const geminiResult = await GeminiAIService.searchAndAnalyze(query, context);
+      
+      if (geminiResult.success) {
+        console.log('✅ Gemini search successful (free tier)');
+        return {
+          summary: geminiResult.content,
+          sources: geminiResult.sources || [],
+          images: [],
+          aiService: geminiResult.aiService
+        };
+      }
+    } catch (error: any) {
+      console.error('⚠️ Tier 2 Gemini failed:', error.message);
+    }
+    
+    // TIER 3: Try Grok with web search (if configured)
+    if (process.env.XAI_API_KEY) {
+      try {
+        console.log('🤖 Tier 3: Attempting Grok with real-time data...');
+        const grokResult = await GrokAIService.searchAndAnalyze(query, context);
+        
+        if (grokResult.success) {
+          console.log('✅ Grok search successful');
+          return {
+            summary: grokResult.content,
+            sources: grokResult.sources || [],
+            images: [],
+            aiService: grokResult.aiService
+          };
+        }
+      } catch (error: any) {
+        console.error('⚠️ Tier 3 Grok failed:', error.message);
+      }
+    }
+    
+    // TIER 4: Try Perplexity if configured (PAID - only if still available)
     if (this.apiKey) {
       try {
+        console.log('💰 Tier 4: Attempting Perplexity (paid)...');
         const result = await this.callPerplexity(query, context);
         console.log('✅ Perplexity search successful');
-        return result;
+        return { ...result, aiService: 'Perplexity AI (Paid)' };
       } catch (error: any) {
-        console.error('❌ Perplexity API failed:', error.message);
-        console.error('   Response status:', error.response?.status);
-        console.error('   Response data type:', typeof error.response?.data);
-        
-        // Log if we got HTML instead of JSON
-        if (error.response?.data && typeof error.response.data === 'string' && error.response.data.includes('<html')) {
-          console.error('   ⚠️ Received HTML response instead of JSON - likely authentication or endpoint issue');
-        }
+        console.error('❌ Tier 4 Perplexity failed:', error.message);
       }
     }
 
-    // Fallback to Claude if available
+    // TIER 5: Fallback to Claude (NO WEB SEARCH)
     if (this.claudeApiKey) {
-      console.log('🔄 Falling back to Claude for search...');
+      console.log('🔄 Tier 5: Falling back to Claude (no web search)...');
       try {
         const result = await this.callClaudeForSearch(query, context);
         console.log('✅ Claude search successful');
-        return result;
+        return { ...result, aiService: 'Claude AI (No Web Search)' };
       } catch (error: any) {
-        console.error('❌ Claude fallback also failed:', error.message);
+        console.error('❌ Tier 5 Claude also failed:', error.message);
       }
     }
 
-    // If both fail, return a helpful error message
+    // If all tiers fail, return a helpful error message
     console.error('⚠️ All AI services failed - returning basic response');
     return {
       summary: `Unable to perform real-time search for "${query}". Please try again later or contact the community directly for the most current information.`,
       sources: [],
-      images: []
+      images: [],
+      aiService: 'None Available'
     };
   }
 
