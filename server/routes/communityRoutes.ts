@@ -98,83 +98,118 @@ export function registerCommunityRoutes(app: Express) {
         });
       }
       
-      // Parse location search (e.g., "Redding, CA")
-      const parts = searchQuery.split(',').map(p => p.trim());
-      const conditions = [];
+      // Clean the search query - remove special characters that might interfere
+      const cleanQuery = searchQuery.replace(/[-–—]/g, ' ').trim();
       
-      if (parts.length === 2) {
-        // City, State format
-        const [city, state] = parts;
-        conditions.push(
+      // Split by comma first to detect City, State format
+      const commaParts = cleanQuery.split(',').map(p => p.trim());
+      
+      // Build search conditions using OR logic for maximum flexibility
+      const searchConditions = [];
+      
+      // Always search the full query in name and management company fields
+      searchConditions.push(
+        sql`LOWER(${communities.name}) LIKE ${'%' + cleanQuery.toLowerCase() + '%'}`
+      );
+      searchConditions.push(
+        sql`LOWER(${communities.managementCompany}) LIKE ${'%' + cleanQuery.toLowerCase() + '%'}`
+      );
+      
+      // If it looks like City, State format
+      if (commaParts.length === 2) {
+        const [city, state] = commaParts;
+        // Add exact city/state match
+        searchConditions.push(
           and(
             sql`LOWER(${communities.city}) = LOWER(${city})`,
             sql`LOWER(${communities.state}) = LOWER(${state})`
           )
         );
-      } else if (parts.length === 1) {
-        // Single term - search city, state, or name
-        const term = parts[0].toLowerCase();
-        conditions.push(
-          or(
-            sql`LOWER(${communities.city}) LIKE ${'%' + term + '%'}`,
-            sql`LOWER(${communities.state}) LIKE ${'%' + term + '%'}`,
-            sql`LOWER(${communities.name}) LIKE ${'%' + term + '%'}`
-          )
+        // Also add partial matches
+        searchConditions.push(
+          sql`LOWER(${communities.city}) LIKE ${'%' + city.toLowerCase() + '%'}`
         );
       }
       
-      // Execute search
-      let searchResults = [];
-      if (conditions.length > 0) {
-        searchResults = await db
-          .select()
-          .from(communities)
-          .where(conditions[0])
-          .limit(parseInt(limit as string))
-          .offset(parseInt(offset as string));
-      }
+      // Split by spaces for individual word searching
+      const words = cleanQuery.split(' ').filter(word => word.length > 1);
+      
+      // Search each word individually in various fields
+      words.forEach(word => {
+        const lowerWord = word.toLowerCase();
+        searchConditions.push(
+          sql`LOWER(${communities.name}) LIKE ${'%' + lowerWord + '%'}`
+        );
+        searchConditions.push(
+          sql`LOWER(${communities.city}) LIKE ${'%' + lowerWord + '%'}`
+        );
+        searchConditions.push(
+          sql`LOWER(${communities.managementCompany}) LIKE ${'%' + lowerWord + '%'}`
+        );
+        // Check if word might be a state abbreviation (2 letters)
+        if (word.length === 2) {
+          searchConditions.push(
+            sql`LOWER(${communities.state}) = LOWER(${word})`
+          );
+        }
+      });
+      
+      // Execute search with OR logic - any condition can match
+      const searchResults = await db
+        .select()
+        .from(communities)
+        .where(or(...searchConditions))
+        .limit(parseInt(limit as string) * 2) // Get more results initially
+        .offset(parseInt(offset as string));
+      
+      // Score and rank results based on relevance
+      const scoredResults = searchResults.map(community => {
+        let score = 0;
+        const lowerQuery = cleanQuery.toLowerCase();
+        const lowerName = community.name.toLowerCase();
+        const lowerCity = community.city?.toLowerCase() || '';
+        const lowerManagement = community.managementCompany?.toLowerCase() || '';
+        
+        // Exact name match gets highest score
+        if (lowerName === lowerQuery) score += 100;
+        // Partial name match
+        else if (lowerName.includes(lowerQuery)) score += 50;
+        
+        // Name contains all words from query
+        if (words.every(word => lowerName.includes(word.toLowerCase()))) {
+          score += 30;
+        }
+        
+        // City match
+        if (lowerCity.includes(lowerQuery)) score += 20;
+        
+        // Management company match
+        if (lowerManagement.includes(lowerQuery)) score += 15;
+        
+        // Individual word matches
+        words.forEach(word => {
+          const lowerWord = word.toLowerCase();
+          if (lowerName.includes(lowerWord)) score += 5;
+          if (lowerCity.includes(lowerWord)) score += 3;
+          if (lowerManagement.includes(lowerWord)) score += 2;
+        });
+        
+        return { ...community, relevanceScore: score };
+      });
+      
+      // Sort by relevance score and take the requested limit
+      const rankedResults = scoredResults
+        .sort((a, b) => b.relevanceScore - a.relevanceScore)
+        .slice(0, parseInt(limit as string))
+        .map(({ relevanceScore, ...community }) => community);
       
       // Apply enrichment and pricing
       const enrichedResults = await Promise.all(
-        searchResults.map(async community => {
+        rankedResults.map(async community => {
           const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
           return eliminateCallForPricing(enriched);
         })
       );
-      
-      // If no results, try broader search
-      if (enrichedResults.length === 0 && parts.length >= 1) {
-        const fallbackResults = await db
-          .select()
-          .from(communities)
-          .where(
-            or(
-              sql`LOWER(${communities.city}) LIKE ${'%' + parts[0].toLowerCase() + '%'}`,
-              sql`LOWER(${communities.state}) = ${parts[0].toLowerCase()}`
-            )
-          )
-          .limit(20);
-          
-        const enrichedFallback = await Promise.all(
-          fallbackResults.map(async community => {
-            const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
-            return eliminateCallForPricing(enriched);
-          })
-        );
-        
-        return res.json({
-          success: true,
-          communities: enrichedFallback,
-          total: enrichedFallback.length,
-          searchMetadata: {
-            query: searchQuery,
-            searchType: 'fallback',
-            processingTime: Date.now(),
-            fallbackApplied: true,
-            fallbackMessage: `No exact matches for "${searchQuery}". Showing similar results.`
-          }
-        });
-      }
       
       res.json({
         success: true,
@@ -182,8 +217,9 @@ export function registerCommunityRoutes(app: Express) {
         total: enrichedResults.length,
         searchMetadata: {
           query: searchQuery,
-          searchType: 'location',
-          processingTime: Date.now()
+          searchType: enrichedResults.length > 0 ? 'database' : 'no_results',
+          processingTime: Date.now(),
+          resultCount: enrichedResults.length
         }
       });
       

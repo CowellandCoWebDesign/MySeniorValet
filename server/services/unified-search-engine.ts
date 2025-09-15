@@ -275,10 +275,15 @@ export class UnifiedSearchEngine {
       // This ensures company names like "Atria", "Brookdale" are found
       const rawQuery = intent.extractedEntities.query || '';
       if (rawQuery && rawQuery.trim()) {
-        const searchTerms = rawQuery.trim().split(' ').filter(term => term.length > 1);
+        // Remove common punctuation that might interfere with search
+        const cleanQuery = rawQuery.replace(/[,\-]/g, ' ').trim();
+        const searchTerms = cleanQuery.split(' ').filter(term => term.length > 1);
+        
+        const searchConditions = [];
         
         if (searchTerms.length > 0) {
-          const nameConditions = searchTerms.map(term =>
+          // Create OR conditions for each term - more permissive search
+          const termConditions = searchTerms.map(term =>
             or(
               ilike(communities.name, `%${term}%`),
               ilike(communities.managementCompany, `%${term}%`),
@@ -287,12 +292,23 @@ export class UnifiedSearchEngine {
             )
           );
           
-          // All terms must match (AND logic for multiple words)
-          if (nameConditions.length > 1) {
-            conditions.push(and(...nameConditions));
-          } else {
-            conditions.push(nameConditions[0]);
+          // Combine all term conditions with OR
+          if (termConditions.length > 0) {
+            searchConditions.push(...termConditions);
           }
+        }
+        
+        // Also try the full query as a single search term (for exact matches)
+        searchConditions.push(
+          ilike(communities.name, `%${rawQuery}%`)
+        );
+        searchConditions.push(
+          ilike(communities.managementCompany, `%${rawQuery}%`)
+        );
+        
+        // Combine all search conditions with OR logic for maximum permissiveness
+        if (searchConditions.length > 0) {
+          conditions.push(or(...searchConditions));
         }
       }
       

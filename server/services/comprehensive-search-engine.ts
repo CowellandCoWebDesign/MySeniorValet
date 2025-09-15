@@ -566,11 +566,15 @@ export class ComprehensiveSearchEngine {
       const hasCompanyConditions = intentScores.company > 0.3;
       const hasLocationConditions = intentScores.location >= 0.3 && !looksLikeCommunityName;
       
+      // CRITICAL FIX: If we extracted a community name from "Name - Location" format, ALWAYS search for it
+      const extractedCommunityName = normalizedQuery.includes(' - ');
+      
       // Only add name search if:
-      // 1. It looks like a community name
-      // 2. OR it's not clearly a location search
-      // 3. OR no other conditions were added
-      if (looksLikeCommunityName) {
+      // 1. We extracted a community name from "Name - Location" format
+      // 2. OR it looks like a community name
+      // 3. OR it's not clearly a location search
+      // 4. OR no other conditions were added
+      if (extractedCommunityName || looksLikeCommunityName) {
         // This looks like a community name, prioritize name search
         conditions.push(
           or(
