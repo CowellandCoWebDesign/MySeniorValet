@@ -91,14 +91,25 @@ export class WebSearchService {
         return await this.searchWithBing(query, maxResults, cacheKey);
       }
       
-      // Fallback to simulated relevant results for senior living queries
-      return await this.generateSimulatedResults(query, maxResults, cacheKey);
+      // No API configured - return empty results (Golden Data Rule: no fake data)
+      console.log('⚠️ No web search API configured - returning empty results');
+      return {
+        query,
+        results: [],
+        sources: [],
+        timestamp: new Date().toISOString()
+      };
       
     } catch (error: any) {
       console.error('❌ Web search error:', error.message);
       
-      // Always provide fallback results
-      return await this.generateSimulatedResults(query, maxResults, cacheKey);
+      // Return empty results on error (Golden Data Rule: no fake data)
+      return {
+        query,
+        results: [],
+        sources: [],
+        timestamp: new Date().toISOString()
+      };
     }
   }
 
@@ -182,9 +193,12 @@ export class WebSearchService {
   }
 
   /**
-   * Generate simulated but relevant results for senior living queries
+   * REMOVED: generateSimulatedResults method
+   * Violates Golden Data Rule - no synthetic/mock data allowed
+   * Returns empty results when no API is configured
    */
-  private static async generateSimulatedResults(query: string, maxResults: number, cacheKey: string): Promise<WebSearchResponse> {
+  // Method removed to comply with Golden Data Rule
+  private static async generateSimulatedResults_REMOVED(query: string, maxResults: number, cacheKey: string): Promise<WebSearchResponse> {
     const queryLower = query.toLowerCase();
     const results: SearchResult[] = [];
     

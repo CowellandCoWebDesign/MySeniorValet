@@ -12,10 +12,14 @@ export class GrokAIService {
     try {
       console.log('🤖 Grok AI Request:', { query: query.substring(0, 100), hasContext: !!context });
       
-      // If Grok is not configured, provide simulated response
+      // If Grok is not configured, return error (Golden Data Rule: no fake data)
       if (!grok) {
-        console.log('⚠️ Grok API not configured, using simulated response');
-        return await this.simulateGrokResponse(query, context);
+        console.log('⚠️ Grok API not configured');
+        return {
+          success: false,
+          error: 'Grok API key not configured',
+          aiService: 'Grok AI (xAI)'
+        };
       }
       
       // Perform web search first to get real-time data
@@ -80,21 +84,22 @@ IMPORTANT: You have access to real-time data. Always provide the most current in
     } catch (error: any) {
       console.error('❌ Grok AI Error:', error.message);
       
-      // Check if it's an authentication error
-      if (error?.message?.includes('401') || error?.message?.includes('authentication')) {
-        console.log('🔄 Grok authentication failed, using simulated response');
-        return await this.simulateGrokResponse(query, context);
-      }
-      
-      // Fallback to simulated response
-      return await this.simulateGrokResponse(query, context);
+      // Return error (Golden Data Rule: no fake data)
+      return {
+        success: false,
+        error: error.message || 'Grok service temporarily unavailable',
+        aiService: 'Grok AI (xAI)'
+      };
     }
   }
 
   /**
-   * Simulate Grok response when API is not available
+   * REMOVED: simulateGrokResponse method
+   * Violates Golden Data Rule - no synthetic/mock data allowed
+   * Returns error when API is not configured
    */
-  private static async simulateGrokResponse(query: string, context?: string): Promise<any> {
+  // Method removed to comply with Golden Data Rule
+  private static async simulateGrokResponse_REMOVED(query: string, context?: string): Promise<any> {
     try {
       // Get web search results
       const searchResponse = await WebSearchService.searchWeb(query, 5);

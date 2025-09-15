@@ -3,6 +3,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { WebSearchService } from './services/web-search-service';
 import { GeminiAIService } from './gemini-ai-service';
 import { GrokAIService } from './grok-ai-service';
+import { DeepSeekAIService } from './deepseek-ai-service';
 
 // Initialize Claude as fallback
 const anthropic = new Anthropic({
@@ -133,15 +134,23 @@ export class PerplexityAIService {
       }
     }
 
-    // TIER 5: Fallback to Claude (NO WEB SEARCH)
-    if (this.claudeApiKey) {
-      console.log('🔄 Tier 5: Falling back to Claude (no web search)...');
+    // TIER 5: Try DeepSeek R1 with web search (ULTRA LOW COST)
+    if (process.env.DEEPSEEK_API_KEY) {
+      console.log('🧠 Tier 5: Attempting DeepSeek R1 (ultra-low cost)...');
       try {
-        const result = await this.callClaudeForSearch(query, context);
-        console.log('✅ Claude search successful');
-        return { ...result, aiService: 'Claude AI (No Web Search)' };
+        const deepseekResult = await DeepSeekAIService.searchAndAnalyze(query, context);
+        
+        if (deepseekResult.success) {
+          console.log('✅ DeepSeek R1 search successful');
+          return {
+            summary: deepseekResult.content,
+            sources: deepseekResult.sources || [],
+            images: [],
+            aiService: deepseekResult.aiService || 'DeepSeek R1 (Ultra-Low Cost)'
+          };
+        }
       } catch (error: any) {
-        console.error('❌ Tier 5 Claude also failed:', error.message);
+        console.error('❌ Tier 5 DeepSeek failed:', error.message);
       }
     }
 

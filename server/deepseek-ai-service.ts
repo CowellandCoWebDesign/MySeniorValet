@@ -14,10 +14,14 @@ export class DeepSeekAIService {
     try {
       console.log('🧠 DeepSeek R1 Request:', { query: query.substring(0, 100), hasContext: !!context });
       
-      // If DeepSeek is not configured, provide simulated response
+      // If DeepSeek is not configured, return error (Golden Data Rule: no fake data)
       if (!deepseek) {
-        console.log('⚠️ DeepSeek API not configured, using simulated response');
-        return await this.simulateDeepSeekResponse(query, context);
+        console.log('⚠️ DeepSeek API not configured');
+        return {
+          success: false,
+          error: 'DeepSeek API key not configured',
+          aiService: 'DeepSeek R1'
+        };
       }
       
       // Perform web search first to enhance DeepSeek's reasoning
@@ -92,21 +96,22 @@ IMPORTANT: Base your analysis on the provided web search results. Reference spec
     } catch (error: any) {
       console.error('❌ DeepSeek AI Error:', error.message);
       
-      // Check if it's an authentication error
-      if (error?.message?.includes('401') || error?.message?.includes('authentication')) {
-        console.log('🔄 DeepSeek authentication failed, using simulated response');
-        return await this.simulateDeepSeekResponse(query, context);
-      }
-      
-      // Fallback to simulated response
-      return await this.simulateDeepSeekResponse(query, context);
+      // Return error (Golden Data Rule: no fake data)
+      return {
+        success: false,
+        error: error.message || 'DeepSeek service temporarily unavailable',
+        aiService: 'DeepSeek R1'
+      };
     }
   }
 
   /**
-   * Simulate DeepSeek response when API is not available
+   * REMOVED: simulateDeepSeekResponse method
+   * Violates Golden Data Rule - no synthetic/mock data allowed
+   * Returns error when API is not configured
    */
-  private static async simulateDeepSeekResponse(query: string, context?: string): Promise<any> {
+  // Method removed to comply with Golden Data Rule
+  private static async simulateDeepSeekResponse_REMOVED(query: string, context?: string): Promise<any> {
     try {
       // Get web search results
       const searchResponse = await WebSearchService.searchWeb(query, 8);
