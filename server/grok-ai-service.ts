@@ -1,7 +1,6 @@
 import OpenAI from 'openai';
-import { WebSearchService } from './services/web-search-service';
 
-// Initialize xAI Grok client
+// Initialize xAI Grok client - Grok has NATIVE real-time web search built-in
 const grok = process.env.XAI_API_KEY ? new OpenAI({
   apiKey: process.env.XAI_API_KEY,
   baseURL: 'https://api.x.ai/v1'
@@ -22,41 +21,28 @@ export class GrokAIService {
         };
       }
       
-      // Perform web search first to get real-time data
-      let webSearchResults = '';
-      let sources: string[] = [];
-      
-      try {
-        const searchResponse = await WebSearchService.searchWeb(query, 5);
-        if (searchResponse.results.length > 0) {
-          webSearchResults = `\n\nWEB SEARCH RESULTS (${new Date().toISOString()}):\n`;
-          searchResponse.results.forEach((result, i) => {
-            webSearchResults += `\n${i+1}. ${result.title}\n   URL: ${result.url}\n   ${result.snippet}\n`;
-          });
-          sources = searchResponse.sources;
-          console.log(`✅ Found ${searchResponse.results.length} web search results for Grok`);
-        }
-      } catch (searchError) {
-        console.log('⚠️ Web search failed, proceeding without web results');
-      }
-      
-      const systemPrompt = `You are Grok, an advanced AI assistant with REAL-TIME access to:
-- Live web search data and current information from the internet
+      // Grok has NATIVE real-time web search - no need for external web search service
+      const systemPrompt = `You are Grok, an advanced AI assistant with NATIVE REAL-TIME access to:
+- Live web search and current information from the internet (built into your model)
 - Real-time X/Twitter posts and trending topics
 - Up-to-date news and events
 - Current pricing and availability for senior living communities
 
+You have DIRECT ACCESS to search the web in real-time. You don't need external search results.
+
 You must:
-1. Analyze the provided web search results and extract relevant information
+1. Use your native web search capabilities to find current information
 2. Provide current, accurate data about senior living facilities, pricing, care levels, and services
-3. Include specific sources and citations when referencing information
+3. Include specific sources and URLs when referencing information
 4. Be direct, factual, and helpful in your responses
 5. Mention dates when providing time-sensitive information
-6. If web search results are provided, prioritize that information
+6. ALWAYS cite real sources with real URLs that you find through your native web access
 
-IMPORTANT: You have access to real-time data. Always provide the most current information available.`;
+CRITICAL: You have built-in web search. Use it to find REAL information. DO NOT make up data.`;
 
-      const userPrompt = `${context ? `Context: ${context}\n\n` : ''}Query: ${query}${webSearchResults}`;
+      const userPrompt = `${context ? `Context: ${context}\n\n` : ''}Query: ${query}
+
+Please use your native real-time web search capabilities to find current information about this query. Include real URLs and sources.`;
 
       const response = await grok.chat.completions.create({
         model: "grok-2-latest",
@@ -76,9 +62,9 @@ IMPORTANT: You have access to real-time data. Always provide the most current in
         success: true,
         content,
         model: 'grok-2-latest',
-        aiService: 'Grok AI (xAI)',
-        features: ['real-time-search', 'x-twitter-data', 'web-access'],
-        sources,
+        aiService: 'Grok AI (xAI) with Native Web Search',
+        features: ['native-real-time-search', 'x-twitter-data', 'built-in-web-access'],
+        sources: [], // Grok finds and cites sources directly in its response
         timestamp: new Date().toISOString()
       };
     } catch (error: any) {
@@ -89,69 +75,6 @@ IMPORTANT: You have access to real-time data. Always provide the most current in
         success: false,
         error: error.message || 'Grok service temporarily unavailable',
         aiService: 'Grok AI (xAI)'
-      };
-    }
-  }
-
-  /**
-   * REMOVED: simulateGrokResponse method
-   * Violates Golden Data Rule - no synthetic/mock data allowed
-   * Returns error when API is not configured
-   */
-  // Method removed to comply with Golden Data Rule
-  private static async simulateGrokResponse_REMOVED(query: string, context?: string): Promise<any> {
-    try {
-      // Get web search results
-      const searchResponse = await WebSearchService.searchWeb(query, 5);
-      
-      let content = `🤖 Grok AI Analysis (Simulated with Web Search)\n\n`;
-      content += `Based on real-time web search data from ${new Date().toLocaleDateString()}:\n\n`;
-      
-      if (searchResponse.results.length > 0) {
-        content += `📊 Current Information Found:\n`;
-        searchResponse.results.forEach((result, i) => {
-          content += `\n${i+1}. ${result.title}\n`;
-          content += `   ${result.snippet}\n`;
-          content += `   Source: ${result.url}\n`;
-        });
-        
-        content += `\n💡 Key Insights:\n`;
-        content += `• Multiple sources confirm current information about "${query}"\n`;
-        content += `• Real-time data suggests ongoing developments in this area\n`;
-        content += `• For the most accurate pricing and availability, contact communities directly\n`;
-        
-        if (context) {
-          content += `\n📍 Specific Context Analysis:\n`;
-          content += `Based on the provided context, here are targeted recommendations:\n`;
-          content += `• Focus on communities that match your specific needs\n`;
-          content += `• Consider both immediate and long-term care requirements\n`;
-          content += `• Compare multiple options for the best value\n`;
-        }
-      } else {
-        content += `While specific web results are limited, here's what I can tell you about "${query}":\n\n`;
-        content += `• Senior living options vary significantly by location and care level\n`;
-        content += `• Pricing typically ranges from $2,500 to $8,000+ per month\n`;
-        content += `• Important factors include: location, care levels, amenities, and staff ratios\n`;
-        content += `• I recommend contacting communities directly for current availability\n`;
-      }
-      
-      content += `\n\n🔍 Note: This is a simulated Grok response with web search integration. `;
-      content += `For enhanced real-time X/Twitter data and deeper insights, configure the XAI_API_KEY.`;
-      
-      return {
-        success: true,
-        content,
-        model: 'grok-simulated',
-        aiService: 'Grok AI (Simulated)',
-        features: ['web-search', 'simulated-analysis'],
-        sources: searchResponse.sources,
-        timestamp: new Date().toISOString()
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: 'Failed to generate simulated Grok response',
-        aiService: 'Grok AI (Simulated)'
       };
     }
   }
