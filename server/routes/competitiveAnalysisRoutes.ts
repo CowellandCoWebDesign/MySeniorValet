@@ -43,8 +43,20 @@ router.post('/api/competitive-analysis', async (req, res) => {
           }
         }
         
-        // NO RATE LIMITING - Always allow fetching if needed
-        // Rate limiting completely removed to allow unrestricted searching
+        // MINIMAL PROTECTION - Only prevent truly runaway calls (10 seconds)
+        if (needsFetch && !forceRefresh && community.lastEnrichmentAttempt) {
+          const lastAttempt = new Date(community.lastEnrichmentAttempt);
+          const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
+          
+          if (lastAttempt > tenSecondsAgo) {
+            console.log(`⚡ Runaway protection: ${community.name} was just enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago`);
+            // Return cached data if available to prevent mass API calls
+            if (community.enrichmentData) {
+              intelligence = community.enrichmentData;
+              needsFetch = false;
+            }
+          }
+        }
         
         // FETCH NEW DATA if needed
         if (needsFetch) {
