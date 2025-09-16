@@ -193,6 +193,13 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setDataIsFresh(false);
     setShowRefreshButton(false);
     
+    // CRITICAL: Only auto-load if explicitly enabled to prevent excessive API calls
+    if (!autoLoad) {
+      console.log('⏸️ Auto-enrichment disabled for competitive analysis to prevent API costs');
+      setShowRefreshButton(true); // Show manual refresh button
+      return;
+    }
+    
     // Only auto-fetch if autoLoad is true AND we don't have fresh cached data
     if (autoLoad) {
       fetchAnalysis(false); // Pass false to check cache first
@@ -335,6 +342,14 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   
   // Trigger verification when component mounts (only once) - USING CACHE TO PREVENT DUPLICATES
   useEffect(() => {
+    // CRITICAL: Disable auto-verification in RealTimeInsights to prevent duplicate API calls
+    const enableAutoVerification = false; // Disabled to prevent API costs
+    
+    if (!enableAutoVerification) {
+      console.log('⏸️ RealTimeInsights auto-verification disabled to prevent API costs');
+      return;
+    }
+    
     if (community?.id && !hasStartedVerification && !localVerificationReport) {
       setHasStartedVerification(true);
       setIsVerifying(true);
@@ -1186,6 +1201,14 @@ export default function CommunityDetail() {
 
   // Trigger verification immediately when community loads
   React.useEffect(() => {
+    // CRITICAL: Disable auto-verification to prevent excessive API calls
+    const enableAutoVerification = false; // Set to true only when needed
+    
+    if (!enableAutoVerification) {
+      console.log('⏸️ Auto-verification disabled to prevent API costs. Enable manually if needed.');
+      return;
+    }
+    
     if (community?.id && !hasStartedVerification && !verificationReport) {
       console.log('🚀 Starting photo and data verification for community:', community.name);
       setHasStartedVerification(true);
