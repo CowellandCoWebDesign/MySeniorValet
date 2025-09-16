@@ -612,8 +612,8 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">📋</span>
-                  <span>List</span>
+                  <span className="text-xs sm:text-sm">🔍</span>
+                  <span>Database Search</span>
                 </button>
                 <button
                   type="button"
@@ -636,8 +636,8 @@ function HeroSectionWithTransformingSearch() {
                       : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
                   }`}
                 >
-                  <span className="text-xs sm:text-sm">🔮</span>
-                  <span>Discovery mode</span>
+                  <span className="text-xs sm:text-sm">🌍</span>
+                  <span>Discovery Search</span>
                 </button>
               </div>
             </div>
