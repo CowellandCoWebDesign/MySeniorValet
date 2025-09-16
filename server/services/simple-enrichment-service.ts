@@ -100,14 +100,14 @@ export class SimpleEnrichmentService {
       }
     }
     
-    // Step 4: Rate limiting - prevent frequent refreshes
+    // Step 4: Soft rate limiting - only for very rapid requests (5 minutes)
     if (!forceRefresh && community.lastEnrichmentAttempt) {
       const lastAttempt = new Date(community.lastEnrichmentAttempt);
-      const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
       
-      if (lastAttempt > hourAgo) {
-        console.log(`⏳ Rate limited: ${community.name} was enriched less than 1 hour ago`);
-        // Return existing data if available, even if expired
+      if (lastAttempt > fiveMinutesAgo) {
+        console.log(`🔄 Soft rate limit: ${community.name} was enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago`);
+        // Always return existing data if available to avoid blocking UI
         if (community.enrichmentData) {
           const cachedResult: SimpleEnrichmentResult = {
             communityId: community.id,
@@ -121,10 +121,11 @@ export class SimpleEnrichmentService {
             photos: community.enrichmentData.photos || [],
             searchResults: community.enrichmentData.searchResults
           };
+          console.log(`✅ Returning cached data to avoid blocking UI`);
           return cachedResult;
         }
-        // Return minimal data if no cached data exists
-        return this.createMinimalResult(community);
+        // If no cached data, proceed with fetch anyway to avoid empty response
+        console.log(`⚠️ No cached data available, proceeding with fetch despite recent attempt`);
       }
     }
     
@@ -178,7 +179,7 @@ export class SimpleEnrichmentService {
     };
     
     // Step 10: Save to DATABASE for persistent caching
-    const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+    const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
     
     const enrichmentData = {
       verificationStatus: result.verificationStatus,
@@ -192,21 +193,31 @@ export class SimpleEnrichmentService {
       validUntil: expiryDate.toISOString()
     };
     
+    // Update both enrichmentData AND persist photos to main column
+    const updateData: any = {
+      enrichmentData: enrichmentData,
+      enrichmentDataExpiry: expiryDate,
+      lastEnrichmentDate: new Date(),
+      enrichmentStatus: result.verificationStatus === 'verified' ? 'completed' : 'partial',
+      enrichmentCompleted: result.verificationStatus === 'verified'
+    };
+    
+    // PERSIST PHOTOS to main column for durability
+    if (result.photos && result.photos.length > 0) {
+      updateData.photos = result.photos;
+      updateData.lastPhotoUpdate = new Date();
+      console.log(`📸 Persisting ${result.photos.length} photos to main photos column`);
+    }
+    
     await db
       .update(communities)
-      .set({
-        enrichmentData: enrichmentData,
-        enrichmentDataExpiry: expiryDate,
-        lastEnrichmentDate: new Date(),
-        enrichmentStatus: result.verificationStatus === 'verified' ? 'completed' : 'partial',
-        enrichmentCompleted: result.verificationStatus === 'verified'
-      })
+      .set(updateData)
       .where(eq(communities.id, communityId));
     
     console.log(`💾 Saved enrichment data to database, expires: ${expiryDate}`);
     
     // Step 11: Also cache in memory for faster access
-    enrichmentCache.set(`enrich:${communityId}`, result, 7 * 24 * 60 * 60 * 1000);
+    enrichmentCache.set(`enrich:${communityId}`, result, 30 * 24 * 60 * 60 * 1000);
     
     console.log(`✅ Enrichment complete: ${photos.length} photos, ${result.verificationStatus} status`);
     

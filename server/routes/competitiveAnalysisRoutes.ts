@@ -43,23 +43,20 @@ router.post('/api/competitive-analysis', async (req, res) => {
           }
         }
         
-        // RATE LIMITING - Prevent frequent refreshes
+        // SOFT RATE LIMITING - Return cached data if available, only prevent rapid API calls
         if (needsFetch && !forceRefresh && community.lastEnrichmentAttempt) {
           const lastAttempt = new Date(community.lastEnrichmentAttempt);
-          const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
           
-          if (lastAttempt > hourAgo) {
-            console.log(`⏳ Rate limited: ${community.name} was enriched less than 1 hour ago`);
-            // Return cached data even if expired, or empty response
+          if (lastAttempt > fiveMinutesAgo) {
+            console.log(`🔄 Returning cached data for ${community.name} (last enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago)`);
+            // Always return cached data if available (even if expired)
             if (community.enrichmentData) {
               intelligence = community.enrichmentData;
               needsFetch = false;
             } else {
-              return res.status(429).json({
-                error: 'Rate limited',
-                message: 'Please wait at least 1 hour between enrichment attempts',
-                nextAllowedTime: new Date(lastAttempt.getTime() + 60 * 60 * 1000)
-              });
+              // If no cached data at all, still try to fetch but log the rapid attempt
+              console.log(`⚠️ No cached data available, allowing fetch despite recent attempt`);
             }
           }
         }
@@ -99,8 +96,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
             );
           }
           
-          // SAVE TO DATABASE - Cache for 7 days
-          const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+          // SAVE TO DATABASE - Cache for 30 days
+          const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
           
           await db
             .update(communities)
