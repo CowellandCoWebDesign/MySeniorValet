@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -58,7 +59,8 @@ import {
   UserPlus,
   Video,
   Receipt,
-  Calculator
+  Calculator,
+  Briefcase
 } from 'lucide-react';
 
 export default function FamilyCollaborationCenter() {
@@ -66,11 +68,13 @@ export default function FamilyCollaborationCenter() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
+  const { user, isLoading: authLoading } = useAuth();
 
-  // Fetch family messages
+  // Only fetch data if user is authenticated
   const { data: messagesData, isLoading: messagesLoading } = useQuery({
     queryKey: ['/api/family/messages'],
     refetchInterval: 5000, // Poll for updates every 5 seconds
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Send message mutation
@@ -93,11 +97,13 @@ export default function FamilyCollaborationCenter() {
   // Fetch upcoming tours from the API
   const { data: upcomingTours = [], isLoading: toursLoading } = useQuery({
     queryKey: ['/api/tours'],
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Fetch visit history from the API
   const { data: visitHistory = [], isLoading: historyLoading } = useQuery({
     queryKey: ['/api/family/visit-history'],
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Format messages from API data
@@ -113,7 +119,55 @@ export default function FamilyCollaborationCenter() {
   // Fetch shared favorites from the API
   const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery({
     queryKey: ['/api/family/shared-favorites'],
+    enabled: !!user, // Only run query if user is authenticated
   });
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        <NavigationHeader />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show login prompt if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        <NavigationHeader />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <Card className="max-w-md w-full mx-4">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold">Sign In Required</CardTitle>
+              <CardDescription>
+                Please sign in to access the Family Collaboration Center
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-center text-gray-600">
+                The Family Collaboration Center allows you to coordinate care decisions with your loved ones.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button onClick={() => setLocation('/login')} className="bg-blue-600 hover:bg-blue-700">
+                  Sign In
+                </Button>
+                <Button onClick={() => setLocation('/signup')} variant="outline">
+                  Create Account
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">

@@ -926,4 +926,70 @@ router.get("/decisions/:groupId", async (req: Request, res: Response) => {
   }
 });
 
+// Get visit history for family members
+router.get("/visit-history", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    
+    // Get completed tours for the user
+    const completedTours = await db.select({
+      id: tours.id,
+      date: tours.date,
+      status: tours.status,
+      notes: tours.notes,
+      communityId: tours.communityId,
+      communityName: communities.name,
+      communityAddress: communities.address,
+      communityCity: communities.city,
+      communityState: communities.state
+    })
+      .from(tours)
+      .leftJoin(communities, eq(tours.communityId, communities.id))
+      .where(and(
+        eq(tours.userId, userId),
+        eq(tours.status, 'completed')
+      ))
+      .orderBy(desc(tours.date))
+      .limit(20);
+    
+    res.json(completedTours);
+  } catch (error) {
+    console.error("Error fetching visit history:", error);
+    res.status(500).json({ error: "Failed to fetch visit history" });
+  }
+});
+
+// Get shared favorites for family
+router.get("/shared-favorites", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    
+    // Get user's favorites with community details
+    const userFavorites = await db.select({
+      id: favorites.id,
+      communityId: favorites.communityId,
+      notes: favorites.notes,
+      tags: favorites.tags,
+      rating: favorites.rating,
+      name: communities.name,
+      address: communities.address,
+      city: communities.city,
+      state: communities.state,
+      priceMin: communities.priceMin,
+      priceMax: communities.priceMax,
+      careTypes: communities.careTypes
+    })
+      .from(favorites)
+      .leftJoin(communities, eq(favorites.communityId, communities.id))
+      .where(eq(favorites.userId, userId))
+      .orderBy(desc(favorites.createdAt))
+      .limit(20);
+    
+    res.json(userFavorites);
+  } catch (error) {
+    console.error("Error fetching shared favorites:", error);
+    res.status(500).json({ error: "Failed to fetch shared favorites" });
+  }
+});
+
 export default router;
