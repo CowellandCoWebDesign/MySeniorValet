@@ -69,7 +69,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
   const [dataIsFresh, setDataIsFresh] = useState(false);
-  const [showRefreshButton, setShowRefreshButton] = useState(false);
+  const [showRefreshButton, setShowRefreshButton] = useState(!autoLoad); // Show button immediately if not auto-loading
   
   const fetchAnalysis = async (forceRefresh: boolean = false) => {
     if (!community?.city || !community?.state) return;
@@ -190,12 +190,12 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setAnalysis(null);
     setIsExpanded(true);
     setDataIsFresh(false);
-    setShowRefreshButton(false);
+    // Don't reset showRefreshButton here - it's set based on autoLoad prop
     
     // CRITICAL: Only auto-load if explicitly enabled to prevent excessive API calls
     if (!autoLoad) {
       console.log('⏸️ Auto-enrichment disabled for competitive analysis to prevent API costs');
-      setShowRefreshButton(true); // Show manual refresh button
+      setShowRefreshButton(true); // Ensure button is shown
       return;
     }
     
@@ -205,8 +205,18 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
   
+  // Debug logging
+  console.log('CommunityCompetitiveAnalysis render:', {
+    isLoading,
+    hasAnalysis: !!analysis,
+    showRefreshButton,
+    autoLoad,
+    community: community?.name
+  });
+  
   // If no analysis yet and not loading, show button to fetch it
   if (!isLoading && !analysis && showRefreshButton) {
+    console.log('Showing Load Market Analysis button');
     return (
       <Card className="mb-6">
         <CardHeader>
