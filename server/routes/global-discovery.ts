@@ -217,7 +217,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar-pro', // Keep Pro for Discovery Mode for comprehensive results
           messages: [
             {
               role: 'system',
@@ -228,6 +228,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               content: searchQuery + ' Provide the response as structured JSON data with ALL facilities found, not just examples. Include every single facility you can find.'
             }
           ],
+          web_search_options: {
+            search_context_size: 'low' // Use low context to reduce costs
+          },
           response_format: {
             type: 'json_schema',
             json_schema: {
@@ -693,11 +696,14 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'sonar-pro',
+            model: 'sonar-pro', // Keep Pro for Discovery Mode
             messages: [
               { role: 'system', content: 'List senior living facilities with accurate details.' },
               { role: 'user', content: perplexityQuery }
             ],
+            web_search_options: {
+              search_context_size: 'low' // Use low context to reduce costs
+            },
             temperature: 0.1,
             max_tokens: 2000
           })
