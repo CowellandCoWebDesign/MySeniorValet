@@ -1,9 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, Star, 
          MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
 
 interface RedTagDeal {
   id: number;
@@ -19,8 +22,19 @@ interface RedTagDeal {
 }
 
 export function RedTagDeals() {
-  // Featured exceptional communities
-  const redTagDeals: RedTagDeal[] = [
+  const [fallbackDeals, setFallbackDeals] = useState<RedTagDeal[]>([]);
+  
+  // Fetch featured communities from API
+  const { data: featuredCommunities, isLoading, error } = useQuery({
+    queryKey: ['/api/featured-communities'],
+    retry: 1,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+  
+  // Set up fallback deals on mount
+  useEffect(() => {
+    // Fallback featured communities in case API returns nothing
+    const defaultDeals: RedTagDeal[] = [
     {
       id: 51463,
       communityName: "Atria La Jolla",
@@ -58,6 +72,24 @@ export function RedTagDeals() {
       whyFeatured: ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"]
     }
   ];
+    setFallbackDeals(defaultDeals);
+  }, []);
+  
+  // Transform API data to RedTagDeal format or use fallback
+  const redTagDeals: RedTagDeal[] = featuredCommunities?.length > 0
+    ? featuredCommunities.map((featured: any) => ({
+        id: featured.community?.id || featured.communityId,
+        communityName: featured.featuredTitle || featured.community?.name || 'Community',
+        location: featured.community ? `${featured.community.city}, ${featured.community.state}` : 'Location',
+        dealType: featured.dealType || 'Premium Living',
+        highlights: featured.highlights || [],
+        rating: featured.community?.rating || 4.5,
+        heroImage: featured.heroImage || featured.community?.photos?.[0] || "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg",
+        availability: featured.availability || "Available Now",
+        amenities: featured.community?.amenities?.slice(0, 4) || [],
+        whyFeatured: featured.whyFeatured || [],
+      }))
+    : fallbackDeals;
 
   const getAmenityIcon = (amenity: string) => {
     if (amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('lake') || amenity.toLowerCase().includes('mountain')) 
@@ -73,6 +105,30 @@ export function RedTagDeals() {
     return <CheckCircle className="w-2.5 h-2.5 text-green-600" />;
   };
 
+  // Show loading skeleton while fetching
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center mb-4">
+          <Skeleton className="h-8 w-96 mx-auto mb-3" />
+          <Skeleton className="h-6 w-64 mx-auto" />
+        </div>
+        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="overflow-hidden">
+              <Skeleton className="h-40 w-full" />
+              <CardContent className="p-4 space-y-3">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-20 w-full" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  
   return (
     <div className="space-y-4">
       <div className="text-center mb-4">

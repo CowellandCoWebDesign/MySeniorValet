@@ -124,6 +124,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const aiChatRoutes = await import('./routes/ai-chat-routes');
   app.use('/api', aiChatRoutes.default);
   
+  // Register featured communities routes
+  app.get('/api/featured-communities', async (req, res) => {
+    try {
+      const featured = await storage.getFeaturedCommunities();
+      
+      // Join with community data to get full details
+      const fullFeatured = await Promise.all(featured.map(async (f) => {
+        const community = await storage.getCommunity(f.communityId);
+        return {
+          ...f,
+          community
+        };
+      }));
+      
+      // Only return top 3 for the Red Tag Deals section
+      res.json(fullFeatured.slice(0, 3));
+    } catch (error) {
+      console.error('Error fetching featured communities:', error);
+      res.status(500).json({ error: 'Failed to fetch featured communities' });
+    }
+  });
+  
+  // Admin endpoints for managing featured communities
+  app.post('/api/admin/featured-communities', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const featuredData = req.body;
+      featuredData.createdBy = req.user?.id;
+      const newFeatured = await storage.createFeaturedCommunity(featuredData);
+      res.json(newFeatured);
+    } catch (error) {
+      console.error('Error creating featured community:', error);
+      res.status(500).json({ error: 'Failed to create featured community' });
+    }
+  });
+  
+  app.put('/api/admin/featured-communities/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const updated = await storage.updateFeaturedCommunity(Number(id), updates);
+      if (!updated) {
+        return res.status(404).json({ error: 'Featured community not found' });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating featured community:', error);
+      res.status(500).json({ error: 'Failed to update featured community' });
+    }
+  });
+  
+  app.delete('/api/admin/featured-communities/:id', isAuthenticated, isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deactivated = await storage.deactivateFeaturedCommunity(Number(id));
+      if (!deactivated) {
+        return res.status(404).json({ error: 'Featured community not found' });
+      }
+      res.json({ message: 'Featured community deactivated successfully' });
+    } catch (error) {
+      console.error('Error deactivating featured community:', error);
+      res.status(500).json({ error: 'Failed to deactivate featured community' });
+    }
+  });
+  
   // Register sitemap generation for SEO
   const sitemapGenerator = await import('./sitemap-generator');
   app.get('/sitemap.xml', sitemapGenerator.generateSitemap);

@@ -1,7 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
-  removalRequests, auditLogs,
+  removalRequests, auditLogs, featuredCommunities,
   type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
@@ -17,7 +17,8 @@ import {
   marketplaceCategories, marketplaceVendors, marketplaceVendorClicks,
   type MarketplaceCategory, type InsertMarketplaceCategory,
   type MarketplaceVendor, type InsertMarketplaceVendor,
-  type MarketplaceVendorClick, type InsertMarketplaceVendorClick
+  type MarketplaceVendorClick, type InsertMarketplaceVendorClick,
+  type SelectFeaturedCommunity, type InsertFeaturedCommunity
 } from "@shared/schema";
 import { db } from "./db";
 
@@ -121,6 +122,13 @@ export interface IStorage {
   getLeads(params: { status?: string; priority?: string; page?: number; limit?: number }): Promise<Lead[]>;
   updateLead(id: number, updates: Partial<InsertLead>): Promise<Lead | undefined>;
   addLeadActivity(activity: InsertLeadActivity): Promise<LeadActivity>;
+
+  // Featured Communities methods
+  getFeaturedCommunities(): Promise<SelectFeaturedCommunity[]>;
+  getFeaturedCommunity(communityId: number): Promise<SelectFeaturedCommunity | undefined>;
+  createFeaturedCommunity(featured: InsertFeaturedCommunity): Promise<SelectFeaturedCommunity>;
+  updateFeaturedCommunity(id: number, updates: Partial<InsertFeaturedCommunity>): Promise<SelectFeaturedCommunity | undefined>;
+  deactivateFeaturedCommunity(id: number): Promise<boolean>;
 
   // Claim system methods
   createClaim(claim: any): Promise<any>;
@@ -1946,6 +1954,62 @@ export class DatabaseStorage implements IStorage {
       .values(activity)
       .returning();
     return newActivity;
+  }
+
+  // Featured Communities methods
+  async getFeaturedCommunities(): Promise<SelectFeaturedCommunity[]> {
+    const featured = await db
+      .select()
+      .from(featuredCommunities)
+      .where(
+        and(
+          eq(featuredCommunities.isActive, true),
+          eq(featuredCommunities.showInRedTagDeals, true),
+          or(
+            // No end date means permanent
+            sql`${featuredCommunities.endDate} IS NULL`,
+            // Or end date is in the future
+            gte(featuredCommunities.endDate, new Date())
+          )
+        )
+      )
+      .orderBy(featuredCommunities.displayOrder);
+    return featured;
+  }
+
+  async getFeaturedCommunity(communityId: number): Promise<SelectFeaturedCommunity | undefined> {
+    const [featured] = await db
+      .select()
+      .from(featuredCommunities)
+      .where(eq(featuredCommunities.communityId, communityId))
+      .limit(1);
+    return featured;
+  }
+
+  async createFeaturedCommunity(featured: InsertFeaturedCommunity): Promise<SelectFeaturedCommunity> {
+    const [newFeatured] = await db
+      .insert(featuredCommunities)
+      .values(featured)
+      .returning();
+    return newFeatured;
+  }
+
+  async updateFeaturedCommunity(id: number, updates: Partial<InsertFeaturedCommunity>): Promise<SelectFeaturedCommunity | undefined> {
+    const [updatedFeatured] = await db
+      .update(featuredCommunities)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(featuredCommunities.id, id))
+      .returning();
+    return updatedFeatured;
+  }
+
+  async deactivateFeaturedCommunity(id: number): Promise<boolean> {
+    const result = await db
+      .update(featuredCommunities)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(featuredCommunities.id, id))
+      .returning();
+    return result.length > 0;
   }
 
   // Claim system methods

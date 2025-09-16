@@ -212,6 +212,53 @@ export const userSessions = pgTable("user_sessions", {
   index("user_sessions_expires_at_idx").on(table.expiresAt),
 ]);
 
+// Featured Communities Table - For tracking paid/featured community subscriptions
+export const featuredCommunities = pgTable("featured_communities", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull().unique(),
+  
+  // Subscription Details
+  subscriptionTier: text("subscription_tier", {
+    enum: ["basic", "premium", "excellence"]
+  }).notNull().default("premium"),
+  startDate: timestamp("start_date").defaultNow().notNull(),
+  endDate: timestamp("end_date"), // NULL means active/no expiry
+  isActive: boolean("is_active").default(true).notNull(),
+  
+  // Featured Content
+  featuredTitle: text("featured_title"), // Custom title for the feature card
+  highlights: text("highlights").array().default([]), // Key selling points
+  whyFeatured: text("why_featured").array().default([]), // Reasons for featuring
+  dealType: text("deal_type"), // e.g., "Premium Coastal Living", "Healthcare Excellence"
+  heroImage: text("hero_image"), // Custom hero image URL if different from community photos
+  availability: text("availability", {
+    enum: ["Available Now", "Move-in Ready", "Limited Spots", "Waitlist"]
+  }).default("Available Now"),
+  
+  // Billing Information
+  monthlyFee: decimal("monthly_fee", { precision: 10, scale: 2 }),
+  billingEmail: text("billing_email"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  
+  // Display Settings
+  displayOrder: integer("display_order").default(999), // Lower numbers show first
+  showInRedTagDeals: boolean("show_in_red_tag_deals").default(true), // Whether to show in featured section
+  
+  // Tracking
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+}, (table) => [
+  index("idx_featured_communities_active").on(table.isActive),
+  index("idx_featured_communities_end_date").on(table.endDate),
+  index("idx_featured_communities_display_order").on(table.displayOrder),
+]);
+
+export const insertFeaturedCommunitySchema = createInsertSchema(featuredCommunities)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertFeaturedCommunity = z.infer<typeof insertFeaturedCommunitySchema>;
+export type SelectFeaturedCommunity = typeof featuredCommunities.$inferSelect;
+
 // TourMate™ Tours Table - For scheduling and managing community tours
 export const tours = pgTable("tours", {
   id: serial("id").primaryKey(),
