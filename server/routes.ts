@@ -493,6 +493,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register customer portal routes for subscription management
   const customerPortalRoutes = await import('./routes/customerPortalRoutes');
   app.use('/api/customer-portal', customerPortalRoutes.default);
+  
+  // Register unsubscribe routes for email preferences
+  const unsubscribeRoutes = await import('./routes/unsubscribeRoutes');
+  app.use(unsubscribeRoutes.default);
 
   // Admin: Get all users
   app.get('/api/admin/users', async (req, res) => {
