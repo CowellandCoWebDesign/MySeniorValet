@@ -137,6 +137,17 @@ export function AutoExpandingSearch({
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
+    // Check if it's the special Discovery Mode suggestion
+    if (suggestion === '🌍 Try Discovery Mode for worldwide search') {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
+      // Trigger discovery mode search with the current query
+      const searchQuery = query || 'senior living';
+      setQuery(searchQuery);
+      onSearch(searchQuery, true); // Pass true for discovery mode
+      return;
+    }
+    
     setQuery(suggestion);
     setShowSuggestions(false);
     setSelectedSuggestionIndex(-1);

@@ -110,6 +110,40 @@ function HeroSectionWithTransformingSearch() {
       return;
     }
     
+    // If isResearchMode is true (from Discovery Mode suggestion), trigger discovery
+    if (isResearchMode) {
+      console.log('🌍 Discovery Mode activated for:', query);
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query, 
+            searchType: searchCategory === 'services' ? 'services' : 'location',
+            limit: 50 
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results || [],
+            metadata: {...(data.metadata || {}), discoveryType: searchCategory}
+          });
+          setShowGlobalDiscoveryModal(true);
+          setIsLoading(false);
+          return;
+        }
+      } catch (error) {
+        console.error('Discovery Mode error:', error);
+      }
+      setIsLoading(false);
+      return;
+    }
+    
     // Check for global/international searches
     const globalIndicators = ['tokyo', 'paris', 'london', 'berlin', 'madrid', 'rome', 'dubai', 'singapore', 'mexico', 'canada', 'australia', 'france', 'germany', 'spain', 'italy', 'japan', 'china'];
     const isGlobalSearch = globalIndicators.some(location => query.toLowerCase().includes(location));

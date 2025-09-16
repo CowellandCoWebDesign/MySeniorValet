@@ -29,6 +29,7 @@ interface SearchResult {
 interface ComprehensiveSearchProps {
   onSearch: (results: SearchResult) => void;
   onQueryChange?: (query: string) => void;
+  onModeChange?: (mode: 'list' | 'map' | 'discover') => void;
   initialQuery?: string;
   placeholder?: string;
   className?: string;
@@ -40,6 +41,7 @@ interface ComprehensiveSearchProps {
 export function ComprehensiveSearch({ 
   onSearch,
   onQueryChange,
+  onModeChange,
   initialQuery = '',
   placeholder = "🔍 Search communities, cities, companies, or ask anything... ✨",
   className = "",
@@ -258,6 +260,20 @@ export function ComprehensiveSearch({
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
+    // Check if it's the special Discovery Mode suggestion
+    if (suggestion === '🌍 Try Discovery Mode for worldwide search') {
+      // Trigger discovery mode search
+      if (onModeChange) {
+        onModeChange('discover');
+      }
+      setShowSuggestionDropdown(false);
+      // Perform a discovery search with current query or a default
+      const searchQuery = query || 'senior living';
+      setQuery(searchQuery);
+      handleSearch(searchQuery);
+      return;
+    }
+    
     setQuery(suggestion);
     setShowSuggestionDropdown(false);
     handleSearch(suggestion);
