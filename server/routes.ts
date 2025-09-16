@@ -37,6 +37,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { setupSocialAuth } = await import('./social-auth');
   setupSocialAuth(app);
   
+  // Redirect old Replit Auth endpoint to login page
+  app.get('/api/login', (req, res) => {
+    // Preserve any query parameters from the original request
+    const queryString = req.originalUrl.includes('?') ? req.originalUrl.split('?')[1] : '';
+    const redirectUrl = queryString ? `/login?${queryString}` : '/login';
+    res.redirect(redirectUrl);
+  });
+  
   // Auth bypass for development only - NEVER enable in production
   if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTH_BYPASS === 'true') {
     console.warn('⚠️ AUTH BYPASS ENABLED - Development only!');
