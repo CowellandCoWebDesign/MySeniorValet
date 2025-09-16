@@ -64,7 +64,7 @@ const defaultPhotos = [
 // Legacy reservation component removed - using comprehensive ReservationSection component now
 
 // Community Competitive Analysis Component - OPTIMIZED TO REDUCE API CALLS BY 90%+
-const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void }) => {
+const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport, autoLoad = false }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void, autoLoad?: boolean }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
@@ -193,9 +193,11 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setDataIsFresh(false);
     setShowRefreshButton(false);
     
-    // Only fetch if we don't have fresh cached data
-    fetchAnalysis(false); // Pass false to check cache first
-  }, [community?.id, community?.name, community?.city, community?.state]);
+    // Only auto-fetch if autoLoad is true AND we don't have fresh cached data
+    if (autoLoad) {
+      fetchAnalysis(false); // Pass false to check cache first
+    }
+  }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
   
   // Don't render anything if there's no analysis and not loading
   if (!isLoading && !analysis) {
