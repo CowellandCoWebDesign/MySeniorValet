@@ -401,7 +401,15 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
-  const [showLoadButton, setShowLoadButton] = useState(true); // Show manual button initially
+  const [hasClickedButton, setHasClickedButton] = useState(false); // Track if button was clicked
+  
+  // Reset state when community changes
+  useEffect(() => {
+    setLocalVerificationReport(null);
+    setHasStartedVerification(false);
+    setHasClickedButton(false);
+    setIsVerifying(false);
+  }, [community?.id]);
   
   // Function to manually trigger verification
   const handleLoadMarketAnalysis = () => {
