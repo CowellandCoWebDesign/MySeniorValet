@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { enrichmentCache } from "@/lib/enrichment-cache";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -74,84 +75,49 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     if (!community?.city || !community?.state) return;
     if (isLoading) return; // Prevent duplicate fetches
     
-    // Check if we have cached enrichment data that's still fresh (less than 7 days old)
-    if (!forceRefresh && community.enrichmentData && community.enrichmentDataExpiry) {
-      const expiryDate = new Date(community.enrichmentDataExpiry);
-      const now = new Date();
-      
-      if (expiryDate > now) {
-        // Data is still fresh, use cached data
-        console.log('✅ Using cached enrichment data, expires:', expiryDate);
-        setAnalysis(community.enrichmentData);
-        setDataIsFresh(true);
-        setShowRefreshButton(true); // Allow manual refresh if user wants
-        
-        // Call the callbacks with cached data if available
-        if (community.enrichmentData.searchResults) {
-          if (onAnalysisUpdate) {
-            onAnalysisUpdate(community.enrichmentData);
-          }
-          
-          if (onVerificationReport && community.enrichmentData.photos && community.enrichmentData.photos.length > 0) {
-            onVerificationReport((prev: any) => ({
-              ...prev,
-              verificationResults: {
-                ...(prev?.verificationResults || {}),
-                webIntelligence: {
-                  images: community.enrichmentData.photos,
-                  scrapedFrom: community.enrichmentData.officialWebsite
-                }
-              }
-            }));
-          }
-        }
-        return;
-      }
-    }
-    
-    // Check rate limiting - don't allow refresh within 1 hour of last attempt
-    if (!forceRefresh && community.lastEnrichmentAttempt) {
-      const lastAttempt = new Date(community.lastEnrichmentAttempt);
-      const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      
-      if (lastAttempt > hourAgo) {
-        console.log('⏳ Rate limited: Last attempt was less than 1 hour ago');
-        setShowRefreshButton(true);
-        setDataIsFresh(false);
-        return;
-      }
-    }
-    
     setIsLoading(true);
     setDataIsFresh(false);
     
-    // Allow proper time for comprehensive Perplexity analysis
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for complete results
-    
     try {
-      const response = await fetch('/api/competitive-analysis', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      // Use the enrichment cache to prevent duplicate API calls
+      const data = await enrichmentCache.getOrFetch(
+        community.id,
+        async () => {
+          // Allow proper time for comprehensive Perplexity analysis
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for complete results
+          
+          try {
+            const response = await fetch('/api/competitive-analysis', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                communityId: community.id, // CRITICAL: Send community ID for database persistence
+                communityName: community.name, // Send the full community name
+                location: `${community.city}, ${community.state}`,
+                type: 'city',
+                forceRefresh: forceRefresh // Tell backend if this is a forced refresh
+              }),
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            if (!response.ok) {
+              throw new Error(`Failed to fetch analysis: ${response.status}`);
+            }
+            
+            const responseData = await response.json();
+            return responseData;
+          } catch (error: any) {
+            clearTimeout(timeoutId);
+            throw error;
+          }
         },
-        body: JSON.stringify({
-          communityId: community.id, // CRITICAL: Send community ID for database persistence
-          communityName: community.name, // Send the full community name
-          location: `${community.city}, ${community.state}`,
-          type: 'city',
-          forceRefresh: forceRefresh // Tell backend if this is a forced refresh
-        }),
-        signal: controller.signal
-      });
-      
-      clearTimeout(timeoutId);
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const data = await response.json();
+        forceRefresh
+      );
       setAnalysis(data);
       setIsExpanded(true);
       setShowRefreshButton(true); // Show refresh button after successful fetch
@@ -365,21 +331,32 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
   
-  // Trigger verification when component mounts (only once)
+  // Trigger verification when component mounts (only once) - USING CACHE TO PREVENT DUPLICATES
   useEffect(() => {
     if (community?.id && !hasStartedVerification && !localVerificationReport) {
       setHasStartedVerification(true);
       setIsVerifying(true);
       
-      // Call simplified verification endpoint
-      fetch(`/api/communities/${community.id}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: false })
-      })
-      .then(res => res.json())
+      // Use enrichment cache to prevent duplicate API calls
+      enrichmentCache.getOrFetch(
+        `verify-${community.id}`,
+        async () => {
+          const response = await fetch(`/api/communities/${community.id}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ forceRefresh: false })
+          });
+          
+          if (!response.ok) {
+            throw new Error(`Verification failed: ${response.status}`);
+          }
+          
+          return response.json();
+        },
+        false
+      )
       .then(report => {
-        console.log('Verification report received:', report);
+        console.log('Verification report received (from cache or fresh):', report);
         setLocalVerificationReport(report);
         // Also update parent state if callback provided
         if (onVerificationReport) {
