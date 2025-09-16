@@ -43,13 +43,13 @@ router.post('/api/competitive-analysis', async (req, res) => {
           }
         }
         
-        // MINIMAL PROTECTION - Only prevent truly runaway calls (10 seconds)
+        // RUNAWAY PROTECTION - Prevent excessive API calls (1 minute)
         if (needsFetch && !forceRefresh && community.lastEnrichmentAttempt) {
           const lastAttempt = new Date(community.lastEnrichmentAttempt);
-          const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
+          const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
           
-          if (lastAttempt > tenSecondsAgo) {
-            console.log(`⚡ Runaway protection: ${community.name} was just enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago`);
+          if (lastAttempt > oneMinuteAgo) {
+            console.log(`⚡ Runaway protection: ${community.name} was enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago`);
             // Return cached data if available to prevent mass API calls
             if (community.enrichmentData) {
               intelligence = community.enrichmentData;
