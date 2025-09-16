@@ -5,6 +5,7 @@ import { queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -60,7 +61,9 @@ import {
   Video,
   Receipt,
   Calculator,
-  Briefcase
+  Briefcase,
+  Zap,
+  Building2
 } from 'lucide-react';
 
 export default function FamilyCollaborationCenter() {
