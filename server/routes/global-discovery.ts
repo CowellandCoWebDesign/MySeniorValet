@@ -158,7 +158,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout - increased to allow proper discovery
       
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
