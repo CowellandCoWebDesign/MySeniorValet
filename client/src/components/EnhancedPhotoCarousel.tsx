@@ -271,11 +271,13 @@ export function EnhancedPhotoCarousel({
   }
 
   const nextPhoto = () => {
-    setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
+    const newIndex = (currentIndex + 1) % safePhotos.length;
+    setCurrentIndex(newIndex);
   };
 
   const prevPhoto = () => {
-    setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
+    const newIndex = (currentIndex - 1 + safePhotos.length) % safePhotos.length;
+    setCurrentIndex(newIndex);
   };
 
   const goToPhoto = (index: number) => {
