@@ -136,21 +136,21 @@ router.post("/schedule", async (req, res) => {
             
             <div style="margin: 20px 0;">
               <div style="margin-bottom: 15px;">
-                <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+                <a href="https://myseniorvalet.com/tour-tracker" 
                    style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
                   📍 Tour Tracker™ - Manage Your Tours
                 </a>
               </div>
               
               <div style="margin-bottom: 15px;">
-                <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/family-collaboration-center" 
+                <a href="https://myseniorvalet.com/family-collaboration-center" 
                    style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
                   👨‍👩‍👧‍👦 Family Collaboration Center
                 </a>
               </div>
               
               <div style="margin-bottom: 15px;">
-                <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/dashboard" 
+                <a href="https://myseniorvalet.com/dashboard" 
                    style="display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
                   🏠 Your Personal Dashboard
                 </a>
@@ -293,11 +293,11 @@ router.post("/schedule", async (req, res) => {
                         
                         <!-- CTA Buttons -->
                         <div style="text-align: center; margin: 35px 0;">
-                          <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/claim-community/${community?.id}" 
+                          <a href="https://myseniorvalet.com/claim-community/${community?.id}" 
                              style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);">
                             👑 Claim Your Listing
                           </a>
-                          <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/community-portal" 
+                          <a href="https://myseniorvalet.com/community-portal" 
                              style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
                             📊 View Dashboard
                           </a>
@@ -556,7 +556,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
                 <li>Share your experience with family members</li>
                 <li>Create a decision journal for your search</li>
               </ul>
-              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+              <a href="https://myseniorvalet.com/tour-tracker" 
                  style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
                 Open Tour Tracker™
               </a>

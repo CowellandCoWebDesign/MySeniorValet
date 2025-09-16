@@ -177,7 +177,7 @@ export class EmailService {
             <h3 style="margin-top: 0;">Quick Review</h3>
             <p>How would you rate your experience?</p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://myseniorvalet.com/communities/${communityId}/review?rating=5" style="font-size: 24px; text-decoration: none; margin: 0 5px;">⭐⭐⭐⭐⭐</a>
+              <a href="https://myseniorvalet.com/community/${communityId}#reviews?rating=5" style="font-size: 24px; text-decoration: none; margin: 0 5px;">⭐⭐⭐⭐⭐</a>
             </div>
           </div>
           
@@ -189,7 +189,7 @@ export class EmailService {
           </ul>
           
           <div style="margin: 30px 0;">
-            <a href="https://myseniorvalet.com/communities/${communityId}/review" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Write a Review</a>
+            <a href="https://myseniorvalet.com/community/${communityId}#reviews" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Write a Review</a>
           </div>
           
           <p style="color: #666; font-size: 14px;">
@@ -322,7 +322,7 @@ export class EmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'https://myseniorvalet.com'}/communities/${communityName.toLowerCase().replace(/\s+/g, '-')}" 
+              <a href="https://myseniorvalet.com/search?query=${encodeURIComponent(communityName)}" 
                  style="background-color: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 View Community Profile
               </a>

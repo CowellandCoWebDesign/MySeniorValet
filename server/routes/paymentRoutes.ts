@@ -744,8 +744,8 @@ export function registerPaymentRoutes(app: Express) {
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId,
         productId,
-        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`
+        successUrl || `https://myseniorvalet.com/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl || `https://myseniorvalet.com/payment/cancel`
       );
 
       res.json({ 
@@ -799,7 +799,7 @@ export function registerPaymentRoutes(app: Express) {
         ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
           ? process.env.REPLIT_DEV_DOMAIN 
           : `https://${process.env.REPLIT_DEV_DOMAIN}`)
-        : 'http://localhost:5000';
+        : 'https://myseniorvalet.com';
       
       const session = await stripeSubscriptionService.createCheckoutSession(
         0, // Use 0 instead of null for vendor checkout
@@ -860,7 +860,7 @@ export function registerPaymentRoutes(app: Express) {
         ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
           ? process.env.REPLIT_DEV_DOMAIN 
           : `https://${process.env.REPLIT_DEV_DOMAIN}`)
-        : 'http://localhost:5000';
+        : 'https://myseniorvalet.com';
       
       console.log('Creating community checkout with:', {
         productId,
