@@ -754,6 +754,20 @@ export default function CommunityDirectory() {
 
       {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
       
+      {/* Red Tag Deals Promotional Section - MOVED TO TOP FOR FEATURED COMMUNITIES */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* Hero Mascot Panel - Platform Differentiators */}
+      <section className="px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <HeroMascotPanel />
+        </div>
+      </section>
+      
       {/* Find Your Perfect Care Level - Moved from Market Intelligence */}
       <section className="px-4 py-8">
         <div className="max-w-4xl mx-auto">
@@ -1778,22 +1792,6 @@ export default function CommunityDirectory() {
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* === TOOLS & FEATURES SECTION === */}
-      
-      {/* Red Tag Deals Promotional Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
-        </div>
-      </section>
-
-      {/* Hero Mascot Panel - Platform Differentiators */}
-      <section className="px-4 py-8">
-        <div className="max-w-7xl mx-auto">
-          <HeroMascotPanel />
         </div>
       </section>
 
