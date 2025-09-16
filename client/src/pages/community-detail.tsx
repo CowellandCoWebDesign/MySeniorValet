@@ -69,7 +69,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
   const [dataIsFresh, setDataIsFresh] = useState(false);
-  const [showRefreshButton, setShowRefreshButton] = useState(!autoLoad); // Show button immediately if not auto-loading
+  const [showRefreshButton, setShowRefreshButton] = useState(false);
   
   const fetchAnalysis = async (forceRefresh: boolean = false) => {
     if (!community?.city || !community?.state) return;
@@ -174,6 +174,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         onAnalysisUpdate(data);
       }
     } catch (error: any) {
+      clearTimeout(timeoutId);
       console.error('Failed to fetch competitive analysis:', error);
       
       // Don't show anything if analysis fails - just hide the component
@@ -190,12 +191,12 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setAnalysis(null);
     setIsExpanded(true);
     setDataIsFresh(false);
-    // Don't reset showRefreshButton here - it's set based on autoLoad prop
+    setShowRefreshButton(false);
     
     // CRITICAL: Only auto-load if explicitly enabled to prevent excessive API calls
     if (!autoLoad) {
       console.log('⏸️ Auto-enrichment disabled for competitive analysis to prevent API costs');
-      setShowRefreshButton(true); // Ensure button is shown
+      setShowRefreshButton(true); // Show manual refresh button
       return;
     }
     
@@ -205,72 +206,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
   
-  // Debug logging
-  console.log('CommunityCompetitiveAnalysis render:', {
-    isLoading,
-    hasAnalysis: !!analysis,
-    showRefreshButton,
-    autoLoad,
-    community: community?.name
-  });
-  
-  // If no analysis yet and not loading, show button to fetch it
-  if (!isLoading && !analysis && showRefreshButton) {
-    console.log('Showing Load Market Analysis button');
-    return (
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
-            Market Analysis
-          </CardTitle>
-          <CardDescription>
-            Get comprehensive market analysis and competitive insights for {community.name}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            onClick={() => fetchAnalysis(false)}
-            disabled={isLoading}
-            className="w-full"
-            variant="outline"
-            data-testid="button-fetch-market-analysis"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing Market...
-              </>
-            ) : (
-              <>
-                <TrendingUp className="mr-2 h-4 w-4" />
-                Load Market Analysis
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Show loading state
-  if (isLoading && !analysis) {
-    return (
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-blue-600" />
-            Market Analysis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-            <span className="ml-3 text-gray-600">Analyzing market data...</span>
-          </div>
-        </CardContent>
-      </Card>
-    );
+  // Don't render anything if there's no analysis and not loading
+  if (!isLoading && !analysis) {
+    return null;
   }
 
   // Don't render if analysis failed or has no useful data
@@ -401,25 +339,27 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
-  const [hasClickedButton, setHasClickedButton] = useState(false); // Track if button was clicked
   
-  // Reset state when community changes
+  // Trigger verification when component mounts (only once) - USING CACHE TO PREVENT DUPLICATES
   useEffect(() => {
-    setLocalVerificationReport(null);
-    setHasStartedVerification(false);
-    setHasClickedButton(false);
-    setIsVerifying(false);
-  }, [community?.id]);
-  
-  // Function to manually trigger verification
-  const handleLoadMarketAnalysis = () => {
-    if (community?.id && !hasStartedVerification) {
+    // Enable auto-verification with 30-second cooloff
+    const COOLOFF_MS = 30000; // 30 seconds
+    const lastFetchKey = `realtime-verify-last-fetch-${community?.id}`;
+    const lastFetchTime = localStorage.getItem(lastFetchKey);
+    const now = Date.now();
+    
+    // Check if we're within the cooloff period
+    if (lastFetchTime && (now - parseInt(lastFetchTime)) < COOLOFF_MS) {
+      const remainingTime = Math.ceil((COOLOFF_MS - (now - parseInt(lastFetchTime))) / 1000);
+      console.log(`⏱️ RealTimeInsights cooloff active. ${remainingTime}s remaining.`);
+      return;
+    }
+    
+    if (community?.id && !hasStartedVerification && !localVerificationReport) {
       setHasStartedVerification(true);
       setIsVerifying(true);
-      setShowLoadButton(false);
       
-      const now = Date.now();
-      const lastFetchKey = `realtime-verify-last-fetch-${community.id}`;
+      // Store the current time to enforce cooloff
       localStorage.setItem(lastFetchKey, now.toString());
       
       // Use enrichment cache to prevent duplicate API calls
@@ -456,13 +396,12 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       .catch(error => {
         console.error('Verification error:', error);
         setHasStartedVerification(false); // Allow retry on error
-        setShowLoadButton(true); // Show button again on error
       })
       .finally(() => {
         setIsVerifying(false);
       });
     }
-  };
+  }, [community?.id]);
 
   // Show loading or placeholder content while waiting for data
   const hasData = realTimeData || localVerificationReport;
@@ -479,55 +418,6 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       !item.toLowerCase().includes('no coverage')
     );
   };
-
-  // If we haven't loaded data yet and not loading, show the load button
-  if (!hasData && !isVerifying && showLoadButton) {
-    return (
-      <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-        {/* Perplexity AI Badge */}
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Powered by Perplexity AI
-          </div>
-        </div>
-
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-          <CardTitle className="text-2xl font-bold flex items-center">
-            <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
-            Live Intelligence Report
-          </CardTitle>
-          <CardDescription className="text-base">
-            <span className="text-gray-700 dark:text-gray-300">
-              Real-time information gathered from public sources across the web
-            </span>
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <div className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Globe className="h-8 w-8 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="font-semibold text-lg">What We Found About {community.name}</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                Powered by Perplexity AI
-              </p>
-            </div>
-            <Button 
-              onClick={handleLoadMarketAnalysis}
-              disabled={isVerifying}
-              size="lg"
-              className="px-6"
-            >
-              <Search className="h-5 w-5 mr-2" />
-              Live Web Search
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
@@ -844,11 +734,9 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   // If actively searching, show loading state only
                   if (isVerifying) {
                     return (
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
-                        <div className="flex items-center gap-2">
-                          <Search className="w-4 h-4 animate-pulse text-blue-600" />
-                          <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">Searching for live web information about {community?.name}...</p>
-                        </div>
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Searching for live web information about {community?.name}...</p>
                       </div>
                     );
                   }
@@ -2988,6 +2876,14 @@ export default function CommunityDetail() {
                 <IntelligentPricingPrediction 
                   key={`pricing-prediction-${community.id}`}
                   community={community} 
+                />
+
+                {/* Community Competitive Analysis */}
+                <CommunityCompetitiveAnalysis 
+                  key={`competitive-analysis-${community.id}`}
+                  community={community} 
+                  onAnalysisUpdate={setMarketAnalysisData}
+                  onVerificationReport={setVerificationReport}
                 />
               </TabsContent>
               
