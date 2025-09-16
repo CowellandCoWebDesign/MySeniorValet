@@ -111,11 +111,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // If we have enough results from database, return immediately
       if (existingCommunities.length >= 15) {
+        // Mark all database results as existing/verified
+        const markedResults = existingCommunities.slice(0, limit).map(community => ({
+          ...community,
+          isExisting: true,
+          isDiscovered: false
+        }));
+        
         return res.json({
           success: true,
           query: query,
           searchType: searchType || 'database',
-          results: existingCommunities.slice(0, limit),
+          results: markedResults,
           metadata: {
             totalFound: existingCommunities.length,
             existingCount: existingCommunities.length,
@@ -138,11 +145,19 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       if (!shouldUseAI) {
         // Return database results without calling Perplexity
         console.log(`✅ Returning ${existingCommunities.length} database results without Perplexity (Discovery Mode: ${isExplicitDiscoveryMode})`);
+        
+        // Mark all database results as existing/verified
+        const markedResults = existingCommunities.slice(0, limit || 30).map(community => ({
+          ...community,
+          isExisting: true,
+          isDiscovered: false
+        }));
+        
         return res.json({
           success: true,
           query: query || '',
           searchType: searchType || 'auto-detected',
-          results: existingCommunities.slice(0, limit || 30),
+          results: markedResults,
           metadata: {
             totalFound: existingCommunities.length,
             existingCount: existingCommunities.length,
