@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { enrichmentCache } from '@/lib/enrichment-cache';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -59,25 +60,32 @@ export function LiveWebIntelligence({
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasTriedLoading, setHasTriedLoading] = useState(false);
 
-  // Use mutation for fetching
+  // Use mutation for fetching WITH CACHE to prevent duplicate API calls
   const fetchIntelligence = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/competitive-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          communityId,
-          communityName,
-          location: `${city}, ${state}`,
-          type: 'city'
-        })
-      });
+      // Use enrichment cache to prevent duplicate API calls
+      return enrichmentCache.getOrFetch(
+        communityId || `${communityName}-${city}-${state}`,
+        async () => {
+          const response = await fetch('/api/competitive-analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              communityId,
+              communityName,
+              location: `${city}, ${state}`,
+              type: 'city'
+            })
+          });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch intelligence');
-      }
+          if (!response.ok) {
+            throw new Error('Failed to fetch intelligence');
+          }
 
-      return response.json();
+          return response.json();
+        },
+        false
+      );
     },
     onSuccess: (data) => {
       if (data.intelligence) {
