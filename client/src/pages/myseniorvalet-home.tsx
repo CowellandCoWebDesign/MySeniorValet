@@ -240,7 +240,8 @@ function HeroSectionWithTransformingSearch() {
           body: JSON.stringify({ 
             query: query,
             searchType: 'location',
-            limit: 20
+            limit: 20,
+            discoveryMode: true  // Explicitly set Discovery Mode flag
           })
         });
 
@@ -275,7 +276,8 @@ function HeroSectionWithTransformingSearch() {
           body: JSON.stringify({ 
             query: query,
             searchType: 'services',  // General services, not limited to senior care
-            limit: 20
+            limit: 20,
+            discoveryMode: true  // Explicitly set Discovery Mode flag
           })
         });
 

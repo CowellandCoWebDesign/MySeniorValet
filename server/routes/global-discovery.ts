@@ -36,7 +36,7 @@ const discoveredCommunitySchema = z.object({
 });
 
 // Import multi-AI orchestrator for comparisons
-import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
+// import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
 
 export function setupGlobalDiscoveryRoutes(app: Express) {
   
@@ -130,12 +130,43 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         });
       }
       
-      // Step 2: Only use AI if database doesn't have enough results (< 15)
+      // Step 2: Only use AI if explicitly in Discovery Mode AND database has 0 results
+      // CRITICAL FIX: Changed from "< 15" to "=== 0" to prevent excessive API calls
+      const isExplicitDiscoveryMode = req.body.discoveryMode === true;
+      const shouldUseAI = isExplicitDiscoveryMode && existingCommunities.length === 0;
+      
+      if (!shouldUseAI) {
+        // Return database results without calling Perplexity
+        console.log(`✅ Returning ${existingCommunities.length} database results without Perplexity (Discovery Mode: ${isExplicitDiscoveryMode})`);
+        return res.json({
+          success: true,
+          query: query || '',
+          searchType: searchType || 'auto-detected',
+          results: existingCommunities.slice(0, limit || 30),
+          metadata: {
+            totalFound: existingCommunities.length,
+            existingCount: existingCommunities.length,
+            discoveredCount: 0,
+            sources: ['Database'],
+            searchLocation: query,
+            timestamp: new Date().toISOString(),
+            aiConfidence: 100,
+            dataSource: 'Database (33k+ verified communities)',
+            discoveryModeUsed: false
+          },
+          message: existingCommunities.length === 0 
+            ? 'No communities found in database. Use Discovery Mode to search the web.'
+            : `Found ${existingCommunities.length} communities in database`
+        });
+      }
+      
       const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
       if (!perplexityApiKey) {
         console.error('❌ Perplexity API key not configured');
-        return res.status(500).json({ error: 'Search service not configured' });
+        return res.status(500).json({ error: 'Search service not configured for Discovery Mode' });
       }
+      
+      console.log(`🔍 Discovery Mode activated: Searching web for communities in ${query}`);
       
       // Construct an intelligent search query for Perplexity - optimized for city/region searches
       let searchQuery = '';
@@ -145,7 +176,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       if (searchType === 'services') {
         // For services, discover ANY type of service providers - not limited to senior care
         searchQuery = `Find at least 15-20 different service providers and businesses in ${query}. This includes restaurants, law firms, tech companies, retail stores, fitness centers, beauty salons, medical practices, financial services, education centers, entertainment venues, transportation services, and ANY other business or service provider. Include ONLY real, operational businesses physically located in ${query}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. List as many businesses as possible, minimum 15. Do not limit to senior care - include ALL types of businesses and services.`;
-      } else if (searchType === 'location' || locationSearch || isSpecificCitySearch) {
+      } else if (searchType === 'location' || isSpecificCitySearch) {
         searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. List ALL facilities you can find, not just a few examples. Include ONLY real, operational facilities physically located in ${query}. For each facility provide: exact facility name, complete street address with street number, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
