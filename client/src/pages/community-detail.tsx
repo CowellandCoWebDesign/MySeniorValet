@@ -174,7 +174,6 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         onAnalysisUpdate(data);
       }
     } catch (error: any) {
-      clearTimeout(timeoutId);
       console.error('Failed to fetch competitive analysis:', error);
       
       // Don't show anything if analysis fails - just hide the component
@@ -206,9 +205,62 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
   
-  // Don't render anything if there's no analysis and not loading
-  if (!isLoading && !analysis) {
-    return null;
+  // If no analysis yet and not loading, show button to fetch it
+  if (!isLoading && !analysis && showRefreshButton) {
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-blue-600" />
+            Market Analysis
+          </CardTitle>
+          <CardDescription>
+            Get comprehensive market analysis and competitive insights for {community.name}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button
+            onClick={() => fetchAnalysis(false)}
+            disabled={isLoading}
+            className="w-full"
+            variant="outline"
+            data-testid="button-fetch-market-analysis"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Analyzing Market...
+              </>
+            ) : (
+              <>
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Load Market Analysis
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show loading state
+  if (isLoading && !analysis) {
+    return (
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-blue-600" />
+            Market Analysis
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <span className="ml-3 text-gray-600">Analyzing market data...</span>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   // Don't render if analysis failed or has no useful data
