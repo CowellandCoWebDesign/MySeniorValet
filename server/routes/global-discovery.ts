@@ -109,8 +109,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`💾 Found ${existingCommunities.length} existing communities in database`);
       
-      // If we have enough results from database, return immediately
-      if (existingCommunities.length >= 15) {
+      // Check if we're in Discovery Mode
+      const isDiscoveryMode = req.body.discoveryMode === true;
+      
+      // If NOT in Discovery Mode and we have enough database results, return immediately
+      if (!isDiscoveryMode && existingCommunities.length >= 15) {
         // Mark all database results as existing/verified
         const markedResults = existingCommunities.slice(0, limit).map(community => ({
           ...community,
@@ -137,14 +140,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         });
       }
       
-      // Step 2: Only use AI if explicitly in Discovery Mode AND database has 0 results
-      // CRITICAL FIX: Changed from "< 15" to "=== 0" to prevent excessive API calls
-      const isExplicitDiscoveryMode = req.body.discoveryMode === true;
-      const shouldUseAI = isExplicitDiscoveryMode && existingCommunities.length === 0;
-      
-      if (!shouldUseAI) {
+      // If NOT in Discovery Mode and we have some database results, return them
+      if (!isDiscoveryMode) {
         // Return database results without calling Perplexity
-        console.log(`✅ Returning ${existingCommunities.length} database results without Perplexity (Discovery Mode: ${isExplicitDiscoveryMode})`);
+        console.log(`✅ Returning ${existingCommunities.length} database results without Perplexity (Discovery Mode: false)`);
         
         // Mark all database results as existing/verified
         const markedResults = existingCommunities.slice(0, limit || 30).map(community => ({
@@ -175,13 +174,17 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         });
       }
       
+      // ============ DISCOVERY MODE ACTIVE ============
+      // When Discovery Mode is TRUE, ALWAYS search the web to find ALL options,
+      // then compare to database to identify which ones we already have
+      
       const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
       if (!perplexityApiKey) {
         console.error('❌ Perplexity API key not configured');
         return res.status(500).json({ error: 'Search service not configured for Discovery Mode' });
       }
       
-      console.log(`🔍 Discovery Mode activated: Searching web for communities in ${query}`);
+      console.log(`🔍 Discovery Mode ACTIVE: Always searching web for ALL communities in ${query}, then comparing to database`);
       
       // Construct an intelligent search query for Perplexity - optimized for city/region searches
       let searchQuery = '';
@@ -471,26 +474,61 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         };
       });
       
-      // Step 6: Combine results - remove duplicates and prioritize discovered facilities
-      const combinedResults = new Map();
+      // Step 6: Compare web results to database to identify which are existing vs new
+      // This is the KEY LOGIC for Discovery Mode
+      const allWebResults: any[] = [];
+      const dbIndex = new Map();
       
-      // Add discovered communities first
-      discoveredWithRealIds.forEach(community => {
-        const key = `${community.name.toLowerCase()}_${(community.city || '').toLowerCase()}`;
-        combinedResults.set(key, community);
+      // Create a normalized index of database communities for matching
+      existingCommunities.forEach(community => {
+        // Normalize name for matching (remove common suffixes, lowercase, trim)
+        const normalizedName = community.name
+          .toLowerCase()
+          .replace(/\s*(senior living|assisted living|memory care|llc|inc|corp).*$/i, '')
+          .replace(/[^\w\s]/g, '')
+          .trim();
+        const key = `${normalizedName}_${(community.city || '').toLowerCase().trim()}`;
+        dbIndex.set(key, community);
       });
       
-      // Add existing communities if they're not duplicates
-      existingCommunities.forEach(community => {
-        const key = `${community.name.toLowerCase()}_${(community.city || '').toLowerCase()}`;
-        if (!combinedResults.has(key)) {
-          combinedResults.set(key, { ...community, isExisting: true });
+      // Process all web-discovered communities
+      discoveredWithRealIds.forEach(webCommunity => {
+        // Normalize the web result name for matching
+        const normalizedName = webCommunity.name
+          .toLowerCase()
+          .replace(/\s*(senior living|assisted living|memory care|llc|inc|corp).*$/i, '')
+          .replace(/[^\w\s]/g, '')
+          .trim();
+        const key = `${normalizedName}_${(webCommunity.city || '').toLowerCase().trim()}`;
+        
+        // Check if this web result matches a database entry
+        const dbMatch = dbIndex.get(key);
+        
+        if (dbMatch) {
+          // This web result IS in our database - mark as existing/verified
+          allWebResults.push({
+            ...dbMatch,
+            isExisting: true,
+            isDiscovered: false,
+            webData: webCommunity // Keep web data for reference
+          });
+        } else {
+          // This web result is NOT in our database - mark as newly discovered
+          allWebResults.push({
+            ...webCommunity,
+            isExisting: false,
+            isDiscovered: true
+          });
         }
       });
       
-      const allResults = Array.from(combinedResults.values());
+      const allResults = allWebResults;
       
       // Step 7: Return results with metadata
+      // Count how many web results were existing vs new
+      const existingInWebResults = allResults.filter(r => r.isExisting).length;
+      const newlyDiscovered = allResults.filter(r => r.isDiscovered).length;
+      
       res.json({
         success: true,
         query: query,
@@ -498,16 +536,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         results: allResults.slice(0, limit),
         metadata: {
           totalFound: allResults.length,
-          existingCount: existingCommunities.length,
-          discoveredCount: savedCommunities.length,
-          sources: citations,
+          existingCount: existingInWebResults,
+          discoveredCount: newlyDiscovered,
+          sources: citations.length > 0 ? [...citations, 'Database'] : ['Perplexity Web Search', 'Database'],
           searchLocation: query,
           timestamp: new Date().toISOString(),
           aiConfidence: discoveredCommunities.length > 0 ? 85 : 50
         },
         message: allResults.length === 0 
           ? `No communities found for "${query}". Try a different location or search term.`
-          : `Found ${allResults.length} communities (${existingCommunities.length} existing, ${savedCommunities.length} newly discovered)`
+          : `Discovery Mode found ${allResults.length} communities via web search: ${existingInWebResults} already in our database, ${newlyDiscovered} newly discovered`
       });
       
     } catch (error) {

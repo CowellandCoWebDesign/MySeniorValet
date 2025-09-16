@@ -111,9 +111,13 @@ export function GlobalDiscoveryModal({
                 </div>
                 {metadata.sources && metadata.sources.length > 0 && (
                   <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Sources: {metadata.sources.includes('Database') 
-                      ? 'MySeniorValet Database' 
-                      : `${metadata.sources.length} ${metadata.sources.length === 1 ? 'website' : 'websites'}`}
+                    Sources: {
+                      metadata.sources.includes('Database') && metadata.sources.length > 1
+                        ? `${metadata.sources.filter(s => s !== 'Database').length} websites + Database comparison`
+                        : metadata.sources.includes('Database')
+                        ? 'MySeniorValet Database'
+                        : `${metadata.sources.length} ${metadata.sources.length === 1 ? 'website' : 'websites'}`
+                    }
                   </div>
                 )}
               </div>
