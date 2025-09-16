@@ -196,7 +196,10 @@ If "${communityName}" is not found exactly, still provide all the market data an
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective community search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
             {
               role: 'system',
@@ -404,7 +407,10 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective nearby search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
             {
               role: 'user',
