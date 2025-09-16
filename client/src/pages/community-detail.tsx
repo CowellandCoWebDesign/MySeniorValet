@@ -729,6 +729,16 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   
                   const hasAnyData = verifiedFacts?.length > 0 || perplexityContent || webIntelligenceDescription;
                   
+                  // If actively searching, show loading state only
+                  if (isVerifying) {
+                    return (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400">Searching for live web information about {community?.name}...</p>
+                      </div>
+                    );
+                  }
+                  
                   return hasAnyData ? (
                     <>
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -905,14 +915,9 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       );
                     }).filter(Boolean)
                 ) : (
-                  // Show "searching" or "no data" message
-                  <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {isVerifying ? (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <p>Searching for live web information about {community?.name}...</p>
-                      </div>
-                    ) : (
+                  // Only show generic insights if not loading
+                  !isVerifying && (
+                    <div className="text-sm text-gray-600 dark:text-gray-400">
                       <div className="space-y-3">
                         <p className="font-medium">Gathering community insights...</p>
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
@@ -951,8 +956,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                           </p>
                         </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )
                 )}
 
                 {/* No specific information found */}
@@ -981,42 +986,9 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 )}
               </div>
               
-              {/* Loading State */}
-              {isVerifying && !localVerificationReport && (
-                <div className="flex items-center justify-center py-2">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mr-2" />
-                  <p className="text-sm text-indigo-700 dark:text-indigo-300">
-                    Searching for {community?.name} information...
-                  </p>
-                </div>
-              )}
             </div>
           )}
 
-          {/* AI Orchestra Footer */}
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="flex -space-x-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold">P</div>
-                    <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white text-xs font-bold">C</div>
-                    <div className="w-8 h-8 rounded-full bg-green-600 flex items-center justify-center text-white text-xs font-bold">G</div>
-                  </div>
-                  <div>
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">AI Orchestra Status</p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Perplexity (Active) • Claude (Standby) • GPT-4o (Backup)
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-blue-700 dark:text-blue-300">MySeniorValet Intelligence</p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400">Transparency through AI</p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
         )}
       </CardContent>
