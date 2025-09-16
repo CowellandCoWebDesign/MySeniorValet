@@ -144,19 +144,60 @@ function HeroSectionWithTransformingSearch() {
       return;
     }
     
-    // Check for global/international searches
-    const globalIndicators = ['tokyo', 'paris', 'london', 'berlin', 'madrid', 'rome', 'dubai', 'singapore', 'mexico', 'canada', 'australia', 'france', 'germany', 'spain', 'italy', 'japan', 'china'];
-    const isGlobalSearch = globalIndicators.some(location => query.toLowerCase().includes(location));
+    // Check if query contains US location indicators
+    const usStates = [
+      'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado', 'connecticut', 
+      'delaware', 'florida', 'georgia', 'hawaii', 'idaho', 'illinois', 'indiana', 'iowa', 
+      'kansas', 'kentucky', 'louisiana', 'maine', 'maryland', 'massachusetts', 'michigan', 
+      'minnesota', 'mississippi', 'missouri', 'montana', 'nebraska', 'nevada', 'new hampshire', 
+      'new jersey', 'new mexico', 'new york', 'north carolina', 'north dakota', 'ohio', 
+      'oklahoma', 'oregon', 'pennsylvania', 'rhode island', 'south carolina', 'south dakota', 
+      'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington', 'west virginia', 
+      'wisconsin', 'wyoming', 'washington dc', 'district of columbia'
+    ];
     
-    if (isGlobalSearch) {
-      console.log('🌍 Global search detected for:', query);
+    const usStateAbbreviations = [
+      'al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il', 'in', 
+      'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 
+      'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 
+      'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy', 'dc'
+    ];
+    
+    const queryLower = query.toLowerCase();
+    
+    // Check if query contains US location indicators
+    const isUSLocation = 
+      usStates.some(state => new RegExp(`\\b${state}\\b`, 'i').test(queryLower)) ||
+      usStateAbbreviations.some(abbr => new RegExp(`\\b${abbr}\\b`, 'i').test(queryLower)) ||
+      /\busa\b|\bunited states\b|\bamerica\b/i.test(queryLower) ||
+      /\b\d{5}(-\d{4})?\b/.test(query); // ZIP code pattern
+    
+    // Check for explicitly international locations (countries only, not ambiguous city names)
+    const internationalCountries = [
+      'canada', 'mexico', 'uk', 'united kingdom', 'england', 'scotland', 'wales', 
+      'france', 'germany', 'spain', 'italy', 'japan', 'china', 'australia', 
+      'brazil', 'india', 'russia', 'south africa', 'argentina', 'chile', 'sweden',
+      'norway', 'denmark', 'finland', 'netherlands', 'belgium', 'switzerland',
+      'austria', 'portugal', 'greece', 'poland', 'ireland', 'new zealand'
+    ];
+    
+    const isInternationalSearch = 
+      !isUSLocation && 
+      internationalCountries.some(country => new RegExp(`\\b${country}\\b`, 'i').test(queryLower));
+    
+    if (isInternationalSearch) {
+      console.log('🌍 International search auto-detected for:', query);
       setIsLoading(true);
       
       try {
         const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, limit: 50 })
+          body: JSON.stringify({ 
+            query, 
+            searchType: searchCategory === 'services' ? 'services' : 'location',
+            limit: 50 
+          })
         });
         
         if (response.ok) {
@@ -173,7 +214,7 @@ function HeroSectionWithTransformingSearch() {
           }
         }
       } catch (error) {
-        console.error('Global discovery error:', error);
+        console.error('International discovery error:', error);
       }
       setIsLoading(false);
     }
