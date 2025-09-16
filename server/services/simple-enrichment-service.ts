@@ -100,34 +100,8 @@ export class SimpleEnrichmentService {
       }
     }
     
-    // Step 4: Soft rate limiting - only for very rapid requests (5 minutes)
-    if (!forceRefresh && community.lastEnrichmentAttempt) {
-      const lastAttempt = new Date(community.lastEnrichmentAttempt);
-      const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-      
-      if (lastAttempt > fiveMinutesAgo) {
-        console.log(`🔄 Soft rate limit: ${community.name} was enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago`);
-        // Always return existing data if available to avoid blocking UI
-        if (community.enrichmentData) {
-          const cachedResult: SimpleEnrichmentResult = {
-            communityId: community.id,
-            communityName: community.name,
-            verificationStatus: community.enrichmentData.verificationStatus || 'partial',
-            confidence: community.enrichmentData.confidence || 50,
-            lastUpdated: community.enrichmentData.lastFetched || new Date().toISOString(),
-            officialWebsite: community.enrichmentData.officialWebsite,
-            phoneNumber: community.enrichmentData.phoneNumber,
-            pricing: community.enrichmentData.pricing,
-            photos: community.enrichmentData.photos || [],
-            searchResults: community.enrichmentData.searchResults
-          };
-          console.log(`✅ Returning cached data to avoid blocking UI`);
-          return cachedResult;
-        }
-        // If no cached data, proceed with fetch anyway to avoid empty response
-        console.log(`⚠️ No cached data available, proceeding with fetch despite recent attempt`);
-      }
-    }
+    // NO RATE LIMITING - Always allow fresh searches
+    // Rate limiting completely removed to allow unrestricted searching
     
     console.log(`🔍 Starting simple enrichment for ${community.name}`);
     

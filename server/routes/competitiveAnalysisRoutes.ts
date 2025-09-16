@@ -43,23 +43,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
           }
         }
         
-        // SOFT RATE LIMITING - Return cached data if available, only prevent rapid API calls
-        if (needsFetch && !forceRefresh && community.lastEnrichmentAttempt) {
-          const lastAttempt = new Date(community.lastEnrichmentAttempt);
-          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-          
-          if (lastAttempt > fiveMinutesAgo) {
-            console.log(`🔄 Returning cached data for ${community.name} (last enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago)`);
-            // Always return cached data if available (even if expired)
-            if (community.enrichmentData) {
-              intelligence = community.enrichmentData;
-              needsFetch = false;
-            } else {
-              // If no cached data at all, still try to fetch but log the rapid attempt
-              console.log(`⚠️ No cached data available, allowing fetch despite recent attempt`);
-            }
-          }
-        }
+        // NO RATE LIMITING - Always allow fetching if needed
+        // Rate limiting completely removed to allow unrestricted searching
         
         // FETCH NEW DATA if needed
         if (needsFetch) {
