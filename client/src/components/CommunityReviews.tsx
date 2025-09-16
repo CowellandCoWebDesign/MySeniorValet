@@ -149,12 +149,15 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // Automatically fetch external reviews when component mounts
+  // DISABLED: Automatic fetching of external reviews to prevent excessive API costs
+  // Reviews should only be fetched when user manually clicks "Refresh Reviews" button
   useEffect(() => {
     if (!hasInitiallyFetched && community?.id) {
       setHasInitiallyFetched(true);
-      // Fetch external reviews from Perplexity API
-      fetchExternalReviewsMutation.mutate();
+      // DISABLED: Don't auto-fetch reviews from Perplexity to save API costs
+      // Users can manually click "Refresh Reviews" button if they want updated reviews
+      console.log('ℹ️ Auto-fetch of external reviews disabled. Use "Refresh Reviews" button to fetch manually.');
+      // fetchExternalReviewsMutation.mutate(); // DISABLED
     }
   }, [community?.id, hasInitiallyFetched]);
 

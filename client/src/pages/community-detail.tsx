@@ -342,17 +342,25 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   
   // Trigger verification when component mounts (only once) - USING CACHE TO PREVENT DUPLICATES
   useEffect(() => {
-    // CRITICAL: Disable auto-verification in RealTimeInsights to prevent duplicate API calls
-    const enableAutoVerification = false; // Disabled to prevent API costs
+    // Enable auto-verification with 30-second cooloff
+    const COOLOFF_MS = 30000; // 30 seconds
+    const lastFetchKey = `realtime-verify-last-fetch-${community?.id}`;
+    const lastFetchTime = localStorage.getItem(lastFetchKey);
+    const now = Date.now();
     
-    if (!enableAutoVerification) {
-      console.log('⏸️ RealTimeInsights auto-verification disabled to prevent API costs');
+    // Check if we're within the cooloff period
+    if (lastFetchTime && (now - parseInt(lastFetchTime)) < COOLOFF_MS) {
+      const remainingTime = Math.ceil((COOLOFF_MS - (now - parseInt(lastFetchTime))) / 1000);
+      console.log(`⏱️ RealTimeInsights cooloff active. ${remainingTime}s remaining.`);
       return;
     }
     
     if (community?.id && !hasStartedVerification && !localVerificationReport) {
       setHasStartedVerification(true);
       setIsVerifying(true);
+      
+      // Store the current time to enforce cooloff
+      localStorage.setItem(lastFetchKey, now.toString());
       
       // Use enrichment cache to prevent duplicate API calls
       enrichmentCache.getOrFetch(
@@ -1199,13 +1207,18 @@ export default function CommunityDetail() {
     }
   }, [id]);
 
-  // Trigger verification immediately when community loads
+  // Trigger verification immediately when community loads (with 30-second cooloff)
   React.useEffect(() => {
-    // CRITICAL: Disable auto-verification to prevent excessive API calls
-    const enableAutoVerification = false; // Set to true only when needed
+    // Enable auto-verification with 30-second cooloff to prevent refresh spam
+    const COOLOFF_MS = 30000; // 30 seconds
+    const lastFetchKey = `verify-last-fetch-${community?.id}`;
+    const lastFetchTime = localStorage.getItem(lastFetchKey);
+    const now = Date.now();
     
-    if (!enableAutoVerification) {
-      console.log('⏸️ Auto-verification disabled to prevent API costs. Enable manually if needed.');
+    // Check if we're within the cooloff period
+    if (lastFetchTime && (now - parseInt(lastFetchTime)) < COOLOFF_MS) {
+      const remainingTime = Math.ceil((COOLOFF_MS - (now - parseInt(lastFetchTime))) / 1000);
+      console.log(`⏱️ Verification cooloff active. ${remainingTime}s remaining before next auto-fetch.`);
       return;
     }
     
@@ -1213,6 +1226,9 @@ export default function CommunityDetail() {
       console.log('🚀 Starting photo and data verification for community:', community.name);
       setHasStartedVerification(true);
       setIsVerifying(true);
+      
+      // Store the current time to enforce cooloff
+      localStorage.setItem(lastFetchKey, now.toString());
       
       // Call verification endpoint
       fetch(`/api/communities/${community.id}/verify`, {
