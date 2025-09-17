@@ -2637,7 +2637,7 @@ export const vendors = pgTable("vendors", {
   primaryContactPhone: varchar("primary_contact_phone", { length: 20 }).notNull(),
   businessAddress: text("business_address"),
   businessCity: varchar("business_city", { length: 100 }),
-  businessState: varchar("business_state", { length: 2 }),
+  businessState: varchar("business_state", { length: 100 }), // Increased to support international locations
   businessZip: varchar("business_zip", { length: 10 }),
   
   // Profile Information
