@@ -59,22 +59,47 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities!
       // Skip database search for services - we're looking for commercial services, not communities
       if (searchType !== 'services') {
-        // Parse location from query (e.g., "Dallas, Texas" -> city: Dallas, state: Texas)
+        // Parse location from query (e.g., "Dallas, Texas" or just "France")
         const queryParts = query.split(',').map(p => p.trim());
         const citySearch = queryParts[0] || query;
         const stateSearch = queryParts[1] || '';
         
-        // First try exact city match
-        existingCommunities = await db.select()
-          .from(communities)
-          .where(
-            and(
-              sql`LOWER(${communities.city}) = ${citySearch.toLowerCase()}`,
-              stateSearch ? sql`LOWER(${communities.state}) LIKE ${stateSearch.toLowerCase() + '%'}` : sql`true`,
-              eq(communities.isVerified, true) // Only return verified communities
+        // Check if it's a country search
+        const countryNames = [
+          'japan', 'france', 'germany', 'italy', 'spain', 'uk', 'united kingdom', 'canada', 
+          'australia', 'china', 'india', 'brazil', 'mexico', 'russia', 'south korea', 'korea',
+          'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark', 'finland',
+          'poland', 'czech republic', 'austria', 'portugal', 'greece', 'turkey', 'israel',
+          'new zealand', 'singapore', 'thailand', 'vietnam', 'philippines', 'indonesia',
+          'malaysia', 'hong kong', 'taiwan', 'argentina', 'chile', 'colombia', 'peru', 'usa', 'united states'
+        ];
+        const queryLower = query.toLowerCase();
+        const isCountrySearch = countryNames.some(country => queryLower.includes(country));
+        
+        if (isCountrySearch && !query.includes(',')) {
+          // Country-only search (e.g., "Japan", "France")
+          existingCommunities = await db.select()
+            .from(communities)
+            .where(
+              and(
+                sql`LOWER(${communities.country}) LIKE ${queryLower + '%'}`,
+                eq(communities.isVerified, true)
+              )
             )
-          )
-          .limit(50); // Get more results from database
+            .limit(50);
+        } else {
+          // City/state search (existing logic)
+          existingCommunities = await db.select()
+            .from(communities)
+            .where(
+              and(
+                sql`LOWER(${communities.city}) = ${citySearch.toLowerCase()}`,
+                stateSearch ? sql`LOWER(${communities.state}) LIKE ${stateSearch.toLowerCase() + '%'}` : sql`true`,
+                eq(communities.isVerified, true) // Only return verified communities
+              )
+            )
+            .limit(50); // Get more results from database
+        }
       }
       
       // If not enough results, broaden search (skip for services)
@@ -189,14 +214,27 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`🔍 Discovery Mode ACTIVE: Always searching web for ALL communities in ${query}, then comparing to database`);
       
-      // Construct an intelligent search query for Perplexity - optimized for city/region searches
+      // Construct an intelligent search query for Perplexity - optimized for international searches
       let searchQuery = '';
-      // Detect if query includes city/country format (e.g., "Brisbane, Australia")
+      
+      // List of known country names for detection
+      const countryNames = [
+        'japan', 'france', 'germany', 'italy', 'spain', 'uk', 'united kingdom', 'canada', 
+        'australia', 'china', 'india', 'brazil', 'mexico', 'russia', 'south korea', 'korea',
+        'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark', 'finland',
+        'poland', 'czech republic', 'austria', 'portugal', 'greece', 'turkey', 'israel',
+        'new zealand', 'singapore', 'thailand', 'vietnam', 'philippines', 'indonesia',
+        'malaysia', 'hong kong', 'taiwan', 'argentina', 'chile', 'colombia', 'peru'
+      ];
+      
+      // Detect if query contains a country name
+      const queryLower = query.toLowerCase();
+      const isCountrySearch = countryNames.some(country => queryLower.includes(country));
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
       if (searchType === 'services') {
         // For services, extract the service type and location from the query
-        // Common patterns: "restaurants in San Francisco", "hotels", "restaurants", "San Francisco"
+        // Common patterns: "restaurants in France", "hotels in Japan", "restaurants in San Francisco"
         let serviceType = '';
         let location = query;
         
@@ -206,8 +244,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           serviceType = locationMatch[1].trim();
           location = locationMatch[2].trim();
         } else {
-          // Check if the query looks like a location (contains state abbreviation, city name patterns, etc.)
-          const looksLikeLocation = query.match(/\b([A-Z]{2}|california|texas|florida|new york|san|los|las|fort|saint|port)\b/i);
+          // Check if the query looks like a location
+          const looksLikeLocation = query.match(/\b([A-Z]{2}|california|texas|florida|new york|san|los|las|fort|saint|port)\b/i) || isCountrySearch;
           if (looksLikeLocation) {
             // Treat as a location search for general services
             location = query;
@@ -224,9 +262,25 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           `Focus specifically on ${serviceType} businesses.` : 
           `Focus on ${serviceType || 'various services'} including relevant businesses and services in this category.`;
         
-        searchQuery = `Find at least 15-20 ${serviceType || 'businesses and services'} in ${location}. Include ONLY real, operational businesses physically located in ${location}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. ${businessFocus} List as many businesses as possible, minimum 15.`;
-      } else if (searchType === 'location' || isSpecificCitySearch) {
-        searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. List ALL facilities you can find, not just a few examples. Include ONLY real, operational facilities physically located in ${query}. For each facility provide: exact facility name, complete street address with street number, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
+        // Adjust search scope based on location type
+        let locationScope = '';
+        if (isCountrySearch && !isSpecificCitySearch) {
+          locationScope = `Search across major cities and regions in ${location}. Include businesses from different areas of the country.`;
+        } else {
+          locationScope = `Include ONLY businesses physically located in ${location}.`;
+        }
+        
+        searchQuery = `Find at least 15-20 ${serviceType || 'businesses and services'} in ${location}. ${locationScope} For each business provide: exact business name, complete street address, city, state/region, country, phone number, website, and description of their services. ${businessFocus} List as many businesses as possible, minimum 15.`;
+      } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
+        // Adjust for country-level searches
+        let searchScope = '';
+        if (isCountrySearch && !isSpecificCitySearch) {
+          searchScope = `Search across major cities and regions in ${query}. Include facilities from different areas of the country.`;
+        } else {
+          searchScope = `Include ONLY facilities physically located in ${query}.`;
+        }
+        
+        searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. ${searchScope} List ALL facilities you can find, not just a few examples. For each facility provide: exact facility name, complete street address with street number, city, state/region, country, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
         searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;

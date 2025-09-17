@@ -66,6 +66,8 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - Enhanced Discovery Mode to dynamically search for correct business types (not defaulting to senior services)
 - Improved photo retrieval with intelligent fallback to appropriate business-type images when actual photos unavailable
 - Fixed "Business Highlights" section to adapt to any business type (lawyers, restaurants, pharmacies, etc.)
+- **Enhanced International Search Capabilities**: Platform now fully supports country-based searches (e.g., "Hotels in France", "Restaurants in Japan", "Senior Living in Germany")
+- **Database Schema Update**: Extended state/region field to support international locations (not just 2-character US state codes)
 
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
