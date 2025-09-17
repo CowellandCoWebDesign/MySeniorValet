@@ -176,6 +176,13 @@ export const users = pgTable("users", {
   emailVerificationToken: text("email_verification_token"),
   passwordResetToken: text("password_reset_token"),
   passwordResetExpires: timestamp("password_reset_expires"),
+  // Two-Factor Authentication fields
+  twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  twoFactorSecret: text("two_factor_secret"),
+  twoFactorBackupCodes: json("two_factor_backup_codes").$type<string[]>(),
+  twoFactorVerifiedAt: timestamp("two_factor_verified_at"),
+  requiresPasswordChange: boolean("requires_password_change").default(false),
+  lastPasswordChangeAt: timestamp("last_password_change_at"),
   lastLoginAt: timestamp("last_login_at"),
   isActive: boolean("is_active").default(true),
   role: text("role", { enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] }).default("user"),
