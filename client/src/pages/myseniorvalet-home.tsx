@@ -3633,6 +3633,53 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Quick Access Tools Section */}
+      <section className="px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-2 border-blue-200 dark:border-blue-600">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
+                Quick Access Tools
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/emergency-contacts')}
+                >
+                  <AlertCircle className="h-6 w-6 text-red-500" />
+                  <span className="text-xs">Emergency</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/tours')}
+                >
+                  <Calendar className="h-6 w-6 text-blue-500" />
+                  <span className="text-xs">Schedule Tour</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/care-guide')}
+                >
+                  <Brain className="h-6 w-6 text-purple-500" />
+                  <span className="text-xs">Care Guide</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/ai-support')}
+                >
+                  <HeartHandshake className="h-6 w-6 text-green-500" />
+                  <span className="text-xs">AI Support</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Enhanced Footer with Dashboard Login Buttons */}
       <Footer />
       
