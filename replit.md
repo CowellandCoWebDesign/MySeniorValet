@@ -61,6 +61,12 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Data Quality Improvements**: Removed 123 generic placeholders, 13 wrong-state entries
 - **Self-Healing Active**: Discovery Mode automatically fills remaining gaps
 
+## Recent Changes (September 17, 2025)
+- Fixed security validation to allow business names with special characters (ampersands, quotes)
+- Enhanced Discovery Mode to dynamically search for correct business types (not defaulting to senior services)
+- Improved photo retrieval with intelligent fallback to appropriate business-type images when actual photos unavailable
+- Fixed "Business Highlights" section to adapt to any business type (lawyers, restaurants, pharmacies, etc.)
+
 ## External Dependencies
 - **Database Connectivity**: `@neondatabase/serverless`
 - **ORM**: `drizzle-orm`
