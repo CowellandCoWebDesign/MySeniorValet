@@ -61,6 +61,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize community stats cache:', error);
   });
 
+  // API endpoint for service web intelligence
+  app.post('/api/service-intelligence', async (req, res) => {
+    try {
+      const { serviceName, city, state, serviceType } = req.body;
+      
+      if (!serviceName || !city) {
+        return res.status(400).json({ error: 'Service name and city are required' });
+      }
+      
+      console.log(`Fetching web intelligence for service: ${serviceName} in ${city}, ${state}`);
+      
+      // Use Perplexity to fetch business information and photos
+      const simplifiedPerplexityService = await import('./simplified-perplexity-service');
+      const intelligence = await simplifiedPerplexityService.simplifiedPerplexityService.getCommunityIntelligence(
+        serviceName,
+        `${city}, ${state}`
+      );
+      
+      // Transform the response to match what the frontend expects
+      const serviceData = {
+        success: true,
+        serviceName,
+        location: `${city}, ${state}`,
+        description: intelligence.description,
+        website: intelligence.officialWebsite,
+        photos: intelligence.photos || [],
+        services: intelligence.careTypes || [],
+        hours: intelligence.hours,
+        pricing: intelligence.pricing,
+        citations: intelligence.sources || [],
+        found: intelligence.found
+      };
+      
+      console.log(`Found ${serviceData.photos.length} photos for ${serviceName}`);
+      
+      res.json(serviceData);
+    } catch (error) {
+      console.error('Error fetching service intelligence:', error);
+      res.status(500).json({ error: 'Failed to fetch service intelligence' });
+    }
+  });
+
   // API endpoint for fetching service/vendor details by ID
   // IMPORTANT: This must be registered BEFORE modular routes to avoid being intercepted
   app.get('/api/services/:id(\\d+)', async (req, res) => {

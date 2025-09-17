@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'wouter';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Phone, Mail, Globe, MapPin, Star, Calendar, MessageSquare, 
          Building, CheckCircle, Sparkles, Clock, DollarSign, Shield, Award, 
-         TrendingUp, Users, Truck, Package, Briefcase, Info, ExternalLink } from 'lucide-react';
+         TrendingUp, Users, Truck, Package, Briefcase, Info, ExternalLink, 
+         Loader2, Search, Camera } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,8 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { FamilyShareButton } from "@/components/family-share-button";
 import { MessageCommunityButton } from "@/components/message-community-button";
+import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
+import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { apiRequest } from "@/lib/queryClient";
 
 interface ServiceProvider {
@@ -173,9 +176,149 @@ const ServiceBookingForm = ({ service, onSuccess }: { service: ServiceProvider, 
   );
 };
 
+// Web Intelligence Component for Services
+const ServiceWebIntelligence = ({ service, onPhotosFound }: { service: ServiceProvider, onPhotosFound?: (photos: any[]) => void }) => {
+  const [webData, setWebData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
+
+  const fetchWebIntelligence = async () => {
+    if (!service?.name || !service?.city) return;
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    setHasSearched(true);
+    
+    try {
+      const response = await fetch('/api/service-intelligence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceName: service.name,
+          city: service.city,
+          state: service.state,
+          serviceType: service.careTypes?.[0] || 'service'
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setWebData(data);
+        
+        // Extract photos from web intelligence
+        if (data.photos && data.photos.length > 0) {
+          console.log(`Found ${data.photos.length} photos for ${service.name}`);
+          if (onPhotosFound) {
+            onPhotosFound(data.photos);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch web intelligence:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Auto-fetch on mount
+    if (service?.name && !hasSearched) {
+      fetchWebIntelligence();
+    }
+  }, [service?.name]);
+
+  if (!service) return null;
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Search className="w-5 h-5" />
+          {isLoading ? `Searching for ${service.name}...` : 'Business Intelligence'}
+        </CardTitle>
+        <CardDescription>
+          Real-time information about this business from across the web
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="space-y-4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4" />
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2" />
+          </div>
+        ) : webData ? (
+          <div className="space-y-4">
+            {webData.description && (
+              <div>
+                <h4 className="font-semibold mb-2">About {service.name}</h4>
+                <p className="text-gray-700 dark:text-gray-300">{webData.description}</p>
+              </div>
+            )}
+            
+            {webData.services && webData.services.length > 0 && (
+              <div>
+                <h4 className="font-semibold mb-2">Services Offered</h4>
+                <div className="flex flex-wrap gap-2">
+                  {webData.services.map((service: string, idx: number) => (
+                    <Badge key={idx} variant="outline">{service}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {webData.hours && (
+              <div>
+                <h4 className="font-semibold mb-2">Business Hours</h4>
+                <p className="text-gray-700 dark:text-gray-300">{webData.hours}</p>
+              </div>
+            )}
+            
+            {webData.website && service.website !== webData.website && (
+              <div>
+                <h4 className="font-semibold mb-2">Website Found</h4>
+                <a href={webData.website} target="_blank" rel="noopener noreferrer" 
+                   className="text-blue-600 hover:underline flex items-center gap-1">
+                  {webData.website}
+                  <ExternalLink className="w-3 h-3" />
+                </a>
+              </div>
+            )}
+            
+            {webData.citations && webData.citations.length > 0 && (
+              <div className="mt-4 pt-4 border-t">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Sources: {webData.citations.join(', ')}
+                </p>
+              </div>
+            )}
+          </div>
+        ) : hasSearched ? (
+          <Alert>
+            <Info className="w-4 h-4" />
+            <AlertDescription>
+              No additional information found. The business information above is what we currently have on file.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <div className="text-center py-4">
+            <Button onClick={fetchWebIntelligence} variant="outline">
+              <Search className="w-4 h-4 mr-2" />
+              Search for Business Information
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
+  const [webPhotos, setWebPhotos] = useState<any[]>([]);
 
   // Fetch service details
   const { data: service, isLoading, error } = useQuery<ServiceProvider>({
@@ -204,7 +347,7 @@ export default function ServiceDetail() {
         <div className="container mx-auto px-4 py-8">
           <Alert className="max-w-2xl mx-auto">
             <AlertDescription>
-              Service provider not found. It may have been removed or the link is incorrect.
+              Business not found. It may have been removed or the link is incorrect.
             </AlertDescription>
           </Alert>
           <div className="text-center mt-6">
@@ -235,6 +378,20 @@ export default function ServiceDetail() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-16">
+        {/* Photo Carousel */}
+        <div className="mb-6">
+          <EnhancedPhotoCarousel
+            photos={webPhotos}
+            communityName={service.name}
+            community={{
+              name: service.name,
+              photos: webPhotos
+            }}
+            isLoading={false}
+            showSourceIndicator={true}
+          />
+        </div>
+
         {/* Header Section */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
           <div className="flex flex-col lg:flex-row justify-between items-start gap-6">
@@ -377,7 +534,7 @@ export default function ServiceDetail() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Why Choose This Provider</CardTitle>
+                  <CardTitle>Why Choose This Business</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
@@ -433,11 +590,13 @@ export default function ServiceDetail() {
           </TabsContent>
 
           <TabsContent value="intelligence">
-            {/* Live Web Intelligence for additional research */}
-            <LiveWebIntelligence 
-              communityName={service.name}
-              city={service.city || ''}
-              state={service.state || ''}
+            {/* Web Intelligence for additional research */}
+            <ServiceWebIntelligence 
+              service={service}
+              onPhotosFound={(photos) => {
+                console.log('Photos found for service:', photos);
+                setWebPhotos(photos);
+              }}
             />
           </TabsContent>
 
@@ -453,7 +612,7 @@ export default function ServiceDetail() {
                 <Alert>
                   <Info className="w-4 h-4" />
                   <AlertDescription>
-                    Reviews are being collected for this service provider. Check back soon or contact them directly for references.
+                    Reviews are being collected for this business. Check back soon or contact them directly for references.
                   </AlertDescription>
                 </Alert>
               </CardContent>
