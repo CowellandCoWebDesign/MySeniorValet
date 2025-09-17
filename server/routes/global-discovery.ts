@@ -219,7 +219,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           }
         }
         
-        searchQuery = `Find at least 15-20 ${serviceType || 'senior care services and businesses'} in ${location}. Include ONLY real, operational businesses physically located in ${location}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. Focus on ${serviceType || 'various senior care services'} including home care, medical equipment, pharmacies, senior centers, and related services. List as many businesses as possible, minimum 15.`;
+        // Dynamically adjust the search based on the service type
+        const businessFocus = serviceType && !serviceType.includes('senior') ? 
+          `Focus specifically on ${serviceType} businesses.` : 
+          `Focus on ${serviceType || 'various services'} including relevant businesses and services in this category.`;
+        
+        searchQuery = `Find at least 15-20 ${serviceType || 'businesses and services'} in ${location}. Include ONLY real, operational businesses physically located in ${location}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. ${businessFocus} List as many businesses as possible, minimum 15.`;
       } else if (searchType === 'location' || isSpecificCitySearch) {
         searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. List ALL facilities you can find, not just a few examples. Include ONLY real, operational facilities physically located in ${query}. For each facility provide: exact facility name, complete street address with street number, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
       } else if (searchType === 'service') {
