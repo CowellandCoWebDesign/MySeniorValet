@@ -29,6 +29,15 @@ export function setupCustomAuth(app: Express) {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const isProduction = process.env.NODE_ENV === 'production';
   
+  // Require SESSION_SECRET in production
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    if (isProduction) {
+      throw new Error('SESSION_SECRET environment variable is required in production');
+    }
+    console.warn('⚠️  WARNING: SESSION_SECRET not set. Using default for development only.');
+  }
+  
   // Use PostgreSQL for session storage
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -39,7 +48,7 @@ export function setupCustomAuth(app: Express) {
   });
   
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'mysv-secret-2025',
+    secret: sessionSecret || 'dev-only-secret-change-this',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
@@ -415,7 +424,7 @@ export function setupCustomAuth(app: Express) {
       }
       
       // Generate TOTP secret and backup codes
-      const { secret, qrCode, manualEntryKey } = generateTOTPSecret(user.email);
+      const { secret, qrCode, manualEntryKey } = await generateTOTPSecret(user.email);
       const backupCodes = generateBackupCodes(10);
       
       // Store the secret temporarily (not enabled yet)
