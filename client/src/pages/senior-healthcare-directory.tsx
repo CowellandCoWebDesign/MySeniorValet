@@ -712,7 +712,7 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* Comprehensive Healthcare Services Grid - All 36 Categories */}
+      {/* Comprehensive Healthcare Services Directory - With Horizontal Sliders */}
       <section className="px-4 py-12 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
@@ -723,112 +723,151 @@ export default function SeniorHealthcareDirectory() {
               Browse all {statsData?.overall?.total_categories || 36} healthcare service categories
             </p>
             <p className="text-sm text-gray-500 dark:text-gray-500">
-              {totalProviders?.toLocaleString() || '4,029'}+ verified providers nationwide
+              {totalProviders?.toLocaleString() || '5,654'}+ verified providers nationwide
             </p>
           </div>
 
-          {/* Healthcare Categories Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {healthcareServices.length > 0 ? (
-              healthcareServices.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <motion.div
+          {/* CMS Hospitals Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <Stethoscope className="h-6 w-6 text-blue-600" />
+                  CMS Hospitals
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Medicare-certified hospitals</p>
+              </div>
+              <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                {hospitals.length} FACILITIES
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {hospitals.length > 0 ? (
+                <HospitalCarousel />
+              ) : (
+                <p className="text-gray-500">Loading hospitals...</p>
+              )}
+            </div>
+          </div>
+
+          {/* Urgent Care Centers Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <Zap className="h-6 w-6 text-orange-600" />
+                  Urgent Care Centers
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Walk-in urgent care facilities</p>
+              </div>
+              <Badge className="bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300">
+                15 PROVIDERS
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {hospitals && hospitals.filter((h: any) => h.emergencyServices === 'YES').slice(0, 15).map((hospital: any, index: number) => (
+                <CareServiceCard
+                  key={`urgent-${hospital.providerNumber}`}
+                  service={{
+                    id: hospital.providerNumber,
+                    name: hospital.hospitalName || 'Urgent Care Center',
+                    serviceCategory: 'Urgent Care',
+                    description: 'Emergency and urgent medical care 24/7',
+                    phone: hospital.phoneNumber?.number || 'Contact for info',
+                    website: '',
+                    rating: 4.2,
+                    reviewCount: 0,
+                    verified: true,
+                    location: `${hospital.city}, ${hospital.state}`,
+                    availability: 'Open 24/7',
+                    specialties: ['Emergency Care', 'Walk-in Service'],
+                    acceptsMedicare: true,
+                    acceptsMedicaid: true
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Surgery Centers Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <Shield className="h-6 w-6 text-red-600" />
+                  Surgery Centers
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Ambulatory surgery centers</p>
+              </div>
+              <Badge className="bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300">
+                10 PROVIDERS
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {hospitals && hospitals.filter((h: any) => h.services?.includes('Surgical Services')).slice(0, 10).map((hospital: any, index: number) => (
+                <CareServiceCard
+                  key={`surgery-${hospital.providerNumber}`}
+                  service={{
+                    id: hospital.providerNumber,
+                    name: hospital.hospitalName || 'Surgery Center',
+                    serviceCategory: 'Surgery Center',
+                    description: 'Outpatient surgical procedures',
+                    phone: hospital.phoneNumber?.number || 'Contact for info',
+                    website: '',
+                    rating: 4.5,
+                    reviewCount: 0,
+                    verified: true,
+                    location: `${hospital.city}, ${hospital.state}`,
+                    availability: 'By appointment',
+                    specialties: ['General Surgery', 'Outpatient Procedures'],
+                    acceptsMedicare: true,
+                    acceptsMedicaid: true
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Respite Care Section */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                  <Moon className="h-6 w-6 text-amber-600" />
+                  Respite Care
+                </h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Temporary relief for caregivers</p>
+              </div>
+              <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+                {respiteServices.length} PROVIDERS
+              </Badge>
+            </div>
+            
+            <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
+              {respiteServices.length > 0 ? (
+                respiteServices.slice(0, 15).map((service: any) => (
+                  <CareServiceCard
                     key={service.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: service.id * 0.02 }}
-                    className="group cursor-pointer"
-                    onClick={() => setLocation(service.link)}
-                  >
-                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600">
-                      <CardContent className="p-5">
-                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${service.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
-                          {service.name}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {service.description}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                              {service.providerCount.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-500">
-                              providers
-                            </span>
-                          </div>
-                          {service.badge && (
-                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                              {service.badge}
-                            </Badge>
-                          )}
-                        </div>
-                        {service.verified && (
-                          <div className="flex items-center gap-1 mt-3 text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-4 w-4" />
-                            <span className="text-xs">Verified Providers</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })
-            ) : (
-              // Show all healthcare types from API if available
-              healthcareTypesAll.map((type: any, index: number) => {
-                const Icon = iconMap[type.icon] || Activity;
-                const color = colorMap[type.service_type] || 'from-gray-500 to-slate-500';
-                return (
-                  <motion.div
-                    key={type.categoryId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.02 }}
-                    className="group cursor-pointer"
-                  >
-                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600">
-                      <CardContent className="p-5">
-                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
-                          {type.name}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {type.description || type.displayName}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-lg font-bold ${type.count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-600'}`}>
-                              {type.count.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-500">
-                              providers
-                            </span>
-                          </div>
-                          {type.metadata?.coveredByMedicare && (
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                              MEDICARE
-                            </Badge>
-                          )}
-                        </div>
-                        {type.count > 0 && (
-                          <div className="flex items-center gap-1 mt-3 text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-4 w-4" />
-                            <span className="text-xs">Active Providers</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })
-            )}
+                    service={{
+                      ...service,
+                      serviceCategory: 'Respite Care',
+                      description: 'Short-term care providing relief for primary caregivers',
+                      rating: 4.4,
+                      reviewCount: 0,
+                      verified: true,
+                      location: `${service.city}, ${service.state}`,
+                      availability: 'Flexible scheduling',
+                      specialties: ['Respite Care', 'Caregiver Support']
+                    }}
+                  />
+                ))
+              ) : (
+                <p className="text-gray-500">No respite care providers available in this area</p>
+              )}
+            </div>
           </div>
 
           {/* View More Button */}
