@@ -196,9 +196,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       if (searchType === 'services') {
         // For services, extract the service type and location from the query
-        // Common patterns: "restaurants in San Francisco", "hotels", "restaurants"
-        let serviceType = query;
-        let location = '';
+        // Common patterns: "restaurants in San Francisco", "hotels", "restaurants", "San Francisco"
+        let serviceType = '';
+        let location = query;
         
         // Try to extract location from patterns like "X in Y" or "X near Y"
         const locationMatch = query.match(/(.+?)\s+(?:in|near|at|around)\s+(.+)/i);
@@ -206,12 +206,20 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           serviceType = locationMatch[1].trim();
           location = locationMatch[2].trim();
         } else {
-          // If no location specified, use the full query as service type
-          serviceType = query;
-          location = 'nearby areas';
+          // Check if the query looks like a location (contains state abbreviation, city name patterns, etc.)
+          const looksLikeLocation = query.match(/\b([A-Z]{2}|california|texas|florida|new york|san|los|las|fort|saint|port)\b/i);
+          if (looksLikeLocation) {
+            // Treat as a location search for general services
+            location = query;
+            serviceType = 'senior services, home care agencies, medical equipment, pharmacies, and healthcare providers';
+          } else {
+            // Treat as a service type search in general area
+            serviceType = query;
+            location = 'nearby areas';
+          }
         }
         
-        searchQuery = `Find at least 15-20 ${serviceType} and related businesses in ${location}. Include ONLY real, operational businesses physically located in ${location}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. Focus primarily on ${serviceType} but also include similar or related services. List as many businesses as possible, minimum 15.`;
+        searchQuery = `Find at least 15-20 ${serviceType || 'senior care services and businesses'} in ${location}. Include ONLY real, operational businesses physically located in ${location}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. Focus on ${serviceType || 'various senior care services'} including home care, medical equipment, pharmacies, senior centers, and related services. List as many businesses as possible, minimum 15.`;
       } else if (searchType === 'location' || isSpecificCitySearch) {
         searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. List ALL facilities you can find, not just a few examples. Include ONLY real, operational facilities physically located in ${query}. For each facility provide: exact facility name, complete street address with street number, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
       } else if (searchType === 'service') {
@@ -225,7 +233,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout for better user experience
+      const timeout = setTimeout(() => controller.abort(), 25000); // 25 second timeout to allow Perplexity to complete
       
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
