@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { PasswordStrengthMeter } from "@/components/auth/PasswordStrengthMeter";
 
 export default function SignupPage() {
   const [, setLocation] = useLocation();
@@ -20,24 +21,25 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
 
   // Handle signup (no Replit account required)
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
+    if (!isPasswordValid) {
       toast({
-        title: "Passwords don't match",
-        description: "Please make sure your passwords match",
+        title: "Password not strong enough",
+        description: "Please meet all password requirements",
         variant: "destructive",
       });
       return;
     }
     
-    if (password.length < 8) {
+    if (password !== confirmPassword) {
       toast({
-        title: "Password too short",
-        description: "Password must be at least 8 characters",
+        title: "Passwords don't match",
+        description: "Please make sure your passwords match",
         variant: "destructive",
       });
       return;
@@ -223,6 +225,11 @@ export default function SignupPage() {
                   required
                   disabled={isSubmitting}
                   className="mt-1"
+                />
+                <PasswordStrengthMeter 
+                  password={password} 
+                  onChange={setIsPasswordValid}
+                  showRequirements={true}
                 />
               </div>
               

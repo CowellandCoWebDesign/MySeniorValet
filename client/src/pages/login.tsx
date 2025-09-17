@@ -17,6 +17,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
+  const [backupCode, setBackupCode] = useState("");
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [show2FAInput, setShow2FAInput] = useState(false);
   
   // Handle standard login (no Replit account required)
   const handleLogin = async (e: React.FormEvent) => {
@@ -27,10 +31,27 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email, 
+          password,
+          totpCode: show2FAInput ? totpCode : undefined,
+          backupCode: show2FAInput ? backupCode : undefined
+        }),
       });
       
       const data = await response.json();
+      
+      // Check if 2FA is required
+      if (response.ok && data.requires2FA) {
+        setShow2FAInput(true);
+        setRequires2FA(true);
+        toast({
+          title: "Two-Factor Authentication",
+          description: "Please enter your 6-digit verification code",
+        });
+        setIsSubmitting(false);
+        return;
+      }
       
       if (response.ok && data.success) {
         toast({
