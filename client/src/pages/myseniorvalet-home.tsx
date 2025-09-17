@@ -122,7 +122,8 @@ function HeroSectionWithTransformingSearch() {
           body: JSON.stringify({ 
             query, 
             searchType: searchCategory === 'services' ? 'services' : 'location',
-            limit: 50 
+            limit: 50,
+            discoveryMode: true  // CRITICAL: This flag tells the backend to actually search the web
           })
         });
         
