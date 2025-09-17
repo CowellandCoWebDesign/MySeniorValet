@@ -226,7 +226,11 @@ export default function ServiceDetail() {
       
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 py-4">
-        <BreadcrumbNavigation />
+        <BreadcrumbNavigation items={[
+          { label: 'Home', href: '/' },
+          { label: 'Services', href: '/' },
+          { label: service.name, href: `/service/${service.id}` }
+        ]} />
       </div>
 
       {/* Main Content */}
@@ -434,7 +438,6 @@ export default function ServiceDetail() {
               communityName={service.name}
               city={service.city || ''}
               state={service.state || ''}
-              forceRefresh={false}
             />
           </TabsContent>
 
@@ -461,12 +464,11 @@ export default function ServiceDetail() {
         {/* Share and Message Buttons */}
         <div className="fixed bottom-6 right-6 flex flex-col gap-3">
           <FamilyShareButton 
-            communityId={service.id}
-            communityName={service.name}
+            community={{ id: parseInt(service.id), name: service.name }}
             shareType="service"
           />
           <MessageCommunityButton
-            communityId={service.id}
+            communityId={parseInt(service.id)}
             communityName={service.name}
           />
         </div>

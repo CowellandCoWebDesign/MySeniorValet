@@ -61,6 +61,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize community stats cache:', error);
   });
 
+  // API endpoint for fetching service/vendor details by ID
+  // IMPORTANT: This must be registered BEFORE modular routes to avoid being intercepted
+  app.get('/api/services/:id(\\d+)', async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log('Fetching service with ID:', id);
+      
+      // Try to fetch from vendors table
+      const vendor = await db.select()
+        .from(vendors)
+        .where(eq(vendors.id, parseInt(id)))
+        .limit(1);
+      
+      console.log('Found vendor:', vendor.length > 0 ? 'YES' : 'NO');
+      
+      if (vendor.length > 0) {
+        const vendorData = vendor[0];
+        
+        // Transform vendor data to match the expected service structure
+        const serviceData = {
+          id: vendorData.id.toString(),
+          name: vendorData.businessName,
+          slug: vendorData.id.toString(),
+          description: vendorData.description || vendorData.shortDescription,
+          address: vendorData.businessAddress,
+          city: vendorData.businessCity,
+          state: vendorData.businessState,
+          country: 'US',
+          zipCode: vendorData.businessZip,
+          phone: vendorData.primaryContactPhone,
+          email: vendorData.primaryContactEmail,
+          website: vendorData.website,
+          careTypes: vendorData.businessType ? [vendorData.businessType] : [],
+          services: vendorData.serviceAreas || [],
+          hours: null,
+          pricing: null,
+          rating: vendorData.averageRating || null,
+          reviews: vendorData.totalReviews || 0,
+          isDiscovered: !vendorData.isVerified,
+          isVerified: vendorData.isVerified || false,
+          data_source: 'Database',
+          confidence: 100,
+          citations: [],
+          createdAt: vendorData.createdAt?.toISOString(),
+          updatedAt: vendorData.updatedAt?.toISOString()
+        };
+        
+        return res.json(serviceData);
+      }
+      
+      // If not found, return 404
+      return res.status(404).json({ error: 'Service not found' });
+      
+    } catch (error) {
+      console.error('Error fetching service details:', error);
+      res.status(500).json({ error: 'Failed to fetch service details' });
+    }
+  });
+
   // Register all modular routes
   registerModularRoutes(app);
   
@@ -123,61 +182,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register AI chat/research routes
   const aiChatRoutes = await import('./routes/ai-chat-routes');
   app.use('/api', aiChatRoutes.default);
-  
-  // API endpoint for fetching service/vendor details by ID
-  app.get('/api/services/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-      
-      // Try to fetch from vendors table
-      const vendor = await db.select()
-        .from(vendors)
-        .where(eq(vendors.id, parseInt(id)))
-        .limit(1);
-      
-      if (vendor.length > 0) {
-        const vendorData = vendor[0];
-        
-        // Transform vendor data to match the expected service structure
-        const serviceData = {
-          id: vendorData.id.toString(),
-          name: vendorData.businessName,
-          slug: vendorData.id.toString(),
-          description: vendorData.description || vendorData.shortDescription,
-          address: vendorData.businessAddress,
-          city: vendorData.businessCity,
-          state: vendorData.businessState,
-          country: 'US',
-          zipCode: vendorData.businessZip,
-          phone: vendorData.primaryContactPhone,
-          email: vendorData.primaryContactEmail,
-          website: vendorData.website,
-          careTypes: vendorData.businessType ? [vendorData.businessType] : [],
-          services: vendorData.serviceAreas || [],
-          hours: null,
-          pricing: null,
-          rating: vendorData.averageRating || null,
-          reviews: vendorData.totalReviews || 0,
-          isDiscovered: !vendorData.isVerified,
-          isVerified: vendorData.isVerified || false,
-          data_source: 'Database',
-          confidence: 100,
-          citations: [],
-          createdAt: vendorData.createdAt?.toISOString(),
-          updatedAt: vendorData.updatedAt?.toISOString()
-        };
-        
-        return res.json(serviceData);
-      }
-      
-      // If not found, return 404
-      return res.status(404).json({ error: 'Service not found' });
-      
-    } catch (error) {
-      console.error('Error fetching service details:', error);
-      res.status(500).json({ error: 'Failed to fetch service details' });
-    }
-  });
   
   // Register featured communities routes
   app.get('/api/featured-communities', async (req, res) => {
