@@ -427,6 +427,7 @@ function HeroSectionWithTransformingSearch() {
           query: query,
           includeHospitals: true,
           includeServices: true,
+          searchType: searchCategory, // Pass the current search category
           limit: 50
         })
       });

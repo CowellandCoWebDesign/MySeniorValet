@@ -70,7 +70,8 @@ router.post('/api/search/unified', async (req, res) => {
       limit = 20, 
       offset = 0,
       filters,
-      userId
+      userId,
+      searchType = 'communities'
     } = req.body;
     
     if (!query || typeof query !== 'string') {
@@ -80,7 +81,26 @@ router.post('/api/search/unified', async (req, res) => {
       });
     }
     
-    // Execute unified search
+    // Handle services search differently
+    if (searchType === 'services') {
+      // For services, return empty results and let discovery mode handle it
+      // The frontend will trigger discovery mode for services
+      return res.json({
+        communities: [], // Services tab expects empty results to trigger discovery
+        vendors: [],
+        totalResults: 0,
+        searchMetadata: {
+          query,
+          searchType: 'services',
+          sourcesUsed: ['none'],
+          processingTime: 0,
+          message: 'Use Discovery Mode for services search'
+        },
+        _version: 'unified_v1_services'
+      });
+    }
+    
+    // Execute unified search for communities
     const results = await unifiedSearchEngine.search(query, {
       limit,
       offset,
