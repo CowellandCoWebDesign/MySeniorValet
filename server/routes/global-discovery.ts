@@ -195,8 +195,23 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
       if (searchType === 'services') {
-        // For services, discover ANY type of service providers - not limited to senior care
-        searchQuery = `Find at least 15-20 different service providers and businesses in ${query}. This includes restaurants, law firms, tech companies, retail stores, fitness centers, beauty salons, medical practices, financial services, education centers, entertainment venues, transportation services, and ANY other business or service provider. Include ONLY real, operational businesses physically located in ${query}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. List as many businesses as possible, minimum 15. Do not limit to senior care - include ALL types of businesses and services.`;
+        // For services, extract the service type and location from the query
+        // Common patterns: "restaurants in San Francisco", "hotels", "restaurants"
+        let serviceType = query;
+        let location = '';
+        
+        // Try to extract location from patterns like "X in Y" or "X near Y"
+        const locationMatch = query.match(/(.+?)\s+(?:in|near|at|around)\s+(.+)/i);
+        if (locationMatch) {
+          serviceType = locationMatch[1].trim();
+          location = locationMatch[2].trim();
+        } else {
+          // If no location specified, use the full query as service type
+          serviceType = query;
+          location = 'nearby areas';
+        }
+        
+        searchQuery = `Find at least 15-20 ${serviceType} and related businesses in ${location}. Include ONLY real, operational businesses physically located in ${location}. For each business provide: exact business name, complete street address, phone number, website, and description of their services. Focus primarily on ${serviceType} but also include similar or related services. List as many businesses as possible, minimum 15.`;
       } else if (searchType === 'location' || isSpecificCitySearch) {
         searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. List ALL facilities you can find, not just a few examples. Include ONLY real, operational facilities physically located in ${query}. For each facility provide: exact facility name, complete street address with street number, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
       } else if (searchType === 'service') {
