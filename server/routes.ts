@@ -70,33 +70,80 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'Service name and city are required' });
       }
       
-      console.log(`Fetching web intelligence for service: ${serviceName} in ${city}, ${state}`);
+      console.log(`🔍 Fetching web intelligence for business: ${serviceName} in ${city}, ${state}`);
+      console.log(`📊 Business type: ${serviceType || 'general business'}`);
       
       // Use Perplexity to fetch business information and photos
       const simplifiedPerplexityService = await import('./simplified-perplexity-service');
-      const intelligence = await simplifiedPerplexityService.simplifiedPerplexityService.getCommunityIntelligence(
-        serviceName,
-        `${city}, ${state}`
-      );
       
-      // Transform the response to match what the frontend expects
-      const serviceData = {
+      // Create a custom search for general businesses (not senior living)
+      const searchQuery = `${serviceName} ${serviceType || 'business'} in ${city}, ${state}`;
+      const perplexityPrompt = `Find detailed information about ${serviceName}, a ${serviceType || 'business'} located in ${city}, ${state}. 
+        Include:
+        1. Business description and what services/products they offer
+        2. Full address and contact information
+        3. Business hours
+        4. Website and social media links
+        5. Customer reviews or ratings
+        6. Photos of the business, storefront, interior, products, or food
+        7. Menu or service list if applicable
+        8. Any special features or highlights
+        
+        Focus on current, accurate business information. Include photos from the business website, Google Maps, Yelp, TripAdvisor, social media, or review sites.`;
+      
+      // Call Perplexity with business-focused search
+      const perplexityResponse = await simplifiedPerplexityService.simplifiedPerplexityService.searchWithPerplexity(perplexityPrompt);
+      
+      // Parse the response to extract business information
+      let businessData = {
         success: true,
         serviceName,
         location: `${city}, ${state}`,
-        description: intelligence.description,
-        website: intelligence.officialWebsite,
-        photos: intelligence.photos || [],
-        services: intelligence.careTypes || [],
-        hours: intelligence.hours,
-        pricing: intelligence.pricing,
-        citations: intelligence.sources || [],
-        found: intelligence.found
+        description: '',
+        website: '',
+        photos: [],
+        services: [],
+        hours: '',
+        pricing: '',
+        citations: [],
+        found: false
       };
       
-      console.log(`Found ${serviceData.photos.length} photos for ${serviceName}`);
+      if (perplexityResponse && perplexityResponse.answer) {
+        // Extract description
+        businessData.description = perplexityResponse.answer;
+        businessData.found = true;
+        
+        // Extract photos from the response
+        const photoMatches = perplexityResponse.answer.match(/https?:\/\/[^\s)]+\.(jpg|jpeg|png|gif|webp)/gi) || [];
+        businessData.photos = [...new Set(photoMatches)].filter(url => 
+          !url.includes('placeholder') && 
+          !url.includes('default') && 
+          !url.includes('logo')
+        );
+        
+        // Extract website
+        const websiteMatch = perplexityResponse.answer.match(/website[:\s]+([^\s,]+)/i);
+        if (websiteMatch) {
+          businessData.website = websiteMatch[1];
+        }
+        
+        // Extract hours
+        const hoursMatch = perplexityResponse.answer.match(/hours?[:\s]+([^.]+)/i);
+        if (hoursMatch) {
+          businessData.hours = hoursMatch[1];
+        }
+        
+        // Add citations
+        businessData.citations = perplexityResponse.citations || [];
+        
+        console.log(`✅ Found business information for ${serviceName}`);
+        console.log(`📸 Found ${businessData.photos.length} photos`);
+      } else {
+        console.log(`⚠️ No information found for ${serviceName}`);
+      }
       
-      res.json(serviceData);
+      res.json(businessData);
     } catch (error) {
       console.error('Error fetching service intelligence:', error);
       res.status(500).json({ error: 'Failed to fetch service intelligence' });
