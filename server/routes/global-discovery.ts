@@ -57,25 +57,28 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`🌍 Global Discovery Search: "${query}" (type: ${searchType || 'auto-detect'})`);
       
       // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities!
-      // Parse location from query (e.g., "Dallas, Texas" -> city: Dallas, state: Texas)
-      const queryParts = query.split(',').map(p => p.trim());
-      const citySearch = queryParts[0] || query;
-      const stateSearch = queryParts[1] || '';
-      
-      // First try exact city match
-      existingCommunities = await db.select()
-        .from(communities)
-        .where(
-          and(
-            sql`LOWER(${communities.city}) = ${citySearch.toLowerCase()}`,
-            stateSearch ? sql`LOWER(${communities.state}) LIKE ${stateSearch.toLowerCase() + '%'}` : sql`true`,
-            eq(communities.isVerified, true) // Only return verified communities
+      // Skip database search for services - we're looking for commercial services, not communities
+      if (searchType !== 'services') {
+        // Parse location from query (e.g., "Dallas, Texas" -> city: Dallas, state: Texas)
+        const queryParts = query.split(',').map(p => p.trim());
+        const citySearch = queryParts[0] || query;
+        const stateSearch = queryParts[1] || '';
+        
+        // First try exact city match
+        existingCommunities = await db.select()
+          .from(communities)
+          .where(
+            and(
+              sql`LOWER(${communities.city}) = ${citySearch.toLowerCase()}`,
+              stateSearch ? sql`LOWER(${communities.state}) LIKE ${stateSearch.toLowerCase() + '%'}` : sql`true`,
+              eq(communities.isVerified, true) // Only return verified communities
+            )
           )
-        )
-        .limit(50); // Get more results from database
+          .limit(50); // Get more results from database
+      }
       
-      // If not enough results, broaden search
-      if (existingCommunities.length < 15) {
+      // If not enough results, broaden search (skip for services)
+      if (searchType !== 'services' && existingCommunities.length < 15) {
         const searchTerms = query.toLowerCase().split(' ').filter(term => 
           term.length > 2 && !['for', 'in', 'at', 'the', 'senior', 'living', 'care'].includes(term)
         );
@@ -109,11 +112,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`💾 Found ${existingCommunities.length} existing communities in database`);
       
-      // Check if we're in Discovery Mode
+      // Check if we're in Discovery Mode or searching for services
       const isDiscoveryMode = req.body.discoveryMode === true;
       
-      // If NOT in Discovery Mode and we have enough database results, return immediately
-      if (!isDiscoveryMode && existingCommunities.length >= 15) {
+      // If NOT in Discovery Mode and we have enough database results (skip for services)
+      if (!isDiscoveryMode && searchType !== 'services' && existingCommunities.length >= 15) {
         // Mark all database results as existing/verified
         const markedResults = existingCommunities.slice(0, limit).map(community => ({
           ...community,
@@ -380,9 +383,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       }
       
-      // Step 4: Save discovered communities to database with "discovered_pending" status
+      // Step 4: Save discovered communities to database (skip saving for services)
       const savedCommunities = [];
-      for (const discovered of discoveredCommunities) {
+      // Only save communities, not services
+      if (searchType !== 'services') {
+        for (const discovered of discoveredCommunities) {
         try {
           // Check if we already have this community - use more flexible matching
           const nameParts = discovered.name.toLowerCase().split(/\s+/);
@@ -439,9 +444,33 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           console.error(`⚠️ Error saving discovered community ${discovered.name}:`, saveError);
         }
       }
+      } // End of if (searchType !== 'services')
       
-      // Step 5: Map saved communities to have all the display fields needed
-      const discoveredWithRealIds = savedCommunities.map((saved) => {
+      // Step 5: Map saved communities to have all the display fields needed (or use raw services)
+      let discoveredWithRealIds: any[] = [];
+      
+      if (searchType === 'services') {
+        // For services, format the discovered items as services
+        discoveredWithRealIds = discoveredCommunities.map((service, index) => ({
+          id: `service-${Date.now()}-${index}`, // Temporary ID for services
+          name: service.name,
+          type: 'service',
+          serviceType: service.serviceType || 'General Service',
+          address: service.address || service.location || '',
+          city: service.city || query.split(',')[0] || '',
+          state: service.state || query.split(',')[1]?.trim() || '',
+          phone: service.phone || '',
+          website: service.website || '',
+          description: service.description || '',
+          isDiscovered: true,
+          isService: true,
+          confidence: service.confidence || 90,
+          data_source: 'Web Discovery',
+          citations: citations
+        }));
+      } else {
+        // For communities, map saved communities
+        discoveredWithRealIds = savedCommunities.map((saved) => {
         // Find the original discovered data to get additional fields
         const originalData = discoveredCommunities.find(d => 
           d.name === saved.name || 
@@ -476,6 +505,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           specialties: saved.careTypes || []
         };
       });
+      }
       
       // Step 6: Compare web results to database to identify which are existing vs new
       // This is the KEY LOGIC for Discovery Mode
