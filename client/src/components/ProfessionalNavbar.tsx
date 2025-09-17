@@ -354,17 +354,21 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a href="/api/logout" className="flex items-center space-x-2 w-full text-red-600 cursor-pointer">
-                      <LogOut className="h-4 w-4" />
-                      <span>Sign Out</span>
-                    </a>
+                  <DropdownMenuItem 
+                    onClick={async () => {
+                      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                      window.location.href = '/';
+                    }}
+                    className="flex items-center space-x-2 w-full text-red-600 cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <div className="flex items-center space-x-3">
-                <Link href="/api/login">
+                <Link href="/login">
                   <Button 
                     variant="outline" 
                     size="default" 
@@ -373,7 +377,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     Sign In
                   </Button>
                 </Link>
-                <Link href="/api/login">
+                <Link href="/signup">
                   <Button 
                     size="default" 
                     className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-5 py-2.5 rounded-xl transition-all duration-200"
