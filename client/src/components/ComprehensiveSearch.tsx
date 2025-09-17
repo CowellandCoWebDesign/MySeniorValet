@@ -140,7 +140,7 @@ export function ComprehensiveSearch({
       
       // Use global discovery for international searches or unknown locations
       if (detectedType === 'global' || (detectedType === 'location' && !searchQuery.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/i))) {
-        console.log('🌍 Initiating Global Discovery Search for:', searchQuery);
+        console.log('🌍 Initiating Global Discovery Mode for:', searchQuery);
         
         // Call global discovery endpoint
         const globalResponse = await fetch('/api/global-discovery/search', {

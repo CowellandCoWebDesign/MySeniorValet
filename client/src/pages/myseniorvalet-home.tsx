@@ -714,7 +714,7 @@ function HeroSectionWithTransformingSearch() {
                   }`}
                 >
                   <span className="text-xs sm:text-sm">🌍</span>
-                  <span>Discovery Search</span>
+                  <span>Discovery Mode</span>
                 </button>
               </div>
             </div>
