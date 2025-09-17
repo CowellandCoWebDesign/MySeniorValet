@@ -201,17 +201,62 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || show2FAInput}
                   className="mt-1"
                 />
               </div>
               
+              {/* 2FA Fields (shown after initial authentication) */}
+              {show2FAInput && (
+                <>
+                  <div>
+                    <Label htmlFor="totpCode">Verification Code</Label>
+                    <Input
+                      id="totpCode"
+                      type="text"
+                      placeholder="6-digit code from your authenticator app"
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                      maxLength={6}
+                      disabled={isSubmitting}
+                      className="mt-1"
+                      autoFocus
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter the 6-digit code from your authenticator app
+                    </p>
+                  </div>
+                  
+                  <div className="text-center text-sm text-gray-500">
+                    OR
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="backupCode">Backup Code (if you lost access)</Label>
+                    <Input
+                      id="backupCode"
+                      type="text"
+                      placeholder="Enter one of your backup codes"
+                      value={backupCode}
+                      onChange={(e) => setBackupCode(e.target.value)}
+                      disabled={isSubmitting}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Use a backup code if you can't access your authenticator
+                    </p>
+                  </div>
+                </>
+              )}
+              
               {/* Forgot Password Link */}
-              <div className="flex justify-end">
-                <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                  Forgot password?
-                </Link>
-              </div>
+              {!show2FAInput && (
+                <div className="flex justify-end">
+                  <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
               
               <Button
                 type="submit"
