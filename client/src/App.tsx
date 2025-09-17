@@ -67,6 +67,7 @@ import AISupport from "@/pages/ai-support";
 import AIMatchingAssistant from "@/pages/ai-matching-assistant";
 import AllInOnePlanner from "@/pages/all-in-one-planner";
 import Costs from "@/pages/costs";
+import MemoryCare from "@/pages/care-types/memory-care";
 import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
 import SeniorServices from "@/pages/senior-services";
@@ -313,6 +314,7 @@ function Router() {
       <Route path="/ai-matching-assistant" component={AIMatchingAssistant} />
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />
       <Route path="/costs" component={Costs} />
+      <Route path="/memory-care" component={MemoryCare} />
       <Route path="/real-data-pricing" component={RealDataPricing} />
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />

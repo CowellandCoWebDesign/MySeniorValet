@@ -826,10 +826,10 @@ export default function SeniorResourcesCenter() {
                             <Button
                               variant="default"
                               size="sm"
-                              onClick={() => setLocation('/map-search')}
+                              onClick={() => setLocation(resource.link)}
                               className="w-full"
                             >
-                              Search Communities
+                              Open Resource →
                             </Button>
                           </div>
                         </div>
@@ -922,10 +922,10 @@ export default function SeniorResourcesCenter() {
                               <Button
                                 variant="default"
                                 size="sm"
-                                onClick={() => setLocation('/map-search')}
+                                onClick={() => setLocation(service.link)}
                                 className="w-full"
                               >
-                                Find Support Services
+                                Access Service →
                               </Button>
                             </div>
                           </div>
