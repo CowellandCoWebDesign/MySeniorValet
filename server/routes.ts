@@ -172,28 +172,41 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       // Extract photos - look for image URLs in the response
       const photoMatches = answer.match(/https?:\/\/[^\s\)]+\.(jpg|jpeg|png|gif|webp|JPG|JPEG|PNG)/gi) || [];
       
-      // Also look for image URLs that might not have extensions
+      // Also look for image URLs that might not have extensions but are from CDN/image servers
       const additionalPhotoMatches = answer.match(/https?:\/\/[^\s\)]*(?:images?|photos?|pics?|media|cdn|static)[^\s\)]*/gi) || [];
       
-      // Look for business listing URLs that might contain photo galleries
+      // Look for business listing URLs that might contain photo galleries (but these are NOT photos themselves)
       const googleMapsMatch = answer.match(/https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.google\.com|goo\.gl\/maps)[^\s\)]*/gi) || [];
       const yelpMatch = answer.match(/https?:\/\/(?:www\.)?yelp\.com[^\s\)]*/gi) || [];
       const tripAdvisorMatch = answer.match(/https?:\/\/(?:www\.)?tripadvisor\.com[^\s\)]*/gi) || [];
       
-      // Combine and deduplicate photos
+      // Combine photo URLs only (not webpage URLs)
       const allPhotos = [...new Set([...photoMatches, ...additionalPhotoMatches])];
       
-      // Filter out unwanted images
-      let filteredPhotos = allPhotos.filter(url => 
-        !url.includes('placeholder') && 
-        !url.includes('default') && 
-        !url.includes('logo') &&
-        !url.includes('icon') &&
-        !url.includes('senior') && // Exclude senior living images
-        !url.includes('assisted') && // Exclude assisted living images
-        !url.includes('nursing') && // Exclude nursing home images
-        !url.includes('retirement') // Exclude retirement community images
-      );
+      // Filter to only keep actual image URLs, not webpages
+      let filteredPhotos = allPhotos.filter(url => {
+        // Must be an actual image URL, not a webpage
+        const isWebpage = url.includes('.html') || 
+                         url.includes('.php') || 
+                         url.includes('facebook.com') || 
+                         url.includes('yelp.com') || 
+                         url.includes('tripadvisor.com') ||
+                         url.includes('google.com/maps') ||
+                         url.includes('#photos') ||
+                         url.includes('/photos') && !url.includes('cdn');
+        
+        const isUnwanted = url.includes('placeholder') || 
+                           url.includes('default') || 
+                           url.includes('logo') ||
+                           url.includes('icon') ||
+                           url.includes('senior') || 
+                           url.includes('assisted') || 
+                           url.includes('nursing') || 
+                           url.includes('retirement');
+        
+        // Only keep if it's not a webpage and not unwanted
+        return !isWebpage && !isUnwanted;
+      });
       
       // Always provide fallback photos since Perplexity rarely returns actual image URLs
       if (filteredPhotos.length === 0 || 
@@ -235,17 +248,23 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
             'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?w=800', // Medicine
             'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?w=800'  // Pharmacy shelves
           ];
+        } else if (nameAndDesc.includes('hotel') || nameAndDesc.includes('resort') || nameAndDesc.includes('inn') || nameAndDesc.includes('lodge') || nameAndDesc.includes('accommodation')) {
+          filteredPhotos = [
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800', // Hotel exterior
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800', // Hotel room
+            'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=800'  // Hotel pool
+          ];
+        } else if (nameAndDesc.includes('moving') || nameAndDesc.includes('movers') || nameAndDesc.includes('relocation') || nameAndDesc.includes('truck')) {
+          filteredPhotos = [
+            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800', // Moving truck
+            'https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?w=800', // Moving boxes
+            'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800'  // Professional movers
+          ];
         } else if (nameAndDesc.includes('walmart') || nameAndDesc.includes('target') || nameAndDesc.includes('retail') || nameAndDesc.includes('store')) {
           filteredPhotos = [
             'https://images.unsplash.com/photo-1528698827591-e19ccd7bc23d?w=800', // Retail store
             'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=800', // Store aisle
             'https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=800'  // Shopping
-          ];
-        } else if (nameAndDesc.includes('moving') || nameAndDesc.includes('movers') || nameAndDesc.includes('truck')) {
-          filteredPhotos = [
-            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800', // Moving truck
-            'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800', // Moving boxes
-            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'  // Moving service
           ];
         } else {
           // Generic business images
