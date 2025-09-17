@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import { communities } from '@shared/schema';
+import { communities, vendors } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 
 // Schema for global discovery search
@@ -409,10 +409,60 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       }
       
-      // Step 4: Save discovered communities to database (skip saving for services)
+      // Step 4: Save discovered communities or services to database
       const savedCommunities = [];
-      // Only save communities, not services
-      if (searchType !== 'services') {
+      const savedServices = [];
+      
+      if (searchType === 'services') {
+        // Save discovered services to vendors table
+        for (const discovered of discoveredCommunities) {
+          try {
+            // Check if vendor already exists
+            const existing = await db.select()
+              .from(vendors)
+              .where(
+                and(
+                  sql`LOWER(${vendors.businessName}) LIKE ${'%' + discovered.name.toLowerCase() + '%'}`,
+                  discovered.city ? 
+                    sql`LOWER(${vendors.businessCity}) = ${discovered.city.toLowerCase()}` : 
+                    sql`true`
+                )
+              )
+              .limit(1);
+            
+            if (existing.length === 0 && discovered.name) {
+              // Create a new vendor/service record
+              const [newVendor] = await db.insert(vendors)
+                .values({
+                  businessName: discovered.name,
+                  businessType: discovered.serviceType || 'service',
+                  primaryContactName: discovered.name,
+                  primaryContactEmail: discovered.email || 'info@example.com',
+                  primaryContactPhone: discovered.phone || '000-000-0000',
+                  businessAddress: discovered.address || discovered.location || 'Address pending',
+                  businessCity: discovered.city || query.split(',')[0] || 'Unknown',
+                  businessState: discovered.state || query.split(',')[1]?.trim() || '',
+                  businessZip: discovered.zipCode || '',
+                  website: discovered.website || null,
+                  description: discovered.description || `Discovered via search for "${query}"`,
+                  shortDescription: discovered.description ? discovered.description.substring(0, 500) : `Service in ${discovered.city || query}`,
+                  serviceAreas: discovered.city ? [discovered.city] : [],
+                  isVerified: false, // Requires verification
+                  status: 'pending', // Requires approval
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                })
+                .returning();
+              
+              console.log(`💾 Saved new discovered service: ${discovered.name} (ID: ${newVendor.id})`);
+              savedServices.push(newVendor);
+            }
+          } catch (saveError) {
+            console.error(`⚠️ Error saving discovered service ${discovered.name}:`, saveError);
+          }
+        }
+      } else {
+        // Save communities (existing logic)
         for (const discovered of discoveredCommunities) {
         try {
           // Check if we already have this community - use more flexible matching
@@ -476,26 +526,26 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       }
       } // End of if (searchType !== 'services')
       
-      // Step 5: Map saved communities to have all the display fields needed (or use raw services)
+      // Step 5: Map saved communities to have all the display fields needed
       let discoveredWithRealIds: any[] = [];
       
       if (searchType === 'services') {
-        // For services, format the discovered items as services
-        discoveredWithRealIds = discoveredCommunities.map((service, index) => ({
-          id: `service-${Date.now()}-${index}`, // Temporary ID for services
-          name: service.name,
+        // Map saved vendors to display format
+        discoveredWithRealIds = savedServices.map((vendor) => ({
+          id: vendor.id, // Use real database ID
+          name: vendor.businessName,
           type: 'service',
-          serviceType: service.serviceType || 'General Service',
-          address: service.address || service.location || '',
-          city: service.city || query.split(',')[0] || '',
-          state: service.state || query.split(',')[1]?.trim() || '',
-          phone: service.phone || '',
-          website: service.website || '',
-          description: service.description || '',
+          serviceType: vendor.businessType || 'General Service',
+          address: vendor.businessAddress || '',
+          city: vendor.businessCity || '',
+          state: vendor.businessState || '',
+          phone: vendor.primaryContactPhone || '',
+          website: vendor.website || '',
+          description: vendor.description || '',
           isDiscovered: true,
           isService: true,
-          confidence: service.confidence || 90,
-          data_source: 'Web Discovery',
+          confidence: 90,
+          data_source: 'AI Discovery',
           citations: citations
         }));
       } else {

@@ -2624,7 +2624,7 @@ export const userRoleAssignments = pgTable("user_role_assignments", {
 
 export const vendors = pgTable("vendors", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).unique(), // Link to user account
+  userId: integer("user_id").unique(), // Link to user account
   
   // Business Information
   businessName: varchar("business_name", { length: 255 }).notNull(),
@@ -2656,9 +2656,6 @@ export const vendors = pgTable("vendors", {
   }>().default({}),
   
   // Geographic Coverage (State-based and International)
-  coverageType: varchar("coverage_type", { length: 50 }).default('state'), // 'state', 'multi-state', 'national', 'international'
-  coverageStates: text("coverage_states").array().default([]), // Array of state codes covered
-  coverageCountries: text("coverage_countries").array().default(['US']), // Array of country codes covered
   serviceAreas: text("service_areas").array().default([]), // Specific cities/regions served
   serviceRadius: integer("service_radius"), // Miles from business location (for local vendors)
   
@@ -2683,13 +2680,6 @@ export const vendors = pgTable("vendors", {
   subscriptionEndDate: timestamp("subscription_end_date"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
-  stripePriceId: varchar("stripe_price_id", { length: 255 }),
-  
-  // Vendor subscription tracking
-  monthlyLeadsCount: integer("monthly_leads_count").default(0),
-  monthlyClicksCount: integer("monthly_clicks_count").default(0),
-  totalLeadsGenerated: integer("total_leads_generated").default(0),
-  lastResetDate: timestamp("last_reset_date").default(sql`CURRENT_TIMESTAMP`),
   
   // Performance Metrics
   totalLeads: integer("total_leads").default(0),
@@ -3609,6 +3599,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
   phone: true,
   // Only include fields that actually exist in the database
 });
+
+
 
 export const insertCommunitySchema = createInsertSchema(communities).omit({
   id: true,

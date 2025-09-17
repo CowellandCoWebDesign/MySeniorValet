@@ -10,6 +10,9 @@ import { unifiedSearchEngine } from '../services/unified-search-engine';
 import { enhancedSearchEngine } from '../services/enhanced-search-engine';
 import { cache } from '../cache';
 import { isAuthenticated } from '../replitAuth';
+import { vendors } from '@shared/schema';
+import { db } from '../db';
+import { or, like, sql } from 'drizzle-orm';
 
 const router = Router();
 
@@ -81,23 +84,91 @@ router.post('/api/search/unified', async (req, res) => {
       });
     }
     
-    // Handle services search differently
+    // Handle services search - check vendors table first
     if (searchType === 'services') {
-      // For services, return empty results and let discovery mode handle it
-      // The frontend will trigger discovery mode for services
-      return res.json({
-        communities: [], // Services tab expects empty results to trigger discovery
-        vendors: [],
-        totalResults: 0,
-        searchMetadata: {
-          query,
-          searchType: 'services',
-          sourcesUsed: ['none'],
-          processingTime: 0,
-          message: 'Use Discovery Mode for services search'
-        },
-        _version: 'unified_v1_services'
-      });
+      try {
+        // Search vendors table for services matching the query
+        const searchTerms = query.toLowerCase().split(/\s+/);
+        const whereConditions = searchTerms.map(term => 
+          sql`
+            LOWER(business_name) LIKE ${'%' + term + '%'} OR
+            LOWER(business_type) LIKE ${'%' + term + '%'} OR
+            LOWER(description) LIKE ${'%' + term + '%'} OR
+            LOWER(business_city) LIKE ${'%' + term + '%'} OR
+            LOWER(business_state) LIKE ${'%' + term + '%'}`
+        );
+        
+        const vendorResults = await db.select()
+          .from(vendors)
+          .where(whereConditions.length > 0 ? or(...whereConditions) : sql`true`)
+          .limit(limit)
+          .offset(offset);
+        
+        // Format vendor results for the frontend
+        const formattedVendors = vendorResults.map((vendor: any) => ({
+          id: vendor.id,
+          name: vendor.businessName,
+          type: 'service',
+          serviceType: vendor.businessType || 'General Service',
+          address: vendor.businessAddress || '',
+          city: vendor.businessCity || '',
+          state: vendor.businessState || '',
+          phone: vendor.primaryContactPhone || '',
+          website: vendor.website || '',
+          description: vendor.description || '',
+          isService: true,
+          isVerified: vendor.isVerified,
+          status: vendor.status
+        }));
+        
+        // If we found vendors, return them; otherwise let Discovery Mode handle it
+        if (vendorResults.length > 0) {
+          return res.json({
+            communities: formattedVendors, // Services tab expects this format
+            vendors: formattedVendors,
+            totalResults: vendorResults.length,
+            searchMetadata: {
+              query,
+              searchType: 'services',
+              sourcesUsed: ['database'],
+              processingTime: Date.now(),
+              message: `Found ${vendorResults.length} services in database`
+            },
+            _version: 'unified_v1_services'
+          });
+        } else {
+          // No vendors found - let Discovery Mode handle it
+          return res.json({
+            communities: [],
+            vendors: [],
+            totalResults: 0,
+            searchMetadata: {
+              query,
+              searchType: 'services',
+              sourcesUsed: ['none'],
+              processingTime: 0,
+              message: 'Use Discovery Mode for services search'
+            },
+            _version: 'unified_v1_services'
+          });
+        }
+      } catch (error) {
+        console.error('Error searching vendors:', error);
+        // Fall back to empty results if error
+        return res.json({
+          communities: [],
+          vendors: [],
+          totalResults: 0,
+          searchMetadata: {
+            query,
+            searchType: 'services',
+            sourcesUsed: ['none'],
+            processingTime: 0,
+            message: 'Use Discovery Mode for services search'
+          },
+          _version: 'unified_v1_services'
+        });
+      }
     }
     
     // Execute unified search for communities
