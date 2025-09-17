@@ -55,7 +55,7 @@ export function LegalNoticeModal() {
               <span>Legal Notice & Platform Disclosure</span>
             </DialogTitle>
             <DialogDescription className="text-gray-200 mt-2 text-base">
-              Important Information About MySeniorValet Research Platform
+              Important Information About MySeniorValet - Free Platform for Families
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -66,7 +66,7 @@ export function LegalNoticeModal() {
             <Alert className="border-2 border-blue-600 bg-blue-50 dark:bg-blue-950/30">
               <BookOpen className="h-5 w-5 text-blue-600" />
               <AlertDescription className="text-base font-semibold text-gray-900 dark:text-gray-100">
-                MySeniorValet is a RESEARCH-ONLY PLATFORM designed to provide market transparency in senior living.
+                MySeniorValet is a FREE PLATFORM for families providing transparency in senior care.
               </AlertDescription>
             </Alert>
 
@@ -81,10 +81,10 @@ export function LegalNoticeModal() {
                 <div className="flex items-start gap-3">
                   <Search className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">Research & Information Only</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Free Tools & Transparent Information</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      We aggregate publicly available information from government databases, official sources, and verified public records. 
-                      All data includes citations to original sources.
+                      We aggregate and display public information from verified sources with citations. 
+                      All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools.
                     </p>
                   </div>
                 </div>
@@ -92,10 +92,10 @@ export function LegalNoticeModal() {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">No Recommendations or Steering</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Not a Placement Agency</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      We DO NOT provide recommendations, endorsements, or steer users toward any specific communities or services. 
-                      Our platform presents information neutrally for your independent research.
+                      We facilitate connections between families and communities but are NOT a placement agency. 
+                      We do NOT charge families any fees or commissions - all revenue comes from B2B services.
                     </p>
                   </div>
                 </div>

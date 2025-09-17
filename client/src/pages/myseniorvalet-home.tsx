@@ -1878,12 +1878,14 @@ export default function MySeniorValetHome() {
                       IMPORTANT LEGAL NOTICE
                     </p>
                     <ul className="text-xs text-red-600 dark:text-red-400 space-y-1">
-                      <li>• MySeniorValet is a RESEARCH-ONLY platform providing market transparency</li>
-                      <li>• All data is aggregated from public sources with citations</li>
-                      <li>• This is NOT a recommendation, endorsement, or referral service</li>
-                      <li>• We may receive affiliate commissions from clearly marked partners</li>
-                      <li>• Current affiliate partners: Amazon and 1-800-Flowers</li>
-                      <li>• Always verify information independently before making decisions</li>
+                      <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
+                      <li>• We aggregate and display public information from verified sources with citations</li>
+                      <li>• We facilitate connections between families and communities - NOT a placement agency</li>
+                      <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
+                      <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
+                      <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
+                      <li>• We do NOT charge families any fees or commissions</li>
+                      <li>• Always verify information independently and consult professionals before making care decisions</li>
                     </ul>
                   </div>
                   

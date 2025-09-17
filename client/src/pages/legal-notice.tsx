@@ -16,12 +16,12 @@ export default function LegalNotice() {
           
           <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-600 rounded-lg p-6 mb-8">
             <h2 className="text-2xl font-bold text-amber-900 dark:text-amber-200 mb-4">
-              ⚠️ IMPORTANT: Research-Only Platform
+              ⚠️ IMPORTANT: Free Platform for Families
             </h2>
             <p className="text-amber-800 dark:text-amber-300 text-lg leading-relaxed">
-              MySeniorValet is a <strong>RESEARCH-ONLY PLATFORM</strong> designed to provide 
-              market transparency in senior living. We aggregate publicly available information 
-              to help families make informed decisions through independent research.
+              MySeniorValet is a <strong>FREE PLATFORM FOR FAMILIES</strong> providing transparency 
+              in senior care. We aggregate and display public information from verified sources 
+              to help families make informed decisions, while facilitating connections with communities.
             </p>
           </div>
 
@@ -32,7 +32,7 @@ export default function LegalNotice() {
             
             <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
               <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-200 mb-3">
-                📚 Research & Information Only
+                📚 Free Tools & Transparent Information
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
                 We aggregate publicly available information from government databases, official 
@@ -50,12 +50,13 @@ export default function LegalNotice() {
 
             <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
               <h3 className="text-xl font-semibold text-red-900 dark:text-red-200 mb-3">
-                🚫 No Recommendations or Steering
+                🚫 Not a Placement Agency
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                We <strong>DO NOT</strong> provide recommendations, endorsements, or steer users 
-                toward any specific communities or services. Our platform presents information 
-                neutrally for your independent research.
+                We facilitate connections between families and communities but are <strong>NOT</strong> 
+                a placement agency. We do not make recommendations or receive referral fees from 
+                communities. All family features are completely FREE including research, tour scheduling, 
+                emergency contacts, and collaboration tools.
               </p>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 <strong>Important:</strong> Always verify information independently, visit facilities 
@@ -117,7 +118,7 @@ export default function LegalNotice() {
                     <li>Vendors: Marketplace access and tools</li>
                   </ul>
                   <p className="text-green-700 dark:text-green-400 font-semibold mt-3">
-                    ✅ We do NOT charge families for using our platform
+                    ✅ We do NOT charge families any fees or commissions - ever
                   </p>
                 </div>
               </div>
