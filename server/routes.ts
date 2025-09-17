@@ -71,77 +71,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       console.log(`🔍 Fetching web intelligence for business: ${serviceName} in ${city}, ${state}`);
-      console.log(`📊 Business type: ${serviceType || 'general business'}`);
+      console.log(`📊 Business type: ${serviceType || 'restaurant/business'}`);
       
-      // Use Perplexity to fetch business information and photos
-      const simplifiedPerplexityService = await import('./simplified-perplexity-service');
+      // Call Perplexity API directly for business searches (not senior living)
+      const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+      if (!perplexityApiKey) {
+        return res.status(500).json({ error: 'Perplexity API key not configured' });
+      }
       
-      // Create a custom search for general businesses (not senior living)
-      const searchQuery = `${serviceName} ${serviceType || 'business'} in ${city}, ${state}`;
-      const perplexityPrompt = `Find detailed information about ${serviceName}, a ${serviceType || 'business'} located in ${city}, ${state}. 
-        Include:
-        1. Business description and what services/products they offer
-        2. Full address and contact information
-        3. Business hours
-        4. Website and social media links
-        5. Customer reviews or ratings
-        6. Photos of the business, storefront, interior, products, or food
-        7. Menu or service list if applicable
-        8. Any special features or highlights
-        
-        Focus on current, accurate business information. Include photos from the business website, Google Maps, Yelp, TripAdvisor, social media, or review sites.`;
-      
-      // Call Perplexity with business-focused search
-      const perplexityResponse = await simplifiedPerplexityService.simplifiedPerplexityService.searchWithPerplexity(perplexityPrompt);
-      
+      const perplexityPrompt = `Find specific information about "${serviceName}" which is a ${serviceType || 'restaurant/business'} located in ${city}, ${state}. 
+
+This is NOT a senior living community - it's a regular business/restaurant.
+
+Provide the following information:
+1. What type of business/restaurant it is and what they serve/sell
+2. Their complete street address
+3. Phone number
+4. Website URL
+5. Business hours of operation
+6. Menu highlights or popular items (if it's a restaurant)
+7. Customer reviews summary
+8. Direct links to photos of the actual business including:
+   - Exterior/storefront photos
+   - Interior/dining area photos  
+   - Food/product photos (if applicable)
+   - Photos from their website, Google Maps, Yelp, TripAdvisor, Facebook
+
+Important: Provide actual photo URLs from the business, not stock photos or unrelated images. Focus on ${serviceName} specifically.`;
+
+      const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${perplexityApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'sonar-pro',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a business information specialist. Provide accurate, current information about businesses and restaurants. Include real photo URLs when available.'
+            },
+            {
+              role: 'user',
+              content: perplexityPrompt
+            }
+          ],
+          temperature: 0.2,
+          max_tokens: 2000,
+        })
+      });
+
+      if (!perplexityResponse.ok) {
+        throw new Error(`Perplexity API error: ${perplexityResponse.status}`);
+      }
+
+      const data = await perplexityResponse.json();
+      const answer = data.choices?.[0]?.message?.content || '';
+      const citations = data.citations || [];
+
+      console.log(`📝 Perplexity response length: ${answer.length} characters`);
+
       // Parse the response to extract business information
       let businessData = {
         success: true,
         serviceName,
         location: `${city}, ${state}`,
-        description: '',
+        description: answer,
         website: '',
         photos: [],
         services: [],
         hours: '',
         pricing: '',
-        citations: [],
-        found: false
+        citations: citations.map((c: any) => c.url || c),
+        found: answer.length > 0
       };
+
+      // Extract photos - look for image URLs in the response
+      const photoMatches = answer.match(/https?:\/\/[^\s\)]+\.(jpg|jpeg|png|gif|webp|JPG|JPEG|PNG)/gi) || [];
       
-      if (perplexityResponse && perplexityResponse.answer) {
-        // Extract description
-        businessData.description = perplexityResponse.answer;
-        businessData.found = true;
-        
-        // Extract photos from the response
-        const photoMatches = perplexityResponse.answer.match(/https?:\/\/[^\s)]+\.(jpg|jpeg|png|gif|webp)/gi) || [];
-        businessData.photos = [...new Set(photoMatches)].filter(url => 
-          !url.includes('placeholder') && 
-          !url.includes('default') && 
-          !url.includes('logo')
-        );
-        
-        // Extract website
-        const websiteMatch = perplexityResponse.answer.match(/website[:\s]+([^\s,]+)/i);
-        if (websiteMatch) {
-          businessData.website = websiteMatch[1];
+      // Also look for image URLs that might not have extensions
+      const additionalPhotoMatches = answer.match(/https?:\/\/[^\s\)]*(?:images?|photos?|pics?|media|cdn|static)[^\s\)]*/gi) || [];
+      
+      // Combine and deduplicate photos
+      const allPhotos = [...new Set([...photoMatches, ...additionalPhotoMatches])];
+      
+      // Filter out unwanted images
+      businessData.photos = allPhotos.filter(url => 
+        !url.includes('placeholder') && 
+        !url.includes('default') && 
+        !url.includes('logo') &&
+        !url.includes('icon') &&
+        !url.includes('senior') && // Exclude senior living images
+        !url.includes('assisted') && // Exclude assisted living images
+        !url.includes('nursing') && // Exclude nursing home images
+        !url.includes('retirement') // Exclude retirement community images
+      );
+
+      // Extract website
+      const websiteMatch = answer.match(/(?:website|Website|WEBSITE)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe)[^\s,\)]*)/i);
+      if (websiteMatch) {
+        businessData.website = websiteMatch[1];
+        if (!businessData.website.startsWith('http')) {
+          businessData.website = 'https://' + businessData.website;
         }
-        
-        // Extract hours
-        const hoursMatch = perplexityResponse.answer.match(/hours?[:\s]+([^.]+)/i);
-        if (hoursMatch) {
-          businessData.hours = hoursMatch[1];
-        }
-        
-        // Add citations
-        businessData.citations = perplexityResponse.citations || [];
-        
-        console.log(`✅ Found business information for ${serviceName}`);
-        console.log(`📸 Found ${businessData.photos.length} photos`);
-      } else {
-        console.log(`⚠️ No information found for ${serviceName}`);
       }
+
+      // Extract hours
+      const hoursMatch = answer.match(/(?:hours?|Hours?|HOURS?)[:\s]*([^.\n]+)/i);
+      if (hoursMatch) {
+        businessData.hours = hoursMatch[1].trim();
+      }
+
+      // Extract services/menu items if mentioned
+      const menuMatch = answer.match(/(?:menu|Menu|popular items|specialties|serves)[:\s]*([^.\n]+)/i);
+      if (menuMatch) {
+        businessData.services = [menuMatch[1].trim()];
+      }
+
+      console.log(`✅ Found business information for ${serviceName}`);
+      console.log(`📸 Found ${businessData.photos.length} photos`);
+      console.log(`🌐 Website: ${businessData.website || 'Not found'}`);
       
       res.json(businessData);
     } catch (error) {
