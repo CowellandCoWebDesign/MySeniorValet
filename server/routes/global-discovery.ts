@@ -225,7 +225,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000); // 30 second timeout - increased to allow proper discovery
+      const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout for better user experience
       
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
@@ -303,6 +303,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`✅ Perplexity Response Length: ${aiResponse.length} characters`);
       console.log(`📚 Citations: ${citations.length} sources`);
+      
+      // Log the raw response for debugging
+      console.log(`🔍 Raw Perplexity Response:`, aiResponse.substring(0, 500));
       
       // Step 3: Parse the structured JSON response
       let discoveredCommunities = [];
@@ -589,7 +592,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           sources: citations.length > 0 ? [...citations, 'Database'] : ['Perplexity Web Search', 'Database'],
           searchLocation: query,
           timestamp: new Date().toISOString(),
-          aiConfidence: discoveredCommunities.length > 0 ? 85 : 50
+          aiConfidence: discoveredCommunities.length > 0 ? 85 : 50,
+          rawPerplexityResponse: aiResponse, // Include raw AI response for display
+          perplexityQuery: searchQuery // Include the actual query sent to Perplexity
         },
         message: allResults.length === 0 
           ? `No communities found for "${query}". Try a different location or search term.`
