@@ -278,7 +278,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Home Care Services').length,
       verified: true,
       icon: Home,
-      link: "/home-care",
+      link: "/map-search?serviceType=home-care",
       color: "from-green-500 to-emerald-500",
       badge: "24/7"
     },
@@ -290,7 +290,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Therapy Services').length,
       verified: true,
       icon: Activity,
-      link: "/therapy-services",
+      link: "/map-search?serviceType=therapy",
       color: "from-purple-500 to-indigo-500",
       badge: "PT/OT/SPEECH"
     },
@@ -302,7 +302,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Companion Care').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Companion Care').length > 0,
       icon: Users,
-      link: "/companion-care",
+      link: "/map-search?serviceType=companion-care",
       color: "from-pink-500 to-rose-500"
     },
     {
@@ -313,7 +313,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length,
       verified: true,
       icon: Heart,
-      link: "/personal-care",
+      link: "/map-search?serviceType=personal-care",
       color: "from-red-500 to-orange-500"
     },
     {
@@ -324,7 +324,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Hospice Care').length,
       verified: true,
       icon: HeartHandshake,
-      link: "/hospice-care",
+      link: "/map-search?serviceType=hospice",
       color: "from-teal-500 to-cyan-500"
     },
     {
@@ -335,7 +335,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Medical Equipment').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Medical Equipment').length > 0,
       icon: Monitor,
-      link: "/medical-equipment",
+      link: "/map-search?serviceType=medical-equipment",
       color: "from-gray-500 to-slate-500"
     },
     {
@@ -346,7 +346,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Nursing').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Nursing').length > 0,
       icon: UserCheck,
-      link: "/nursing-services",
+      link: "/map-search?serviceType=nursing",
       color: "from-blue-600 to-indigo-600",
       badge: "RN/LPN"
     },
@@ -358,7 +358,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Adult Day Programs').length,
       verified: true,
       icon: Zap,
-      link: "/adult-day-programs",
+      link: "/map-search?serviceType=adult-day",
       color: "from-yellow-500 to-orange-500",
       badge: "DAY PROGRAMS"
     },
@@ -370,7 +370,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Respite Care').length,
       verified: true,
       icon: BedDouble,
-      link: "/respite-care",
+      link: "/map-search?serviceType=respite",
       color: "from-indigo-500 to-purple-500"
     },
     {
@@ -381,7 +381,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Palliative Care').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Palliative Care').length > 0,
       icon: Palette,
-      link: "/palliative-care",
+      link: "/map-search?serviceType=palliative-care",
       color: "from-purple-600 to-pink-600"
     },
     {
@@ -392,7 +392,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Skilled Nursing').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Skilled Nursing').length > 0,
       icon: Shield,
-      link: "/skilled-nursing",
+      link: "/map-search?serviceType=skilled-nursing",
       color: "from-blue-700 to-teal-600",
       badge: "24/7 CARE"
     },
@@ -404,7 +404,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Transport').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Transport').length > 0,
       icon: Car,
-      link: "/transport-services",
+      link: "/map-search?serviceType=transport",
       color: "from-green-600 to-teal-600"
     },
     {
@@ -415,7 +415,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Nutrition Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Nutrition Services').length > 0,
       icon: Apple,
-      link: "/nutrition-services",
+      link: "/map-search?serviceType=nutrition",
       color: "from-orange-500 to-red-500"
     },
     {
@@ -426,7 +426,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Dental Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Dental Services').length > 0,
       icon: Smile,
-      link: "/dental-services",
+      link: "/map-search?serviceType=dental",
       color: "from-cyan-500 to-blue-500"
     },
     {
@@ -437,7 +437,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Vision Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Vision Services').length > 0,
       icon: Eye,
-      link: "/vision-services",
+      link: "/map-search?serviceType=vision",
       color: "from-violet-500 to-purple-500"
     },
     {
@@ -448,7 +448,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Hearing Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Hearing Services').length > 0,
       icon: Ear,
-      link: "/hearing-services",
+      link: "/map-search?serviceType=hearing",
       color: "from-pink-600 to-red-600"
     },
     {
@@ -459,7 +459,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Podiatry').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Podiatry').length > 0,
       icon: Footprints,
-      link: "/podiatry",
+      link: "/map-search?serviceType=podiatry",
       color: "from-emerald-500 to-green-600"
     },
     {
@@ -470,7 +470,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Pharmacy').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Pharmacy').length > 0,
       icon: Pill,
-      link: "/pharmacy-services",
+      link: "/map-search?serviceType=pharmacy",
       color: "from-red-600 to-pink-600"
     },
     {
@@ -481,7 +481,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Home Health').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Home Health').length > 0,
       icon: Home,
-      link: "/home-health",
+      link: "/map-search?serviceType=home-health",
       color: "from-teal-600 to-cyan-600",
       badge: "MEDICARE"
     },
@@ -493,7 +493,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Diagnostic').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Diagnostic').length > 0,
       icon: TestTube,
-      link: "/diagnostic-services",
+      link: "/map-search?serviceType=diagnostic",
       color: "from-gray-600 to-blue-600"
     },
     {
@@ -504,7 +504,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Telemedicine').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Telemedicine').length > 0,
       icon: Video,
-      link: "/telemedicine",
+      link: "/map-search?serviceType=telemedicine",
       color: "from-violet-600 to-indigo-600",
       badge: "VIRTUAL"
     },
@@ -516,7 +516,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Mental Health').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Mental Health').length > 0,
       icon: BrainCircuit,
-      link: "/mental-health",
+      link: "/map-search?serviceType=mental-health",
       color: "from-emerald-600 to-teal-600"
     }
   ];
