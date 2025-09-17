@@ -786,6 +786,17 @@ export default function SeniorHealthcareDirectory() {
                     acceptsMedicare: true,
                     acceptsMedicaid: true
                   }}
+                  index={index}
+                  borderColor="border-orange-200 dark:border-gray-700"
+                  hoverBorderColor="hover:border-orange-300 dark:hover:border-gray-600"
+                  iconBgColor="bg-gradient-to-br from-orange-500 to-orange-600"
+                  iconRingColor="ring-orange-100 dark:ring-orange-900"
+                  icon={<Zap className="w-8 h-8 text-white" />}
+                  categoryBadgeColor="bg-gradient-to-r from-orange-50 to-orange-100 dark:from-orange-900 dark:to-orange-800"
+                  categoryBadgeBorder="border-orange-300 dark:border-orange-600"
+                  categoryLabel="Urgent Care"
+                  buttonColor="bg-gradient-to-r from-orange-500 to-orange-600"
+                  buttonHoverColor="hover:from-orange-600 hover:to-orange-700"
                 />
               ))}
             </div>
@@ -826,6 +837,17 @@ export default function SeniorHealthcareDirectory() {
                     acceptsMedicare: true,
                     acceptsMedicaid: true
                   }}
+                  index={index}
+                  borderColor="border-red-200 dark:border-gray-700"
+                  hoverBorderColor="hover:border-red-300 dark:hover:border-gray-600"
+                  iconBgColor="bg-gradient-to-br from-red-500 to-red-600"
+                  iconRingColor="ring-red-100 dark:ring-red-900"
+                  icon={<Shield className="w-8 h-8 text-white" />}
+                  categoryBadgeColor="bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900 dark:to-red-800"
+                  categoryBadgeBorder="border-red-300 dark:border-red-600"
+                  categoryLabel="Surgery Center"
+                  buttonColor="bg-gradient-to-r from-red-500 to-red-600"
+                  buttonHoverColor="hover:from-red-600 hover:to-red-700"
                 />
               ))}
             </div>
@@ -848,7 +870,7 @@ export default function SeniorHealthcareDirectory() {
             
             <div className="flex space-x-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent" style={{scrollBehavior: 'smooth'}}>
               {respiteServices.length > 0 ? (
-                respiteServices.slice(0, 15).map((service: any) => (
+                respiteServices.slice(0, 15).map((service: any, index: number) => (
                   <CareServiceCard
                     key={service.id}
                     service={{
@@ -862,6 +884,17 @@ export default function SeniorHealthcareDirectory() {
                       availability: 'Flexible scheduling',
                       specialties: ['Respite Care', 'Caregiver Support']
                     }}
+                    index={index}
+                    borderColor="border-amber-200 dark:border-gray-700"
+                    hoverBorderColor="hover:border-amber-300 dark:hover:border-gray-600"
+                    iconBgColor="bg-gradient-to-br from-amber-500 to-amber-600"
+                    iconRingColor="ring-amber-100 dark:ring-amber-900"
+                    icon={<Moon className="w-8 h-8 text-white" />}
+                    categoryBadgeColor="bg-gradient-to-r from-amber-50 to-amber-100 dark:from-amber-900 dark:to-amber-800"
+                    categoryBadgeBorder="border-amber-300 dark:border-amber-600"
+                    categoryLabel="Respite Care"
+                    buttonColor="bg-gradient-to-r from-amber-500 to-amber-600"
+                    buttonHoverColor="hover:from-amber-600 hover:to-amber-700"
                   />
                 ))
               ) : (
