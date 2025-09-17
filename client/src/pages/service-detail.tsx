@@ -534,99 +534,204 @@ export default function ServiceDetail() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Why Choose This Business</CardTitle>
+                  <CardTitle>Business Highlights</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {/* Dynamic business highlights based on business type */}
-                    {service.careTypes && service.careTypes.some(type => 
-                      type.toLowerCase().includes('food') || 
-                      type.toLowerCase().includes('restaurant') ||
-                      type.toLowerCase().includes('cafe')
-                    ) ? (
-                      <>
-                        <div className="flex items-center gap-3">
-                          <Star className="w-5 h-5 text-yellow-500" />
-                          <span>Popular local establishment</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Award className="w-5 h-5 text-purple-500" />
-                          <span>Quality food and service</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-green-500" />
-                          <span>Convenient location</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Clock className="w-5 h-5 text-blue-500" />
-                          <span>Flexible hours</span>
-                        </div>
-                      </>
-                    ) : service.careTypes && service.careTypes.some(type => 
-                      type.toLowerCase().includes('retail') || 
-                      type.toLowerCase().includes('store') ||
-                      type.toLowerCase().includes('market')
-                    ) ? (
-                      <>
-                        <div className="flex items-center gap-3">
-                          <Package className="w-5 h-5 text-blue-500" />
-                          <span>Wide product selection</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <DollarSign className="w-5 h-5 text-green-500" />
-                          <span>Competitive pricing</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Truck className="w-5 h-5 text-purple-500" />
-                          <span>Convenient shopping</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Users className="w-5 h-5 text-orange-500" />
-                          <span>Customer focused</span>
-                        </div>
-                      </>
-                    ) : service.careTypes && service.careTypes.some(type => 
-                      type.toLowerCase().includes('service')
-                    ) ? (
-                      <>
-                        <div className="flex items-center gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                          <span>Professional service</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Shield className="w-5 h-5 text-blue-500" />
-                          <span>Licensed and insured</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Award className="w-5 h-5 text-purple-500" />
-                          <span>Experienced team</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Star className="w-5 h-5 text-yellow-500" />
-                          <span>Highly rated</span>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        {/* Generic business highlights */}
-                        <div className="flex items-center gap-3">
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                          <span>Trusted local business</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Award className="w-5 h-5 text-purple-500" />
-                          <span>Quality products/services</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Users className="w-5 h-5 text-orange-500" />
-                          <span>Customer satisfaction focused</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-blue-500" />
-                          <span>Conveniently located</span>
-                        </div>
-                      </>
-                    )}
+                    {/* Intelligently determine highlights based on the business name and type */}
+                    {(() => {
+                      const businessName = service.name?.toLowerCase() || '';
+                      const businessType = service.careTypes?.[0]?.toLowerCase() || '';
+                      const description = service.description?.toLowerCase() || '';
+                      
+                      // Determine business category dynamically
+                      const isLegal = businessName.includes('law') || businessName.includes('attorney') || 
+                                      businessName.includes('legal') || description.includes('lawyer');
+                      const isPharmacy = businessName.includes('cvs') || businessName.includes('walgreens') || 
+                                        businessName.includes('pharmacy') || businessName.includes('drug');
+                      const isRetail = businessName.includes('walmart') || businessName.includes('target') || 
+                                      businessName.includes('mart') || businessType.includes('retail');
+                      const isMoving = businessName.includes('moving') || businessName.includes('movers') || 
+                                      businessName.includes('truck') || description.includes('relocation');
+                      const isRestaurant = businessType.includes('food') || businessType.includes('restaurant') || 
+                                          description.includes('dining') || description.includes('cuisine');
+                      const isMedical = businessName.includes('clinic') || businessName.includes('medical') || 
+                                       businessName.includes('health') || businessType.includes('healthcare');
+                      const isAutomotive = businessName.includes('auto') || businessName.includes('car') || 
+                                          businessName.includes('tire') || businessType.includes('automotive');
+                      
+                      // Return appropriate highlights based on detected type
+                      if (isLegal) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Shield className="w-5 h-5 text-blue-500" />
+                              <span>Licensed legal professionals</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Award className="w-5 h-5 text-purple-500" />
+                              <span>Experienced attorneys</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <FileText className="w-5 h-5 text-green-500" />
+                              <span>Confidential consultations</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Users className="w-5 h-5 text-orange-500" />
+                              <span>Client-focused approach</span>
+                            </div>
+                          </>
+                        );
+                      } else if (isPharmacy) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Shield className="w-5 h-5 text-blue-500" />
+                              <span>Licensed pharmacy</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Clock className="w-5 h-5 text-green-500" />
+                              <span>Convenient hours</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Package className="w-5 h-5 text-purple-500" />
+                              <span>Prescription services</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Heart className="w-5 h-5 text-red-500" />
+                              <span>Health & wellness products</span>
+                            </div>
+                          </>
+                        );
+                      } else if (isMoving) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Truck className="w-5 h-5 text-blue-500" />
+                              <span>Professional moving services</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Shield className="w-5 h-5 text-green-500" />
+                              <span>Licensed and insured</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Users className="w-5 h-5 text-purple-500" />
+                              <span>Experienced crew</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Star className="w-5 h-5 text-yellow-500" />
+                              <span>Careful handling</span>
+                            </div>
+                          </>
+                        );
+                      } else if (isRetail && !isPharmacy) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Package className="w-5 h-5 text-blue-500" />
+                              <span>Wide product selection</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <DollarSign className="w-5 h-5 text-green-500" />
+                              <span>Competitive pricing</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Clock className="w-5 h-5 text-purple-500" />
+                              <span>Convenient hours</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <MapPin className="w-5 h-5 text-orange-500" />
+                              <span>Easy to find location</span>
+                            </div>
+                          </>
+                        );
+                      } else if (isRestaurant) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Star className="w-5 h-5 text-yellow-500" />
+                              <span>Quality dining experience</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Award className="w-5 h-5 text-purple-500" />
+                              <span>Fresh ingredients</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Users className="w-5 h-5 text-green-500" />
+                              <span>Friendly service</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <MapPin className="w-5 h-5 text-blue-500" />
+                              <span>Great location</span>
+                            </div>
+                          </>
+                        );
+                      } else if (isMedical) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Shield className="w-5 h-5 text-blue-500" />
+                              <span>Licensed healthcare providers</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Heart className="w-5 h-5 text-red-500" />
+                              <span>Patient-centered care</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Award className="w-5 h-5 text-purple-500" />
+                              <span>Experienced medical staff</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Clock className="w-5 h-5 text-green-500" />
+                              <span>Flexible appointments</span>
+                            </div>
+                          </>
+                        );
+                      } else if (isAutomotive) {
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <Shield className="w-5 h-5 text-blue-500" />
+                              <span>Certified technicians</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Award className="w-5 h-5 text-purple-500" />
+                              <span>Quality parts & service</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <DollarSign className="w-5 h-5 text-green-500" />
+                              <span>Fair pricing</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Clock className="w-5 h-5 text-orange-500" />
+                              <span>Quick turnaround</span>
+                            </div>
+                          </>
+                        );
+                      } else {
+                        // Generic highlights for any other business type
+                        return (
+                          <>
+                            <div className="flex items-center gap-3">
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                              <span>Established local business</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Star className="w-5 h-5 text-yellow-500" />
+                              <span>Quality service</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Users className="w-5 h-5 text-purple-500" />
+                              <span>Customer focused</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <MapPin className="w-5 h-5 text-blue-500" />
+                              <span>Convenient location</span>
+                            </div>
+                          </>
+                        );
+                      }
+                    })()}
                   </div>
                 </CardContent>
               </Card>
