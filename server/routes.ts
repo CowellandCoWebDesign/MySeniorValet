@@ -137,7 +137,25 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       console.log(`📝 Perplexity response length: ${answer.length} characters`);
 
       // Parse the response to extract business information
-      let businessData = {
+      let businessData: {
+        success: boolean;
+        serviceName: string;
+        location: string;
+        description: string;
+        website: string;
+        photos: string[];
+        services: string[];
+        hours: string;
+        pricing: string;
+        citations: string[];
+        found: boolean;
+        photoSources?: {
+          googleMaps: string | null;
+          yelp: string | null;
+          tripAdvisor: string | null;
+          searchQuery: string;
+        };
+      } = {
         success: true,
         serviceName,
         location: `${city}, ${state}`,
@@ -718,8 +736,8 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       // Get analytics (placeholder for now)
       const analytics = {
         views: Math.floor(Math.random() * 1000),
-        clicks: vendor.monthlyClicksCount || 0,
-        leads: vendor.monthlyLeadsCount || 0,
+        clicks: 0, // vendor.monthlyClicksCount doesn't exist on type
+        leads: 0, // vendor.monthlyLeadsCount doesn't exist on type
         conversions: Math.floor(Math.random() * 50),
         revenue: parseFloat(vendor.lifetimeRevenue || '0')
       };
@@ -737,9 +755,9 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
           isVerified: vendor.isVerified,
           averageRating: parseFloat(vendor.averageRating || '0'),
           totalReviews: vendor.totalReviews || 0,
-          monthlyLeadsCount: vendor.monthlyLeadsCount || 0,
-          monthlyClicksCount: vendor.monthlyClicksCount || 0,
-          totalLeadsGenerated: vendor.totalLeadsGenerated || 0,
+          monthlyLeadsCount: 0, // Field doesn't exist on vendor type
+          monthlyClicksCount: 0, // Field doesn't exist on vendor type
+          totalLeadsGenerated: 0, // Field doesn't exist on vendor type
           lifetimeRevenue: vendor.lifetimeRevenue || '0',
         },
         subscription: subscriptionInfo,
