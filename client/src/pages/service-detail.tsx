@@ -538,22 +538,95 @@ export default function ServiceDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="w-5 h-5 text-green-500" />
-                      <span>Specialized in senior services</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Shield className="w-5 h-5 text-blue-500" />
-                      <span>Licensed and insured</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Award className="w-5 h-5 text-purple-500" />
-                      <span>Experienced professionals</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <Users className="w-5 h-5 text-orange-500" />
-                      <span>Senior-friendly approach</span>
-                    </div>
+                    {/* Dynamic business highlights based on business type */}
+                    {service.careTypes && service.careTypes.some(type => 
+                      type.toLowerCase().includes('food') || 
+                      type.toLowerCase().includes('restaurant') ||
+                      type.toLowerCase().includes('cafe')
+                    ) ? (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <Star className="w-5 h-5 text-yellow-500" />
+                          <span>Popular local establishment</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Award className="w-5 h-5 text-purple-500" />
+                          <span>Quality food and service</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <MapPin className="w-5 h-5 text-green-500" />
+                          <span>Convenient location</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Clock className="w-5 h-5 text-blue-500" />
+                          <span>Flexible hours</span>
+                        </div>
+                      </>
+                    ) : service.careTypes && service.careTypes.some(type => 
+                      type.toLowerCase().includes('retail') || 
+                      type.toLowerCase().includes('store') ||
+                      type.toLowerCase().includes('market')
+                    ) ? (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <Package className="w-5 h-5 text-blue-500" />
+                          <span>Wide product selection</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <DollarSign className="w-5 h-5 text-green-500" />
+                          <span>Competitive pricing</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Truck className="w-5 h-5 text-purple-500" />
+                          <span>Convenient shopping</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Users className="w-5 h-5 text-orange-500" />
+                          <span>Customer focused</span>
+                        </div>
+                      </>
+                    ) : service.careTypes && service.careTypes.some(type => 
+                      type.toLowerCase().includes('service')
+                    ) ? (
+                      <>
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Professional service</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-5 h-5 text-blue-500" />
+                          <span>Licensed and insured</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Award className="w-5 h-5 text-purple-500" />
+                          <span>Experienced team</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Star className="w-5 h-5 text-yellow-500" />
+                          <span>Highly rated</span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        {/* Generic business highlights */}
+                        <div className="flex items-center gap-3">
+                          <CheckCircle className="w-5 h-5 text-green-500" />
+                          <span>Trusted local business</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Award className="w-5 h-5 text-purple-500" />
+                          <span>Quality products/services</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Users className="w-5 h-5 text-orange-500" />
+                          <span>Customer satisfaction focused</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <MapPin className="w-5 h-5 text-blue-500" />
+                          <span>Conveniently located</span>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
