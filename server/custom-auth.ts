@@ -330,6 +330,72 @@ export function setupCustomAuth(app: Express) {
     res.json(validation);
   });
   
+  // Change password endpoint
+  router.post('/api/auth/change-password', async (req, res) => {
+    try {
+      const sessionData = req.session as any;
+      if (!sessionData.userId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      const { currentPassword, newPassword } = req.body;
+      
+      // Validate new password strength
+      const passwordValidation = validatePassword(newPassword);
+      if (!passwordValidation.isValid) {
+        return res.status(400).json({
+          success: false,
+          message: 'New password does not meet security requirements',
+          details: passwordValidation.feedback
+        });
+      }
+      
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, sessionData.userId))
+        .limit(1);
+        
+      if (!user || !user.password) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Verify current password
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Current password is incorrect' 
+        });
+      }
+      
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // Update password
+      await db
+        .update(users)
+        .set({
+          password: hashedPassword,
+          lastPasswordChangeAt: new Date(),
+          requiresPasswordChange: false,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, user.id));
+      
+      res.json({
+        success: true,
+        message: 'Password changed successfully'
+      });
+    } catch (error) {
+      console.error('Password change error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to change password' 
+      });
+    }
+  });
+  
   // Setup 2FA - Generate TOTP secret and QR code
   router.post('/api/auth/2fa/setup', async (req, res) => {
     try {

@@ -174,6 +174,7 @@ import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 import MoveInCoordination from "@/pages/move-in-coordination";
+import SecuritySettingsPage from "@/pages/security-settings";
 import Marketplace from "@/pages/marketplace";
 import SeniorMarketplace from "@/pages/senior-marketplace";
 import SeniorHealthcareDirectory from "@/pages/senior-healthcare-directory";
@@ -284,6 +285,7 @@ function Router() {
       <Route path="/family-dashboard" component={FamilyDashboard} />
       <Route path="/family-connect" component={FamilyConnect} />
       <Route path="/emergency-contacts" component={EmergencyContacts} />
+      <Route path="/security-settings" component={SecuritySettingsPage} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/about" component={About} />
