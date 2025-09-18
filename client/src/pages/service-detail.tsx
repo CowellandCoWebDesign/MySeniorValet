@@ -325,12 +325,58 @@ export default function ServiceDetail() {
   const { toast } = useToast();
   const [webPhotos, setWebPhotos] = useState<any[]>([]);
   const [webIntelligence, setWebIntelligence] = useState<any>(null);
+  const [isLoadingIntelligence, setIsLoadingIntelligence] = useState(false);
 
   // Fetch service details
   const { data: service, isLoading, error } = useQuery<ServiceProvider>({
     queryKey: [`/api/services/${slug}`],
     enabled: !!slug,
   });
+
+  // Auto-fetch web intelligence when service loads
+  useEffect(() => {
+    if (service && !webIntelligence && !isLoadingIntelligence) {
+      fetchWebIntelligence();
+    }
+  }, [service]);
+  
+  const fetchWebIntelligence = async () => {
+    if (!service?.name || !service?.city || isLoadingIntelligence) return;
+    
+    setIsLoadingIntelligence(true);
+    
+    try {
+      const response = await fetch('/api/service-intelligence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceName: service.name,
+          city: service.city,
+          state: service.state,
+          serviceType: service.careTypes?.[0] || 'service'
+        }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setWebIntelligence(data);
+        
+        // Update photos if available
+        if (data.photos && data.photos.length > 0) {
+          console.log(`Found ${data.photos.length} photos for ${service.name}`);
+          setWebPhotos(data.photos);
+        } else {
+          console.log(`No photos found for ${service.name}`);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch web intelligence:', error);
+    } finally {
+      setIsLoadingIntelligence(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -494,35 +540,48 @@ export default function ServiceDetail() {
                   <CardTitle className="text-lg">Contact & Booking</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {service.phone && (
+                  {/* Use web intelligence contact info if available, fallback to service data */}
+                  {(webIntelligence?.contactInfo?.phone || service.phone) ? (
                     <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-gray-500" />
-                      <a href={`tel:${service.phone}`} className="text-blue-600 hover:underline">
-                        {service.phone}
+                      <a href={`tel:${webIntelligence?.contactInfo?.phone || service.phone}`} className="text-blue-600 hover:underline">
+                        {webIntelligence?.contactInfo?.phone || service.phone}
                       </a>
                     </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-400">{isLoadingIntelligence ? 'Searching...' : '[Not provided]'}</span>
+                    </div>
                   )}
-                  {service.email && (
+                  {(webIntelligence?.contactInfo?.email || service.email) && (
                     <div className="flex items-center gap-3">
                       <Mail className="w-4 h-4 text-gray-500" />
-                      <a href={`mailto:${service.email}`} className="text-blue-600 hover:underline truncate">
-                        {service.email}
+                      <a href={`mailto:${webIntelligence?.contactInfo?.email || service.email}`} className="text-blue-600 hover:underline truncate">
+                        {webIntelligence?.contactInfo?.email || service.email}
                       </a>
                     </div>
                   )}
-                  {service.website && (
+                  {(webIntelligence?.contactInfo?.website || service.website) ? (
                     <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-gray-500" />
-                      <a href={service.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
+                      <a href={webIntelligence?.contactInfo?.website || service.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
                         Visit Website
                       </a>
                     </div>
-                  )}
-                  {service.address && (
+                  ) : null}
+                  {(webIntelligence?.contactInfo?.address || service.address) ? (
                     <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                      <span className="text-sm">{service.address}</span>
+                      <span className="text-sm">{webIntelligence?.contactInfo?.address || service.address}</span>
                     </div>
+                  ) : (
+                    isLoadingIntelligence ? (
+                      <div className="flex items-center gap-3">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-400 text-sm">[Not explicitly provided in search results, but known to be in {service.city}, {service.state}]</span>
+                      </div>
+                    ) : null
                   )}
                   
                   <Separator className="my-4" />

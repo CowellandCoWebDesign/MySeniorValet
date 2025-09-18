@@ -185,23 +185,36 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       // Use MultiAIPhotoExtractor for sophisticated photo extraction
       console.log('🚀 Using enhanced photo extraction with Playwright scraping...');
       try {
-        const photoResults = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+        const photoExtractor = new MultiAIPhotoExtractor();
+        const searchQuery = `${serviceName} ${city}${state ? ` ${state}` : ''}`;
+        
+        const photoResults = await photoExtractor.extractPhotos(
           serviceName,
-          serviceType || 'restaurant/business',
-          city,
-          state || '',
-          answer, // Perplexity content
-          extractedWebsite, // Website if found
-          citations.map((c: any) => c.url || c).filter((url: string) => url && url.startsWith('http'))
+          searchQuery,
+          serviceType || 'business'
         );
         
-        // Extract photo URLs from the authentic photos
-        businessData.photos = photoResults.authenticPhotos.map(photo => photo.url);
+        // Extract photo URLs from the results
+        businessData.photos = photoResults.photos || [];
         
         // Log results
         console.log(`✅ Enhanced photo extraction complete:`);
-        console.log(`   - ${photoResults.authenticPhotos.length} authentic photos found`);
-        console.log(`   - Sources: ${photoResults.sources.join(', ')}`);
+        console.log(`   - ${photoResults.photos?.length || 0} photos found`);
+        console.log(`   - Sources: ${photoResults.sources?.join(', ') || 'No sources'}`);
+        console.log(`   - Confidence: ${photoResults.confidence || 0}`);
+        
+        // Add sources from photo extraction
+        if (photoResults.sources && photoResults.sources.length > 0) {
+          businessData.citations = [...businessData.citations, ...photoResults.sources];
+        }
+        
+        // Extract contact info from photoResults if available
+        if (photoResults.businessInfo) {
+          businessData.website = businessData.website || photoResults.businessInfo.website || '';
+          businessData.hours = businessData.hours || photoResults.businessInfo.hours || '';
+          businessData.services = businessData.services.length > 0 ? businessData.services : 
+                                 (photoResults.businessInfo.services || []);
+        }
         
         // If still no photos, add hints for where they might be found
         if (businessData.photos.length === 0) {
@@ -242,11 +255,55 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
         businessData.services = [menuMatch[1].trim()];
       }
 
+      // Extract phone number from answer  
+      const phoneMatch = answer.match(/(?:phone|Phone|PHONE|tel|Tel|TEL)[:\s]*([+\d\s\-\(\)]+)/i);
+      let extractedPhone = null;
+      if (phoneMatch) {
+        extractedPhone = phoneMatch[1].trim();
+      }
+      
+      // Extract address from answer
+      const addressMatch = answer.match(/(?:address|Address|ADDRESS)[:\s]*([^.\n]+)/i);
+      let extractedAddress = null;
+      if (addressMatch) {
+        extractedAddress = addressMatch[1].trim();
+      }
+      
       console.log(`✅ Found business information for ${serviceName}`);
       console.log(`📸 Found ${businessData.photos.length} photos`);
       console.log(`🌐 Website: ${businessData.website || 'Not found'}`);
+      console.log(`📞 Phone: ${extractedPhone || 'Not found'}`);
       
-      res.json(businessData);
+      // Create the proper response structure expected by frontend
+      const response = {
+        photos: businessData.photos,
+        sources: businessData.citations,
+        description: businessData.description,
+        services: businessData.services,
+        contactInfo: {
+          phone: extractedPhone,
+          email: null, // Email not typically in Perplexity results
+          website: businessData.website,
+          address: extractedAddress,
+          hours: businessData.hours
+        },
+        businessInfo: {
+          description: businessData.description,
+          services: businessData.services,
+          website: businessData.website,
+          phone: extractedPhone,
+          address: extractedAddress,
+          hours: businessData.hours
+        },
+        confidence: businessData.photos.length > 0 ? 80 : 40,
+        debug: {
+          searchQuery: `${serviceName} ${city} ${state}`,
+          photoCount: businessData.photos.length,
+          sourcesFound: businessData.citations.length
+        }
+      };
+      
+      res.json(response);
     } catch (error) {
       console.error('Error fetching service intelligence:', error);
       res.status(500).json({ error: 'Failed to fetch service intelligence' });
