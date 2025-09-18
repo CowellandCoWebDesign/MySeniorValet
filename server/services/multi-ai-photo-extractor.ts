@@ -603,47 +603,102 @@ Be lenient - mark as authentic unless clearly stock photos.`
     
     // Step 2: Extract photos from service directory sites mentioned in citations
     console.log('📷 Step 2: Searching directory sites for photos...');
-    const directoryPhotos = await this.extractPhotosFromServiceDirectorySites(perplexityContent, serviceName, serviceType);
     
-    // For each directory mentioned, try to scrape it with Playwright
+    // Extended list of directory sites to check
+    const directoryPatterns = [
+      // Hotel directories
+      { pattern: /tripadvisor\.(com|ca|co\.uk|fr|de|it|es|jp|cn)/i, name: 'TripAdvisor' },
+      { pattern: /booking\.com/i, name: 'Booking.com' },
+      { pattern: /hotels\.com/i, name: 'Hotels.com' },
+      { pattern: /expedia\.(com|ca|co\.uk)/i, name: 'Expedia' },
+      { pattern: /agoda\.com/i, name: 'Agoda' },
+      { pattern: /kayak\.(com|ca|co\.uk)/i, name: 'Kayak' },
+      { pattern: /priceline\.com/i, name: 'Priceline' },
+      { pattern: /trivago\.(com|ca|co\.uk)/i, name: 'Trivago' },
+      { pattern: /airbnb\.(com|ca|co\.uk)/i, name: 'Airbnb' },
+      { pattern: /vrbo\.com/i, name: 'Vrbo' },
+      
+      // Restaurant directories
+      { pattern: /yelp\.(com|ca|co\.uk)/i, name: 'Yelp' },
+      { pattern: /opentable\.(com|ca|co\.uk)/i, name: 'OpenTable' },
+      { pattern: /zomato\.com/i, name: 'Zomato' },
+      { pattern: /doordash\.com/i, name: 'DoorDash' },
+      { pattern: /ubereats\.com/i, name: 'UberEats' },
+      { pattern: /grubhub\.com/i, name: 'Grubhub' },
+      { pattern: /thefork\.(com|ca|co\.uk)/i, name: 'TheFork' },
+      { pattern: /deliveroo\.(com|co\.uk)/i, name: 'Deliveroo' },
+      { pattern: /zagat\.com/i, name: 'Zagat' },
+      { pattern: /michelin\.com/i, name: 'Michelin' },
+      { pattern: /happycow\.net/i, name: 'HappyCow' },
+      
+      // General business directories
+      { pattern: /google\.(com|ca|co\.uk)\/maps/i, name: 'Google Maps' },
+      { pattern: /maps\.google\.(com|ca|co\.uk)/i, name: 'Google Maps' },
+      { pattern: /goo\.gl\/maps/i, name: 'Google Maps' },
+      { pattern: /facebook\.com/i, name: 'Facebook' },
+      { pattern: /instagram\.com/i, name: 'Instagram' },
+      { pattern: /foursquare\.com/i, name: 'Foursquare' },
+      { pattern: /bing\.com\/maps/i, name: 'Bing Places' },
+    ];
+    
+    // Process citations to find and scrape directory sites
     if (perplexityCitations && perplexityCitations.length > 0) {
+      const scrapedSources = new Set<string>();
+      let directoryCount = 0;
+      const maxDirectories = 5; // Limit to prevent timeout
+      
       for (const citation of perplexityCitations) {
+        if (directoryCount >= maxDirectories) break;
+        
         try {
           const url = new URL(citation);
           const hostname = url.hostname.toLowerCase();
           
-          // Check if this is a known directory site
-          const isDirectory = hostname.includes('tripadvisor') || 
-                             hostname.includes('yelp') || 
-                             hostname.includes('booking') ||
-                             hostname.includes('hotels.com') ||
-                             hostname.includes('opentable') ||
-                             hostname.includes('google.com/maps');
+          // Check if this citation matches any directory pattern
+          const matchedDirectory = directoryPatterns.find(dir => dir.pattern.test(hostname));
           
-          if (isDirectory && !websiteSources.includes(citation)) {
-            console.log(`  🔍 Scraping ${hostname} for service photos...`);
+          if (matchedDirectory && !scrapedSources.has(hostname)) {
+            console.log(`  🔍 Scraping ${matchedDirectory.name} (${hostname}) for service photos...`);
+            scrapedSources.add(hostname);
+            directoryCount++;
             
             try {
+              // Use Playwright to scrape photos from this directory page
               const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
                 citation,
-                serviceName
+                serviceName,
+                {
+                  maxPhotos: 10, // Limit photos per directory
+                  timeout: 15000, // 15 second timeout per site
+                  waitForSelector: this.getDirectoryPhotoSelector(matchedDirectory.name)
+                }
               );
               
               if (scrapedPhotos.length > 0) {
+                // Map scraped photos to candidates with appropriate confidence
                 const siteCandidates = scrapedPhotos.map(photo => ({
                   url: photo.url,
-                  source: hostname.replace('www.', ''),
-                  confidence: 0.8,
+                  source: matchedDirectory.name,
+                  confidence: this.getDirectoryConfidence(matchedDirectory.name),
                   isAuthentic: true,
-                  reason: `Found on ${hostname}`
+                  reason: `Direct from ${matchedDirectory.name} listing`
                 }));
                 
                 allPhotoCandidates.push(...siteCandidates);
                 websiteSources.push(citation);
-                console.log(`    ✅ Found ${scrapedPhotos.length} photos from ${hostname}`);
+                console.log(`    ✅ Found ${scrapedPhotos.length} photos from ${matchedDirectory.name}`);
+              } else {
+                console.log(`    ℹ️ No photos found on ${matchedDirectory.name} listing`);
               }
             } catch (error) {
-              console.log(`    ⚠️ Could not scrape ${hostname}`);
+              console.log(`    ⚠️ Could not scrape ${matchedDirectory.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+              
+              // Fallback: Try to extract CDN patterns from the content if scraping fails
+              const cdnPhotos = this.extractCDNPhotosFromDirectory(perplexityContent, matchedDirectory.name);
+              if (cdnPhotos.length > 0) {
+                allPhotoCandidates.push(...cdnPhotos);
+                console.log(`    📦 Extracted ${cdnPhotos.length} CDN photos from ${matchedDirectory.name} content`);
+              }
             }
           }
         } catch (e) {
@@ -710,6 +765,118 @@ Be lenient - mark as authentic unless clearly stock photos.`
       sources: sourceUrls,
       summary: `Found ${authenticPhotos.length} photos for ${serviceName} from ${sourceUrls.length} sources`
     };
+  }
+
+  /**
+   * Get directory-specific photo selectors for Playwright
+   */
+  private static getDirectoryPhotoSelector(directoryName: string): string | undefined {
+    const selectors: Record<string, string> = {
+      'TripAdvisor': 'img[src*="media-cdn.tripadvisor"], div[style*="background-image"][style*="media-cdn"]',
+      'Booking.com': 'img[src*="bstatic.com"], div[data-testid*="image"]',
+      'Hotels.com': 'img[src*="trvl-media.com"], img[src*="hotels.com/ho"]',
+      'Yelp': 'img[src*="yelpcdn.com/bphoto"], div[style*="yelpcdn.com"]',
+      'OpenTable': 'img[src*="otstatic.com"], img[src*="resizer.otstatic"]',
+      'Google Maps': 'img[src*="googleusercontent.com"], div[style*="googleusercontent"]',
+      'Facebook': 'img[src*="fbcdn.net"], img[src*="facebook.com/photo"]',
+      'Instagram': 'img[src*="cdninstagram.com"], img[src*="instagram.fcdn"]',
+      'DoorDash': 'img[src*="cdn.doordash"], img[src*="doordash-static"]',
+      'UberEats': 'img[src*="uber.com"], img[src*="ubereats"]',
+      'Grubhub': 'img[src*="grubhub"], img[src*="seamless"]',
+    };
+    
+    return selectors[directoryName];
+  }
+  
+  /**
+   * Get confidence score for directory sources
+   */
+  private static getDirectoryConfidence(directoryName: string): number {
+    const confidence: Record<string, number> = {
+      'TripAdvisor': 0.85,
+      'Booking.com': 0.85,
+      'Hotels.com': 0.8,
+      'Yelp': 0.85,
+      'OpenTable': 0.8,
+      'Google Maps': 0.9,
+      'Facebook': 0.75,
+      'Instagram': 0.75,
+      'DoorDash': 0.7,
+      'UberEats': 0.7,
+      'Grubhub': 0.7,
+      'Expedia': 0.8,
+      'Agoda': 0.8,
+      'Kayak': 0.75,
+      'Priceline': 0.75,
+      'Trivago': 0.7,
+      'Airbnb': 0.85,
+      'Vrbo': 0.8,
+      'Zomato': 0.75,
+      'TheFork': 0.75,
+      'Deliveroo': 0.7,
+      'Zagat': 0.8,
+      'Michelin': 0.9,
+      'HappyCow': 0.75,
+      'Foursquare': 0.75,
+      'Bing Places': 0.7,
+    };
+    
+    return confidence[directoryName] || 0.7;
+  }
+  
+  /**
+   * Extract CDN photos from directory content as fallback
+   */
+  private static extractCDNPhotosFromDirectory(content: string, directoryName: string): PhotoCandidate[] {
+    const photos: PhotoCandidate[] = [];
+    
+    // Directory-specific CDN patterns
+    const cdnPatterns: Record<string, RegExp[]> = {
+      'TripAdvisor': [
+        /https?:\/\/media-cdn\.tripadvisor\.com\/media\/photo-[sow]\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{2}\/[0-9a-f]{2}\/[^"\s]+\.jpg/gi,
+        /https?:\/\/dynamic-media-cdn\.tripadvisor\.com\/media\/[^"\s]+\.jpg/gi
+      ],
+      'Yelp': [
+        /https?:\/\/s3-media[0-9]\.fl\.yelpcdn\.com\/bphoto\/[A-Za-z0-9_-]+\/[^"\s]+\.jpg/gi
+      ],
+      'Booking.com': [
+        /https?:\/\/cf\.bstatic\.com\/[^"\s]+\/[^"\s]+\.jpg/gi,
+        /https?:\/\/cf\.bstatic\.com\/images\/hotel\/[^"\s]+\.jpg/gi
+      ],
+      'Hotels.com': [
+        /https?:\/\/images\.trvl-media\.com\/hotels\/[^"\s]+\.jpg/gi
+      ],
+      'Google Maps': [
+        /https?:\/\/lh[3-6]\.googleusercontent\.com\/[^"\s]+=[^"\s]+/gi,
+        /https?:\/\/lh[3-6]\.googleusercontent\.com\/p\/[^"\s]+/gi
+      ],
+      'Facebook': [
+        /https?:\/\/[^"\s]+\.fbcdn\.net\/[^"\s]+\.jpg/gi,
+        /https?:\/\/lookaside\.facebook\.com\/lookaside\/crawler\/media\/[^"\s]+/gi
+      ],
+      'Instagram': [
+        /https?:\/\/[^"\s]+\.cdninstagram\.com\/[^"\s]+\.jpg/gi,
+        /https?:\/\/instagram\.[^"\s]+\.fbcdn\.net\/[^"\s]+\.jpg/gi
+      ]
+    };
+    
+    const patterns = cdnPatterns[directoryName];
+    if (patterns) {
+      for (const pattern of patterns) {
+        const matches = content.match(pattern) || [];
+        for (const url of matches) {
+          photos.push({
+            url: url,
+            source: directoryName,
+            confidence: 0.6, // Lower confidence for extracted patterns
+            isAuthentic: true,
+            reason: `CDN pattern from ${directoryName}`
+          });
+        }
+      }
+    }
+    
+    return photos.slice(0, 5); // Limit to 5 CDN photos per directory
   }
 
   /**

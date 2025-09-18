@@ -53,7 +53,12 @@ export class PlaywrightPhotoScraper {
    */
   async scrapePhotosFromWebsite(
     websiteUrl: string, 
-    communityName: string
+    communityName: string,
+    options?: {
+      maxPhotos?: number;
+      timeout?: number;
+      waitForSelector?: string;
+    }
   ): Promise<ScrapedPhoto[]> {
     const browser = await this.initBrowser();
     const page = await browser.newPage();
@@ -71,8 +76,17 @@ export class PlaywrightPhotoScraper {
       // Navigate to the website
       await page.goto(websiteUrl, { 
         waitUntil: 'networkidle',
-        timeout: 30000 
+        timeout: options?.timeout || 30000 
       });
+      
+      // If specific selector provided, wait for it
+      if (options?.waitForSelector) {
+        try {
+          await page.waitForSelector(options.waitForSelector, { timeout: 5000 });
+        } catch (e) {
+          console.log(`⚠️ Selector not found: ${options.waitForSelector}, continuing anyway...`);
+        }
+      }
       
       // Wait for images to load
       await page.waitForTimeout(2000);
@@ -301,7 +315,9 @@ export class PlaywrightPhotoScraper {
         return 0;
       });
       
-      return cleanedPhotos.slice(0, 30); // Return top 30 photos
+      // Apply maxPhotos limit if specified
+      const limit = options?.maxPhotos || 30;
+      return cleanedPhotos.slice(0, limit);
       
     } catch (error) {
       console.error(`❌ Error scraping ${websiteUrl}:`, error instanceof Error ? error.message : error);
