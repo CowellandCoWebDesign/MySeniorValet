@@ -1873,24 +1873,6 @@ export default function MySeniorValetHome() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  {/* Legal Disclaimers - Prominent Position */}
-                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
-                    <p className="text-xs font-bold text-red-700 dark:text-red-300 mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4" />
-                      IMPORTANT LEGAL NOTICE
-                    </p>
-                    <ul className="text-xs text-red-600 dark:text-red-400 space-y-1">
-                      <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
-                      <li>• We aggregate and display public information from verified sources with citations</li>
-                      <li>• We facilitate connections between families and communities - NOT a placement agency</li>
-                      <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
-                      <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
-                      <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
-                      <li>• We do NOT charge families any fees or commissions</li>
-                      <li>• Always verify information independently and consult professionals before making care decisions</li>
-                    </ul>
-                  </div>
-                  
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
                     🌍 Research global businesses & services - All information cited from public sources for transparency
                   </p>
@@ -3679,6 +3661,28 @@ export default function MySeniorValetHome() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Legal Notice Section - Repositioned to Bottom */}
+      <section className="px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="p-4 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              IMPORTANT LEGAL NOTICE
+            </p>
+            <ul className="text-sm text-red-600 dark:text-red-400 space-y-2">
+              <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
+              <li>• We aggregate and display public information from verified sources with citations</li>
+              <li>• We facilitate connections between families and communities - NOT a placement agency</li>
+              <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
+              <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
+              <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
+              <li>• We do NOT charge families any fees or commissions</li>
+              <li>• Always verify information independently and consult professionals before making care decisions</li>
+            </ul>
+          </div>
         </div>
       </section>
 
