@@ -70,35 +70,21 @@ export function EnhancedPhotoCarousel({
     
     // Add database photos first  
     if (community?.photos && community.photos.length > 0) {
-      allPhotos.push(...community.photos.map((p: any) => {
-        if (typeof p === 'string') {
-          return { url: p, source: 'database', attribution: null };
-        }
-        return {
-          url: p.image_url || p.url || p,
-          source: p.source || 'database',
-          attribution: p.attribution || null,
-          requiresAttribution: p.requiresAttribution || false
-        };
-      }));
+      allPhotos.push(...community.photos.map((p: any) => ({
+        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
+        source: 'database'
+      })));
     }
     
-    // Add passed photos prop with attribution support
+    // Add passed photos prop
     if (photos && photos.length > 0) {
-      allPhotos.push(...photos.map((p: any) => {
-        if (typeof p === 'string') {
-          return { url: p, source: 'prop', attribution: null };
-        }
-        return {
-          url: p.image_url || p.url || p,
-          source: p.source || 'prop',
-          attribution: p.attribution || null,
-          requiresAttribution: p.requiresAttribution || false
-        };
-      }));
+      allPhotos.push(...photos.map((p: any) => ({
+        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
+        source: 'prop'
+      })));
     }
     
-    // Add web intelligence photos with attribution
+    // Add web intelligence photos
     let webImages = null;
     if (verificationReport?.webIntelligence?.images) {
       webImages = verificationReport.webIntelligence.images;
@@ -111,10 +97,9 @@ export function EnhancedPhotoCarousel({
         .filter((img: any) => {
           const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
           
-          // Skip logos, icons, and stock photos
+          // Skip logos and icons
           if (url.includes('logo') || url.includes('icon') || 
-              url.includes('placeholder') || url.includes('default') ||
-              url.includes('unsplash.com')) {
+              url.includes('placeholder') || url.includes('default')) {
             return false;
           }
           
@@ -122,13 +107,11 @@ export function EnhancedPhotoCarousel({
         })
         .map((img: any) => {
           if (typeof img === 'string') {
-            return { url: img, source: 'web', attribution: null };
+            return { url: img, source: 'web' };
           }
           return {
             url: img.image_url || img.url || img,
-            source: img.source || 'web',
-            attribution: img.attribution || null,
-            requiresAttribution: img.requiresAttribution || false,
+            source: 'web',
             isAuthentic: img.isAuthentic
           };
         });
@@ -238,30 +221,6 @@ export function EnhancedPhotoCarousel({
   // Show loading state with web intelligence check
   const isLoadingWebPhotos = isVerifying || isLoading;
   const hasNoRealPhotos = safePhotos.length === 0;
-  
-  // If no real photos, show safety message
-  if (hasNoRealPhotos && !isLoadingWebPhotos) {
-    return (
-      <div className={`relative rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 ${className}`}>
-        <div className="aspect-video flex items-center justify-center">
-          <div className="text-center p-8 max-w-md">
-            <div className="mb-4">
-              <svg className="w-24 h-24 mx-auto text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-semibold mb-2">No Verified Photos Available</h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-              We don't have verified photos for {communityName} at this time. 
-            </p>
-            <p className="text-xs text-gray-500 dark:text-gray-500">
-              For authentic photos, please visit the business directly or check their official website.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
   
   // Detect if this community likely needs enrichment
   const needsEnrichment = hasNoRealPhotos && (
@@ -428,13 +387,6 @@ export function EnhancedPhotoCarousel({
               </span>
             )}
           </div>
-          
-          {/* Photo Attribution */}
-          {currentPhoto && (currentPhoto.attribution || currentPhoto.source) && (
-            <div className="absolute bottom-14 left-4 bg-black/70 text-white px-3 py-1 rounded text-xs backdrop-blur-sm z-20">
-              {currentPhoto.attribution || `Source: ${currentPhoto.source}`}
-            </div>
-          )}
 
           {/* Photo Quality Badge */}
           {showValidation && currentPhotoValidation && (
