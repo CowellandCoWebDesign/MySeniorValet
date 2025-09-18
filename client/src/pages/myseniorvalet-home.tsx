@@ -543,7 +543,7 @@ function HeroSectionWithTransformingSearch() {
             
             {/* Platform Description - Larger and More Readable */}
             <p className="text-sm sm:text-base md:text-lg text-white/90 font-medium mb-2 sm:mb-3 max-w-3xl mx-auto drop-shadow-lg animate-fade-in-delayed">
-              AI-powered platform for transparent senior living — compare communities, pricing, and reviews, book tours instantly, reserve with ease, and access local care and resources — all in one place.
+              My Senior Valet is an AI-powered platform for transparent senior living — compare communities, pricing, and reviews, book tours instantly, reserve with ease, and access local care and resources — all in one place.
             </p>
           </div>
         </div>
