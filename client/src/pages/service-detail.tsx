@@ -385,7 +385,7 @@ export default function ServiceDetail() {
               photos: webPhotos
             }}
             verificationReport={webIntelligence}
-            isLoading={false}
+            isLoading={isLoadingIntelligence}
             showSourceIndicator={true}
           />
           
