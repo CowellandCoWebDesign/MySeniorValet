@@ -19,7 +19,6 @@ interface PhotoCarouselProps {
   isLoading?: boolean;
   currentPhotoIndex?: number;
   onPhotoIndexChange?: (index: number) => void;
-  autoEnrich?: boolean;
 }
 
 interface PhotoValidationResult {
@@ -44,8 +43,7 @@ export function EnhancedPhotoCarousel({
   showSourceIndicator = true,
   isLoading = false,
   currentPhotoIndex,
-  onPhotoIndexChange,
-  autoEnrich = true
+  onPhotoIndexChange
 }: PhotoCarouselProps) {
   // Use controlled or uncontrolled mode
   const isControlled = currentPhotoIndex !== undefined;
@@ -224,8 +222,8 @@ export function EnhancedPhotoCarousel({
   const isLoadingWebPhotos = isVerifying || isLoading;
   const hasNoRealPhotos = safePhotos.length === 0;
   
-  // Detect if this community likely needs enrichment (only when autoEnrich is enabled)
-  const needsEnrichment = autoEnrich && hasNoRealPhotos && (
+  // Detect if this community likely needs enrichment
+  const needsEnrichment = hasNoRealPhotos && (
     !community?.enrichment_data || 
     !community?.last_enrichment_date ||
     (community?.enrichment_data && (!community.enrichment_data.photos || community.enrichment_data.photos.length === 0))
