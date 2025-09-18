@@ -104,16 +104,23 @@ function HeroSectionWithTransformingSearch() {
   const handleAutoExpandingSearch = async (query: string, isResearchMode?: boolean) => {
     setSearchQuery(query);
     
+    // Set loading state immediately for better UX
+    if (query && query.length >= 2) {
+      setIsLoading(true);
+      setIsSearchActive(true);
+    }
+    
     if (!query || query.length < 2) {
       setIsSearchActive(false);
       setSearchResults({ results: [], metadata: null });
+      setIsLoading(false);
       return;
     }
     
     // If isResearchMode is true (from Discovery Mode suggestion), trigger discovery
     if (isResearchMode) {
       console.log('🌍 Discovery Mode activated for:', query);
-      setIsLoading(true);
+      // Loading already set above
       
       try {
         const response = await fetch('/api/global-discovery/search', {
@@ -762,6 +769,19 @@ function HeroSectionWithTransformingSearch() {
                         type="button"
                         onClick={() => {
                           setSearchQuery(suggestion);
+                          // Set loading immediately for instant feedback
+                          setIsLoading(true);
+                          setIsSearchActive(true);
+                          // Show loading message immediately
+                          setSearchResults({ 
+                            results: [],
+                            metadata: {
+                              isLoading: true,
+                              loadingMessage: `Searching for "${suggestion}"...`,
+                              isResearchMode: false
+                            }
+                          });
+                          // Then trigger the actual search
                           handleAutoExpandingSearch(suggestion, true);
                         }}
                         className="px-3 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 rounded-full border border-purple-300 dark:border-purple-600 transition-colors"
