@@ -177,7 +177,7 @@ const ServiceBookingForm = ({ service, onSuccess }: { service: ServiceProvider, 
 };
 
 // Web Intelligence Component for Services
-const ServiceWebIntelligence = ({ service, onPhotosFound }: { service: ServiceProvider, onPhotosFound?: (photos: any[]) => void }) => {
+const ServiceWebIntelligence = ({ service, onDataFound }: { service: ServiceProvider, onDataFound?: (data: any) => void }) => {
   const [webData, setWebData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -207,12 +207,17 @@ const ServiceWebIntelligence = ({ service, onPhotosFound }: { service: ServicePr
         const data = await response.json();
         setWebData(data);
         
-        // Extract photos from web intelligence
+        // Pass all web intelligence data to parent component
+        if (onDataFound) {
+          onDataFound(data);
+        }
+        
+        // Log photo status for debugging
         if (data.photos && data.photos.length > 0) {
           console.log(`Found ${data.photos.length} photos for ${service.name}`);
-          if (onPhotosFound) {
-            onPhotosFound(data.photos);
-          }
+          console.log('Photos found for service:', data.photos);
+        } else {
+          console.log(`No photos found for ${service.name}`);
         }
       }
     } catch (error) {
@@ -319,6 +324,7 @@ export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
   const [webPhotos, setWebPhotos] = useState<any[]>([]);
+  const [webIntelligence, setWebIntelligence] = useState<any>(null);
 
   // Fetch service details
   const { data: service, isLoading, error } = useQuery<ServiceProvider>({
@@ -378,7 +384,7 @@ export default function ServiceDetail() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-16">
-        {/* Photo Carousel */}
+        {/* Photo Carousel with Citations */}
         <div className="mb-6">
           <EnhancedPhotoCarousel
             photos={webPhotos}
@@ -387,9 +393,43 @@ export default function ServiceDetail() {
               name: service.name,
               photos: webPhotos
             }}
+            verificationReport={webIntelligence}
             isLoading={false}
             showSourceIndicator={true}
           />
+          
+          {/* Photo Citations */}
+          {webIntelligence?.citations && webIntelligence.citations.length > 0 && (
+            <div className="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <Info className="w-3 h-3" />
+                <span>Photo sources:</span>
+                <div className="flex flex-wrap gap-2">
+                  {webIntelligence.citations.slice(0, 3).map((source: string, idx: number) => {
+                    // Extract domain from URL for display
+                    let displayName = `Source ${idx + 1}`;
+                    try {
+                      const url = new URL(source);
+                      displayName = url.hostname.replace('www.', '');
+                    } catch {}
+                    
+                    return (
+                      <a
+                        key={idx}
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3 inline mr-1" />
+                        {displayName}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Header Section */}
@@ -771,9 +811,18 @@ export default function ServiceDetail() {
             {/* Web Intelligence for additional research */}
             <ServiceWebIntelligence 
               service={service}
-              onPhotosFound={(photos) => {
-                console.log('Photos found for service:', photos);
-                setWebPhotos(photos);
+              onDataFound={(data) => {
+                // Update web intelligence data including photos and citations
+                setWebIntelligence(data);
+                
+                // Update photos if available
+                if (data.photos && data.photos.length > 0) {
+                  console.log('Photos found for service:', data.photos);
+                  setWebPhotos(data.photos);
+                } else {
+                  console.log('No photos returned for service');
+                  setWebPhotos([]);
+                }
               }}
             />
           </TabsContent>
