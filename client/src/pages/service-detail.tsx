@@ -566,7 +566,7 @@ export default function ServiceDetail() {
         </div>
 
         {/* Detailed Information Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="intelligence" className="space-y-6">
           <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
