@@ -94,14 +94,24 @@ Provide the following information:
 8. Google Maps listing URL for this business
 9. TripAdvisor, Yelp, or Facebook page URLs if available
 
-Additionally, search for and provide any direct image URLs you can find from:
-- Google Maps photos of ${serviceName}
-- Yelp photos of ${serviceName} 
-- TripAdvisor photos of ${serviceName}
-- Facebook page photos
-- Their official website gallery
+CRITICAL - PHOTOS SECTION:
+Search for and provide 5-10 ACTUAL IMAGE URLs for this business. These must be direct links to image files (ending in .jpg, .png, .webp, etc.), NOT webpage URLs.
 
-Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include any URLs to photo galleries or business listings where photos can be found.`;
+Search these sources for actual photo URLs:
+- Google Images search for "${serviceName} ${city}"
+- Business website's image gallery or media folders
+- Direct image URLs from review sites (not the page URL, the actual image file URL)
+- Social media photo URLs (Instagram, Facebook - direct image links only)
+
+Example of what I need:
+✅ GOOD: https://example.com/images/hotel-lobby.jpg
+✅ GOOD: https://media.site.com/photos/restaurant-interior.png
+❌ BAD: https://www.tripadvisor.com/Hotel-g123
+❌ BAD: https://www.facebook.com/photos/gallery
+
+If you cannot find direct image URLs, explicitly state "No direct image URLs found" and explain why.
+
+Important: Focus on ${serviceName} in ${city}, ${state} specifically.`;
 
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
