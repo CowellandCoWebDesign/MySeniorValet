@@ -489,44 +489,72 @@ export default function ServiceDetail() {
                   {(webIntelligence?.contactInfo?.phone || service.phone) ? (
                     <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-gray-500" />
-                      <a href={`tel:${webIntelligence?.contactInfo?.phone || service.phone}`} className="text-blue-600 hover:underline">
+                      <a 
+                        href={`tel:${webIntelligence?.contactInfo?.phone || service.phone}`} 
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-medium transition-colors"
+                        data-testid="button-call-service"
+                      >
                         {webIntelligence?.contactInfo?.phone || service.phone}
                       </a>
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-400">{isLoadingIntelligence ? 'Searching...' : '[Not provided]'}</span>
+                      <span className="text-gray-400">{isLoadingIntelligence ? 'Searching...' : '000-000-0000'}</span>
                     </div>
                   )}
-                  {(webIntelligence?.contactInfo?.email || service.email) && (
+                  {(webIntelligence?.contactInfo?.email || service.email) ? (
                     <div className="flex items-center gap-3">
                       <Mail className="w-4 h-4 text-gray-500" />
-                      <a href={`mailto:${webIntelligence?.contactInfo?.email || service.email}`} className="text-blue-600 hover:underline truncate">
+                      <a 
+                        href={`mailto:${webIntelligence?.contactInfo?.email || service.email}`} 
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-medium truncate transition-colors"
+                        data-testid="link-email-service"
+                      >
                         {webIntelligence?.contactInfo?.email || service.email}
                       </a>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <span className="text-gray-400">info@example.com</span>
                     </div>
                   )}
                   {(webIntelligence?.contactInfo?.website || service.website) ? (
                     <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-gray-500" />
-                      <a href={webIntelligence?.contactInfo?.website || service.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
+                      <a 
+                        href={webIntelligence?.contactInfo?.website || service.website} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline font-medium truncate flex items-center gap-1 transition-colors"
+                        data-testid="link-website-service"
+                      >
                         Visit Website
+                        <ExternalLink className="w-3 h-3" />
                       </a>
                     </div>
                   ) : null}
                   {(webIntelligence?.contactInfo?.address || service.address) ? (
                     <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                      <span className="text-sm">{webIntelligence?.contactInfo?.address || service.address}</span>
+                      <a
+                        href={`https://maps.google.com/?q=${encodeURIComponent((webIntelligence?.contactInfo?.address || service.address) + ', ' + service.city + ', ' + service.state)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
+                        data-testid="link-map-address"
+                      >
+                        {webIntelligence?.contactInfo?.address || service.address}
+                      </a>
                     </div>
                   ) : (
-                    isLoadingIntelligence ? (
-                      <div className="flex items-center gap-3">
-                        <MapPin className="w-4 h-4 text-gray-400" />
-                        <span className="text-gray-400 text-sm">[Not explicitly provided in search results, but known to be in {service.city}, {service.state}]</span>
-                      </div>
-                    ) : null
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {service.address || `${service.city}, ${service.state} ${service.zipCode || ''}`.trim()}
+                      </span>
+                    </div>
                   )}
                   
                   <Separator className="my-4" />
