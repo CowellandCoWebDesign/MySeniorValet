@@ -268,6 +268,9 @@ const ServiceWebIntelligence = ({
 export default function ServiceDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
+  const [webPhotos, setWebPhotos] = useState<any[]>([]);
+  const [webIntelligence, setWebIntelligence] = useState<any>(null);
+  const [isLoadingIntelligence, setIsLoadingIntelligence] = useState(false);
 
   // Fetch service details
   const { data: service, isLoading, error } = useQuery<ServiceProvider>({
@@ -275,12 +278,19 @@ export default function ServiceDetail() {
     enabled: !!slug,
   });
 
-  // Auto-fetch web intelligence on mount with proper React Query - like community pages
-  const { data: serviceIntelligence, isLoading: isLoadingIntelligence } = useQuery<any>({
-    queryKey: ['/api/service-intelligence', service?.id],
-    queryFn: async () => {
-      if (!service?.name || !service?.city) return null;
-      
+  // Auto-fetch web intelligence when service loads
+  useEffect(() => {
+    if (service && !webIntelligence && !isLoadingIntelligence) {
+      fetchWebIntelligence();
+    }
+  }, [service]);
+  
+  const fetchWebIntelligence = async () => {
+    if (!service?.name || !service?.city || isLoadingIntelligence) return;
+    
+    setIsLoadingIntelligence(true);
+    
+    try {
       const response = await fetch('/api/service-intelligence', {
         method: 'POST',
         headers: {
@@ -294,41 +304,24 @@ export default function ServiceDetail() {
         }),
       });
       
-      if (!response.ok) throw new Error('Failed to fetch service intelligence');
-      return response.json();
-    },
-    enabled: !!service?.name && !!service?.city,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-  });
-
-  // Map service intelligence to verification report structure for compatibility
-  const verificationReport = serviceIntelligence ? {
-    ...serviceIntelligence,
-    webIntelligence: {
-      ...serviceIntelligence,
-      images: serviceIntelligence.photos?.map((url: string) => ({
-        url,
-        source: 'Web Search',
-        confidence: 0.8
-      })) || [],
-      website: serviceIntelligence.website || service?.website,
-      phone: serviceIntelligence.phone || service?.phone,
-      description: serviceIntelligence.description,
-      services: serviceIntelligence.services || [],
-      hours: serviceIntelligence.hours,
-      pricing: serviceIntelligence.pricing,
-      sources: serviceIntelligence.citations || [],
-    },
-    verificationResults: {
-      perplexityData: {
-        searchContent: serviceIntelligence.description || '',
-        sources: serviceIntelligence.citations || []
+      if (response.ok) {
+        const data = await response.json();
+        setWebIntelligence(data);
+        
+        // Update photos if available
+        if (data.photos && data.photos.length > 0) {
+          console.log(`Found ${data.photos.length} photos for ${service.name}`);
+          setWebPhotos(data.photos);
+        } else {
+          console.log(`No photos found for ${service.name}`);
+        }
       }
-    },
-    citations: serviceIntelligence.citations || [],
-    confidence: serviceIntelligence.confidence || 0.8,
-  } : null;
+    } catch (error) {
+      console.error('Failed to fetch web intelligence:', error);
+    } finally {
+      setIsLoadingIntelligence(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -382,32 +375,29 @@ export default function ServiceDetail() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 pb-16">
-        {/* Photo Carousel with Citations - Using community pattern */}
+        {/* Photo Carousel with Citations */}
         <div className="mb-6">
           <EnhancedPhotoCarousel
-            photos={serviceIntelligence?.photos || []}
+            photos={webPhotos}
             communityName={service.name}
             community={{
-              id: service.id,
               name: service.name,
-              photos: serviceIntelligence?.photos || [],
-              city: service.city,
-              state: service.state,
+              photos: webPhotos
             }}
-            verificationReport={verificationReport}
+            verificationReport={webIntelligence}
             isLoading={isLoadingIntelligence}
             showSourceIndicator={true}
-            autoEnrich={true}
+            autoEnrich={false}
           />
           
           {/* Photo Citations */}
-          {serviceIntelligence?.citations && serviceIntelligence.citations.length > 0 && (
+          {webIntelligence?.citations && webIntelligence.citations.length > 0 && (
             <div className="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                 <Info className="w-3 h-3" />
                 <span>Photo sources:</span>
                 <div className="flex flex-wrap gap-2">
-                  {serviceIntelligence.citations.slice(0, 3).map((source: string, idx: number) => {
+                  {webIntelligence.citations.slice(0, 3).map((source: string, idx: number) => {
                     // Extract domain from URL for display
                     let displayName = `Source ${idx + 1}`;
                     try {
@@ -452,36 +442,6 @@ export default function ServiceDetail() {
                         <MapPin className="w-4 h-4" />
                         {service.city}, {service.state} {service.country && service.country !== 'US' && `• ${service.country}`}
                       </p>
-                      
-                      {/* Contact Information - Displayed prominently like community pages */}
-                      <div className="flex flex-wrap items-center gap-4 mt-3 text-sm">
-                        {(serviceIntelligence?.phone || service.phone) && (
-                          <a href={`tel:${serviceIntelligence?.phone || service.phone}`} 
-                             className="flex items-center gap-1 text-blue-600 hover:underline"
-                             data-testid="service-phone">
-                            <Phone className="w-4 h-4" />
-                            {serviceIntelligence?.phone || service.phone}
-                          </a>
-                        )}
-                        {(serviceIntelligence?.website || service.website) && (
-                          <a href={serviceIntelligence?.website || service.website} 
-                             target="_blank" 
-                             rel="noopener noreferrer"
-                             className="flex items-center gap-1 text-blue-600 hover:underline"
-                             data-testid="service-website">
-                            <Globe className="w-4 h-4" />
-                            Visit Website
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        )}
-                        {(serviceIntelligence?.address || service.address) && (
-                          <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400"
-                                data-testid="service-address">
-                            <MapPin className="w-4 h-4" />
-                            {serviceIntelligence?.address || service.address}
-                          </span>
-                        )}
-                      </div>
                     </div>
                     <div className="flex gap-2">
                       {service.isVerified && (
@@ -526,46 +486,48 @@ export default function ServiceDetail() {
                   <CardTitle className="text-lg">Contact & Booking</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {/* Use service intelligence contact info if available, fallback to service data */}
-                  {(serviceIntelligence?.phone || service.phone) ? (
+                  {/* Use web intelligence contact info if available, fallback to service data */}
+                  {(webIntelligence?.contactInfo?.phone || service.phone) ? (
                     <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-gray-500" />
-                      <a href={`tel:${serviceIntelligence?.phone || service.phone}`} className="text-blue-600 hover:underline">
-                        {serviceIntelligence?.phone || service.phone}
+                      <a href={`tel:${webIntelligence?.contactInfo?.phone || service.phone}`} className="text-blue-600 hover:underline">
+                        {webIntelligence?.contactInfo?.phone || service.phone}
                       </a>
                     </div>
                   ) : (
                     <div className="flex items-center gap-3">
                       <Phone className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-400">{isLoadingIntelligence ? 'Searching...' : 'Contact for phone'}</span>
+                      <span className="text-gray-400">{isLoadingIntelligence ? 'Searching...' : '[Not provided]'}</span>
                     </div>
                   )}
-                  {(serviceIntelligence?.email || service.email) && (
+                  {(webIntelligence?.contactInfo?.email || service.email) && (
                     <div className="flex items-center gap-3">
                       <Mail className="w-4 h-4 text-gray-500" />
-                      <a href={`mailto:${serviceIntelligence?.email || service.email}`} className="text-blue-600 hover:underline truncate">
-                        {serviceIntelligence?.email || service.email}
+                      <a href={`mailto:${webIntelligence?.contactInfo?.email || service.email}`} className="text-blue-600 hover:underline truncate">
+                        {webIntelligence?.contactInfo?.email || service.email}
                       </a>
                     </div>
                   )}
-                  {(serviceIntelligence?.website || service.website) ? (
+                  {(webIntelligence?.contactInfo?.website || service.website) ? (
                     <div className="flex items-center gap-3">
                       <Globe className="w-4 h-4 text-gray-500" />
-                      <a href={serviceIntelligence?.website || service.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
+                      <a href={webIntelligence?.contactInfo?.website || service.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate">
                         Visit Website
                       </a>
                     </div>
                   ) : null}
-                  {(serviceIntelligence?.address || service.address) ? (
+                  {(webIntelligence?.contactInfo?.address || service.address) ? (
                     <div className="flex items-start gap-3">
                       <MapPin className="w-4 h-4 text-gray-500 mt-0.5" />
-                      <span className="text-sm">{serviceIntelligence?.address || service.address}</span>
+                      <span className="text-sm">{webIntelligence?.contactInfo?.address || service.address}</span>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3">
-                      <MapPin className="w-4 h-4 text-gray-400" />
-                      <span className="text-gray-400 text-sm">{service.city}, {service.state}</span>
-                    </div>
+                    isLoadingIntelligence ? (
+                      <div className="flex items-center gap-3">
+                        <MapPin className="w-4 h-4 text-gray-400" />
+                        <span className="text-gray-400 text-sm">[Not explicitly provided in search results, but known to be in {service.city}, {service.state}]</span>
+                      </div>
+                    ) : null
                   )}
                   
                   <Separator className="my-4" />
@@ -578,12 +540,12 @@ export default function ServiceDetail() {
           </div>
         </div>
 
-        {/* Detailed Information Tabs - Default to Research like community pages */}
-        <Tabs defaultValue="research" className="space-y-6">
+        {/* Detailed Information Tabs */}
+        <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4">
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
-            <TabsTrigger value="research">Research</TabsTrigger>
+            <TabsTrigger value="intelligence">Research</TabsTrigger>
             <TabsTrigger value="reviews">Reviews</TabsTrigger>
           </TabsList>
 
@@ -850,15 +812,12 @@ export default function ServiceDetail() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="research">
-            {/* Use LiveWebIntelligence component like community pages */}
-            <LiveWebIntelligence
-              communityId={service.id}
-              communityName={service.name}
-              city={service.city || ''}
-              state={service.state || ''}
-              autoLoad={false}
-              verificationReport={verificationReport}
+          <TabsContent value="intelligence">
+            {/* Web Intelligence for additional research - uses already fetched data */}
+            <ServiceWebIntelligence 
+              service={service}
+              webData={webIntelligence}
+              isLoading={isLoadingIntelligence}
             />
           </TabsContent>
 
@@ -885,14 +844,7 @@ export default function ServiceDetail() {
         {/* Share and Message Buttons */}
         <div className="fixed bottom-6 right-6 flex flex-col gap-3">
           <FamilyShareButton 
-            community={{
-              id: parseInt(service.id),
-              name: service.name,
-              address: service.address || '',
-              city: service.city || '',
-              state: service.state || '',
-              careTypes: service.careTypes || []
-            }}
+            community={{ id: parseInt(service.id), name: service.name }}
             shareType="service"
           />
           <MessageCommunityButton
