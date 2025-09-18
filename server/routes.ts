@@ -61,6 +61,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize community stats cache:', error);
   });
 
+  // Import MultiAIPhotoExtractor for enhanced photo extraction
+  const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
+
   // API endpoint for service web intelligence
   app.post('/api/service-intelligence', async (req, res) => {
     try {
@@ -169,68 +172,62 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
         found: answer.length > 0
       };
 
-      // Extract photos - look for image URLs in the response
-      const photoMatches = answer.match(/https?:\/\/[^\s\)]+\.(jpg|jpeg|png|gif|webp|JPG|JPEG|PNG)/gi) || [];
-      
-      // Also look for image URLs that might not have extensions but are from CDN/image servers
-      const additionalPhotoMatches = answer.match(/https?:\/\/[^\s\)]*(?:images?|photos?|pics?|media|cdn|static)[^\s\)]*/gi) || [];
-      
-      // Look for business listing URLs that might contain photo galleries (but these are NOT photos themselves)
-      const googleMapsMatch = answer.match(/https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.google\.com|goo\.gl\/maps)[^\s\)]*/gi) || [];
-      const yelpMatch = answer.match(/https?:\/\/(?:www\.)?yelp\.com[^\s\)]*/gi) || [];
-      const tripAdvisorMatch = answer.match(/https?:\/\/(?:www\.)?tripadvisor\.com[^\s\)]*/gi) || [];
-      
-      // Combine photo URLs only (not webpage URLs)
-      const allPhotos = [...new Set([...photoMatches, ...additionalPhotoMatches])];
-      
-      // Filter to only keep actual image URLs, not webpages
-      let filteredPhotos = allPhotos.filter(url => {
-        // Must be an actual image URL, not a webpage
-        const isWebpage = url.includes('.html') || 
-                         url.includes('.php') || 
-                         url.includes('facebook.com') || 
-                         url.includes('yelp.com') || 
-                         url.includes('tripadvisor.com') ||
-                         url.includes('google.com/maps') ||
-                         url.includes('#photos') ||
-                         url.includes('/photos') && !url.includes('cdn');
-        
-        const isUnwanted = url.includes('placeholder') || 
-                           url.includes('default') || 
-                           url.includes('logo') ||
-                           url.includes('icon') ||
-                           url.includes('senior') || 
-                           url.includes('assisted') || 
-                           url.includes('nursing') || 
-                           url.includes('retirement');
-        
-        // Only keep if it's not a webpage and not unwanted
-        return !isWebpage && !isUnwanted;
-      });
-      
-      // If no real photos found, don't add placeholders - per Golden Data Rule
-      // Only return actual photos found from web sources
-      if (filteredPhotos.length === 0) {
-        console.log(`📸 No actual photos found for ${serviceName} - will rely on web intelligence`);
-        
-        // Add photo source hints for the frontend to show where photos might be found
-        businessData.photoSources = {
-          googleMaps: googleMapsMatch[0] || null,
-          yelp: yelpMatch[0] || null,
-          tripAdvisor: tripAdvisorMatch[0] || null,
-          searchQuery: `${serviceName} ${city} ${state} photos`
-        };
+      // Extract website URL from Perplexity response
+      const websiteMatch = answer.match(/(?:website|Website|WEBSITE)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe)[^\s,\)]*)/i);
+      let extractedWebsite: string | undefined;
+      if (websiteMatch) {
+        extractedWebsite = websiteMatch[1];
+        if (!extractedWebsite.startsWith('http')) {
+          extractedWebsite = 'https://' + extractedWebsite;
+        }
       }
       
-      businessData.photos = filteredPhotos;
-
-      // Extract website
-      const websiteMatch = answer.match(/(?:website|Website|WEBSITE)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe)[^\s,\)]*)/i);
-      if (websiteMatch) {
-        businessData.website = websiteMatch[1];
-        if (!businessData.website.startsWith('http')) {
-          businessData.website = 'https://' + businessData.website;
+      // Use MultiAIPhotoExtractor for sophisticated photo extraction
+      console.log('🚀 Using enhanced photo extraction with Playwright scraping...');
+      try {
+        const photoResults = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+          serviceName,
+          serviceType || 'restaurant/business',
+          city,
+          state || '',
+          answer, // Perplexity content
+          extractedWebsite, // Website if found
+          citations.map((c: any) => c.url || c).filter((url: string) => url && url.startsWith('http'))
+        );
+        
+        // Extract photo URLs from the authentic photos
+        businessData.photos = photoResults.authenticPhotos.map(photo => photo.url);
+        
+        // Log results
+        console.log(`✅ Enhanced photo extraction complete:`);
+        console.log(`   - ${photoResults.authenticPhotos.length} authentic photos found`);
+        console.log(`   - Sources: ${photoResults.sources.join(', ')}`);
+        
+        // If still no photos, add hints for where they might be found
+        if (businessData.photos.length === 0) {
+          console.log(`📸 No photos could be extracted even with enhanced methods`);
+          
+          // Look for directory mentions in the response
+          const googleMapsMatch = answer.match(/https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.google\.com|goo\.gl\/maps)[^\s\)]*/gi) || [];
+          const yelpMatch = answer.match(/https?:\/\/(?:www\.)?yelp\.com[^\s\)]*/gi) || [];
+          const tripAdvisorMatch = answer.match(/https?:\/\/(?:www\.)?tripadvisor\.com[^\s\)]*/gi) || [];
+          
+          businessData.photoSources = {
+            googleMaps: googleMapsMatch[0] || null,
+            yelp: yelpMatch[0] || null,
+            tripAdvisor: tripAdvisorMatch[0] || null,
+            searchQuery: `${serviceName} ${city} ${state} photos`
+          };
         }
+      } catch (error) {
+        console.error('Enhanced photo extraction failed, falling back to basic extraction:', error);
+        // Fall back to basic extraction if enhanced fails
+        businessData.photos = [];
+      }
+
+      // Set website if found
+      if (extractedWebsite) {
+        businessData.website = extractedWebsite;
       }
 
       // Extract hours

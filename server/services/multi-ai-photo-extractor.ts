@@ -174,6 +174,108 @@ Be lenient - mark as authentic unless clearly stock photos.`
   }
 
   /**
+   * Extract photos from service-specific directory sites (hotels, restaurants, etc.)
+   */
+  static async extractPhotosFromServiceDirectorySites(content: string, serviceName: string, serviceType?: string): Promise<PhotoCandidate[]> {
+    const photos: PhotoCandidate[] = [];
+    
+    // Define service-specific directory patterns
+    const serviceDirectoryPatterns = [
+      // Hotel directories
+      { 
+        name: 'TripAdvisor', 
+        pattern: /tripadvisor\.com/i,
+        types: ['hotel', 'resort', 'inn', 'lodge'],
+        photoPatterns: [
+          'https://media-cdn.tripadvisor.com/media/photo-s/',
+          'https://media-cdn.tripadvisor.com/media/photo-o/',
+          'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/'
+        ]
+      },
+      { 
+        name: 'Booking.com', 
+        pattern: /booking\.com/i,
+        types: ['hotel', 'resort', 'inn'],
+        photoPatterns: [
+          'https://cf.bstatic.com/xdata/images/hotel/',
+          'https://cf.bstatic.com/images/hotel/'
+        ]
+      },
+      { 
+        name: 'Hotels.com', 
+        pattern: /hotels\.com/i,
+        types: ['hotel', 'resort'],
+        photoPatterns: [
+          'https://images.trvl-media.com/hotels/',
+          'https://images.trvl-media.com/lodging/'
+        ]
+      },
+      // Restaurant directories
+      { 
+        name: 'Yelp', 
+        pattern: /yelp\.com/i,
+        types: ['restaurant', 'cafe', 'diner', 'food'],
+        photoPatterns: [
+          'https://s3-media0.fl.yelpcdn.com/bphoto/',
+          'https://s3-media1.fl.yelpcdn.com/bphoto/',
+          'https://s3-media2.fl.yelpcdn.com/bphoto/',
+          'https://s3-media3.fl.yelpcdn.com/bphoto/'
+        ]
+      },
+      { 
+        name: 'OpenTable', 
+        pattern: /opentable\.com/i,
+        types: ['restaurant', 'dining'],
+        photoPatterns: [
+          'https://images.otstatic.com/prod/',
+          'https://resizer.otstatic.com/'
+        ]
+      },
+      // General business directories
+      { 
+        name: 'Google Maps/Business', 
+        pattern: /google\.com\/maps|maps\.google|goo\.gl\/maps/i,
+        types: ['any'],
+        photoPatterns: [
+          'https://lh3.googleusercontent.com/',
+          'https://lh5.googleusercontent.com/p/'
+        ]
+      }
+    ];
+
+    console.log(`🔍 Scanning for service directory mentions (${serviceType || 'general service'})...`);
+    
+    // Check relevant directory sites based on service type
+    for (const directory of serviceDirectoryPatterns) {
+      // Skip if this directory isn't relevant for the service type
+      if (serviceType && !directory.types.includes('any')) {
+        const typeMatches = directory.types.some(type => 
+          serviceType.toLowerCase().includes(type) || 
+          serviceName.toLowerCase().includes(type)
+        );
+        if (!typeMatches) continue;
+      }
+      
+      const mentioned = directory.pattern.test(content);
+      if (mentioned) {
+        console.log(`✅ Found ${directory.name} mentioned for ${serviceName}`);
+        
+        // For service directories, we can't generate fake URLs
+        // Instead, mark that this directory was found for potential scraping
+        photos.push({
+          url: `${directory.name.toLowerCase()}-photos-needed`,
+          source: directory.name,
+          confidence: 0.0,
+          isAuthentic: false,
+          reason: `${directory.name} mentioned but photo extraction needed via browser`
+        });
+      }
+    }
+    
+    return photos;
+  }
+
+  /**
    * Extract photos directly from directory site URLs found in Perplexity responses
    * Note: This method receives the content text, but citations are passed separately to findAuthenticPhotos
    */
@@ -443,6 +545,170 @@ Be lenient - mark as authentic unless clearly stock photos.`
       rejectedPhotos,
       sources: sourceUrls,
       summary: `🚀 Found ${authenticPhotos.length} authentic photos from ${sourceUrls.length} websites`
+    };
+  }
+
+  /**
+   * Enhanced photo finding for services (hotels, restaurants, businesses)
+   * Uses Playwright scraping and directory knowledge
+   */
+  static async findAuthenticServicePhotos(
+    serviceName: string,
+    serviceType: string,
+    city: string,
+    state: string,
+    perplexityContent: string,
+    websiteUrl?: string,
+    perplexityCitations?: string[]
+  ): Promise<PhotoExtractionResult> {
+    console.log(`🚀 Enhanced Service Photo Extraction for ${serviceName} (${serviceType}) in ${city}, ${state}`);
+    
+    let allPhotoCandidates: PhotoCandidate[] = [];
+    const websiteSources: string[] = [];
+    
+    // Step 1: Use Playwright to scrape photos from official website if available
+    if (websiteUrl) {
+      console.log('🌐 Step 1: Playwright browser automation for official website...');
+      try {
+        const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+          websiteUrl,
+          serviceName
+        );
+        
+        // Extract domain name for source
+        let websiteName = 'Official Website';
+        try {
+          const url = new URL(websiteUrl);
+          websiteName = url.hostname.replace('www.', '');
+        } catch (e) {
+          // Keep default if URL parsing fails
+        }
+        
+        // Convert scraped photos to candidates
+        const playwrightCandidates = scrapedPhotos.map(photo => ({
+          url: photo.url,
+          source: websiteName,
+          confidence: photo.isGallery ? 0.95 : 0.85,
+          isAuthentic: true,
+          reason: `Direct from ${photo.isGallery ? 'photo gallery' : 'website'}`
+        }));
+        
+        allPhotoCandidates.push(...playwrightCandidates);
+        websiteSources.push(websiteUrl);
+        console.log(`  ✅ Found ${playwrightCandidates.length} photos from ${websiteName}`);
+      } catch (error) {
+        console.error('Playwright scraping failed (will continue with other methods):', error);
+      }
+    }
+    
+    // Step 2: Extract photos from service directory sites mentioned in citations
+    console.log('📷 Step 2: Searching directory sites for photos...');
+    const directoryPhotos = await this.extractPhotosFromServiceDirectorySites(perplexityContent, serviceName, serviceType);
+    
+    // For each directory mentioned, try to scrape it with Playwright
+    if (perplexityCitations && perplexityCitations.length > 0) {
+      for (const citation of perplexityCitations) {
+        try {
+          const url = new URL(citation);
+          const hostname = url.hostname.toLowerCase();
+          
+          // Check if this is a known directory site
+          const isDirectory = hostname.includes('tripadvisor') || 
+                             hostname.includes('yelp') || 
+                             hostname.includes('booking') ||
+                             hostname.includes('hotels.com') ||
+                             hostname.includes('opentable') ||
+                             hostname.includes('google.com/maps');
+          
+          if (isDirectory && !websiteSources.includes(citation)) {
+            console.log(`  🔍 Scraping ${hostname} for service photos...`);
+            
+            try {
+              const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+                citation,
+                serviceName
+              );
+              
+              if (scrapedPhotos.length > 0) {
+                const siteCandidates = scrapedPhotos.map(photo => ({
+                  url: photo.url,
+                  source: hostname.replace('www.', ''),
+                  confidence: 0.8,
+                  isAuthentic: true,
+                  reason: `Found on ${hostname}`
+                }));
+                
+                allPhotoCandidates.push(...siteCandidates);
+                websiteSources.push(citation);
+                console.log(`    ✅ Found ${scrapedPhotos.length} photos from ${hostname}`);
+              }
+            } catch (error) {
+              console.log(`    ⚠️ Could not scrape ${hostname}`);
+            }
+          }
+        } catch (e) {
+          // Invalid URL, skip
+        }
+      }
+    }
+    
+    // Step 3: Extract photos directly from HTML content
+    console.log('📷 Step 3: Extracting photos from content...');
+    const contentPhotos = this.extractPhotosFromContent(perplexityContent, serviceName);
+    
+    // Filter for service-relevant photos only
+    const serviceRelevantPhotos = contentPhotos.filter(photo => {
+      const url = photo.url.toLowerCase();
+      // Accept photos from known service CDNs
+      return url.includes('tripadvisor') ||
+             url.includes('yelp') ||
+             url.includes('booking') ||
+             url.includes('hotels') ||
+             url.includes('opentable') ||
+             url.includes('googleusercontent') ||
+             url.includes('cloudinary') ||
+             url.includes('cloudfront') ||
+             url.includes('akamai') ||
+             photo.confidence > 0.7;
+    });
+    
+    allPhotoCandidates.push(...serviceRelevantPhotos);
+    
+    // Step 4: Quick verification to filter out broken/stock photos
+    console.log('🔍 Step 4: Verifying photo quality...');
+    
+    // Filter and categorize results
+    const authenticPhotos = allPhotoCandidates.filter(p => 
+      p.isAuthentic && 
+      p.confidence > 0.3 && // Lower threshold for services to get more photos
+      !this.isStockPhotoUrl(p.url) &&
+      this.isValidPhotoUrl(p.url)
+    );
+    
+    const rejectedPhotos = allPhotoCandidates.filter(p => 
+      !p.isAuthentic || 
+      p.confidence <= 0.3 ||
+      this.isStockPhotoUrl(p.url) ||
+      !this.isValidPhotoUrl(p.url)
+    );
+    
+    // Sort by confidence
+    authenticPhotos.sort((a, b) => b.confidence - a.confidence);
+    
+    // Build source URLs for citations
+    const sourceUrls = websiteSources.length > 0 ? websiteSources : 
+                       perplexityCitations ? perplexityCitations.slice(0, 5) : [];
+    
+    console.log(`✅ Service photo extraction complete:`);
+    console.log(`   - ${authenticPhotos.length} authentic photos found`);
+    console.log(`   - ${rejectedPhotos.length} rejected`);
+    console.log(`   - ${sourceUrls.length} sources checked`);
+    
+    return {
+      authenticPhotos: authenticPhotos.slice(0, 20), // Return up to 20 photos
+      rejectedPhotos: rejectedPhotos,
+      sources: sourceUrls,
+      summary: `Found ${authenticPhotos.length} photos for ${serviceName} from ${sourceUrls.length} sources`
     };
   }
 
