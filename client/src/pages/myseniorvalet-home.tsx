@@ -271,38 +271,99 @@ function HeroSectionWithTransformingSearch() {
         
       } else if (viewMode === 'discover' && searchCategory === 'services') {
         // Discovery mode for Services - discover ANY type of service providers globally
-        const response = await fetch('/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            searchType: 'services',  // General services, not limited to senior care
-            limit: 20,
-            discoveryMode: true  // Explicitly set Discovery Mode flag
-          })
+        
+        // Show immediate loading feedback for services search
+        setSearchResults({ 
+          results: [],
+          metadata: {
+            isLoading: true,
+            loadingMessage: `Searching for service providers related to "${query}"...`,
+            isResearchMode: false
+          }
         });
+        
+        // Implement retry logic for reliability
+        let attempts = 0;
+        const maxAttempts = 2;
+        let lastError = null;
+        
+        while (attempts < maxAttempts) {
+          try {
+            const response = await fetch('/api/global-discovery/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                query: query,
+                searchType: 'services',  // General services, not limited to senior care
+                limit: 20,
+                discoveryMode: true  // Explicitly set Discovery Mode flag
+              })
+            });
 
-        if (!response.ok) throw new Error('Service discovery search failed');
-        
-        const data = await response.json();
-        
-        // Show discovered services in modal
-        if (data.results && data.results.length > 0) {
-          setGlobalDiscoveryResults({
-            query,
-            results: data.results,
-            metadata: {...data.metadata, discoveryType: 'services'}
-          });
-          setShowGlobalDiscoveryModal(true);
-        } else {
-          // No services found, show message
-          setSearchResults({ 
-            results: [],
-            metadata: {
-              aiResponse: `No service providers found in ${query} yet. Try a different city or service type.`,
-              isResearchMode: false
+            if (!response.ok) {
+              throw new Error(`Service discovery search failed: ${response.status}`);
             }
-          });
+            
+            const data = await response.json();
+            
+            // Show discovered services in modal
+            if (data.results && data.results.length > 0) {
+              setGlobalDiscoveryResults({
+                query,
+                results: data.results,
+                metadata: {...data.metadata, discoveryType: 'services'}
+              });
+              setShowGlobalDiscoveryModal(true);
+              // Clear the loading state
+              setSearchResults({ results: [], metadata: null });
+            } else {
+              // No services found, show helpful message with suggestions
+              setSearchResults({ 
+                results: [],
+                metadata: {
+                  aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
+                  isResearchMode: false,
+                  suggestions: [
+                    'home health care',
+                    'medical supplies',
+                    'senior transportation',
+                    'meal delivery services'
+                  ]
+                }
+              });
+            }
+            break; // Success - exit retry loop
+            
+          } catch (error) {
+            lastError = error;
+            attempts++;
+            
+            if (attempts < maxAttempts) {
+              // Update loading message for retry
+              setSearchResults({ 
+                results: [],
+                metadata: {
+                  isLoading: true,
+                  loadingMessage: `Retrying search for "${query}"... (Attempt ${attempts + 1}/${maxAttempts})`,
+                  isResearchMode: false
+                }
+              });
+              
+              // Wait a bit before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            } else {
+              // All attempts failed - show error message
+              console.error('Service discovery search failed after retries:', error);
+              setSearchResults({ 
+                results: [],
+                metadata: {
+                  aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
+                  error: true,
+                  isResearchMode: false
+                }
+              });
+            }
+          }
         }
         
       } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
@@ -885,10 +946,17 @@ function HeroSectionWithTransformingSearch() {
               {/* Results Content with premium glass design - Only show for non-Research mode */}
               {!searchResults?.metadata?.isResearchMode && (
                 <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
-                  {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-300">Searching...</span>
+                  {(isLoading || searchResults?.metadata?.isLoading) ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full mb-4" />
+                    <span className="text-gray-300 font-medium">
+                      {searchResults?.metadata?.loadingMessage || 'Searching...'}
+                    </span>
+                    {searchCategory === 'services' && (
+                      <span className="text-gray-400 text-sm mt-2">
+                        Discovery Mode is searching across multiple sources...
+                      </span>
+                    )}
                   </div>
                 ) : (
                   <>
