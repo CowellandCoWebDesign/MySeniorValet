@@ -16,8 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
-import { FamilyShareButton } from "@/components/family-share-button";
-import { MessageCommunityButton } from "@/components/message-community-button";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { apiRequest } from "@/lib/queryClient";
@@ -868,16 +866,29 @@ export default function ServiceDetail() {
           </TabsContent>
         </Tabs>
 
-        {/* Share and Message Buttons */}
-        <div className="fixed bottom-6 right-6 flex flex-col gap-3">
-          <FamilyShareButton 
-            community={{ id: parseInt(service.id), name: service.name }}
-            shareType="service"
-          />
-          <MessageCommunityButton
-            communityId={parseInt(service.id)}
-            communityName={service.name}
-          />
+        {/* Share Button */}
+        <div className="fixed bottom-6 right-6">
+          <Button 
+            onClick={() => {
+              if (navigator.share) {
+                navigator.share({
+                  title: service.name,
+                  text: `Check out ${service.name} in ${service.city}, ${service.state}`,
+                  url: window.location.href,
+                });
+              } else {
+                // Fallback to copying link
+                navigator.clipboard.writeText(window.location.href);
+                toast({
+                  title: "Link Copied!",
+                  description: "The service link has been copied to your clipboard.",
+                });
+              }
+            }}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg"
+          >
+            <Users className="w-6 h-6" />
+          </Button>
         </div>
       </div>
     </div>
