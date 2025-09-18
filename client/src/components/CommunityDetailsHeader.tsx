@@ -6,7 +6,7 @@ import {
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
   CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
-  Flag, RefreshCw, TrendingUp
+  Flag, RefreshCw, TrendingUp, Info, ExternalLink
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
@@ -292,8 +292,45 @@ export function CommunityDetailsHeader({
             className="w-full h-full"
             currentPhotoIndex={currentPhotoIndex}
             onPhotoIndexChange={onPhotoChange}
+            showSourceIndicator={true}
           />
         </div>
+        
+        {/* Photo Citations - NEW TRANSPARENCY FEATURE */}
+        {(webIntel?.sources || verificationReport?.sources || verificationReport?.citations) && 
+         (webIntel?.sources?.length > 0 || verificationReport?.sources?.length > 0 || verificationReport?.citations?.length > 0) && (
+          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+              <Info className="w-3 h-3" />
+              <span>Photo sources:</span>
+              <div className="flex flex-wrap gap-2">
+                {(webIntel?.sources || verificationReport?.sources || verificationReport?.citations || [])
+                  .slice(0, 3)
+                  .map((source: string, idx: number) => {
+                    // Extract domain from URL for display
+                    let displayName = `Source ${idx + 1}`;
+                    try {
+                      const url = new URL(source);
+                      displayName = url.hostname.replace('www.', '');
+                    } catch {}
+                    
+                    return (
+                      <a
+                        key={idx}
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3 inline mr-1" />
+                        {displayName}
+                      </a>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
         
         {/* Featured Badge, Photo Thumbnails and Action Buttons - Combined Row */}
         <div className="flex justify-between items-center px-3 sm:px-6 py-2 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
