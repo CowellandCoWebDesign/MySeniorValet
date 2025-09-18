@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { ArrowLeft, Phone, Mail, Globe, MapPin, Star, Calendar, MessageSquare, 
          Building, CheckCircle, Sparkles, Clock, DollarSign, Shield, Award, 
          TrendingUp, Users, Truck, Package, Briefcase, Info, ExternalLink, 
-         Loader2, Search, Camera } from 'lucide-react';
+         Loader2, Search, Camera, Heart, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -176,64 +176,16 @@ const ServiceBookingForm = ({ service, onSuccess }: { service: ServiceProvider, 
   );
 };
 
-// Web Intelligence Component for Services
-const ServiceWebIntelligence = ({ service, onDataFound }: { service: ServiceProvider, onDataFound?: (data: any) => void }) => {
-  const [webData, setWebData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasSearched, setHasSearched] = useState(false);
-
-  const fetchWebIntelligence = async () => {
-    if (!service?.name || !service?.city) return;
-    if (isLoading) return;
-    
-    setIsLoading(true);
-    setHasSearched(true);
-    
-    try {
-      const response = await fetch('/api/service-intelligence', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          serviceName: service.name,
-          city: service.city,
-          state: service.state,
-          serviceType: service.careTypes?.[0] || 'service'
-        }),
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setWebData(data);
-        
-        // Pass all web intelligence data to parent component
-        if (onDataFound) {
-          onDataFound(data);
-        }
-        
-        // Log photo status for debugging
-        if (data.photos && data.photos.length > 0) {
-          console.log(`Found ${data.photos.length} photos for ${service.name}`);
-          console.log('Photos found for service:', data.photos);
-        } else {
-          console.log(`No photos found for ${service.name}`);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch web intelligence:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    // Auto-fetch on mount
-    if (service?.name && !hasSearched) {
-      fetchWebIntelligence();
-    }
-  }, [service?.name]);
-
+// Web Intelligence Component for Services - Now only displays data, doesn't fetch
+const ServiceWebIntelligence = ({ 
+  service, 
+  webData, 
+  isLoading 
+}: { 
+  service: ServiceProvider, 
+  webData: any, 
+  isLoading: boolean 
+}) => {
   if (!service) return null;
 
   return (
@@ -300,21 +252,14 @@ const ServiceWebIntelligence = ({ service, onDataFound }: { service: ServiceProv
               </div>
             )}
           </div>
-        ) : hasSearched ? (
+        ) : webData !== null ? (
           <Alert>
             <Info className="w-4 h-4" />
             <AlertDescription>
               No additional information found. The business information above is what we currently have on file.
             </AlertDescription>
           </Alert>
-        ) : (
-          <div className="text-center py-4">
-            <Button onClick={fetchWebIntelligence} variant="outline">
-              <Search className="w-4 h-4 mr-2" />
-              Search for Business Information
-            </Button>
-          </div>
-        )}
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -867,22 +812,11 @@ export default function ServiceDetail() {
           </TabsContent>
 
           <TabsContent value="intelligence">
-            {/* Web Intelligence for additional research */}
+            {/* Web Intelligence for additional research - uses already fetched data */}
             <ServiceWebIntelligence 
               service={service}
-              onDataFound={(data) => {
-                // Update web intelligence data including photos and citations
-                setWebIntelligence(data);
-                
-                // Update photos if available
-                if (data.photos && data.photos.length > 0) {
-                  console.log('Photos found for service:', data.photos);
-                  setWebPhotos(data.photos);
-                } else {
-                  console.log('No photos returned for service');
-                  setWebPhotos([]);
-                }
-              }}
+              webData={webIntelligence}
+              isLoading={isLoadingIntelligence}
             />
           </TabsContent>
 
