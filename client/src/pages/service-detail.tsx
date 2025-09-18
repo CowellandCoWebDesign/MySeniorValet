@@ -270,6 +270,7 @@ export default function ServiceDetail() {
   const { toast } = useToast();
   const [webPhotos, setWebPhotos] = useState<any[]>([]);
   const [webIntelligence, setWebIntelligence] = useState<any>(null);
+  const [verificationReport, setVerificationReport] = useState<any>(null);
   const [isLoadingIntelligence, setIsLoadingIntelligence] = useState(false);
 
   // Fetch service details
@@ -308,10 +309,16 @@ export default function ServiceDetail() {
         const data = await response.json();
         setWebIntelligence(data);
         
-        // Update photos if available
-        if (data.photos && data.photos.length > 0) {
-          console.log(`Found ${data.photos.length} photos for ${service.name}`);
-          setWebPhotos(data.photos);
+        // Set the normalized verificationReport for UI components
+        if (data.verificationReport) {
+          setVerificationReport(data.verificationReport);
+        }
+        
+        // Update photos if available (from verificationReport or legacy format)
+        const photos = data.verificationReport?.webIntelligence?.images?.map((img: any) => img.url) || data.photos || [];
+        if (photos.length > 0) {
+          console.log(`Found ${photos.length} photos for ${service.name}`);
+          setWebPhotos(photos);
         } else {
           console.log(`No photos found for ${service.name}`);
         }
@@ -384,31 +391,39 @@ export default function ServiceDetail() {
               name: service.name,
               photos: webPhotos
             }}
-            verificationReport={webIntelligence}
+            verificationReport={verificationReport}
             isLoading={isLoadingIntelligence}
             showSourceIndicator={true}
-            autoEnrich={false}
+            autoEnrich={true}
           />
           
           {/* Photo Citations */}
-          {webIntelligence?.citations && webIntelligence.citations.length > 0 && (
+          {verificationReport?.webIntelligence?.citations && verificationReport.webIntelligence.citations.length > 0 && (
             <div className="mt-2 px-4 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
                 <Info className="w-3 h-3" />
                 <span>Photo sources:</span>
                 <div className="flex flex-wrap gap-2">
-                  {webIntelligence.citations.slice(0, 3).map((source: string, idx: number) => {
-                    // Extract domain from URL for display
-                    let displayName = `Source ${idx + 1}`;
-                    try {
-                      const url = new URL(source);
-                      displayName = url.hostname.replace('www.', '');
-                    } catch {}
+                  {verificationReport.webIntelligence.citations.slice(0, 3).map((citation: any, idx: number) => {
+                    // Handle both string and object citation formats
+                    const url = typeof citation === 'string' ? citation : citation.url;
+                    const title = typeof citation === 'string' ? `Source ${idx + 1}` : citation.title;
+                    
+                    // Extract domain from URL for display if no title
+                    let displayName = title;
+                    if (!title && url) {
+                      try {
+                        const urlObj = new URL(url);
+                        displayName = urlObj.hostname.replace('www.', '');
+                      } catch {
+                        displayName = `Source ${idx + 1}`;
+                      }
+                    }
                     
                     return (
                       <a
                         key={idx}
-                        href={source}
+                        href={url}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
@@ -459,9 +474,12 @@ export default function ServiceDetail() {
                     </div>
                   </div>
                   
-                  {service.description && (
+                  {/* Use enriched description if available, fallback to service description */}
+                  {(verificationReport?.webIntelligence?.content || service.description) && (
                     <p className="mt-4 text-gray-700 dark:text-gray-300">
-                      {service.description}
+                      {verificationReport?.webIntelligence?.content ? 
+                        verificationReport.webIntelligence.content.substring(0, 300) + '...' : 
+                        service.description}
                     </p>
                   )}
 
@@ -558,7 +576,7 @@ export default function ServiceDetail() {
                 <CardContent className="space-y-4">
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Operating Hours</h4>
-                    <p className="mt-1">{service.hours || 'Contact for hours'}</p>
+                    <p className="mt-1">{verificationReport?.contactInfo?.hours || service.hours || 'Contact for hours'}</p>
                   </div>
                   <div>
                     <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Service Area</h4>
@@ -583,11 +601,30 @@ export default function ServiceDetail() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {/* Intelligently determine highlights based on the business name and type */}
+                    {/* Use enriched highlights if available, otherwise use intelligent defaults */}
                     {(() => {
+                      // Check if we have enriched data with actual highlights
+                      if (verificationReport?.webIntelligence?.services && verificationReport.webIntelligence.services.length > 0) {
+                        // Show actual enriched highlights
+                        return verificationReport.webIntelligence.services.slice(0, 4).map((highlight: string, idx: number) => {
+                          const icons = [Star, Award, CheckCircle, TrendingUp];
+                          const colors = ['text-yellow-500', 'text-purple-500', 'text-green-500', 'text-blue-500'];
+                          const Icon = icons[idx % icons.length];
+                          const color = colors[idx % colors.length];
+                          
+                          return (
+                            <div key={idx} className="flex items-center gap-3">
+                              <Icon className={`w-5 h-5 ${color}`} />
+                              <span>{highlight}</span>
+                            </div>
+                          );
+                        });
+                      }
+                      
+                      // Fallback to intelligent defaults based on business type
                       const businessName = service.name?.toLowerCase() || '';
                       const businessType = service.careTypes?.[0]?.toLowerCase() || '';
-                      const description = service.description?.toLowerCase() || '';
+                      const description = (verificationReport?.webIntelligence?.content || service.description || '').toLowerCase();
                       
                       // Determine business category dynamically
                       const isLegal = businessName.includes('law') || businessName.includes('attorney') || 
@@ -792,9 +829,11 @@ export default function ServiceDetail() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {service.careTypes && service.careTypes.length > 0 ? (
+                {/* Use enriched services if available */}
+                {(verificationReport?.webIntelligence?.services || service.careTypes) && 
+                 (verificationReport?.webIntelligence?.services?.length > 0 || (service.careTypes && service.careTypes.length > 0)) ? (
                   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {service.careTypes.map((serviceType, idx) => (
+                    {(verificationReport?.webIntelligence?.services || service.careTypes || []).map((serviceType: string, idx: number) => (
                       <div key={idx} className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50">
                         <CheckCircle className="w-5 h-5 text-green-500 mt-0.5" />
                         <div>
@@ -813,12 +852,22 @@ export default function ServiceDetail() {
           </TabsContent>
 
           <TabsContent value="intelligence">
-            {/* Web Intelligence for additional research - uses already fetched data */}
-            <ServiceWebIntelligence 
-              service={service}
-              webData={webIntelligence}
-              isLoading={isLoadingIntelligence}
-            />
+            {/* Use LiveWebIntelligence component with verificationReport */}
+            {verificationReport ? (
+              <LiveWebIntelligence
+                communityName={service.name}
+                city={service.city || ''}
+                state={service.state || ''}
+                autoLoad={false}
+                verificationReport={verificationReport}
+              />
+            ) : (
+              <ServiceWebIntelligence 
+                service={service}
+                webData={webIntelligence}
+                isLoading={isLoadingIntelligence}
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="reviews">
@@ -844,7 +893,14 @@ export default function ServiceDetail() {
         {/* Share and Message Buttons */}
         <div className="fixed bottom-6 right-6 flex flex-col gap-3">
           <FamilyShareButton 
-            community={{ id: parseInt(service.id), name: service.name }}
+            community={{ 
+              id: parseInt(service.id), 
+              name: service.name,
+              address: service.address || '',
+              city: service.city || '',
+              state: service.state || '',
+              careTypes: service.careTypes || []
+            }}
             shareType="service"
           />
           <MessageCommunityButton

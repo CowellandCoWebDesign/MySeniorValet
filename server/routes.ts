@@ -274,8 +274,9 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       console.log(`🌐 Website: ${businessData.website || 'Not found'}`);
       console.log(`📞 Phone: ${extractedPhone || 'Not found'}`);
       
-      // Create the proper response structure expected by frontend
+      // Normalize to match verificationReport structure that frontend components expect
       const response = {
+        // Legacy fields for backward compatibility
         photos: businessData.photos,
         sources: businessData.citations,
         description: businessData.description,
@@ -300,6 +301,49 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
           searchQuery: `${serviceName} ${city} ${state}`,
           photoCount: businessData.photos.length,
           sourcesFound: businessData.citations.length
+        },
+        // NEW: Add verificationReport structure for UI components
+        verificationReport: {
+          webIntelligence: {
+            content: businessData.description,
+            services: businessData.services,
+            website: businessData.website,
+            citations: businessData.citations.map((url: string, idx: number) => ({
+              id: idx + 1,
+              title: url.includes('yelp') ? 'Yelp' : 
+                     url.includes('tripadvisor') ? 'TripAdvisor' :
+                     url.includes('google') ? 'Google Maps' :
+                     url.includes('facebook') ? 'Facebook' : 
+                     `Source ${idx + 1}`,
+              url: url
+            })),
+            images: businessData.photos.map((url: string, idx: number) => ({
+              url: url,
+              source: businessData.citations[idx] || 'Web',
+              alt: `${serviceName} photo ${idx + 1}`
+            })),
+            lastUpdated: new Date().toISOString(),
+            confidence: businessData.photos.length > 0 ? 0.8 : 0.4
+          },
+          pricing: {
+            // Services don't have pricing like communities
+            estimatedMonthly: null,
+            baseRate: null
+          },
+          amenities: businessData.services,
+          contactInfo: {
+            phone: extractedPhone,
+            email: null,
+            website: businessData.website,
+            address: extractedAddress,
+            hours: businessData.hours
+          }
+        },
+        enrichmentMetadata: {
+          source: 'perplexity',
+          timestamp: new Date().toISOString(),
+          ttl: 604800000, // 7 days in milliseconds
+          status: 'success'
         }
       };
       
