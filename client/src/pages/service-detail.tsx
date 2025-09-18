@@ -387,6 +387,7 @@ export default function ServiceDetail() {
             verificationReport={webIntelligence}
             isLoading={isLoadingIntelligence}
             showSourceIndicator={true}
+            autoEnrich={false}
           />
           
           {/* Photo Citations */}
