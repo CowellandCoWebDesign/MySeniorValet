@@ -91,7 +91,7 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('discover');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
