@@ -740,6 +740,43 @@ function HeroSectionWithTransformingSearch() {
             </div>
             </div>
             
+            {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
+            {viewMode === 'discover' && searchCategory === 'services' && !searchQuery && (
+              <div className="absolute top-full mt-2 left-0 right-0 z-30">
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-3">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Popular service searches:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'home health care',
+                      'medical supplies', 
+                      'senior transportation',
+                      'meal delivery',
+                      'physical therapy',
+                      'cleaning services',
+                      'handyman services',
+                      'legal services',
+                      'financial planning'
+                    ].map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(suggestion);
+                          handleAutoExpandingSearch(suggestion, true);
+                        }}
+                        className="px-3 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 rounded-full border border-purple-300 dark:border-purple-600 transition-colors"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-500 mt-2">
+                    💡 Tip: Include a location for better results (e.g., "plumbers in Dallas")
+                  </p>
+                </div>
+              </div>
+            )}
+            
             {/* View Mode Tabs - Matching Top Tab Style */}
             <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
               <div className="flex gap-2">
