@@ -567,7 +567,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                     source: 'Perplexity Global Search',
                     fieldsUpdated: ['initial_discovery'],
                     autoApproved: false
-                  }],
+                  }] as any[], // Cast to any[] to match JSON type
                   isVerified: false,
                   createdAt: new Date(),
                   updatedAt: new Date()
@@ -660,7 +660,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           citations: citations, // Include Perplexity citations
           // Add fields needed for community details view
           photos: saved.photos || [],
-          amenities: saved.amenities || [],
+          amenities: (saved as any).amenities || [],
           // Note: These fields don't exist in database but may be needed by frontend
           pricing: null,
           capacity: null,
