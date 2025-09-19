@@ -91,7 +91,7 @@ export function LanguageSwitcher({
         <DropdownMenuContent align="end" className="w-64">
           <DropdownMenuLabel className="flex items-center gap-2">
             <Languages className="h-4 w-4" />
-            {t('nav.language')}
+            {t ? t('nav.language') : 'Language'}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {languages.map((lang) => (
