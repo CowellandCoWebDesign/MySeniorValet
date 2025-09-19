@@ -484,6 +484,7 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       // Send email notification to admin
       try {
         const sgMail = await import('@sendgrid/mail');
+        sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
         const emailHtml = `
           <h2>New Contact Form Submission</h2>
           <p><strong>From:</strong> ${name} (${email})</p>
