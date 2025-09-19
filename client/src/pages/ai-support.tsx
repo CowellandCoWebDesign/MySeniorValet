@@ -312,7 +312,7 @@ export default function AISupport() {
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 mb-4">Speak with a real person</p>
-            <p className="text-lg font-semibold">1-800-SENIOR-1</p>
+            <p className="text-lg font-semibold">1-800-736-4671</p>
             <p className="text-sm text-gray-600">Monday-Friday: 8AM-6PM PST</p>
             <p className="text-sm text-gray-600">Saturday: 9AM-3PM PST</p>
             <p className="text-xs text-gray-500 mt-4">Average wait time: 3-5 minutes</p>
