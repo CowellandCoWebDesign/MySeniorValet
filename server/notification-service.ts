@@ -122,7 +122,7 @@ export class NotificationService {
       
       // Create notification for super admin
       const notification = await this.createNotification({
-        userId: superAdmin.id,
+        userId: superAdmin.id.toString(),
         type,
         title,
         message,
@@ -162,13 +162,13 @@ export class NotificationService {
       const [existingPrefs] = await db
         .select()
         .from(userNotificationPreferences)
-        .where(eq(userNotificationPreferences.userId, superAdmin.id))
+        .where(eq(userNotificationPreferences.userId, superAdmin.id.toString()))
         .limit(1);
       
       if (!existingPrefs) {
         // Create super admin preferences with all notifications enabled
         await db.insert(userNotificationPreferences).values({
-          userId: superAdmin.id,
+          userId: superAdmin.id.toString(),
           emailEnabled: true,
           emailFrequency: 'immediate',
           communityUpdates: true,
@@ -201,7 +201,7 @@ export class NotificationService {
           email: users.email
         })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
       
       if (!user?.email) return;
@@ -259,7 +259,7 @@ export class NotificationService {
         try {
           await sgMail.send({
             to: email.emailTo!,
-            from: 'Admin@myseniorvalet.com',
+            from: 'admin@myseniorvalet.com',
             subject: email.emailSubject!,
             html: email.emailBody!
           });
