@@ -457,6 +457,65 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
     }
   });
   
+  // Contact form submission endpoint
+  app.post('/api/contact', async (req, res) => {
+    try {
+      const { name, email, subject, message } = req.body;
+      
+      // Validate required fields
+      if (!name || !email || !subject || !message) {
+        return res.status(400).json({ error: 'All fields are required' });
+      }
+      
+      // Get IP address and user agent for tracking
+      const ipAddress = req.ip || req.connection.remoteAddress || '';
+      const userAgent = req.headers['user-agent'] || '';
+      
+      // Save the submission to database
+      const submission = await storage.createContactSubmission({
+        name,
+        email,
+        subject,
+        message,
+        ipAddress,
+        userAgent
+      });
+      
+      // Send email notification to admin
+      try {
+        const sgMail = await import('@sendgrid/mail');
+        const emailHtml = `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>From:</strong> ${name} (${email})</p>
+          <p><strong>Subject:</strong> ${subject}</p>
+          <p><strong>Message:</strong></p>
+          <p>${message.replace(/\n/g, '<br>')}</p>
+          <hr>
+          <p><small>Submitted at ${new Date().toISOString()}</small></p>
+        `;
+        
+        await sgMail.default.send({
+          to: 'hello@myseniorvalet.com',
+          from: 'admin@myseniorvalet.com',
+          subject: `Contact Form: ${subject} - from ${name}`,
+          html: emailHtml
+        });
+      } catch (emailError) {
+        console.error('Error sending contact form email notification:', emailError);
+        // Don't fail the request if email fails
+      }
+      
+      res.json({ 
+        success: true, 
+        message: 'Thank you for contacting us! We will respond within 24 hours.',
+        submissionId: submission.id 
+      });
+    } catch (error) {
+      console.error('Error processing contact form submission:', error);
+      res.status(500).json({ error: 'Failed to submit contact form. Please try again.' });
+    }
+  });
+  
   // Admin endpoints for managing featured communities
   app.post('/api/admin/featured-communities', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
