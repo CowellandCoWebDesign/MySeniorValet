@@ -23,24 +23,39 @@ import { onDemandEnrichmentService } from "../services/on-demand-enrichment-serv
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
 import { simpleEnrichmentService } from "../services/simple-enrichment-service";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
+import { vendors } from "@shared/schema";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
   
-  // Get community count
+  // Get community and services count (dynamic, includes discovered entities)
   app.get("/api/communities/count", async (_req, res) => {
     try {
-      // Add caching headers for better performance
+      // Add shorter cache for dynamic counts
       res.set({
-        'Cache-Control': 'public, max-age=900', // Cache for 15 minutes
+        'Cache-Control': 'public, max-age=60', // Cache for 1 minute
         'ETag': `community-count-${Date.now()}`
       });
       
-      const [{ count }] = await db
-        .select({ count: sql`count(*)` })
+      // Get community count
+      const [{ communityCount }] = await db
+        .select({ communityCount: sql`count(*)` })
         .from(communities);
       
-      res.json({ count: count.toString() });
+      // Get vendor/service count (including discovered services)
+      const [{ vendorCount }] = await db
+        .select({ vendorCount: sql`count(*)` })
+        .from(vendors);
+      
+      // Total discoverable entities worldwide
+      const totalCount = Number(communityCount) + Number(vendorCount);
+      
+      res.json({ 
+        count: totalCount.toLocaleString(),
+        communities: Number(communityCount).toLocaleString(),
+        services: Number(vendorCount).toLocaleString(),
+        isGlobal: true
+      });
     } catch (error) {
       console.error("Error getting community count:", error);
       res.status(500).json({ error: "Failed to get community count" });

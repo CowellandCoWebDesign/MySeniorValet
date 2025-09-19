@@ -99,6 +99,14 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
+  
+  // Fetch dynamic community and service counts
+  const { data: communityStats } = useQuery<{ count: string; communities: string; services: string; isGlobal: boolean }>({
+    queryKey: ["/api/communities/count"],
+    retry: false,
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute
+    gcTime: 5 * 60 * 1000,   // Keep in cache for 5 minutes
+  });
 
   // Handle search from AutoExpandingSearch component
   const handleAutoExpandingSearch = async (query: string, isResearchMode?: boolean) => {
@@ -652,7 +660,7 @@ function HeroSectionWithTransformingSearch() {
                 <div className="flex flex-col items-start leading-none">
                   <span className="hidden sm:inline">Communities</span>
                   <span className="sm:hidden">Homes</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">33,200+</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
                 </div>
               </button>
               <button
@@ -667,7 +675,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-xs sm:text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Services</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">7,500+</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
                 </div>
               </button>
               <button
@@ -682,7 +690,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-xs sm:text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">2,000+</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">Global</span>
                 </div>
               </button>
               <button
@@ -697,7 +705,7 @@ function HeroSectionWithTransformingSearch() {
                 <span className="text-xs sm:text-sm">📚</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Resources</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">119</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">Growing</span>
                 </div>
               </button>
             </div>
@@ -1552,11 +1560,11 @@ export default function MySeniorValetHome() {
   }, []);
 
   // Mobile-optimized queries with reduced memory footprint
-  const { data: communityStats, isLoading } = useQuery<{ count: string }>({
+  const { data: communityStats, isLoading } = useQuery<{ count: string; communities: string; services: string; isGlobal: boolean }>({
     queryKey: ["/api/communities/count"],
     retry: false,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
-    gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute for dynamic updates
+    gcTime: 5 * 60 * 1000,   // Keep in cache for 5 minutes
     enabled: initialLoadComplete, // Defer to improve initial load time
   });
 
@@ -1828,16 +1836,16 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Revolutionary AI enrichment system that automatically improves data quality in real-time. Our self-healing architecture detects and corrects errors, enriches content on-demand, and guarantees true transparency without hidden fees or paywalls.
+                    Revolutionary global discovery engine with unlimited worldwide access. Our AI-powered system finds and researches any business, in any country, in real-time. From senior living in Tokyo to restaurants in Paris, discover businesses globally with transparent pricing and authentic information.
                   </p>
 
                   {/* Community count matching other cards */}
                   <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
                     <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {communityStats?.count || "32,970+"}
+                      {communityStats?.count || 'Unlimited'}
                     </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">AI-Enhanced Communities</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Global Discovery Engine</span>
                   </div>
 
                   {/* Flex container for side-by-side layout */}
@@ -1873,48 +1881,36 @@ export default function MySeniorValetHome() {
                     {/* Right side - Global Coverage Areas Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌍</span> Global Coverage
+                        <span>🌍</span> Worldwide Access
                       </p>
                       <div className="h-44 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇺🇸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">USA (28,348)</p>
+                          <span className="text-xs">🌎</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">North America</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇨🇦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Canada (6,780)</p>
+                          <span className="text-xs">🌍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Europe</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇦🇺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Australia (2,231)</p>
+                          <span className="text-xs">🌏</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Asia Pacific</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇲🇽</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Mexico (405)</p>
+                          <span className="text-xs">🌍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Middle East & Africa</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇯🇵</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Japan (67)</p>
+                          <span className="text-xs">🌎</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">South America</p>
                         </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇨🇺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Cuba (12)</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇵🇪</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Peru (10)</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇨🇷</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Costa Rica (5)</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇵🇦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Panama (5)</p>
+                        <div className="p-1.5 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded flex flex-col gap-1 p-2">
+                          <p className="text-[10px] text-purple-700 dark:text-purple-300 font-bold">Discovery Mode Active</p>
+                          <p className="text-[9px] text-gray-600 dark:text-gray-400">Find any business, anywhere in the world</p>
                         </div>
                       </div>
                       <p className="text-xs text-center text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                        9 Countries • 3 Continents
+                        All Countries • All Continents • Real-Time Discovery
                       </p>
                     </div>
                   </div>
