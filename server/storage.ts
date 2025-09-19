@@ -1,7 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
-  removalRequests, auditLogs, featuredCommunities,
+  removalRequests, auditLogs, featuredCommunities, contactSubmissions,
   type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
@@ -18,7 +18,8 @@ import {
   type MarketplaceCategory, type InsertMarketplaceCategory,
   type MarketplaceVendor, type InsertMarketplaceVendor,
   type MarketplaceVendorClick, type InsertMarketplaceVendorClick,
-  type SelectFeaturedCommunity, type InsertFeaturedCommunity
+  type SelectFeaturedCommunity, type InsertFeaturedCommunity,
+  type InsertContactSubmission, type SelectContactSubmission
 } from "@shared/schema";
 import { db } from "./db";
 
@@ -191,6 +192,11 @@ export interface IStorage {
   getRemovalRequests(params?: { status?: string; requestType?: string }): Promise<RemovalRequest[]>;
   getRemovalRequestById(id: number): Promise<RemovalRequest | undefined>;
   updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined>;
+
+  // Contact submission methods
+  createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission>;
+  getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]>;
+  updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -645,6 +651,29 @@ export class MemStorage implements IStorage {
   }
 
   async updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined> {
+    return undefined;
+  }
+
+  async createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission> {
+    return { 
+      ...submission, 
+      id: Date.now(), 
+      status: 'pending',
+      responseNotes: null,
+      respondedAt: null,
+      respondedBy: null,
+      ipAddress: null,
+      userAgent: null,
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    } as SelectContactSubmission;
+  }
+
+  async getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]> {
+    return [];
+  }
+
+  async updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined> {
     return undefined;
   }
 
@@ -2481,6 +2510,49 @@ export class DatabaseStorage implements IStorage {
         }
       });
     }
+    
+    return updated || undefined;
+  }
+
+  async createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission> {
+    const [created] = await db.insert(contactSubmissions).values({
+      ...submission,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+    
+    return created;
+  }
+
+  async getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]> {
+    let query = db.select().from(contactSubmissions);
+    const conditions = [];
+    
+    if (params?.status) {
+      conditions.push(eq(contactSubmissions.status, params.status));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(contactSubmissions.createdAt));
+    
+    if (params?.limit) {
+      query = query.limit(params.limit);
+    }
+    
+    return query;
+  }
+
+  async updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined> {
+    const [updated] = await db.update(contactSubmissions)
+      .set({
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(contactSubmissions.id, id))
+      .returning();
     
     return updated || undefined;
   }
