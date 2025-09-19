@@ -3,6 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Mail, MapPin, Globe, Phone, Clock, X } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
@@ -66,6 +69,57 @@ import IntegrityFirst from '@assets/generated_images/Integrity_over_corruption_3
 
 export default function Contact() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
+  const { toast } = useToast();
+  
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  
+  // Contact form mutation
+  const contactMutation = useMutation({
+    mutationFn: (data: typeof formData) => apiRequest('/api/contact', 'POST', data),
+    onSuccess: () => {
+      toast({
+        title: "Message sent successfully!",
+        description: "We'll respond within 24 hours.",
+      });
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        subject: '',
+        message: ''
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error sending message",
+        description: error.message || "Please try again later.",
+        variant: "destructive",
+      });
+    }
+  });
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate form
+    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+      toast({
+        title: "All fields are required",
+        description: "Please fill in all fields before submitting.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Submit form
+    contactMutation.mutate(formData);
+  };
 
   const brandImages = [
     // Brand Style Images
@@ -223,7 +277,7 @@ export default function Contact() {
               <CardContent className="p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Send Us a Message</h2>
                 
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
                       Your Name
@@ -233,6 +287,9 @@ export default function Contact() {
                       id="name"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter your full name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      disabled={contactMutation.isPending}
                     />
                   </div>
 
@@ -245,6 +302,9 @@ export default function Contact() {
                       id="email"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Enter your email address"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      disabled={contactMutation.isPending}
                     />
                   </div>
 
@@ -255,6 +315,9 @@ export default function Contact() {
                     <select
                       id="subject"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      disabled={contactMutation.isPending}
                     >
                       <option value="">Select a subject</option>
                       <option value="general">General Inquiry</option>
@@ -274,11 +337,18 @@ export default function Contact() {
                       rows={5}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                       placeholder="Tell us how we can help you..."
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      disabled={contactMutation.isPending}
                     ></textarea>
                   </div>
 
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
-                    Send Message
+                  <Button 
+                    type="submit"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
+                    disabled={contactMutation.isPending}
+                  >
+                    {contactMutation.isPending ? 'Sending...' : 'Send Message'}
                   </Button>
                 </form>
               </CardContent>
