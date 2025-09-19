@@ -541,46 +541,72 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             .limit(1);
           
           if (existing.length === 0 && discovered.name) {
-            // TEMPORARILY DISABLED: Database insert causing TypeScript error
-            // TODO: Fix insert statement to properly save discovered communities
-            console.log(`⚠️ Would save new discovered community: ${discovered.name} (INSERT DISABLED)`);
-            
-            // Create a temporary object that looks like a saved community
-            const tempCommunity = {
-              id: Math.floor(Math.random() * 1000000), // Temporary ID
-              name: discovered.name,
-              address: discovered.address || discovered.location || 'Address pending verification',
-              city: discovered.city || query.split(',')[0] || 'Unknown',
-              state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
-              country: discovered.country || 'Unknown',
-              zipCode: discovered.zipCode || '00000',
-              phone: discovered.phone || null,
-              email: discovered.email || null,
-              website: discovered.website || null,
-              description: discovered.description || `Discovered via search for "${query}"`,
-              careTypes: discovered.careTypes || ['Unknown'],
-              photos: discovered.photos || [],
-              amenities: [],
-              services: [],
-              careServices: [],
-              location: null,
-              data_source: 'AI Discovery (Pending Verification)',
-              isVerified: false,
-              enrichmentStatus: 'pending',
-              discoverySource: 'Global Discovery Search',
-              discoveryDate: new Date(),
-              enrichmentHistory: [{
-                timestamp: new Date().toISOString(),
-                source: 'Perplexity Global Search',
-                fieldsUpdated: ['initial_discovery'],
-                autoApproved: false
-              }]
-            };
-            
-            savedCommunities.push(tempCommunity);
+            // Save new discovered community to database
+            try {
+              const [newCommunity] = await db.insert(communities)
+                .values({
+                  name: discovered.name,
+                  address: discovered.address || discovered.location || 'Address pending verification',
+                  city: discovered.city || query.split(',')[0] || 'Unknown',
+                  state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                  country: discovered.country || 'United States',
+                  zipCode: discovered.zipCode || '00000',
+                  phone: discovered.phone || null,
+                  email: discovered.email || null,
+                  website: discovered.website || null,
+                  description: discovered.description || `Discovered via search for "${query}"`,
+                  careTypes: discovered.careTypes || ['Unknown'],
+                  photos: [],
+                  data_source: 'ai_discovered_global_search',
+                  metadata: {
+                    isDiscovered: true,
+                    verificationStatus: 'pending',
+                    enrichmentStatus: 'pending',
+                    discoverySource: 'Global Discovery Search',
+                    discoveryDate: new Date().toISOString(),
+                    enrichmentHistory: [{
+                      timestamp: new Date().toISOString(),
+                      source: 'Perplexity Global Search',
+                      fieldsUpdated: ['initial_discovery'],
+                      autoApproved: false
+                    }]
+                  },
+                  createdAt: new Date(),
+                  updatedAt: new Date()
+                })
+                .returning();
+              
+              console.log(`💾 Saved new discovered community: ${discovered.name} (ID: ${newCommunity.id})`);
+              savedCommunities.push(newCommunity);
+            } catch (insertError) {
+              console.error(`⚠️ Error inserting community ${discovered.name}:`, insertError);
+              // Create a fallback object if insert fails
+              const fallbackCommunity = {
+                id: 0, // Invalid ID to indicate error
+                name: discovered.name,
+                address: discovered.address || discovered.location || 'Address pending verification',
+                city: discovered.city || query.split(',')[0] || 'Unknown',
+                state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                country: discovered.country || 'United States',
+                zipCode: discovered.zipCode || '00000',
+                phone: discovered.phone || null,
+                email: discovered.email || null,
+                website: discovered.website || null,
+                description: discovered.description || `Discovered via search for "${query}"`,
+                careTypes: discovered.careTypes || ['Unknown'],
+                photos: [],
+                data_source: 'ai_discovered_global_search',
+                isVerified: false
+              };
+              savedCommunities.push(fallbackCommunity);
+            }
+          } else if (existing.length > 0) {
+            // Add existing community to saved list
+            savedCommunities.push(existing[0]);
+            console.log(`✅ Found existing community: ${existing[0].name} (ID: ${existing[0].id})`);
           }
         } catch (saveError) {
-          console.error(`⚠️ Error saving discovered community ${discovered.name}:`, saveError);
+          console.error(`⚠️ Error processing discovered community ${discovered.name}:`, saveError);
         }
       }
       } // End of if (searchType !== 'services')
