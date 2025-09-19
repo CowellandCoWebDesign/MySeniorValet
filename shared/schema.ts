@@ -1823,6 +1823,32 @@ export const subscriptions = pgTable("subscriptions", {
   index("subscriptions_status_idx").on(table.status),
 ]);
 
+// Contact form submissions
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject", {
+    enum: ["general", "support", "community", "partnership", "feedback"]
+  }).notNull(),
+  message: text("message").notNull(),
+  status: text("status", {
+    enum: ["pending", "read", "responded", "archived"]
+  }).default("pending"),
+  responseNotes: text("response_notes"),
+  respondedAt: timestamp("responded_at"),
+  respondedBy: integer("responded_by").references(() => users.id),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions)
+  .omit({ id: true, createdAt: true, updatedAt: true, status: true, responseNotes: true, respondedAt: true, respondedBy: true });
+export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
+export type SelectContactSubmission = typeof contactSubmissions.$inferSelect;
+
 // Community Claims - Operator verification system
 export const communityClaims = pgTable("community_claims", {
   id: serial("id").primaryKey(),
