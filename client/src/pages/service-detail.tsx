@@ -304,6 +304,8 @@ export default function ServiceDetail() {
       
       if (response.ok) {
         const data = await response.json();
+        console.log('📊 Web Intelligence Data received:', data);
+        console.log('📞 Contact Info:', data.contactInfo);
         setWebIntelligence(data);
         
         // Update photos if available

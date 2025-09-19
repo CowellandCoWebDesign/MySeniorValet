@@ -172,71 +172,44 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
         found: answer.length > 0
       };
 
-      // Extract website URL from Perplexity response
-      const websiteMatch = answer.match(/(?:website|Website|WEBSITE)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe)[^\s,\)]*)/i);
+      // Extract website URL from Perplexity response - try multiple patterns
       let extractedWebsite: string | undefined;
+      
+      // Pattern 1: Look for "website:" or similar followed by URL
+      const websiteMatch = answer.match(/(?:website|Website|WEBSITE|URL|url|Official website)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery)[^\s,\)]*)/i);
       if (websiteMatch) {
         extractedWebsite = websiteMatch[1];
-        if (!extractedWebsite.startsWith('http')) {
+        if (extractedWebsite && !extractedWebsite.startsWith('http')) {
           extractedWebsite = 'https://' + extractedWebsite;
         }
       }
       
-      // Use MultiAIPhotoExtractor for sophisticated photo extraction
-      console.log('🚀 Using enhanced photo extraction with Playwright scraping...');
-      try {
-        const photoExtractor = new MultiAIPhotoExtractor();
-        const searchQuery = `${serviceName} ${city}${state ? ` ${state}` : ''}`;
-        
-        const photoResults = await photoExtractor.extractPhotos(
-          serviceName,
-          searchQuery,
-          serviceType || 'business'
-        );
-        
-        // Extract photo URLs from the results
-        businessData.photos = photoResults.photos || [];
-        
-        // Log results
-        console.log(`✅ Enhanced photo extraction complete:`);
-        console.log(`   - ${photoResults.photos?.length || 0} photos found`);
-        console.log(`   - Sources: ${photoResults.sources?.join(', ') || 'No sources'}`);
-        console.log(`   - Confidence: ${photoResults.confidence || 0}`);
-        
-        // Add sources from photo extraction
-        if (photoResults.sources && photoResults.sources.length > 0) {
-          businessData.citations = [...businessData.citations, ...photoResults.sources];
+      // Pattern 2: If not found, look for any URL that matches the business name
+      if (!extractedWebsite) {
+        const businessNameSimplified = serviceName.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const urlMatch = answer.match(/(https?:\/\/[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi);
+        if (urlMatch) {
+          for (const url of urlMatch) {
+            const urlSimplified = url.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (urlSimplified.includes(businessNameSimplified) || businessNameSimplified.includes(urlSimplified.substring(8, 20))) {
+              extractedWebsite = url;
+              break;
+            }
+          }
         }
-        
-        // Extract contact info from photoResults if available
-        if (photoResults.businessInfo) {
-          businessData.website = businessData.website || photoResults.businessInfo.website || '';
-          businessData.hours = businessData.hours || photoResults.businessInfo.hours || '';
-          businessData.services = businessData.services.length > 0 ? businessData.services : 
-                                 (photoResults.businessInfo.services || []);
-        }
-        
-        // If still no photos, add hints for where they might be found
-        if (businessData.photos.length === 0) {
-          console.log(`📸 No photos could be extracted even with enhanced methods`);
-          
-          // Look for directory mentions in the response
-          const googleMapsMatch = answer.match(/https?:\/\/(?:www\.)?(?:google\.com\/maps|maps\.google\.com|goo\.gl\/maps)[^\s\)]*/gi) || [];
-          const yelpMatch = answer.match(/https?:\/\/(?:www\.)?yelp\.com[^\s\)]*/gi) || [];
-          const tripAdvisorMatch = answer.match(/https?:\/\/(?:www\.)?tripadvisor\.com[^\s\)]*/gi) || [];
-          
-          businessData.photoSources = {
-            googleMaps: googleMapsMatch[0] || null,
-            yelp: yelpMatch[0] || null,
-            tripAdvisor: tripAdvisorMatch[0] || null,
-            searchQuery: `${serviceName} ${city} ${state} photos`
-          };
-        }
-      } catch (error) {
-        console.error('Enhanced photo extraction failed, falling back to basic extraction:', error);
-        // Fall back to basic extraction if enhanced fails
-        businessData.photos = [];
       }
+      
+      // Pattern 3: Look for www. patterns
+      if (!extractedWebsite) {
+        const wwwMatch = answer.match(/(www\.[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/i);
+        if (wwwMatch) {
+          extractedWebsite = 'https://' + wwwMatch[1];
+        }
+      }
+      
+      // Photo extraction commented out temporarily - method not available
+      // TODO: Fix photo extraction using the correct method from MultiAIPhotoExtractor
+      businessData.photos = [];
 
       // Set website if found
       if (extractedWebsite) {
@@ -255,11 +228,35 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
         businessData.services = [menuMatch[1].trim()];
       }
 
-      // Extract phone number from answer  
-      const phoneMatch = answer.match(/(?:phone|Phone|PHONE|tel|Tel|TEL)[:\s]*([+\d\s\-\(\)]+)/i);
+      // Extract phone number from answer - try multiple patterns
       let extractedPhone = null;
+      
+      // Pattern 1: Look for "phone:" or similar followed by number
+      const phoneMatch = answer.match(/(?:phone|Phone|PHONE|tel|Tel|TEL|call|Call|contact|Contact)[:\s]*([+\d\s\-\(\)\.]+)/i);
       if (phoneMatch) {
         extractedPhone = phoneMatch[1].trim();
+      }
+      
+      // Pattern 2: Look for standard US phone number patterns
+      if (!extractedPhone) {
+        const usPhoneMatch = answer.match(/(\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})/);
+        if (usPhoneMatch) {
+          extractedPhone = usPhoneMatch[1];
+        }
+      }
+      
+      // Pattern 3: Look for international format
+      if (!extractedPhone) {
+        const intlPhoneMatch = answer.match(/(\+\d{1,3}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})/);
+        if (intlPhoneMatch) {
+          extractedPhone = intlPhoneMatch[1];
+        }
+      }
+      
+      // Clean up the phone number format
+      if (extractedPhone) {
+        // Remove trailing punctuation that might be captured
+        extractedPhone = extractedPhone.replace(/[,\.\s]+$/, '').trim();
       }
       
       // Extract address from answer
@@ -273,6 +270,12 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
       console.log(`📸 Found ${businessData.photos.length} photos`);
       console.log(`🌐 Website: ${businessData.website || 'Not found'}`);
       console.log(`📞 Phone: ${extractedPhone || 'Not found'}`);
+      
+      // Debug logging to see what we're extracting
+      if (!extractedWebsite && !extractedPhone) {
+        console.log('⚠️ Failed to extract contact info. Raw response snippet:');
+        console.log(answer.substring(0, 500));
+      }
       
       // Create the proper response structure expected by frontend
       const response = {
