@@ -557,20 +557,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   description: discovered.description || `Discovered via search for "${query}"`,
                   careTypes: discovered.careTypes || ['Unknown'],
                   photos: [],
-                  data_source: 'ai_discovered_global_search',
-                  metadata: {
-                    isDiscovered: true,
-                    verificationStatus: 'pending',
-                    enrichmentStatus: 'pending',
-                    discoverySource: 'Global Discovery Search',
-                    discoveryDate: new Date().toISOString(),
-                    enrichmentHistory: [{
-                      timestamp: new Date().toISOString(),
-                      source: 'Perplexity Global Search',
-                      fieldsUpdated: ['initial_discovery'],
-                      autoApproved: false
-                    }]
-                  },
+                  data_source: 'AI Discovery (Perplexity Global Search)',
+                  discoverySource: 'Global Discovery Search',
+                  discoveryDate: new Date(),
+                  enrichmentStatus: 'pending',
+                  enrichmentCompleted: false,
+                  enrichmentHistory: [{
+                    timestamp: new Date().toISOString(),
+                    source: 'Perplexity Global Search',
+                    fieldsUpdated: ['initial_discovery'],
+                    autoApproved: false
+                  }],
+                  isVerified: false,
                   createdAt: new Date(),
                   updatedAt: new Date()
                 })
