@@ -377,9 +377,35 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Step 3: Parse the structured JSON response
       let discoveredCommunities = [];
       
+      // Helper function to detect country from query
+      const detectCountry = (query: string): string => {
+        const lowerQuery = query.toLowerCase();
+        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
+        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
+        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
+        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
+        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
+        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
+        if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
+        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
+        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
+        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
+        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
+        return 'United States'; // Default
+      };
+      
+      const defaultCountry = detectCountry(query);
+      
       try {
+        // First, try to extract JSON from code fences if present
+        let jsonContent = aiResponse;
+        const jsonMatch = aiResponse.match(/```json\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+          jsonContent = jsonMatch[1];
+        }
+        
         // Parse the structured JSON response from Perplexity
-        const structuredData = JSON.parse(aiResponse);
+        const structuredData = JSON.parse(jsonContent);
         
         if (structuredData.facilities && Array.isArray(structuredData.facilities)) {
           // Filter out any facilities that don't have valid names or are duplicates
@@ -399,7 +425,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 address: facility.address || '',
                 city: facility.city || query.split(',')[0]?.trim() || '',
                 state: facility.state || query.split(',')[1]?.trim() || '',
-                country: facility.country || 'United States',
+                country: facility.country || defaultCountry,
                 phone: facility.phone || '',
                 website: facility.website || '',
                 email: facility.email || '',
@@ -418,18 +444,57 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       } catch (parseError) {
         console.error('⚠️ Error parsing structured JSON:', parseError);
-        console.log('Attempting fallback parsing for markdown response...');
+        console.log('Attempting enhanced fallback parsing for markdown/URL response...');
         
-        // Fallback: More comprehensive extraction from markdown format
+        // Enhanced fallback: Extract from markdown, URLs, and lists
         try {
           const uniqueFallbackFacilities = new Map();
           
-          // Try multiple patterns to extract facility information
+          // First, extract facilities from URL patterns with names
+          // Pattern: "Name: website" or "Name - website" or "Name (website)"
+          const urlPatterns = [
+            /([A-Z][\w\s&'\-\.]+?)\s*[-–—:]\s*(https?:\/\/[^\s\)\]]+)/gi,
+            /\*\*([^\*]+)\*\*.*?(https?:\/\/[^\s\)\]]+)/gi,
+            /\b([A-Z][\w\s&'\-\.]+?)\s*\(?(https?:\/\/[^\s\)\]]+)\)?/gi
+          ];
+          
+          for (const pattern of urlPatterns) {
+            const matches = aiResponse.matchAll(pattern);
+            for (const match of matches) {
+              const name = match[1]?.trim();
+              const website = match[2]?.trim();
+              
+              // Filter out directories and aggregators
+              if (website && !website.includes('google.') && !website.includes('yelp.') && 
+                  !website.includes('wikipedia.') && !website.includes('/find-a-') && 
+                  !website.includes('/locations') && name && name.length > 5) {
+                
+                const key = name.toLowerCase().replace(/\s+(aged care|care services|retirement|village|group|ltd|inc|pty|plc).*$/i, '').trim();
+                if (!uniqueFallbackFacilities.has(key)) {
+                  uniqueFallbackFacilities.set(key, {
+                    name: name,
+                    website: website,
+                    address: '',
+                    city: query.split(',')[0]?.trim() || '',
+                    state: query.split(',')[1]?.trim() || '',
+                    country: defaultCountry,
+                    description: `${name} - found via search for "${query}"`,
+                    source: 'Perplexity Web Search',
+                    confidence: 85,
+                    isDiscovered: true
+                  });
+                }
+              }
+            }
+          }
+          
+          // Try more patterns to extract facility information
           const patterns = [
             /\*\*([^\*]+)\*\*[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
-            /\d+\.\s+([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
-            /^-\s+([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gim,
-            /(?:Name|Facility):\s*([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi
+            /\d+\.\s+([^\n,:]+)(?:[,:]\s*([^\n]+))?/gi,
+            /^[-•*]\s+([^\n,:]+)(?:[,:]\s*([^\n]+))?/gim,
+            /(?:Name|Facility):\s*([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
+            /\b([A-Z][\w\s&'\-\.]+(?:Retirement|Care|Living|Village|Home|Center|Centre|Aged Care|Services))\b/gi
           ];
           
           for (const pattern of patterns) {
@@ -447,7 +512,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                     address: location,
                     city: query.split(',')[0]?.trim() || '',
                     state: query.split(',')[1]?.trim() || '',
-                    country: 'United States',
+                    country: defaultCountry,
                     description: `Found via search for "${query}"`,
                     source: 'Perplexity Web Search',
                     confidence: 85,
@@ -549,7 +614,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   address: discovered.address || discovered.location || 'Address pending verification',
                   city: discovered.city || query.split(',')[0] || 'Unknown',
                   state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
-                  country: discovered.country || 'United States',
+                  country: discovered.country || defaultCountry,
                   zipCode: discovered.zipCode || '00000',
                   phone: discovered.phone || null,
                   email: discovered.email || null,
@@ -585,7 +650,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 address: discovered.address || discovered.location || 'Address pending verification',
                 city: discovered.city || query.split(',')[0] || 'Unknown',
                 state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
-                country: discovered.country || 'United States',
+                country: discovered.country || defaultCountry,
                 zipCode: discovered.zipCode || '00000',
                 phone: discovered.phone || null,
                 email: discovered.email || null,
