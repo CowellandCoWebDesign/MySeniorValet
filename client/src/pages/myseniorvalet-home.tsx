@@ -1836,16 +1836,16 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Revolutionary global discovery engine with unlimited worldwide access. Our AI-powered system finds and researches any business, in any country, in real-time. From senior living in Tokyo to restaurants in Paris, discover businesses globally with transparent pricing and authentic information.
+                    Discover and compare senior living communities worldwide. Our AI-powered system specializes in finding assisted living, memory care, independent living, and nursing homes globally. From retirement communities in California to senior residences in France, access transparent pricing and authentic reviews for senior care facilities anywhere.
                   </p>
 
                   {/* Community count matching other cards */}
                   <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
                     <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {communityStats?.count || 'Unlimited'}
+                      {communityStats?.communities || '33,000+'}
                     </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Global Discovery Engine</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Senior Living Communities</span>
                   </div>
 
                   {/* Flex container for side-by-side layout */}
@@ -1906,11 +1906,11 @@ export default function MySeniorValetHome() {
                         </div>
                         <div className="p-1.5 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded flex flex-col gap-1 p-2">
                           <p className="text-[10px] text-purple-700 dark:text-purple-300 font-bold">Discovery Mode Active</p>
-                          <p className="text-[9px] text-gray-600 dark:text-gray-400">Find any business, anywhere in the world</p>
+                          <p className="text-[9px] text-gray-600 dark:text-gray-400">Find senior living facilities worldwide</p>
                         </div>
                       </div>
                       <p className="text-xs text-center text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                        All Countries • All Continents • Real-Time Discovery
+                        Senior Living • All Countries • Real-Time Discovery
                       </p>
                     </div>
                   </div>
@@ -1923,9 +1923,9 @@ export default function MySeniorValetHome() {
                       <div className="flex-1">
                         <h4 className="font-bold text-sm text-purple-900 dark:text-purple-100 mb-1">AI-Powered Intelligence</h4>
                         <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
-                          Our revolutionary system enriches data only when you search, saving costs while ensuring information is always fresh. 
-                          Features automatic duplicate removal, address correction, real-time photo collection, and comprehensive amenity extraction. 
-                          Every community gets smarter with each search!
+                          Our specialized senior living search enriches data on-demand, ensuring information is always current. 
+                          Features automatic verification of care levels, pricing transparency, real-time availability updates, and comprehensive amenity details. 
+                          Every senior community gets smarter with each search!
                         </p>
                       </div>
                     </div>
@@ -2218,14 +2218,14 @@ export default function MySeniorValetHome() {
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Healthcare Services Directory</CardTitle>
+                  <CardTitle className="text-2xl mb-2">🏥 Global Healthcare Discovery Platform</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Healthcare & Care Providers
+                    Research Healthcare Providers Worldwide
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with CMS-certified hospitals, home health agencies, therapy services, and specialized care providers
+                    🌍 Research hospitals, clinics, specialists, and healthcare services globally. From CMS-certified facilities in the US to international medical centers, therapy services, and specialized care providers anywhere in the world.
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
@@ -2233,32 +2233,32 @@ export default function MySeniorValetHome() {
                     {/* Left side - Provider count and Checkmarks */}
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">36</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Care Categories</span>
+                        <Globe className="h-5 w-5 text-green-500" />
+                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Unlimited</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">Global Access</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Hospitals Worldwide</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Home Care Services</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">International Clinics</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Therapy & Rehabilitation</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Tourism</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Equipment</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Specialists Globally</span>
                       </div>
                     </div>
                     
                     {/* Right side - Maximum Height Scrollable Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-900/10 dark:to-blue-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-teal-700 dark:text-teal-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🏥</span> Preview
+                        <span>🌍</span> Healthcare Categories Worldwide
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
@@ -2383,13 +2383,14 @@ export default function MySeniorValetHome() {
                         </div>
                       </div>
                       <p className="text-xs text-center text-teal-600 dark:text-teal-400 mt-2 font-medium">
-                        +more providers
+                        All Countries • Real-Time Discovery
                       </p>
                     </div>
                   </div>
 
                   <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Explore Directory</span>
+                    <Search className="mr-2 h-4 w-4" />
+                    <span className="font-semibold">Research Healthcare Worldwide</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
