@@ -2997,7 +2997,7 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $4,999+/mo</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $3,999+/mo</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -3037,35 +3037,35 @@ export default function MySeniorValetHome() {
                         <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
-                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
+                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$99/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic profile, lead generation, analytics</p>
                         </div>
                         <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Growth</p>
-                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$399/mo</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$299/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Direct messaging, reservation mgmt, 3D tours, priority support</p>
                         </div>
                         <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border border-purple-300 dark:border-purple-700">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$1,299/mo</p>
+                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$999/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Multi-property (5), lead tracking, CRM integration</p>
                         </div>
                         <div className="p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
-                            <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$2,499/mo</p>
+                            <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$1,999/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Payment processing, AI insights, 10 properties</p>
                         </div>
                         <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Enterprise</p>
-                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$4,999+/mo</p>
+                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$3,999+/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full resident mgmt, white-label, 25 properties</p>
                         </div>
@@ -3081,7 +3081,7 @@ export default function MySeniorValetHome() {
                   <div className="mt-4 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
                     <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 Key Features by Tier</p>
                     <div className="space-y-2">
-                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">Professional ($1,299):</div>
+                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">Professional ($999):</div>
                       <div className="grid grid-cols-2 gap-1 text-xs mb-2">
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
@@ -3100,7 +3100,7 @@ export default function MySeniorValetHome() {
                           <span className="text-gray-700 dark:text-gray-300">Real-Time Availability</span>
                         </div>
                       </div>
-                      <div className="text-xs font-medium text-orange-700 dark:text-orange-300">Premium+ ($2,499+):</div>
+                      <div className="text-xs font-medium text-orange-700 dark:text-orange-300">Premium+ ($1,999+):</div>
                       <div className="grid grid-cols-2 gap-1 text-xs">
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
