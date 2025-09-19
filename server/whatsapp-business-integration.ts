@@ -447,7 +447,7 @@ Common commands:
 • "Contact" - Get community contact info
 • "Help" - Show this message
 
-For urgent matters, call our family support line: 1-800-736-4671`;
+For urgent matters, email us at: admin@myseniorvalet.com`;
 
     await axios.post(
       `https://graph.facebook.com/v18.0/${this.phoneNumberId}/messages`,
