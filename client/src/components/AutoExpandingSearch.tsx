@@ -198,16 +198,8 @@ export function AutoExpandingSearch({
       layout
     >
       <div className="relative">
-        {/* Main Search Input */}
-        <div className={`
-          relative bg-white dark:bg-gray-800 
-          rounded-2xl shadow-lg border-2 transition-all duration-300
-          ${isExpanded 
-            ? 'border-purple-500 shadow-purple-500/20' 
-            : 'border-gray-200 dark:border-gray-600 hover:border-purple-300'
-          }
-          ${isResearchMode ? 'ring-2 ring-purple-400/50' : ''}
-        `}>
+        {/* Main Search Input - Borderless */}
+        <div className="relative">
           
           {/* Research Mode Indicator */}
           <AnimatePresence>
@@ -247,11 +239,12 @@ export function AutoExpandingSearch({
             placeholder={placeholder}
             className={`
               w-full pl-10 sm:pl-12 pr-16 sm:pr-20 py-2.5 sm:py-4 
-              bg-transparent resize-none outline-none
-              text-gray-900 dark:text-gray-100 placeholder-gray-500
-              font-medium text-sm sm:text-lg leading-5 sm:leading-6
+              bg-transparent border-0 outline-none focus:ring-0 focus-visible:ring-0 shadow-none resize-none
+              text-gray-900 dark:text-gray-100 placeholder-gray-500/70
+              font-medium text-sm sm:text-base leading-5 sm:leading-6
               min-h-[44px] sm:min-h-[56px] max-h-[150px] sm:max-h-[200px]
               scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent
+              ${className}
             `}
             style={{ 
               height: isExpanded ? 'auto' : window.innerWidth < 640 ? '44px' : '56px',
