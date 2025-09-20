@@ -83,8 +83,99 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(thinkerLink);
 }
 
-
-
+// Dynamic placeholder texts for search box
+const SEARCH_PLACEHOLDERS = {
+  discover: {
+    communities: [
+      "🌍 Try 'Senior Living in Paris' or 'Care Homes in Tokyo'...",
+      "🌍 Explore 'Retirement in Sydney' or 'Elder Care in London'...",
+      "🌍 Discover 'Care Facilities in Dubai' or 'Senior Homes in Rome'...",
+      "🌍 Search 'Assisted Living in Berlin' or 'Nursing Homes in Toronto'...",
+      "🌍 Find 'Senior Communities in Singapore' or 'Care Centers in Madrid'..."
+    ],
+    services: [
+      "🌍 Try 'Restaurants in Tokyo' or 'Lawyers in London'...",
+      "🌍 Search 'Hotels in Paris' or 'Pharmacies in Berlin'...",
+      "🌍 Find 'Cafes in Rome' or 'Banks in Singapore'...",
+      "🌍 Explore 'Shops in Dubai' or 'Clinics in Sydney'...",
+      "🌍 Discover 'Services in Amsterdam' or 'Stores in Barcelona'..."
+    ],
+    healthcare: [
+      "🌍 Try 'Hospitals in London' or 'Clinics in Tokyo'...",
+      "🌍 Search 'Doctors in Paris' or 'Specialists in Sydney'...",
+      "🌍 Find 'Emergency care in Dubai' or 'Medical centers in Berlin'...",
+      "🌍 Explore 'Healthcare in Singapore' or 'Pharmacies in Rome'...",
+      "🌍 Discover 'Health services in Toronto' or 'Clinics in Amsterdam'..."
+    ],
+    resources: [
+      "🌍 Try 'Senior resources in UK' or 'Care guides for Japan'...",
+      "🌍 Search 'Elder care in France' or 'Support in Australia'...",
+      "🌍 Find 'Resources in Canada' or 'Guides for Germany'...",
+      "🌍 Explore 'Senior help in Spain' or 'Care info in Italy'...",
+      "🌍 Discover 'Support in Singapore' or 'Resources in Netherlands'..."
+    ]
+  },
+  map: {
+    communities: [
+      "📍 Try 'Within 10 miles' or 'Near downtown'...",
+      "📍 Search 'Along I-35' or 'Near medical district'...",
+      "📍 Find 'In my neighborhood' or 'Close to family'...",
+      "📍 Explore 'Waterfront communities' or 'Near shopping'...",
+      "📍 Discover 'Urban centers' or 'Suburban areas'..."
+    ],
+    services: [
+      "📍 Try 'Services nearby' or '24-hour services'...",
+      "📍 Search 'Within walking distance' or 'Mobile services'...",
+      "📍 Find 'Emergency services' or 'Home delivery'...",
+      "📍 Explore 'Downtown services' or 'On my route'...",
+      "📍 Discover 'Near work' or 'In shopping centers'..."
+    ],
+    healthcare: [
+      "📍 Try 'Closest hospital' or 'Emergency care nearby'...",
+      "📍 Search 'Walk-in clinics' or 'After-hours care'...",
+      "📍 Find 'Specialists near me' or 'Medical districts'...",
+      "📍 Explore 'Urgent care chains' or 'VA hospitals nearby'...",
+      "📍 Discover 'Community clinics' or 'Teaching hospitals'..."
+    ],
+    resources: [
+      "📍 Try 'Local resources' or 'Community centers'...",
+      "📍 Search 'Senior centers nearby' or 'Libraries near me'...",
+      "📍 Find 'Government offices' or 'Churches nearby'...",
+      "📍 Explore 'Recreation centers' or 'Local programs'...",
+      "📍 Discover 'Volunteer opportunities' or 'Neighborhood help'..."
+    ]
+  },
+  list: {
+    communities: [
+      "🔍 Try 'Houston' or 'Under $3000/month'...",
+      "🔍 Search 'Memory care' or 'Pet-friendly'...",
+      "🔍 Find 'Assisted living' or '5-star rated'...",
+      "🔍 Explore 'Near hospitals' or 'Veterans communities'...",
+      "🔍 Discover 'Independent living' or 'Active seniors'..."
+    ],
+    services: [
+      "🔍 Try 'Home care' or 'Medical equipment'...",
+      "🔍 Search 'Meal delivery' or 'Transportation'...",
+      "🔍 Find 'Physical therapy' or 'Companion care'...",
+      "🔍 Explore 'Adult day care' or 'Respite care'...",
+      "🔍 Discover 'Emergency response' or 'Hospice services'..."
+    ],
+    healthcare: [
+      "🔍 Try 'Hospitals' or 'Emergency rooms'...",
+      "🔍 Search 'Primary care' or 'Specialists'...",
+      "🔍 Find 'Urgent care' or 'Rehabilitation'...",
+      "🔍 Explore 'Cancer centers' or 'Heart specialists'...",
+      "🔍 Discover 'Memory care' or 'Pain management'..."
+    ],
+    resources: [
+      "🔍 Try 'Medicare guides' or 'Medicaid help'...",
+      "🔍 Search 'Care planning' or 'Legal documents'...",
+      "🔍 Find 'Financial planning' or 'Insurance info'...",
+      "🔍 Explore 'Caregiver support' or 'Senior benefits'...",
+      "🔍 Discover 'Support groups' or 'Crisis hotlines'..."
+    ]
+  }
+};
 
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch() {
@@ -100,6 +191,14 @@ function HeroSectionWithTransformingSearch() {
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
+  const [searchPlaceholder, setSearchPlaceholder] = useState('');
+  
+  // Update placeholder text when view mode or category changes
+  useEffect(() => {
+    const placeholders = SEARCH_PLACEHOLDERS[viewMode]?.[searchCategory] || SEARCH_PLACEHOLDERS.list.communities;
+    const randomPlaceholder = placeholders[Math.floor(Math.random() * placeholders.length)];
+    setSearchPlaceholder(randomPlaceholder);
+  }, [viewMode, searchCategory]);
   
   // Fetch dynamic community and service counts
   const { data: communityStats } = useQuery<{ count: string; communities: string; services: string; isGlobal: boolean }>({
@@ -728,17 +827,9 @@ function HeroSectionWithTransformingSearch() {
               }}
               onFocusChange={(focused) => setIsSearchFocused(focused)}
               initialQuery={searchQuery}
-              placeholder={
-                viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
-                viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
-                viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
-                viewMode === 'map' ? "Enter location to search on map..." : 
-                searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
-                searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
-                searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
-                "Search communities, cities, companies, or ask anything..."
-              }
+              placeholder={searchPlaceholder}
               searchCategory={searchCategory}
+              viewMode={viewMode}
               className="w-full"
               />
             </div>

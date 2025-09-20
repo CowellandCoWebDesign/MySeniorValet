@@ -12,6 +12,7 @@ interface AutoExpandingSearchProps {
   placeholder?: string;
   className?: string;
   searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
+  viewMode?: 'list' | 'map' | 'discover';
 }
 
 export function AutoExpandingSearch({ 
@@ -21,7 +22,8 @@ export function AutoExpandingSearch({
   initialQuery = '',
   placeholder = "Search communities or ask anything...",
   className = "",
-  searchCategory = 'communities'
+  searchCategory = 'communities',
+  viewMode = 'list'
 }: AutoExpandingSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -70,7 +72,7 @@ export function AutoExpandingSearch({
 
   // Fetch suggestions
   const { data: suggestions } = useQuery<string[]>({
-    queryKey: ['/api/search/suggestions', query, searchCategory],
+    queryKey: ['/api/search/suggestions', query, searchCategory, viewMode],
     queryFn: async () => {
       if (!query || query.length < 2) return [];
       const response = await fetch('/api/search/suggestions', {
@@ -78,7 +80,8 @@ export function AutoExpandingSearch({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           query, 
-          category: searchCategory 
+          category: searchCategory,
+          viewMode
         })
       });
       if (!response.ok) return [];
@@ -86,7 +89,7 @@ export function AutoExpandingSearch({
       return data.suggestions || [];
     },
     enabled: query.length >= 2 && !isResearchMode,
-    staleTime: 60000, // Cache for 1 minute
+    staleTime: 10000, // Cache for 10 seconds to show more variety
   });
 
   // Handle input changes

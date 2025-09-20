@@ -7,6 +7,7 @@ import { superclusterService } from "../services/supercluster";
 import { geocodeLocation, getZoomLevel } from "../geocoding-data";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { MarketPricingIntelligence } from "../market-pricing-intelligence";
+import { getDynamicSuggestions } from "../services/dynamic-search-suggestions";
 
 export function registerSearchRoutes(app: Express) {
   // Market pricing intelligence endpoint
@@ -1293,123 +1294,24 @@ export function registerSearchRoutes(app: Express) {
     }
   });
 
-  // POST endpoint for category-based search suggestions
+  // POST endpoint for dynamic category and mode-based search suggestions
   app.post('/api/search/suggestions', async (req, res) => {
     try {
-      const { query, category = 'communities' } = req.body;
+      const { query, category = 'communities', viewMode = 'list' } = req.body;
       
       if (!query || query.length < 2) {
-        return res.json({ suggestions: [] });
+        // Return random suggestions when no query
+        const suggestions = await getDynamicSuggestions('', category, viewMode);
+        return res.json({ suggestions });
       }
 
-      const searchTerm = query.toLowerCase();
-      let suggestions: string[] = [];
-
-      // Generate category-specific suggestions
-      switch (category) {
-        case 'services':
-          // Service-related suggestions
-          suggestions = [
-            'Home care services',
-            'Medical equipment rental',
-            'Meal delivery services', 
-            'Transportation services',
-            'Housekeeping services',
-            'Personal care services',
-            'Companion care',
-            'Physical therapy',
-            'Occupational therapy',
-            'Speech therapy'
-          ].filter(s => s.toLowerCase().includes(searchTerm));
-          
-          // Add cities for service search
-          if (searchTerm.length >= 2) {
-            const citySuggestions = await db
-              .selectDistinct({ city: communities.city, state: communities.state })
-              .from(communities)
-              .where(sql`LOWER(${communities.city}) LIKE ${searchTerm + '%'}`)
-              .limit(3);
-            
-            suggestions.push(...citySuggestions.map(s => 
-              `Services in ${s.city}, ${s.state}`
-            ));
-          }
-          break;
-
-        case 'healthcare':
-          // Healthcare-related suggestions
-          suggestions = [
-            'Hospitals near me',
-            'Emergency rooms',
-            'Urgent care centers',
-            'Primary care physicians',
-            'Cardiologists',
-            'Neurologists', 
-            'Orthopedic surgeons',
-            'Rehabilitation centers',
-            'Dialysis centers',
-            'Cancer treatment centers'
-          ].filter(s => s.toLowerCase().includes(searchTerm));
-          
-          // Add cities for healthcare search
-          if (searchTerm.length >= 2) {
-            const citySuggestions = await db
-              .selectDistinct({ city: communities.city, state: communities.state })
-              .from(communities)
-              .where(sql`LOWER(${communities.city}) LIKE ${searchTerm + '%'}`)
-              .limit(3);
-            
-            suggestions.push(...citySuggestions.map(s => 
-              `Healthcare in ${s.city}, ${s.state}`
-            ));
-          }
-          break;
-
-        case 'resources':
-          // Resource-related suggestions
-          suggestions = [
-            'Medicare guides',
-            'Medicaid information',
-            'Care planning resources',
-            'Legal documents',
-            'Financial planning',
-            'Insurance information',
-            'Caregiver support',
-            'Senior benefits',
-            'Social activities',
-            'Educational resources'
-          ].filter(s => s.toLowerCase().includes(searchTerm));
-          break;
-
-        case 'communities':
-        default:
-          // Get community suggestions (cities, states, community names)
-          const citySuggestions = await db
-            .selectDistinct({ city: communities.city, state: communities.state })
-            .from(communities)
-            .where(sql`LOWER(${communities.city}) LIKE ${searchTerm + '%'}`)
-            .limit(5);
-
-          const communitySuggestions = await db
-            .select({ name: communities.name, city: communities.city, state: communities.state })
-            .from(communities)
-            .where(sql`LOWER(${communities.name}) LIKE ${'%' + searchTerm + '%'}`)
-            .limit(5);
-
-          suggestions = [
-            ...citySuggestions.map(s => `${s.city}, ${s.state}`),
-            ...communitySuggestions.map(s => `${s.name} - ${s.city}, ${s.state}`)
-          ];
-          break;
-      }
-
-      // Always add Discovery Mode option at the end
-      suggestions.push('🌍 Try Discovery Mode for worldwide search');
-
-      res.json({ suggestions: suggestions.slice(0, 10) });
+      // Get dynamic suggestions based on mode and category
+      const suggestions = await getDynamicSuggestions(query, category, viewMode);
+      
+      res.json({ suggestions });
     } catch (error) {
-      console.error('Category search suggestions error:', error);
-      res.status(500).json({ error: 'Failed to get category suggestions' });
+      console.error('Dynamic search suggestions error:', error);
+      res.status(500).json({ error: 'Failed to get search suggestions' });
     }
   });
 }
