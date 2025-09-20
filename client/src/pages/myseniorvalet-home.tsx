@@ -59,6 +59,7 @@ import RetroFamilyLivingRoom from '@assets/generated_images/80s_Memphis_design_l
 import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
+import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 
@@ -68,7 +69,7 @@ if (typeof document !== 'undefined') {
   const heroLink = document.createElement('link');
   heroLink.rel = 'preload';
   heroLink.as = 'image';
-  heroLink.href = RetroFamilyLivingRoom;
+  heroLink.href = LuxuryValet;
   heroLink.type = 'image/png';
   heroLink.fetchPriority = 'high';
   document.head.appendChild(heroLink);
@@ -591,8 +592,8 @@ function HeroSectionWithTransformingSearch() {
           }}
         >
           <img
-            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
-            alt="Cosmic space background - Infinite possibilities in senior living"
+            src={LuxuryValet}
+            alt="Luxury valet silhouette - Premium senior care concierge service"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
