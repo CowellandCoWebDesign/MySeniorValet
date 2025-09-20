@@ -1596,13 +1596,14 @@ export default function CommunityDetail() {
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Navigation Header - Sticky */}
+      {/* Navigation Header - Fixed at top */}
       <NavigationHeader 
         title={community?.name || "Community Details"} 
         subtitle={`${community?.city || ""}, ${community?.state || ""}`}
       />
       
-      <div className="bg-gray-50 dark:bg-gray-900">      
+      {/* Add padding-top to account for fixed navbar */}
+      <div className="bg-gray-50 dark:bg-gray-900 pt-20">      
       {/* Search Bar - Consistent with home page */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-4">
         <div className="container-responsive">
