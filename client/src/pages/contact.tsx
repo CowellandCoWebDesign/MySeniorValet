@@ -361,7 +361,16 @@ export default function Contact() {
       <section className="py-16 bg-gradient-to-br from-purple-50 to-blue-50">
         <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-3xl font-bold text-gray-900 mb-2 text-center">MySeniorValet Brand Gallery</h2>
-          <p className="text-center text-gray-600 mb-8">Explore 50 powerful images addressing real societal problems, brand identity, and marketing campaigns</p>
+          <p className="text-center text-gray-600 mb-2">Explore 50 powerful images addressing real societal problems, brand identity, and marketing campaigns</p>
+          
+          {/* AI Disclaimer */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-8 max-w-4xl mx-auto">
+            <p className="text-sm text-yellow-800 text-center">
+              <strong>Disclaimer:</strong> All images in this gallery are AI-generated artistic interpretations created for illustrative purposes. 
+              They do not necessarily represent the views, opinions, or official positions of MySeniorValet. 
+              These images are intended to showcase creative possibilities and marketing concepts only.
+            </p>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {brandImages.map((image, index) => (
@@ -391,7 +400,7 @@ export default function Contact() {
           
           <div className="mt-8 text-center">
             <p className="text-sm text-gray-600">
-              These images showcase the creative possibilities of MySeniorValet through AI-generated art.
+              <strong>Note:</strong> All gallery images are AI-generated and do not represent actual people, places, or events.
               <br />
               Click any image to view in full size.
             </p>
