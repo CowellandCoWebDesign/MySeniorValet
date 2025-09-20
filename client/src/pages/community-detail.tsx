@@ -1596,12 +1596,13 @@ export default function CommunityDetail() {
   
   return (
     <>
-    <div className="min-h-screen-safe bg-gray-50 dark:bg-gray-900">
-      <NavigationHeader 
-        title={community?.name || "Community Details"} 
-        subtitle={`${community?.city || ""}, ${community?.state || ""}`}
-      />
-      
+    {/* Navigation Header - Sticky */}
+    <NavigationHeader 
+      title={community?.name || "Community Details"} 
+      subtitle={`${community?.city || ""}, ${community?.state || ""}`}
+    />
+    
+    <div className="min-h-screen-safe bg-gray-50 dark:bg-gray-900 pt-0">      
       {/* Search Bar - Consistent with home page */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-4">
         <div className="container-responsive">
