@@ -140,7 +140,7 @@ export function Footer() {
               <span className="hidden md:inline text-gray-600">•</span>
               <p className="text-gray-500">Data from AI-assisted web search across all online sources</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v1.4.2025</p>
+              <p className="text-gray-500">v1.5.2025</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
