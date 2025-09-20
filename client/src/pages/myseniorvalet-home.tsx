@@ -632,7 +632,7 @@ function HeroSectionWithTransformingSearch() {
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
         
         {/* Unified Search Component */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40">
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
           {/* Category Tabs - Sleek Modern Style */}
           <div className="flex justify-center">
             <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
@@ -701,7 +701,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Bar Container - Enhanced styling */}
-          <div className={`w-full rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 border-b-0 pb-4 sm:pb-6 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-8 sm:pb-10 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
@@ -744,32 +744,31 @@ function HeroSectionWithTransformingSearch() {
             </div>
             </div>
             
-            {/* View Mode Tabs - Bottom tabs attached to search box */}
-            <div className="flex justify-center -mt-[2px]">
-              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-b-2xl">
+            {/* View Mode Tabs - Bottom tabs attached to search box with transparent style */}
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
+              <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
                     ${viewMode === 'list' 
                       ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🔍</span>
                   <div className="flex flex-col items-start leading-none">
                     <span>Database</span>
-                    <span className="sm:hidden text-[8px] opacity-75 mt-0.5">Search</span>
-                    <span className="hidden sm:inline text-[8px] opacity-75 mt-0.5">Search</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">Search</span>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
                     ${viewMode === 'map' 
                       ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -778,10 +777,10 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
                     ${viewMode === 'discover' 
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🌍</span>
