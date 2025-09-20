@@ -631,44 +631,52 @@ function HeroSectionWithTransformingSearch() {
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
         
-        {/* Unified Search Component - Single Shell Design */}
-        <div className="group relative mx-auto max-w-xl px-2 sm:px-0 mb-8">
-          <div className="rounded-2xl bg-white/80 dark:bg-gray-900/70 backdrop-blur-xl shadow-2xl ring-1 ring-white/10 dark:ring-white/10 overflow-hidden focus-within:ring-2 focus-within:ring-purple-500/40">
-            
-            {/* Top Category Tabs - No separate container */}
-            <div className="flex divide-x divide-white/10 dark:divide-white/5 text-xs sm:text-sm">
+        {/* Unified Search Component */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+          {/* Category Tabs - Sleek Modern Style */}
+          <div className="flex justify-center">
+            <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                data-active={searchCategory === 'communities'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-purple-500/20 data-[active=true]:text-purple-600 dark:data-[active=true]:text-purple-400 transition flex items-center justify-center gap-1"
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  ${searchCategory === 'communities' 
+                    ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
-                <span className="text-sm">🏘️</span>
+                <span className="text-xs sm:text-sm">🏘️</span>
                 <div className="flex flex-col items-start leading-none">
                   <span className="hidden sm:inline">Communities</span>
                   <span className="sm:hidden">Homes</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.communities || '33k+'}</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                data-active={searchCategory === 'services'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-600 dark:data-[active=true]:text-green-400 transition flex items-center justify-center gap-1"
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  ${searchCategory === 'services' 
+                    ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
-                <span className="text-sm">🛍️</span>
+                <span className="text-xs sm:text-sm">🛍️</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Services</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.services || '284'}</span>
+                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                data-active={searchCategory === 'healthcare'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-red-500/20 data-[active=true]:text-red-600 dark:data-[active=true]:text-red-400 transition flex items-center justify-center gap-1"
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  ${searchCategory === 'healthcare' 
+                    ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
-                <span className="text-sm">🏥</span>
+                <span className="text-xs sm:text-sm">🏥</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Healthcare</span>
                   <span className="text-[8px] opacity-75 mt-0.5">Global</span>
@@ -677,80 +685,114 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                data-active={searchCategory === 'resources'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-amber-500/20 data-[active=true]:text-amber-600 dark:data-[active=true]:text-amber-400 transition flex items-center justify-center gap-1"
+                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  ${searchCategory === 'resources' 
+                    ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
+                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                  }`}
               >
-                <span className="text-sm">📚</span>
+                <span className="text-xs sm:text-sm">📚</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Resources</span>
                   <span className="text-[8px] opacity-75 mt-0.5">Growing</span>
                 </div>
               </button>
             </div>
-            
-            {/* Search Input Row - Borderless */}
-            <div className="flex items-center gap-3 px-3 py-3 border-y border-white/10 dark:border-white/5">
+          </div>
+          
+          {/* Search Bar Container - Enhanced styling */}
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-8 sm:pb-10 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
+            searchCategory === 'services'
+              ? 'border-green-500 dark:border-green-600' 
+              : searchCategory === 'healthcare'
+              ? 'border-red-500 dark:border-red-600' 
+              : searchCategory === 'resources'
+              ? 'border-amber-500 dark:border-amber-600' 
+              : 'border-purple-500 dark:border-purple-600'
+          }`}>
+            <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
+              searchCategory === 'services'
+                ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200/50 dark:border-green-700/50'
+                : searchCategory === 'healthcare'
+                ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
+                : searchCategory === 'resources'
+                ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
+                : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
+            }`}>
+              {/* Search component wrapper */}
+              <div>
               <AutoExpandingSearch 
-                onSearch={(query, isResearchMode) => {
-                  handleAutoExpandingSearch(query, isResearchMode || viewMode === 'discover');
-                }}
-                onFocusChange={(focused) => setIsSearchFocused(focused)}
-                initialQuery={searchQuery}
-                placeholder={
-                  viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
-                  viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
-                  viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
-                  viewMode === 'map' ? "Enter location to search on map..." : 
-                  searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
-                  searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
-                  searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
-                  "Search communities, cities, companies, or ask anything..."
-                }
-                searchCategory={searchCategory}
-                className="w-full bg-transparent border-0 outline-none focus:ring-0 shadow-none"
+              onSearch={(query, isResearchMode) => {
+                // Use the existing handleAutoExpandingSearch function
+                handleAutoExpandingSearch(query, isResearchMode || viewMode === 'discover');
+              }}
+              onFocusChange={(focused) => setIsSearchFocused(focused)}
+              initialQuery={searchQuery}
+              placeholder={
+                viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
+                viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
+                viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
+                viewMode === 'map' ? "Enter location to search on map..." : 
+                searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
+                searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
+                searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
+                "Search communities, cities, companies, or ask anything..."
+              }
+              searchCategory={searchCategory}
+              className="w-full"
               />
             </div>
-            
-            {/* Bottom Mode Tabs - No separate container */}
-            <div className="flex divide-x divide-white/10 dark:divide-white/5">
-              <button
-                type="button"
-                onClick={() => setViewMode('list')}
-                data-active={viewMode === 'list'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-purple-500/20 data-[active=true]:text-purple-600 dark:data-[active=true]:text-purple-400 transition flex items-center justify-center gap-1 text-xs sm:text-sm"
-              >
-                <span className="text-sm">🔍</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span>Database</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">Search</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('map')}
-                data-active={viewMode === 'map'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-600 dark:data-[active=true]:text-green-400 transition flex items-center justify-center gap-1 text-xs sm:text-sm"
-              >
-                <span className="text-sm">🗺️</span>
-                <span>Map</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setViewMode('discover')}
-                data-active={viewMode === 'discover'}
-                className="flex-1 rounded-none py-2 font-medium text-gray-600 dark:text-white/70 hover:bg-white/5 data-[active=true]:bg-pink-500/20 data-[active=true]:text-pink-600 dark:data-[active=true]:text-pink-400 transition flex items-center justify-center gap-1 text-xs sm:text-sm"
-              >
-                <span className="text-sm">🌍</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span>Discovery</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">Mode</span>
-                </div>
-              </button>
             </div>
-          </div>
-        </div>
-        
-        {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
+            
+            {/* View Mode Tabs - Bottom tabs attached to search box with transparent style */}
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                    ${viewMode === 'list' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🔍</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Database</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">Search</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('map')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                    ${viewMode === 'map' 
+                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🗺️</span>
+                  <span>Map</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('discover')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                    ${viewMode === 'discover' 
+                      ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🌍</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Discovery</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">Mode</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+            
+            {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
             {viewMode === 'discover' && searchCategory === 'services' && !searchQuery && (
               <div className="absolute top-full mt-2 left-0 right-0 z-30">
                 <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-3">
@@ -800,6 +842,8 @@ function HeroSectionWithTransformingSearch() {
               </div>
             )}
             
+          </div>
+          
         </div>
         
         {/* Key Value Props - Below search component */}
@@ -877,7 +921,6 @@ function HeroSectionWithTransformingSearch() {
             </Button>
           </div>
         </div>
-        
         </div>
           
           {/* Search Results - Premium Glass Design */}
@@ -1240,6 +1283,7 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         )}
+        </div>
         
         {/* Back to Top Button - appears when there are many results */}
         {searchResults?.results?.length > 10 && (
