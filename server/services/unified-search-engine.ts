@@ -216,6 +216,15 @@ export class UnifiedSearchEngine {
       intent.type = 'location';
       intent.confidence = 0.85;
       intent.extractedEntities.location = query.trim();
+    } else {
+      // Check if it might be an international city name
+      const internationalCities = ['brisbane', 'edinburgh', 'london', 'paris', 'tokyo', 'sydney', 'melbourne', 'perth', 'dublin', 'glasgow', 'manchester', 'barcelona', 'madrid', 'rome', 'berlin', 'munich', 'amsterdam', 'brussels', 'vienna', 'prague', 'budapest', 'warsaw', 'stockholm', 'copenhagen', 'oslo', 'helsinki'];
+      const lowerQueryClean = lowerQuery.replace(/[^a-z\s]/g, '').trim();
+      if (internationalCities.includes(lowerQueryClean)) {
+        intent.type = 'location';
+        intent.confidence = 0.8;
+        intent.extractedEntities.location = query.trim();
+      }
     }
     
     // Care type patterns
@@ -283,7 +292,8 @@ export class UnifiedSearchEngine {
               ilike(communities.name, `%${term}%`),
               ilike(communities.managementCompany, `%${term}%`),
               ilike(communities.city, `%${term}%`),
-              ilike(communities.state, `%${term}%`)
+              ilike(communities.state, `%${term}%`),
+              ilike(communities.country, `%${term}%`) // Add country search for international
             )
           );
           
@@ -300,19 +310,35 @@ export class UnifiedSearchEngine {
       if (intent.extractedEntities.location && intent.type === 'location') {
         const location = intent.extractedEntities.location;
         
-        // Parse location for city/state
+        // Parse location for city/state/country
         const parts = location.split(',').map(p => p.trim());
         
         if (parts.length === 2) {
-          // City, State format (e.g., "Redding, CA")
-          const [city, state] = parts;
+          // City, State/Country format (e.g., "Redding, CA" or "Brisbane, Australia")
+          const [city, stateOrCountry] = parts;
           conditions.push(
             and(
               ilike(communities.city, city),
               or(
-                ilike(communities.state, state),
-                ilike(communities.state, `%${state}%`) // Handle full state names
+                ilike(communities.state, stateOrCountry),
+                ilike(communities.state, `%${stateOrCountry}%`), // Handle full state names
+                ilike(communities.country, stateOrCountry),
+                ilike(communities.country, `%${stateOrCountry}%`) // Handle partial country names
               )
+            )
+          );
+        } else if (parts.length === 1) {
+          // Single location (could be city or country)
+          // For international cities like "Brisbane", "Edinburgh", "Tokyo", etc.
+          const singleLocation = parts[0];
+          conditions.push(
+            or(
+              ilike(communities.city, singleLocation),
+              ilike(communities.city, `%${singleLocation}%`),
+              ilike(communities.state, singleLocation),
+              ilike(communities.state, `%${singleLocation}%`),
+              ilike(communities.country, singleLocation),
+              ilike(communities.country, `%${singleLocation}%`)
             )
           );
         }
