@@ -227,15 +227,6 @@ export function AutoExpandingSearch({
             )}
           </AnimatePresence>
 
-          {/* Search Icon */}
-          <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
-            {isResearchMode ? (
-              <span className="text-base sm:text-lg">🕵️</span>
-            ) : (
-              <Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
-            )}
-          </div>
-
           {/* Auto-expanding Textarea */}
           <textarea
             ref={textareaRef}
@@ -246,7 +237,7 @@ export function AutoExpandingSearch({
             onBlur={handleBlur}
             placeholder={placeholder}
             className={`
-              w-full pl-10 sm:pl-12 pr-16 sm:pr-20 py-2.5 sm:py-4 
+              w-full pl-3 sm:pl-4 pr-16 sm:pr-20 py-2.5 sm:py-4 
               bg-transparent resize-none outline-none
               text-gray-900 dark:text-gray-100 placeholder-gray-500
               font-medium text-sm sm:text-lg leading-5 sm:leading-6
@@ -284,7 +275,7 @@ export function AutoExpandingSearch({
                 </>
               ) : (
                 <>
-                  <Search className="w-4 h-4 mr-1" />
+                  <span className="mr-1">🔍</span>
                   Search
                 </>
               )}
