@@ -975,6 +975,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         {/* Quick Action Buttons - Moved from Community Directory Section */}
+        {!isSearchActive && (
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
           <div className="grid grid-cols-4 gap-2">
             {/* Traditional Browse */}
@@ -1034,6 +1035,7 @@ function HeroSectionWithTransformingSearch() {
             </Button>
           </div>
         </div>
+        )}
         </div>
           
           {/* Search Results - Premium Glass Design */}
