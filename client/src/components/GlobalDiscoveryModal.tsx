@@ -43,6 +43,10 @@ interface GlobalDiscoveryModalProps {
     discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources';
     rawPerplexityResponse?: string;
     perplexityQuery?: string;
+    timeout?: boolean;
+    status?: 'timeout' | 'partial' | string;
+    note?: string;
+    retryAfterMs?: number;
   };
 }
 
@@ -85,11 +89,20 @@ export function GlobalDiscoveryModal({
             Global Discovery Results
           </DialogTitle>
           <DialogDescription className="text-base">
-            Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
-            {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
-              <span className="ml-2 text-green-600 dark:text-green-400">
-                ({metadata.discoveredCount} newly discovered!)
+            {/* Check if it's a timeout before showing results count */}
+            {metadata?.timeout && metadata?.status === 'timeout' ? (
+              <span className="text-amber-600 dark:text-amber-400">
+                Search timed out for "{searchQuery}" - This search is taking longer than expected
               </span>
+            ) : (
+              <>
+                Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
+                {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
+                  <span className="ml-2 text-green-600 dark:text-green-400">
+                    ({metadata.discoveredCount} newly discovered!)
+                  </span>
+                )}
+              </>
             )}
           </DialogDescription>
         </DialogHeader>
@@ -163,6 +176,28 @@ export function GlobalDiscoveryModal({
                     }
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+          
+          {/* Timeout Message */}
+          {metadata?.timeout && metadata?.status === 'timeout' && results.length === 0 && (
+            <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Search className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    Search is taking longer than expected
+                  </p>
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    International searches can take 30-60 seconds. Please try:
+                  </p>
+                  <ul className="text-sm text-amber-700 dark:text-amber-300 list-disc list-inside space-y-1">
+                    <li>Searching for a specific city instead of a country (e.g., "Hotels in Rome" instead of "Hotels in Italy")</li>
+                    <li>Waiting a moment and trying again</li>
+                    <li>Using more specific search terms</li>
+                  </ul>
+                </div>
               </div>
             </div>
           )}

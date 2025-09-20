@@ -291,8 +291,13 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
+      // Use adaptive timeout: longer for international and service searches
+      const isComplexSearch = (isCountrySearch || searchType === 'services' || query.toLowerCase().includes('hotels') || query.toLowerCase().includes('transportation'));
+      const TIMEOUT_MS = isComplexSearch ? 55000 : 30000; // 55s for complex searches, 30s for simple ones
+      console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for ${isComplexSearch ? 'complex' : 'simple'} search`);
+      
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 25000); // 25 second timeout to allow Perplexity to complete
+      const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
       
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
@@ -815,27 +820,56 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
     } catch (error) {
       console.error('❌ Global discovery search error:', error);
       
-      // If it's a timeout error, return existing results
+      // If it's a timeout error, return existing results or timeout indicator
       if (error instanceof Error && error.name === 'AbortError') {
-        console.log('⏱️ Perplexity API timeout - returning existing results only');
+        console.log('⏱️ Perplexity API timeout - checking for existing results');
         const { query, searchType, limit } = req.body;
-        res.json({
-          success: true,
-          query: query || '',
-          searchType: searchType || 'auto-detected',
-          results: existingCommunities.slice(0, limit || 30),
-          metadata: {
-            totalFound: existingCommunities.length,
-            existingCount: existingCommunities.length,
-            discoveredCount: 0,
-            sources: [],
-            searchLocation: query,
-            timestamp: new Date().toISOString(),
-            aiConfidence: 0,
-            note: 'Discovery service timeout - showing existing communities only'
-          },
-          message: `Found ${existingCommunities.length} existing communities. Discovery service timed out.`
-        });
+        
+        // If we have existing communities, return them
+        if (existingCommunities.length > 0) {
+          res.json({
+            success: true,
+            query: query || '',
+            searchType: searchType || 'auto-detected',
+            results: existingCommunities.slice(0, limit || 30),
+            metadata: {
+              totalFound: existingCommunities.length,
+              existingCount: existingCommunities.length,
+              discoveredCount: 0,
+              sources: ['Database'],
+              searchLocation: query,
+              timestamp: new Date().toISOString(),
+              aiConfidence: 0,
+              timeout: true,
+              status: 'partial',
+              note: 'Discovery service timed out - showing existing communities only'
+            },
+            message: `Found ${existingCommunities.length} existing communities. Discovery service timed out while searching for new results.`
+          });
+        } else {
+          // No existing results - indicate timeout clearly
+          res.json({
+            success: true,
+            query: query || '',
+            searchType: searchType || 'auto-detected',
+            results: [],
+            metadata: {
+              totalFound: 0,
+              existingCount: 0,
+              discoveredCount: 0,
+              sources: [],
+              searchLocation: query,
+              timestamp: new Date().toISOString(),
+              aiConfidence: 0,
+              timeout: true,
+              status: 'timeout',
+              retryAfterMs: 30000,
+              note: 'Discovery service timed out before results could be retrieved'
+            },
+            message: `Discovery service timed out while searching for "${query}". This search is taking longer than expected. Please try again in a moment, or try searching for a specific city instead of a country.`
+          });
+        }
+        return;
       } else {
         res.status(500).json({ 
           success: false,
