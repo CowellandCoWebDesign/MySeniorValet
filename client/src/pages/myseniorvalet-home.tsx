@@ -613,15 +613,18 @@ function HeroSectionWithTransformingSearch() {
         {/* Hero Title - Positioned at Very Top on Mobile, Better Centered on Desktop */}
         <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
-            {/* Main Tagline - Responsive Text Sizing */}
-            <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white leading-tight drop-shadow-[0_4px_8px_rgba(0,0,0,1)] mb-2 sm:mb-4 whitespace-nowrap">
-              <span className="inline-block animate-slide-in-left">One Platform. Every Step of the Journey.</span>
+            {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4 whitespace-nowrap">
+              <span className="inline-block animate-slide-in-left bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]">One Platform.</span>
+              <span className="inline-block animate-slide-in-left text-white ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Every Step of the Journey.</span>
             </h1>
             
-            {/* Platform Description - Larger and More Readable */}
-            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 font-medium mb-3 sm:mb-4 max-w-4xl mx-auto drop-shadow-lg animate-fade-in-delayed">
-              My Senior Valet is an AI-powered platform for transparent senior living — compare communities, pricing, and reviews, book tours instantly, reserve with ease, and access local care and resources — all in one place.
-            </p>
+            {/* Platform Description - Enhanced Readability with Better Contrast */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 sm:py-3 max-w-4xl mx-auto animate-fade-in-delayed">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white font-medium leading-relaxed">
+                <span className="text-blue-200 font-semibold">My Senior Valet</span> is an AI-powered platform for transparent senior living — compare communities, pricing, and reviews, book tours instantly, reserve with ease, and access local care and resources — all in one place.
+              </p>
+            </div>
           </div>
         </div>
 

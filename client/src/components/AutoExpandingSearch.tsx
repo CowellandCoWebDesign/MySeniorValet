@@ -228,11 +228,11 @@ export function AutoExpandingSearch({
           </AnimatePresence>
 
           {/* Search Icon */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
+          <div className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-10">
             {isResearchMode ? (
-              <span className="text-lg">🕵️</span>
+              <span className="text-base sm:text-lg">🕵️</span>
             ) : (
-              <Search className="h-5 w-5 text-gray-400" />
+              <Search className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
             )}
           </div>
 
@@ -246,28 +246,28 @@ export function AutoExpandingSearch({
             onBlur={handleBlur}
             placeholder={placeholder}
             className={`
-              w-full pl-12 pr-20 py-4 
+              w-full pl-10 sm:pl-12 pr-16 sm:pr-20 py-2.5 sm:py-4 
               bg-transparent resize-none outline-none
               text-gray-900 dark:text-gray-100 placeholder-gray-500
-              font-medium text-lg leading-6
-              min-h-[56px] max-h-[200px]
+              font-medium text-sm sm:text-lg leading-5 sm:leading-6
+              min-h-[44px] sm:min-h-[56px] max-h-[150px] sm:max-h-[200px]
               scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent
             `}
             style={{ 
-              height: isExpanded ? 'auto' : '56px',
+              height: isExpanded ? 'auto' : window.innerWidth < 640 ? '44px' : '56px',
               transition: 'height 0.2s ease'
             }}
             disabled={isLoading}
           />
 
           {/* Search Button */}
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <div className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2">
             <Button
               onClick={handleSearch}
               disabled={!query.trim() || isLoading}
               size="sm"
               className={`
-                px-4 py-2 rounded-xl transition-all
+                px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-xl transition-all
                 ${isResearchMode 
                   ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
                   : 'bg-purple-600 hover:bg-purple-700'
