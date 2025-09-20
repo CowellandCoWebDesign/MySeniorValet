@@ -633,17 +633,18 @@ function HeroSectionWithTransformingSearch() {
         
         {/* Unified Search Component with Integrated Tabs */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+          {/* Single integrated search component */}
           <div className="relative">
-            {/* Category Tabs - Attached to top of search bar */}
-            <div className="flex justify-center">
-              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
+            {/* Category Tabs - Directly attached to search input */}
+            <div className="flex justify-center mb-0">
+              <div className="inline-flex">
                 <button
                   type="button"
                   onClick={() => setSearchCategory('communities')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                     ${searchCategory === 'communities' 
-                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-purple-500/80 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🏘️</span>
@@ -656,10 +657,10 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setSearchCategory('services')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                     ${searchCategory === 'services' 
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-green-500/80 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🛍️</span>
@@ -671,10 +672,10 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setSearchCategory('healthcare')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                     ${searchCategory === 'healthcare' 
-                      ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-red-500/80 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🏥</span>
@@ -686,10 +687,10 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setSearchCategory('resources')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg
                     ${searchCategory === 'resources' 
-                      ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
-                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                      ? 'bg-amber-500/80 text-white shadow-lg'
+                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">📚</span>
@@ -701,17 +702,9 @@ function HeroSectionWithTransformingSearch() {
               </div>
             </div>
             
-            {/* Search Bar - Main Component */}
-            <div className={`w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-b-xl ${searchCategory !== 'communities' ? 'rounded-tr-xl' : ''} border-2 border-t-0 relative shadow-2xl ${
-              searchCategory === 'services'
-                ? 'border-green-500 dark:border-green-600'
-                : searchCategory === 'healthcare'
-                ? 'border-red-500 dark:border-red-600'
-                : searchCategory === 'resources'
-                ? 'border-amber-500 dark:border-amber-600'
-                : 'border-purple-500 dark:border-purple-600'
-            }`}>
-              <div className="px-2 sm:px-3 pt-2 sm:pt-3 pb-10 sm:pb-12">
+            {/* Search Input Area - No container borders */}
+            <div className="w-full relative">
+              <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl px-2 sm:px-3 pt-3 pb-12 shadow-2xl ${searchCategory !== 'communities' ? 'rounded-tr-xl' : ''} rounded-b-xl">
               {/* Search component wrapper */}
               <div>
               <AutoExpandingSearch 
@@ -737,15 +730,15 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               </div>
               
-              {/* View Mode Tabs - Attached directly to bottom of search bar */}
+              {/* View Mode Tabs - Attached directly to bottom of search input */}
               <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className="flex gap-2">
+              <div className="inline-flex">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-lg
                     ${viewMode === 'list' 
-                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      ? 'bg-purple-500/80 text-white shadow-lg'
                       : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
@@ -758,9 +751,9 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-lg
                     ${viewMode === 'map' 
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                      ? 'bg-green-500/80 text-white shadow-lg'
                       : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
@@ -770,9 +763,9 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-lg
                     ${viewMode === 'discover' 
-                      ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
+                      ? 'bg-pink-500/80 text-white shadow-lg'
                       : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
                     }`}
                 >
