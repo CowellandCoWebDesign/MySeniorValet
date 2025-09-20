@@ -866,7 +866,7 @@ function HeroSectionWithTransformingSearch() {
                   className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
                     ${viewMode === 'list' 
                       ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
+                      : 'bg-gray-600/80 dark:bg-black/20 backdrop-blur-sm text-white dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-black/30 hover:text-white'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🔍</span>
@@ -881,7 +881,7 @@ function HeroSectionWithTransformingSearch() {
                   className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
                     ${viewMode === 'map' 
                       ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
+                      : 'bg-gray-600/80 dark:bg-black/20 backdrop-blur-sm text-white dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-black/30 hover:text-white'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🗺️</span>
@@ -893,7 +893,7 @@ function HeroSectionWithTransformingSearch() {
                   className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
                     ${viewMode === 'discover' 
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-black/20 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-black/30'
+                      : 'bg-gray-600/80 dark:bg-black/20 backdrop-blur-sm text-white dark:text-gray-300 hover:bg-gray-700 dark:hover:bg-black/30 hover:text-white'
                     }`}
                 >
                   <span className="text-xs sm:text-sm">🌍</span>
