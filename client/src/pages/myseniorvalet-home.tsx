@@ -700,8 +700,8 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
           
-          {/* Search Bar Container - Enhanced styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-8 sm:pb-10 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
+          {/* Search Bar Container - Transparent styling */}
+          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/10 dark:bg-black/10 backdrop-blur-xl border-2 border-t-0 pb-8 sm:pb-10 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
@@ -712,12 +712,12 @@ function HeroSectionWithTransformingSearch() {
           }`}>
             <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
               searchCategory === 'services'
-                ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200/50 dark:border-green-700/50'
+                ? 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-green-400/30'
                 : searchCategory === 'healthcare'
-                ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
+                ? 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-red-400/30'
                 : searchCategory === 'resources'
-                ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
-                : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
+                ? 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-amber-400/30'
+                : 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-purple-400/30'
             }`}>
               {/* Search component wrapper */}
               <div>
