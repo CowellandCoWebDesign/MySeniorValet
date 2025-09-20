@@ -230,6 +230,16 @@ function HeroSectionWithTransformingSearch() {
       console.log('🌍 Discovery Mode activated for:', query);
       // Loading already set above
       
+      // Show loading message for Discovery Mode
+      setSearchResults({ 
+        results: [],
+        metadata: {
+          isLoading: true,
+          loadingMessage: `🌍 Discovery Mode: Searching worldwide for "${query}"... This may take 30-60 seconds as we scan global databases.`,
+          isResearchMode: false
+        }
+      })
+      
       try {
         const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
@@ -239,7 +249,8 @@ function HeroSectionWithTransformingSearch() {
             searchType: searchCategory === 'services' ? 'services' : 'location',
             limit: 50,
             discoveryMode: true  // CRITICAL: This flag tells the backend to actually search the web
-          })
+          }),
+          signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
         });
         
         if (response.ok) {
@@ -251,10 +262,18 @@ function HeroSectionWithTransformingSearch() {
           });
           setShowGlobalDiscoveryModal(true);
           setIsLoading(false);
+          setSearchResults({ results: [], metadata: null });
           return;
         }
       } catch (error) {
         console.error('Discovery Mode error:', error);
+        setSearchResults({ 
+          results: [],
+          metadata: {
+            aiResponse: "Discovery Mode search timed out or failed. This usually means we're experiencing high demand. Please try again in a moment, or try a simpler search.",
+            isResearchMode: false
+          }
+        });
       }
       setIsLoading(false);
       return;
@@ -313,7 +332,8 @@ function HeroSectionWithTransformingSearch() {
             query, 
             searchType: searchCategory === 'services' ? 'services' : 'location',
             limit: 50 
-          })
+          }),
+          signal: AbortSignal.timeout(60000) // 60 second timeout for international searches
         });
         
         if (response.ok) {
@@ -358,7 +378,8 @@ function HeroSectionWithTransformingSearch() {
             searchType: 'location',
             limit: 20,
             discoveryMode: true  // Explicitly set Discovery Mode flag
-          })
+          }),
+          signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
         });
 
         if (!response.ok) throw new Error('Discovery search failed');
@@ -412,7 +433,8 @@ function HeroSectionWithTransformingSearch() {
                 searchType: 'services',  // General services, not limited to senior care
                 limit: 20,
                 discoveryMode: true  // Explicitly set Discovery Mode flag
-              })
+              }),
+              signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
             });
 
             if (!response.ok) {
