@@ -1595,14 +1595,14 @@ export default function CommunityDetail() {
   };
   
   return (
-    <>
-    {/* Navigation Header - Sticky */}
-    <NavigationHeader 
-      title={community?.name || "Community Details"} 
-      subtitle={`${community?.city || ""}, ${community?.state || ""}`}
-    />
-    
-    <div className="min-h-screen-safe bg-gray-50 dark:bg-gray-900 pt-0">      
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Navigation Header - Sticky */}
+      <NavigationHeader 
+        title={community?.name || "Community Details"} 
+        subtitle={`${community?.city || ""}, ${community?.state || ""}`}
+      />
+      
+      <div className="bg-gray-50 dark:bg-gray-900">      
       {/* Search Bar - Consistent with home page */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-4">
         <div className="container-responsive">
@@ -3623,7 +3623,7 @@ export default function CommunityDetail() {
           community={community}
         />
       )}
+      </div>
     </div>
-    </>
   );
 }
