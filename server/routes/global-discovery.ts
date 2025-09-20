@@ -358,7 +358,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             }
           },
           temperature: 0.2, // Lower temperature for more accurate results
-          max_tokens: 2000, // Reduce for faster response
+          max_tokens: 4000, // Increased to handle full JSON responses with 15-20 facilities
           top_p: 0.9,
           stream: false
         })
@@ -469,10 +469,23 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               const name = match[1]?.trim();
               const website = match[2]?.trim();
               
-              // Filter out directories and aggregators
-              if (website && !website.includes('google.') && !website.includes('yelp.') && 
-                  !website.includes('wikipedia.') && !website.includes('/find-a-') && 
-                  !website.includes('/locations') && name && name.length > 5) {
+              // Filter out directories and aggregators, and validate name
+              const isValidName = name && 
+                name.length > 8 && // Minimum length for a real business name
+                !name.startsWith('and ') && // Filter out fragments
+                !name.startsWith('www.') && // Filter out partial URLs
+                !name.match(/^https?:\/\//i) && // Filter out URLs
+                /^[A-Z]/.test(name) && // Must start with capital letter
+                name.split(' ').length <= 12; // Reasonable word count
+              
+              const isValidWebsite = website && 
+                !website.includes('google.') && 
+                !website.includes('yelp.') && 
+                !website.includes('wikipedia.') && 
+                !website.includes('/find-a-') && 
+                !website.includes('/locations');
+              
+              if (isValidWebsite && isValidName) {
                 
                 const key = name.toLowerCase().replace(/\s+(aged care|care services|retirement|village|group|ltd|inc|pty|plc).*$/i, '').trim();
                 if (!uniqueFallbackFacilities.has(key)) {
@@ -508,8 +521,19 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               const name = match[1]?.trim();
               const location = match[2]?.trim() || '';
               
-              // Validate the name
-              if (name && name.length > 5 && !name.includes('?') && !name.includes('example')) {
+              // Validate the name - must be a proper facility name
+              const isValidName = name && 
+                name.length > 8 && // Minimum length for a real business name
+                !name.includes('?') && 
+                !name.includes('example') &&
+                !name.startsWith('and ') && // Filter out fragments like "and a fitness center"
+                !name.startsWith('www.') && // Filter out partial URLs
+                !name.startsWith('http') && // Filter out URLs
+                /^[A-Z]/.test(name) && // Must start with capital letter
+                !/^\d/.test(name) && // Shouldn't start with a number
+                name.split(' ').length <= 10; // Reasonable word count for a business name
+              
+              if (isValidName) {
                 const key = name.toLowerCase();
                 if (!uniqueFallbackFacilities.has(key)) {
                   uniqueFallbackFacilities.set(key, {
