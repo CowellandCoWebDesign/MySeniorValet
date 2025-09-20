@@ -6,6 +6,13 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
@@ -312,20 +319,22 @@ export default function Contact() {
                     <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
                       Subject
                     </label>
-                    <select
-                      id="subject"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    <Select
                       value={formData.subject}
-                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      onValueChange={(value) => setFormData({ ...formData, subject: value })}
                       disabled={contactMutation.isPending}
                     >
-                      <option value="">Select a subject</option>
-                      <option value="general">General Inquiry</option>
-                      <option value="support">Technical Support</option>
-                      <option value="community">Community Information</option>
-                      <option value="partnership">Partnership Opportunities</option>
-                      <option value="feedback">Feedback & Suggestions</option>
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a subject" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="general">General Inquiry</SelectItem>
+                        <SelectItem value="support">Technical Support</SelectItem>
+                        <SelectItem value="community">Community Information</SelectItem>
+                        <SelectItem value="partnership">Partnership Opportunities</SelectItem>
+                        <SelectItem value="feedback">Feedback & Suggestions</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
