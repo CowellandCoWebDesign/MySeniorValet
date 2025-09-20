@@ -88,7 +88,7 @@ export default function Contact() {
   
   // Contact form mutation
   const contactMutation = useMutation({
-    mutationFn: (data: typeof formData) => apiRequest('/api/contact', 'POST', data),
+    mutationFn: (data: typeof formData) => apiRequest('POST', '/api/contact', data),
     onSuccess: () => {
       toast({
         title: "Message sent successfully!",
