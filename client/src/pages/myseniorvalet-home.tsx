@@ -632,7 +632,7 @@ function HeroSectionWithTransformingSearch() {
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
         
         {/* Unified Search Component */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-8">
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40">
           {/* Category Tabs - Sleek Modern Style */}
           <div className="flex justify-center">
             <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
@@ -701,7 +701,7 @@ function HeroSectionWithTransformingSearch() {
           </div>
           
           {/* Search Bar Container - Enhanced styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-4 sm:pb-6 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
+          <div className={`w-full rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 border-b-0 pb-4 sm:pb-6 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
             searchCategory === 'services'
               ? 'border-green-500 dark:border-green-600' 
               : searchCategory === 'healthcare'
@@ -742,6 +742,55 @@ function HeroSectionWithTransformingSearch() {
               className="w-full"
               />
             </div>
+            </div>
+            
+            {/* View Mode Tabs - Bottom tabs attached to search box */}
+            <div className="flex justify-center -mt-[2px]">
+              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-b-2xl">
+                <button
+                  type="button"
+                  onClick={() => setViewMode('list')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-xl
+                    ${viewMode === 'list' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🔍</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Database</span>
+                    <span className="sm:hidden text-[8px] opacity-75 mt-0.5">Search</span>
+                    <span className="hidden sm:inline text-[8px] opacity-75 mt-0.5">Search</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('map')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-xl
+                    ${viewMode === 'map' 
+                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🗺️</span>
+                  <span>Map</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode('discover')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-b-xl
+                    ${viewMode === 'discover' 
+                      ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🌍</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Discovery</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">Mode</span>
+                  </div>
+                </button>
+              </div>
             </div>
             
             {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
@@ -798,50 +847,8 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* View Mode Tabs - Moved outside search container for better spacing */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-6">
-          <div className="flex justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
-                    viewMode === 'list'
-                      ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white border-purple-400/50 shadow-lg transform scale-105'
-                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
-                  }`}
-                >
-                  <span className="text-xs sm:text-sm">🔍</span>
-                  <span>Database Search</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('map')}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
-                    viewMode === 'map'
-                      ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white border-green-400/50 shadow-lg transform scale-105'
-                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-green-400/50 hover:text-white'
-                  }`}
-                >
-                  <span className="text-xs sm:text-sm">🗺️</span>
-                  <span>Map</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('discover')}
-                  className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all duration-300 text-[10px] sm:text-xs font-bold flex items-center gap-1.5 border ${
-                    viewMode === 'discover'
-                      ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white border-purple-400/50 shadow-lg transform scale-105'
-                      : 'bg-gradient-to-br from-gray-800/80 to-gray-900/80 text-gray-300 border-gray-600/50 hover:border-purple-400/50 hover:text-white'
-                  }`}
-                >
-                  <span className="text-xs sm:text-sm">🌍</span>
-                  <span>Discovery Mode</span>
-                </button>
-          </div>
-        </div>
-        
-        {/* Key Value Props - Moved below search mode buttons */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-4">
+        {/* Key Value Props - Below search component */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
           <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
             <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
               <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
