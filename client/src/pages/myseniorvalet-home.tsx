@@ -631,94 +631,87 @@ function HeroSectionWithTransformingSearch() {
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
         
-        {/* Unified Search Component */}
+        {/* Unified Search Component with Integrated Tabs */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
-          {/* Category Tabs - Sleek Modern Style */}
-          <div className="flex justify-center">
-            <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
-              <button
-                type="button"
-                onClick={() => setSearchCategory('communities')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
-                  ${searchCategory === 'communities' 
-                    ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-sm">🏘️</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="hidden sm:inline">Communities</span>
-                  <span className="sm:hidden">Homes</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('services')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
-                  ${searchCategory === 'services' 
-                    ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-sm">🛍️</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span>Services</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
-                  ${searchCategory === 'healthcare' 
-                    ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-sm">🏥</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">Global</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('resources')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
-                  ${searchCategory === 'resources' 
-                    ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-sm">📚</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span>Resources</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">Growing</span>
-                </div>
-              </button>
+          <div className="relative">
+            {/* Category Tabs - Attached to top of search bar */}
+            <div className="flex justify-center">
+              <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('communities')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                    ${searchCategory === 'communities' 
+                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🏘️</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span className="hidden sm:inline">Communities</span>
+                    <span className="sm:hidden">Homes</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('services')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                    ${searchCategory === 'services' 
+                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🛍️</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Services</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('healthcare')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                    ${searchCategory === 'healthcare' 
+                      ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">🏥</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Healthcare</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">Global</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSearchCategory('resources')}
+                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                    ${searchCategory === 'resources' 
+                      ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
+                      : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
+                    }`}
+                >
+                  <span className="text-xs sm:text-sm">📚</span>
+                  <div className="flex flex-col items-start leading-none">
+                    <span>Resources</span>
+                    <span className="text-[8px] opacity-75 mt-0.5">Growing</span>
+                  </div>
+                </button>
+              </div>
             </div>
-          </div>
-          
-          {/* Search Bar Container - Transparent styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/10 dark:bg-black/10 backdrop-blur-xl border-2 border-t-0 pb-8 sm:pb-10 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
-            searchCategory === 'services'
-              ? 'border-green-500 dark:border-green-600' 
-              : searchCategory === 'healthcare'
-              ? 'border-red-500 dark:border-red-600' 
-              : searchCategory === 'resources'
-              ? 'border-amber-500 dark:border-amber-600' 
-              : 'border-purple-500 dark:border-purple-600'
-          }`}>
-            <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
+            
+            {/* Search Bar - Main Component */}
+            <div className={`w-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-b-xl ${searchCategory !== 'communities' ? 'rounded-tr-xl' : ''} border-2 border-t-0 relative shadow-2xl ${
               searchCategory === 'services'
-                ? 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-green-400/30'
+                ? 'border-green-500 dark:border-green-600'
                 : searchCategory === 'healthcare'
-                ? 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-red-400/30'
+                ? 'border-red-500 dark:border-red-600'
                 : searchCategory === 'resources'
-                ? 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-amber-400/30'
-                : 'bg-white/20 dark:bg-black/20 backdrop-blur-sm border-purple-400/30'
+                ? 'border-amber-500 dark:border-amber-600'
+                : 'border-purple-500 dark:border-purple-600'
             }`}>
+              <div className="px-2 sm:px-3 pt-2 sm:pt-3 pb-10 sm:pb-12">
               {/* Search component wrapper */}
               <div>
               <AutoExpandingSearch 
@@ -741,11 +734,11 @@ function HeroSectionWithTransformingSearch() {
               searchCategory={searchCategory}
               className="w-full"
               />
-            </div>
-            </div>
-            
-            {/* View Mode Tabs - Bottom tabs attached to search box with transparent style */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
+                </div>
+              </div>
+              
+              {/* View Mode Tabs - Attached directly to bottom of search bar */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -790,9 +783,12 @@ function HeroSectionWithTransformingSearch() {
                   </div>
                 </button>
               </div>
+              </div>
             </div>
-            
-            {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
+          </div>
+        </div>
+        
+        {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
             {viewMode === 'discover' && searchCategory === 'services' && !searchQuery && (
               <div className="absolute top-full mt-2 left-0 right-0 z-30">
                 <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-3">
@@ -842,8 +838,6 @@ function HeroSectionWithTransformingSearch() {
               </div>
             )}
             
-          </div>
-          
         </div>
         
         {/* Key Value Props - Below search component */}
@@ -921,6 +915,7 @@ function HeroSectionWithTransformingSearch() {
             </Button>
           </div>
         </div>
+        
         </div>
           
           {/* Search Results - Premium Glass Design */}
@@ -1283,7 +1278,6 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         )}
-        </div>
         
         {/* Back to Top Button - appears when there are many results */}
         {searchResults?.results?.length > 10 && (
