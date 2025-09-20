@@ -69,8 +69,8 @@ if (typeof document !== 'undefined') {
   const heroLink = document.createElement('link');
   heroLink.rel = 'preload';
   heroLink.as = 'image';
-  heroLink.href = LuxuryValet;
-  heroLink.type = 'image/png';
+  heroLink.href = "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg";
+  heroLink.type = 'image/jpeg';
   heroLink.fetchPriority = 'high';
   document.head.appendChild(heroLink);
   
@@ -592,8 +592,8 @@ function HeroSectionWithTransformingSearch() {
           }}
         >
           <img
-            src={LuxuryValet}
-            alt="Luxury valet silhouette - Premium senior care concierge service"
+            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
+            alt="Cosmic space background - Infinite possibilities in senior living"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
