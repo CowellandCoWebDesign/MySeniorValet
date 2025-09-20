@@ -73,10 +73,10 @@ export function Footer() {
         </div>
 
         {/* Main Navigation Columns - All 4 on same horizontal line */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
           {/* For Communities */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Communities</h3>
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Communities</h3>
             <ul className="space-y-2 text-xs text-gray-300">
               <li><Link to="/claim-community" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
               <li><Link to="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
@@ -86,8 +86,8 @@ export function Footer() {
           </div>
           
           {/* For Families */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Families</h3>
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Families</h3>
             <ul className="space-y-2 text-xs text-gray-300">
               <li><Link to="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
               <li><Link to="/family-collaboration-center" className="hover:text-blue-400 transition-colors">Family Collaboration Center</Link></li>
@@ -102,8 +102,8 @@ export function Footer() {
           </div>
           
           {/* For Vendors */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Vendors</h3>
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Vendors</h3>
             <ul className="space-y-2 text-xs text-gray-300">
               <li><Link to="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
               <li><Link to="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
@@ -113,8 +113,8 @@ export function Footer() {
           </div>
           
           {/* Legal */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">Legal</h3>
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">Legal</h3>
             <ul className="space-y-2 text-xs text-gray-300">
               <li><Link to="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
               <li><Link to="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
