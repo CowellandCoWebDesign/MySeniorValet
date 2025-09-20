@@ -631,23 +631,8 @@ function HeroSectionWithTransformingSearch() {
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
         
-        {/* Key Value Props - Above Search */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-3">
-          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-              <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
-            </div>
-            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-              <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
-            </div>
-            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-              <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
-            </div>
-          </div>
-        </div>
-        
-        {/* Unified Search Component - Moved Above Value Props */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-3">
+        {/* Unified Search Component */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-8">
           {/* Category Tabs - Sleek Modern Style */}
           <div className="flex justify-center">
             <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
@@ -809,9 +794,13 @@ function HeroSectionWithTransformingSearch() {
               </div>
             )}
             
-            {/* View Mode Tabs - Matching Top Tab Style */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className="flex gap-2">
+          </div>
+          
+        </div>
+        
+        {/* View Mode Tabs - Moved outside search container for better spacing */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-6">
+          <div className="flex justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
@@ -848,10 +837,22 @@ function HeroSectionWithTransformingSearch() {
                   <span className="text-xs sm:text-sm">🌍</span>
                   <span>Discovery Mode</span>
                 </button>
-              </div>
+          </div>
+        </div>
+        
+        {/* Key Value Props - Moved below search mode buttons */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mb-4">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
+            </div>
+            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
+            </div>
+            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+              <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
             </div>
           </div>
-          
         </div>
         
         {/* Quick Action Buttons - Moved from Community Directory Section */}
@@ -865,7 +866,7 @@ function HeroSectionWithTransformingSearch() {
               }}
               className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
               <div className="flex flex-col items-center">
-                <Search className="h-5 w-5 mb-1" />
+                <span className="text-xl mb-1">🔍</span>
                 <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
                 <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
               </div>
@@ -879,7 +880,7 @@ function HeroSectionWithTransformingSearch() {
               }}
               className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
-                <Sparkles className="h-5 w-5 mb-1" />
+                <span className="text-xl mb-1">🤖</span>
                 <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
                 <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
               </div>
@@ -893,7 +894,7 @@ function HeroSectionWithTransformingSearch() {
               }}
               className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
-                <Flame className="h-5 w-5 mb-1 animate-pulse" />
+                <span className="text-xl mb-1 animate-pulse">🔥</span>
                 <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
                 <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
               </div>
@@ -907,7 +908,7 @@ function HeroSectionWithTransformingSearch() {
               }}
               className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
-                <TrendingUp className="h-5 w-5 mb-1" />
+                <span className="text-xl mb-1">📊</span>
                 <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
                 <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
               </div>
