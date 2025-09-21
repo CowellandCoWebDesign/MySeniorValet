@@ -134,8 +134,17 @@ export class SimplifiedPerplexityService {
       .trim();
     
     // Enhanced query with official website targeting
-    const query = `First, check site:${possibleDomain}.com OR site:${possibleDomain}seniorliving.com
-    
+    const query = `PRIORITY 1 - OFFICIAL WEBSITE SEARCH:
+First, search for the OFFICIAL website of "${communityName}" in ${location}.
+Try these patterns:
+- ${possibleDomain}.com
+- ${possibleDomain}seniorliving.com  
+- ${communityName.toLowerCase().replace(/\s+/g, '')}.com
+- Search: "${communityName}" ${location} official website
+- Check Google Business listings for official website
+
+If you find the official website, extract ALL contact information from THAT site only.
+
 Then find information about senior living community named EXACTLY "${communityName}" in ${location}.
 
 CRITICAL ACCURACY REQUIREMENT:
@@ -616,16 +625,26 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
                               structuredData.url ||
                               this.extractUrl(content);
 
-      // Extract phone
-      result.phone = structuredData.phone || 
-                     structuredData.phoneNumber || 
-                     structuredData.contact ||
-                     this.extractPhone(content);
+      // Extract phone - check for explicit "not found" indicators
+      const phoneFromContent = this.extractPhone(content);
+      if (!content.toLowerCase().includes('phone number: not explicitly found') &&
+          !content.toLowerCase().includes('phone: not found') &&
+          !content.toLowerCase().includes('recommend contacting via directory')) {
+        result.phone = structuredData.phone || 
+                       structuredData.phoneNumber || 
+                       structuredData.contact ||
+                       phoneFromContent;
+      } else {
+        result.phone = undefined; // Explicitly no phone found
+        console.log('  ℹ️ No official phone number found by Perplexity');
+      }
 
-      // Extract address
+      // Extract address with better parsing
+      const addressFromContent = this.extractAddress(content);
       result.address = structuredData.address || 
                       structuredData.location ||
-                      structuredData.specificLocationFound;
+                      structuredData.specificLocationFound ||
+                      addressFromContent;
 
       // Extract pricing
       const pricing: any = {};
@@ -793,9 +812,48 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
 
   // Helper extraction functions
   private extractUrl(content: string): string | undefined {
-    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
-                  content.match(/(https?:\/\/[^\s]+)/);
-    return match ? match[1] : undefined;
+    // Check if explicitly stated no website found
+    if (content.toLowerCase().includes('no dedicated official website') ||
+        content.toLowerCase().includes('no official website found') ||
+        content.toLowerCase().includes('website not found')) {
+      console.log('  ⚠️ Perplexity explicitly stated no official website found');
+      return undefined;
+    }
+    
+    // Look for actual URLs after website/site/url keywords
+    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i);
+    if (match && match[1]) {
+      // Verify it's not an advisor site
+      const advisorSites = [
+        'aplaceformom.com', 'caring.com', 'senioradvisor.com', 'seniorly.com',
+        'assistedliving.org', 'nursinghomes.com', 'memorycare.com'
+      ];
+      
+      const url = match[1];
+      const isAdvisorSite = advisorSites.some(site => url.includes(site));
+      
+      if (isAdvisorSite) {
+        console.log(`  ⚠️ Rejecting advisor website: ${url}`);
+        return undefined;
+      }
+      
+      return url;
+    }
+    
+    // Fallback to finding any URL in the content
+    const fallbackMatch = content.match(/(https?:\/\/[^\s]+)/);
+    if (fallbackMatch && fallbackMatch[1]) {
+      // Make sure it's not an advisor site
+      const advisorSites = [
+        'aplaceformom.com', 'caring.com', 'senioradvisor.com'
+      ];
+      const url = fallbackMatch[1];
+      if (!advisorSites.some(site => url.includes(site))) {
+        return url;
+      }
+    }
+    
+    return undefined;
   }
 
   private extractPhone(content: string): string | undefined {
@@ -854,8 +912,30 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
   }
 
   private extractAddress(content: string): string | undefined {
-    const match = content.match(/(?:address|located at):\s*([^,\n]+(?:,[^,\n]+)?)/i);
-    return match ? match[1].trim() : undefined;
+    // Try multiple patterns to extract address
+    const patterns = [
+      /(?:address|located at):\s*([^\n]+)/i,
+      /(\d+\s+[A-Za-z\s]+(?:Road|Rd|Street|St|Avenue|Ave|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl),?\s+[A-Za-z\s]+,?\s+[A-Z]{2}\s+\d{5})/i,
+      /(\d+\s+[A-Za-z\s]+,\s+[A-Za-z\s]+,\s+[A-Z]{2})/i
+    ];
+    
+    for (const pattern of patterns) {
+      const match = content.match(pattern);
+      if (match && match[1]) {
+        const address = match[1].trim();
+        // Clean up the address
+        const cleaned = address
+          .replace(/[[\]]/g, '') // Remove brackets
+          .replace(/\s+/g, ' ')  // Normalize spaces
+          .trim();
+        
+        if (cleaned && cleaned.length > 10) { // Basic validation
+          return cleaned;
+        }
+      }
+    }
+    
+    return undefined;
   }
 
   /**
