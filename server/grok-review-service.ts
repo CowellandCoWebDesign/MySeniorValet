@@ -101,7 +101,7 @@ Provide real, working URLs not placeholders.`;
       console.log(`📝 Grok Response Length: ${content.length} characters`);
       
       // Parse the response to extract structured data
-      const extractedData = this.parseGrokResponse(content);
+      const extractedData = this.parseGrokResponse(content, communityName);
       
       // Log what we're returning
       console.log(`🔍 Parsed Data:
@@ -124,7 +124,7 @@ Provide real, working URLs not placeholders.`;
     }
   }
 
-  private parseGrokResponse(content: string): {
+  private parseGrokResponse(content: string, communityName?: string): {
     reviews: any[];
     sources: string[];
     perspectiveAnalysis: string;
@@ -155,6 +155,31 @@ Provide real, working URLs not placeholders.`;
         const quoteRegex = /"([^"]+)"\s*-\s*([^-\n]+)/g;
         let match;
         while ((match = quoteRegex.exec(platformContent)) !== null) {
+          // Generate a search URL for the review based on the platform
+          let reviewUrl = '';
+          const businessName = communityName || 'Senior Living';
+          
+          switch(platform) {
+            case 'Google':
+              reviewUrl = `https://www.google.com/maps/search/${encodeURIComponent(businessName)}+reviews`;
+              break;
+            case 'Yelp':
+              reviewUrl = `https://www.yelp.com/search?find_desc=${encodeURIComponent(businessName)}`;
+              break;
+            case 'Care.com':
+              reviewUrl = `https://www.care.com/senior-care`;
+              break;
+            case 'SeniorAdvisor':
+              reviewUrl = `https://www.senioradvisor.com`;
+              break;
+            case 'A Place for Mom':
+              reviewUrl = `https://www.aplaceformom.com`;
+              break;
+            case 'Facebook':
+              reviewUrl = `https://www.facebook.com/search/top?q=${encodeURIComponent(businessName)}`;
+              break;
+          }
+          
           reviews.push({
             source: platform,
             content: match[1],
@@ -162,7 +187,9 @@ Provide real, working URLs not placeholders.`;
             rating: rating,
             verified: true,
             platform: platform,
-            isSummary: false
+            isSummary: false,
+            url: reviewUrl, // Add the verification URL
+            title: `${platform} Review` // Add a title
           });
         }
         

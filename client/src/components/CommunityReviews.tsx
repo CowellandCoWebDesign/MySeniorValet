@@ -1040,9 +1040,23 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                       </h4>
                     </div>
                     <div className="text-right">
-                      <Badge variant="outline" className="text-xs">
-                        {review.source}
-                      </Badge>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant="outline" className="text-xs">
+                          {review.source}
+                        </Badge>
+                        {review.url && (
+                          <a
+                            href={review.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 underline"
+                            data-testid={`link-source-${review.id}`}
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                            View source
+                          </a>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {formatDistanceToNow(new Date(review.createdAt), { addSuffix: true })}
                       </p>
@@ -1085,17 +1099,27 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                         </Button>
                       )}
                     </div>
-                    {review.url && (
-                      <a
-                        href={review.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
-                      >
-                        View on {review.source}
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
+                    <div className="flex items-center gap-4">
+                      {review.url && (
+                        <a
+                          href={review.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 flex items-center gap-1 font-medium"
+                          data-testid={`link-verify-${review.id}`}
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                          Verify on {review.source}
+                        </a>
+                      )}
+                      {/* Citation badge for AI-sourced reviews */}
+                      {review.platform && review.platform !== 'MySeniorValet' && (
+                        <Badge variant="secondary" className="text-xs">
+                          <Link2 className="w-3 h-3 mr-1" />
+                          {review.verified ? 'AI-Verified' : 'AI-Sourced'}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                 </CardContent>
               </Card>
