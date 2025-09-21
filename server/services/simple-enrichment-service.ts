@@ -292,6 +292,16 @@ export class SimpleEnrichmentService {
   }
   
   /**
+   * Check if a phone number is a toll-free referral number
+   */
+  private isTollFreeNumber(phone: string): boolean {
+    if (!phone) return false;
+    const cleaned = phone.replace(/\D/g, '');
+    // Check for US toll-free area codes: 800, 833, 844, 855, 866, 877, 888
+    return /^1?(800|833|844|855|866|877|888)/.test(cleaned);
+  }
+  
+  /**
    * Phase 2: Extract verified data with source validation
    */
   private async extractVerifiedData(
@@ -316,18 +326,25 @@ export class SimpleEnrichmentService {
       verifiedWebsite = undefined;
     }
     
-    // Phone validation - require multi-source agreement or official website
+    // Phone validation - reject toll-free numbers and require multi-source agreement
     let verifiedPhone = verifiedCandidate.phone;
     if (verifiedPhone) {
-      // Count how many sources mention this phone number
-      const phoneOccurrences = (searchText.match(new RegExp(verifiedPhone.replace(/[^\d]/g, '\\D*'), 'g')) || []).length;
-      
-      if (phoneOccurrences >= 2 || (verifiedWebsite && sources.some(s => s.includes(this.extractDomain(verifiedWebsite))))) {
-        confidence += 0.2;
-        console.log(`✅ Phone ${verifiedPhone} verified (${phoneOccurrences} occurrences)`);
+      // REJECT toll-free numbers (directory service numbers)
+      if (this.isTollFreeNumber(verifiedPhone)) {
+        console.log(`❌ Rejecting toll-free number ${verifiedPhone} - likely directory service`);
+        verifiedPhone = undefined;
+        confidence -= 0.2; // Lower confidence for having a directory number
       } else {
-        console.log(`⚠️ Phone ${verifiedPhone} unverified (only ${phoneOccurrences} occurrence)`);
-        verifiedPhone = undefined; // Don't trust single-source phone numbers
+        // Count how many sources mention this phone number
+        const phoneOccurrences = (searchText.match(new RegExp(verifiedPhone.replace(/[^\d]/g, '\\D*'), 'g')) || []).length;
+        
+        if (phoneOccurrences >= 2 || (verifiedWebsite && sources.some(s => s.includes(this.extractDomain(verifiedWebsite))))) {
+          confidence += 0.2;
+          console.log(`✅ Phone ${verifiedPhone} verified (${phoneOccurrences} occurrences, not toll-free)`);
+        } else {
+          console.log(`⚠️ Phone ${verifiedPhone} unverified (only ${phoneOccurrences} occurrence)`);
+          verifiedPhone = undefined; // Don't trust single-source phone numbers
+        }
       }
     }
     
@@ -494,8 +511,12 @@ export class SimpleEnrichmentService {
     // Step 8: Persistence guards - only save high-confidence verified data
     if (result.confidence >= 0.7) {
       // Check if we should overwrite existing data
-      const shouldUpdatePhone = !community.phone || 
-        (result.phoneNumber && result.confidence > (community.enrichmentData?.confidence || 0));
+      // Update phone only if: no current phone, or new phone is better AND not toll-free
+      const currentPhoneIsTollFree = this.isTollFreeNumber(community.phone || '');
+      const shouldUpdatePhone = currentPhoneIsTollFree || // Replace toll-free numbers
+        (!community.phone || 
+         (result.phoneNumber && !this.isTollFreeNumber(result.phoneNumber) && 
+          result.confidence > (community.enrichmentData?.confidence || 0)));
       
       const shouldUpdateWebsite = !community.website || 
         (result.officialWebsite && !this.isDirectorySite(result.officialWebsite) && 
