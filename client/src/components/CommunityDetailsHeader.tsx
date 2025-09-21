@@ -423,42 +423,9 @@ export function CommunityDetailsHeader({
         <div className="bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-850 dark:to-gray-800 mt-0 relative z-0">
           {/* Header Section with Enhanced Design */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700 relative">
-            {/* Price and Market Analysis positioned at top right */}
-            <div className="absolute top-6 right-6 flex flex-col gap-3">
-              {/* Pricing Box */}
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800 shadow-lg min-w-[140px] sm:min-w-[160px]">
-                <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Monthly Starting From</div>
-                <div className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                  {pricing.price}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {pricing.verified ? "Per Month" : "Market Estimate"}
-                </div>
-                {pricing.verified && (
-                  <Badge className="mt-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold px-2 py-1">
-                    <CheckCircle className="w-3 h-3 mr-1" />
-                    VERIFIED
-                  </Badge>
-                )}
-              </div>
-              
-              {/* Market Analysis Button */}
-              <button
-                onClick={() => {
-                  window.location.href = '/competitive-analysis';
-                }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-              >
-                <TrendingUp className="w-4 h-4" />
-                <div className="flex flex-col items-start">
-                  <span className="font-semibold text-sm">Market Analysis</span>
-                  <span className="text-xs opacity-90">Price Compare</span>
-                </div>
-              </button>
-            </div>
             
-            {/* Community Details - Full width minus price box with better spacing */}
-            <div className="pr-0 sm:pr-48 md:pr-56 lg:pr-64">
+            {/* Community Details - Full width with better spacing */}
+            <div>
               <div className="mb-3">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
                   {community.name}
