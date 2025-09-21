@@ -38,45 +38,34 @@ export class GrokReviewService {
     }
 
     try {
-      const searchQuery = `Analyze and provide a comprehensive review perspective for "${communityName}" senior living community at ${address}, ${city}, ${state} ${zipCode}.
+      const searchQuery = `Analyze and provide ONLY REAL, VERIFIABLE reviews for "${communityName}" senior living community at ${address}, ${city}, ${state} ${zipCode}.
 
-**CRITICAL REQUIREMENTS:**
-1. Search for ALL available reviews from Google, Yelp, Care.com, SeniorAdvisor, A Place for Mom, and Facebook
-2. Provide ACTUAL review quotes, not summaries
-3. Include comparative perspective across all sources
-4. Highlight patterns, contradictions, and consensus points
+**ABSOLUTE REQUIREMENTS - ZERO TOLERANCE FOR FAKE DATA:**
+1. ONLY return reviews that ACTUALLY EXIST on Google, Yelp, Care.com, SeniorAdvisor, A Place for Mom, or Facebook
+2. If you cannot find real reviews, you MUST say "No reviews found" - DO NOT create examples or placeholders
+3. Every review quote must be verbatim from a real source - no paraphrasing or examples
+4. Include the actual URL where each review can be verified
+5. Never generate sample reviews or hypothetical examples
 
-**COMPARISON IN PERSPECTIVE ANALYSIS:**
-- Compare what different review platforms are saying
-- Identify consistent themes vs conflicting information
-- Provide balanced perspective on strengths and concerns
-- Note any significant discrepancies between sources
-
-**FORMAT EACH REVIEW SOURCE AS:**
+**FOR EACH REAL REVIEW FOUND:**
 [Platform Name]
-- Overall Rating: X.X/5 (Y total reviews)
-- Recent Reviews:
-  * "EXACT QUOTE FROM REVIEW" - Reviewer Name/Date
-  * "ANOTHER EXACT QUOTE" - Reviewer Name/Date
-- Key Themes: [List main points mentioned]
+- Overall Rating: X.X/5 (Y total reviews) - ONLY if this data actually exists
+- Verified Reviews Found:
+  * "EXACT VERBATIM QUOTE" - Real Reviewer Name/Actual Date
+  * Include direct link to this specific review if possible
+- Source URL: [Direct link to the review page]
 
-**FINAL PERSPECTIVE SYNTHESIS:**
-Provide a balanced comparison showing:
-- What all sources agree on
-- Where opinions diverge
-- Red flags or concerns to investigate
-- Standout positives consistently mentioned
+**IF NO REVIEWS EXIST:**
+Simply state: "No verified reviews found for this community on [platform name]"
 
-**IMPORTANT: Include actual clickable URLs at the end in this format:**
-Sources:
-- Google Reviews: https://[actual google maps URL]
-- Yelp: https://[actual yelp URL]
-- Care.com: https://[actual care.com URL]
-- SeniorAdvisor: https://[actual senioradvisor URL]
-- A Place for Mom: https://[actual aplaceformom URL]
-- Facebook: https://[actual facebook URL]
+**VERIFICATION REQUIREMENTS:**
+- Each review must have a real source URL
+- Each quote must be exactly as written on the platform
+- Do not create examples if real reviews don't exist
+- Do not fill in missing data with estimates or examples
 
-Provide real, working URLs not placeholders.`;
+**IMPORTANT:**
+If you cannot find actual reviews, return an empty response or state "No reviews available" rather than generating synthetic examples.`;
 
       console.log(`🤖 Grok: Analyzing reviews for ${communityName} with comparative perspective...`);
       
@@ -85,14 +74,14 @@ Provide real, working URLs not placeholders.`;
         messages: [
           {
             role: "system",
-            content: "You are Grok, an expert at comparative analysis and providing balanced perspective on senior living facilities. You excel at finding patterns across multiple review sources and presenting nuanced insights that help families make informed decisions. Always provide actual quotes and cite sources."
+            content: "You are Grok, providing ONLY FACTUAL, VERIFIABLE information about senior living facilities. You MUST only report reviews that actually exist on real platforms. If no reviews exist, you must clearly state this. Never generate examples, placeholders, or hypothetical reviews. Your role is to report facts, not create content."
           },
           {
             role: "user",
             content: searchQuery
           }
         ],
-        temperature: 0.7,
+        temperature: 0.2,  // Low temperature for maximum factual accuracy and to prevent hallucinations
         max_tokens: 8000  // Increased to ensure full response
       });
 
@@ -130,6 +119,28 @@ Provide real, working URLs not placeholders.`;
     perspectiveAnalysis: string;
     comparativeInsights: string;
   } {
+    // First check if response indicates no reviews found
+    if (this.containsNoReviewsIndicator(content)) {
+      console.log('🚫 Grok indicates no reviews found for this community');
+      return {
+        reviews: [],
+        sources: [],
+        perspectiveAnalysis: 'No verified reviews found for this community.',
+        comparativeInsights: content
+      };
+    }
+
+    // Check for synthetic data patterns and reject if found
+    if (this.detectSyntheticData(content)) {
+      console.warn('⚠️ Synthetic data patterns detected - rejecting response');
+      return {
+        reviews: [],
+        sources: [],
+        perspectiveAnalysis: 'Unable to find verified reviews.',
+        comparativeInsights: 'No authentic review data available.'
+      };
+    }
+
     const reviews: any[] = [];
     const sources: string[] = [];
     
@@ -180,16 +191,21 @@ Provide real, working URLs not placeholders.`;
               break;
           }
           
+          // Only add review if it contains a real URL (not a generic search URL)
+          const isRealReview = reviewUrl && !reviewUrl.includes('/search?');
+          
           reviews.push({
             source: platform,
             content: match[1],
             author: match[2].trim(),
             rating: rating,
-            verified: true,
+            verified: false,  // NEVER automatically mark as verified - requires manual verification
             platform: platform,
             isSummary: false,
-            url: reviewUrl, // Add the verification URL
-            title: `${platform} Review` // Add a title
+            url: reviewUrl,
+            title: `${platform} Review`,
+            needsVerification: true,  // Flag for manual verification
+            isRealReview: isRealReview
           });
         }
         
@@ -274,7 +290,7 @@ Format with clear sections and include source URLs.`;
             content: searchQuery
           }
         ],
-        temperature: 0.5,
+        temperature: 0.2,  // Low temperature for factual accuracy
         max_tokens: 4000  // Increased for fuller inspection data
       });
 
@@ -330,5 +346,80 @@ Format with clear sections and include source URLs.`;
     }
 
     return data;
+  }
+
+  private containsNoReviewsIndicator(content: string): boolean {
+    const noReviewPatterns = [
+      /no reviews? found/i,
+      /no verified reviews/i,
+      /unable to find reviews/i,
+      /no reviews? available/i,
+      /could not find any reviews/i,
+      /no reviews? exist/i,
+      /0 reviews?/i
+    ];
+    
+    return noReviewPatterns.some(pattern => pattern.test(content));
+  }
+
+  private detectSyntheticData(content: string): boolean {
+    // Common patterns that indicate synthetic/example data
+    const syntheticPatterns = [
+      // Generic example text
+      /example review/i,
+      /sample review/i,
+      /placeholder/i,
+      /hypothetical/i,
+      /illustrative/i,
+      /demonstration/i,
+      
+      // Common AI-generated review phrases that appear too frequently
+      /caring and attentive/i,
+      /clean and well-maintained/i,
+      /friendly and helpful/i,
+      
+      // Suspiciously perfect or vague dates
+      /Anonymous\/\d{4}/g,
+      /January 2022|February 2022|March 2022|April 2022|May 2022|June 2022|July 2022|August 2022|September 2022|October 2022|November 2022|December 2022/g,
+      
+      // Template-like structures
+      /\[.*?\]/g,  // Square brackets often indicate placeholders
+      /\{.*?\}/g,  // Curly brackets often indicate templates
+      
+      // Exact duplicate phrases (same review appearing multiple times)
+      // This checks if the same phrase appears more than twice
+    ];
+    
+    // Check for synthetic patterns
+    for (const pattern of syntheticPatterns) {
+      if (pattern.test(content)) {
+        console.log(`🚫 Detected synthetic pattern: ${pattern}`);
+        return true;
+      }
+    }
+    
+    // Check for duplicate content (same review text appearing multiple times)
+    const reviewQuotes = content.match(/"([^"]{50,})"/g) || [];
+    const uniqueQuotes = new Set(reviewQuotes);
+    if (reviewQuotes.length > 0 && uniqueQuotes.size < reviewQuotes.length / 2) {
+      console.log('🚫 Detected duplicate review content');
+      return true;
+    }
+    
+    // Check if all reviews have suspiciously similar structure
+    const reviewBlocks = content.split(/(?:Google|Yelp|Care\.com|SeniorAdvisor|Facebook)/i);
+    if (reviewBlocks.length > 3) {
+      const blockLengths = reviewBlocks.map(block => block.length);
+      const avgLength = blockLengths.reduce((a, b) => a + b, 0) / blockLengths.length;
+      const variance = blockLengths.reduce((sum, len) => sum + Math.pow(len - avgLength, 2), 0) / blockLengths.length;
+      
+      // If variance is very low, blocks are suspiciously uniform (likely generated)
+      if (variance < 100) {
+        console.log('🚫 Detected suspiciously uniform review structure');
+        return true;
+      }
+    }
+    
+    return false;
   }
 }
