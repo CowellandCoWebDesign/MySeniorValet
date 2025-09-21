@@ -5,7 +5,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
-import { GrokReviewService } from "../grok-review-service";
+import { PerplexityReviewService } from "../perplexity-review-service";
 
 export function registerReviewRoutes(app: Express) {
   // Get reviews for a community
@@ -315,15 +315,15 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
-  // Fetch inspection data using Grok AI
+  // Fetch inspection data using Perplexity AI
   app.post('/api/communities/:communityId/inspections/fetch', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      const grok = new GrokReviewService();
+      const reviewService = new PerplexityReviewService();
 
-      if (!grok.isConfigured()) {
+      if (!reviewService.isConfigured()) {
         return res.status(400).json({ 
-          message: 'Grok AI is not configured',
+          message: 'Perplexity AI is not configured',
           fallbackData: true 
         });
       }
@@ -339,7 +339,7 @@ export function registerReviewRoutes(app: Express) {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      // Search for inspection data using Grok
+      // Search for inspection data using Perplexity
       const searchQuery = `Search for government inspection reports, health violations, compliance records, and regulatory findings for "${community.name}" senior living facility located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Include:
         1. Medicare.gov Nursing Home Compare data and star ratings if available
         2. State health department inspection reports and citations
@@ -356,7 +356,7 @@ export function registerReviewRoutes(app: Express) {
       const context = `${community.name} senior living facility at ${community.address}, ${community.city}, ${community.state}`;
       
       console.log('Fetching inspection data for:', community.name);
-      const result = await grok.fetchInspectionData(
+      const result = await reviewService.fetchInspectionData(
         community.name,
         community.address,
         community.city,
@@ -364,7 +364,7 @@ export function registerReviewRoutes(app: Express) {
         community.zipCode
       );
 
-      // Inspection data is already parsed by Grok service
+      // Inspection data is already parsed by Perplexity service
       const inspectionData = result.inspectionData;
       
       // Return the structured inspection data
@@ -373,7 +373,7 @@ export function registerReviewRoutes(app: Express) {
         inspectionData,
         citations: result.citations || [],
         lastUpdated: new Date().toISOString(),
-        poweredBy: 'Grok AI'
+        poweredBy: 'Perplexity AI'
       });
 
     } catch (error) {
@@ -385,15 +385,15 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
-  // Fetch external reviews using Grok AI with Comparison in Perspective
+  // Fetch external reviews using Perplexity AI with Comparison in Perspective
   app.post('/api/communities/:communityId/reviews/fetch-external', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      const grok = new GrokReviewService();
+      const reviewService = new PerplexityReviewService();
 
-      if (!grok.isConfigured()) {
+      if (!reviewService.isConfigured()) {
         return res.status(400).json({ 
-          message: 'Grok AI is not configured',
+          message: 'Perplexity AI is not configured',
           fallbackData: true 
         });
       }
@@ -409,7 +409,7 @@ export function registerReviewRoutes(app: Express) {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      // Search for reviews using Grok with Comparison in Perspective
+      // Search for reviews using Perplexity with Comparison in Perspective
       const searchQuery = `Find ALL reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. 
 
 **CRITICAL: I need the actual review text/quotes, not just summaries. Please provide reviews in this exact format:**
@@ -463,7 +463,7 @@ REQUIREMENTS:
       const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
       
       console.log('Fetching external reviews for:', community.name);
-      const result = await grok.fetchReviewsWithPerspective(
+      const result = await reviewService.fetchReviewsWithPerspective(
         community.name,
         community.address,
         community.city,
@@ -471,7 +471,7 @@ REQUIREMENTS:
         community.zipCode
       );
 
-      // Use Grok's structured response with comparative perspective
+      // Use Perplexity's structured response with comparative perspective
       const extractedData = {
         googleRating: extractGoogleRating(result.summary),
         yelpRating: extractYelpRating(result.summary),
@@ -532,7 +532,7 @@ REQUIREMENTS:
         success: true,
         data: extractedData,
         message: 'External reviews fetched successfully with comparative perspective',
-        poweredBy: 'Grok AI - Comparison in Perspective',
+        poweredBy: 'Perplexity AI - Comparison in Perspective',
         disclaimer: 'Reviews are sourced from third-party platforms and may not reflect current conditions'
       });
     } catch (error) {
@@ -546,7 +546,7 @@ REQUIREMENTS:
   });
 }
 
-// Helper functions to extract review data from Grok response
+// Helper functions to extract review data from Perplexity response
 function extractGoogleRating(text: string): { rating: string; count: number } | null {
   // Multiple patterns to catch different formats
   const patterns = [
@@ -724,7 +724,7 @@ function extractReviewSnippets(text: string): {
       rating: extractRatingFromReviewContext(text, review.text) || getDefaultRatingForSource(contextSource, platformRatings),
       source: contextSource,
       author: review.author,
-      date: parseDate(review.date),
+      date: review.date ? parseDate(review.date) : new Date().toISOString(),
       url: getUrlForSource(contextSource, urls),
       verified: true,
       helpful: 0
