@@ -10,6 +10,63 @@ import { MarketPricingIntelligence } from "../market-pricing-intelligence";
 import { getDynamicSuggestions } from "../services/dynamic-search-suggestions";
 
 export function registerSearchRoutes(app: Express) {
+  // Geocode location endpoint for map search
+  app.get('/api/geocode', async (req, res) => {
+    try {
+      const location = req.query.location as string;
+      
+      if (!location) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'Location parameter is required' 
+        });
+      }
+      
+      // First try local geocoding data (US locations)
+      const localResult = geocodeLocation(location);
+      
+      if (localResult) {
+        console.log(`📍 Geocoded from local data: ${location}`);
+        return res.json({
+          success: true,
+          location: location,
+          lat: localResult.lat,
+          lng: localResult.lng,
+          source: 'local'
+        });
+      }
+      
+      // Fall back to Nominatim for international locations
+      const { geocodeWithNominatim } = await import('../nominatim-geocoding');
+      const nominatimResult = await geocodeWithNominatim(location);
+      
+      if (nominatimResult) {
+        console.log(`🌍 Geocoded via Nominatim: ${location}`);
+        return res.json({
+          success: true,
+          location: location,
+          lat: nominatimResult.lat,
+          lng: nominatimResult.lng,
+          source: 'nominatim'
+        });
+      }
+      
+      // If no results found
+      console.log(`❌ Could not geocode: ${location}`);
+      return res.json({
+        success: false,
+        error: 'Location not found'
+      });
+      
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Geocoding service error'
+      });
+    }
+  });
+
   // Market pricing intelligence endpoint
   app.get('/api/market-pricing/:communityId', async (req, res) => {
     try {

@@ -31,26 +31,16 @@ export async function geocodeWithNominatim(location: string): Promise<{ lat: num
       return geocodeCache.get(cacheKey)!;
     }
 
-    // Build query - add country hints for better results
+    // Build query - keep original for international searches
     let query = location;
     const normalized = location.toLowerCase();
-    
-    // If no country specified, add US as default for better results
-    if (!normalized.includes('usa') && !normalized.includes('united states') && 
-        !normalized.includes('canada') && !normalized.includes('mexico')) {
-      // Check if it looks like a US state abbreviation
-      const hasStateCode = /\b[A-Z]{2}\b/.test(location);
-      if (hasStateCode || normalized.includes(', ')) {
-        query = `${location}, USA`;
-      }
-    }
 
     // Nominatim API endpoint (free, no key required)
     const url = new URL('https://nominatim.openstreetmap.org/search');
     url.searchParams.append('q', query);
     url.searchParams.append('format', 'json');
     url.searchParams.append('limit', '1');
-    url.searchParams.append('countrycodes', 'us,ca,mx'); // Limit to North America
+    // No country restriction - allow worldwide geocoding
     
     console.log(`🔍 Geocoding via Nominatim: ${query}`);
     
@@ -111,7 +101,7 @@ export async function searchCitySuggestions(query: string, limit: number = 5): P
     url.searchParams.append('q', query);
     url.searchParams.append('format', 'json');
     url.searchParams.append('limit', limit.toString());
-    url.searchParams.append('countrycodes', 'us,ca,mx'); // North America only
+    // No country restriction - allow worldwide search
     url.searchParams.append('featuretype', 'city'); // Cities only
     
     const response = await fetch(url.toString(), {
