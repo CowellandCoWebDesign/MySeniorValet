@@ -149,11 +149,20 @@ VERIFICATION CHECK:
 - Location must be: ${location}
 
 IF FOUND, provide:
-1. CONTACT:
+1. CONTACT (CRITICAL ACCURACY REQUIREMENTS):
    - Official website URL (full URL including https://)
-   - Main phone number (formatted as XXX-XXX-XXXX)
+   - Phone number: ONLY extract from the official website domain. DO NOT use phone numbers from:
+     • aplaceformom.com (these are call center numbers)
+     • caring.com (these are referral service numbers)
+     • senioradvisor.com (these are advisor numbers)
+     • seniorly.com, assistedliving.org, nursinghomes.com
+     • memorycare.com, boomershub.com, goldenageseniorliving.com
+     • Any directory or advisor site
+   - If the official website shows a phone number, use that EXACT number
+   - Format phone as XXX-XXX-XXXX
+   - If NO phone found on official website, state: "Phone: Not found on official website"
    - Complete street address with zip code
-   - Email address if available
+   - Email address if available from official website ONLY
 
 2. PRICING (provide specific numbers when available):
    - Assisted Living monthly cost range (e.g., $3,500-$5,000)
@@ -204,14 +213,21 @@ If "${communityName}" is not found exactly, still provide all the market data an
             {
               role: 'system',
               content: `You are a comprehensive senior living market analyst providing detailed market research.
-Your goal is to provide valuable market data and analysis, not just exact matches.
+Your goal is to provide valuable market data and analysis with ACCURATE contact information.
+
+CRITICAL CONTACT INFORMATION POLICY:
+⚠️ ONLY extract phone numbers from the community's OFFICIAL WEBSITE
+⚠️ NEVER use phone numbers from advisor/directory sites (aplaceformom.com, caring.com, etc.)
+⚠️ These advisor numbers go to call centers, NOT the actual community
+⚠️ If you find the official website, search THAT SITE for the phone number
+⚠️ If no phone found on official site, report "Phone: Not found on official website"
 
 IMPORTANT: 
 1. Search for the requested community AND provide comprehensive market analysis
-2. If the exact community isn't found, still provide valuable market data for the area
+2. First identify the OFFICIAL website, then extract contact info from THAT domain only
 3. Include ALL senior living communities found in the specified location
-4. Provide actual pricing ranges, not just "Contact for pricing"
-5. Extract real data from your sources - websites, phone numbers, addresses
+4. Provide actual pricing ranges when available
+5. Extract real data from official sources only - no advisor site phone numbers
 6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://`
             },
             {
@@ -783,9 +799,58 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
   }
 
   private extractPhone(content: string): string | undefined {
-    const match = content.match(/(?:phone|tel|call):\s*([\d-().\s]+)/i) ||
-                  content.match(/\b(\d{3}[-.)]\s*\d{3}[-.\s]?\d{4})\b/);
-    return match ? match[1].trim() : undefined;
+    // List of advisor/directory sites whose phone numbers we should reject
+    const advisorSites = [
+      'aplaceformom.com', 'caring.com', 'senioradvisor.com', 'seniorly.com',
+      'assistedliving.org', 'nursinghomes.com', 'memorycare.com',
+      'boomershub.com', 'goldenageseniorliving.com', 'seniorhousingnet.com',
+      'seniorliving.org', 'seniorcarecentersearch.com'
+    ];
+    
+    // Look for phone numbers in the content
+    const phonePatterns = [
+      /(?:phone|tel|call):\s*([\d-().\s]+)/i,
+      /\b(\d{3}[-.)]\s*\d{3}[-.\s]?\d{4})\b/
+    ];
+    
+    for (const pattern of phonePatterns) {
+      const matches = content.matchAll(new RegExp(pattern, 'g'));
+      for (const match of matches) {
+        const phone = match[1].trim();
+        
+        // Get context around the phone number (100 chars before and after)
+        const matchIndex = match.index || 0;
+        const contextStart = Math.max(0, matchIndex - 100);
+        const contextEnd = Math.min(content.length, matchIndex + match[0].length + 100);
+        const context = content.substring(contextStart, contextEnd).toLowerCase();
+        
+        // Check if this phone number is associated with an advisor site
+        let isAdvisorNumber = false;
+        for (const site of advisorSites) {
+          if (context.includes(site)) {
+            console.log(`  ⚠️ Rejecting phone ${phone} - associated with advisor site ${site}`);
+            isAdvisorNumber = true;
+            break;
+          }
+        }
+        
+        // Also check for explicit mention that it's NOT on the official website
+        if (context.includes('not found on official') || 
+            context.includes('not available on official')) {
+          console.log(`  ⚠️ Phone number explicitly marked as not from official website`);
+          return undefined;
+        }
+        
+        // If it's not from an advisor site, return it
+        if (!isAdvisorNumber) {
+          console.log(`  ✅ Found valid phone number: ${phone}`);
+          return phone;
+        }
+      }
+    }
+    
+    // No valid phone number found
+    return undefined;
   }
 
   private extractAddress(content: string): string | undefined {
