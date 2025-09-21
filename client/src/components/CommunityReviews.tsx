@@ -62,8 +62,10 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const [sortBy, setSortBy] = useState<string>('recent');
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(new Set());
-  const [lastPerplexityUpdate, setLastPerplexityUpdate] = useState<string | null>(null);
-  const [perplexityCitations, setPerplexityCitations] = useState<string[]>([]);
+  const [lastGrokUpdate, setLastGrokUpdate] = useState<string | null>(null);
+  const [grokCitations, setGrokCitations] = useState<string[]>([]);
+  const [perspectiveAnalysis, setPerspectiveAnalysis] = useState<string>('');
+  const [comparativeInsights, setComparativeInsights] = useState<string>('');
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
   const [inspectionData, setInspectionData] = useState<any>(null);
   const [inspectionLoading, setInspectionLoading] = useState(false);
@@ -95,10 +97,12 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         duration: 3000
       });
       
-      // Update local state with Perplexity data
+      // Update local state with Grok data
       if (data.data) {
-        setLastPerplexityUpdate(data.data.lastUpdated);
-        setPerplexityCitations(data.data.sources || []);
+        setLastGrokUpdate(data.data.lastUpdated);
+        setGrokCitations(data.data.sources || []);
+        setPerspectiveAnalysis(data.data.perspectiveAnalysis || '');
+        setComparativeInsights(data.data.comparativeInsights || '');
       }
       
       // Invalidate queries to refresh the data
@@ -149,15 +153,13 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // DISABLED: Automatic fetching of external reviews to prevent excessive API costs
-  // Reviews should only be fetched when user manually clicks "Refresh Reviews" button
+  // AUTO-FETCH: Grok reviews load automatically when Reviews tab is clicked
   useEffect(() => {
     if (!hasInitiallyFetched && community?.id) {
       setHasInitiallyFetched(true);
-      // DISABLED: Don't auto-fetch reviews from Perplexity to save API costs
-      // Users can manually click "Refresh Reviews" button if they want updated reviews
-      console.log('ℹ️ Auto-fetch of external reviews disabled. Use "Refresh Reviews" button to fetch manually.');
-      // fetchExternalReviewsMutation.mutate(); // DISABLED
+      // Auto-fetch reviews from Grok for Comparison in Perspective
+      console.log('🤖 Grok: Auto-fetching reviews with comparative perspective...');
+      fetchExternalReviewsMutation.mutate();
     }
   }, [community?.id, hasInitiallyFetched]);
 
@@ -865,7 +867,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">
                     <Sparkles className="h-3 w-3 inline mr-1" />
-                    Inspection data powered by Perplexity AI • Sources:
+                    Inspection data powered by Grok AI • Sources:
                   </p>
                   <div className="flex flex-wrap gap-1">
                     {inspectionCitations.map((citation, index) => {
@@ -919,29 +921,39 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         </CardContent>
       </Card>
 
-      {/* Perplexity AI Info Bar */}
-      {(lastPerplexityUpdate || perplexityCitations.length > 0) && (
-        <Card className="border-purple-200 bg-purple-50 dark:bg-purple-950/20 dark:border-purple-800">
+      {/* Grok AI Comparison in Perspective Info Bar */}
+      {(lastGrokUpdate || grokCitations.length > 0 || perspectiveAnalysis) && (
+        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 dark:border-blue-800">
           <CardContent className="pt-4">
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                <span className="text-sm font-medium text-purple-900 dark:text-purple-300">
-                  Powered by Perplexity AI
+                <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-sm font-medium text-blue-900 dark:text-blue-300">
+                  Powered by Grok AI - Comparison in Perspective
                 </span>
-                {lastPerplexityUpdate && (
-                  <span className="text-xs text-purple-700 dark:text-purple-400">
-                    • Last updated: {formatDistanceToNow(new Date(lastPerplexityUpdate))} ago
+                {lastGrokUpdate && (
+                  <span className="text-xs text-blue-700 dark:text-blue-400">
+                    • Last updated: {formatDistanceToNow(new Date(lastGrokUpdate))} ago
                   </span>
                 )}
               </div>
             </div>
             
-            {perplexityCitations.length > 0 && (
+            {/* Show Comparative Perspective Analysis if available */}
+            {(perspectiveAnalysis || comparativeInsights) && (
+              <div className="mb-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
+                <h4 className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">📊 Comparative Perspective:</h4>
+                <p className="text-xs text-gray-700 dark:text-gray-300">
+                  {comparativeInsights || perspectiveAnalysis}
+                </p>
+              </div>
+            )}
+            
+            {grokCitations.length > 0 && (
               <div className="mt-2">
-                <p className="text-xs text-purple-700 dark:text-purple-400 mb-1">Sources:</p>
+                <p className="text-xs text-blue-700 dark:text-blue-400 mb-1">Sources:</p>
                 <div className="flex flex-wrap gap-1">
-                  {perplexityCitations.slice(0, 5).map((citation, index) => {
+                  {grokCitations.slice(0, 5).map((citation: string, index: number) => {
                     // Extract domain name from URL
                     let sourceName = `Source ${index + 1}`;
                     try {
@@ -978,7 +990,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                         href={citation}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300 underline"
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
                         data-testid={`link-citation-${index}`}
                       >
                         <Link2 className="h-3 w-3" />
@@ -986,9 +998,9 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                       </a>
                     );
                   })}
-                  {perplexityCitations.length > 5 && (
-                    <span className="text-xs text-purple-600 dark:text-purple-400">
-                      +{perplexityCitations.length - 5} more
+                  {grokCitations.length > 5 && (
+                    <span className="text-xs text-blue-600 dark:text-blue-400">
+                      +{grokCitations.length - 5} more
                     </span>
                   )}
                 </div>
