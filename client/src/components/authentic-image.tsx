@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import valetMascot from '@/assets/valet-mascot.png';
 
 interface AuthenticPhoto {
   photoReference: string;
@@ -32,7 +33,7 @@ export function AuthenticImage({
   width = 1200,
   height = 600,
   alt = "Senior living community",
-  fallback = '/hero-senior-community.svg',
+  fallback = valetMascot,
   photoIndex = 0
 }: AuthenticImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false);

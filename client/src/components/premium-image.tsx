@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import valetMascot from '@/assets/valet-mascot.png';
 
 interface UnsplashImage {
   id: string;
@@ -43,7 +44,7 @@ export function PremiumImage({
   width = 1200,
   height = 600,
   alt = "Premium senior living community",
-  fallback = '/hero-senior-community.svg'
+  fallback = valetMascot
 }: PremiumImageProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);

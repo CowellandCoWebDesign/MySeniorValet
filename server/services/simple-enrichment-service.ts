@@ -340,71 +340,14 @@ export class SimpleEnrichmentService {
   
   /**
    * Generate realistic directory photos when scraping fails
+   * Note: DISABLED - We do not generate fake directory photos anymore
+   * These URLs don't actually exist and result in broken images or stock photos
+   * Only real scraped photos should be used
    */
   private generateDirectoryPhotos(communityName: string, sources: string[]): any[] {
-    const photos = [];
-    const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-    
-    // Check if any directory sites are in sources
-    for (const source of sources) {
-      const sourceLower = source.toLowerCase();
-      
-      if (sourceLower.includes('caring.com')) {
-        photos.push(
-          {
-            url: `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/${communitySlug}/exterior.jpg`,
-            source: 'caring.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/${communitySlug}/lobby.jpg`,
-            source: 'caring.com',
-            isAuthentic: true
-          }
-        );
-      } else if (sourceLower.includes('seniorhomes.com')) {
-        photos.push(
-          {
-            url: `https://images.seniorhomes.com/photos/${communitySlug}/front-entrance.jpg`,
-            source: 'seniorhomes.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://images.seniorhomes.com/photos/${communitySlug}/dining-room.jpg`,
-            source: 'seniorhomes.com',
-            isAuthentic: true
-          }
-        );
-      } else if (sourceLower.includes('seniorly.com')) {
-        photos.push(
-          {
-            url: `https://images.seniorly.com/community-photos/${communitySlug}-exterior.webp`,
-            source: 'seniorly.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://images.seniorly.com/community-photos/${communitySlug}-common.webp`,
-            source: 'seniorly.com',
-            isAuthentic: true
-          }
-        );
-      } else if (sourceLower.includes('aplaceformom.com')) {
-        photos.push(
-          {
-            url: `https://images.aplaceformom.com/communities/${communitySlug}/exterior.jpg`,
-            source: 'aplaceformom.com',
-            isAuthentic: true
-          },
-          {
-            url: `https://images.aplaceformom.com/communities/${communitySlug}/interior.jpg`,
-            source: 'aplaceformom.com',
-            isAuthentic: true
-          }
-        );
-      }
-    }
-    
-    return photos;
+    // DO NOT generate fake photo URLs - return empty array
+    console.log('⚠️ Photo generation from directory sites is disabled - only real photos will be used');
+    return [];
   }
   
   /**

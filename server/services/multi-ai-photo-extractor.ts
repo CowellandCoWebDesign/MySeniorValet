@@ -351,26 +351,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
         foundDirectorySites++;
         console.log(`✅ Found ${directory.name} mentioned in content`);
         
-        // For each mentioned directory site, add photo candidates
-        directory.photoPatterns.forEach((photoPattern, photoIndex) => {
-          // Create a realistic photo URL for this community
-          const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
-          const photoUrl = `${photoPattern}?community=${communitySlug}&index=${photoIndex}`;
-          
-          photos.push({
-            url: photoUrl,
-            source: `${directory.name} Gallery`,
-            confidence: 0.75,
-            isAuthentic: true,
-            reason: `Generated from ${directory.name} directory listing in Perplexity results`
-          });
-        });
+        // DO NOT generate fake photo URLs - these are not real photos
+        // Instead, just log that this directory was found
+        console.log(`⚠️ ${directory.name} mentioned but cannot generate real photo URLs`);
       }
     }
 
     if (foundDirectorySites > 0) {
       console.log(`✅ Found ${foundDirectorySites} directory sites mentioned in content`);
-      console.log(`📸 Created ${photos.length} photo candidates from directory sites`);
+      console.log(`⚠️ Note: Directory sites were mentioned but no real photos can be extracted without actual web scraping`);
     } else {
       console.log(`⚠️ No directory sites found in Perplexity content`);
       // Log key phrases to help debug what content we're getting
