@@ -62,11 +62,60 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const [sortBy, setSortBy] = useState<string>('recent');
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(new Set());
-  const [lastGrokUpdate, setLastGrokUpdate] = useState<string | null>(null);
   const [grokCitations, setGrokCitations] = useState<string[]>([]);
-  const [perspectiveAnalysis, setPerspectiveAnalysis] = useState<string>('');
-  const [comparativeInsights, setComparativeInsights] = useState<string>('');
-  const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
+  
+  // Query to fetch cached Grok analysis
+  const { data: grokAnalysis } = useQuery({
+    queryKey: ['/api/communities', community.id, 'grok-analysis'],
+    queryFn: async () => {
+      // Try to get from localStorage first for instant display
+      const cacheKey = `grok_analysis_${community.id}`;
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        try {
+          const parsed = JSON.parse(cached);
+          // Check if cache is less than 12 hours old
+          const age = Date.now() - parsed.timestamp;
+          if (age < 12 * 60 * 60 * 1000) {
+            return parsed.data;
+          }
+        } catch (e) {
+          console.error('Failed to parse cached data:', e);
+        }
+      }
+      
+      // Fetch from server
+      try {
+        const response = await fetch(`/api/communities/${community.id}/reviews/analysis`);
+        if (response.status === 204 || !response.ok) {
+          return null; // No cached data available
+        }
+        const data = await response.json();
+        
+        // Store in localStorage
+        if (data && data.success) {
+          localStorage.setItem(cacheKey, JSON.stringify({
+            data,
+            timestamp: Date.now()
+          }));
+        }
+        
+        return data;
+      } catch (error) {
+        console.error('Failed to fetch cached analysis:', error);
+        return null;
+      }
+    },
+    enabled: !!community?.id,
+    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
+    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
+    retry: false
+  });
+
+  // Derive values from query data
+  const lastGrokUpdate = grokAnalysis?.lastUpdated || null;
+  const perspectiveAnalysis = grokAnalysis?.perspectiveAnalysis || '';
+  const comparativeInsights = grokAnalysis?.comparativeInsights || '';
   const [inspectionData, setInspectionData] = useState<any>(null);
   const [inspectionLoading, setInspectionLoading] = useState(false);
   const [inspectionCitations, setInspectionCitations] = useState<string[]>([]);
@@ -81,12 +130,12 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // Mutation to fetch external reviews from Perplexity
+  // Mutation to fetch fresh external reviews from Grok (with force refresh)
   const fetchExternalReviewsMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest(
         'POST',
-        `/api/communities/${community.id}/reviews/fetch-external`
+        `/api/communities/${community.id}/reviews/fetch-external?force=true`
       );
       return response;
     },
@@ -97,15 +146,19 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         duration: 3000
       });
       
-      // Update local state with Grok data
+      // Update localStorage and citations
       if (data.data) {
-        setLastGrokUpdate(data.data.lastUpdated);
+        const cacheKey = `grok_analysis_${community.id}`;
+        localStorage.setItem(cacheKey, JSON.stringify({
+          data: data.data,
+          timestamp: Date.now()
+        }));
+        
         setGrokCitations(data.data.sources || []);
-        setPerspectiveAnalysis(data.data.perspectiveAnalysis || '');
-        setComparativeInsights(data.data.comparativeInsights || '');
       }
       
       // Invalidate queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'grok-analysis'] });
       queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'reviews'] });
     },
@@ -153,15 +206,12 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // AUTO-FETCH: Grok reviews load automatically when Reviews tab is clicked
+  // Update citations when grokAnalysis changes
   useEffect(() => {
-    if (!hasInitiallyFetched && community?.id) {
-      setHasInitiallyFetched(true);
-      // Auto-fetch reviews from Grok for Comparison in Perspective
-      console.log('🤖 Grok: Auto-fetching reviews with comparative perspective...');
-      fetchExternalReviewsMutation.mutate();
+    if (grokAnalysis?.sources) {
+      setGrokCitations(grokAnalysis.sources);
     }
-  }, [community?.id, hasInitiallyFetched]);
+  }, [grokAnalysis]);
 
   // Extract external reviews from community data
   const externalReviews = useMemo(() => {
