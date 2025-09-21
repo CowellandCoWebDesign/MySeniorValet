@@ -747,8 +747,10 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                         Information found about this specific community:
                       </p>
                       
-                      {/* Show description from web intelligence if available */}
-                      {webIntelligenceDescription && (
+                      {/* Show description from web intelligence if available - FILTER OUT CLAUDE AI LABELS */}
+                      {webIntelligenceDescription && 
+                       !webIntelligenceDescription.includes('Claude AI Analysis') && 
+                       !webIntelligenceDescription.includes('Note: Real-time data not available') && (
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
                           <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
                             {webIntelligenceDescription}
