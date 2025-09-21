@@ -162,6 +162,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
 
         console.log(`📊 Found ${comparableCommunities.length} competitive communities in ${community.city}`);
         console.log(`💰 Market pricing: Average $${averageRent}/mo, Range: $${minRent}-$${maxRent}/mo`);
+        console.log(`📞 Contact Info: Phone=${intelligence.phone || 'not found'}, Website=${intelligence.officialWebsite || 'not found'}`);
 
         // Transform intelligence data to match frontend expectations
         const transformedData = {
@@ -169,6 +170,16 @@ router.post('/api/competitive-analysis', async (req, res) => {
           communityId,
           communityName: community.name,
           location: `${community.city}, ${community.state}`,
+          
+          // Add contact information in the structure frontend expects
+          contactInformation: {
+            extracted: {
+              phone: intelligence.phone || null,
+              email: intelligence.email || null,
+              website: intelligence.officialWebsite || community.website || null,
+              address: intelligence.address || community.address || null
+            }
+          },
           
           // Add expected fields for market analysis with real data
           averageMonthlyRent: averageRent || intelligence.pricing?.assistedLiving || 
