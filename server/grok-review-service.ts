@@ -93,7 +93,7 @@ Provide real, working URLs not placeholders.`;
           }
         ],
         temperature: 0.7,
-        max_tokens: 4000
+        max_tokens: 8000  // Increased to ensure full response
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -218,10 +218,16 @@ Provide real, working URLs not placeholders.`;
     let perspectiveAnalysis = '';
     let comparativeInsights = '';
     
-    // Try to find the FINAL PERSPECTIVE section
-    const perspectiveMatch = content.match(/FINAL PERSPECTIVE[:\s]*SYNTHESIS[:\s]*([\s\S]*?)(?=\n\n|$)/i);
+    // Try to find the FINAL PERSPECTIVE section - capture everything until Sources or end
+    const perspectiveMatch = content.match(/FINAL PERSPECTIVE(?:\s*SYNTHESIS)?[:\s]*([\s\S]*?)(?=\n(?:Sources?:|URLs?:|\*\*Sources?\*\*|Google|Yelp|Care\.com|SeniorAdvisor|A Place for Mom|Facebook)|$)/i);
     if (perspectiveMatch) {
       perspectiveAnalysis = perspectiveMatch[1].trim();
+    } else {
+      // Fallback: if no match, use the entire content after FINAL PERSPECTIVE
+      const fallbackMatch = content.match(/FINAL PERSPECTIVE[:\s]*([\s\S]*)/i);
+      if (fallbackMatch) {
+        perspectiveAnalysis = fallbackMatch[1].trim();
+      }
     }
     
     // For comparative insights, get EVERYTHING after key phrases
@@ -301,7 +307,7 @@ Format with clear sections and include source URLs.`;
           }
         ],
         temperature: 0.5,
-        max_tokens: 2000
+        max_tokens: 4000  // Increased for fuller inspection data
       });
 
       const content = response.choices[0]?.message?.content || '';
