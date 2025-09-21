@@ -2890,7 +2890,7 @@ export default function CommunityDetail() {
               </TabsContent>
               
               {/* Reviews Tab Content - Direct child of main tabs */}
-              <TabsContent value="reviews" className="space-y-6 mt-6">
+              <TabsContent value="reviews" className="space-y-6 mt-6 overflow-visible">
                 <CommunityReviews 
                   community={community} 
                   currentUserId={undefined}

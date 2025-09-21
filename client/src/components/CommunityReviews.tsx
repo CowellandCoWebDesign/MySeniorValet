@@ -616,7 +616,7 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         <CardContent>
           {/* Grok AI Comparative Analysis - Prominently displayed at top */}
           {(lastGrokUpdate || grokCitations.length > 0 || perspectiveAnalysis || comparativeInsights || fetchExternalReviewsMutation.isPending) && (
-            <div className="border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 dark:border-blue-600 rounded-lg p-4 mb-6">
+            <div className="border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 dark:border-blue-600 rounded-lg p-4 mb-6 overflow-visible max-h-none">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 animate-pulse" />
@@ -665,14 +665,14 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
               
               {/* Comparative Analysis Content */}
               {(perspectiveAnalysis || comparativeInsights) && (
-                <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4">
+                <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4 overflow-visible">
                   <h4 className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-3 flex items-center gap-2">
                     📊 Comparative Analysis Results:
                   </h4>
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                  <div className="max-w-none overflow-visible">
+                    <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap break-words overflow-visible">
                       {comparativeInsights || perspectiveAnalysis}
-                    </p>
+                    </div>
                   </div>
                 </div>
               )}
