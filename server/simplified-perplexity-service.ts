@@ -122,92 +122,30 @@ export class SimplifiedPerplexityService {
   }
 
   /**
-   * Step 1: Enhanced query to Perplexity for comprehensive community information
+   * Step 1: Simple, effective query to Perplexity for community information
    */
   async findExactCommunity(
     communityName: string, 
     location: string
   ): Promise<CommunityIntelligence> {
-    console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
+    console.log(`🔍 Perplexity search for: ${communityName} in ${location}`);
     
-    // Try to construct likely official website URL
-    const possibleDomain = communityName.toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '')
-      .trim();
-    
-    // Enhanced query with official website targeting
-    const query = `PRIORITY 1 - OFFICIAL WEBSITE SEARCH:
-First, search for the OFFICIAL website of "${communityName}" in ${location}.
-Try these patterns:
-- ${possibleDomain}.com
-- ${possibleDomain}seniorliving.com  
-- ${communityName.toLowerCase().replace(/\s+/g, '')}.com
-- Search: "${communityName}" ${location} official website
-- Check Google Business listings for official website
+    // Simple, natural query that Perplexity can understand and search effectively
+    const query = `Find comprehensive information about "${communityName}" senior living community in ${location}.
 
-If you find the official website, extract ALL contact information from THAT site only.
+Include:
+1. Official website URL
+2. Direct phone number and full address from the official website (not from referral sites like A Place for Mom or Caring.com)
+3. Current pricing for different care levels if available
+4. Care services offered (Independent Living, Assisted Living, Memory Care, etc.)
+5. Key amenities and features
+6. Recent reviews and ratings from multiple sources
+7. Ownership or management company
+8. Market comparison - list other senior communities in ${location} with pricing
 
-Then find information about senior living community named EXACTLY "${communityName}" in ${location}.
+Provide a detailed narrative summary with all findings. Include source citations.
 
-CRITICAL ACCURACY REQUIREMENT:
-⚠️ ONLY provide information if the community name is EXACTLY "${communityName}"
-⚠️ DO NOT provide information about communities with similar but different names
-⚠️ If searching for "Hilltop Estates", DO NOT give information about "Hilltop Springs" or other variations
-⚠️ If the exact community "${communityName}" cannot be found, clearly state it was not found
-
-VERIFICATION CHECK:
-- Community name must be: "${communityName}" (exact match)
-- Location must be: ${location}
-
-IF FOUND, provide:
-1. CONTACT (CRITICAL ACCURACY REQUIREMENTS):
-   - Official website URL (full URL including https://)
-   - Phone number: ONLY extract from the official website domain. DO NOT use phone numbers from:
-     • aplaceformom.com (these are call center numbers)
-     • caring.com (these are referral service numbers)
-     • senioradvisor.com (these are advisor numbers)
-     • seniorly.com, assistedliving.org, nursinghomes.com
-     • memorycare.com, boomershub.com, goldenageseniorliving.com
-     • Any directory or advisor site
-   - If the official website shows a phone number, use that EXACT number
-   - Format phone as XXX-XXX-XXXX
-   - If NO phone found on official website, state: "Phone: Not found on official website"
-   - Complete street address with zip code
-   - Email address if available from official website ONLY
-
-2. PRICING (provide specific numbers when available):
-   - Assisted Living monthly cost range (e.g., $3,500-$5,000)
-   - Memory Care monthly cost range
-   - Independent Living monthly cost range
-   - Any entrance fees or deposits
-   - Note if pricing includes meals, utilities, etc.
-
-3. CARE SERVICES:
-   - All care levels offered (Assisted Living, Memory Care, Independent Living, Skilled Nursing)
-   - Specialized programs (dementia care, respite care, hospice)
-   - Medical services available on-site
-
-4. AMENITIES & FEATURES:
-   - Dining options (restaurant-style, private dining, etc.)
-   - Activities and recreation programs
-   - Transportation services
-   - Pet policy
-   - Room types (studio, 1-bedroom, 2-bedroom)
-
-5. FACILITY DETAILS:
-   - Year established
-   - Number of units/beds
-   - Accreditations or certifications
-   - Parent company or management group
-
-ALSO INCLUDE:
-- Market analysis for ${location} area
-- List of 5-10 comparable communities in the area with their pricing
-- Average market rates for different care levels
-- Market trends and insights
-
-If "${communityName}" is not found exactly, still provide all the market data and comparable communities.`;
+If you cannot find "${communityName}" exactly, say "Not found" and list similar communities in the area.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -217,47 +155,26 @@ If "${communityName}" is not found exactly, still provide all the market data an
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective community search
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
+          model: 'sonar-pro', // Use pro model for better quality
           messages: [
             {
               role: 'system',
-              content: `You are a comprehensive senior living market analyst providing detailed market research.
-Your goal is to provide valuable market data and analysis with ACCURATE contact information.
-
-CRITICAL CONTACT INFORMATION POLICY:
-⚠️ ONLY extract phone numbers from the community's OFFICIAL WEBSITE
-⚠️ NEVER use phone numbers from advisor/directory sites (aplaceformom.com, caring.com, etc.)
-⚠️ These advisor numbers go to call centers, NOT the actual community
-⚠️ If you find the official website, search THAT SITE for the phone number
-⚠️ If no phone found on official site, report "Phone: Not found on official website"
-
-IMPORTANT: 
-1. Search for the requested community AND provide comprehensive market analysis
-2. First identify the OFFICIAL website, then extract contact info from THAT domain only
-3. Include ALL senior living communities found in the specified location
-4. Provide actual pricing ranges when available
-5. Extract real data from official sources only - no advisor site phone numbers
-6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://`
+              content: `You are a helpful web researcher specializing in senior living communities. Provide comprehensive, accurate information with source citations. When finding contact information, always prefer the community's official website over referral sites.`
             },
             {
               role: 'user',
               content: query
             }
           ],
-          temperature: 0.1, // Lower for more consistent extraction
-          max_tokens: 2000, // Increased for more comprehensive responses
+          temperature: 0.2, // Slightly higher for more natural responses
+          max_tokens: 1500, // Reasonable length for quality responses
           stream: false,
           return_citations: true,
-          return_images: false,
+          return_images: true,
           return_related_questions: false,
-          search_recency_filter: "month",
-          search_domain_filter: [], // Remove restrictions to get more sources
-          top_k: 10, // Get more results
-          presence_penalty: 0,
-          frequency_penalty: 0.5
+          // Remove search_recency_filter to get all relevant information
+          search_domain_filter: [], // No restrictions
+          top_k: 5 // Focus on top quality sources
         })
       });
 
@@ -410,22 +327,15 @@ IMPORTANT:
   async findNearbyOptions(location: string): Promise<CommunityIntelligence> {
     console.log(`🗺️ Searching for communities near: ${location}`);
 
-    const query = `List ALL senior living communities in ${location}.
+    const query = `List senior living communities (assisted living, independent living, memory care) in ${location}.
 
-CRITICAL: Provide a NUMBERED LIST of actual community names. Format EXACTLY like this:
+For each community, include:
+- Name and address
+- Care types offered
+- Pricing if available
+- Brief description
 
-1. Community Name Here - Address if available
-2. Another Community Name - Address  
-3. Third Community Name - Address
-
-Include:
-- At least 20-30 communities if available
-- Focus on community NAMES, not descriptions
-- Include assisted living, independent living, memory care, nursing homes
-- Include major chains like Brookdale, Sunrise, Atria, Holiday, etc.
-- Include local communities too
-
-DO NOT provide general descriptions. ONLY list actual community names.`;
+Focus on real, specific communities with factual information and source citations.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -436,22 +346,23 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
         },
         body: JSON.stringify({
           model: 'sonar', // Standard model for cost-effective nearby search
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
           messages: [
+            {
+              role: 'system',
+              content: 'You are a helpful researcher providing accurate information about senior living communities.'
+            },
             {
               role: 'user',
               content: query
             }
           ],
-          temperature: 0.2,
-          max_tokens: 1000,
+          temperature: 0.3,
+          max_tokens: 1200,
           stream: false,
           return_citations: true,
-          return_images: false,
+          return_images: true,
           return_related_questions: false,
-          search_recency_filter: "month"
+          top_k: 5
         })
       });
 
