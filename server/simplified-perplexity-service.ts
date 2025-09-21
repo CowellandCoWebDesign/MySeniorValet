@@ -148,6 +148,12 @@ VERIFICATION CHECK:
 - Community name must be: "${communityName}" (exact match)
 - Location must be: ${location}
 
+PLEASE STRUCTURE YOUR RESPONSE AS FOLLOWS:
+
+=== REQUESTED COMMUNITY ===
+Community Name: [exact name found or "NOT FOUND"]
+Match Status: ["EXACT MATCH" or "NOT FOUND" or "SIMILAR BUT DIFFERENT"]
+
 IF FOUND, provide:
 1. CONTACT:
    - Official website URL (full URL including https://)
@@ -180,13 +186,24 @@ IF FOUND, provide:
    - Accreditations or certifications
    - Parent company or management group
 
-ALSO INCLUDE:
-- Market analysis for ${location} area
-- List of 5-10 comparable communities in the area with their pricing
-- Average market rates for different care levels
+=== OTHER COMMUNITIES FOUND IN ${location} ===
+[List each community with clear separation]
+1. Community Name: [exact name]
+   - Phone: [XXX-XXX-XXXX format]
+   - Website: [full URL]
+   - Address: [full address]
+
+2. Community Name: [exact name]
+   - Phone: [XXX-XXX-XXXX format]
+   - Website: [full URL]
+   - Address: [full address]
+
+=== MARKET ANALYSIS ===
+- Average pricing for Assisted Living in ${location}
+- Average pricing for Memory Care in ${location}
 - Market trends and insights
 
-If "${communityName}" is not found exactly, still provide all the market data and comparable communities.`;
+IMPORTANT: Each community must be clearly labeled with its EXACT name. Never mix data between communities.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
