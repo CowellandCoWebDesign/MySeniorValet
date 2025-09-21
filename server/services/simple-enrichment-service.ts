@@ -214,13 +214,39 @@ export class SimpleEnrichmentService {
     const candidates: CommunityCandidate[] = [];
     
     // First, check for structured Perplexity response format with **OFFICIAL WEBSITE:** and **CONTACT INFORMATION:**
-    const websiteMatch = searchText.match(/\*\*OFFICIAL WEBSITE:\*\*\s*([^\n]+)/i);
-    const phoneMatch = searchText.match(/Phone(?:\s*\(main\))?:\s*\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/i);
+    // Handle multiple formats - website URL might be on the next line or after colon
+    const websiteSection = searchText.match(/\*\*OFFICIAL WEBSITE:\*\*[:\s]*([^\n]*(?:\n[^\*\n][^\n]*)?)/i);
+    let website: string | undefined;
+    if (websiteSection) {
+      const websiteText = websiteSection[1].trim();
+      // Extract URL from the text - could be standalone or embedded
+      const urlMatch = websiteText.match(/(https?:\/\/[^\s\[\]()]+|www\.[^\s\[\]()]+\.[a-z]{2,}[^\s\[\]()]*)/i);
+      if (urlMatch) {
+        website = urlMatch[1].trim();
+      }
+    }
+    
+    // Look for phone in multiple formats including **CONTACT INFORMATION:** section
+    const contactSection = searchText.match(/\*\*CONTACT INFORMATION:\*\*[:\s]*([^\*]+)/i);
+    let phone: string | undefined;
+    if (contactSection) {
+      const contactText = contactSection[1];
+      // Updated regex to handle formats like "- Phone (main): (530) 241-4444[1]"
+      const phoneMatch = contactText.match(/[-•]?\s*Phone[^:]*:[:\s]*\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/i);
+      if (phoneMatch) {
+        phone = `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}`;
+      }
+    }
+    // Also try a simpler phone pattern if no contact section found
+    if (!phone) {
+      const phoneMatch = searchText.match(/Phone[^:]*:[:\s]*\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/i);
+      if (phoneMatch) {
+        phone = `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}`;
+      }
+    }
     
     // If we find structured data, use it directly
-    if ((websiteMatch || phoneMatch) && searchText.toLowerCase().includes(targetName.toLowerCase())) {
-      let website = websiteMatch ? websiteMatch[1].trim() : undefined;
-      let phone = phoneMatch ? `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}` : undefined;
+    if ((website || phone) && searchText.toLowerCase().includes(targetName.toLowerCase())) {
       
       // Clean up website URL
       if (website) {
@@ -346,12 +372,13 @@ export class SimpleEnrichmentService {
   }> {
     console.log(`📊 Phase 2: Extracting verified data for "${verifiedCandidate.name}"`);
     
-    let confidence = 0.5; // Base confidence
+    let confidence = 0.6; // Base confidence - start higher for verified candidates
     
     // Website validation
     let verifiedWebsite = verifiedCandidate.website;
     if (verifiedWebsite && !this.isDirectorySite(verifiedWebsite)) {
       confidence += 0.2;
+      console.log(`✅ Official website found: ${verifiedWebsite}`);
     } else {
       verifiedWebsite = undefined;
     }
@@ -363,17 +390,24 @@ export class SimpleEnrichmentService {
       if (this.isTollFreeNumber(verifiedPhone)) {
         console.log(`❌ Rejecting toll-free number ${verifiedPhone} - likely directory service`);
         verifiedPhone = undefined;
-        confidence -= 0.2; // Lower confidence for having a directory number
+        confidence -= 0.1; // Small penalty for having a directory number
       } else {
         // Count how many sources mention this phone number
         const phoneOccurrences = (searchText.match(new RegExp(verifiedPhone.replace(/[^\d]/g, '\\D*'), 'g')) || []).length;
         
-        if (phoneOccurrences >= 2 || (verifiedWebsite && sources.some(s => s.includes(this.extractDomain(verifiedWebsite))))) {
+        // If we have structured data (from **CONTACT INFORMATION:**), trust it more
+        const hasStructuredData = searchText.includes('**CONTACT INFORMATION:**') || searchText.includes('**OFFICIAL WEBSITE:**');
+        
+        if (hasStructuredData || phoneOccurrences >= 2 || (verifiedWebsite && sources.some(s => s.includes(this.extractDomain(verifiedWebsite))))) {
           confidence += 0.2;
           console.log(`✅ Phone ${verifiedPhone} verified (${phoneOccurrences} occurrences, not toll-free)`);
+        } else if (phoneOccurrences >= 1) {
+          // Still accept single-source phones but with lower confidence
+          confidence += 0.1;
+          console.log(`⚠️ Phone ${verifiedPhone} found but single source (confidence reduced)`);
         } else {
-          console.log(`⚠️ Phone ${verifiedPhone} unverified (only ${phoneOccurrences} occurrence)`);
-          verifiedPhone = undefined; // Don't trust single-source phone numbers
+          console.log(`❌ Phone ${verifiedPhone} not found in text`);
+          verifiedPhone = undefined;
         }
       }
     }
@@ -605,10 +639,28 @@ export class SimpleEnrichmentService {
    */
   private async scrapeWebsitePhotos(websiteUrl: string): Promise<string[]> {
     try {
-      const response = await fetch(websiteUrl);
+      // Ensure URL has protocol
+      let url = websiteUrl;
+      if (!url.startsWith('http')) {
+        url = 'https://' + url.replace(/^\/\//, '');
+      }
+      
+      console.log(`🌐 Attempting to scrape photos from: ${url}`);
+      
+      const response = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`❌ Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+        return [];
+      }
+      
       const html = await response.text();
       
-      // Extract image URLs
+      // Extract image URLs - try multiple patterns
       const imageUrls: string[] = [];
       const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
       let match;
@@ -618,11 +670,11 @@ export class SimpleEnrichmentService {
         
         // Convert relative URLs to absolute
         if (imgUrl.startsWith('/')) {
-          const url = new URL(websiteUrl);
-          imgUrl = `${url.protocol}//${url.host}${imgUrl}`;
+          const urlObj = new URL(url);
+          imgUrl = `${urlObj.protocol}//${urlObj.host}${imgUrl}`;
         } else if (!imgUrl.startsWith('http')) {
-          const url = new URL(websiteUrl);
-          imgUrl = `${url.protocol}//${url.host}/${imgUrl}`;
+          const urlObj = new URL(url);
+          imgUrl = `${urlObj.protocol}//${urlObj.host}/${imgUrl}`;
         }
         
         // Filter out small images, icons, tracking pixels
@@ -630,11 +682,13 @@ export class SimpleEnrichmentService {
             !imgUrl.includes('icon') && 
             !imgUrl.includes('logo') &&
             !imgUrl.includes('1x1') &&
-            !imgUrl.includes('.svg')) {
+            !imgUrl.includes('.svg') &&
+            !imgUrl.includes('blank.gif')) {
           imageUrls.push(imgUrl);
         }
       }
       
+      console.log(`📸 Found ${imageUrls.length} potential photos from ${url}`);
       return imageUrls;
     } catch (error) {
       console.error(`Failed to scrape ${websiteUrl}:`, error);
