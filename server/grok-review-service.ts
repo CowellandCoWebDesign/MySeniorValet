@@ -67,7 +67,16 @@ Provide a balanced comparison showing:
 - Red flags or concerns to investigate
 - Standout positives consistently mentioned
 
-Include URLs/sources for verification.`;
+**IMPORTANT: Include actual clickable URLs at the end in this format:**
+Sources:
+- Google Reviews: https://[actual google maps URL]
+- Yelp: https://[actual yelp URL]
+- Care.com: https://[actual care.com URL]
+- SeniorAdvisor: https://[actual senioradvisor URL]
+- A Place for Mom: https://[actual aplaceformom URL]
+- Facebook: https://[actual facebook URL]
+
+Provide real, working URLs not placeholders.`;
 
       console.log(`🤖 Grok: Analyzing reviews for ${communityName} with comparative perspective...`);
       
