@@ -5,7 +5,7 @@ import { eq, and, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
-import { PerplexityAIService } from "../perplexity-ai-service";
+import { GrokReviewService } from "../grok-review-service";
 
 export function registerReviewRoutes(app: Express) {
   // Get reviews for a community
@@ -315,15 +315,15 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
-  // Fetch inspection data using Perplexity AI
+  // Fetch inspection data using Grok AI
   app.post('/api/communities/:communityId/inspections/fetch', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      const perplexity = new PerplexityAIService();
+      const grok = new GrokReviewService();
 
-      if (!perplexity.isConfigured()) {
+      if (!grok.isConfigured()) {
         return res.status(400).json({ 
-          message: 'Perplexity AI is not configured',
+          message: 'Grok AI is not configured',
           fallbackData: true 
         });
       }
@@ -339,7 +339,7 @@ export function registerReviewRoutes(app: Express) {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      // Search for inspection data using Perplexity
+      // Search for inspection data using Grok
       const searchQuery = `Search for government inspection reports, health violations, compliance records, and regulatory findings for "${community.name}" senior living facility located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. Include:
         1. Medicare.gov Nursing Home Compare data and star ratings if available
         2. State health department inspection reports and citations
@@ -355,18 +355,25 @@ export function registerReviewRoutes(app: Express) {
       
       const context = `${community.name} senior living facility at ${community.address}, ${community.city}, ${community.state}`;
       
-      console.log('Fetching inspection data for:', context);
-      const result = await perplexity.searchRealTime(searchQuery, context);
+      console.log('Fetching inspection data for:', community.name);
+      const result = await grok.fetchInspectionData(
+        community.name,
+        community.address,
+        community.city,
+        community.state,
+        community.zipCode
+      );
 
-      // Parse the inspection data from the response
-      const inspectionData = parseInspectionData(result.summary);
+      // Inspection data is already parsed by Grok service
+      const inspectionData = result.inspectionData;
       
       // Return the structured inspection data
       res.json({
         success: true,
         inspectionData,
-        citations: result.sources || [],
-        lastUpdated: new Date().toISOString()
+        citations: result.citations || [],
+        lastUpdated: new Date().toISOString(),
+        poweredBy: 'Grok AI'
       });
 
     } catch (error) {
@@ -378,15 +385,15 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
-  // Fetch external reviews using Perplexity AI
+  // Fetch external reviews using Grok AI with Comparison in Perspective
   app.post('/api/communities/:communityId/reviews/fetch-external', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      const perplexity = new PerplexityAIService();
+      const grok = new GrokReviewService();
 
-      if (!perplexity.isConfigured()) {
+      if (!grok.isConfigured()) {
         return res.status(400).json({ 
-          message: 'Perplexity AI is not configured',
+          message: 'Grok AI is not configured',
           fallbackData: true 
         });
       }
@@ -402,7 +409,7 @@ export function registerReviewRoutes(app: Express) {
         return res.status(404).json({ message: 'Community not found' });
       }
 
-      // Search for reviews using Perplexity with enhanced prompt
+      // Search for reviews using Grok with Comparison in Perspective
       const searchQuery = `Find ALL reviews and ratings for "${community.name}" senior living community at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}. 
 
 **CRITICAL: I need the actual review text/quotes, not just summaries. Please provide reviews in this exact format:**
@@ -455,18 +462,26 @@ REQUIREMENTS:
       
       const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
       
-      console.log('Fetching external reviews for:', context);
-      const result = await perplexity.searchRealTime(searchQuery, context);
+      console.log('Fetching external reviews for:', community.name);
+      const result = await grok.fetchReviewsWithPerspective(
+        community.name,
+        community.address,
+        community.city,
+        community.state,
+        community.zipCode
+      );
 
-      // Parse the response to extract review data
+      // Use Grok's structured response with comparative perspective
       const extractedData = {
         googleRating: extractGoogleRating(result.summary),
         yelpRating: extractYelpRating(result.summary),
-        externalReviews: extractReviewSnippets(result.summary),
+        externalReviews: result.reviews || [],
         sources: result.sources || [],
-        lastUpdated: new Date().toISOString(),
-        images: result.images || [],
-        rawSummary: result.summary // Keep raw summary for debugging
+        lastUpdated: result.lastUpdated,
+        images: [],
+        rawSummary: result.summary,
+        perspectiveAnalysis: result.perspectiveAnalysis,
+        comparativeInsights: result.comparativeInsights
       };
 
       // Update community with fresh review data
@@ -486,18 +501,26 @@ REQUIREMENTS:
         updateData.yelpReviewCount = extractedData.yelpRating.count;
       }
 
-      // Store extracted reviews in JSON fields
-      if (extractedData.externalReviews.yelp?.length > 0) {
-        updateData.yelpReviews = extractedData.externalReviews.yelp;
+      // Group reviews by source/platform
+      const reviewsByPlatform = extractedData.externalReviews.reduce((acc: any, review: any) => {
+        const platform = review.platform || review.source || 'Unknown';
+        if (!acc[platform]) acc[platform] = [];
+        acc[platform].push(review);
+        return acc;
+      }, {});
+
+      // Store extracted reviews in JSON fields by platform
+      if (reviewsByPlatform['Yelp']?.length > 0) {
+        updateData.yelpReviews = reviewsByPlatform['Yelp'];
       }
-      if (extractedData.externalReviews.carecom?.length > 0) {
-        updateData.careComReviews = extractedData.externalReviews.carecom;
+      if (reviewsByPlatform['Care.com']?.length > 0) {
+        updateData.careComReviews = reviewsByPlatform['Care.com'];
       }
-      if (extractedData.externalReviews.seniorAdvisor?.length > 0) {
-        updateData.seniorAdvisorReviews = extractedData.externalReviews.seniorAdvisor;
+      if (reviewsByPlatform['SeniorAdvisor']?.length > 0) {
+        updateData.seniorAdvisorReviews = reviewsByPlatform['SeniorAdvisor'];
       }
-      if (extractedData.externalReviews.aplaceformom?.length > 0) {
-        updateData.aplaceformomReviews = extractedData.externalReviews.aplaceformom;
+      if (reviewsByPlatform['A Place for Mom']?.length > 0) {
+        updateData.aplaceformomReviews = reviewsByPlatform['A Place for Mom'];
       }
 
       await db
@@ -508,8 +531,8 @@ REQUIREMENTS:
       res.json({
         success: true,
         data: extractedData,
-        message: 'External reviews fetched successfully',
-        poweredBy: 'Perplexity AI',
+        message: 'External reviews fetched successfully with comparative perspective',
+        poweredBy: 'Grok AI - Comparison in Perspective',
         disclaimer: 'Reviews are sourced from third-party platforms and may not reflect current conditions'
       });
     } catch (error) {
@@ -523,7 +546,7 @@ REQUIREMENTS:
   });
 }
 
-// Helper functions to extract review data from Perplexity response
+// Helper functions to extract review data from Grok response
 function extractGoogleRating(text: string): { rating: string; count: number } | null {
   // Multiple patterns to catch different formats
   const patterns = [
@@ -693,7 +716,7 @@ function extractReviewSnippets(text: string): {
 
   // Categorize reviews by source
   uniqueReviews.forEach((review, index) => {
-    const contextSource = review.source || detectSourceFromFullText(text, review.text);
+    const contextSource = review.source || detectSourceFromFullText(text || '', review.text);
     console.log(`📍 Review ${index + 1} detected source: ${contextSource} | Text: ${review.text.substring(0, 100)}...`);
     
     const reviewObj = {
