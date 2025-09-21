@@ -89,15 +89,24 @@ Include URLs/sources for verification.`;
 
       const content = response.choices[0]?.message?.content || '';
       
+      console.log(`📝 Grok Response Length: ${content.length} characters`);
+      
       // Parse the response to extract structured data
       const extractedData = this.parseGrokResponse(content);
+      
+      // Log what we're returning
+      console.log(`🔍 Parsed Data:
+        - Reviews: ${extractedData.reviews.length}
+        - Sources: ${extractedData.sources.length}
+        - Perspective Analysis Length: ${extractedData.perspectiveAnalysis.length}
+        - Comparative Insights Length: ${extractedData.comparativeInsights.length}`);
       
       return {
         summary: content,
         reviews: extractedData.reviews,
         sources: extractedData.sources,
-        perspectiveAnalysis: extractedData.perspectiveAnalysis,
-        comparativeInsights: extractedData.comparativeInsights,
+        perspectiveAnalysis: extractedData.perspectiveAnalysis || content, // Fallback to full content
+        comparativeInsights: extractedData.comparativeInsights || content, // Fallback to full content
         lastUpdated: new Date().toISOString()
       };
     } catch (error: any) {
@@ -169,13 +178,36 @@ Include URLs/sources for verification.`;
       sources.push(...urls);
     }
     
-    // Extract perspective analysis
-    const perspectiveMatch = content.match(/FINAL PERSPECTIVE[:\s]*SYNTHESIS[:\s]*([\s\S]*?)(?=\n\n|$)/i);
-    const perspectiveAnalysis = perspectiveMatch ? perspectiveMatch[1].trim() : '';
+    // Extract the entire perspective/comparison section - be very generous
+    let perspectiveAnalysis = '';
+    let comparativeInsights = '';
     
-    // Extract comparative insights - get the full analysis
-    const comparativeMatch = content.match(/(?:comparison|comparative|consensus|agree on|diverge)[:\s]*([\s\S]*?)(?=\n\n|https?:\/\/|$)/i);
-    const comparativeInsights = comparativeMatch ? comparativeMatch[1].trim() : perspectiveAnalysis;
+    // Try to find the FINAL PERSPECTIVE section
+    const perspectiveMatch = content.match(/FINAL PERSPECTIVE[:\s]*SYNTHESIS[:\s]*([\s\S]*?)(?=\n\n|$)/i);
+    if (perspectiveMatch) {
+      perspectiveAnalysis = perspectiveMatch[1].trim();
+    }
+    
+    // For comparative insights, get EVERYTHING after key phrases
+    const comparativePatterns = [
+      /\*\*Consensus Points?\*\*[\s\S]*/i,
+      /\*\*Comparative Analysis[\s\S]*/i,
+      /(?:comparison|comparative|consensus|diverge)[\s\S]*/i
+    ];
+    
+    for (const pattern of comparativePatterns) {
+      const match = content.match(pattern);
+      if (match) {
+        // Get the entire rest of the content from this point
+        comparativeInsights = match[0];
+        break;
+      }
+    }
+    
+    // If we didn't find comparative insights, use the full content
+    if (!comparativeInsights && content.length > 0) {
+      comparativeInsights = content;
+    }
     
     return {
       reviews,
