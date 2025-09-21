@@ -614,86 +614,154 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Overall Rating Summary */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Average Rating */}
-            <div className="text-center">
-              <div className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-                {statistics.averageRating.toFixed(1)}
+          {/* Grok AI Comparative Analysis - Prominently displayed at top */}
+          {(lastGrokUpdate || grokCitations.length > 0 || perspectiveAnalysis || comparativeInsights || fetchExternalReviewsMutation.isPending) && (
+            <div className="border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 dark:border-blue-600 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 animate-pulse" />
+                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                    Grok AI - Comparison in Perspective
+                  </h3>
+                  {lastGrokUpdate && (
+                    <span className="text-xs text-blue-700 dark:text-blue-400">
+                      • Updated {formatDistanceToNow(new Date(lastGrokUpdate))} ago
+                    </span>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fetchExternalReviewsMutation.mutate()}
+                  disabled={fetchExternalReviewsMutation.isPending}
+                  className="border-blue-300 hover:bg-blue-50 dark:border-blue-600 dark:hover:bg-blue-950/50"
+                >
+                  {fetchExternalReviewsMutation.isPending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Refresh Analysis
+                    </>
+                  )}
+                </Button>
               </div>
-              {renderStars(statistics.averageRating, 'w-5 h-5')}
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {statistics.totalReviews + statistics.sources.Google.count + statistics.sources.Yelp.count} total reviews
+              
+              {/* Loading State */}
+              {fetchExternalReviewsMutation.isPending && !perspectiveAnalysis && !comparativeInsights && (
+                <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-6 text-center">
+                  <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-blue-600 dark:text-blue-400" />
+                  <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                    🔍 Grok is analyzing reviews from multiple sources...
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
+                    Comparing perspectives from Google, Yelp, Care.com, and other platforms
+                  </p>
+                </div>
+              )}
+              
+              {/* Comparative Analysis Content */}
+              {(perspectiveAnalysis || comparativeInsights) && (
+                <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-4">
+                  <h4 className="text-sm font-bold text-blue-800 dark:text-blue-200 mb-3 flex items-center gap-2">
+                    📊 Comparative Analysis Results:
+                  </h4>
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap">
+                      {comparativeInsights || perspectiveAnalysis}
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Sources */}
+              {grokCitations.length > 0 && (
+                <div className="mt-4 pt-3 border-t border-blue-200 dark:border-blue-700">
+                  <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-2">Analysis Sources:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {grokCitations.slice(0, 8).map((citation: string, index: number) => {
+                      let sourceName = `Source ${index + 1}`;
+                      try {
+                        const url = new URL(citation);
+                        const hostname = url.hostname;
+                        sourceName = hostname
+                          .replace(/^www\./, '')
+                          .replace(/\.(com|org|net|gov|edu).*$/, '')
+                          .split('.')
+                          .map(part => {
+                            if (part === 'aplaceformom') return 'A Place for Mom';
+                            if (part === 'senioradvisor') return 'SeniorAdvisor';
+                            if (part === 'caring') return 'Caring.com';
+                            if (part === 'google') return 'Google Reviews';
+                            if (part === 'yelp') return 'Yelp';
+                            return part.charAt(0).toUpperCase() + part.slice(1);
+                          })
+                          .join(' ');
+                      } catch (e) {}
+                      
+                      return (
+                        <a
+                          key={index}
+                          href={citation}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-white dark:bg-gray-800 rounded text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <Link2 className="h-3 w-3" />
+                          {sourceName}
+                        </a>
+                      );
+                    })}
+                    {grokCitations.length > 8 && (
+                      <span className="inline-flex items-center px-2 py-1 text-xs text-blue-600 dark:text-blue-400">
+                        +{grokCitations.length - 8} more sources
+                      </span>
+                    )}
+                  </div>
+                </div>
+              )}
+              
+              {/* No Data Yet Message */}
+              {!fetchExternalReviewsMutation.isPending && !perspectiveAnalysis && !comparativeInsights && (
+                <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-6 text-center">
+                  <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                    Click "Refresh Analysis" to get Grok's comparative perspective on reviews from multiple platforms.
+                  </p>
+                </div>
+              )}
+              
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-3 italic">
+                ℹ️ Grok analyzes and compares reviews across multiple platforms to provide a balanced perspective.
               </p>
             </div>
-            
-            {/* Rating Distribution */}
-            <div className="col-span-2">
-              <div className="space-y-2">
-                {[5, 4, 3, 2, 1].map((rating) => {
-                  const count = statistics.distribution[rating];
-                  const percentage = statistics.totalReviews > 0 
-                    ? (count / statistics.totalReviews) * 100 
-                    : 0;
-                  
-                  return (
-                    <div key={rating} className="flex items-center gap-2">
-                      <button
-                        onClick={() => setSelectedRating(selectedRating === rating ? null : rating)}
-                        className="flex items-center gap-1 min-w-[40px] hover:text-blue-600"
-                      >
-                        <span className="text-sm">{rating}</span>
-                        <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                      </button>
-                      <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div
-                          className="bg-yellow-500 h-full rounded-full transition-all"
-                          style={{ width: `${percentage}%` }}
-                        />
-                      </div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400 min-w-[30px]">
-                        {count}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+          )}
           
-          {/* Review Sources */}
-          <div className="mt-6 pt-6 border-t">
-            <h4 className="text-sm font-semibold mb-3">Review Sources</h4>
-            <div className="flex flex-wrap gap-2">
-              <Badge variant="outline" className="cursor-pointer">
-                MySeniorValet ({statistics.sources.MySeniorValet})
+          {/* Review Sources Summary */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Badge variant="outline" className="text-xs">
+              MySeniorValet ({statistics.sources.MySeniorValet} reviews)
+            </Badge>
+            {statistics.sources.Google.count > 0 && (
+              <Badge variant="outline" className="text-xs">
+                Google ({statistics.sources.Google.count} reviews)
               </Badge>
-              {statistics.sources.Google.count > 0 && (
-                <Badge variant="outline" className="cursor-pointer">
-                  Google ({statistics.sources.Google.count})
-                </Badge>
-              )}
-              {statistics.sources.Yelp.count > 0 && (
-                <Badge variant="outline" className="cursor-pointer">
-                  Yelp ({statistics.sources.Yelp.count})
-                </Badge>
-              )}
-              {statistics.sources['Care.com'] > 0 && (
-                <Badge variant="outline" className="cursor-pointer">
-                  Care.com ({statistics.sources['Care.com']})
-                </Badge>
-              )}
-              {statistics.sources['SeniorAdvisor'] > 0 && (
-                <Badge variant="outline" className="cursor-pointer">
-                  SeniorAdvisor ({statistics.sources['SeniorAdvisor']})
-                </Badge>
-              )}
-              {statistics.sources['A Place for Mom'] > 0 && (
-                <Badge variant="outline" className="cursor-pointer">
-                  A Place for Mom ({statistics.sources['A Place for Mom']})
-                </Badge>
-              )}
-            </div>
+            )}
+            {statistics.sources.Yelp.count > 0 && (
+              <Badge variant="outline" className="text-xs">
+                Yelp ({statistics.sources.Yelp.count} reviews)
+              </Badge>
+            )}
+            {statistics.sources['Care.com'] > 0 && (
+              <Badge variant="outline" className="text-xs">
+                Care.com ({statistics.sources['Care.com']} reviews)
+              </Badge>
+            )}
+            <Badge variant="secondary" className="text-xs ml-auto">
+              {statistics.averageRating.toFixed(1)} ⭐ Average ({statistics.totalReviews + statistics.sources.Google.count + statistics.sources.Yelp.count} total)
+            </Badge>
           </div>
         </CardContent>
       </Card>
@@ -921,99 +989,6 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         </CardContent>
       </Card>
 
-      {/* Grok AI Comparison in Perspective Info Bar */}
-      {(lastGrokUpdate || grokCitations.length > 0 || perspectiveAnalysis) && (
-        <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 dark:border-blue-800">
-          <CardContent className="pt-4">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2 mb-2">
-                <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                <span className="text-sm font-medium text-blue-900 dark:text-blue-300">
-                  Powered by Grok AI - Comparison in Perspective
-                </span>
-                {lastGrokUpdate && (
-                  <span className="text-xs text-blue-700 dark:text-blue-400">
-                    • Last updated: {formatDistanceToNow(new Date(lastGrokUpdate))} ago
-                  </span>
-                )}
-              </div>
-            </div>
-            
-            {/* Show Comparative Perspective Analysis if available */}
-            {(perspectiveAnalysis || comparativeInsights) && (
-              <div className="mb-3 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                <h4 className="text-xs font-semibold text-blue-800 dark:text-blue-300 mb-1">📊 Comparative Perspective:</h4>
-                <p className="text-xs text-gray-700 dark:text-gray-300">
-                  {comparativeInsights || perspectiveAnalysis}
-                </p>
-              </div>
-            )}
-            
-            {grokCitations.length > 0 && (
-              <div className="mt-2">
-                <p className="text-xs text-blue-700 dark:text-blue-400 mb-1">Sources:</p>
-                <div className="flex flex-wrap gap-1">
-                  {grokCitations.slice(0, 5).map((citation: string, index: number) => {
-                    // Extract domain name from URL
-                    let sourceName = `Source ${index + 1}`;
-                    try {
-                      const url = new URL(citation);
-                      const hostname = url.hostname;
-                      // Remove www. prefix and extract meaningful site name
-                      sourceName = hostname
-                        .replace(/^www\./, '')
-                        .replace(/\.(com|org|net|gov|edu).*$/, '')
-                        .split('.')
-                        .map(part => {
-                          // Special handling for known senior living sites
-                          if (part === 'aplaceformom') return 'A Place for Mom';
-                          if (part === 'senioradvisor') return 'SeniorAdvisor';
-                          if (part === 'caring') return 'Caring.com';
-                          if (part === 'seniorliving') return 'SeniorLiving.org';
-                          if (part === 'assistedlivingcenter') return 'Assisted Living Center';
-                          if (part === 'seniorly') return 'Seniorly';
-                          if (part === 'seniorcare') return 'SeniorCare';
-                          if (part === 'seniorhomes') return 'SeniorHomes';
-                          if (part === 'whereyoulivematters') return 'Where You Live Matters';
-                          if (part === 'seniorhousingnet') return 'Senior Housing Net';
-                          // Capitalize other names
-                          return part.charAt(0).toUpperCase() + part.slice(1);
-                        })
-                        .join(' ');
-                    } catch (e) {
-                      // If URL parsing fails, keep the default
-                    }
-                    
-                    return (
-                      <a
-                        key={index}
-                        href={citation}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 underline"
-                        data-testid={`link-citation-${index}`}
-                      >
-                        <Link2 className="h-3 w-3" />
-                        {sourceName}
-                      </a>
-                    );
-                  })}
-                  {grokCitations.length > 5 && (
-                    <span className="text-xs text-blue-600 dark:text-blue-400">
-                      +{grokCitations.length - 5} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            )}
-            
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-2 italic">
-              Reviews are sourced from third-party platforms and may not reflect current conditions.
-              Always verify information directly with the community.
-            </p>
-          </CardContent>
-        </Card>
-      )}
 
       {/* Reviews List */}
       <div className="space-y-4">
