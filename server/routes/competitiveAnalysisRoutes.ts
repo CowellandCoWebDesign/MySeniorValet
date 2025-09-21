@@ -171,6 +171,11 @@ router.post('/api/competitive-analysis', async (req, res) => {
           communityName: community.name,
           location: `${community.city}, ${community.state}`,
           
+          // CRITICAL: Include the full unfiltered Perplexity response
+          rawPerplexityResponse: intelligence.rawPerplexityResponse || null,
+          perplexityTimestamp: intelligence.perplexityTimestamp || null,
+          perplexitySources: intelligence.sources || [],
+          
           // Add contact information in the structure frontend expects
           contactInformation: {
             extracted: {

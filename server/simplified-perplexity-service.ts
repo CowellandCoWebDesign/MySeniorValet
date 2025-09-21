@@ -44,6 +44,9 @@ interface CommunityIntelligence {
   photos?: string[];
   sources: string[];
   notes?: string; // Additional notes about the search result
+  // NEW: Include the full unfiltered Perplexity response for transparency
+  rawPerplexityResponse?: string;
+  perplexityTimestamp?: string;
 }
 
 export class SimplifiedPerplexityService {
@@ -806,6 +809,10 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
         firstSentence[0].trim() : 
         cleanDescription.slice(0, 200) + (cleanDescription.length > 200 ? '...' : ''));
     }
+
+    // CRITICAL: Add the full unfiltered Perplexity response for transparency
+    result.rawPerplexityResponse = content;
+    result.perplexityTimestamp = new Date().toISOString();
 
     return result;
   }
