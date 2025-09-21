@@ -214,42 +214,10 @@ Provide real, working URLs not placeholders.`;
       sources.push(...urls);
     }
     
-    // Extract the entire perspective/comparison section - be very generous
+    // FULL UNCENSORED RESPONSE - Return the entire Grok content without any parsing or filtering
+    // This ensures we show everything Grok provides without truncation
     let perspectiveAnalysis = '';
-    let comparativeInsights = '';
-    
-    // Try to find the FINAL PERSPECTIVE section - capture everything until Sources or end
-    const perspectiveMatch = content.match(/FINAL PERSPECTIVE(?:\s*SYNTHESIS)?[:\s]*([\s\S]*?)(?=\n(?:Sources?:|URLs?:|\*\*Sources?\*\*|Google|Yelp|Care\.com|SeniorAdvisor|A Place for Mom|Facebook)|$)/i);
-    if (perspectiveMatch) {
-      perspectiveAnalysis = perspectiveMatch[1].trim();
-    } else {
-      // Fallback: if no match, use the entire content after FINAL PERSPECTIVE
-      const fallbackMatch = content.match(/FINAL PERSPECTIVE[:\s]*([\s\S]*)/i);
-      if (fallbackMatch) {
-        perspectiveAnalysis = fallbackMatch[1].trim();
-      }
-    }
-    
-    // For comparative insights, get EVERYTHING after key phrases
-    const comparativePatterns = [
-      /\*\*Consensus Points?\*\*[\s\S]*/i,
-      /\*\*Comparative Analysis[\s\S]*/i,
-      /(?:comparison|comparative|consensus|diverge)[\s\S]*/i
-    ];
-    
-    for (const pattern of comparativePatterns) {
-      const match = content.match(pattern);
-      if (match) {
-        // Get the entire rest of the content from this point
-        comparativeInsights = match[0];
-        break;
-      }
-    }
-    
-    // If we didn't find comparative insights, use the full content
-    if (!comparativeInsights && content.length > 0) {
-      comparativeInsights = content;
-    }
+    let comparativeInsights = content; // Use the FULL content as-is, uncensored and unfiltered
     
     return {
       reviews,
