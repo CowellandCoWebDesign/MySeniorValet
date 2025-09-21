@@ -19,7 +19,7 @@ interface CommunityDetailsHeaderProps {
   onFavoriteToggle?: () => void;
   getPricingBadgeInfo?: (community: any, verificationReport: any) => any;
   formatCareType?: (careTypes?: string[]) => string;
-  generatePhoneNumber?: (state: string, id: number) => string;
+  // Phone number generation removed - only real data allowed
   onReserveClick?: () => void;
   onTourClick?: () => void;
   onPhotoChange?: (index: number) => void;
@@ -33,7 +33,7 @@ export function CommunityDetailsHeader({
   onFavoriteToggle,
   getPricingBadgeInfo,
   formatCareType,
-  generatePhoneNumber,
+  // generatePhoneNumber removed - violates Golden Data Rule
   onReserveClick,
   onTourClick,
   onPhotoChange,
@@ -236,8 +236,8 @@ export function CommunityDetailsHeader({
   const pricing = getPricing();
   const enrichedContact = verificationReport?.contactInformation?.extracted || 
                          verificationReport?.verificationResults?.contactInformation?.extracted;
-  const displayPhone = enrichedContact?.phone || community.phone || 
-                       (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : "1-855-287-5093");
+  const displayPhone = enrichedContact?.phone || community.phone || null;
+  // Never generate fake phone numbers - violates Golden Data Rule
   const displayWebsite = enrichedContact?.website || community.website;
   
   // Get amenities from various sources
@@ -457,24 +457,37 @@ export function CommunityDetailsHeader({
                 {/* Phone */}
                 <div className="flex items-center gap-3">
                   <span className="text-xl flex-shrink-0">☎️</span>
-                  <a 
-                    href={`tel:${displayPhone}`}
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
-                  >
-                    {displayPhone}
-                  </a>
+                  {displayPhone ? (
+                    <a 
+                      href={`tel:${displayPhone}`}
+                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                    >
+                      {displayPhone}
+                    </a>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400 italic">
+                      Contact for phone number
+                    </span>
+                  )}
                 </div>
               </div>
               
               {/* Action Buttons for Contact */}
               <div className="flex flex-wrap gap-3">
-                <a 
-                  href={`tel:${displayPhone}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span className="font-medium">Call Now</span>
-                </a>
+                {displayPhone ? (
+                  <a 
+                    href={`tel:${displayPhone}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span className="font-medium">Call Now</span>
+                  </a>
+                ) : (
+                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 rounded-lg cursor-not-allowed">
+                    <Phone className="w-4 h-4" />
+                    <span className="font-medium">Phone Not Available</span>
+                  </div>
+                )}
                 
                 <button
                   onClick={() => setIsMessagingOpen(true)}

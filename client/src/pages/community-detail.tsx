@@ -174,7 +174,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         onAnalysisUpdate(data);
       }
     } catch (error: any) {
-      clearTimeout(timeoutId);
+      // No timeout to clear here - it's in a different scope
       console.error('Failed to fetch competitive analysis:', error);
       
       // Don't show anything if analysis fails - just hide the component
@@ -1541,20 +1541,8 @@ export default function CommunityDetail() {
     });
   };
 
-  const generatePhoneNumber = (state: string, id: number) => {
-    const areaCodes: Record<string, string[]> = {
-      CA: ['213', '310', '323', '415', '510', '619', '714', '818', '916', '949'],
-      TX: ['214', '281', '409', '512', '713', '817', '832', '903', '915', '972'],
-      FL: ['305', '321', '352', '386', '407', '561', '727', '754', '772', '786'],
-      AZ: ['480', '520', '602', '623', '928'],
-      NV: ['702', '725', '775']
-    };
-
-    const stateAreaCodes = areaCodes[state] || areaCodes.CA;
-    const areaCode = stateAreaCodes[id % stateAreaCodes.length];
-    const number = String(2000000 + (id * 13) % 8000000).padStart(7, '0');
-    return `(${areaCode}) ${number.slice(0, 3)}-${number.slice(3)}`;
-  };
+  // Remove fake phone number generation - violates Golden Data Rule
+  // Only real, verified phone numbers should be displayed
 
   // Combine database photos with live web intelligence photos
   const getCombinedPhotos = () => {
@@ -1649,7 +1637,7 @@ export default function CommunityDetail() {
               onFavoriteToggle={handleFavorite}
               getPricingBadgeInfo={getPricingBadgeInfo}
               formatCareType={formatCareType}
-              generatePhoneNumber={generatePhoneNumber}
+              // Phone number generation removed - only real data allowed
               currentPhotoIndex={currentPhotoIndex}
               onPhotoChange={(index) => setCurrentPhotoIndex(index)}
               onReserveClick={() => {
@@ -1898,7 +1886,7 @@ export default function CommunityDetail() {
                           communityId={community.id}
                           communityName={community.name}
                           communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zipCode || ''}`.trim() : `${community.city}, ${community.state}`}
-                          communityPhone={community.phone || generatePhoneNumber(community.state, community.id)}
+                          communityPhone={community.phone || undefined}
                           buttonText="Schedule In-Person Tour"
                           buttonVariant="default"
                           hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
@@ -2171,7 +2159,8 @@ export default function CommunityDetail() {
                         <Button 
                           variant="outline" 
                           className="py-3 sm:py-4 text-responsive-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 touch-target"
-                          onClick={() => window.open(`tel:${community.phone || generatePhoneNumber(community.state, community.id)}`, '_self')}
+                          onClick={() => community.phone ? window.open(`tel:${community.phone}`, '_self') : null}
+                          disabled={!community.phone}
                         >
                           <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Call Now
