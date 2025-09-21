@@ -17,7 +17,7 @@ import {
   Star, MessageSquare, ThumbsUp, Shield, CheckCircle, AlertCircle, 
   TrendingUp, Calendar, Filter, PlusCircle, Info, ExternalLink,
   Globe, MapPin, Users, Award, ChevronDown, ChevronUp, Loader2,
-  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck
+  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck, Clock
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -674,9 +674,18 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                     Grok AI - Comparison in Perspective
                   </h3>
                   {lastGrokUpdate && (
-                    <span className="text-xs text-blue-700 dark:text-blue-400">
-                      • Updated {formatDistanceToNow(new Date(lastGrokUpdate))} ago
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-blue-700 dark:text-blue-400">
+                        • Updated {formatDistanceToNow(new Date(lastGrokUpdate))} ago
+                      </span>
+                      {/* Show stale indicator if data is older than 6 hours */}
+                      {Date.now() - new Date(lastGrokUpdate).getTime() > 6 * 60 * 60 * 1000 && (
+                        <Badge variant="outline" className="text-xs bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700">
+                          <Clock className="w-3 h-3 mr-1" />
+                          Out of date
+                        </Badge>
+                      )}
+                    </div>
                   )}
                 </div>
                 <Button
