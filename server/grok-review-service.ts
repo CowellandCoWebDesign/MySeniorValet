@@ -74,15 +74,26 @@ If you cannot find actual reviews, return an empty response or state "No reviews
         messages: [
           {
             role: "system",
-            content: "You are Grok, providing ONLY FACTUAL, VERIFIABLE information about senior living facilities. You MUST only report reviews that actually exist on real platforms. If no reviews exist, you must clearly state this. Never generate examples, placeholders, or hypothetical reviews. Your role is to report facts, not create content."
+            content: "You are Grok with Live Search enabled. Search the web, news, and social media for REAL reviews and information about senior living facilities. Report ONLY factual information you find from actual sources. Include direct links to where you found the information."
           },
           {
             role: "user",
             content: searchQuery
           }
         ],
-        temperature: 0.2,  // Low temperature for maximum factual accuracy and to prevent hallucinations
-        max_tokens: 8000  // Increased to ensure full response
+        temperature: 0.2,  // Low temperature for maximum factual accuracy
+        max_tokens: 8000,  // Increased to ensure full response
+        // Enable Live Search to actually search for real reviews
+        search_parameters: {
+          mode: "auto",  // Let Grok decide when to search
+          return_citations: true,  // Include source citations
+          max_search_results: 30,  // Get plenty of results to find reviews
+          sources: [
+            { type: "web" },
+            { type: "news" },
+            { type: "x" }  // X/Twitter posts
+          ]
+        } as any  // TypeScript bypass for search_parameters
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -283,7 +294,7 @@ Format with clear sections and include source URLs.`;
         messages: [
           {
             role: "system",
-            content: "You are Grok, providing comprehensive analysis of healthcare facility inspections and compliance. Focus on factual data while providing context and perspective that helps families understand the significance of inspection findings."
+            content: "You are Grok with Live Search enabled. Search government sites, Medicare.gov, state health departments, and news sources for REAL inspection data and compliance information about healthcare facilities. Report ONLY factual findings from actual sources."
           },
           {
             role: "user",
@@ -291,7 +302,17 @@ Format with clear sections and include source URLs.`;
           }
         ],
         temperature: 0.2,  // Low temperature for factual accuracy
-        max_tokens: 4000  // Increased for fuller inspection data
+        max_tokens: 4000,  // Increased for fuller inspection data
+        // Enable Live Search to find real inspection data
+        search_parameters: {
+          mode: "auto",
+          return_citations: true,
+          max_search_results: 20,
+          sources: [
+            { type: "web" },
+            { type: "news" }
+          ]
+        } as any
       });
 
       const content = response.choices[0]?.message?.content || '';
@@ -363,31 +384,31 @@ Format with clear sections and include source URLs.`;
   }
 
   private detectSyntheticData(content: string): boolean {
-    // Common patterns that indicate synthetic/example data
+    // Only flag obvious synthetic/example data
     const syntheticPatterns = [
-      // Generic example text
+      // Clear indicators of fake data
       /example review/i,
       /sample review/i,
       /placeholder/i,
       /hypothetical/i,
       /illustrative/i,
       /demonstration/i,
+      /\[INSERT.*?\]/i,  // Template placeholders
+      /\{PLACEHOLDER\}/i,
+      /lorem ipsum/i,
+      /test data/i,
       
-      // Common AI-generated review phrases that appear too frequently
-      /caring and attentive/i,
-      /clean and well-maintained/i,
-      /friendly and helpful/i,
+      // Template-like structures with obvious placeholders
+      /\[Your Name\]/i,
+      /\[Date\]/i,
+      /\[Rating\]/i,
+      /XX\/XX\/XXXX/,  // Template dates
       
-      // Suspiciously perfect or vague dates
-      /Anonymous\/\d{4}/g,
-      /January 2022|February 2022|March 2022|April 2022|May 2022|June 2022|July 2022|August 2022|September 2022|October 2022|November 2022|December 2022/g,
-      
-      // Template-like structures
-      /\[.*?\]/g,  // Square brackets often indicate placeholders
-      /\{.*?\}/g,  // Curly brackets often indicate templates
-      
-      // Exact duplicate phrases (same review appearing multiple times)
-      // This checks if the same phrase appears more than twice
+      // AI disclaimers
+      /as an AI/i,
+      /I cannot provide real reviews/i,
+      /these are examples/i,
+      /for illustration purposes/i
     ];
     
     // Check for synthetic patterns
