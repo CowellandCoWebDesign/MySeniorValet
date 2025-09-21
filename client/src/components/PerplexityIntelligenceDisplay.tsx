@@ -114,11 +114,17 @@ export const PerplexityIntelligenceDisplay = ({
             </h3>
           </div>
           
-          <ScrollArea className="h-[500px] pr-4">
+          <div className="max-h-[800px] overflow-y-auto pr-4">
             <div className="space-y-2">
-              {formatResponse(rawResponse)}
+              {/* Show the raw response in a preformatted block for debugging */}
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                <strong>Full Response ({rawResponse.length} characters):</strong>
+              </div>
+              <pre className="whitespace-pre-wrap text-sm text-gray-700 dark:text-gray-300 font-mono bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                {rawResponse}
+              </pre>
             </div>
-          </ScrollArea>
+          </div>
         </div>
 
         {/* Sources Section */}

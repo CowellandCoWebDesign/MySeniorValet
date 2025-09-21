@@ -119,6 +119,9 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         },
         forceRefresh
       );
+      console.log('📊 Competitive Analysis Response:', data);
+      console.log('🔍 Has raw Perplexity response:', !!data.rawPerplexityResponse);
+      
       setAnalysis(data);
       setIsExpanded(true);
       setShowRefreshButton(true); // Show refresh button after successful fetch
