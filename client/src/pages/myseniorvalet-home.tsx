@@ -846,18 +846,22 @@ function HeroSectionWithTransformingSearch() {
                 value={searchQuery}
                 onChange={(value) => setSearchQuery(value)}
                 onSubmit={(value) => {
+                  console.log('AutocompleteSearch onSubmit triggered:', { value, viewMode });
                   // Check if it's a simple value (non-community selection)
                   // AutocompleteSearch handles community navigation internally
                   if (value && !value.startsWith('/community/')) {
                     // Respect the current view mode when searching
                     if (viewMode === 'discover') {
                       // For Discovery Mode, trigger the search with discovery flag
+                      console.log('🚀 Triggering Discovery Mode for:', value);
                       handleAutoExpandingSearch(value, true); // true = isResearchMode/Discovery
                     } else if (viewMode === 'map') {
                       // For Map view, redirect to map-search
+                      console.log('🗺️ Redirecting to map search for:', value);
                       setLocation(`/map-search?q=${encodeURIComponent(value)}`);
                     } else if (viewMode === 'list') {
                       // For Database Search (list mode), trigger normal search
+                      console.log('🔍 Triggering Database Search for:', value);
                       handleAutoExpandingSearch(value, false); // false = normal database search
                     }
                   }
