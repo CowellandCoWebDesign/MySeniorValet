@@ -1,28 +1,5 @@
 import OpenAI from 'openai';
 
-// Simple in-memory cache for Grok responses
-interface CachedAnalysis {
-  summary: string;
-  reviews: any[];
-  sources: string[];
-  perspectiveAnalysis: string;
-  comparativeInsights: string;
-  lastUpdated: string;
-  timestamp: number;
-}
-
-interface CachedInspection {
-  inspectionData: any;
-  citations: string[];
-  analysis: string;
-  lastUpdated: string;
-  timestamp: number;
-}
-
-const CACHE_TTL = 12 * 60 * 60 * 1000; // 12 hours in milliseconds
-const analysisCache = new Map<string, CachedAnalysis>();
-const inspectionCache = new Map<string, CachedInspection>();
-
 export class GrokReviewService {
   private client: OpenAI | null = null;
 
@@ -42,37 +19,12 @@ export class GrokReviewService {
     return this.client !== null;
   }
 
-  // Get cached analysis if available and fresh
-  getCachedAnalysis(communityId: string): CachedAnalysis | null {
-    const cached = analysisCache.get(communityId);
-    if (!cached) return null;
-    
-    // Check if cache is still valid (within TTL)
-    const age = Date.now() - cached.timestamp;
-    if (age > CACHE_TTL) {
-      analysisCache.delete(communityId);
-      return null;
-    }
-    
-    return cached;
-  }
-
-  // Save analysis to cache
-  cacheAnalysis(communityId: string, analysis: CachedAnalysis): void {
-    analysisCache.set(communityId, {
-      ...analysis,
-      timestamp: Date.now()
-    });
-  }
-
   async fetchReviewsWithPerspective(
     communityName: string,
     address: string,
     city: string,
     state: string,
-    zipCode: string,
-    communityId?: string,
-    forceRefresh: boolean = false
+    zipCode: string
   ): Promise<{
     summary: string;
     reviews: any[];
@@ -83,15 +35,6 @@ export class GrokReviewService {
   }> {
     if (!this.client) {
       throw new Error('Grok service not configured');
-    }
-
-    // Check cache first unless forced refresh
-    if (communityId && !forceRefresh) {
-      const cached = this.getCachedAnalysis(communityId);
-      if (cached) {
-        console.log(`📦 Returning cached Grok analysis for community ${communityId}`);
-        return cached;
-      }
     }
 
     try {
@@ -167,7 +110,7 @@ Provide real, working URLs not placeholders.`;
         - Perspective Analysis Length: ${extractedData.perspectiveAnalysis.length}
         - Comparative Insights Length: ${extractedData.comparativeInsights.length}`);
       
-      const result = {
+      return {
         summary: content,
         reviews: extractedData.reviews,
         sources: extractedData.sources,
@@ -175,14 +118,6 @@ Provide real, working URLs not placeholders.`;
         comparativeInsights: extractedData.comparativeInsights || content, // Fallback to full content
         lastUpdated: new Date().toISOString()
       };
-
-      // Cache the result if communityId is provided
-      if (communityId) {
-        this.cacheAnalysis(communityId, result);
-        console.log(`💾 Cached Grok analysis for community ${communityId}`);
-      }
-
-      return result;
     } catch (error: any) {
       console.error('❌ Grok review search error:', error);
       throw new Error(`Grok review search failed: ${error.message}`);
@@ -318,54 +253,19 @@ Provide real, working URLs not placeholders.`;
     };
   }
 
-  // Get cached inspection data if available and fresh
-  getCachedInspection(communityId: string): CachedInspection | null {
-    const cached = inspectionCache.get(communityId);
-    if (!cached) return null;
-    
-    // Check if cache is still valid (within TTL)
-    const age = Date.now() - cached.timestamp;
-    if (age > CACHE_TTL) {
-      inspectionCache.delete(communityId);
-      return null;
-    }
-    
-    return cached;
-  }
-
-  // Save inspection data to cache
-  cacheInspection(communityId: string, inspection: CachedInspection): void {
-    inspectionCache.set(communityId, {
-      ...inspection,
-      timestamp: Date.now()
-    });
-  }
-
   async fetchInspectionData(
     communityName: string,
     address: string,
     city: string,
     state: string,
-    zipCode: string,
-    communityId?: string,
-    forceRefresh: boolean = false
+    zipCode: string
   ): Promise<{
     inspectionData: any;
     citations: string[];
     analysis: string;
-    lastUpdated: string;
   }> {
     if (!this.client) {
       throw new Error('Grok service not configured');
-    }
-
-    // Check cache first unless forced refresh
-    if (communityId && !forceRefresh) {
-      const cached = this.getCachedInspection(communityId);
-      if (cached) {
-        console.log(`📦 Returning cached inspection data for community ${communityId}`);
-        return cached;
-      }
     }
 
     try {
@@ -410,20 +310,11 @@ Format with clear sections and include source URLs.`;
       const urlRegex = /https?:\/\/[^\s)]+/g;
       const citations = content.match(urlRegex) || [];
       
-      const result = {
+      return {
         inspectionData: this.parseInspectionData(content),
         citations: [...new Set(citations)],
-        analysis: content,
-        lastUpdated: new Date().toISOString()
+        analysis: content
       };
-
-      // Cache the result if communityId is provided
-      if (communityId) {
-        this.cacheInspection(communityId, result);
-        console.log(`💾 Cached inspection data for community ${communityId}`);
-      }
-
-      return result;
     } catch (error: any) {
       console.error('❌ Grok inspection search error:', error);
       throw new Error(`Grok inspection search failed: ${error.message}`);

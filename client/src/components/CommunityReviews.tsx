@@ -17,7 +17,7 @@ import {
   Star, MessageSquare, ThumbsUp, Shield, CheckCircle, AlertCircle, 
   TrendingUp, Calendar, Filter, PlusCircle, Info, ExternalLink,
   Globe, MapPin, Users, Award, ChevronDown, ChevronUp, Loader2,
-  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck, Clock
+  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -62,126 +62,14 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
   const [sortBy, setSortBy] = useState<string>('recent');
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(new Set());
+  const [lastGrokUpdate, setLastGrokUpdate] = useState<string | null>(null);
   const [grokCitations, setGrokCitations] = useState<string[]>([]);
+  const [perspectiveAnalysis, setPerspectiveAnalysis] = useState<string>('');
+  const [comparativeInsights, setComparativeInsights] = useState<string>('');
+  const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
+  const [inspectionData, setInspectionData] = useState<any>(null);
+  const [inspectionLoading, setInspectionLoading] = useState(false);
   const [inspectionCitations, setInspectionCitations] = useState<string[]>([]);
-  
-  // Query to fetch cached Grok analysis
-  const { data: grokAnalysis } = useQuery({
-    queryKey: ['/api/communities', community.id, 'grok-analysis'],
-    queryFn: async () => {
-      // Try to get from localStorage first for instant display
-      const cacheKey = `grok_analysis_${community.id}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          // Check if cache is less than 12 hours old
-          const age = Date.now() - parsed.timestamp;
-          if (age < 12 * 60 * 60 * 1000) {
-            return parsed.data;
-          }
-        } catch (e) {
-          console.error('Failed to parse cached data:', e);
-        }
-      }
-      
-      // Fetch from server
-      try {
-        const response = await fetch(`/api/communities/${community.id}/reviews/analysis`);
-        if (response.status === 204 || !response.ok) {
-          return null; // No cached data available
-        }
-        const data = await response.json();
-        
-        // Store in localStorage
-        if (data && data.success) {
-          localStorage.setItem(cacheKey, JSON.stringify({
-            data,
-            timestamp: Date.now()
-          }));
-        }
-        
-        return data;
-      } catch (error) {
-        console.error('Failed to fetch cached analysis:', error);
-        return null;
-      }
-    },
-    enabled: !!community?.id,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
-    retry: false
-  });
-
-  // Derive values from query data
-  const lastGrokUpdate = grokAnalysis?.lastUpdated || null;
-  const perspectiveAnalysis = grokAnalysis?.perspectiveAnalysis || '';
-  const comparativeInsights = grokAnalysis?.comparativeInsights || '';
-  
-  // Query to fetch cached inspection data
-  const { data: inspectionAnalysis, isLoading: isLoadingInspections } = useQuery({
-    queryKey: ['/api/communities', community.id, 'inspections'],
-    queryFn: async () => {
-      // Try to get from localStorage first for instant display
-      const cacheKey = `inspection_${community.id}`;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          // Check if cache is less than 12 hours old
-          const age = Date.now() - parsed.timestamp;
-          if (age < 12 * 60 * 60 * 1000) {
-            return parsed.data;
-          }
-        } catch (e) {
-          console.error('Failed to parse cached inspection data:', e);
-        }
-      }
-      
-      // Fetch from server
-      try {
-        const response = await fetch(`/api/communities/${community.id}/inspections`);
-        if (response.status === 204 || !response.ok) {
-          // No cached data, auto-fetch fresh data
-          const freshResponse = await apiRequest(
-            'POST',
-            `/api/communities/${community.id}/inspections/fetch`
-          );
-          if (freshResponse) {
-            // Store in localStorage
-            localStorage.setItem(cacheKey, JSON.stringify({
-              data: freshResponse,
-              timestamp: Date.now()
-            }));
-            return freshResponse;
-          }
-          return null;
-        }
-        const data = await response.json();
-        
-        // Store in localStorage
-        if (data && data.success) {
-          localStorage.setItem(cacheKey, JSON.stringify({
-            data,
-            timestamp: Date.now()
-          }));
-        }
-        
-        return data;
-      } catch (error) {
-        console.error('Failed to fetch inspection data:', error);
-        return null;
-      }
-    },
-    enabled: !!community?.id,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    gcTime: 24 * 60 * 60 * 1000, // Keep in cache for 24 hours
-    retry: false
-  });
-  
-  // Derive inspection values from query data
-  const inspectionData = inspectionAnalysis?.inspectionData || null;
-  const lastInspectionUpdate = inspectionAnalysis?.lastUpdated || null;
 
   // Fetch reviews from database
   const { data: databaseReviews = [], isLoading: isLoadingDbReviews } = useQuery({
@@ -193,12 +81,12 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // Mutation to fetch fresh external reviews from Grok (with force refresh)
+  // Mutation to fetch external reviews from Perplexity
   const fetchExternalReviewsMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest(
         'POST',
-        `/api/communities/${community.id}/reviews/fetch-external?force=true`
+        `/api/communities/${community.id}/reviews/fetch-external`
       );
       return response;
     },
@@ -209,19 +97,15 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
         duration: 3000
       });
       
-      // Update localStorage and citations
+      // Update local state with Grok data
       if (data.data) {
-        const cacheKey = `grok_analysis_${community.id}`;
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data: data.data,
-          timestamp: Date.now()
-        }));
-        
+        setLastGrokUpdate(data.data.lastUpdated);
         setGrokCitations(data.data.sources || []);
+        setPerspectiveAnalysis(data.data.perspectiveAnalysis || '');
+        setComparativeInsights(data.data.comparativeInsights || '');
       }
       
       // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'grok-analysis'] });
       queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id] });
       queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'reviews'] });
     },
@@ -236,37 +120,29 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // Mutation to fetch fresh inspection data from Grok (with force refresh)
+  // Mutation to fetch inspection data from Perplexity
   const fetchInspectionsMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest(
         'POST',
-        `/api/communities/${community.id}/inspections/fetch?force=true`
+        `/api/communities/${community.id}/inspections/fetch`
       );
       return response;
     },
     onSuccess: (data) => {
-      // Update localStorage and citations
-      if (data) {
-        const cacheKey = `inspection_${community.id}`;
-        localStorage.setItem(cacheKey, JSON.stringify({
-          data,
-          timestamp: Date.now()
-        }));
-        
+      setInspectionLoading(false);
+      if (data.inspectionData) {
+        setInspectionData(data.inspectionData);
         setInspectionCitations(data.citations || []);
-        
         toast({
-          title: "Inspection Data Updated",
-          description: "Successfully fetched latest inspection information",
+          title: "Inspection Data Retrieved",
+          description: "Successfully fetched inspection and violation information",
           duration: 3000
         });
       }
-      
-      // Invalidate query to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'inspections'] });
     },
     onError: (error: any) => {
+      setInspectionLoading(false);
       console.error('Error fetching inspection data:', error);
       toast({
         title: "Failed to Fetch Inspections",
@@ -277,18 +153,15 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // Update citations when grokAnalysis or inspectionAnalysis changes
+  // AUTO-FETCH: Grok reviews load automatically when Reviews tab is clicked
   useEffect(() => {
-    if (grokAnalysis?.sources) {
-      setGrokCitations(grokAnalysis.sources);
+    if (!hasInitiallyFetched && community?.id) {
+      setHasInitiallyFetched(true);
+      // Auto-fetch reviews from Grok for Comparison in Perspective
+      console.log('🤖 Grok: Auto-fetching reviews with comparative perspective...');
+      fetchExternalReviewsMutation.mutate();
     }
-  }, [grokAnalysis]);
-  
-  useEffect(() => {
-    if (inspectionAnalysis?.citations) {
-      setInspectionCitations(inspectionAnalysis.citations);
-    }
-  }, [inspectionAnalysis]);
+  }, [community?.id, hasInitiallyFetched]);
 
   // Extract external reviews from community data
   const externalReviews = useMemo(() => {
@@ -751,18 +624,9 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                     Grok AI - Comparison in Perspective
                   </h3>
                   {lastGrokUpdate && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-blue-700 dark:text-blue-400">
-                        • Updated {formatDistanceToNow(new Date(lastGrokUpdate))} ago
-                      </span>
-                      {/* Show stale indicator if data is older than 6 hours */}
-                      {Date.now() - new Date(lastGrokUpdate).getTime() > 6 * 60 * 60 * 1000 && (
-                        <Badge variant="outline" className="text-xs bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700">
-                          <Clock className="w-3 h-3 mr-1" />
-                          Out of date
-                        </Badge>
-                      )}
-                    </div>
+                    <span className="text-xs text-blue-700 dark:text-blue-400">
+                      • Updated {formatDistanceToNow(new Date(lastGrokUpdate))} ago
+                    </span>
                   )}
                 </div>
                 <Button
@@ -954,58 +818,39 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
               <FileSearch className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               <span>Inspection Reports & Violations</span>
             </div>
-            {lastInspectionUpdate && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-orange-600 dark:text-orange-400">
-                  • Updated {formatDistanceToNow(new Date(lastInspectionUpdate))} ago
-                </span>
-                {/* Show stale indicator if data is older than 6 hours */}
-                {Date.now() - new Date(lastInspectionUpdate).getTime() > 6 * 60 * 60 * 1000 && (
-                  <Badge variant="outline" className="text-xs bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400 border-yellow-300 dark:border-yellow-700">
-                    <Clock className="w-3 h-3 mr-1" />
-                    Out of date
-                  </Badge>
-                )}
-              </div>
-            )}
             <Button
               variant="outline"
               size="sm"
-              onClick={() => fetchInspectionsMutation.mutate()}
-              disabled={fetchInspectionsMutation.isPending}
-              title={inspectionAnalysis?.fromCache ? "Data is from cache. Click to fetch latest." : "Click to refresh inspections"}
+              onClick={() => {
+                setInspectionLoading(true);
+                fetchInspectionsMutation.mutate();
+              }}
+              disabled={inspectionLoading || fetchInspectionsMutation.isPending}
             >
-              {fetchInspectionsMutation.isPending ? (
+              {(inspectionLoading || fetchInspectionsMutation.isPending) ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Updating...
+                  Researching...
                 </>
               ) : (
                 <>
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  {inspectionAnalysis?.fromCache ? 'Refresh Inspections' : 'Update Inspections'}
+                  Research Inspections
                 </>
               )}
             </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoadingInspections ? (
-            <div className="text-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-orange-400" />
-              <p className="text-gray-600 dark:text-gray-400">
-                Loading inspection data...
-              </p>
-            </div>
-          ) : !inspectionData ? (
+          {!inspectionData ? (
             <div className="text-center py-8">
               <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-orange-400" />
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                No inspection data available
+                No inspection data available yet
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-500">
-                Inspection data is automatically fetched from public records. 
-                If no data appears, it may not be available for this community.
+                Click "Research Inspections" to search public records for inspection reports, 
+                health violations, and compliance information for this community.
               </p>
             </div>
           ) : (

@@ -315,45 +315,6 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
-  // GET endpoint to retrieve cached inspection data
-  app.get('/api/communities/:communityId/inspections', async (req, res) => {
-    try {
-      const communityId = parseInt(req.params.communityId);
-      const grok = new GrokReviewService();
-
-      if (!grok.isConfigured()) {
-        return res.status(400).json({ 
-          message: 'Grok AI is not configured',
-          fallbackData: true 
-        });
-      }
-
-      // Try to get cached inspection data
-      const cached = grok.getCachedInspection(communityId.toString());
-      
-      if (cached) {
-        res.json({
-          success: true,
-          fromCache: true,
-          ...cached,
-          cacheAge: Date.now() - (cached as any).timestamp
-        });
-      } else {
-        // No cache available
-        res.status(204).json({ 
-          message: 'No cached inspection data available',
-          fromCache: false 
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching cached inspections:', error);
-      res.status(500).json({ 
-        message: 'Failed to fetch cached inspections',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
   // Fetch inspection data using Grok AI
   app.post('/api/communities/:communityId/inspections/fetch', async (req, res) => {
     try {
@@ -394,18 +355,13 @@ export function registerReviewRoutes(app: Express) {
       
       const context = `${community.name} senior living facility at ${community.address}, ${community.city}, ${community.state}`;
       
-      // Check for force refresh parameter
-      const forceRefresh = req.query.force === 'true';
-      
-      console.log('Fetching inspection data for:', community.name, forceRefresh ? '(forced refresh)' : '');
+      console.log('Fetching inspection data for:', community.name);
       const result = await grok.fetchInspectionData(
         community.name,
         community.address,
         community.city,
         community.state,
-        community.zipCode,
-        communityId.toString(),
-        forceRefresh
+        community.zipCode
       );
 
       // Inspection data is already parsed by Grok service
@@ -424,68 +380,6 @@ export function registerReviewRoutes(app: Express) {
       console.error('Error fetching inspection data:', error);
       res.status(500).json({ 
         message: 'Failed to fetch inspection data',
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
-  });
-
-  // GET endpoint to retrieve cached Grok analysis
-  app.get('/api/communities/:communityId/reviews/analysis', async (req, res) => {
-    try {
-      const communityId = parseInt(req.params.communityId);
-      const grok = new GrokReviewService();
-
-      if (!grok.isConfigured()) {
-        return res.status(400).json({ 
-          message: 'Grok AI is not configured',
-          fallbackData: true 
-        });
-      }
-
-      // Try to get cached analysis
-      const cached = grok.getCachedAnalysis(communityId.toString());
-      
-      if (cached) {
-        // Parse the analysis similar to how the POST endpoint does
-        const extractedData = {
-          googleRating: extractGoogleRating(cached.summary),
-          yelpRating: extractYelpRating(cached.summary),
-          externalReviews: cached.reviews || [],
-          sources: cached.sources || [],
-          lastUpdated: cached.lastUpdated,
-          images: [],
-          rawSummary: cached.summary,
-          perspectiveAnalysis: cached.perspectiveAnalysis,
-          comparativeInsights: cached.comparativeInsights,
-          fromCache: true,
-          cacheAge: Date.now() - (cached as any).timestamp
-        };
-
-        // Group reviews by platform
-        const reviewsByPlatform = extractedData.externalReviews.reduce((acc: any, review: any) => {
-          const platform = review.platform || review.source || 'Unknown';
-          if (!acc[platform]) acc[platform] = [];
-          acc[platform].push(review);
-          return acc;
-        }, {});
-
-        res.json({
-          success: true,
-          fromCache: true,
-          ...extractedData,
-          reviewsByPlatform
-        });
-      } else {
-        // No cache available
-        res.status(204).json({ 
-          message: 'No cached analysis available',
-          fromCache: false 
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching cached reviews:', error);
-      res.status(500).json({ 
-        message: 'Failed to fetch cached reviews',
         error: error instanceof Error ? error.message : 'Unknown error'
       });
     }
@@ -568,18 +462,13 @@ REQUIREMENTS:
       
       const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
       
-      // Check for force refresh parameter
-      const forceRefresh = req.query.force === 'true';
-      
-      console.log('Fetching external reviews for:', community.name, forceRefresh ? '(forced refresh)' : '');
+      console.log('Fetching external reviews for:', community.name);
       const result = await grok.fetchReviewsWithPerspective(
         community.name,
         community.address,
         community.city,
         community.state,
-        community.zipCode,
-        communityId.toString(),
-        forceRefresh
+        community.zipCode
       );
 
       // Use Grok's structured response with comparative perspective
