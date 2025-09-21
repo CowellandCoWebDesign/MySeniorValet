@@ -34,10 +34,17 @@ router.post('/api/competitive-analysis', async (req, res) => {
           const now = new Date();
           
           if (expiryDate > now) {
-            // Data is still fresh (less than 7 days old), use cached data
-            console.log(`✅ Using cached enrichment data for ${community.name}, expires: ${expiryDate}`);
-            intelligence = community.enrichmentData;
-            needsFetch = false;
+            // Check if cached data has the raw Perplexity response
+            if (community.enrichmentData.rawPerplexityResponse) {
+              // Data is fresh AND has the raw response, use cached data
+              console.log(`✅ Using cached enrichment data for ${community.name}, expires: ${expiryDate}`);
+              intelligence = community.enrichmentData;
+              needsFetch = false;
+            } else {
+              // Cached data exists but lacks raw Perplexity response - fetch fresh
+              console.log(`🔄 Cached data lacks raw Perplexity response for ${community.name}, fetching fresh data to show full intelligence...`);
+              needsFetch = true;
+            }
           } else {
             console.log(`⏰ Cached data expired for ${community.name}, fetching fresh data...`);
           }
@@ -291,6 +298,10 @@ router.post('/api/competitive-analysis', async (req, res) => {
         communityName,
         location,
         intelligence,
+        // CRITICAL: Include the full unfiltered Perplexity response
+        rawPerplexityResponse: intelligence.rawPerplexityResponse || null,
+        perplexityTimestamp: intelligence.perplexityTimestamp || null,
+        perplexitySources: intelligence.sources || [],
         timestamp: new Date().toISOString()
       });
     }
