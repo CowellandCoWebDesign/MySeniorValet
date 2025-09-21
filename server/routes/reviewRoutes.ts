@@ -385,6 +385,68 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
+  // GET endpoint to retrieve cached Grok analysis
+  app.get('/api/communities/:communityId/reviews/analysis', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      const grok = new GrokReviewService();
+
+      if (!grok.isConfigured()) {
+        return res.status(400).json({ 
+          message: 'Grok AI is not configured',
+          fallbackData: true 
+        });
+      }
+
+      // Try to get cached analysis
+      const cached = grok.getCachedAnalysis(communityId.toString());
+      
+      if (cached) {
+        // Parse the analysis similar to how the POST endpoint does
+        const extractedData = {
+          googleRating: extractGoogleRating(cached.summary),
+          yelpRating: extractYelpRating(cached.summary),
+          externalReviews: cached.reviews || [],
+          sources: cached.sources || [],
+          lastUpdated: cached.lastUpdated,
+          images: [],
+          rawSummary: cached.summary,
+          perspectiveAnalysis: cached.perspectiveAnalysis,
+          comparativeInsights: cached.comparativeInsights,
+          fromCache: true,
+          cacheAge: Date.now() - (cached as any).timestamp
+        };
+
+        // Group reviews by platform
+        const reviewsByPlatform = extractedData.externalReviews.reduce((acc: any, review: any) => {
+          const platform = review.platform || review.source || 'Unknown';
+          if (!acc[platform]) acc[platform] = [];
+          acc[platform].push(review);
+          return acc;
+        }, {});
+
+        res.json({
+          success: true,
+          fromCache: true,
+          ...extractedData,
+          reviewsByPlatform
+        });
+      } else {
+        // No cache available
+        res.status(204).json({ 
+          message: 'No cached analysis available',
+          fromCache: false 
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching cached reviews:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch cached reviews',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Fetch external reviews using Grok AI with Comparison in Perspective
   app.post('/api/communities/:communityId/reviews/fetch-external', async (req, res) => {
     try {
@@ -462,13 +524,18 @@ REQUIREMENTS:
       
       const context = `${community.name} located at ${community.address}, ${community.city}, ${community.state} ${community.zipCode}`;
       
-      console.log('Fetching external reviews for:', community.name);
+      // Check for force refresh parameter
+      const forceRefresh = req.query.force === 'true';
+      
+      console.log('Fetching external reviews for:', community.name, forceRefresh ? '(forced refresh)' : '');
       const result = await grok.fetchReviewsWithPerspective(
         community.name,
         community.address,
         community.city,
         community.state,
-        community.zipCode
+        community.zipCode,
+        communityId.toString(),
+        forceRefresh
       );
 
       // Use Grok's structured response with comparative perspective
