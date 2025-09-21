@@ -315,6 +315,45 @@ export function registerReviewRoutes(app: Express) {
     }
   });
 
+  // GET endpoint to retrieve cached inspection data
+  app.get('/api/communities/:communityId/inspections', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.communityId);
+      const grok = new GrokReviewService();
+
+      if (!grok.isConfigured()) {
+        return res.status(400).json({ 
+          message: 'Grok AI is not configured',
+          fallbackData: true 
+        });
+      }
+
+      // Try to get cached inspection data
+      const cached = grok.getCachedInspection(communityId.toString());
+      
+      if (cached) {
+        res.json({
+          success: true,
+          fromCache: true,
+          ...cached,
+          cacheAge: Date.now() - (cached as any).timestamp
+        });
+      } else {
+        // No cache available
+        res.status(204).json({ 
+          message: 'No cached inspection data available',
+          fromCache: false 
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching cached inspections:', error);
+      res.status(500).json({ 
+        message: 'Failed to fetch cached inspections',
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
+    }
+  });
+
   // Fetch inspection data using Grok AI
   app.post('/api/communities/:communityId/inspections/fetch', async (req, res) => {
     try {
@@ -355,13 +394,18 @@ export function registerReviewRoutes(app: Express) {
       
       const context = `${community.name} senior living facility at ${community.address}, ${community.city}, ${community.state}`;
       
-      console.log('Fetching inspection data for:', community.name);
+      // Check for force refresh parameter
+      const forceRefresh = req.query.force === 'true';
+      
+      console.log('Fetching inspection data for:', community.name, forceRefresh ? '(forced refresh)' : '');
       const result = await grok.fetchInspectionData(
         community.name,
         community.address,
         community.city,
         community.state,
-        community.zipCode
+        community.zipCode,
+        communityId.toString(),
+        forceRefresh
       );
 
       // Inspection data is already parsed by Grok service
