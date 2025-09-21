@@ -173,8 +173,8 @@ Include URLs/sources for verification.`;
     const perspectiveMatch = content.match(/FINAL PERSPECTIVE[:\s]*SYNTHESIS[:\s]*([\s\S]*?)(?=\n\n|$)/i);
     const perspectiveAnalysis = perspectiveMatch ? perspectiveMatch[1].trim() : '';
     
-    // Extract comparative insights
-    const comparativeMatch = content.match(/(?:comparison|comparative|consensus|agree on|diverge)[:\s]*([\s\S]{100,500})/i);
+    // Extract comparative insights - get the full analysis
+    const comparativeMatch = content.match(/(?:comparison|comparative|consensus|agree on|diverge)[:\s]*([\s\S]*?)(?=\n\n|https?:\/\/|$)/i);
     const comparativeInsights = comparativeMatch ? comparativeMatch[1].trim() : perspectiveAnalysis;
     
     return {
