@@ -38,34 +38,27 @@ export class GrokReviewService {
     }
 
     try {
-      const searchQuery = `Analyze and provide ONLY REAL, VERIFIABLE reviews for "${communityName}" senior living community at ${address}, ${city}, ${state} ${zipCode}.
+      const searchQuery = `Search the internet for ALL reviews and ratings for "${communityName}" senior living, assisted living, or retirement home located at ${address}, ${city}, ${state} ${zipCode}.
 
-**ABSOLUTE REQUIREMENTS - ZERO TOLERANCE FOR FAKE DATA:**
-1. ONLY return reviews that ACTUALLY EXIST on Google, Yelp, Care.com, SeniorAdvisor, A Place for Mom, or Facebook
-2. If you cannot find real reviews, you MUST say "No reviews found" - DO NOT create examples or placeholders
-3. Every review quote must be verbatim from a real source - no paraphrasing or examples
-4. Include the actual URL where each review can be verified
-5. Never generate sample reviews or hypothetical examples
+**SEARCH STRATEGY:**
+1. Search broadly - include variations like "Holiday ${communityName}", "${communityName} Provincial Senior Living", "${communityName} Discovery Senior Living"
+2. Check nearby cities - communities near ${city} might be listed under adjacent cities (e.g., Redlands near Riverside)
+3. Search ALL review platforms: Google, Yelp, A Place for Mom, Caring.com, SeniorAdvisor, SeniorAdvice.com, FamilyAssets.com, Seniorly.com, SeniorHomes.com, AssistedLivingMagazine.com
+4. Look for total review counts even if individual reviews aren't visible
+5. Include ANY mentions of ratings or feedback you find
 
-**FOR EACH REAL REVIEW FOUND:**
+**WHAT TO RETURN:**
+For each platform where you find information:
 [Platform Name]
-- Overall Rating: X.X/5 (Y total reviews) - ONLY if this data actually exists
-- Verified Reviews Found:
-  * "EXACT VERBATIM QUOTE" - Real Reviewer Name/Actual Date
-  * Include direct link to this specific review if possible
-- Source URL: [Direct link to the review page]
-
-**IF NO REVIEWS EXIST:**
-Simply state: "No verified reviews found for this community on [platform name]"
-
-**VERIFICATION REQUIREMENTS:**
-- Each review must have a real source URL
-- Each quote must be exactly as written on the platform
-- Do not create examples if real reviews don't exist
-- Do not fill in missing data with estimates or examples
+- Overall Rating: X.X/5 (Y total reviews)
+- Key quotes or feedback if available
+- Direct URL to the reviews page
 
 **IMPORTANT:**
-If you cannot find actual reviews, return an empty response or state "No reviews available" rather than generating synthetic examples.`;
+- Cast a WIDE net - better to find too much than too little
+- Include review COUNTS even if you can't access individual review text
+- If a site mentions "${communityName} has 67 reviews" - INCLUDE that information
+- Search for variations of the community name and nearby cities`;
 
       console.log(`🤖 Grok: Analyzing reviews for ${communityName} with comparative perspective...`);
       
@@ -74,7 +67,7 @@ If you cannot find actual reviews, return an empty response or state "No reviews
         messages: [
           {
             role: "system",
-            content: "You are Grok with Live Search enabled. Search the web, news, and social media for REAL reviews and information about senior living facilities. Report ONLY factual information you find from actual sources. Include direct links to where you found the information."
+            content: "You are Grok with Live Search enabled. Your job is to find ALL available reviews and ratings for senior living communities by searching extensively across the internet. Be thorough - search multiple variations of the community name and check all review platforms. Focus on finding review COUNTS, RATINGS, and any available feedback. Always include the total number of reviews when mentioned on any platform."
           },
           {
             role: "user",
