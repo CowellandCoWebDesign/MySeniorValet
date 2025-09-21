@@ -856,7 +856,7 @@ function HeroSectionWithTransformingSearch() {
                     } else if (viewMode === 'map') {
                       // For Map view, redirect to map-search
                       setLocation(`/map-search?q=${encodeURIComponent(value)}`);
-                    } else {
+                    } else if (viewMode === 'list') {
                       // For Database Search (list mode), trigger normal search
                       handleSearch(value, false); // false = normal database search
                     }
