@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { db } from '../db';
 import { communities, vendors } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
+import { geocodeWithNominatim } from '../nominatim-geocoding';
 
 // Schema for global discovery search
 const globalSearchSchema = z.object({
@@ -637,6 +638,27 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           if (existing.length === 0 && discovered.name) {
             // Save new discovered community to database
             try {
+              // Geocode the location to get coordinates for map display
+              let latitude: number | null = null;
+              let longitude: number | null = null;
+              
+              const locationString = discovered.address && discovered.city 
+                ? `${discovered.address}, ${discovered.city}, ${discovered.state || discovered.country || ''}`
+                : discovered.city && discovered.state
+                ? `${discovered.city}, ${discovered.state}, ${discovered.country || ''}`
+                : discovered.city || query;
+              
+              console.log(`🌍 Geocoding discovered community: ${locationString}`);
+              const coordinates = await geocodeWithNominatim(locationString);
+              
+              if (coordinates) {
+                latitude = coordinates.lat;
+                longitude = coordinates.lng;
+                console.log(`✅ Got coordinates: ${latitude}, ${longitude}`);
+              } else {
+                console.log(`⚠️ Could not geocode location: ${locationString}`);
+              }
+              
               const [newCommunity] = await db.insert(communities)
                 .values({
                   name: discovered.name,
@@ -645,6 +667,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
                   country: discovered.country || defaultCountry,
                   zipCode: discovered.zipCode || '00000',
+                  latitude: latitude,
+                  longitude: longitude,
                   phone: discovered.phone || null,
                   email: discovered.email || null,
                   website: discovered.website || null,
