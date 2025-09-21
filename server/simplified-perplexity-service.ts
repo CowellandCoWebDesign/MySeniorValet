@@ -44,9 +44,6 @@ interface CommunityIntelligence {
   photos?: string[];
   sources: string[];
   notes?: string; // Additional notes about the search result
-  // NEW: Include the full unfiltered Perplexity response for transparency
-  rawPerplexityResponse?: string;
-  perplexityTimestamp?: string;
 }
 
 export class SimplifiedPerplexityService {
@@ -122,30 +119,74 @@ export class SimplifiedPerplexityService {
   }
 
   /**
-   * Step 1: Simple, effective query to Perplexity for community information
+   * Step 1: Enhanced query to Perplexity for comprehensive community information
    */
   async findExactCommunity(
     communityName: string, 
     location: string
   ): Promise<CommunityIntelligence> {
-    console.log(`🔍 Perplexity search for: ${communityName} in ${location}`);
+    console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
     
-    // Simple, natural query that Perplexity can understand and search effectively
-    const query = `Find comprehensive information about "${communityName}" senior living community in ${location}.
+    // Try to construct likely official website URL
+    const possibleDomain = communityName.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '')
+      .trim();
+    
+    // Enhanced query with official website targeting
+    const query = `First, check site:${possibleDomain}.com OR site:${possibleDomain}seniorliving.com
+    
+Then find information about senior living community named EXACTLY "${communityName}" in ${location}.
 
-Include:
-1. Official website URL
-2. Direct phone number and full address from the official website (not from referral sites like A Place for Mom or Caring.com)
-3. Current pricing for different care levels if available
-4. Care services offered (Independent Living, Assisted Living, Memory Care, etc.)
-5. Key amenities and features
-6. Recent reviews and ratings from multiple sources
-7. Ownership or management company
-8. Market comparison - list other senior communities in ${location} with pricing
+CRITICAL ACCURACY REQUIREMENT:
+⚠️ ONLY provide information if the community name is EXACTLY "${communityName}"
+⚠️ DO NOT provide information about communities with similar but different names
+⚠️ If searching for "Hilltop Estates", DO NOT give information about "Hilltop Springs" or other variations
+⚠️ If the exact community "${communityName}" cannot be found, clearly state it was not found
 
-Provide a detailed narrative summary with all findings. Include source citations.
+VERIFICATION CHECK:
+- Community name must be: "${communityName}" (exact match)
+- Location must be: ${location}
 
-If you cannot find "${communityName}" exactly, say "Not found" and list similar communities in the area.`;
+IF FOUND, provide:
+1. CONTACT:
+   - Official website URL (full URL including https://)
+   - Main phone number (formatted as XXX-XXX-XXXX)
+   - Complete street address with zip code
+   - Email address if available
+
+2. PRICING (provide specific numbers when available):
+   - Assisted Living monthly cost range (e.g., $3,500-$5,000)
+   - Memory Care monthly cost range
+   - Independent Living monthly cost range
+   - Any entrance fees or deposits
+   - Note if pricing includes meals, utilities, etc.
+
+3. CARE SERVICES:
+   - All care levels offered (Assisted Living, Memory Care, Independent Living, Skilled Nursing)
+   - Specialized programs (dementia care, respite care, hospice)
+   - Medical services available on-site
+
+4. AMENITIES & FEATURES:
+   - Dining options (restaurant-style, private dining, etc.)
+   - Activities and recreation programs
+   - Transportation services
+   - Pet policy
+   - Room types (studio, 1-bedroom, 2-bedroom)
+
+5. FACILITY DETAILS:
+   - Year established
+   - Number of units/beds
+   - Accreditations or certifications
+   - Parent company or management group
+
+ALSO INCLUDE:
+- Market analysis for ${location} area
+- List of 5-10 comparable communities in the area with their pricing
+- Average market rates for different care levels
+- Market trends and insights
+
+If "${communityName}" is not found exactly, still provide all the market data and comparable communities.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -155,26 +196,40 @@ If you cannot find "${communityName}" exactly, say "Not found" and list similar 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro', // Use pro model for better quality
+          model: 'sonar', // Standard model for cost-effective community search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
             {
               role: 'system',
-              content: `You are a helpful web researcher specializing in senior living communities. Provide comprehensive, accurate information with source citations. When finding contact information, always prefer the community's official website over referral sites.`
+              content: `You are a comprehensive senior living market analyst providing detailed market research.
+Your goal is to provide valuable market data and analysis, not just exact matches.
+
+IMPORTANT: 
+1. Search for the requested community AND provide comprehensive market analysis
+2. If the exact community isn't found, still provide valuable market data for the area
+3. Include ALL senior living communities found in the specified location
+4. Provide actual pricing ranges, not just "Contact for pricing"
+5. Extract real data from your sources - websites, phone numbers, addresses
+6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://`
             },
             {
               role: 'user',
               content: query
             }
           ],
-          temperature: 0.2, // Slightly higher for more natural responses
-          max_tokens: 1500, // Reasonable length for quality responses
+          temperature: 0.1, // Lower for more consistent extraction
+          max_tokens: 2000, // Increased for more comprehensive responses
           stream: false,
           return_citations: true,
-          return_images: true,
+          return_images: false,
           return_related_questions: false,
-          // Remove search_recency_filter to get all relevant information
-          search_domain_filter: [], // No restrictions
-          top_k: 5 // Focus on top quality sources
+          search_recency_filter: "month",
+          search_domain_filter: [], // Remove restrictions to get more sources
+          top_k: 10, // Get more results
+          presence_penalty: 0,
+          frequency_penalty: 0.5
         })
       });
 
@@ -327,15 +382,22 @@ If you cannot find "${communityName}" exactly, say "Not found" and list similar 
   async findNearbyOptions(location: string): Promise<CommunityIntelligence> {
     console.log(`🗺️ Searching for communities near: ${location}`);
 
-    const query = `List senior living communities (assisted living, independent living, memory care) in ${location}.
+    const query = `List ALL senior living communities in ${location}.
 
-For each community, include:
-- Name and address
-- Care types offered
-- Pricing if available
-- Brief description
+CRITICAL: Provide a NUMBERED LIST of actual community names. Format EXACTLY like this:
 
-Focus on real, specific communities with factual information and source citations.`;
+1. Community Name Here - Address if available
+2. Another Community Name - Address  
+3. Third Community Name - Address
+
+Include:
+- At least 20-30 communities if available
+- Focus on community NAMES, not descriptions
+- Include assisted living, independent living, memory care, nursing homes
+- Include major chains like Brookdale, Sunrise, Atria, Holiday, etc.
+- Include local communities too
+
+DO NOT provide general descriptions. ONLY list actual community names.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -346,23 +408,22 @@ Focus on real, specific communities with factual information and source citation
         },
         body: JSON.stringify({
           model: 'sonar', // Standard model for cost-effective nearby search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
-            {
-              role: 'system',
-              content: 'You are a helpful researcher providing accurate information about senior living communities.'
-            },
             {
               role: 'user',
               content: query
             }
           ],
-          temperature: 0.3,
-          max_tokens: 1200,
+          temperature: 0.2,
+          max_tokens: 1000,
           stream: false,
           return_citations: true,
-          return_images: true,
+          return_images: false,
           return_related_questions: false,
-          top_k: 5
+          search_recency_filter: "month"
         })
       });
 
@@ -539,26 +600,16 @@ Focus on real, specific communities with factual information and source citation
                               structuredData.url ||
                               this.extractUrl(content);
 
-      // Extract phone - check for explicit "not found" indicators
-      const phoneFromContent = this.extractPhone(content);
-      if (!content.toLowerCase().includes('phone number: not explicitly found') &&
-          !content.toLowerCase().includes('phone: not found') &&
-          !content.toLowerCase().includes('recommend contacting via directory')) {
-        result.phone = structuredData.phone || 
-                       structuredData.phoneNumber || 
-                       structuredData.contact ||
-                       phoneFromContent;
-      } else {
-        result.phone = undefined; // Explicitly no phone found
-        console.log('  ℹ️ No official phone number found by Perplexity');
-      }
+      // Extract phone
+      result.phone = structuredData.phone || 
+                     structuredData.phoneNumber || 
+                     structuredData.contact ||
+                     this.extractPhone(content);
 
-      // Extract address with better parsing
-      const addressFromContent = this.extractAddress(content);
+      // Extract address
       result.address = structuredData.address || 
                       structuredData.location ||
-                      structuredData.specificLocationFound ||
-                      addressFromContent;
+                      structuredData.specificLocationFound;
 
       // Extract pricing
       const pricing: any = {};
@@ -721,139 +772,25 @@ Focus on real, specific communities with factual information and source citation
         cleanDescription.slice(0, 200) + (cleanDescription.length > 200 ? '...' : ''));
     }
 
-    // CRITICAL: Add the full unfiltered Perplexity response for transparency
-    result.rawPerplexityResponse = content;
-    result.perplexityTimestamp = new Date().toISOString();
-
     return result;
   }
 
   // Helper extraction functions
   private extractUrl(content: string): string | undefined {
-    // Check if explicitly stated no website found
-    if (content.toLowerCase().includes('no dedicated official website') ||
-        content.toLowerCase().includes('no official website found') ||
-        content.toLowerCase().includes('website not found')) {
-      console.log('  ⚠️ Perplexity explicitly stated no official website found');
-      return undefined;
-    }
-    
-    // Look for actual URLs after website/site/url keywords
-    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i);
-    if (match && match[1]) {
-      // Verify it's not an advisor site
-      const advisorSites = [
-        'aplaceformom.com', 'caring.com', 'senioradvisor.com', 'seniorly.com',
-        'assistedliving.org', 'nursinghomes.com', 'memorycare.com'
-      ];
-      
-      const url = match[1];
-      const isAdvisorSite = advisorSites.some(site => url.includes(site));
-      
-      if (isAdvisorSite) {
-        console.log(`  ⚠️ Rejecting advisor website: ${url}`);
-        return undefined;
-      }
-      
-      return url;
-    }
-    
-    // Fallback to finding any URL in the content
-    const fallbackMatch = content.match(/(https?:\/\/[^\s]+)/);
-    if (fallbackMatch && fallbackMatch[1]) {
-      // Make sure it's not an advisor site
-      const advisorSites = [
-        'aplaceformom.com', 'caring.com', 'senioradvisor.com'
-      ];
-      const url = fallbackMatch[1];
-      if (!advisorSites.some(site => url.includes(site))) {
-        return url;
-      }
-    }
-    
-    return undefined;
+    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
+                  content.match(/(https?:\/\/[^\s]+)/);
+    return match ? match[1] : undefined;
   }
 
   private extractPhone(content: string): string | undefined {
-    // List of advisor/directory sites whose phone numbers we should reject
-    const advisorSites = [
-      'aplaceformom.com', 'caring.com', 'senioradvisor.com', 'seniorly.com',
-      'assistedliving.org', 'nursinghomes.com', 'memorycare.com',
-      'boomershub.com', 'goldenageseniorliving.com', 'seniorhousingnet.com',
-      'seniorliving.org', 'seniorcarecentersearch.com'
-    ];
-    
-    // Look for phone numbers in the content
-    const phonePatterns = [
-      /(?:phone|tel|call):\s*([\d-().\s]+)/i,
-      /\b(\d{3}[-.)]\s*\d{3}[-.\s]?\d{4})\b/
-    ];
-    
-    for (const pattern of phonePatterns) {
-      const matches = content.matchAll(new RegExp(pattern, 'g'));
-      for (const match of matches) {
-        const phone = match[1].trim();
-        
-        // Get context around the phone number (100 chars before and after)
-        const matchIndex = match.index || 0;
-        const contextStart = Math.max(0, matchIndex - 100);
-        const contextEnd = Math.min(content.length, matchIndex + match[0].length + 100);
-        const context = content.substring(contextStart, contextEnd).toLowerCase();
-        
-        // Check if this phone number is associated with an advisor site
-        let isAdvisorNumber = false;
-        for (const site of advisorSites) {
-          if (context.includes(site)) {
-            console.log(`  ⚠️ Rejecting phone ${phone} - associated with advisor site ${site}`);
-            isAdvisorNumber = true;
-            break;
-          }
-        }
-        
-        // Also check for explicit mention that it's NOT on the official website
-        if (context.includes('not found on official') || 
-            context.includes('not available on official')) {
-          console.log(`  ⚠️ Phone number explicitly marked as not from official website`);
-          return undefined;
-        }
-        
-        // If it's not from an advisor site, return it
-        if (!isAdvisorNumber) {
-          console.log(`  ✅ Found valid phone number: ${phone}`);
-          return phone;
-        }
-      }
-    }
-    
-    // No valid phone number found
-    return undefined;
+    const match = content.match(/(?:phone|tel|call):\s*([\d-().\s]+)/i) ||
+                  content.match(/\b(\d{3}[-.)]\s*\d{3}[-.\s]?\d{4})\b/);
+    return match ? match[1].trim() : undefined;
   }
 
   private extractAddress(content: string): string | undefined {
-    // Try multiple patterns to extract address
-    const patterns = [
-      /(?:address|located at):\s*([^\n]+)/i,
-      /(\d+\s+[A-Za-z\s]+(?:Road|Rd|Street|St|Avenue|Ave|Boulevard|Blvd|Drive|Dr|Lane|Ln|Way|Court|Ct|Place|Pl),?\s+[A-Za-z\s]+,?\s+[A-Z]{2}\s+\d{5})/i,
-      /(\d+\s+[A-Za-z\s]+,\s+[A-Za-z\s]+,\s+[A-Z]{2})/i
-    ];
-    
-    for (const pattern of patterns) {
-      const match = content.match(pattern);
-      if (match && match[1]) {
-        const address = match[1].trim();
-        // Clean up the address
-        const cleaned = address
-          .replace(/[[\]]/g, '') // Remove brackets
-          .replace(/\s+/g, ' ')  // Normalize spaces
-          .trim();
-        
-        if (cleaned && cleaned.length > 10) { // Basic validation
-          return cleaned;
-        }
-      }
-    }
-    
-    return undefined;
+    const match = content.match(/(?:address|located at):\s*([^,\n]+(?:,[^,\n]+)?)/i);
+    return match ? match[1].trim() : undefined;
   }
 
   /**

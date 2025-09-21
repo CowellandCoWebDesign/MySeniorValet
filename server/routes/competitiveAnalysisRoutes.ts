@@ -33,8 +33,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
           const expiryDate = new Date(community.enrichmentDataExpiry);
           const now = new Date();
           
-          if (expiryDate > now && community.enrichmentData.rawPerplexityResponse) {
-            // Data is fresh AND has the raw response, use cached data
+          if (expiryDate > now) {
+            // Data is still fresh (less than 7 days old), use cached data
             console.log(`✅ Using cached enrichment data for ${community.name}, expires: ${expiryDate}`);
             intelligence = community.enrichmentData;
             needsFetch = false;
@@ -162,7 +162,6 @@ router.post('/api/competitive-analysis', async (req, res) => {
 
         console.log(`📊 Found ${comparableCommunities.length} competitive communities in ${community.city}`);
         console.log(`💰 Market pricing: Average $${averageRent}/mo, Range: $${minRent}-$${maxRent}/mo`);
-        console.log(`📞 Contact Info: Phone=${intelligence.phone || 'not found'}, Website=${intelligence.officialWebsite || 'not found'}`);
 
         // Transform intelligence data to match frontend expectations
         const transformedData = {
@@ -170,21 +169,6 @@ router.post('/api/competitive-analysis', async (req, res) => {
           communityId,
           communityName: community.name,
           location: `${community.city}, ${community.state}`,
-          
-          // CRITICAL: Include the full unfiltered Perplexity response
-          rawPerplexityResponse: intelligence.rawPerplexityResponse || null,
-          perplexityTimestamp: intelligence.perplexityTimestamp || null,
-          perplexitySources: intelligence.sources || [],
-          
-          // Add contact information in the structure frontend expects
-          contactInformation: {
-            extracted: {
-              phone: intelligence.phone || null,
-              email: intelligence.email || null,
-              website: intelligence.officialWebsite || community.website || null,
-              address: intelligence.address || community.address || null
-            }
-          },
           
           // Add expected fields for market analysis with real data
           averageMonthlyRent: averageRent || intelligence.pricing?.assistedLiving || 
@@ -291,10 +275,6 @@ router.post('/api/competitive-analysis', async (req, res) => {
         communityName,
         location,
         intelligence,
-        // CRITICAL: Include the full unfiltered Perplexity response
-        rawPerplexityResponse: intelligence.rawPerplexityResponse || null,
-        perplexityTimestamp: intelligence.perplexityTimestamp || null,
-        perplexitySources: intelligence.sources || [],
         timestamp: new Date().toISOString()
       });
     }
