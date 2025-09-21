@@ -213,7 +213,37 @@ export class SimpleEnrichmentService {
   ): Promise<CommunityCandidate[]> {
     const candidates: CommunityCandidate[] = [];
     
-    // Look for patterns that indicate community listings
+    // First, check for structured Perplexity response format with **OFFICIAL WEBSITE:** and **CONTACT INFORMATION:**
+    const websiteMatch = searchText.match(/\*\*OFFICIAL WEBSITE:\*\*\s*([^\n]+)/i);
+    const phoneMatch = searchText.match(/Phone(?:\s*\(main\))?:\s*\(?(\d{3})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/i);
+    
+    // If we find structured data, use it directly
+    if ((websiteMatch || phoneMatch) && searchText.toLowerCase().includes(targetName.toLowerCase())) {
+      let website = websiteMatch ? websiteMatch[1].trim() : undefined;
+      let phone = phoneMatch ? `(${phoneMatch[1]}) ${phoneMatch[2]}-${phoneMatch[3]}` : undefined;
+      
+      // Clean up website URL
+      if (website) {
+        website = website.replace(/[\[\]()]/g, '').trim();
+        if (!website.startsWith('http')) {
+          website = website.startsWith('www.') ? 'https://' + website : website;
+        }
+      }
+      
+      candidates.push({
+        name: targetName,
+        phone: phone,
+        website: website,
+        nameMatchScore: 1, // We know this is the right community from context
+        isExactMatch: true,
+        citations: []
+      });
+      
+      console.log(`✅ Found structured data for ${targetName}: website=${website}, phone=${phone}`);
+      return candidates; // Return early with high confidence match
+    }
+    
+    // Fallback: Look for patterns that indicate community listings
     // Pattern 1: "Community Name" followed by phone or address
     const communityPatterns = [
       /(?:^|\n)([A-Z][A-Za-z\s&'-]+(?:Senior|Assisted|Memory|Care|Living|Village|Manor|Place|Gardens|Terrace|Lodge|Residence|Community)+[A-Za-z\s]*?)(?:\s*[-–]\s*|\s+at\s+|\s+in\s+)?([^\n]*?)(?:\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|\d+\s+[A-Z]\w+)/gm,

@@ -236,8 +236,8 @@ export function CommunityDetailsHeader({
   const pricing = getPricing();
   const enrichedContact = verificationReport?.contactInformation?.extracted || 
                          verificationReport?.verificationResults?.contactInformation?.extracted;
-  const displayPhone = enrichedContact?.phone || community.phone || 
-                       (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : "1-855-287-5093");
+  // Only display REAL phone numbers - Golden Data Rule
+  const displayPhone = enrichedContact?.phone || community.phone || null;
   
   // Debug phone number sources
   console.log('🔍 Phone Number Sources:', {
@@ -471,24 +471,40 @@ export function CommunityDetailsHeader({
                 {/* Phone */}
                 <div className="flex items-center gap-3">
                   <span className="text-xl flex-shrink-0">☎️</span>
-                  <a 
-                    href={`tel:${displayPhone}`}
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
-                  >
-                    {displayPhone}
-                  </a>
+                  {displayPhone ? (
+                    <a 
+                      href={`tel:${displayPhone}`}
+                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                    >
+                      {displayPhone}
+                    </a>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400 italic">
+                      Contact for phone number
+                    </span>
+                  )}
                 </div>
               </div>
               
               {/* Action Buttons for Contact */}
               <div className="flex flex-wrap gap-3">
-                <a 
-                  href={`tel:${displayPhone}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <Phone className="w-4 h-4" />
-                  <span className="font-medium">Call Now</span>
-                </a>
+                {displayPhone ? (
+                  <a 
+                    href={`tel:${displayPhone}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span className="font-medium">Call Now</span>
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => alert('Phone number not available. Please visit the website or check back later for updated contact information.')}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span className="font-medium">Contact for Phone</span>
+                  </button>
+                )}
                 
                 <button
                   onClick={() => setIsMessagingOpen(true)}

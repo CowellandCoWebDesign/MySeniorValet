@@ -61,6 +61,13 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Data Quality Improvements**: Removed 123 generic placeholders, 13 wrong-state entries
 - **Self-Healing Active**: Discovery Mode automatically fills remaining gaps
 
+## Recent Changes (September 21, 2025)
+- **CRITICAL FIX: Removed fake phone number generation** - Eliminated synthetic phone numbers that violated Golden Data Rule
+- **Fixed toll-free directory numbers** - Removed 1,187 fake toll-free referral numbers from database
+- **Enhanced identity resolution** - Improved extraction of structured data from Perplexity responses
+- **Website validation** - Removed directory sites incorrectly stored as official websites
+- **Phone display improvements** - Shows "Contact for phone number" when no real number available
+
 ## Recent Changes (September 17, 2025)
 - Fixed security validation to allow business names with special characters (ampersands, quotes)
 - Enhanced Discovery Mode to dynamically search for correct business types (not defaulting to senior services)
