@@ -174,7 +174,6 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         onAnalysisUpdate(data);
       }
     } catch (error: any) {
-      clearTimeout(timeoutId);
       console.error('Failed to fetch competitive analysis:', error);
       
       // Don't show anything if analysis fails - just hide the component

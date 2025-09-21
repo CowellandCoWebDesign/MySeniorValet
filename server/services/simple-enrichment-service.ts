@@ -249,61 +249,22 @@ export class SimpleEnrichmentService {
     searchResults: any,
     website: string | null,
     communityName: string
-  ): Promise<any[]> {
+  ): Promise<{ url: string; source: string; isAuthentic: boolean; }[]> {
     const photos = [];
     const sources = searchResults.sources || [];
     
-    // Directory sites we should be cautious about
-    const directorySites = ['aplaceformom', 'caring.com', 'seniorly', 'assistedlivingmagazine'];
+    // Directory sites we should be cautious about - EXPANDED LIST
+    const directorySites = [
+      'aplaceformom', 'caring.com', 'seniorly', 'assistedlivingmagazine',
+      'npaonline.org', 'senioradvisor.com', 'senioradvice.com', 'mapquest.com',
+      'yelp.com', 'networkofcare.org', 'seniorliving.org'
+    ];
     
     // Extract community name keywords for validation
     const communityKeywords = communityName.toLowerCase().split(' ')
       .filter(word => word.length > 3 && !['senior', 'living', 'care', 'center', 'assisted'].includes(word));
     
-    // Extract photos from Perplexity sources
-    for (const source of sources.slice(0, 3)) { // Check first 3 sources
-      try {
-        // Extract domain name for source attribution
-        let sourceName = 'website';
-        let isDirectory = false;
-        try {
-          const url = new URL(source);
-          sourceName = url.hostname.replace('www.', '');
-          isDirectory = directorySites.some(site => sourceName.includes(site));
-        } catch (e) {
-          // Keep default if URL parsing fails
-        }
-        
-        // Skip directory sites if we have an official website
-        if (isDirectory && website && !source.includes(website)) {
-          // Check if the directory URL contains our community keywords
-          const sourceUrl = source.toLowerCase();
-          const hasKeywords = communityKeywords.some(keyword => sourceUrl.includes(keyword));
-          
-          if (!hasKeywords) {
-            console.log(`⚠️ Skipping directory ${sourceName} - URL doesn't match community name`);
-            continue;
-          }
-        }
-        
-        // Try simple HTTP scraping for each source
-        const sourcePhotos = await this.scrapeWebsitePhotos(source);
-        if (sourcePhotos.length > 0) {
-          // Be more selective with directory photos
-          const maxPhotos = isDirectory ? 3 : 5;
-          photos.push(...sourcePhotos.slice(0, maxPhotos).map(url => ({
-            url,
-            source: sourceName, // Use actual website name
-            isAuthentic: !isDirectory // Mark directory photos as less authentic
-          })));
-          console.log(`📸 Found ${sourcePhotos.length} photos from ${sourceName}${isDirectory ? ' (directory)' : ''}`);
-        }
-      } catch (error) {
-        console.log(`Could not scrape photos from source: ${error}`);
-      }
-    }
-    
-    // PRIORITIZE the official website for photos (do this FIRST)
+    // STEP 1: PRIORITIZE the official website for photos (do this FIRST)
     if (website) {
       try {
         let websiteName = 'official-website';
@@ -314,18 +275,112 @@ export class SimpleEnrichmentService {
           // Keep default if URL parsing fails
         }
         
+        console.log(`🎯 Prioritizing official website for photos: ${website}`);
         const websitePhotos = await this.scrapeWebsitePhotos(website);
         if (websitePhotos.length > 0) {
           // Add official website photos FIRST (they're most authentic)
-          photos.unshift(...websitePhotos.slice(0, 10).map(url => ({
+          photos.push(...websitePhotos.slice(0, 12).map(url => ({
             url,
-            source: websiteName,
+            source: 'website' as const,
             isAuthentic: true
           })));
           console.log(`📸 Found ${websitePhotos.length} photos from OFFICIAL website: ${websiteName}`);
         }
       } catch (error) {
         console.log('Could not scrape official website photos');
+      }
+    }
+    
+    // STEP 2: Only use other sources if we need more photos (and limit directory sites heavily)
+    if (photos.length < 8) {
+      console.log(`📸 Need more photos (${photos.length}/8), checking other sources...`);
+      
+      // Separate official sources from directory sources
+      const officialSources = [];
+      const directorySources = [];
+      
+      for (const source of sources.slice(0, 5)) {
+        try {
+          const url = new URL(source);
+          const sourceName = url.hostname.replace('www.', '');
+          const isDirectory = directorySites.some(site => sourceName.includes(site));
+          
+          if (isDirectory) {
+            directorySources.push(source);
+          } else {
+            officialSources.push(source);
+          }
+        } catch (e) {
+          officialSources.push(source); // Default to treating as official if URL parsing fails
+        }
+      }
+      
+      // Try official sources first
+      for (const source of officialSources) {
+        if (photos.length >= 12) break; // Stop if we have enough photos
+        
+        try {
+          let sourceName = 'website';
+          try {
+            const url = new URL(source);
+            sourceName = url.hostname.replace('www.', '');
+          } catch (e) {
+            // Keep default if URL parsing fails
+          }
+          
+          const sourcePhotos = await this.scrapeWebsitePhotos(source);
+          if (sourcePhotos.length > 0) {
+            photos.push(...sourcePhotos.slice(0, 4).map(url => ({
+              url,
+              source: 'website' as const,
+              isAuthentic: true
+            })));
+            console.log(`📸 Found ${sourcePhotos.length} photos from official source: ${sourceName}`);
+          }
+        } catch (error) {
+          console.log(`Could not scrape official source: ${error}`);
+        }
+      }
+      
+      // Only use directory sources as last resort and very selectively
+      if (photos.length < 6) {
+        console.log(`⚠️ Still need photos (${photos.length}/6), checking directory sources as last resort...`);
+        
+        for (const source of directorySources.slice(0, 2)) { // Only first 2 directory sources
+          if (photos.length >= 8) break; // Don't exceed reasonable limit
+          
+          try {
+            let sourceName = 'directory';
+            try {
+              const url = new URL(source);
+              sourceName = url.hostname.replace('www.', '');
+            } catch (e) {
+              // Keep default if URL parsing fails
+            }
+            
+            // Verify directory URL contains community keywords
+            const sourceUrl = source.toLowerCase();
+            const hasKeywords = communityKeywords.some(keyword => sourceUrl.includes(keyword));
+            
+            if (!hasKeywords) {
+              console.log(`⚠️ Skipping directory ${sourceName} - URL doesn't match community name`);
+              continue;
+            }
+            
+            const sourcePhotos = await this.scrapeWebsitePhotos(source);
+            if (sourcePhotos.length > 0) {
+              // Very limited number from directories
+              photos.push(...sourcePhotos.slice(0, 2).map(url => ({
+                url,
+                source: 'website' as const,
+                isAuthentic: false // Mark directory photos as less authentic
+              })));
+              console.log(`📸 Found ${sourcePhotos.length} photos from directory (last resort): ${sourceName}`);
+            }
+          } catch (error) {
+            console.log(`Could not scrape directory source: ${error}`);
+          }
+        }
       }
     }
     

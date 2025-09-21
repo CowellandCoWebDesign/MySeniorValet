@@ -239,6 +239,14 @@ export function CommunityDetailsHeader({
   const displayPhone = enrichedContact?.phone || community.phone || 
                        (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : "1-855-287-5093");
   
+  // Debug phone number sources
+  console.log('🔍 Phone Number Sources:', {
+    enrichedContactPhone: enrichedContact?.phone,
+    communityPhone: community.phone,
+    finalDisplayPhone: displayPhone,
+    communityName: community.name
+  });
+  
   // Priority order for website: 1) Market data analysis 2) Contact extraction 3) Database
   const marketDataWebsite = verificationReport?.extractedCommunities?.find((c: any) => 
     c.name.toLowerCase().includes(community.name.toLowerCase()) ||

@@ -777,9 +777,39 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
 
   // Helper extraction functions
   private extractUrl(content: string): string | undefined {
-    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
-                  content.match(/(https?:\/\/[^\s]+)/);
-    return match ? match[1] : undefined;
+    // First, look for explicitly marked official websites
+    const officialMatch = content.match(/(?:official\s+website|main\s+website|website):\s*\*?\*?(https?:\/\/[^\s\*]+)/i);
+    if (officialMatch) {
+      return officialMatch[2];
+    }
+    
+    // Look for labeled website/site/url patterns
+    const labeledMatch = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i);
+    if (labeledMatch) {
+      return labeledMatch[1];
+    }
+    
+    // Extract all URLs and prioritize official-looking domains over directory sites
+    const allUrls = content.match(/(https?:\/\/[^\s]+)/g);
+    if (allUrls && allUrls.length > 0) {
+      // Directory/listing sites to deprioritize
+      const directoryDomains = [
+        'caring.com', 'seniorliving.org', 'aplaceformom.com', 'senioradvisor.com',
+        'senioradvice.com', 'seniorly.com', 'npaonline.org', 'mapquest.com',
+        'yelp.com', 'google.com', 'networkofcare.org'
+      ];
+      
+      // Find official-looking URLs (not directory sites)
+      const officialUrls = allUrls.filter(url => {
+        const domain = url.toLowerCase();
+        return !directoryDomains.some(dirDomain => domain.includes(dirDomain));
+      });
+      
+      // Return first official URL if found, otherwise return first URL
+      return officialUrls.length > 0 ? officialUrls[0] : allUrls[0];
+    }
+    
+    return undefined;
   }
 
   private extractPhone(content: string): string | undefined {
