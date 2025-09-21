@@ -44,7 +44,6 @@ import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
-import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { ReservationSection } from "@/components/ReservationSection";
@@ -53,7 +52,7 @@ import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
-import { PerplexityIntelligenceDisplay } from '@/components/PerplexityIntelligenceDisplay';
+import { PerplexityInsights } from '@/components/PerplexityInsights';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -224,12 +223,13 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       
       {/* DISPLAY THE FULL UNFILTERED PERPLEXITY RESPONSE! */}
       {analysis?.rawPerplexityResponse && (
-        <PerplexityIntelligenceDisplay
-          rawResponse={analysis.rawPerplexityResponse}
-          sources={analysis.perplexitySources}
-          timestamp={analysis.perplexityTimestamp}
+        <PerplexityInsights
           communityName={community.name}
           location={`${community.city}, ${community.state}`}
+          intelligence={analysis}
+          onRefresh={() => fetchAnalysis(true)}
+          isLoading={isLoading}
+          lastUpdated={analysis.perplexityTimestamp || analysis.timestamp}
         />
       )}
     </>
