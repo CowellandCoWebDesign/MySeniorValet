@@ -848,9 +848,18 @@ function HeroSectionWithTransformingSearch() {
                 onSubmit={(value) => {
                   // Check if it's a simple value (non-community selection)
                   // AutocompleteSearch handles community navigation internally
-                  // For other searches, redirect to map-search
                   if (value && !value.startsWith('/community/')) {
-                    setLocation(`/map-search?q=${encodeURIComponent(value)}`);
+                    // Respect the current view mode when searching
+                    if (viewMode === 'discover') {
+                      // For Discovery Mode, trigger the search with discovery flag
+                      handleSearch(value, true); // true = isResearchMode/Discovery
+                    } else if (viewMode === 'map') {
+                      // For Map view, redirect to map-search
+                      setLocation(`/map-search?q=${encodeURIComponent(value)}`);
+                    } else {
+                      // For Database Search (list mode), trigger normal search
+                      handleSearch(value, false); // false = normal database search
+                    }
                   }
                 }}
                 placeholder={searchPlaceholder}
