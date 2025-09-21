@@ -53,6 +53,7 @@ import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
+import { PerplexityIntelligenceDisplay } from '@/components/PerplexityIntelligenceDisplay';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -212,13 +213,28 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   }
 
   // Don't render if analysis failed or has no useful data
-  if (!isLoading && analysis && (!analysis.extractedCommunities || analysis.extractedCommunities.length === 0) && analysis.error) {
+  if (!isLoading && analysis && !analysis.rawPerplexityResponse && (!analysis.extractedCommunities || analysis.extractedCommunities.length === 0) && analysis.error) {
     return null;
   }
 
-  // Return loading state or empty div to ensure data fetching happens
-  // The actual display is handled by LiveWebIntelligence component
-  return <div style={{ display: 'none' }} data-component="competitive-analysis-fetcher" />;
+  // CRITICAL FIX: Display the FULL UNFILTERED Perplexity response instead of hiding it!
+  return (
+    <>
+      {/* Hidden fetcher to ensure data loading still happens for other components */}
+      <div style={{ display: 'none' }} data-component="competitive-analysis-fetcher" />
+      
+      {/* DISPLAY THE FULL UNFILTERED PERPLEXITY RESPONSE! */}
+      {analysis?.rawPerplexityResponse && (
+        <PerplexityIntelligenceDisplay
+          rawResponse={analysis.rawPerplexityResponse}
+          sources={analysis.perplexitySources}
+          timestamp={analysis.perplexityTimestamp}
+          communityName={community.name}
+          location={`${community.city}, ${community.state}`}
+        />
+      )}
+    </>
+  );
 };
 
 // Intelligent Pricing Prediction Component
