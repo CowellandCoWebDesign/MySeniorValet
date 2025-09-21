@@ -370,14 +370,26 @@ Format with clear sections and include source URLs.`;
   }
 
   private containsNoReviewsIndicator(content: string): boolean {
+    // Only flag as "no reviews" if ALL platforms have no reviews
+    // Don't reject if just some platforms have no reviews
+    const hasAnyReviews = [
+      /Overall Rating: \d+\.?\d*/i,
+      /\d+ total reviews/i,
+      /\d+ reviews?\)/i,
+      /"[^"]{20,}"/,  // Has actual review quotes
+      /Verified Reviews Found:/i
+    ].some(pattern => pattern.test(content));
+    
+    // If we found evidence of reviews, don't flag as "no reviews"
+    if (hasAnyReviews) {
+      return false;
+    }
+    
+    // Only flag as no reviews if explicitly stated and no reviews found
     const noReviewPatterns = [
-      /no reviews? found/i,
-      /no verified reviews/i,
-      /unable to find reviews/i,
-      /no reviews? available/i,
-      /could not find any reviews/i,
-      /no reviews? exist/i,
-      /0 reviews?/i
+      /no verified reviews found.*on.*all platforms/i,
+      /unable to find any reviews/i,
+      /no reviews available from any source/i
     ];
     
     return noReviewPatterns.some(pattern => pattern.test(content));
