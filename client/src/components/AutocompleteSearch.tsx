@@ -148,11 +148,16 @@ export function AutocompleteSearch({
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         handleSelectSuggestion(suggestions[selectedIndex]);
       } else {
-        onSubmit(value.trim()); // Trim spaces when submitting
+        // Clear suggestions immediately when submitting
         setShowSuggestions(false);
+        setSuggestions([]);
+        onSubmit(value.trim());
+        // Blur the input to ensure dropdown is hidden
+        inputRef.current?.blur();
       }
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
+      setSuggestions([]);
     }
   };
 
@@ -304,7 +309,12 @@ export function AutocompleteSearch({
         />
         {!hideSearchButton && (
           <Button 
-            onClick={() => onSubmit(value)}
+            onClick={() => {
+              setShowSuggestions(false);
+              setSuggestions([]);
+              onSubmit(value);
+              inputRef.current?.blur();
+            }}
             disabled={isLoading || !value}
             className="absolute right-1 top-1/2 transform -translate-y-1/2"
             size="sm"
