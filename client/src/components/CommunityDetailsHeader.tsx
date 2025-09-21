@@ -238,7 +238,13 @@ export function CommunityDetailsHeader({
                          verificationReport?.verificationResults?.contactInformation?.extracted;
   const displayPhone = enrichedContact?.phone || community.phone || 
                        (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : "1-855-287-5093");
-  const displayWebsite = enrichedContact?.website || community.website;
+  
+  // Priority order for website: 1) Market data analysis 2) Contact extraction 3) Database
+  const marketDataWebsite = verificationReport?.extractedCommunities?.find((c: any) => 
+    c.name.toLowerCase().includes(community.name.toLowerCase()) ||
+    community.name.toLowerCase().includes(c.name.toLowerCase())
+  )?.officialWebsite;
+  const displayWebsite = marketDataWebsite || enrichedContact?.website || community.website;
   
   // Get amenities from various sources
   const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
