@@ -852,13 +852,13 @@ function HeroSectionWithTransformingSearch() {
                     // Respect the current view mode when searching
                     if (viewMode === 'discover') {
                       // For Discovery Mode, trigger the search with discovery flag
-                      handleSearch(value, true); // true = isResearchMode/Discovery
+                      handleAutoExpandingSearch(value, true); // true = isResearchMode/Discovery
                     } else if (viewMode === 'map') {
                       // For Map view, redirect to map-search
                       setLocation(`/map-search?q=${encodeURIComponent(value)}`);
                     } else if (viewMode === 'list') {
                       // For Database Search (list mode), trigger normal search
-                      handleSearch(value, false); // false = normal database search
+                      handleAutoExpandingSearch(value, false); // false = normal database search
                     }
                   }
                 }}
