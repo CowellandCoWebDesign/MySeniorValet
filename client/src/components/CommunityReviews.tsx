@@ -671,17 +671,8 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
                   </h4>
                   <div className="max-w-none overflow-visible">
                     <div className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap break-words overflow-visible">
-                      {/* Show both perspective analysis and comparative insights */}
-                      {perspectiveAnalysis && (
-                        <div className="mb-4">
-                          {perspectiveAnalysis}
-                        </div>
-                      )}
-                      {comparativeInsights && comparativeInsights !== perspectiveAnalysis && (
-                        <div>
-                          {comparativeInsights}
-                        </div>
-                      )}
+                      {/* Display the perspective analysis OR comparative insights (but not both to avoid duplication) */}
+                      {perspectiveAnalysis || comparativeInsights}
                     </div>
                   </div>
                 </div>
