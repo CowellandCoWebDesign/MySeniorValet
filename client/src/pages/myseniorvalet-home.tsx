@@ -40,7 +40,7 @@ import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
-import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
+import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { AIChatResponse } from '@/components/AIChatResponse';
 import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
@@ -842,17 +842,20 @@ function HeroSectionWithTransformingSearch() {
             }`}>
               {/* Search component wrapper */}
               <div>
-              <AutoExpandingSearch 
-              onSearch={(query, isResearchMode) => {
-                // Use the existing handleAutoExpandingSearch function
-                handleAutoExpandingSearch(query, isResearchMode || viewMode === 'discover');
-              }}
-              onFocusChange={(focused) => setIsSearchFocused(focused)}
-              initialQuery={searchQuery}
-              placeholder={searchPlaceholder}
-              searchCategory={searchCategory}
-              viewMode={viewMode}
-              className="w-full"
+              <AutocompleteSearch 
+                value={searchQuery}
+                onChange={(value) => setSearchQuery(value)}
+                onSubmit={(value) => {
+                  // Check if it's a simple value (non-community selection)
+                  // AutocompleteSearch handles community navigation internally
+                  // For other searches, redirect to map-search
+                  if (value && !value.startsWith('/community/')) {
+                    setLocation(`/map-search?q=${encodeURIComponent(value)}`);
+                  }
+                }}
+                placeholder={searchPlaceholder}
+                isLoading={isLoading}
+                inputClassName="w-full"
               />
             </div>
             </div>
