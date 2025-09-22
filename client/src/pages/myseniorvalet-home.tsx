@@ -322,8 +322,43 @@ function HeroSectionWithTransformingSearch() {
       !isUSLocation && 
       internationalCountries.some(country => new RegExp(`\\b${country}\\b`, 'i').test(queryLower));
     
-    // REMOVED: Auto-triggering Discovery Mode for international searches
-    // Discovery Mode should only activate when user explicitly clicks the button
+    // Only auto-trigger Discovery Mode for international searches if viewMode is 'discover'
+    // For 'list' mode (Database Search), let it search the database normally
+    if (isInternationalSearch && viewMode === 'discover') {
+      console.log('🌍 International search auto-detected for:', query);
+      setIsLoading(true);
+      
+      try {
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query, 
+            searchType: searchCategory === 'services' ? 'services' : 'location',
+            limit: 50 
+          }),
+          signal: AbortSignal.timeout(60000) // 60 second timeout for international searches
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.results && data.results.length > 0) {
+            setGlobalDiscoveryResults({
+              query,
+              results: data.results,
+              metadata: data.metadata
+            });
+            setForceClearAutocomplete(true);
+            setShowGlobalDiscoveryModal(true);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('International discovery error:', error);
+      }
+      setIsLoading(false);
+    }
 
     // Handle map view redirect
     if (viewMode === 'map' && query) {
@@ -337,9 +372,145 @@ function HeroSectionWithTransformingSearch() {
     setIsLoading(true);
 
     try {
-      // ALL search modes (list, map, discover) should search the database first
-      // Discovery Mode is only triggered manually by user clicking a button
-      if (isResearchMode) {
+      // Discovery mode for Communities - use global discovery to find facilities
+      if (viewMode === 'discover' && searchCategory === 'communities') {
+        // Call global discovery endpoint to find actual facilities
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: query,
+            searchType: 'location',
+            limit: 20,
+            discoveryMode: true  // Explicitly set Discovery Mode flag
+          }),
+          signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
+        });
+
+        if (!response.ok) throw new Error('Discovery search failed');
+        
+        const data = await response.json();
+        
+        // Show discovered facilities in modal
+        if (data.results && data.results.length > 0) {
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results,
+            metadata: {...data.metadata, discoveryType: 'communities'}
+          });
+          setForceClearAutocomplete(true);
+          setShowGlobalDiscoveryModal(true);
+        } else {
+          // No facilities found, show message
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `No senior living facilities found in ${query} yet. Try a different city or check back later as we expand our coverage.`,
+              isResearchMode: false
+            }
+          });
+        }
+        
+      } else if (viewMode === 'discover' && searchCategory === 'services') {
+        // Discovery mode for Services - discover ANY type of service providers globally
+        
+        // Show immediate loading feedback for services search
+        setSearchResults({ 
+          results: [],
+          metadata: {
+            isLoading: true,
+            loadingMessage: `Searching for service providers related to "${query}"...`,
+            isResearchMode: false
+          }
+        });
+        
+        // Implement retry logic for reliability
+        let attempts = 0;
+        const maxAttempts = 2;
+        let lastError = null;
+        
+        while (attempts < maxAttempts) {
+          try {
+            const response = await fetch('/api/global-discovery/search', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ 
+                query: query,
+                searchType: 'services',  // General services, not limited to senior care
+                limit: 20,
+                discoveryMode: true  // Explicitly set Discovery Mode flag
+              }),
+              signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
+            });
+
+            if (!response.ok) {
+              throw new Error(`Service discovery search failed: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Show discovered services in modal
+            if (data.results && data.results.length > 0) {
+              setGlobalDiscoveryResults({
+                query,
+                results: data.results,
+                metadata: {...data.metadata, discoveryType: 'services'}
+              });
+              setForceClearAutocomplete(true);
+              setShowGlobalDiscoveryModal(true);
+              // Clear the loading state
+              setSearchResults({ results: [], metadata: null });
+            } else {
+              // No services found, show helpful message with suggestions
+              setSearchResults({ 
+                results: [],
+                metadata: {
+                  aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
+                  isResearchMode: false,
+                  suggestions: [
+                    'home health care',
+                    'medical supplies',
+                    'senior transportation',
+                    'meal delivery services'
+                  ]
+                }
+              });
+            }
+            break; // Success - exit retry loop
+            
+          } catch (error) {
+            lastError = error;
+            attempts++;
+            
+            if (attempts < maxAttempts) {
+              // Update loading message for retry
+              setSearchResults({ 
+                results: [],
+                metadata: {
+                  isLoading: true,
+                  loadingMessage: `Retrying search for "${query}"... (Attempt ${attempts + 1}/${maxAttempts})`,
+                  isResearchMode: false
+                }
+              });
+              
+              // Wait a bit before retrying
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            } else {
+              // All attempts failed - show error message
+              console.error('Service discovery search failed after retries:', error);
+              setSearchResults({ 
+                results: [],
+                metadata: {
+                  aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
+                  error: true,
+                  isResearchMode: false
+                }
+              });
+            }
+          }
+        }
+        
+      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
         // Use Public AI Chat for research mode or non-implemented discovery categories
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
@@ -368,8 +539,7 @@ function HeroSectionWithTransformingSearch() {
         });
 
       } else {
-        // Regular database search for ALL view modes (list, map, discover)
-        // This searches the database first, Discovery Mode is manual only
+        // Regular search for list/map view - use comprehensive search for communities
         if (searchCategory === 'communities') {
           // Use the comprehensive search endpoint for community searches
           const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
@@ -1201,31 +1371,17 @@ function HeroSectionWithTransformingSearch() {
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 blur-xl opacity-40"></div>
                             <div className="relative bg-white/10 backdrop-blur-md rounded-2xl p-8 border border-white/20">
                               <MapPin className="w-16 h-16 text-white/60 mx-auto mb-4" />
-                              <h3 className="text-xl font-semibold text-white mb-2">No Results Found in Database</h3>
-                              <p className="text-white/70 mb-4">
+                              <h3 className="text-xl font-semibold text-white mb-2">No Results Found</h3>
+                              <p className="text-white/70">
                                 {searchQuery 
                                   ? `We couldn't find any ${
                                       searchCategory === 'services' ? 'services' : 
                                       searchCategory === 'healthcare' ? 'healthcare providers' :
                                       searchCategory === 'resources' ? 'resources' :
                                       'communities'
-                                    } matching "${searchQuery}" in our database`
+                                    } matching "${searchQuery}"`
                                   : "Try adjusting your search criteria"}
                               </p>
-                              
-                              {/* Manual Discovery Mode Trigger Button */}
-                              {searchQuery && (
-                                <button
-                                  onClick={() => handleManualDiscoveryMode(searchQuery)}
-                                  className="mt-4 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105"
-                                >
-                                  <span className="flex items-center gap-2">
-                                    <span className="text-lg">🌍</span>
-                                    <span>Activate Discovery Mode</span>
-                                  </span>
-                                  <span className="text-xs opacity-90 mt-1 block">Search worldwide beyond our database</span>
-                                </button>
-                              )}
                             </div>
                           </div>
                         </motion.div>
