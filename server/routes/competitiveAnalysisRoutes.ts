@@ -5,6 +5,7 @@ import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { DiscoveredCommunityService } from '../services/discovered-community-service';
+import { unifiedPerplexityCache } from '../unified-perplexity-cache';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
@@ -25,89 +26,74 @@ router.post('/api/competitive-analysis', async (req, res) => {
         .limit(1);
       
       if (community) {
-        let intelligence;
-        let needsFetch = true;
+        let intelligence: any;
         
-        // CHECK CACHED DATA FIRST - Reduce API calls by 90%+
-        if (!forceRefresh && community.enrichmentData && community.enrichmentDataExpiry) {
-          const expiryDate = new Date(community.enrichmentDataExpiry);
-          const now = new Date();
-          
-          if (expiryDate > now) {
-            // Data is still fresh (less than 7 days old), use cached data
-            console.log(`✅ Using cached enrichment data for ${community.name}, expires: ${expiryDate}`);
-            intelligence = community.enrichmentData;
-            needsFetch = false;
-          } else {
-            console.log(`⏰ Cached data expired for ${community.name}, fetching fresh data...`);
-          }
-        }
+        // CRITICAL FIX: Use unified cache instead of separate API calls
+        // This prevents the cost spike from $0.015 to $0.19
+        console.log(`🔍 Using unified cache for ${community.name} to prevent cost spike...`);
         
-        // RUNAWAY PROTECTION - Prevent excessive API calls (1 minute)
-        if (needsFetch && !forceRefresh && community.lastEnrichmentAttempt) {
-          const lastAttempt = new Date(community.lastEnrichmentAttempt);
-          const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
-          
-          if (lastAttempt > oneMinuteAgo) {
-            console.log(`⚡ Runaway protection: ${community.name} was enriched ${Math.round((Date.now() - lastAttempt.getTime()) / 1000)}s ago`);
-            // Return cached data if available to prevent mass API calls
-            if (community.enrichmentData) {
-              intelligence = community.enrichmentData;
-              needsFetch = false;
-            }
-          }
-        }
-        
-        // FETCH NEW DATA if needed
-        if (needsFetch) {
-          console.log(`🔄 Fetching fresh enrichment data for ${community.name}...`);
-          
-          // Update last attempt timestamp
-          await db
-            .update(communities)
-            .set({ 
-              lastEnrichmentAttempt: new Date() 
-            })
-            .where(eq(communities.id, communityId));
-          
-          // First try enhanced service with fuzzy matching and multiple strategies
-          console.log(`🚀 Using Enhanced AI Enrichment with fuzzy matching for ${community.name}`);
-          const enhancedResult = await enhancedEnrichmentService.findCommunityWithStrategies(
-            community.id,
+        try {
+          // Get comprehensive data from unified cache (costs $0.015 total)
+          const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+            communityId.toString(),
             community.name,
-            community.city,
-            community.state,
-            community.address || undefined
+            `${community.city}, ${community.state}`
           );
           
-          // Log enrichment summary
-          console.log(enhancedEnrichmentService.getEnrichmentSummary(enhancedResult));
+          // Transform unified cache data to competitive analysis format
+          intelligence = {
+            found: true,
+            communityName: community.name,
+            officialWebsite: comprehensiveData.marketData?.website || community.website,
+            phone: comprehensiveData.marketData?.phone || community.phone,
+            email: comprehensiveData.marketData?.email,
+            pricing: comprehensiveData.marketData?.pricing || 'Contact for pricing',
+            photos: comprehensiveData.photos || [],
+            sources: comprehensiveData.sources || [],
+            amenities: [],
+            careLevels: [],
+            description: comprehensiveData.marketData?.description || '',
+            managementCompany: comprehensiveData.marketData?.managementCompany || '',
+            reviews: comprehensiveData.reviews,
+            inspections: comprehensiveData.inspections
+          };
           
-          // Fall back to basic service if enhanced fails
-          intelligence = enhancedResult;
-          if (!enhancedResult.found) {
-            console.log(`💫 Falling back to basic Perplexity search...`);
-            intelligence = await simplifiedPerplexityService.getCommunityIntelligence(
-              community.name,
-              `${community.city}, ${community.state}`
-            );
-          }
+          console.log(`✅ Using unified cache data for ${community.name} (single API call @ $0.015)`);
           
-          // SAVE TO DATABASE - Cache for 30 days
-          const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days from now
-          
+          // Save to enrichmentData for backward compatibility
+          const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
           await db
             .update(communities)
             .set({
               enrichmentData: intelligence,
               enrichmentDataExpiry: expiryDate,
               lastEnrichmentDate: new Date(),
-              enrichmentStatus: intelligence.found ? 'completed' : 'partial',
-              enrichmentCompleted: intelligence.found
+              enrichmentStatus: 'completed' as any,
+              enrichmentCompleted: true
             })
             .where(eq(communities.id, communityId));
-          
-          console.log(`💾 Saved enrichment data to database, expires: ${expiryDate}`);
+            
+        } catch (error) {
+          console.error(`⚠️ Unified cache error, using database cache:`, error);
+          // Use database cached data if available
+          if (community.enrichmentData) {
+            intelligence = community.enrichmentData as any;
+            console.log(`📦 Using database cached data (expires: ${community.enrichmentDataExpiry})`);
+          } else {
+            // Return minimal data to avoid errors
+            intelligence = {
+              found: false,
+              communityName: community.name,
+              officialWebsite: community.website,
+              phone: community.phone,
+              sources: [],
+              pricing: null,
+              photos: [],
+              amenities: [],
+              careLevels: []
+            };
+            console.log(`⚠️ No cached data available, returning minimal response`);
+          }
         }
         
         console.log(`🔍 Competitive Analysis Result for ${community.name}:`, {
@@ -149,10 +135,11 @@ router.post('/api/competitive-analysis', async (req, res) => {
             amenities: c.amenities?.length || 0
           }));
 
-        // Calculate market averages
+        // Calculate market averages (fix type issues)
         const rentValues = competitiveCommunities
-          .filter(c => c.rentPerMonth && c.rentPerMonth > 0)
-          .map(c => c.rentPerMonth);
+          .filter(c => c.rentPerMonth && typeof c.rentPerMonth === 'string' && parseInt(c.rentPerMonth) > 0)
+          .map(c => parseInt(c.rentPerMonth as string))
+          .filter(v => !isNaN(v));
         
         const averageRent = rentValues.length > 0 ? 
           Math.round(rentValues.reduce((sum, rent) => sum + rent, 0) / rentValues.length) : null;
