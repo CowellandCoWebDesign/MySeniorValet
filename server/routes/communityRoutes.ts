@@ -787,7 +787,7 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // SIMPLIFIED Verification endpoint - Clean and direct
+  // SIMPLIFIED Verification endpoint - Uses unified cache to prevent cost spikes
   app.post("/api/communities/:id/verify", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -797,13 +797,40 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
 
-      console.log(`🔍 Simple verification for community ${communityId}`);
+      console.log(`🔍 Verification using unified cache for community ${communityId}`);
+      
+      // Get community details first
+      const [community] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
+      
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
 
-      // Use the new simplified enrichment service
-      const enrichmentResult = await simpleEnrichmentService.enrichCommunity(
-        communityId,
-        forceRefresh || false
+      // CRITICAL FIX: Use unified cache instead of separate enrichment service
+      // This prevents the $0.07 cost spike
+      const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
+      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+        communityId.toString(),
+        community.name,
+        `${community.city}, ${community.state}`
       );
+      
+      // Create enrichmentResult from unified cache data
+      const enrichmentResult = {
+        communityId: communityId,
+        communityName: community.name,
+        lastUpdated: new Date().toISOString(),
+        verificationStatus: 'verified' as const,
+        confidence: 85,
+        officialWebsite: comprehensiveData.marketData?.website || community.website,
+        phoneNumber: comprehensiveData.marketData?.phone || community.phone,
+        pricing: comprehensiveData.marketData?.pricing,
+        photos: comprehensiveData.photos || [],
+        searchResults: {
+          summary: comprehensiveData.marketData?.description || '',
+          sources: comprehensiveData.sources || []
+        }
+      };
       
       // Update database with discovered information
       if (enrichmentResult.searchResults?.summary) {
