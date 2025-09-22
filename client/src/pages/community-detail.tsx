@@ -340,9 +340,42 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
+  const [hasCachedData, setHasCachedData] = useState(false);
   
-  // Trigger verification when component mounts (only once) - USING CACHE TO PREVENT DUPLICATES
+  // First, try to load from cache immediately on mount
   useEffect(() => {
+    if (community?.id && !localVerificationReport && !hasCachedData) {
+      // Try to get cached data immediately
+      const cacheKey = `verify-${community.id}`;
+      
+      console.log(`🔍 Checking cache for verification data for community ${community.id}`);
+      
+      // Check if we have cached data from previous visit
+      enrichmentCache.getOrFetch(
+        cacheKey,
+        async () => null, // Return null if not in cache - we'll fetch fresh below
+        false // Don't force refresh, use cache if available
+      ).then(cachedData => {
+        if (cachedData && cachedData.communityId) {
+          console.log(`✨ Loaded verification report from cache for community ${community.id}`);
+          setLocalVerificationReport(cachedData);
+          setHasCachedData(true);
+          if (onPhotosUpdate && cachedData.verificationResults?.webIntelligence?.images) {
+            onPhotosUpdate(cachedData.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
+          }
+        }
+      });
+    }
+  }, [community?.id]);
+  
+  // Trigger fresh verification if needed (only if no cached data)
+  useEffect(() => {
+    // Skip if we have cached data
+    if (hasCachedData || localVerificationReport) {
+      console.log(`✅ Using cached verification report, skipping fresh fetch`);
+      return;
+    }
+    
     // Enable auto-verification with 30-second cooloff
     const COOLOFF_MS = 30000; // 30 seconds
     const lastFetchKey = `realtime-verify-last-fetch-${community?.id}`;
@@ -402,7 +435,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         setIsVerifying(false);
       });
     }
-  }, [community?.id]);
+  }, [community?.id, hasCachedData, localVerificationReport]);
 
   // Show loading or placeholder content while waiting for data
   const hasData = realTimeData || localVerificationReport;
