@@ -63,8 +63,8 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
   const [sortBy, setSortBy] = useState<string>('recent');
   const [isSubmitDialogOpen, setIsSubmitDialogOpen] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState<Set<number>>(new Set());
-  const [lastGrokUpdate, setLastGrokUpdate] = useState<string | null>(null);
-  const [grokCitations, setGrokCitations] = useState<string[]>([]);
+  const [lastPerplexityUpdate, setLastPerplexityUpdate] = useState<string | null>(null);
+  const [perplexityCitations, setPerplexityCitations] = useState<string[]>([]);
   const [perspectiveAnalysis, setPerspectiveAnalysis] = useState<string>('');
   const [comparativeInsights, setComparativeInsights] = useState<string>('');
   const [hasInitiallyFetched, setHasInitiallyFetched] = useState(false);
@@ -98,10 +98,10 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
         duration: 3000
       });
       
-      // Update local state with Grok data
+      // Update local state with Perplexity data
       if (data.data) {
-        setLastGrokUpdate(data.data.lastUpdated);
-        setGrokCitations(data.data.sources || []);
+        setLastPerplexityUpdate(data.data.lastUpdated);
+        setPerplexityCitations(data.data.sources || []);
         setPerspectiveAnalysis(data.data.perspectiveAnalysis || '');
         setComparativeInsights(data.data.comparativeInsights || '');
       }
@@ -165,9 +165,9 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
         setPerspectiveAnalysis(comprehensiveData.reviews.recentFeedback);
       }
       if (comprehensiveData.sources) {
-        setGrokCitations(comprehensiveData.sources);
+        setPerplexityCitations(comprehensiveData.sources);
       }
-      setLastGrokUpdate(new Date(comprehensiveData.timestamp).toLocaleString());
+      setLastPerplexityUpdate(new Date(comprehensiveData.timestamp).toLocaleString());
     } else if (!hasInitiallyFetched && !comprehensiveData && community?.id) {
       // Only auto-fetch if no comprehensive data available
       setHasInitiallyFetched(true);
@@ -627,40 +627,21 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {/* Grok AI Comparative Analysis - Prominently displayed at top */}
-          {(lastGrokUpdate || grokCitations.length > 0 || perspectiveAnalysis || comparativeInsights || fetchExternalReviewsMutation.isPending) && (
+          {/* Perplexity AI Comparative Analysis - Prominently displayed at top */}
+          {(lastPerplexityUpdate || perplexityCitations.length > 0 || perspectiveAnalysis || comparativeInsights || fetchExternalReviewsMutation.isPending) && (
             <div className="border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 dark:border-blue-600 rounded-lg p-4 mb-6 overflow-visible max-h-none">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400 animate-pulse" />
                   <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                    Grok AI - Comparison in Perspective
+                    Perplexity AI - Comparison in Perspective
                   </h3>
-                  {lastGrokUpdate && (
+                  {lastPerplexityUpdate && (
                     <span className="text-xs text-blue-700 dark:text-blue-400">
-                      • Updated {formatDistanceToNow(new Date(lastGrokUpdate))} ago
+                      • Updated {formatDistanceToNow(new Date(lastPerplexityUpdate))} ago
                     </span>
                   )}
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchExternalReviewsMutation.mutate()}
-                  disabled={fetchExternalReviewsMutation.isPending}
-                  className="border-blue-300 hover:bg-blue-50 dark:border-blue-600 dark:hover:bg-blue-950/50"
-                >
-                  {fetchExternalReviewsMutation.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Analyzing...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Refresh Analysis
-                    </>
-                  )}
-                </Button>
               </div>
               
               {/* Loading State */}
@@ -668,7 +649,7 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
                 <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-6 text-center">
                   <Loader2 className="h-8 w-8 animate-spin mx-auto mb-3 text-blue-600 dark:text-blue-400" />
                   <p className="text-sm text-gray-700 dark:text-gray-300 font-medium">
-                    🔍 Grok is analyzing reviews from multiple sources...
+                    🔍 Perplexity is analyzing reviews from multiple sources...
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-2">
                     Comparing perspectives from Google, Yelp, Care.com, and other platforms
@@ -692,11 +673,11 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
               )}
               
               {/* Sources */}
-              {grokCitations.length > 0 && (
+              {perplexityCitations.length > 0 && (
                 <div className="mt-4 pt-3 border-t border-blue-200 dark:border-blue-700">
                   <p className="text-xs font-medium text-blue-700 dark:text-blue-300 mb-2">Analysis Sources:</p>
                   <div className="flex flex-wrap gap-2">
-                    {grokCitations.slice(0, 8).map((citation: string, index: number) => {
+                    {perplexityCitations.slice(0, 8).map((citation: string, index: number) => {
                       let sourceName = `Source ${index + 1}`;
                       try {
                         const url = new URL(citation);
@@ -729,9 +710,9 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
                         </a>
                       );
                     })}
-                    {grokCitations.length > 8 && (
+                    {perplexityCitations.length > 8 && (
                       <span className="inline-flex items-center px-2 py-1 text-xs text-blue-600 dark:text-blue-400">
-                        +{grokCitations.length - 8} more sources
+                        +{perplexityCitations.length - 8} more sources
                       </span>
                     )}
                   </div>
@@ -742,13 +723,13 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
               {!fetchExternalReviewsMutation.isPending && !perspectiveAnalysis && !comparativeInsights && (
                 <div className="bg-white/70 dark:bg-gray-800/70 rounded-lg p-6 text-center">
                   <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
-                    Click "Refresh Analysis" to get Grok's comparative perspective on reviews from multiple platforms.
+                    Comparative analysis from Perplexity AI shows reviews from multiple platforms.
                   </p>
                 </div>
               )}
               
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-3 italic">
-                ℹ️ Grok analyzes and compares reviews across multiple platforms to provide a balanced perspective.
+                ℹ️ Perplexity analyzes and compares reviews across multiple platforms to provide a balanced perspective.
               </p>
             </div>
           )}
@@ -832,27 +813,6 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
               <FileSearch className="h-5 w-5 text-orange-600 dark:text-orange-400" />
               <span>Inspection Reports & Violations</span>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setInspectionLoading(true);
-                fetchInspectionsMutation.mutate();
-              }}
-              disabled={inspectionLoading || fetchInspectionsMutation.isPending}
-            >
-              {(inspectionLoading || fetchInspectionsMutation.isPending) ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Researching...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Research Inspections
-                </>
-              )}
-            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -188,7 +188,7 @@ Format all information clearly with section headers.
       marketData,
       reviews,
       inspections,
-      photos: response.images || [],
+      photos: this.extractPhotosFromResponse(response) || [],
       sources: response.sources || [],
       timestamp: Date.now(),
       communityId,
@@ -322,6 +322,57 @@ Format all information clearly with section headers.
     if (content.toLowerCase().includes('violation')) return 'Issues Found';
     if (content.toLowerCase().includes('compliant')) return 'Compliant';
     return 'Unknown';
+  }
+
+  private extractPhotosFromResponse(response: { summary: string; sources: string[]; images?: string[] }): string[] {
+    const extractedPhotos = new Set<string>();
+    
+    // First add any images that were directly returned
+    if (response.images && Array.isArray(response.images)) {
+      response.images.forEach(img => extractedPhotos.add(img));
+    }
+    
+    const text = response.summary;
+    
+    // Extract photo gallery links and image URLs from the text
+    // Look for patterns like "photo gallery: URL" or "photos: URL"
+    const photoLinkPatterns = [
+      /(?:photos?|gallery|images?):\s*(https?:\/\/[^\s]+)/gi,
+      /\*\*PHOTOS[^\*]*\*\*[^\n]*?(https?:\/\/[^\s]+)/gi,
+      /photo gallery[^\n]*?(https?:\/\/[^\s]+)/gi
+    ];
+    
+    for (const pattern of photoLinkPatterns) {
+      const matches = text.matchAll(pattern);
+      for (const match of matches) {
+        if (match[1]) {
+          // These might be gallery pages, not direct images, but we'll include them
+          extractedPhotos.add(match[1]);
+        }
+      }
+    }
+    
+    // Look for direct image URLs in the text
+    const imageUrlRegex = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^\s]*)?/gi;
+    const urlMatches = text.match(imageUrlRegex);
+    if (urlMatches) {
+      urlMatches.forEach(url => extractedPhotos.add(url.trim()));
+    }
+    
+    // Look for markdown image syntax
+    const markdownImageRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
+    let match;
+    while ((match = markdownImageRegex.exec(text)) !== null) {
+      if (match[1]) {
+        extractedPhotos.add(match[1]);
+      }
+    }
+    
+    const photoArray = Array.from(extractedPhotos);
+    if (photoArray.length > 0) {
+      console.log(`📸 Extracted ${photoArray.length} photo URLs from comprehensive data`);
+    }
+    return photoArray;
   }
 
   // Clear cache for a specific community
