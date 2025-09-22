@@ -996,8 +996,19 @@ export class NLPSearchSystem {
       const orConditions = [];
       
       // Extract location from query (e.g., "hotels in dallas" -> location: "dallas")
-      const locationMatch = query.match(/(?:in|at|near)\s+([a-zA-Z\s]+)$/i);
-      const location = locationMatch ? locationMatch[1].trim() : null;
+      // Handle both original query format and enhanced query format
+      let location: string | null = null;
+      
+      // Try to extract from enhanced format first (e.g., "location:dallas")
+      const enhancedLocationMatch = query.match(/location:([a-zA-Z\s]+?)(?:\s|$)/i);
+      if (enhancedLocationMatch) {
+        location = enhancedLocationMatch[1].trim();
+      } else {
+        // Fallback to original format (e.g., "hotels in dallas")
+        // Match location after in/at/near but before any additional keywords
+        const locationMatch = query.match(/(?:in|at|near)\s+([a-zA-Z\s]+?)(?:\s+at\s+|\s+within\s+|$)/i);
+        location = locationMatch ? locationMatch[1].trim() : null;
+      }
       
       // Extract business type from query (e.g., "hotels" from "hotels in dallas")
       const businessTypeMatch = query.match(/^([a-zA-Z\s]+?)(?:\s+in|\s+at|\s+near|$)/i);
