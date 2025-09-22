@@ -46,6 +46,7 @@ interface LiveWebIntelligenceProps {
   state: string;
   autoLoad?: boolean;  // Add autoLoad prop
   verificationReport?: any;
+  comprehensiveData?: any;
 }
 
 export function LiveWebIntelligence({ 
@@ -54,7 +55,8 @@ export function LiveWebIntelligence({
   city, 
   state,
   autoLoad = true,  // Default to auto-loading
-  verificationReport
+  verificationReport,
+  comprehensiveData
 }: LiveWebIntelligenceProps) {
   const [intelligence, setIntelligence] = useState<CommunityIntelligence | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -100,6 +102,29 @@ export function LiveWebIntelligence({
 
   // Auto-load intelligence when component mounts (if autoLoad is true)
   useEffect(() => {
+    // First check if we have comprehensive data
+    if (comprehensiveData?.marketData && !intelligence) {
+      console.log('📦 Using cached comprehensive market data');
+      
+      const mockIntelligence: CommunityIntelligence = {
+        found: true,
+        name: communityName,
+        officialWebsite: comprehensiveData.marketData.website,
+        phone: comprehensiveData.marketData.phone,
+        description: comprehensiveData.marketData.description,
+        pricing: comprehensiveData.marketData.pricing ? {
+          details: comprehensiveData.marketData.pricing
+        } : undefined,
+        sources: comprehensiveData.sources || [],
+        photos: comprehensiveData.photos || [],
+        notes: 'Data from unified cache'
+      };
+      
+      setIntelligence(mockIntelligence);
+      setIsExpanded(true);
+      return; // Exit early, no need to fetch
+    }
+    
     // If we have verification report data, use it directly
     if (verificationReport && !intelligence) {
       console.log('Using verification report data directly:', verificationReport);

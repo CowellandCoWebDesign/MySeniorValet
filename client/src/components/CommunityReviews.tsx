@@ -53,9 +53,10 @@ interface Review {
 interface CommunityReviewsProps {
   community: Community;
   currentUserId?: number;
+  comprehensiveData?: any;
 }
 
-export function CommunityReviews({ community, currentUserId }: CommunityReviewsProps) {
+export function CommunityReviews({ community, currentUserId, comprehensiveData }: CommunityReviewsProps) {
   const { toast } = useToast();
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [selectedSource, setSelectedSource] = useState<string>('all');
@@ -153,15 +154,27 @@ export function CommunityReviews({ community, currentUserId }: CommunityReviewsP
     }
   });
 
-  // AUTO-FETCH: Grok reviews load automatically when Reviews tab is clicked
+  // Use comprehensive data if available instead of auto-fetching
   useEffect(() => {
-    if (!hasInitiallyFetched && community?.id) {
+    if (comprehensiveData?.reviews && !hasInitiallyFetched) {
       setHasInitiallyFetched(true);
-      // Auto-fetch reviews from Grok for Comparison in Perspective
-      console.log('🤖 Grok: Auto-fetching reviews with comparative perspective...');
+      console.log('📦 Using cached comprehensive review data');
+      
+      // Set review data from comprehensive cache
+      if (comprehensiveData.reviews.recentFeedback) {
+        setPerspectiveAnalysis(comprehensiveData.reviews.recentFeedback);
+      }
+      if (comprehensiveData.sources) {
+        setGrokCitations(comprehensiveData.sources);
+      }
+      setLastGrokUpdate(new Date(comprehensiveData.timestamp).toLocaleString());
+    } else if (!hasInitiallyFetched && !comprehensiveData && community?.id) {
+      // Only auto-fetch if no comprehensive data available
+      setHasInitiallyFetched(true);
+      console.log('🤖 Fetching fresh review data...');
       fetchExternalReviewsMutation.mutate();
     }
-  }, [community?.id, hasInitiallyFetched]);
+  }, [community?.id, hasInitiallyFetched, comprehensiveData]);
 
   // Extract external reviews from community data
   const externalReviews = useMemo(() => {

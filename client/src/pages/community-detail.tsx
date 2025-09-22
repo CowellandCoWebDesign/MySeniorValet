@@ -1182,6 +1182,14 @@ export default function CommunityDetail() {
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
   });
 
+  // Fetch comprehensive data once for all tabs
+  const { data: comprehensiveData } = useQuery({
+    queryKey: [`/api/community/${id}/comprehensive-data`],
+    enabled: !!id && !!community && id !== '-1' && !isNaN(Number(id)),
+    staleTime: 7 * 24 * 60 * 60 * 1000, // Cache for 7 days
+    cacheTime: 7 * 24 * 60 * 60 * 1000,
+  });
+
   // Reset all state when community ID changes (but don't return early)
   React.useEffect(() => {
     // Only reset state if we have a valid ID
@@ -2861,13 +2869,14 @@ export default function CommunityDetail() {
                   </CardHeader>
                 </Card>
 
-                {/* Real-Time AI Insights */}
+                {/* Real-Time AI Insights - Uses shared comprehensive data */}
                 <RealTimeInsights 
                   key={`real-time-insights-${community.id}`}
                   community={community}
                   marketAnalysisData={marketAnalysisData} 
                   onVerificationReport={setVerificationReport}
                   onPhotosUpdate={undefined}
+                  comprehensiveData={comprehensiveData}
                 />
 
                 {/* Intelligent Pricing Prediction */}
@@ -2885,11 +2894,12 @@ export default function CommunityDetail() {
                 />
               </TabsContent>
               
-              {/* Reviews Tab Content - Direct child of main tabs */}
+              {/* Reviews Tab Content - Uses shared comprehensive data */}
               <TabsContent value="reviews" className="space-y-6 mt-6 overflow-visible">
                 <CommunityReviews 
                   community={community} 
                   currentUserId={undefined}
+                  comprehensiveData={comprehensiveData}
                 />
               </TabsContent>
                   
