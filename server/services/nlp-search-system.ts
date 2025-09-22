@@ -1018,7 +1018,7 @@ export class NLPSearchSystem {
           typeConditions.push(
             ilike(vendors.businessName, `%${term}%`),
             ilike(vendors.description, `%${term}%`),
-            ilike(vendors.serviceType, `%${term}%`)
+            ilike(vendors.businessType, `%${term}%`)
           );
         }
         
