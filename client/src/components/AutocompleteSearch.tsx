@@ -45,6 +45,7 @@ interface AutocompleteSearchProps {
   isLoading?: boolean;
   hideSearchButton?: boolean;
   inputClassName?: string;
+  forceClearSuggestions?: boolean;
 }
 
 export function AutocompleteSearch({ 
@@ -54,7 +55,8 @@ export function AutocompleteSearch({
   placeholder = "Search cities, communities, care types...",
   isLoading = false,
   hideSearchButton = false,
-  inputClassName = ""
+  inputClassName = "",
+  forceClearSuggestions = false
 }: AutocompleteSearchProps) {
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -79,6 +81,15 @@ export function AutocompleteSearch({
   const { toast } = useToast();
   
   const isAuthenticated = user?.success && user?.user;
+
+  // Clear suggestions when forceClearSuggestions is true
+  useEffect(() => {
+    if (forceClearSuggestions) {
+      setShowSuggestions(false);
+      setSuggestions([]);
+      setSelectedIndex(-1);
+    }
+  }, [forceClearSuggestions]);
 
   // Fetch suggestions
   useEffect(() => {

@@ -186,6 +186,7 @@ function HeroSectionWithTransformingSearch() {
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('discover');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
+  const [forceClearAutocomplete, setForceClearAutocomplete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
@@ -260,6 +261,7 @@ function HeroSectionWithTransformingSearch() {
             results: data.results || [],
             metadata: {...(data.metadata || {}), discoveryType: searchCategory}
           });
+          setForceClearAutocomplete(true);
           setShowGlobalDiscoveryModal(true);
           setIsLoading(false);
           setSearchResults({ results: [], metadata: null });
@@ -346,6 +348,7 @@ function HeroSectionWithTransformingSearch() {
               results: data.results,
               metadata: data.metadata
             });
+            setForceClearAutocomplete(true);
             setShowGlobalDiscoveryModal(true);
             setIsLoading(false);
             return;
@@ -395,6 +398,7 @@ function HeroSectionWithTransformingSearch() {
             results: data.results,
             metadata: {...data.metadata, discoveryType: 'communities'}
           });
+          setForceClearAutocomplete(true);
           setShowGlobalDiscoveryModal(true);
         } else {
           // No facilities found, show message
@@ -452,6 +456,7 @@ function HeroSectionWithTransformingSearch() {
                 results: data.results,
                 metadata: {...data.metadata, discoveryType: 'services'}
               });
+              setForceClearAutocomplete(true);
               setShowGlobalDiscoveryModal(true);
               // Clear the loading state
               setSearchResults({ results: [], metadata: null });
@@ -846,7 +851,13 @@ function HeroSectionWithTransformingSearch() {
               <div>
               <AutocompleteSearch 
                 value={searchQuery}
-                onChange={(value) => setSearchQuery(value)}
+                onChange={(value) => {
+                  setSearchQuery(value);
+                  // Reset the force clear flag when user types
+                  if (forceClearAutocomplete) {
+                    setForceClearAutocomplete(false);
+                  }
+                }}
                 onSubmit={(value) => {
                   // Check if it's a simple value (non-community selection)
                   // AutocompleteSearch handles community navigation internally
@@ -867,6 +878,7 @@ function HeroSectionWithTransformingSearch() {
                 placeholder={searchPlaceholder}
                 isLoading={isLoading}
                 inputClassName="w-full"
+                forceClearSuggestions={forceClearAutocomplete}
               />
             </div>
             </div>
