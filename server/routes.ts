@@ -207,9 +207,38 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
         }
       }
       
-      // Photo extraction commented out temporarily - method not available
-      // TODO: Fix photo extraction using the correct method from MultiAIPhotoExtractor
-      businessData.photos = [];
+      // Extract photos using MultiAIPhotoExtractor for services (hotels, restaurants, etc.)
+      let extractedPhotos: string[] = [];
+      try {
+        const photoExtractor = new MultiAIPhotoExtractor();
+        const photoCandidates = await MultiAIPhotoExtractor.extractPhotosFromServiceDirectorySites(
+          answer, 
+          serviceName, 
+          serviceType || 'service'
+        );
+        
+        // Also try to extract directly from HTML content
+        const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
+        
+        // Combine and deduplicate photos
+        const allPhotoCandidates = [...photoCandidates, ...contentPhotos];
+        const uniquePhotos = new Map<string, any>();
+        
+        for (const photo of allPhotoCandidates) {
+          if (photo.url && !uniquePhotos.has(photo.url)) {
+            uniquePhotos.set(photo.url, photo);
+          }
+        }
+        
+        // Convert to array of photo URLs for frontend
+        extractedPhotos = Array.from(uniquePhotos.values()).map(photo => photo.url);
+        
+        console.log(`📸 Extracted ${extractedPhotos.length} photos for ${serviceName}`);
+      } catch (error) {
+        console.error('Failed to extract photos:', error);
+      }
+      
+      businessData.photos = extractedPhotos;
 
       // Set website if found
       if (extractedWebsite) {
