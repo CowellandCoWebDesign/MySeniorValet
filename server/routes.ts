@@ -1374,6 +1374,40 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
     }
   });
 
+  // Get comprehensive community data (unified cache)
+  app.get('/api/community/:id/comprehensive-data', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const communityId = parseInt(id);
+      
+      // Get community details
+      const [community] = await db
+        .select()
+        .from(schema.communities)
+        .where(eq(schema.communities.id, communityId))
+        .limit(1);
+      
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+      
+      // Get comprehensive data from unified cache
+      const { unifiedPerplexityCache } = await import('./unified-perplexity-cache');
+      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+        communityId.toString(),
+        community.name,
+        `${community.city}, ${community.state}`
+      );
+      
+      console.log(`📊 Serving comprehensive data for ${community.name} from unified cache`);
+      
+      res.json(comprehensiveData);
+    } catch (error) {
+      console.error('Error fetching comprehensive community data:', error);
+      res.status(500).json({ error: 'Failed to fetch comprehensive community data' });
+    }
+  });
+
   // Re-verify community data using AI
   app.post('/api/communities/re-verify', async (req, res) => {
     try {
