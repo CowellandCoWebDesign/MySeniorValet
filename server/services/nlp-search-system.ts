@@ -126,7 +126,13 @@ export class NLPSearchSystem {
     
     // Override databases based on category if provided
     if (options?.category) {
-      intent.databases = [options.category];
+      // Services category should search both services AND vendors tables
+      // (vendors table contains discovered hotels, restaurants, etc.)
+      if (options.category === 'services') {
+        intent.databases = ['services', 'vendors'];
+      } else {
+        intent.databases = [options.category];
+      }
     }
     
     console.log('📊 Intent Classification:', intent);
@@ -997,12 +1003,28 @@ export class NLPSearchSystem {
       const businessTypeMatch = query.match(/^([a-zA-Z\s]+?)(?:\s+in|\s+at|\s+near|$)/i);
       const businessType = businessTypeMatch ? businessTypeMatch[1].trim() : query;
       
-      // Search for business type in name and description
+      // Search for business type in name, description, and service type
+      // For "hotels", also search for common hotel brand names
       if (businessType) {
-        orConditions.push(
-          ilike(vendors.businessName, `%${businessType}%`),
-          ilike(vendors.description, `%${businessType}%`)
-        );
+        const searchTerms = [businessType];
+        
+        // Add common variations for hotel searches
+        if (businessType.toLowerCase().includes('hotel')) {
+          searchTerms.push('inn', 'suites', 'resort', 'lodge', 'motel');
+        }
+        
+        const typeConditions = [];
+        for (const term of searchTerms) {
+          typeConditions.push(
+            ilike(vendors.businessName, `%${term}%`),
+            ilike(vendors.description, `%${term}%`),
+            ilike(vendors.serviceType, `%${term}%`)
+          );
+        }
+        
+        if (typeConditions.length > 0) {
+          orConditions.push(...typeConditions);
+        }
       }
       
       // Add location filter if present
@@ -1013,14 +1035,26 @@ export class NLPSearchSystem {
             ilike(vendors.businessState, `%${location}%`)
           )
         );
+      } else if (!businessType) {
+        // If no business type and no location, search the full query in all text fields
+        const fullQuery = query.trim();
+        if (fullQuery) {
+          orConditions.push(
+            ilike(vendors.businessName, `%${fullQuery}%`),
+            ilike(vendors.businessCity, `%${fullQuery}%`),
+            ilike(vendors.description, `%${fullQuery}%`)
+          );
+        }
       }
       
       // Combine conditions
-      if (orConditions.length > 0 && conditions.length > 0) {
-        // Must match business type AND location
+      if (location && orConditions.length > 0) {
+        // Must match location AND (business type OR name)
         conditions.push(or(...orConditions));
+      } else if (location && orConditions.length === 0) {
+        // Just location search - already added above
       } else if (orConditions.length > 0) {
-        // Just business type search
+        // Just business type/name search
         conditions.push(or(...orConditions));
       }
       
