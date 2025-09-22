@@ -350,21 +350,20 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       
       console.log(`🔍 Checking cache for verification data for community ${community.id}`);
       
-      // Check if we have cached data from previous visit
-      enrichmentCache.getOrFetch(
-        cacheKey,
-        async () => null, // Return null if not in cache - we'll fetch fresh below
-        false // Don't force refresh, use cache if available
-      ).then(cachedData => {
-        if (cachedData && cachedData.communityId) {
-          console.log(`✨ Loaded verification report from cache for community ${community.id}`);
-          setLocalVerificationReport(cachedData);
-          setHasCachedData(true);
-          if (onPhotosUpdate && cachedData.verificationResults?.webIntelligence?.images) {
-            onPhotosUpdate(cachedData.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
-          }
+      // Check if we have cached data from previous visit - DO NOT store null
+      // This is a cache CHECK, not a fetch. Actual fetching happens below
+      const cachedData = enrichmentCache.get(cacheKey);
+      
+      if (cachedData && cachedData.communityId) {
+        console.log(`✨ Loaded verification report from cache for community ${community.id}`);
+        setLocalVerificationReport(cachedData);
+        setHasCachedData(true);
+        if (onPhotosUpdate && cachedData.verificationResults?.webIntelligence?.images) {
+          onPhotosUpdate(cachedData.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
         }
-      });
+      } else {
+        console.log(`📭 No cached verification data for community ${community.id}, will fetch fresh`);
+      }
     }
   }, [community?.id]);
   

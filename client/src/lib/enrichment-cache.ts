@@ -21,6 +21,20 @@ class EnrichmentCache {
   private readonly REQUEST_TIMEOUT = 60 * 1000; // 60 seconds for pending requests
 
   /**
+   * Get cached data without fetching (returns undefined if not cached)
+   */
+  get(communityId: string | number): any {
+    const cacheKey = `community-${communityId}`;
+    const cached = this.cache.get(cacheKey);
+    
+    if (cached && cached.expiry > Date.now()) {
+      return cached.data;
+    }
+    
+    return undefined;
+  }
+
+  /**
    * Get cached data or fetch if not available
    * Prevents duplicate concurrent requests for the same community
    */
