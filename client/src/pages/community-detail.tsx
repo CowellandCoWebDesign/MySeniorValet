@@ -330,9 +330,11 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
 };
 
 // Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void }) => {
+const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate, verificationReport }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void, verificationReport?: any }) => {
   const realTimeData = community?.realTimeData;
-  const [localVerificationReport, setLocalVerificationReport] = useState<any>(null);
+  // Use the verificationReport passed from parent instead of local state
+  const localVerificationReport = verificationReport;
+  const setLocalVerificationReport = onVerificationReport || (() => {});
   // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -2876,6 +2878,7 @@ export default function CommunityDetail() {
                   marketAnalysisData={marketAnalysisData} 
                   onVerificationReport={setVerificationReport}
                   onPhotosUpdate={undefined}
+                  verificationReport={verificationReport}
                   comprehensiveData={comprehensiveData}
                 />
 

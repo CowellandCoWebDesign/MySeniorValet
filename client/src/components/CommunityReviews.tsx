@@ -17,7 +17,7 @@ import {
   Star, MessageSquare, ThumbsUp, Shield, CheckCircle, AlertCircle, 
   TrendingUp, Calendar, Filter, PlusCircle, Info, ExternalLink,
   Globe, MapPin, Users, Award, ChevronDown, ChevronUp, Loader2,
-  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck
+  RefreshCw, Sparkles, Link2, FileSearch, AlertTriangle, ClipboardCheck, Phone
 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -811,23 +811,160 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <FileSearch className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-              <span>Inspection Reports & Violations</span>
+              <span>How to Research Inspection Reports & Violations</span>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {!inspectionData ? (
-            <div className="text-center py-8">
-              <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-orange-400" />
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                No inspection data available yet
-              </p>
-              <p className="text-sm text-gray-500 dark:text-gray-500">
-                Click "Research Inspections" to search public records for inspection reports, 
-                health violations, and compliance information for this community.
-              </p>
+          {/* Always show guidance on how to research inspections */}
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+              <h4 className="font-semibold mb-3 flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                <ClipboardCheck className="h-4 w-4" />
+                Research Health Inspections by State
+              </h4>
+              
+              {/* Determine state from props */}
+              {(() => {
+                const state = community?.state || '';
+                const stateGuides: Record<string, { name: string; url: string; phone?: string }> = {
+                  'OR': { 
+                    name: 'Oregon DHS Long Term Care', 
+                    url: 'https://ltclicensing.oregon.gov/',
+                    phone: '(503) 945-5450'
+                  },
+                  'CA': { 
+                    name: 'California CDSS Care Facility Search', 
+                    url: 'https://www.ccld.dss.ca.gov/carefacilitysearch/',
+                    phone: '(916) 651-8848'
+                  },
+                  'WA': { 
+                    name: 'Washington State DSHS', 
+                    url: 'https://www.dshs.wa.gov/altsa/residential-care-services',
+                    phone: '(360) 725-2300'
+                  },
+                  'TX': { 
+                    name: 'Texas Health & Human Services', 
+                    url: 'https://apps.hhs.texas.gov/providers/directories/longterm.aspx',
+                    phone: '(800) 458-9858'
+                  },
+                  'FL': { 
+                    name: 'Florida AHCA', 
+                    url: 'https://www.floridahealthfinder.gov/',
+                    phone: '(888) 419-3456'
+                  },
+                  'NY': { 
+                    name: 'New York State DOH', 
+                    url: 'https://profiles.health.ny.gov/nursing_home/',
+                    phone: '(800) 342-3736'
+                  },
+                  'IL': {
+                    name: 'Illinois Department of Public Health',
+                    url: 'https://www.dph.illinois.gov/topics-services/health-care-regulation/nursing-homes',
+                    phone: '(800) 252-4343'
+                  },
+                  'PA': {
+                    name: 'Pennsylvania Department of Health',
+                    url: 'https://sais.health.pa.gov/commonpoc/nhlocatorie.aspx',
+                    phone: '(800) 254-5164'
+                  }
+                };
+                
+                const stateInfo = stateGuides[state];
+                
+                return (
+                  <div className="space-y-3">
+                    {stateInfo ? (
+                      <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded-lg">
+                        <p className="font-semibold text-blue-800 dark:text-blue-300 mb-2">
+                          For {state} Communities:
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                          {stateInfo.name}
+                        </p>
+                        <div className="flex flex-col gap-2">
+                          <a 
+                            href={stateInfo.url} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1" />
+                            Visit Official Inspection Website
+                          </a>
+                          {stateInfo.phone && (
+                            <a 
+                              href={`tel:${stateInfo.phone}`}
+                              className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                            >
+                              <Phone className="h-3 w-3 mr-1" />
+                              {stateInfo.phone}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ) : null}
+                    
+                    {/* General guidance for all states */}
+                    <div className="text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                      <p className="font-medium">How to Research Health Inspections:</p>
+                      <ol className="list-decimal list-inside space-y-1 ml-2">
+                        <li>Visit your state's Department of Health website</li>
+                        <li>Search for "Long Term Care" or "Nursing Home Inspections"</li>
+                        <li>Enter the facility name or license number</li>
+                        <li>Review recent inspection reports and any citations</li>
+                        <li>Check for patterns in violations or improvements</li>
+                      </ol>
+                    </div>
+                    
+                    {/* Federal resources */}
+                    <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg mt-3">
+                      <p className="font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                        Federal Resources:
+                      </p>
+                      <div className="space-y-2">
+                        <a 
+                          href="https://www.medicare.gov/care-compare/" 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline text-sm"
+                        >
+                          <ExternalLink className="h-3 w-3 mr-1" />
+                          Medicare.gov Care Compare
+                        </a>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Compare nursing homes nationwide with Medicare's official ratings
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {/* For non-US countries */}
+                    {!state && community?.country && community.country !== 'US' && (
+                      <div className="bg-indigo-50 dark:bg-indigo-950/30 p-3 rounded-lg">
+                        <p className="font-semibold text-indigo-800 dark:text-indigo-300 mb-2">
+                          International Resources:
+                        </p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          Contact the local health department or senior care regulatory agency in {community.country || 'your country'} for inspection information.
+                        </p>
+                      </div>
+                    )}
+                    
+                    {/* Disclaimer */}
+                    <div className="bg-yellow-50 dark:bg-yellow-950/30 p-3 rounded-lg mt-3">
+                      <p className="text-xs text-yellow-800 dark:text-yellow-300">
+                        <strong>Note:</strong> Inspection reports are public records. Review multiple years of data to understand trends. 
+                        Minor violations are common; look for patterns and how quickly issues are resolved.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
-          ) : (
+          </div>
+          
+          {/* Keep the existing inspection data display if it exists, but don't try to fetch it */}
+          {inspectionData && (
             <div className="space-y-4">
               {/* Display inspection summary */}
               {inspectionData.summary && (
