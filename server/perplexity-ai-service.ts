@@ -252,6 +252,30 @@ CRITICAL INSTRUCTIONS:
       perplexityImages.forEach(img => extractedImages.add(img));
     }
     
+    // Extract photo gallery links from the PHOTOS section
+    const photosSectionRegex = /\*\*PHOTOS[^\*]*\*\*([^\*]+)(?=\*\*|$)/gi;
+    const photosMatch = text.match(photosSectionRegex);
+    if (photosMatch) {
+      const photosSection = photosMatch[0];
+      // Extract URLs from the photos section
+      const urlRegex = /https?:\/\/[^\s\[\]()]+/gi;
+      const photoUrls = photosSection.match(urlRegex);
+      if (photoUrls) {
+        photoUrls.forEach(url => {
+          // These are likely gallery pages, but we'll use them as placeholders
+          console.log(`📷 Found photo gallery URL: ${url}`);
+          // For now, add common photo sources that might have actual images
+          if (url.includes('assistedlivingcenter.com')) {
+            extractedImages.add('https://www.assistedlivingcenter.com/images/placeholder-community.jpg');
+          } else if (url.includes('aplaceformom.com')) {
+            extractedImages.add('https://www.aplaceformom.com/images/default-community.jpg');
+          } else if (url.includes('seniorly.com')) {
+            extractedImages.add('https://www.seniorly.com/images/placeholder.jpg');
+          }
+        });
+      }
+    }
+    
     // Extract image URLs from the text content
     // Look for markdown image syntax: ![alt](url)
     const markdownImageRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
@@ -285,6 +309,18 @@ CRITICAL INSTRUCTIONS:
     }
     
     const imageArray = Array.from(extractedImages);
+    
+    // If we found photo sources but no actual images, return empty array
+    // This prevents placeholder URLs from being shown
+    const hasOnlyPlaceholders = imageArray.every(url => 
+      url.includes('placeholder') || url.includes('default-community')
+    );
+    
+    if (hasOnlyPlaceholders) {
+      console.log(`⚠️ Only placeholder images found, returning empty array`);
+      return [];
+    }
+    
     if (imageArray.length > 0) {
       console.log(`📸 Extracted ${imageArray.length} images from Perplexity response`);
     }

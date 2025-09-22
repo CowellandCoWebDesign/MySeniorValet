@@ -1187,7 +1187,7 @@ export default function CommunityDetail() {
     queryKey: [`/api/community/${id}/comprehensive-data`],
     enabled: !!id && !!community && id !== '-1' && !isNaN(Number(id)),
     staleTime: 7 * 24 * 60 * 60 * 1000, // Cache for 7 days
-    cacheTime: 7 * 24 * 60 * 60 * 1000,
+    gcTime: 7 * 24 * 60 * 60 * 1000, // Keep in cache for 7 days
   });
 
   // Reset all state when community ID changes (but don't return early)
@@ -1641,6 +1641,7 @@ export default function CommunityDetail() {
             <CommunityDetailsHeader 
               community={community}
               verificationReport={verificationReport}
+              comprehensiveData={comprehensiveData}
               isFavorite={isFavorite}
               onFavoriteToggle={handleFavorite}
               getPricingBadgeInfo={getPricingBadgeInfo}
@@ -2876,7 +2877,6 @@ export default function CommunityDetail() {
                   marketAnalysisData={marketAnalysisData} 
                   onVerificationReport={setVerificationReport}
                   onPhotosUpdate={undefined}
-                  comprehensiveData={comprehensiveData}
                 />
 
                 {/* Intelligent Pricing Prediction */}
