@@ -119,7 +119,21 @@ CRITICAL INSTRUCTIONS:
       );
 
       const summary = response.data.choices[0]?.message?.content || 'No results found';
-      const sources = response.data.citations || [];
+      const rawSources = response.data.citations || [];
+      
+      // Filter sources to ensure they are valid URLs
+      const sources = rawSources.filter((source: any) => {
+        // Ensure source is a string and is a valid URL
+        if (typeof source !== 'string') return false;
+        try {
+          new URL(source);
+          return true;
+        } catch {
+          // Not a valid URL, filter it out
+          console.log(`⚠️ Filtered out non-URL source: ${source}`);
+          return false;
+        }
+      });
       
       // Extract image URLs from the response text
       const images = this.extractImagesFromResponse(summary, response.data.images);
