@@ -30,6 +30,8 @@ interface CachedCommunityData {
   communityId: string;
   communityName: string;
   location: string;
+  // CRITICAL: Store the full raw Perplexity response for display
+  rawPerplexityContent?: string;
 }
 
 class UnifiedPerplexityCache {
@@ -193,7 +195,9 @@ Format all information clearly with section headers.
       timestamp: Date.now(),
       communityId,
       communityName,
-      location
+      location,
+      // CRITICAL: Store the full raw response for frontend display
+      rawPerplexityContent: content
     };
   }
 

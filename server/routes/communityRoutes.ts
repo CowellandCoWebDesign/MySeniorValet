@@ -827,7 +827,8 @@ export function registerCommunityRoutes(app: Express) {
         pricing: comprehensiveData.marketData?.pricing,
         photos: comprehensiveData.photos || [],
         searchResults: {
-          summary: comprehensiveData.marketData?.description || '',
+          // CRITICAL FIX: Use the full raw Perplexity content, not just the description extract
+          summary: comprehensiveData.rawPerplexityContent || comprehensiveData.marketData?.description || '',
           sources: comprehensiveData.sources || []
         }
       };

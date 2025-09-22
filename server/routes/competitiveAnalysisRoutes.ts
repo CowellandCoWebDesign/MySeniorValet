@@ -238,7 +238,11 @@ router.post('/api/competitive-analysis', async (req, res) => {
           },
           
           // Include original intelligence for backward compatibility
-          intelligence,
+          intelligence: {
+            ...intelligence,
+            // CRITICAL: Include the full raw Perplexity content for display
+            searchContent: comprehensiveData.rawPerplexityContent || intelligence.searchContent
+          },
           
           // Add sources
           sources: intelligence.sources || [],
