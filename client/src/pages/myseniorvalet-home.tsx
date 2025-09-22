@@ -412,7 +412,8 @@ function HeroSectionWithTransformingSearch() {
         }
         
       } else if (viewMode === 'discover' && searchCategory === 'services') {
-        // Discovery mode for Services - discover ANY type of service providers globally
+        // For services, use NLP search which searches both services and vendors tables
+        // This will find hotels, restaurants, and other discovered businesses
         
         // Show immediate loading feedback for services search
         setSearchResults({ 
@@ -424,90 +425,65 @@ function HeroSectionWithTransformingSearch() {
           }
         });
         
-        // Implement retry logic for reliability
-        let attempts = 0;
-        const maxAttempts = 2;
-        let lastError = null;
-        
-        while (attempts < maxAttempts) {
-          try {
-            const response = await fetch('/api/global-discovery/search', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                query: query,
-                searchType: 'services',  // General services, not limited to senior care
-                limit: 20,
-                discoveryMode: true  // Explicitly set Discovery Mode flag
-              }),
-              signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
-            });
+        // Use NLP search for services (searches both services and vendors tables)
+        try {
+          const response = await fetch('/api/nlp/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query: query,
+              limit: 50,
+              category: 'services'
+            }),
+            signal: AbortSignal.timeout(30000) // 30 second timeout
+          });
 
-            if (!response.ok) {
-              throw new Error(`Service discovery search failed: ${response.status}`);
-            }
-            
-            const data = await response.json();
-            
-            // Show discovered services in modal
-            if (data.results && data.results.length > 0) {
-              setGlobalDiscoveryResults({
-                query,
-                results: data.results,
-                metadata: {...data.metadata, discoveryType: 'services'}
-              });
-              setForceClearAutocomplete(true);
-              setShowGlobalDiscoveryModal(true);
-              // Clear the loading state
-              setSearchResults({ results: [], metadata: null });
-            } else {
-              // No services found, show helpful message with suggestions
-              setSearchResults({ 
-                results: [],
-                metadata: {
-                  aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
-                  isResearchMode: false,
-                  suggestions: [
-                    'home health care',
-                    'medical supplies',
-                    'senior transportation',
-                    'meal delivery services'
-                  ]
-                }
-              });
-            }
-            break; // Success - exit retry loop
-            
-          } catch (error) {
-            lastError = error;
-            attempts++;
-            
-            if (attempts < maxAttempts) {
-              // Update loading message for retry
-              setSearchResults({ 
-                results: [],
-                metadata: {
-                  isLoading: true,
-                  loadingMessage: `Retrying search for "${query}"... (Attempt ${attempts + 1}/${maxAttempts})`,
-                  isResearchMode: false
-                }
-              });
-              
-              // Wait a bit before retrying
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            } else {
-              // All attempts failed - show error message
-              console.error('Service discovery search failed after retries:', error);
-              setSearchResults({ 
-                results: [],
-                metadata: {
-                  aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
-                  error: true,
-                  isResearchMode: false
-                }
-              });
-            }
+          if (!response.ok) {
+            throw new Error(`Service search failed: ${response.status}`);
           }
+          
+          const data = await response.json();
+          
+          // Extract the actual data from the NLP search results
+          const results = data.results?.map((r: any) => r.data || r) || [];
+          
+          // Show discovered services
+          if (results.length > 0) {
+            setSearchResults({ 
+              results: results,
+              metadata: {
+                intent: data.intent,
+                facets: data.facets,
+                suggestions: data.suggestions
+              }
+            });
+          } else {
+            // No services found, show helpful message with suggestions
+            setSearchResults({ 
+              results: [],
+              metadata: {
+                aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
+                isResearchMode: false,
+                suggestions: [
+                  'home health care',
+                  'medical supplies',
+                  'senior transportation',
+                  'meal delivery services'
+                ]
+              }
+            });
+          }
+          
+        } catch (error) {
+          console.error('Service discovery search failed:', error);
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
+              error: true,
+              isResearchMode: false
+            }
+          });
         }
         
       } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
