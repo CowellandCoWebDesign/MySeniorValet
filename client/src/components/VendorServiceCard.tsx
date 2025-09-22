@@ -43,12 +43,9 @@ interface VendorServiceCardProps {
 }
 
 export function VendorServiceCard({ vendor, variant = 'list', onSelect }: VendorServiceCardProps) {
-  // Debug logging to see what data we're receiving
-  console.log('VendorServiceCard received vendor data:', vendor);
-  
-  // Handle both snake_case and camelCase properties
+  // Handle both snake_case and camelCase properties, and also services table fields
   const businessName = vendor.business_name || vendor.businessName || vendor.name || 'Unnamed Service';
-  const businessType = vendor.business_type || vendor.businessType || vendor.type || 'Service Provider';
+  const businessType = vendor.business_type || vendor.businessType || vendor.type || vendor.serviceType || 'Service Provider';
   const description = vendor.description || vendor.short_description || vendor.shortDescription || '';
   const city = vendor.business_city || vendor.businessCity || vendor.city || '';
   const state = vendor.business_state || vendor.businessState || vendor.state || '';

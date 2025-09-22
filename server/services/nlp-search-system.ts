@@ -518,7 +518,9 @@ export class NLPSearchSystem {
           searchPromises.push(this.searchCommunities(query, intent, options));
           break;
         case 'services':
+          // For services category, search BOTH services and vendors tables
           searchPromises.push(this.searchServices(query, intent, options));
+          searchPromises.push(this.searchVendors(query, intent, options)); // Also search vendors for hotels, restaurants, etc.
           break;
         case 'healthcare':
           searchPromises.push(this.searchHealthcare(query, intent, options));
@@ -985,18 +987,41 @@ export class NLPSearchSystem {
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
+      const orConditions = [];
       
-      // Vendor/product matching
-      const vendorKeywords = query.toLowerCase().split(' ');
-      const vendorConditions = vendorKeywords.map(keyword =>
-        or(
-          ilike(vendors.businessName, `%${keyword}%`),
-          ilike(vendors.description, `%${keyword}%`)
-        )
-      );
+      // Extract location from query (e.g., "hotels in dallas" -> location: "dallas")
+      const locationMatch = query.match(/(?:in|at|near)\s+([a-zA-Z\s]+)$/i);
+      const location = locationMatch ? locationMatch[1].trim() : null;
       
-      if (vendorConditions.length > 0) {
-        conditions.push(or(...vendorConditions));
+      // Extract business type from query (e.g., "hotels" from "hotels in dallas")
+      const businessTypeMatch = query.match(/^([a-zA-Z\s]+?)(?:\s+in|\s+at|\s+near|$)/i);
+      const businessType = businessTypeMatch ? businessTypeMatch[1].trim() : query;
+      
+      // Search for business type in name and description
+      if (businessType) {
+        orConditions.push(
+          ilike(vendors.businessName, `%${businessType}%`),
+          ilike(vendors.description, `%${businessType}%`)
+        );
+      }
+      
+      // Add location filter if present
+      if (location) {
+        conditions.push(
+          or(
+            ilike(vendors.businessCity, `%${location}%`),
+            ilike(vendors.businessState, `%${location}%`)
+          )
+        );
+      }
+      
+      // Combine conditions
+      if (orConditions.length > 0 && conditions.length > 0) {
+        // Must match business type AND location
+        conditions.push(or(...orConditions));
+      } else if (orConditions.length > 0) {
+        // Just business type search
+        conditions.push(or(...orConditions));
       }
       
       let dbQuery = db.select().from(vendors) as any;
@@ -1004,7 +1029,7 @@ export class NLPSearchSystem {
         dbQuery = dbQuery.where(and(...conditions));
       }
       
-      const results = await dbQuery.limit(options?.limit || 20);
+      const results = await dbQuery.limit(options?.limit || 50);
       
       return results.map((vendor: any) => ({
         type: 'vendor' as const,
