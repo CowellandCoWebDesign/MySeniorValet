@@ -87,7 +87,7 @@ CRITICAL INSTRUCTIONS:
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar',  // Standard model for cost-effective enrichment
+          model: 'sonar-pro',  // Enhanced model for better accuracy
           messages: [
             {
               role: 'system',
@@ -106,7 +106,7 @@ CRITICAL INSTRUCTIONS:
           search_domain_filter: [],  // Search all domains for maximum photo coverage
           search_recency_filter: undefined,  // No time restriction - get all available data for transparency
           web_search_options: {
-            search_context_size: "low"  // Low context for 70% cost reduction
+            search_context_size: "medium"  // Balanced context for quality vs cost
           },
           stream: false
         },
