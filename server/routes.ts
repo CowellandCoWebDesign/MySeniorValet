@@ -97,14 +97,18 @@ Provide the following information:
 8. Google Maps listing URL for this business
 9. TripAdvisor, Yelp, or Facebook page URLs if available
 
-Additionally, search for and provide any direct image URLs you can find from:
-- Google Maps photos of ${serviceName}
-- Yelp photos of ${serviceName} 
-- TripAdvisor photos of ${serviceName}
-- Facebook page photos
-- Their official website gallery
+IMPORTANT: Find and list actual photo URLs from these sources:
+- Direct image URLs from the business website (e.g., https://example.com/images/photo.jpg)
+- TripAdvisor photo URLs (https://media-cdn.tripadvisor.com/media/photo-*)
+- Yelp photo URLs (https://s3-media*.fl.yelpcdn.com/bphoto/*)
+- Google Maps photo URLs (https://lh3.googleusercontent.com/* or https://lh5.googleusercontent.com/p/*)
+- OpenTable photo URLs (https://images.otstatic.com/*)
+- Any other actual image URLs you can find
 
-Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include any URLs to photo galleries or business listings where photos can be found.`;
+Please list each photo URL on a separate line with the format:
+PHOTO: [actual URL here]
+
+Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide actual direct image URLs, not just links to galleries.`;
 
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -220,8 +224,32 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
         // Also try to extract directly from HTML content
         const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
         
-        // Combine and deduplicate photos
-        const allPhotoCandidates = [...photoCandidates, ...contentPhotos];
+        // Extract photos marked with PHOTO: in the response
+        const photoMatches = answer.match(/PHOTO:\s*(https?:\/\/[^\s\n]+)/gi) || [];
+        const markedPhotos = photoMatches.map(match => {
+          const url = match.replace(/^PHOTO:\s*/i, '').trim();
+          return { url, source: 'Perplexity', confidence: 0.8, isAuthentic: true };
+        });
+        
+        // Also extract common photo URL patterns from the response
+        const photoPatterns = [
+          /https?:\/\/media-cdn\.tripadvisor\.com\/media\/photo-[^\s\"\'<>]+/gi,
+          /https?:\/\/s3-media\d*\.fl\.yelpcdn\.com\/bphoto\/[^\s\"\'<>]+/gi,
+          /https?:\/\/lh[35]\.googleusercontent\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/images\.otstatic\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/[^\s\"\'<>]+\.(jpg|jpeg|png|webp|gif)(\?[^\s\"\'<>]*)?/gi
+        ];
+        
+        const extractedUrls: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
+        for (const pattern of photoPatterns) {
+          const matches = answer.match(pattern) || [];
+          for (const url of matches) {
+            extractedUrls.push({ url, source: 'Pattern Match', confidence: 0.7, isAuthentic: true });
+          }
+        }
+        
+        // Combine all photo candidates
+        const allPhotoCandidates = [...photoCandidates, ...contentPhotos, ...markedPhotos, ...extractedUrls];
         const uniquePhotos = new Map<string, any>();
         
         for (const photo of allPhotoCandidates) {
@@ -230,10 +258,19 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Include an
           }
         }
         
-        // Convert to array of photo URLs for frontend
-        extractedPhotos = Array.from(uniquePhotos.values()).map(photo => photo.url);
+        // Convert to array of photo URLs for frontend, filtering out placeholders
+        extractedPhotos = Array.from(uniquePhotos.values())
+          .filter(photo => {
+            // Filter out placeholder URLs that aren't real photos
+            const url = photo.url.toLowerCase();
+            return !url.includes('-photos-needed') && 
+                   !url.includes('placeholder') &&
+                   !url.includes('example.com') &&
+                   url.startsWith('http');
+          })
+          .map(photo => photo.url);
         
-        console.log(`📸 Extracted ${extractedPhotos.length} photos for ${serviceName}`);
+        console.log(`📸 Extracted ${extractedPhotos.length} real photos for ${serviceName}`);
       } catch (error) {
         console.error('Failed to extract photos:', error);
       }
