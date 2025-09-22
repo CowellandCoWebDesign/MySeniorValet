@@ -15,7 +15,6 @@ import { MessagingInterface } from "./MessagingInterface";
 interface CommunityDetailsHeaderProps {
   community: any;
   verificationReport?: any;
-  comprehensiveData?: any;
   isFavorite?: boolean;
   onFavoriteToggle?: () => void;
   getPricingBadgeInfo?: (community: any, verificationReport: any) => any;
@@ -30,7 +29,6 @@ interface CommunityDetailsHeaderProps {
 export function CommunityDetailsHeader({ 
   community, 
   verificationReport,
-  comprehensiveData,
   isFavorite = false,
   onFavoriteToggle,
   getPricingBadgeInfo,
@@ -271,21 +269,6 @@ export function CommunityDetailsHeader({
     // Add database photos first (if not stock)
     if (community.photos && community.photos.length > 0) {
       photos.push(...community.photos);
-    }
-    
-    // Add comprehensive data photos from unified cache
-    if (comprehensiveData?.photos && comprehensiveData.photos.length > 0) {
-      console.log('[getCombinedPhotos] Adding comprehensive data photos:', comprehensiveData.photos.length);
-      const cachePhotos = comprehensiveData.photos.map((photo: string | { url: string }) => {
-        if (typeof photo === 'string') {
-          return { image_url: photo };
-        }
-        return {
-          image_url: photo.url || photo,
-          source: 'cache'
-        };
-      });
-      photos.push(...cachePhotos);
     }
     
     // Add web intelligence photos
