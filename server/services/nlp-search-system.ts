@@ -1063,7 +1063,17 @@ export class NLPSearchSystem {
         dbQuery = dbQuery.where(and(...conditions));
       }
       
+      // Debug logging
+      console.log(`🔍 Vendor search for "${query}":`, {
+        location,
+        businessType,
+        conditionsCount: conditions.length,
+        orConditionsCount: orConditions.length
+      });
+      
       const results = await dbQuery.limit(options?.limit || 50);
+      
+      console.log(`✅ Vendor search found ${results.length} results for "${query}" in ${location || 'any location'}`);
       
       return results.map((vendor: any) => ({
         type: 'vendor' as const,
