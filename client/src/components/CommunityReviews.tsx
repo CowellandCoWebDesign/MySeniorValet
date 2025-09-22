@@ -82,77 +82,11 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
     }
   });
 
-  // Mutation to fetch external reviews from Perplexity
-  const fetchExternalReviewsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest(
-        'POST',
-        `/api/communities/${community.id}/reviews/fetch-external`
-      );
-      return response;
-    },
-    onSuccess: (data) => {
-      toast({
-        title: "Reviews Updated",
-        description: "Successfully fetched latest reviews from external sources",
-        duration: 3000
-      });
-      
-      // Update local state with Perplexity data
-      if (data.data) {
-        setLastPerplexityUpdate(data.data.lastUpdated);
-        setPerplexityCitations(data.data.sources || []);
-        setPerspectiveAnalysis(data.data.perspectiveAnalysis || '');
-        setComparativeInsights(data.data.comparativeInsights || '');
-      }
-      
-      // Invalidate queries to refresh the data
-      queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id] });
-      queryClient.invalidateQueries({ queryKey: ['/api/communities', community.id, 'reviews'] });
-    },
-    onError: (error: any) => {
-      console.error('Error fetching external reviews:', error);
-      toast({
-        title: "Update Failed",
-        description: error.message || "Could not fetch external reviews. Using cached data.",
-        variant: "destructive",
-        duration: 4000
-      });
-    }
-  });
+  // Removed: External review fetching mutation
+  // All Perplexity analysis is now unified in the Market Data tab
 
-  // Mutation to fetch inspection data from Perplexity
-  const fetchInspectionsMutation = useMutation({
-    mutationFn: async () => {
-      const response = await apiRequest(
-        'POST',
-        `/api/communities/${community.id}/inspections/fetch`
-      );
-      return response;
-    },
-    onSuccess: (data) => {
-      setInspectionLoading(false);
-      if (data.inspectionData) {
-        setInspectionData(data.inspectionData);
-        setInspectionCitations(data.citations || []);
-        toast({
-          title: "Inspection Data Retrieved",
-          description: "Successfully fetched inspection and violation information",
-          duration: 3000
-        });
-      }
-    },
-    onError: (error: any) => {
-      setInspectionLoading(false);
-      console.error('Error fetching inspection data:', error);
-      toast({
-        title: "Failed to Fetch Inspections",
-        description: error.message || "Could not retrieve inspection data at this time.",
-        variant: "destructive",
-        duration: 4000
-      });
-    }
-  });
+  // Removed: Inspection fetching mutation
+  // No longer fetching inspection data via API
 
   // Use comprehensive data if available instead of auto-fetching
   useEffect(() => {
@@ -168,12 +102,8 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
         setPerplexityCitations(comprehensiveData.sources);
       }
       setLastPerplexityUpdate(new Date(comprehensiveData.timestamp).toLocaleString());
-    } else if (!hasInitiallyFetched && !comprehensiveData && community?.id) {
-      // Only auto-fetch if no comprehensive data available
-      setHasInitiallyFetched(true);
-      console.log('🤖 Fetching fresh review data...');
-      fetchExternalReviewsMutation.mutate();
     }
+    // Removed: Auto-fetching - All Perplexity data is now managed in the Market Data tab
   }, [community?.id, hasInitiallyFetched, comprehensiveData]);
 
   // Extract external reviews from community data
@@ -510,25 +440,7 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
               Reviews & Ratings
             </span>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => fetchExternalReviewsMutation.mutate()}
-                disabled={fetchExternalReviewsMutation.isPending}
-                data-testid="button-refresh-reviews"
-              >
-                {fetchExternalReviewsMutation.isPending ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Updating...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Refresh Reviews
-                  </>
-                )}
-              </Button>
+              {/* Removed: Refresh button - All Perplexity data is managed in Market Data tab */}
               {currentUserId && (
                 <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
                   <DialogTrigger asChild>
