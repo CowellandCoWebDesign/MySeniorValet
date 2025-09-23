@@ -1063,11 +1063,17 @@ export class NLPSearchSystem {
         
         const typeConditions = [];
         for (const term of searchTerms) {
+          // For hotels, focus on business name since business_type is often "service"
           typeConditions.push(
-            ilike(vendors.businessName, `%${term}%`),
-            ilike(vendors.description, `%${term}%`),
-            ilike(vendors.businessType, `%${term}%`)
+            ilike(vendors.businessName, `%${term}%`)
           );
+          // Also check description if available
+          if (term !== businessType || !businessType.toLowerCase().includes('hotel')) {
+            typeConditions.push(
+              ilike(vendors.description, `%${term}%`),
+              ilike(vendors.businessType, `%${term}%`)
+            );
+          }
         }
         
         if (typeConditions.length > 0) {
