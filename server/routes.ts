@@ -17,6 +17,7 @@ import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
 import residentFamilyRoutes from "./routes/resident-family-api";
+import provincialRoutes from "./routes/provincial-communities";
 import { db } from "./db";
 import { eq, or, like, desc, and, sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
@@ -706,6 +707,7 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/quiz', quizRouter);
+  app.use('/api/provincial', provincialRoutes);
   
   // Register TourMate™ tour routes
   const tourRoutes = await import('./routes/tourRoutes');

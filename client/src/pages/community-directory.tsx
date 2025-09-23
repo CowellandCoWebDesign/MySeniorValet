@@ -156,12 +156,11 @@ export default function CommunityDirectory() {
   });
   
   const provincialQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', 'Provincial Senior Living'],
+    queryKey: ['/api/provincial/provincial-all'],
     queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
+      const response = await fetch('/api/provincial/provincial-all', {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Provincial', limit: 60 }),
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch Provincial communities');
