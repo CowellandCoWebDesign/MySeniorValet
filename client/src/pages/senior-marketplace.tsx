@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { motion } from 'framer-motion';
 import { 
@@ -16,6 +16,7 @@ import {
   MapPin,
   Phone,
   ChevronRight,
+  ChevronLeft,
   ShoppingCart,
   Briefcase,
   AlertCircle,
@@ -24,17 +25,20 @@ import {
   FileText,
   Users,
   TrendingUp,
-  Sparkles
+  Sparkles,
+  Flame
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { VendorMarketplaceTabs } from '@/components/VendorMarketplaceTabs';
+import { VendorServiceCard } from '@/components/VendorServiceCard';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Footer } from '@/components/footer';
+import { useQuery } from '@tanstack/react-query';
 
 import { useSEO } from '@/hooks/useSEO';
 
@@ -42,6 +46,50 @@ export default function SeniorMarketplace() {
   const [, setLocation] = useLocation();
   const { t } = useLanguage();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered services
+  const { data: recentServices, isLoading } = useQuery({
+    queryKey: ['/api/vendors/recently-discovered'],
+    queryFn: async () => {
+      const response = await fetch('/api/vendors/recently-discovered?limit=30');
+      if (!response.ok) throw new Error('Failed to fetch recent services');
+      return response.json();
+    }
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentServices]);
 
   // Set SEO metadata for marketplace page
   useSEO({
@@ -142,7 +190,7 @@ export default function SeniorMarketplace() {
         </div>
       </header>
       
-      {/* Hero Section with Modern Gradient */}
+      {/* Hero Section with Recently Discovered Services Carousel */}
       <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700">
         <div className="absolute inset-0 bg-black/20"></div>
         <div className="absolute inset-0">
@@ -150,12 +198,12 @@ export default function SeniorMarketplace() {
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"></div>
         </div>
         
-        <div className="relative z-10 container mx-auto px-4 py-20">
+        <div className="relative z-10 container mx-auto px-4 py-12">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center space-y-8"
+            className="text-center space-y-6 mb-8"
           >
             <h1 className="text-5xl sm:text-6xl font-bold text-white tracking-tight">
               Services Directory
@@ -189,28 +237,105 @@ export default function SeniorMarketplace() {
                 <span>TRUSTED PARTNERS</span>
               </Badge>
             </motion.div>
+          </motion.div>
 
-            {/* Partner CTAs */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <Link href="/vendor-partner">
-                <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
-                  <Briefcase className="w-5 h-5 mr-2" />
-                  Become a Vendor Partner
-                </Button>
-              </Link>
-              
-              <Link href="/vendor-login">
-                <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
-                  <LogIn className="w-5 h-5 mr-2" />
-                  Vendor Login Portal
-                </Button>
-              </Link>
-            </motion.div>
+          {/* Recently Discovered Services Carousel */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="relative"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Flame className="w-6 h-6 text-orange-400 animate-pulse" />
+                <h2 className="text-2xl font-bold text-white">Recently Discovered Services</h2>
+                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 text-sm">
+                  🔥 HOT
+                </Badge>
+              </div>
+            </div>
+
+            {/* Carousel Container */}
+            <div className="relative group">
+              {/* Left Scroll Button */}
+              {canScrollLeft && (
+                <button
+                  onClick={scrollLeft}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white dark:hover:bg-gray-700"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                </button>
+              )}
+
+              {/* Services Carousel */}
+              <div 
+                ref={scrollContainerRef}
+                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+                onScroll={checkScrollPosition}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {isLoading ? (
+                  // Loading skeleton
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="flex-shrink-0 w-80">
+                      <div className="bg-white/10 rounded-lg p-4 animate-pulse">
+                        <div className="h-24 bg-white/20 rounded mb-4"></div>
+                        <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
+                        <div className="h-4 bg-white/20 rounded w-1/2"></div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  recentServices?.map((vendor: any) => (
+                    <div key={vendor.id} className="flex-shrink-0 w-80">
+                      <VendorServiceCard 
+                        vendor={vendor} 
+                        variant="grid"
+                        onSelect={() => {
+                          // Navigate to vendor details or open modal
+                          console.log('Selected vendor:', vendor.id);
+                        }}
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Right Scroll Button */}
+              {canScrollRight && (
+                <button
+                  onClick={scrollRight}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white dark:hover:bg-gray-700"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                </button>
+              )}
+            </div>
+          </motion.div>
+
+          {/* Partner CTAs */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
+          >
+            <Link href="/vendor-partner">
+              <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Become a Vendor Partner
+              </Button>
+            </Link>
+            
+            <Link href="/vendor-login">
+              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
+                <LogIn className="w-5 h-5 mr-2" />
+                Vendor Login Portal
+              </Button>
+            </Link>
           </motion.div>
         </div>
       </section>

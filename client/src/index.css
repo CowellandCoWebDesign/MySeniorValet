@@ -250,6 +250,17 @@
   .dark .bg-blue-100 {
     background-color: rgba(30, 58, 138, 0.3) !important;
   }
+
+  /* Hide scrollbar for carousel */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
   
   .dark .text-blue-800 {
     color: rgb(147 197 253) !important;
