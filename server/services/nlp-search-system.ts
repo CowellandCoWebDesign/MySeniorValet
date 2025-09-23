@@ -338,8 +338,24 @@ export class NLPSearchSystem {
       }
     });
     
-    // If no locations found and query is short (likely a city name), use the entire query
-    if (locations.length === 0 && query.split(' ').length <= 3 && !query.includes('?')) {
+    // Extract location from "in [location]" pattern
+    // This handles international cities and cities not in our hardcoded list
+    const inLocationPattern = /\b(?:in|at|near)\s+([a-zA-Z][a-zA-Z\s]+?)(?:\s*$|,|\.|;)/gi;
+    const inLocationMatches = query.matchAll(inLocationPattern);
+    for (const match of inLocationMatches) {
+      if (match[1]) {
+        const location = match[1].trim();
+        // Don't add if it's a business type word
+        const businessTypes = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'store', 'shop', 'service', 'services'];
+        const firstWord = location.split(' ')[0].toLowerCase();
+        if (!businessTypes.includes(firstWord) && location.length > 1) {
+          locations.push(location);
+        }
+      }
+    }
+    
+    // If no locations found and query is a single word (likely a city name), use it
+    if (locations.length === 0 && query.split(' ').length === 1 && !query.includes('?')) {
       locations.push(query.trim());
     }
     
