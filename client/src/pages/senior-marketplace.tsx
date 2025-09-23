@@ -191,81 +191,50 @@ export default function SeniorMarketplace() {
       </header>
       
       {/* Hero Section with Recently Discovered Services Carousel */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700">
-        <div className="absolute inset-0 bg-black/20"></div>
+      <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700 py-16">
+        <div className="absolute inset-0 bg-black/10"></div>
         <div className="absolute inset-0">
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl"></div>
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
         </div>
         
-        <div className="relative z-10 container mx-auto px-4 py-12">
+        <div className="relative z-10 container mx-auto px-4">
+          {/* Main Title */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center space-y-6 mb-8"
+            className="text-center mb-12"
           >
-            <h1 className="text-5xl sm:text-6xl font-bold text-white tracking-tight">
+            <h1 className="text-6xl sm:text-7xl font-bold text-white tracking-tight mb-4">
               Services Directory
             </h1>
-            <p className="text-xl sm:text-2xl text-purple-100 max-w-3xl mx-auto">
-              Connect with 1,500+ trusted vendors offering essential services for senior living
-            </p>
-
-            {/* Status Pills */}
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="flex flex-wrap gap-4 justify-center"
-            >
-              <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 text-base font-bold flex items-center gap-3 shadow-lg">
-                <div className="relative">
-                  <div className="absolute inset-0 w-3 h-3 bg-white rounded-full animate-ping"></div>
-                  <div className="relative w-3 h-3 bg-white rounded-full"></div>
-                </div>
-                <span>PLATFORM ONLINE</span>
+            <div className="flex items-center justify-center gap-2 mb-10">
+              <Flame className="w-7 h-7 text-orange-400 animate-pulse" />
+              <h2 className="text-2xl sm:text-3xl font-semibold text-white/95">Recently Discovered Services</h2>
+              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-sm font-bold animate-pulse">
+                🔥 HOT
               </Badge>
-              
-              <Badge className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 text-base font-bold flex items-center gap-2 shadow-lg">
-                <ShieldCheck className="w-5 h-5" />
-                <span>1,500+ VENDORS</span>
-              </Badge>
-              
-              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-6 py-3 text-base font-bold flex items-center gap-2 shadow-lg">
-                <Star className="w-5 h-5" />
-                <span>TRUSTED PARTNERS</span>
-              </Badge>
-            </motion.div>
+            </div>
           </motion.div>
 
-          {/* Recently Discovered Services Carousel */}
+          {/* Services Carousel */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="relative"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="relative max-w-7xl mx-auto"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Flame className="w-6 h-6 text-orange-400 animate-pulse" />
-                <h2 className="text-2xl font-bold text-white">Recently Discovered Services</h2>
-                <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 text-sm">
-                  🔥 HOT
-                </Badge>
-              </div>
-            </div>
-
             {/* Carousel Container */}
             <div className="relative group">
               {/* Left Scroll Button */}
               {canScrollLeft && (
                 <button
                   onClick={scrollLeft}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white dark:hover:bg-gray-700"
+                  className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white rounded-full p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
                   aria-label="Scroll left"
                 >
-                  <ChevronLeft className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <ChevronLeft className="w-6 h-6 text-purple-600" />
                 </button>
               )}
 
@@ -277,28 +246,40 @@ export default function SeniorMarketplace() {
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {isLoading ? (
-                  // Loading skeleton
-                  Array.from({ length: 6 }).map((_, i) => (
+                  // Loading skeleton with better styling
+                  Array.from({ length: 4 }).map((_, i) => (
                     <div key={i} className="flex-shrink-0 w-80">
-                      <div className="bg-white/10 rounded-lg p-4 animate-pulse">
-                        <div className="h-24 bg-white/20 rounded mb-4"></div>
-                        <div className="h-4 bg-white/20 rounded w-3/4 mb-2"></div>
-                        <div className="h-4 bg-white/20 rounded w-1/2"></div>
+                      <div className="bg-white/95 backdrop-blur rounded-xl p-5 shadow-xl animate-pulse">
+                        <div className="h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg mb-4"></div>
+                        <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-3/4 mb-3"></div>
+                        <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-1/2 mb-3"></div>
+                        <div className="flex gap-2 mt-4">
+                          <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-20"></div>
+                          <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-20"></div>
+                        </div>
                       </div>
                     </div>
                   ))
                 ) : (
-                  recentServices?.map((vendor: any) => (
-                    <div key={vendor.id} className="flex-shrink-0 w-80">
-                      <VendorServiceCard 
-                        vendor={vendor} 
-                        variant="grid"
-                        onSelect={() => {
-                          // Navigate to vendor details or open modal
-                          console.log('Selected vendor:', vendor.id);
-                        }}
-                      />
-                    </div>
+                  recentServices?.slice(0, 12).map((vendor: any, index: number) => (
+                    <motion.div 
+                      key={vendor.id} 
+                      className="flex-shrink-0 w-80"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                    >
+                      <div className="bg-white/95 backdrop-blur rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                        <VendorServiceCard 
+                          vendor={vendor} 
+                          variant="grid"
+                          onSelect={() => {
+                            // Navigate to vendor details
+                            console.log('Selected vendor:', vendor.id);
+                          }}
+                        />
+                      </div>
+                    </motion.div>
                   ))
                 )}
               </div>
@@ -307,13 +288,17 @@ export default function SeniorMarketplace() {
               {canScrollRight && (
                 <button
                   onClick={scrollRight}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 rounded-full p-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-white dark:hover:bg-gray-700"
+                  className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white rounded-full p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
                   aria-label="Scroll right"
                 >
-                  <ChevronRight className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  <ChevronRight className="w-6 h-6 text-purple-600" />
                 </button>
               )}
             </div>
+
+            {/* Gradient Fade Edges */}
+            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-purple-600 to-transparent pointer-events-none z-10"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-blue-700 to-transparent pointer-events-none z-10"></div>
           </motion.div>
 
           {/* Partner CTAs */}
@@ -321,17 +306,17 @@ export default function SeniorMarketplace() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-12"
           >
             <Link href="/vendor-partner">
-              <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
+              <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                 <Briefcase className="w-5 h-5 mr-2" />
                 Become a Vendor Partner
               </Button>
             </Link>
             
             <Link href="/vendor-login">
-              <Button size="lg" variant="outline" className="border-2 border-white text-white hover:bg-white/10 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-200 transform hover:scale-105">
+              <Button size="lg" variant="outline" className="border-2 border-white/90 text-white hover:bg-white/20 backdrop-blur px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
                 <LogIn className="w-5 h-5 mr-2" />
                 Vendor Login Portal
               </Button>
