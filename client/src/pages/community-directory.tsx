@@ -2195,7 +2195,7 @@ export default function CommunityDirectory() {
               </Button>
               
               <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-                {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((floridaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`}>
                     <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
@@ -2668,7 +2668,7 @@ export default function CommunityDirectory() {
                 </Link>
               </>
             ) : (
-              ((canadianCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+              ((canadianCommunities as any)?.communities || []).map((community: any, index: number) => (
                 <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <FeaturedExcellenceCard community={community} index={index} compact />
 
@@ -2731,7 +2731,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-                {((puertoRicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
@@ -2948,7 +2948,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((cubaCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((cubaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`cuba-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -3031,7 +3031,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
-                {((costaRicaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((costaRicaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
@@ -3099,7 +3099,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
-                {((panamaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((panamaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
@@ -3167,7 +3167,7 @@ export default function CommunityDirectory() {
                 </div>
               ))
             ) : (
-              ((mexicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+              ((mexicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                 <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <FeaturedExcellenceCard community={community} index={index} compact />
 
@@ -3281,7 +3281,7 @@ export default function CommunityDirectory() {
               DATABASE INSIGHTS
             </Badge>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              National Coverage Statistics
+              Worldwide Coverage Statistics
             </h2>
           </div>
           
@@ -3385,7 +3385,7 @@ export default function CommunityDirectory() {
                     </h3>
                     <p className="text-3xl font-bold text-blue-600">$4,287</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      National average across all care types
+                      Global average across all care types
                     </p>
                   </div>
                   <DollarSign className="h-12 w-12 text-blue-400 opacity-50" />
