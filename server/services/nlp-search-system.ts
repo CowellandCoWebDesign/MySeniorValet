@@ -387,9 +387,13 @@ export class NLPSearchSystem {
       databases.push('communities');
     }
     
-    // Services database
+    // Services database - includes hotels, restaurants, and other services
     if (lowerQuery.includes('service') || lowerQuery.includes('provider') ||
-        lowerQuery.includes('therapy') || lowerQuery.includes('transport')) {
+        lowerQuery.includes('therapy') || lowerQuery.includes('transport') ||
+        lowerQuery.includes('hotel') || lowerQuery.includes('restaurant') ||
+        lowerQuery.includes('pharmacy') || lowerQuery.includes('store') ||
+        lowerQuery.includes('shop') || lowerQuery.includes('cafe') ||
+        lowerQuery.includes('lawyer') || lowerQuery.includes('attorney')) {
       databases.push('services');
     }
     
@@ -405,9 +409,13 @@ export class NLPSearchSystem {
       databases.push('resources');
     }
     
-    // Vendors database
+    // Vendors database - also includes hotels, restaurants and other businesses
     if (lowerQuery.includes('vendor') || lowerQuery.includes('supplier') ||
-        lowerQuery.includes('equipment') || lowerQuery.includes('product')) {
+        lowerQuery.includes('equipment') || lowerQuery.includes('product') ||
+        lowerQuery.includes('hotel') || lowerQuery.includes('restaurant') ||
+        lowerQuery.includes('pharmacy') || lowerQuery.includes('store') ||
+        lowerQuery.includes('shop') || lowerQuery.includes('cafe') ||
+        lowerQuery.includes('lawyer') || lowerQuery.includes('attorney')) {
       databases.push('vendors');
     }
     
@@ -1213,8 +1221,11 @@ export class NLPSearchSystem {
     
     for (const result of results) {
       // Create unique key based on name and location
-      const name = (result.data.name || '').toLowerCase().replace(/\s+/g, '');
-      const location = `${result.data.city || ''}-${result.data.state || ''}`.toLowerCase();
+      // Handle both community (name) and vendor (businessName) records
+      const name = (result.data.name || result.data.businessName || result.data.title || '').toLowerCase().replace(/\s+/g, '');
+      const city = result.data.city || result.data.businessCity || '';
+      const state = result.data.state || result.data.businessState || '';
+      const location = `${city}-${state}`.toLowerCase();
       const key = `${name}-${location}`;
       
       const existing = seen.get(key);
