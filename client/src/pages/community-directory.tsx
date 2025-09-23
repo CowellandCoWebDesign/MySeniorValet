@@ -441,6 +441,101 @@ export default function CommunityDirectory() {
     },
     enabled: true
   });
+
+  // Fetch Canadian Province communities
+  const { data: ontarioCommunities } = useQuery({
+    queryKey: ['ontarioCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=ON');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: quebecCommunities } = useQuery({
+    queryKey: ['quebecCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=QC');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: britishColumbiaCommunities } = useQuery({
+    queryKey: ['bcCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=BC');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: albertaCommunities } = useQuery({
+    queryKey: ['albertaCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=AB');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Australian State communities
+  const { data: nswCommunities } = useQuery({
+    queryKey: ['nswCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=NSW');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: queenslandCommunities } = useQuery({
+    queryKey: ['qldCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=QLD');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: victoriaCommunities } = useQuery({
+    queryKey: ['vicCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=VIC');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Japan communities
+  const { data: japanCommunities } = useQuery({
+    queryKey: ['japanCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=Tokyo');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Singapore communities
+  const { data: singaporeCommunities } = useQuery({
+    queryKey: ['singaporeCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=Singapore');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Scotland communities
+  const { data: scotlandCommunities } = useQuery({
+    queryKey: ['scotlandCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=Scotland');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
   
   // Fetch HUD properties for showcase
   const { data: hudProperties } = useQuery({
@@ -463,13 +558,13 @@ export default function CommunityDirectory() {
   return (
     <div>
       <Helmet>
-        <title>Senior Living Community Directory 2025 | Compare 33,500+ Communities | MySeniorValet</title>
-        <meta name="description" content="Browse America's most comprehensive senior living directory with 33,500+ communities. Compare Brookdale (700+), Atria (237), Provincial (55), Solstice, Oakmont (95) and more. Find HUD housing, assisted living, memory care with verified pricing. Explore communities in Hawaii (88), New York (506), Fort Worth (87), and internationally including Peru." />
-        <meta name="keywords" content="senior living communities, assisted living directory, memory care facilities, independent living, HUD senior housing, Brookdale Senior Living, Atria Senior Living, Provincial Senior Living, Solstice Senior Living, Oakmont Management, senior care directory 2025, retirement homes, nursing homes, Hawaii senior living, New York senior communities, Fort Worth retirement, Peru senior care, international elderly care, 55+ communities, affordable senior housing, luxury senior living, senior care costs, senior living reviews, elder care options" />
+        <title>Senior Living Directory 2025 | 33,500+ Communities Worldwide | Canada, Australia, USA | MySeniorValet</title>
+        <meta name="description" content="World's most comprehensive senior living directory with 33,500+ communities across 15+ countries. Canada (5,343 - Ontario, Quebec, BC), Australia (1,458 - NSW, Queensland, Victoria), USA (all 50 states), Japan (Tokyo), Singapore, Scotland, Mexico. Compare Brookdale (700+), Atria (237), Provincial (55), HUD housing (5,936). Free transparent pricing, no referral fees." />
+        <meta name="keywords" content="senior living Canada, retirement homes Ontario, senior care Quebec, assisted living BC, Alberta senior communities, senior living Australia, NSW retirement homes, Queensland aged care, Victoria nursing homes, senior living Japan, Tokyo retirement, Singapore elderly care, Scotland care homes, Mexico retirement communities, senior living USA, Brookdale Senior Living, Atria Senior Living, Provincial Senior Living, HUD senior housing, international senior care directory, worldwide retirement homes, global elderly care, Ontario nursing homes, Quebec CHSLD, British Columbia senior care, Australian aged care facilities, Japanese senior homes" />
         
         {/* Open Graph tags for social sharing */}
         <meta property="og:title" content="Senior Living Community Directory 2025 - Compare 33,500+ Communities | MySeniorValet" />
-        <meta property="og:description" content="America's most comprehensive senior living directory. Compare Brookdale, Atria, Provincial, Oakmont and 237 other brands with verified pricing and reviews. Find communities in all 50 states and internationally." />
+        <meta property="og:description" content="World's most comprehensive senior living directory. 5,343 Canadian communities, 1,458 Australian facilities, plus USA, Japan, Singapore, Scotland, Mexico. Compare 240+ brands with verified pricing." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://myseniorvalet.com/community-directory" />
         <meta property="og:image" content="https://myseniorvalet.com/images/community-directory-og.jpg" />
@@ -478,7 +573,7 @@ export default function CommunityDirectory() {
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Senior Living Directory 2025 - 33,500+ Communities | MySeniorValet" />
-        <meta name="twitter:description" content="Compare senior living communities nationwide. Brookdale, Atria, Provincial, Oakmont. Verified pricing, reviews, and real-time availability." />
+        <meta name="twitter:description" content="33,500+ senior communities worldwide. Canada, Australia, USA, Japan, Singapore, Scotland. Free directory with verified pricing." />
         <meta name="twitter:image" content="https://myseniorvalet.com/images/community-directory-twitter.jpg" />
         
         {/* Additional SEO tags */}
@@ -486,13 +581,13 @@ export default function CommunityDirectory() {
         <meta name="robots" content="index, follow" />
         <meta name="author" content="MySeniorValet" />
         
-        {/* Structured data for Local Business Directory */}
+        {/* Comprehensive Structured Data for Global Directory */}
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
             "@type": "CollectionPage",
-            "name": "Senior Living Community Directory 2025",
-            "description": "Comprehensive directory of 33,500+ senior living communities across United States and internationally",
+            "name": "Worldwide Senior Living Directory 2025",
+            "description": "World's most comprehensive senior living directory with 33,500+ communities across 15+ countries. Canada (5,343), Australia (1,458), USA (25,000+), Japan, Singapore, Scotland, Mexico.",
             "url": "https://myseniorvalet.com/community-directory",
             "breadcrumb": {
               "@type": "BreadcrumbList",
@@ -516,24 +611,52 @@ export default function CommunityDirectory() {
               "numberOfItems": "33500",
               "itemListElement": [
                 {
-                  "@type": "Organization",
-                  "name": "Brookdale Senior Living",
-                  "description": "America's largest senior living provider with 700+ communities"
+                  "@type": "Place",
+                  "name": "Canadian Senior Living",
+                  "description": "5,343 communities across 13 provinces/territories",
+                  "containsPlace": [
+                    {"@type": "Place", "name": "Ontario", "description": "1,707 senior communities"},
+                    {"@type": "Place", "name": "Quebec", "description": "1,278 senior communities"},
+                    {"@type": "Place", "name": "British Columbia", "description": "987 senior communities"},
+                    {"@type": "Place", "name": "Alberta", "description": "570 senior communities"}
+                  ]
+                },
+                {
+                  "@type": "Place",
+                  "name": "Australian Senior Care",
+                  "description": "1,458 aged care facilities across 6 states",
+                  "containsPlace": [
+                    {"@type": "Place", "name": "New South Wales", "description": "430 aged care facilities"},
+                    {"@type": "Place", "name": "Queensland", "description": "330 aged care facilities"},
+                    {"@type": "Place", "name": "Victoria", "description": "324 aged care facilities"}
+                  ]
                 },
                 {
                   "@type": "Organization",
-                  "name": "Atria Senior Living",
-                  "description": "237 luxury senior living communities with hospitality focus"
+                  "name": "Brookdale Senior Living",
+                  "description": "America's largest provider with 700+ communities",
+                  "areaServed": "United States"
                 },
                 {
                   "@type": "Organization",
                   "name": "Provincial Senior Living",
-                  "description": "55 affordable independent living communities including Solstice"
+                  "description": "55 affordable communities including Solstice brand",
+                  "areaServed": "United States"
                 },
                 {
-                  "@type": "Organization",
-                  "name": "Oakmont Management Group",
-                  "description": "95 senior living communities across multiple states"
+                  "@type": "Place",
+                  "name": "Japan Senior Living",
+                  "description": "49 communities in Tokyo metropolitan area"
+                },
+                {
+                  "@type": "Place",
+                  "name": "Singapore Senior Care",
+                  "description": "27 senior care facilities"
+                },
+                {
+                  "@type": "Place",
+                  "name": "Scotland Care Homes",
+                  "description": "31 care homes across Scotland"
                 }
               ]
             },
@@ -544,7 +667,20 @@ export default function CommunityDirectory() {
                 "@type": "ImageObject",
                 "url": "https://myseniorvalet.com/logo.png"
               }
-            }
+            },
+            "spatialCoverage": [
+              {"@type": "Country", "name": "Canada"},
+              {"@type": "Country", "name": "Australia"},
+              {"@type": "Country", "name": "United States"},
+              {"@type": "Country", "name": "Japan"},
+              {"@type": "Country", "name": "Singapore"},
+              {"@type": "Country", "name": "Scotland"},
+              {"@type": "Country", "name": "Mexico"},
+              {"@type": "Country", "name": "Peru"},
+              {"@type": "Country", "name": "Cuba"},
+              {"@type": "Country", "name": "Costa Rica"},
+              {"@type": "Country", "name": "Panama"}
+            ]
           })}
         </script>
       </Helmet>
@@ -577,7 +713,7 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '35,264').toLocaleString()}+ senior living communities across the United States, Canada, Australia, Mexico, Japan, Peru, Cuba, Costa Rica & Panama
+              Access our complete database of {((communityCount as any)?.count || '33,500').toLocaleString()}+ senior living communities worldwide. Canada (5,343), Australia (1,458), USA (25,000+), Japan, Singapore, Scotland, Mexico, and more across 15+ countries!
             </p>
             
             {/* Key Stats */}
@@ -3117,6 +3253,313 @@ export default function CommunityDirectory() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* 🔥 CANADA SECTION - MASSIVE 5,343 COMMUNITIES! 🇨🇦 */}
+      <section className="px-4 py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-950/30 dark:via-gray-900 dark:to-red-950/30">
+        <div className="max-w-7xl mx-auto">
+          {/* Canada Header with Maple Leaf Theme */}
+          <div className="mb-12 text-center">
+            <Badge className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 mb-6 text-lg">
+              <span className="text-2xl mr-2">🇨🇦</span>
+              5,343 COMMUNITIES ACROSS CANADA
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Canadian Senior Living & Long-Term Care
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Complete coverage of retirement homes, long-term care facilities, and assisted living across all 13 provinces and territories. 
+              From Ontario's 1,707 communities to Yukon's specialized care homes.
+            </p>
+          </div>
+
+          {/* Province Quick Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">1,707</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Ontario</p>
+                <Link to="/search?location=Ontario">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">1,278</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Quebec</p>
+                <Link to="/search?location=Quebec">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">987</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">British Columbia</p>
+                <Link to="/search?location=British Columbia">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">570</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Alberta</p>
+                <Link to="/search?location=Alberta">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Featured Ontario Communities */}
+          {ontarioCommunities && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <MapPin className="text-red-600" />
+                Featured Ontario Communities ({((ontarioCommunities as any)?.communities?.length || 0).toLocaleString()})
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-500">
+                {((ontarioCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`on-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <FeaturedExcellenceCard community={community} index={index} compact />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Featured Quebec Communities */}
+          {quebecCommunities && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <MapPin className="text-blue-600" />
+                Featured Quebec Communities ({((quebecCommunities as any)?.communities?.length || 0).toLocaleString()})
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500">
+                {((quebecCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`qc-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <FeaturedExcellenceCard community={community} index={index} compact />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All Provinces Links Grid */}
+          <div className="bg-gradient-to-r from-red-100 to-white dark:from-red-900/20 dark:to-gray-900 rounded-xl p-6">
+            <h3 className="font-bold text-xl mb-4">Explore All Provinces & Territories:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { name: 'Ontario', count: '1,707', code: 'ON' },
+                { name: 'Quebec', count: '1,278', code: 'QC' },
+                { name: 'British Columbia', count: '987', code: 'BC' },
+                { name: 'Alberta', count: '570', code: 'AB' },
+                { name: 'Nova Scotia', count: '364', code: 'NS' },
+                { name: 'Saskatchewan', count: '306', code: 'SK' },
+                { name: 'New Brunswick', count: '241', code: 'NB' },
+                { name: 'Manitoba', count: '207', code: 'MB' },
+                { name: 'Newfoundland', count: '199', code: 'NL' },
+                { name: 'NW Territories', count: '146', code: 'NT' },
+                { name: 'PEI', count: '115', code: 'PE' },
+                { name: 'Nunavut', count: '89', code: 'NU' },
+                { name: 'Yukon', count: '69', code: 'YT' }
+              ].map((province) => (
+                <Link key={province.code} to={`/search?location=${province.name}`}>
+                  <Button variant="outline" className="w-full justify-between border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20">
+                    <span>{province.name}</span>
+                    <Badge className="bg-red-600 text-white">{province.count}</Badge>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🔥 AUSTRALIA SECTION - 1,458 AGED CARE FACILITIES! 🇦🇺 */}
+      <section className="px-4 py-16 bg-gradient-to-br from-green-50 via-yellow-50 to-green-50 dark:from-green-950/30 dark:via-yellow-950/30 dark:to-green-950/30">
+        <div className="max-w-7xl mx-auto">
+          {/* Australia Header */}
+          <div className="mb-12 text-center">
+            <Badge className="bg-gradient-to-r from-green-700 to-yellow-600 text-white px-6 py-2 mb-6 text-lg">
+              <span className="text-2xl mr-2">🇦🇺</span>
+              1,458 AGED CARE FACILITIES
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Australian Aged Care & Retirement Villages
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Comprehensive directory of aged care homes, retirement villages, and residential care across all Australian states and territories.
+            </p>
+          </div>
+
+          {/* State Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+            <Card className="border-2 border-green-200 dark:border-green-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-green-600">430</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">New South Wales</p>
+                <Link to="/search?location=New South Wales">
+                  <Button size="sm" variant="link" className="mt-2 text-green-600">
+                    View NSW →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-yellow-600">330</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Queensland</p>
+                <Link to="/search?location=Queensland">
+                  <Button size="sm" variant="link" className="mt-2 text-yellow-600">
+                    View QLD →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-blue-600">324</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Victoria</p>
+                <Link to="/search?location=Victoria">
+                  <Button size="sm" variant="link" className="mt-2 text-blue-600">
+                    View VIC →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Featured NSW Communities */}
+          {nswCommunities && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <Building className="text-green-600" />
+                New South Wales Aged Care ({((nswCommunities as any)?.communities?.length || 0)})
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-green-500">
+                {((nswCommunities as any)?.communities || []).slice(0, 15).map((community: any, index: number) => (
+                  <Link key={`nsw-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <FeaturedExcellenceCard community={community} index={index} compact />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All States Links */}
+          <div className="bg-gradient-to-r from-yellow-100 to-green-100 dark:from-yellow-900/20 dark:to-green-900/20 rounded-xl p-6">
+            <h3 className="font-bold text-xl mb-4">Browse All Australian States:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                { name: 'New South Wales', count: '430', code: 'NSW' },
+                { name: 'Queensland', count: '330', code: 'QLD' },
+                { name: 'Victoria', count: '324', code: 'VIC' },
+                { name: 'South Australia', count: '209', code: 'SA' },
+                { name: 'Tasmania', count: '90', code: 'TAS' },
+                { name: 'ACT', count: '65', code: 'ACT' },
+                { name: 'Western Australia', count: '10', code: 'WA' }
+              ].map((state) => (
+                <Link key={state.code} to={`/search?location=${state.name}`}>
+                  <Button variant="outline" className="w-full justify-between border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20">
+                    <span>{state.name}</span>
+                    <Badge className="bg-green-600 text-white">{state.count}</Badge>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* GLOBAL DESTINATIONS - Japan, Singapore, Scotland */}
+      <section className="px-4 py-16 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-12 text-center">
+            <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 mb-6 text-lg">
+              <Globe className="h-5 w-5 mr-2" />
+              GLOBAL SENIOR LIVING
+            </Badge>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              International Senior Care Destinations
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Japan */}
+            <Card className="border-2 border-red-200 dark:border-red-800">
+              <CardHeader className="bg-gradient-to-r from-red-500 to-white text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">🇯🇵</span>
+                  Japan - Tokyo Region
+                </CardTitle>
+                <CardDescription className="text-red-100">
+                  {japanCommunities ? ((japanCommunities as any)?.communities?.length || 49) : 49} Senior Care Facilities
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-sm mb-4">Premium elder care in Tokyo metropolitan area with traditional Japanese hospitality and modern healthcare.</p>
+                <Link to="/search?location=Japan">
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                    Explore Japan Senior Care →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Singapore */}
+            <Card className="border-2 border-red-200 dark:border-red-800">
+              <CardHeader className="bg-gradient-to-r from-red-600 to-white text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">🇸🇬</span>
+                  Singapore
+                </CardTitle>
+                <CardDescription className="text-red-100">
+                  {singaporeCommunities ? ((singaporeCommunities as any)?.communities?.length || 27) : 27} Care Facilities
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-sm mb-4">World-class healthcare and modern senior living in Asia's premier city-state.</p>
+                <Link to="/search?location=Singapore">
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                    View Singapore Facilities →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Scotland */}
+            <Card className="border-2 border-blue-200 dark:border-blue-800">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-white text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">🏴󐁧󐁢󐁳󐁣󐁴󐁿</span>
+                  Scotland
+                </CardTitle>
+                <CardDescription className="text-blue-100">
+                  {scotlandCommunities ? ((scotlandCommunities as any)?.communities?.length || 31) : 31} Care Homes
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-sm mb-4">Traditional Scottish care homes with stunning Highland and city locations.</p>
+                <Link to="/search?location=Scotland">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    Explore Scotland Care →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
