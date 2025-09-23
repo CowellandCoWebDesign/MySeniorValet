@@ -67,7 +67,7 @@ export class DiscoveredCommunityService {
           city: community.city || '',
           state: community.state || '',
           zipCode: community.zip || '',
-          country: community.country || 'United States',
+          country: community.country || null, // Don't default to United States for international communities
           website: community.website,
           phone: community.phone,
           email: community.email,
@@ -78,6 +78,8 @@ export class DiscoveredCommunityService {
           longitude: community.longitude,
           county: community.county,
           data_source: `ai_discovered_${community.discoverySource}`,
+          is_active: true, // CRITICAL: Mark discovered communities as active so they appear in searches
+          is_verified: false, // Mark as not verified until manual verification
           // Store raw discovery data and social media in json fields
           metadata: {
             contactPerson: community.contactPerson,
