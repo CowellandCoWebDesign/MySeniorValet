@@ -1284,6 +1284,24 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
     }
   });
 
+  // Get recently discovered communities
+  app.get('/api/communities/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Get recent communities ordered by ID (newest first)
+      const recentCommunities = await db.select()
+        .from(communities)
+        .orderBy(desc(communities.id))
+        .limit(limit);
+      
+      res.json(recentCommunities);
+    } catch (error) {
+      console.error('Error fetching recently discovered communities:', error);
+      res.status(500).json({ error: 'Failed to fetch recent communities' });
+    }
+  });
+
   // Auto-approve and fix incorrect link (admin only)
   app.post('/api/admin/fix-incorrect-link', async (req: any, res) => {
     try {
