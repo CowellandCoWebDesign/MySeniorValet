@@ -73,7 +73,6 @@ import Services from "@/pages/services";
 import SeniorServices from "@/pages/senior-services";
 import SeniorServicesComprehensive from "@/pages/senior-services-comprehensive";
 import SeniorResources from "@/pages/senior-resources";
-import BackgroundPreview from "@/pages/background-preview";
 import FloralServices from "@/pages/FloralServices";
 import MovingServices from "@/pages/MovingServices";
 import TransportationServices from "@/pages/TransportationServices";
@@ -326,7 +325,6 @@ function Router() {
       <Route path="/move-in-coordination" component={MoveInCoordination} />
       <Route path="/marketplace" component={Marketplace} />
       <Route path="/senior-marketplace" component={SeniorMarketplace} />
-      <Route path="/background-preview" component={BackgroundPreview} />
       <Route path="/senior-healthcare-directory" component={SeniorHealthcareDirectory} />
       <Route path="/hospital/:slug" component={HospitalDetails} />
       <Route path="/home-care/:slug" component={HomeCareDetails} />

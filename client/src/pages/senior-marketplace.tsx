@@ -41,6 +41,7 @@ import { Footer } from '@/components/footer';
 import { useQuery } from '@tanstack/react-query';
 
 import { useSEO } from '@/hooks/useSEO';
+import GlobalNetworkBg from '@assets/generated_images/Global_network_connections_3f9d63f4.png';
 
 export default function SeniorMarketplace() {
   const [, setLocation] = useLocation();
@@ -192,11 +193,11 @@ export default function SeniorMarketplace() {
       
       {/* Hero Section with Recently Discovered Services Carousel */}
       <section className="relative overflow-hidden py-12">
-        {/* Cosmic Background Image */}
+        {/* Global Network Background Image */}
         <div 
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg)',
+            backgroundImage: `url(${GlobalNetworkBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'
