@@ -191,11 +191,18 @@ export default function SeniorMarketplace() {
       </header>
       
       {/* Hero Section with Recently Discovered Services Carousel */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-700 py-16">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="absolute inset-0">
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+      <section className="relative overflow-hidden py-12">
+        {/* Cosmic Background Image */}
+        <div 
+          className="absolute inset-0 z-0"
+          style={{
+            backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 via-indigo-900/60 to-black/80"></div>
         </div>
         
         <div className="relative z-10 container mx-auto px-4">
@@ -204,16 +211,16 @@ export default function SeniorMarketplace() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-8"
           >
-            <h1 className="text-6xl sm:text-7xl font-bold text-white tracking-tight mb-4">
+            <h1 className="text-4xl sm:text-5xl font-bold text-white tracking-tight mb-3">
               Services Directory
             </h1>
-            <div className="flex items-center justify-center gap-2 mb-10">
-              <Flame className="w-7 h-7 text-orange-400 animate-pulse" />
-              <h2 className="text-2xl sm:text-3xl font-semibold text-white/95">Recently Discovered Services</h2>
-              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-sm font-bold animate-pulse">
-                🔥 HOT
+            <div className="flex items-center justify-center gap-3 mb-8">
+              <Flame className="w-6 h-6 text-orange-400 animate-pulse" />
+              <h2 className="text-xl sm:text-2xl font-medium text-white/90">Recently Discovered Services</h2>
+              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                HOT
               </Badge>
             </div>
           </motion.div>
@@ -222,16 +229,16 @@ export default function SeniorMarketplace() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
             className="relative max-w-7xl mx-auto"
           >
             {/* Carousel Container */}
-            <div className="relative group">
+            <div className="relative">
               {/* Left Scroll Button */}
               {canScrollLeft && (
                 <button
                   onClick={scrollLeft}
-                  className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white rounded-full p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                  className="absolute -left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-6 h-6 text-purple-600" />
@@ -241,46 +248,46 @@ export default function SeniorMarketplace() {
               {/* Services Carousel */}
               <div 
                 ref={scrollContainerRef}
-                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4"
+                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
                 onScroll={checkScrollPosition}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {isLoading ? (
-                  // Loading skeleton with better styling
+                  // Loading skeleton
                   Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex-shrink-0 w-80">
-                      <div className="bg-white/95 backdrop-blur rounded-xl p-5 shadow-xl animate-pulse">
-                        <div className="h-20 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg mb-4"></div>
-                        <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-3/4 mb-3"></div>
-                        <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded w-1/2 mb-3"></div>
-                        <div className="flex gap-2 mt-4">
-                          <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-20"></div>
-                          <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-20"></div>
-                        </div>
+                    <div key={i} className="flex-shrink-0 w-72">
+                      <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                        <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                        <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
                       </div>
                     </div>
                   ))
-                ) : (
-                  recentServices?.slice(0, 12).map((vendor: any, index: number) => (
+                ) : recentServices && recentServices.length > 0 ? (
+                  recentServices.slice(0, 12).map((vendor: any, index: number) => (
                     <motion.div 
                       key={vendor.id} 
-                      className="flex-shrink-0 w-80"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="flex-shrink-0 w-72"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
                     >
-                      <div className="bg-white/95 backdrop-blur rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                      <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                         <VendorServiceCard 
                           vendor={vendor} 
-                          variant="grid"
+                          variant="compact"
                           onSelect={() => {
                             // Navigate to vendor details
-                            console.log('Selected vendor:', vendor.id);
+                            window.location.href = `/vendor/${vendor.id}`;
                           }}
                         />
                       </div>
                     </motion.div>
                   ))
+                ) : (
+                  <div className="text-white/80 text-center py-8 w-full">
+                    No services discovered yet. Try searching for businesses above!
+                  </div>
                 )}
               </div>
 
@@ -288,17 +295,13 @@ export default function SeniorMarketplace() {
               {canScrollRight && (
                 <button
                   onClick={scrollRight}
-                  className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white rounded-full p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                  className="absolute -right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-6 h-6 text-purple-600" />
                 </button>
               )}
             </div>
-
-            {/* Gradient Fade Edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-purple-600 to-transparent pointer-events-none z-10"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-blue-700 to-transparent pointer-events-none z-10"></div>
           </motion.div>
 
           {/* Partner CTAs */}
