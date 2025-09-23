@@ -254,30 +254,32 @@ export class ComprehensiveSearchEngine {
         // Check if this is an international location query first
         const isInternational = this.detectInternationalQuery(normalizedQuery);
         
-        if (isInternational) {
-          // For international queries, add a condition that won't match to trigger Discovery Mode
-          conditions.push(eq(communities.country, 'TRIGGER_DISCOVERY_MODE'));
-          console.log(`🌍 International location detected, triggering Discovery Mode for: ${normalizedQuery}`);
-          searchType = 'international';
-        } else {
-          const locationConditions = await this.buildLocationConditions(normalizedQuery);
-          console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
-          
-          // Only add location conditions if they exist
-          if (locationConditions.length > 0) {
-            // Combine multiple location conditions with OR, not AND
-            if (locationConditions.length > 1) {
-              conditions.push(or(...locationConditions));
-              console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
-            } else {
-              conditions.push(...locationConditions);
-              console.log(`🔍 Added single location condition`);
-            }
+        // ALWAYS search location conditions, even for international queries
+        // This will find communities in our database first before triggering Discovery Mode
+        const locationConditions = await this.buildLocationConditions(normalizedQuery);
+        console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+        
+        // Only add location conditions if they exist
+        if (locationConditions.length > 0) {
+          // Combine multiple location conditions with OR, not AND
+          if (locationConditions.length > 1) {
+            conditions.push(or(...locationConditions));
+            console.log(`🔍 Combined ${locationConditions.length} location conditions with OR`);
+          } else {
+            conditions.push(...locationConditions);
+            console.log(`🔍 Added single location condition`);
           }
-          // Check if this was a country search
-          isCountrySearch = (locationConditions as any).__isCountrySearch;
-          console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
         }
+        
+        // Check if this was a country search
+        isCountrySearch = (locationConditions as any).__isCountrySearch;
+        
+        if (isInternational) {
+          console.log(`🌍 International location detected: ${normalizedQuery}`);
+          searchType = 'international';
+        }
+        
+        console.log(`🔍 After location: conditions.length=${conditions.length}, isCountrySearch=${isCountrySearch}`);
       }
       
       if (intentScores.careType > 0.3) {
@@ -427,7 +429,9 @@ export class ComprehensiveSearchEngine {
       /\b(in|near|around)\s+/,         // "memory care in Sacramento"
       /\b(city|state|county|zip)\b/,
       /\b(california|texas|florida|new york|illinois|ohio|pennsylvania|arizona|georgia|north carolina|michigan|new jersey|virginia|washington|massachusetts|indiana|tennessee|missouri|maryland|wisconsin|minnesota|colorado|alabama|south carolina|louisiana|kentucky|oregon|oklahoma|connecticut|iowa|mississippi|arkansas|utah|kansas|nevada|new mexico|nebraska|west virginia|idaho|hawaii|maine|new hampshire|rhode island|montana|delaware|south dakota|alaska|north dakota|vermont|wyoming)\b/i,  // State names
-      /\b(sacramento|los angeles|san francisco|san diego|chicago|houston|phoenix|philadelphia|san antonio|dallas|san jose|austin|jacksonville|columbus|charlotte|detroit|el paso|memphis|seattle|denver|washington|boston|nashville|baltimore|oklahoma city|louisville|portland|las vegas|milwaukee|albuquerque|tucson|fresno|mesa|atlanta|kansas city|colorado springs|miami|raleigh|omaha|long beach|virginia beach|oakland|minneapolis|tulsa|arlington|tampa|new orleans)\b/i  // Major cities
+      /\b(sacramento|los angeles|san francisco|san diego|chicago|houston|phoenix|philadelphia|san antonio|dallas|san jose|austin|jacksonville|columbus|charlotte|detroit|el paso|memphis|seattle|denver|washington|boston|nashville|baltimore|oklahoma city|louisville|portland|las vegas|milwaukee|albuquerque|tucson|fresno|mesa|atlanta|kansas city|colorado springs|miami|raleigh|omaha|long beach|virginia beach|oakland|minneapolis|tulsa|arlington|tampa|new orleans)\b/i,  // Major cities
+      // Country names - CRITICAL for international search
+      /\b(australia|canada|mexico|united kingdom|uk|france|germany|spain|italy|japan|china|india|brazil|russia|singapore|new zealand|ireland|netherlands|belgium|switzerland|sweden|norway|denmark|finland|poland|greece|turkey|portugal|israel|dubai|egypt|south africa|argentina|chile|peru|colombia)\b/i
     ];
     
     // Check for international locations separately with higher priority
@@ -646,16 +650,20 @@ export class ComprehensiveSearchEngine {
     else {
       const queryLower = query.toLowerCase().trim();
       
-      // Check if it's a known country
+      // Check if it's a known country - search both the code AND full country name
       const countryCode = (COUNTRY_CODES as any)[queryLower];
-      if (countryCode) {
+      if (countryCode || queryLower === 'australia' || queryLower === 'canada' || queryLower === 'mexico') {
+        // Search for both the country code AND the full country name
         conditions.push(
           or(
             eq(communities.country, countryCode),
-            ilike(communities.country, `%${query}%`)
+            ilike(communities.country, `%${query}%`),
+            ilike(communities.state, `%${query}%`), // Some countries might be stored in state field
+            ilike(communities.city, `%${query}%`)   // Or search in cities of that country
           )
         );
-        console.log(`🌍 Added country search for "${query}"`);
+        console.log(`🌍 Added country search for "${query}" - searching all location fields`);
+        (conditions as any).__isCountrySearch = true;
       } else {
         // Global search - prioritize exact city matches first
         // For city searches like "Atlanta", we want communities IN Atlanta, not with Atlanta in the name
