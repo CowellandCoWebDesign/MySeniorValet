@@ -155,6 +155,21 @@ export default function CommunityDirectory() {
     enabled: true
   });
   
+  const provincialQuery = useQuery({
+    queryKey: ['/api/search/comprehensive', 'Provincial Senior Living'],
+    queryFn: async () => {
+      const response = await fetch('/api/search/comprehensive', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: 'Provincial', limit: 12 }),
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Provincial communities');
+      return await response.json();
+    },
+    enabled: true
+  });
+  
   // Recently discovered communities query
   const { data: recentCommunities, isLoading: isLoadingRecent } = useQuery({
     queryKey: ['/api/communities/recently-discovered'],
@@ -867,6 +882,139 @@ export default function CommunityDirectory() {
             className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 text-lg shadow-xl"
           >
             Explore All 350+ Discovery Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* PROVINCIAL SENIOR LIVING - AFFORDABLE EXCELLENCE BY DISCOVERY */}
+      <section className="px-4 py-16 bg-gradient-to-br from-amber-950 via-orange-950 to-yellow-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🏠</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Home className="h-5 w-5 mr-2" />
+              AFFORDABLE INDEPENDENT LIVING BY DISCOVERY
+              <Home className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-yellow-300 bg-clip-text text-transparent">
+                Provincial Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-amber-100 mb-4 font-semibold">
+              Maintenance-Free Independent Living Across 18+ States
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              Part of the Discovery family, Provincial offers affordable independent living with supportive services,
+              pet-friendly communities, and a focus on active lifestyles at exceptional value
+            </p>
+          </div>
+
+          {/* Provincial Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <MapPin className="w-8 h-8 text-amber-300" />
+              <h3 className="text-xl font-bold text-white">The Provincial Advantage</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🏡 Community Features</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ Studios to 2-bedroom apartments (375-975 sq ft)</li>
+                  <li>★ Three chef-prepared meals daily included</li>
+                  <li>★ Pet-friendly communities nationwide</li>
+                  <li>★ Modern kitchenettes in every apartment</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🌟 Services & Amenities</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Complimentary local transportation</li>
+                  <li>• Libraries & game rooms</li>
+                  <li>• Fitness centers & wellness programs</li>
+                  <li>• Optional support services as needed</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-amber-800/30 rounded-lg p-3 border border-amber-600/30 mt-4">
+              <p className="text-amber-200 text-sm font-semibold text-center">
+                🌟 Provincial Promise: Combining Discovery's excellence with affordable pricing - 
+                average $6,595/month with all meals, maintenance, and activities included
+              </p>
+            </div>
+          </div>
+
+          {/* Provincial Communities Signature Slider */}
+          {provincialQuery.data?.communities?.length > 0 ? (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-amber-300">🏠 Affordable Provincial Communities</h3>
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                  {provincialQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="relative group">
+                <div 
+                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-amber-600 scrollbar-track-transparent scroll-smooth"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
+                  {provincialQuery.data.communities.slice(0, 12).map((community: any, index: number) => (
+                    <div key={community.id} className="flex-none w-80 transform transition-transform hover:scale-105">
+                      <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 backdrop-blur rounded-xl overflow-hidden border border-amber-500/30 shadow-xl">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
+                          }}
+                          index={index} 
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            // Fallback to static featured locations if no dynamic data
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
+                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Vista, CA</h4>
+                <p className="text-gray-300 text-sm">1080 Arcadia Ave, Vista</p>
+                <p className="text-amber-400 text-xs mt-1">Active Independent Living</p>
+                <p className="text-gray-400 text-xs mt-1">📞 442.240.0030</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
+                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Arlington, TX</h4>
+                <p className="text-gray-300 text-sm">6801 West Poly Webb Road</p>
+                <p className="text-amber-400 text-xs mt-1">Pet-Friendly Community</p>
+                <p className="text-gray-400 text-xs mt-1">📞 817.583.7171</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
+                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Gainesville, FL</h4>
+                <p className="text-gray-300 text-sm">2431 NW 41st Street</p>
+                <p className="text-amber-400 text-xs mt-1">Active Lifestyle Focus</p>
+                <p className="text-gray-400 text-xs mt-1">📞 352.810.9005</p>
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={() => window.open('/search?query=Provincial', '_self')}
+            className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Discover Provincial Communities in Your Area →
           </Button>
         </div>
       </section>
