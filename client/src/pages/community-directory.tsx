@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -180,7 +181,7 @@ export default function CommunityDirectory() {
       const response = await fetch('/api/search/comprehensive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Oakmont', limit: 12 }),
+        body: JSON.stringify({ query: 'Oakmont', limit: 100 }),
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch Oakmont communities');
@@ -461,6 +462,92 @@ export default function CommunityDirectory() {
   
   return (
     <div>
+      <Helmet>
+        <title>Senior Living Community Directory 2025 | Compare 33,500+ Communities | MySeniorValet</title>
+        <meta name="description" content="Browse America's most comprehensive senior living directory with 33,500+ communities. Compare Brookdale (700+), Atria (237), Provincial (55), Solstice, Oakmont (95) and more. Find HUD housing, assisted living, memory care with verified pricing. Explore communities in Hawaii (88), New York (506), Fort Worth (87), and internationally including Peru." />
+        <meta name="keywords" content="senior living communities, assisted living directory, memory care facilities, independent living, HUD senior housing, Brookdale Senior Living, Atria Senior Living, Provincial Senior Living, Solstice Senior Living, Oakmont Management, senior care directory 2025, retirement homes, nursing homes, Hawaii senior living, New York senior communities, Fort Worth retirement, Peru senior care, international elderly care, 55+ communities, affordable senior housing, luxury senior living, senior care costs, senior living reviews, elder care options" />
+        
+        {/* Open Graph tags for social sharing */}
+        <meta property="og:title" content="Senior Living Community Directory 2025 - Compare 33,500+ Communities | MySeniorValet" />
+        <meta property="og:description" content="America's most comprehensive senior living directory. Compare Brookdale, Atria, Provincial, Oakmont and 237 other brands with verified pricing and reviews. Find communities in all 50 states and internationally." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://myseniorvalet.com/community-directory" />
+        <meta property="og:image" content="https://myseniorvalet.com/images/community-directory-og.jpg" />
+        <meta property="og:site_name" content="MySeniorValet" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Senior Living Directory 2025 - 33,500+ Communities | MySeniorValet" />
+        <meta name="twitter:description" content="Compare senior living communities nationwide. Brookdale, Atria, Provincial, Oakmont. Verified pricing, reviews, and real-time availability." />
+        <meta name="twitter:image" content="https://myseniorvalet.com/images/community-directory-twitter.jpg" />
+        
+        {/* Additional SEO tags */}
+        <link rel="canonical" href="https://myseniorvalet.com/community-directory" />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="MySeniorValet" />
+        
+        {/* Structured data for Local Business Directory */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Senior Living Community Directory 2025",
+            "description": "Comprehensive directory of 33,500+ senior living communities across United States and internationally",
+            "url": "https://myseniorvalet.com/community-directory",
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://myseniorvalet.com"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Community Directory",
+                  "item": "https://myseniorvalet.com/community-directory"
+                }
+              ]
+            },
+            "mainEntity": {
+              "@type": "ItemList",
+              "numberOfItems": "33500",
+              "itemListElement": [
+                {
+                  "@type": "Organization",
+                  "name": "Brookdale Senior Living",
+                  "description": "America's largest senior living provider with 700+ communities"
+                },
+                {
+                  "@type": "Organization",
+                  "name": "Atria Senior Living",
+                  "description": "237 luxury senior living communities with hospitality focus"
+                },
+                {
+                  "@type": "Organization",
+                  "name": "Provincial Senior Living",
+                  "description": "55 affordable independent living communities including Solstice"
+                },
+                {
+                  "@type": "Organization",
+                  "name": "Oakmont Management Group",
+                  "description": "95 senior living communities across multiple states"
+                }
+              ]
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "MySeniorValet",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://myseniorvalet.com/logo.png"
+              }
+            }
+          })}
+        </script>
+      </Helmet>
       <NavigationHeader />
       
       {/* Hero Section with Stats */}
@@ -1613,7 +1700,7 @@ export default function CommunityDirectory() {
                 </Badge>
               </div>
               <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
-                {oakmontQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                {oakmontQuery.data.communities.map((community: any, index: number) => (
                   <div key={community.id} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -1851,7 +1938,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((hawaiiCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((hawaiiCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -2008,7 +2095,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((texasCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((texasCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -2408,7 +2495,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((newYorkCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((newYorkCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -2719,7 +2806,7 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
-                {((peruCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((peruCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} compact />
                   </Link>
