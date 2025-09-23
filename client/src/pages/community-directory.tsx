@@ -158,14 +158,44 @@ export default function CommunityDirectory() {
   const provincialQuery = useQuery({
     queryKey: ['/api/search/comprehensive', 'Provincial Senior Living'],
     queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Provincial Solstice', limit: 60 }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch Provincial communities');
-      return await response.json();
+      // Fetch both Provincial and Solstice communities
+      const [provincialResponse, solsticeResponse] = await Promise.all([
+        fetch('/api/search/comprehensive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: 'Provincial', limit: 30 }),
+          credentials: 'include'
+        }),
+        fetch('/api/search/comprehensive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: 'Solstice', limit: 30 }),
+          credentials: 'include'
+        })
+      ]);
+      
+      if (!provincialResponse.ok || !solsticeResponse.ok) {
+        throw new Error('Failed to fetch Provincial/Solstice communities');
+      }
+      
+      const provincialData = await provincialResponse.json();
+      const solsticeData = await solsticeResponse.json();
+      
+      // Combine and deduplicate communities
+      const allCommunities = [
+        ...(provincialData.communities || []),
+        ...(solsticeData.communities || [])
+      ];
+      
+      // Remove duplicates based on community ID
+      const uniqueCommunities = Array.from(
+        new Map(allCommunities.map(c => [c.id, c])).values()
+      );
+      
+      return { 
+        communities: uniqueCommunities,
+        totalCount: uniqueCommunities.length 
+      };
     },
     enabled: true
   });
