@@ -982,8 +982,8 @@ export default function CommunityDirectory() {
                         />
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
           ) : (
