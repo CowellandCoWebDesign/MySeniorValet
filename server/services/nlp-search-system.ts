@@ -1029,7 +1029,6 @@ export class NLPSearchSystem {
     options?: any
   ): Promise<UnifiedSearchResult[]> {
     try {
-      const conditions = [];
       const orConditions = [];
       
       // Extract location from query (e.g., "hotels in dallas" -> location: "dallas")
@@ -1081,19 +1080,32 @@ export class NLPSearchSystem {
         }
       }
       
-      // Add location filter if present
-      if (location) {
-        conditions.push(
+      // Build WHERE clause based on what we have
+      let whereClause;
+      
+      if (location && orConditions.length > 0) {
+        // Both location and business type: location AND (any business type match)
+        whereClause = and(
           or(
             ilike(vendors.businessCity, `%${location}%`),
             ilike(vendors.businessState, `%${location}%`)
-          )
+          ),
+          or(...orConditions)
         );
-      } else if (!businessType) {
+      } else if (location && orConditions.length === 0) {
+        // Just location search
+        whereClause = or(
+          ilike(vendors.businessCity, `%${location}%`),
+          ilike(vendors.businessState, `%${location}%`)
+        );
+      } else if (!location && orConditions.length > 0) {
+        // Just business type search
+        whereClause = or(...orConditions);
+      } else if (!businessType && !location) {
         // If no business type and no location, search the full query in all text fields
         const fullQuery = query.trim();
         if (fullQuery) {
-          orConditions.push(
+          whereClause = or(
             ilike(vendors.businessName, `%${fullQuery}%`),
             ilike(vendors.businessCity, `%${fullQuery}%`),
             ilike(vendors.description, `%${fullQuery}%`)
@@ -1101,28 +1113,18 @@ export class NLPSearchSystem {
         }
       }
       
-      // Combine conditions
-      if (location && orConditions.length > 0) {
-        // Must match location AND (business type OR name)
-        conditions.push(or(...orConditions));
-      } else if (location && orConditions.length === 0) {
-        // Just location search - already added above
-      } else if (orConditions.length > 0) {
-        // Just business type/name search
-        conditions.push(or(...orConditions));
-      }
-      
       let dbQuery = db.select().from(vendors) as any;
-      if (conditions.length > 0) {
-        dbQuery = dbQuery.where(and(...conditions));
+      
+      if (whereClause) {
+        dbQuery = dbQuery.where(whereClause);
       }
       
       // Debug logging
       console.log(`🔍 Vendor search for "${query}":`, {
         location,
         businessType,
-        conditionsCount: conditions.length,
-        orConditionsCount: orConditions.length
+        businessTypeConditions: orConditions.length,
+        hasWhereClause: !!whereClause
       });
       
       const results = await dbQuery.limit(options?.limit || 50);
