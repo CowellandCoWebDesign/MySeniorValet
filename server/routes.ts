@@ -1284,24 +1284,6 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
     }
   });
 
-  // Get recently discovered services
-  app.get('/api/vendors/recently-discovered', async (req, res) => {
-    try {
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      // Get recent vendors ordered by creation date
-      const recentVendors = await db.select()
-        .from(vendors)
-        .orderBy(desc(vendors.id))
-        .limit(limit);
-      
-      res.json(recentVendors);
-    } catch (error) {
-      console.error('Error fetching recently discovered vendors:', error);
-      res.status(500).json({ error: 'Failed to fetch recent vendors' });
-    }
-  });
-
   // Auto-approve and fix incorrect link (admin only)
   app.post('/api/admin/fix-incorrect-link', async (req: any, res) => {
     try {
