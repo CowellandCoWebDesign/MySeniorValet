@@ -1053,30 +1053,28 @@ export class NLPSearchSystem {
       // Search for business type in name, description, and service type
       // For "hotels", also search for common hotel brand names
       if (businessType) {
-        const searchTerms = [businessType];
+        const searchTerms = [];
         
         // Add common variations for hotel searches
         if (businessType.toLowerCase().includes('hotel')) {
-          searchTerms.push('inn', 'suites', 'resort', 'lodge', 'motel');
+          searchTerms.push('hotel', 'inn', 'suites', 'resort', 'lodge', 'motel');
+        } else {
+          searchTerms.push(businessType);
         }
         
-        const typeConditions = [];
+        // Build conditions for each search term
         for (const term of searchTerms) {
-          // For hotels, focus on business name since business_type is often "service"
-          typeConditions.push(
+          orConditions.push(
             ilike(vendors.businessName, `%${term}%`)
           );
-          // Also check description if available
-          if (term !== businessType || !businessType.toLowerCase().includes('hotel')) {
-            typeConditions.push(
-              ilike(vendors.description, `%${term}%`),
-              ilike(vendors.businessType, `%${term}%`)
-            );
-          }
         }
         
-        if (typeConditions.length > 0) {
-          orConditions.push(...typeConditions);
+        // Also check description and business type for non-hotel searches
+        if (!businessType.toLowerCase().includes('hotel')) {
+          orConditions.push(
+            ilike(vendors.description, `%${businessType}%`),
+            ilike(vendors.businessType, `%${businessType}%`)
+          );
         }
       }
       
