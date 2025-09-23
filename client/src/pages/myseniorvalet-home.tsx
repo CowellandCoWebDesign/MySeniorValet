@@ -530,6 +530,12 @@ function HeroSectionWithTransformingSearch() {
             // Extract Discovery Mode data from searchMetadata
             const metadata = data.searchMetadata || {};
             
+            console.log('Setting search results:', {
+              communities: communities.length,
+              first: communities[0]?.name,
+              last: communities[communities.length - 1]?.name,
+              total: data.total
+            });
             setSearchResults({ 
               results: communities, 
               metadata: {
@@ -1182,6 +1188,7 @@ function HeroSectionWithTransformingSearch() {
                       
                       {searchResults?.results && searchResults.results.length > 0 ? (
                         <>
+                          {console.log('Rendering results:', searchResults.results.length, 'visible:', visibleResults)}
                           {searchResults.results.slice(0, visibleResults).map((item: any, index: number) => (
                           <motion.div
                             key={item.id}
