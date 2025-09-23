@@ -131,7 +131,7 @@ export default function CommunityDirectory() {
       const response = await fetch('/api/search/comprehensive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Atria', limit: 12 }),
+        body: JSON.stringify({ query: 'Atria', limit: 250 }),
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch Atria communities');
@@ -1214,7 +1214,7 @@ export default function CommunityDirectory() {
                 </Badge>
               </div>
               <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500" style={{scrollBehavior: 'smooth'}}>
-                {atriaQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                {atriaQuery.data.communities.map((community: any, index: number) => (
                   <div key={community.id} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -1222,7 +1222,16 @@ export default function CommunityDirectory() {
                         <FeaturedExcellenceCard 
                           community={{
                             ...community,
-                            badge: index === 0 ? "💎 Luxury" : index === 1 ? "🌟 Hospitality" : "⭐ Featured"
+                            badge: index === 0 ? "💎 Luxury" : 
+                                   index === 1 ? "🌟 Hospitality" : 
+                                   index === 2 ? "⭐ Featured" :
+                                   index === 3 ? "👑 Premier" :
+                                   index === 4 ? "💜 Excellence" :
+                                   index < 20 ? "✨ Premium" :
+                                   index < 50 ? "🌸 Select" :
+                                   index < 100 ? "⭐ Quality" :
+                                   index < 150 ? "🏆 Award Winner" :
+                                   "💎 Community"
                           }}
                           index={index} 
                           compact 
