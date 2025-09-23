@@ -1284,32 +1284,6 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
     }
   });
 
-  // Get recently discovered communities (those found via Discovery Mode)
-  app.get('/api/communities/recently-discovered', async (req, res) => {
-    try {
-      const limit = parseInt(req.query.limit as string) || 20;
-      
-      // Get communities that were discovered through AI/Discovery Mode
-      // These have data_source like 'AI Discovery (Perplexity Global Search)' or similar
-      const recentCommunities = await db.select()
-        .from(communities)
-        .where(
-          or(
-            sql`${communities.data_source} LIKE 'AI Discovery%'`,
-            sql`${communities.data_source} LIKE 'ai_discovered_%'`,
-            eq(communities.data_source, 'discovered_community'),
-            eq(communities.data_source, 'global_discovery')
-          )
-        )
-        .orderBy(desc(communities.id))
-        .limit(limit);
-      
-      res.json(recentCommunities);
-    } catch (error) {
-      console.error('Error fetching recently discovered communities:', error);
-      res.status(500).json({ error: 'Failed to fetch recent communities' });
-    }
-  });
 
   // Auto-approve and fix incorrect link (admin only)
   app.post('/api/admin/fix-incorrect-link', async (req: any, res) => {
