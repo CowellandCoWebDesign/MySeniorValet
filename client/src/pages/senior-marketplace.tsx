@@ -41,7 +41,7 @@ import { Footer } from '@/components/footer';
 import { useQuery } from '@tanstack/react-query';
 
 import { useSEO } from '@/hooks/useSEO';
-import GlobalNetworkBg from '@assets/generated_images/Global_network_connections_3f9d63f4.png';
+import BusinessDistrictBg from '@assets/generated_images/Business_district_twilight_a2a388f0.png';
 
 export default function SeniorMarketplace() {
   const [, setLocation] = useLocation();
@@ -193,11 +193,11 @@ export default function SeniorMarketplace() {
       
       {/* Hero Section with Recently Discovered Services Carousel */}
       <section className="relative overflow-hidden py-12">
-        {/* Global Network Background Image */}
+        {/* Business District Twilight Background Image */}
         <div 
           className="absolute inset-0 z-0"
           style={{
-            backgroundImage: `url(${GlobalNetworkBg})`,
+            backgroundImage: `url(${BusinessDistrictBg})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat'

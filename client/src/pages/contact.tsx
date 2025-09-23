@@ -74,6 +74,20 @@ import NavigateMaze from '@assets/generated_images/Healthcare_maze_navigation_20
 import ForgottenMiddle from '@assets/generated_images/Forgotten_middle_solution_4526d569.png';
 import IntegrityFirst from '@assets/generated_images/Integrity_over_corruption_360394d9.png';
 
+// Business & Services Background Images - Sixth Set (Professional Backgrounds)
+import GlobalNetwork from '@assets/generated_images/Global_network_connections_3f9d63f4.png';
+import BusinessDistrict from '@assets/generated_images/Business_district_twilight_a2a388f0.png';
+import CommunityConnections from '@assets/generated_images/Community_service_connections_b57884c1.png';
+import InternationalHub from '@assets/generated_images/International_business_hub_8a095519.png';
+import ServiceHexagons from '@assets/generated_images/Service_category_hexagons_7b80e584.png';
+
+// Cosmic Background Images - Seventh Set (Space-Themed Backgrounds)
+import PurpleNebula from '@assets/generated_images/Purple_blue_nebula_8526e54e.png';
+import GoldenGalaxy from '@assets/generated_images/Golden_spiral_galaxy_71dfef9b.png';
+import MilkyWay from '@assets/generated_images/Milky_Way_starfield_679ddd1a.png';
+import CosmicAurora from '@assets/generated_images/Cosmic_aurora_ribbons_02e37f14.png';
+import EarthSunrise from '@assets/generated_images/Earth_sunrise_space_0eae1811.png';
+
 export default function Contact() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
   const { toast } = useToast();
@@ -183,7 +197,19 @@ export default function Contact() {
     { src: NoHarassment, title: 'No Sales Harassment Ever', description: 'No commissions, no bias, no endless sales calls - your peace and privacy protected' },
     { src: NavigateMaze, title: 'Navigate The Healthcare Maze', description: '53% of families cant navigate the system - MySeniorValet illuminates the clear path' },
     { src: ForgottenMiddle, title: 'Help for the Forgotten Middle', description: 'Too rich for Medicaid, too poor for private pay - we show ALL available options' },
-    { src: IntegrityFirst, title: 'Integrity Over Corruption', description: 'While competitors take commissions from facilities, we stand for truth and transparency' }
+    { src: IntegrityFirst, title: 'Integrity Over Corruption', description: 'While competitors take commissions from facilities, we stand for truth and transparency' },
+    // Professional Business & Services Backgrounds
+    { src: GlobalNetwork, title: 'Global Network Connections', description: 'Interconnected digital network spanning the globe - perfect for international services directory' },
+    { src: BusinessDistrict, title: 'Business District Twilight', description: 'Modern corporate skyline at dusk - professional services marketplace aesthetic' },
+    { src: CommunityConnections, title: 'Community Service Connections', description: 'Warm, interconnected community visualization - connecting families with local services' },
+    { src: InternationalHub, title: 'International Business Hub', description: 'Global marketplace with international flags - worldwide business directory aesthetic' },
+    { src: ServiceHexagons, title: 'Service Category Hexagons', description: 'Geometric pattern representing diverse service categories - modern marketplace design' },
+    // Cosmic & Space-Themed Backgrounds
+    { src: PurpleNebula, title: 'Purple Blue Nebula', description: 'Vibrant cosmic nebula with swirling purple and blue clouds - infinite possibilities theme' },
+    { src: GoldenGalaxy, title: 'Golden Spiral Galaxy', description: 'Majestic spiral galaxy with golden hues - representing the vastness of options' },
+    { src: MilkyWay, title: 'Milky Way Starfield', description: 'Serene starfield with Milky Way - peaceful cosmic backdrop for any page' },
+    { src: CosmicAurora, title: 'Cosmic Aurora Ribbons', description: 'Flowing ribbons of cosmic light - ethereal space phenomenon visualization' },
+    { src: EarthSunrise, title: 'Earth Sunrise from Space', description: 'Stunning Earth view with sunrise - inspiring perspective of our world' }
   ];
 
   return (
