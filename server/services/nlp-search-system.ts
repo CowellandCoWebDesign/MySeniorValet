@@ -403,14 +403,27 @@ export class NLPSearchSystem {
       databases.push('communities');
     }
     
-    // Services database - includes hotels, restaurants, and other services
-    if (lowerQuery.includes('service') || lowerQuery.includes('provider') ||
-        lowerQuery.includes('therapy') || lowerQuery.includes('transport') ||
-        lowerQuery.includes('hotel') || lowerQuery.includes('restaurant') ||
-        lowerQuery.includes('pharmacy') || lowerQuery.includes('store') ||
-        lowerQuery.includes('shop') || lowerQuery.includes('cafe') ||
-        lowerQuery.includes('lawyer') || lowerQuery.includes('attorney')) {
-      databases.push('services');
+    // Check if this is a business-type query (hotels, restaurants, etc.)
+    const businessTypes = ['hotel', 'restaurant', 'pharmacy', 'store', 'shop', 'cafe', 'lawyer', 'attorney'];
+    const isBusinessQuery = businessTypes.some(type => lowerQuery.includes(type));
+    
+    if (isBusinessQuery) {
+      // For business queries, ONLY search vendors
+      databases.push('vendors');
+    } else {
+      // Services database - for actual senior care services
+      if (lowerQuery.includes('service') || lowerQuery.includes('provider') ||
+          lowerQuery.includes('therapy') || lowerQuery.includes('transport') ||
+          lowerQuery.includes('meal') || lowerQuery.includes('cleaning') ||
+          lowerQuery.includes('companion') || lowerQuery.includes('homecare')) {
+        databases.push('services');
+      }
+      
+      // Vendors database - for equipment and products
+      if (lowerQuery.includes('vendor') || lowerQuery.includes('supplier') ||
+          lowerQuery.includes('equipment') || lowerQuery.includes('product')) {
+        databases.push('vendors');
+      }
     }
     
     // Healthcare database
@@ -423,16 +436,6 @@ export class NLPSearchSystem {
     if (lowerQuery.includes('resource') || lowerQuery.includes('guide') ||
         lowerQuery.includes('information') || lowerQuery.includes('help')) {
       databases.push('resources');
-    }
-    
-    // Vendors database - also includes hotels, restaurants and other businesses
-    if (lowerQuery.includes('vendor') || lowerQuery.includes('supplier') ||
-        lowerQuery.includes('equipment') || lowerQuery.includes('product') ||
-        lowerQuery.includes('hotel') || lowerQuery.includes('restaurant') ||
-        lowerQuery.includes('pharmacy') || lowerQuery.includes('store') ||
-        lowerQuery.includes('shop') || lowerQuery.includes('cafe') ||
-        lowerQuery.includes('lawyer') || lowerQuery.includes('attorney')) {
-      databases.push('vendors');
     }
     
     // Default to communities if no specific database identified
@@ -548,9 +551,19 @@ export class NLPSearchSystem {
           searchPromises.push(this.searchCommunities(query, intent, options));
           break;
         case 'services':
-          // For services category, search BOTH services and vendors tables
-          searchPromises.push(this.searchServices(query, intent, options));
-          searchPromises.push(this.searchVendors(query, intent, options)); // Also search vendors for hotels, restaurants, etc.
+          // Check if the query is for business types that belong in vendors
+          const lowerQuery = query.toLowerCase();
+          const businessTypes = ['hotel', 'restaurant', 'pharmacy', 'store', 'shop', 'cafe', 'lawyer', 'attorney'];
+          const isBusinessQuery = businessTypes.some(type => lowerQuery.includes(type));
+          
+          if (isBusinessQuery) {
+            // Only search vendors for business-type queries
+            searchPromises.push(this.searchVendors(query, intent, options));
+          } else {
+            // For actual services (therapy, transport, etc.), search both tables
+            searchPromises.push(this.searchServices(query, intent, options));
+            searchPromises.push(this.searchVendors(query, intent, options));
+          }
           break;
         case 'healthcare':
           searchPromises.push(this.searchHealthcare(query, intent, options));
