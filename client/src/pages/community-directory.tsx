@@ -161,7 +161,7 @@ export default function CommunityDirectory() {
       const response = await fetch('/api/search/comprehensive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Provincial', limit: 12 }),
+        body: JSON.stringify({ query: 'Provincial', limit: 60 }),
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch Provincial communities');
@@ -969,13 +969,21 @@ export default function CommunityDirectory() {
                   className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-amber-600 scrollbar-track-transparent scroll-smooth"
                   style={{ scrollbarWidth: 'thin' }}
                 >
-                  {provincialQuery.data.communities.slice(0, 12).map((community: any, index: number) => (
+                  {provincialQuery.data.communities.map((community: any, index: number) => (
                     <div key={community.id} className="flex-none w-80 transform transition-transform hover:scale-105">
                       <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 backdrop-blur rounded-xl overflow-hidden border border-amber-500/30 shadow-xl">
                         <FeaturedExcellenceCard 
                           community={{
                             ...community,
-                            badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
+                            badge: index === 0 ? "🏆 Top Rated" : 
+                                   index === 1 ? "✨ Premium" : 
+                                   index === 2 ? "⭐ Featured" :
+                                   index === 3 ? "💎 Excellence" :
+                                   index === 4 ? "🌟 Premier" :
+                                   community.name.includes("Solstice") ? "☀️ Solstice" :
+                                   index < 15 ? "🏅 Select" :
+                                   index < 30 ? "✨ Quality" : 
+                                   "🏠 Affordable"
                           }}
                           index={index} 
                           compact 
