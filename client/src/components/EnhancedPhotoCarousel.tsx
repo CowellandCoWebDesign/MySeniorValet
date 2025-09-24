@@ -223,14 +223,15 @@ export function EnhancedPhotoCarousel({
   const hasNoRealPhotos = safePhotos.length === 0;
   
   // Detect if this community likely needs enrichment
-  const needsEnrichment = hasNoRealPhotos && (
+  // Only check needsEnrichment if we don't have photos from props
+  const needsEnrichment = hasNoRealPhotos && !photos?.length && (
     !community?.enrichment_data || 
     !community?.last_enrichment_date ||
     (community?.enrichment_data && (!community.enrichment_data.photos || community.enrichment_data.photos.length === 0))
   );
   
-  // Show loading state if actively loading OR if needs enrichment (auto-loading in background)
-  if (hasNoRealPhotos && (isLoadingWebPhotos || needsEnrichment)) {
+  // Show loading state only if actively loading AND no photos available yet
+  if (hasNoRealPhotos && isLoadingWebPhotos && !photos?.length) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">

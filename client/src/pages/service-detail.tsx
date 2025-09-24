@@ -382,10 +382,13 @@ export default function ServiceDetail() {
             communityName={service.name}
             community={{
               name: service.name,
-              photos: webPhotos
+              photos: webPhotos,
+              // Mark as already enriched if we have web photos
+              enrichment_data: webPhotos.length > 0 ? { photos: webPhotos } : null,
+              last_enrichment_date: webPhotos.length > 0 ? new Date().toISOString() : null
             }}
             verificationReport={webIntelligence}
-            isLoading={false}
+            isLoading={isLoadingIntelligence}
             showSourceIndicator={true}
           />
           
