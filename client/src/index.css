@@ -727,6 +727,23 @@ body {
   color: black !important;
 }
 
+/* CRITICAL FIX: Override global dark mode label color for map controls */
+/* This MUST come after the global .dark label rule */
+.dark .leaflet-control-layers label,
+.dark .leaflet-control-layers-expanded label {
+  color: black !important;
+}
+
+.dark .leaflet-control-layers-list label {
+  color: black !important;
+}
+
+/* Ensure ALL text in layers control is black */
+.dark .leaflet-control-layers,
+.dark .leaflet-control-layers * {
+  color: black !important;
+}
+
 /* Custom scrollbar utilities */
 @layer utilities {
   .scrollbar-hide {
