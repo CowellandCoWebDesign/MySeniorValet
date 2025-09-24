@@ -605,6 +605,58 @@ body {
   margin-top: 60px !important;
 }
 
+/* Fix Layers Control visibility - ensure proper contrast */
+.leaflet-control-layers-expanded {
+  background: white !important;
+  color: #333 !important;
+  border: 2px solid #ddd !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-control-layers label {
+  color: #333 !important;
+  font-weight: 500 !important;
+  padding: 4px 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+}
+
+.leaflet-control-layers label:hover {
+  background-color: #f5f5f5 !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers input[type="radio"],
+.leaflet-control-layers input[type="checkbox"] {
+  margin-right: 8px !important;
+  cursor: pointer !important;
+}
+
+.leaflet-control-layers-separator {
+  border-top: 1px solid #ddd !important;
+  margin: 4px 0 !important;
+}
+
+/* Dark mode support for layers control */
+.dark .leaflet-control-layers-expanded {
+  background: #1f2937 !important;
+  color: #f3f4f6 !important;
+  border: 2px solid #374151 !important;
+}
+
+.dark .leaflet-control-layers label {
+  color: #f3f4f6 !important;
+}
+
+.dark .leaflet-control-layers label:hover {
+  background-color: #374151 !important;
+}
+
+.dark .leaflet-control-layers-separator {
+  border-top: 1px solid #4b5563 !important;
+}
+
 /* Custom scrollbar utilities */
 @layer utilities {
   .scrollbar-hide {
