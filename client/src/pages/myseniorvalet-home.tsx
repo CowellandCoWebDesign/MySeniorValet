@@ -737,7 +737,7 @@ function HeroSectionWithTransformingSearch() {
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
         
         {/* Unified Search Component */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
           {/* Category Tabs - Sleek Modern Style */}
           <div className="flex justify-center">
             <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
@@ -861,12 +861,12 @@ function HeroSectionWithTransformingSearch() {
             </div>
             
             {/* View Mode Tabs - Bottom tabs attached to search box with transparent style */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className="flex gap-2">
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20 w-[calc(100%-1rem)] sm:w-auto">
+              <div className="flex gap-1 sm:gap-2 justify-center">
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
+                  className={`relative px-3 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
                     ${viewMode === 'list' 
                       ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
                       : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
@@ -874,26 +874,26 @@ function HeroSectionWithTransformingSearch() {
                 >
                   <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🔍</span>
                   <div className="flex flex-col items-start leading-none">
-                    <span>Database</span>
-                    <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Search</span>
+                    <span className="text-[11px] sm:text-base">Database</span>
+                    <span className="text-[9px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Search</span>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
+                  className={`relative px-3 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
                     ${viewMode === 'map' 
                       ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
                       : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
                     }`}
                 >
                   <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🗺️</span>
-                  <span>Map</span>
+                  <span className="text-[11px] sm:text-base">Map</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
+                  className={`relative px-3 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
                     ${viewMode === 'discover' 
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
                       : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
@@ -901,8 +901,8 @@ function HeroSectionWithTransformingSearch() {
                 >
                   <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🌍</span>
                   <div className="flex flex-col items-start leading-none">
-                    <span>Discovery</span>
-                    <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Mode</span>
+                    <span className="text-[11px] sm:text-base">Discovery</span>
+                    <span className="text-[9px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Mode</span>
                   </div>
                 </button>
               </div>
@@ -964,7 +964,7 @@ function HeroSectionWithTransformingSearch() {
         
         {/* Quick Action Buttons - Moved from Community Directory Section */}
         {!isSearchActive && (
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-4">
           <div className="grid grid-cols-4 gap-2">
             {/* Traditional Browse */}
             <Button 
@@ -1026,7 +1026,7 @@ function HeroSectionWithTransformingSearch() {
         )}
         
         {/* Key Value Props - Below action buttons */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
           <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
             <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
               <span className="mr-0.5 text-sm sm:text-base md:text-lg">🔍</span> Transparent Pricing
