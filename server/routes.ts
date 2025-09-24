@@ -227,7 +227,7 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
         
         // Extract photos marked with PHOTO: in the response
         const photoMatches = answer.match(/PHOTO:\s*(https?:\/\/[^\s\n]+)/gi) || [];
-        const markedPhotos = photoMatches.map(match => {
+        const markedPhotos = photoMatches.map((match: string) => {
           const url = match.replace(/^PHOTO:\s*/i, '').trim();
           return { url, source: 'Perplexity', confidence: 0.8, isAuthentic: true };
         });
@@ -259,19 +259,112 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
           }
         }
         
-        // Convert to array of photo URLs for frontend, filtering out placeholders
+        // Helper function to detect synthetic/fake URLs
+        const isSyntheticUrl = (url: string): boolean => {
+          // Check for repeating patterns that indicate fake URLs
+          const patterns = [
+            /([a-zA-Z0-9]{2,4})\1{3,}/,  // Repeating patterns like QwQwQwQw or n1n1n1n1
+            /([a-zA-Z0-9])\1{10,}/,       // Same character repeated many times
+            /^[A-Za-z0-9]+$/,               // Only alphanumeric (no special chars/path)
+          ];
+          
+          // Extract the hash/ID portion from common photo URL formats
+          let hashToCheck = url;
+          
+          // For Yelp URLs, extract the bphoto hash
+          const yelpMatch = url.match(/bphoto\/([^\/]+)/i);
+          if (yelpMatch) {
+            hashToCheck = yelpMatch[1];
+          }
+          
+          // For Google URLs, extract the photo ID
+          const googleMatch = url.match(/\/p\/([^=\/]+)/i);
+          if (googleMatch) {
+            hashToCheck = googleMatch[1];
+          }
+          
+          // Check for fake patterns
+          for (const pattern of patterns) {
+            if (pattern.test(hashToCheck)) {
+              console.log(`🚫 Detected synthetic URL pattern in: ${url}`);
+              return true;
+            }
+          }
+          
+          // Check for obviously fake TripAdvisor patterns
+          if (url.includes('tripadvisor') && url.includes('/0e/')) {
+            // 0e prefix often indicates fake/placeholder images
+            console.log(`🚫 Detected fake TripAdvisor URL: ${url}`);
+            return true;
+          }
+          
+          return false;
+        };
+        
+        // Convert to array of photo URLs for frontend, filtering out placeholders and synthetic URLs
         extractedPhotos = Array.from(uniquePhotos.values())
           .filter(photo => {
             // Filter out placeholder URLs that aren't real photos
             const url = photo.url.toLowerCase();
-            return !url.includes('-photos-needed') && 
+            const isValid = !url.includes('-photos-needed') && 
                    !url.includes('placeholder') &&
                    !url.includes('example.com') &&
-                   url.startsWith('http');
+                   !url.includes('123456') &&
+                   !url.includes('654321') &&
+                   url.startsWith('http') &&
+                   !isSyntheticUrl(photo.url);
+                   
+            if (!isValid) {
+              console.log(`🚫 Filtered out invalid/synthetic photo URL: ${photo.url}`);
+            }
+            return isValid;
           })
-          .map(photo => photo.url);
+          .map(photo => {
+            // Use proxy for external images to bypass CORS
+            const url = photo.url;
+            if (url.includes('tripadvisor.com') || 
+                url.includes('yelp.com') || 
+                url.includes('yelpcdn.com') ||
+                url.includes('googleusercontent.com') ||
+                url.includes('otstatic.com')) {
+              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+            }
+            return url;
+          });
         
-        console.log(`📸 Extracted ${extractedPhotos.length} real photos for ${serviceName}`);
+        console.log(`📸 Extracted ${extractedPhotos.length} real photos for ${serviceName} (filtered from ${allPhotoCandidates.length} candidates)`);
+        
+        // If we filtered out all photos due to being synthetic, try website scraping
+        if (allPhotoCandidates.length > 0 && extractedPhotos.length === 0) {
+          console.log(`⚠️ All ${allPhotoCandidates.length} photo URLs appeared to be synthetic/fake and were filtered out`);
+          
+          // Try to scrape the website if we have one
+          if (extractedWebsite && extractedWebsite.includes('http')) {
+            try {
+              console.log(`🕸️ Attempting to scrape real photos from website: ${extractedWebsite}`);
+              const { websiteScraperService } = await import('./website-scraper-service');
+              const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+              
+              if (scrapedData.photos && scrapedData.photos.length > 0) {
+                // Use proxied URLs for external images
+                extractedPhotos = scrapedData.photos.slice(0, 10).map(photoUrl => {
+                  if (photoUrl.includes('http')) {
+                    return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+                  }
+                  return photoUrl;
+                });
+                console.log(`✅ Successfully scraped ${extractedPhotos.length} real photos from website`);
+              }
+            } catch (scrapeError) {
+              console.error(`Failed to scrape website for photos:`, scrapeError);
+            }
+          }
+          
+          // If still no photos, that's okay - we'll show "no photos available" which is better than fake photos
+          if (extractedPhotos.length === 0) {
+            console.log(`📷 No real photos found for ${serviceName} - will display "no photos available"`);
+          }
+        }
       } catch (error) {
         console.error('Failed to extract photos:', error);
       }
