@@ -909,30 +909,40 @@ Be lenient - mark as authentic unless clearly stock photos.`
   private static isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
     
-    // Check for image extensions
-    const imageExtensions = /\.(jpg|jpeg|png|gif|webp|bmp|svg)$/i;
-    if (!imageExtensions.test(url.split('?')[0])) {
-      // Also accept URLs that might be image endpoints
-      if (!url.includes('/image') && !url.includes('/photo') && !url.includes('/gallery')) {
-        return false;
-      }
-    }
-    
-    // Exclude data URLs and blob URLs
-    if (url.startsWith('data:') || url.startsWith('blob:')) return false;
-    
-    // Exclude obviously non-photo URLs
-    const excludePatterns = [
-      /favicon/i,
-      /logo/i,
-      /icon/i,
-      /button/i,
-      /arrow/i,
-      /spinner/i,
-      /loading/i
+    // WHITELIST: Always accept photos from trusted directory sites
+    const trustedDomains = [
+      'tripadvisor.com',
+      'yelpcdn.com', 
+      'googleusercontent.com',
+      'lh3.googleusercontent.com',
+      'lh5.googleusercontent.com',
+      'bstatic.com',  // Booking.com
+      'trvl-media.com',  // Hotels.com
+      'otstatic.com',  // OpenTable
+      'fbcdn.net',  // Facebook
+      'cdninstagram.com'  // Instagram
     ];
     
-    return !excludePatterns.some(pattern => pattern.test(url));
+    const lowerUrl = url.toLowerCase();
+    
+    // If it's from a trusted domain, accept it without further validation
+    if (trustedDomains.some(domain => lowerUrl.includes(domain))) {
+      return true;
+    }
+    
+    // For other URLs, be more permissive - accept anything that looks like it could be an image
+    // Don't require specific extensions as many CDNs don't use them
+    
+    // Only exclude data URLs and blob URLs
+    if (url.startsWith('data:') || url.startsWith('blob:')) return false;
+    
+    // Only exclude obvious tracking pixels
+    if (lowerUrl.includes('pixel') || lowerUrl.includes('tracking') || lowerUrl.includes('1x1')) {
+      return false;
+    }
+    
+    // Accept everything else - let the browser determine if it's a valid image
+    return true;
   }
   
   /**
