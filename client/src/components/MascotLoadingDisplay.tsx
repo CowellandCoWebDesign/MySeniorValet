@@ -65,44 +65,44 @@ export function MascotLoadingDisplay({
   if (compact) {
     // Compact version for inline loading states
     return (
-      <div className="flex flex-col items-center justify-center p-6">
-        {/* Mascot Image */}
+      <div className="flex flex-col items-center justify-center p-8">
+        {/* Mascot Image - Larger */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-4"
+          className="mb-6"
         >
           <img 
             src={valetGentleman} 
             alt="Your Senior Valet Assistant" 
-            className="w-24 h-24 object-contain"
+            className="w-32 h-32 object-contain"
           />
         </motion.div>
 
-        {/* Title */}
+        {/* Title - Much larger */}
         <motion.h3 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
-          className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2"
+          className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-3"
         >
           {title}
         </motion.h3>
 
-        {/* Subtitle */}
+        {/* Subtitle - Larger */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center"
+          className="text-base md:text-lg text-gray-600 dark:text-gray-400 mb-6 text-center font-medium"
         >
           {subtitle}
         </motion.p>
 
-        {/* Progress Bar */}
+        {/* Progress Bar - Thicker */}
         {showProgress && (
-          <div className="w-full max-w-xs bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full max-w-md bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
             <motion.div 
               className="h-full bg-gradient-to-r from-blue-500 to-purple-600"
               initial={{ width: "0%" }}
@@ -112,7 +112,7 @@ export function MascotLoadingDisplay({
           </div>
         )}
 
-        {/* Rotating Fact - Compact */}
+        {/* Rotating Fact - Much larger text */}
         <AnimatePresence mode="wait">
           <motion.div
             key={currentFactIndex}
@@ -120,10 +120,10 @@ export function MascotLoadingDisplay({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="mt-4 text-center"
+            className="mt-6 text-center max-w-lg"
           >
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              <span className="font-semibold">{currentFact.title}:</span> {currentFact.fact}
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-300">
+              <span className="font-bold text-gray-700 dark:text-gray-200">{currentFact.title}:</span> {currentFact.fact}
             </p>
           </motion.div>
         </AnimatePresence>
