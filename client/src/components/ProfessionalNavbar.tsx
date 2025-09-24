@@ -6,7 +6,8 @@ import {
   LogIn, UserPlus, Settings, HelpCircle, Globe, ChevronDown,
   Building2, Brain, Calendar, MessageSquare, FileText, Shield,
   DollarSign, BarChart3, BookOpen, Info, Accessibility,
-  Bell, User, LogOut, ChevronRight, Languages, Sun, Moon
+  Bell, User, LogOut, ChevronRight, Languages, Sun, Moon,
+  Eye, Type, Volume2, MousePointer, AlertCircle, Check
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
@@ -25,6 +26,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useTheme } from "@/components/theme-provider";
+import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 // Theme Toggle Light Designs - As per user specifications
 import projectorBeamON from '@assets/generated_images/Projector_beam_ON_8052678e.png'; // Dark mode toggle (Cinema Projector)
 import victorianCrystalChandelier from '@assets/generated_images/Victorian_crystal_chandelier_56b1af95.png'; // Light mode toggle (Victorian Crystal)
@@ -39,6 +47,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
   const { user, isAuthenticated } = useAuth();
   const { t, language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const { preferences, togglePreference } = useAccessibilityPreferences();
+  const { toast } = useToast();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
@@ -56,6 +66,77 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Apply accessibility preferences to the document
+  useEffect(() => {
+    const html = document.documentElement;
+    
+    // Large text
+    if (preferences.largeText) {
+      html.classList.add('large-text');
+    } else {
+      html.classList.remove('large-text');
+    }
+    
+    // High contrast
+    if (preferences.highContrast) {
+      html.classList.add('high-contrast');
+    } else {
+      html.classList.remove('high-contrast');
+    }
+    
+    // Reduced motion
+    if (preferences.reducedMotion) {
+      html.classList.add('reduced-motion');
+    } else {
+      html.classList.remove('reduced-motion');
+    }
+  }, [preferences]);
+
+  const handleAccessibilityToggle = (key: keyof typeof preferences) => {
+    togglePreference(key);
+    toast({
+      title: 'Accessibility Updated',
+      description: `${key === 'largeText' ? 'Large text' : 
+                     key === 'highContrast' ? 'High contrast' :
+                     key === 'screenReader' ? 'Screen reader support' :
+                     key === 'reducedMotion' ? 'Reduced motion' :
+                     'Emergency button'} ${!preferences[key] ? 'enabled' : 'disabled'}`,
+    });
+  };
+
+  const accessibilityOptions = [
+    {
+      key: 'largeText' as const,
+      icon: Type,
+      label: 'Large Text',
+      description: 'Increase text size for better readability',
+    },
+    {
+      key: 'highContrast' as const,
+      icon: Eye,
+      label: 'High Contrast',
+      description: 'Improve visibility with stronger colors',
+    },
+    {
+      key: 'screenReader' as const,
+      icon: Volume2,
+      label: 'Screen Reader',
+      description: 'Optimize for screen reading software',
+    },
+    {
+      key: 'reducedMotion' as const,
+      icon: MousePointer,
+      label: 'Reduced Motion',
+      description: 'Minimize animations and transitions',
+    },
+    {
+      key: 'emergencyButton' as const,
+      icon: AlertCircle,
+      label: 'Emergency Button',
+      description: 'Show quick access emergency contact button',
+    },
+  ];
 
   // Navigation items organized by category - using actual existing routes with emojis
   const navigationItems = {
@@ -308,7 +389,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <Bell className="h-5 w-5" />
                 {unreadCount && Number(unreadCount) > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-                    {String(Number(unreadCount))}
+                    <span>{String(Number(unreadCount))}</span>
                   </Badge>
                 )}
               </Button>
@@ -403,16 +484,74 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             </button>
 
             {/* Accessibility Button - Furthest Right */}
-            <Link href="/accessibility">
-              <Button
-                variant="outline"
-                size="icon"
-                className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
-                aria-label="Accessibility Options"
-              >
-                <Accessibility className="h-5 w-5" />
-              </Button>
-            </Link>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-blue-600 hover:bg-blue-700 text-white border border-blue-700 w-9 h-9 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+                  aria-label="Accessibility Options"
+                >
+                  <Accessibility className="h-5 w-5" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-4">
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+                    <Settings className="h-5 w-5 text-gray-700 dark:text-gray-300" />
+                    <h3 className="font-semibold text-gray-900 dark:text-white">Accessibility Options</h3>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {accessibilityOptions.map((option) => {
+                      const Icon = option.icon;
+                      const isActive = preferences[option.key];
+                      
+                      return (
+                        <button
+                          key={option.key}
+                          onClick={() => handleAccessibilityToggle(option.key)}
+                          className={`w-full flex items-start space-x-3 p-3 rounded-lg transition-all duration-200 ${
+                            isActive 
+                              ? 'bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-500' 
+                              : 'bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 border-2 border-transparent'
+                          }`}
+                        >
+                          <div className="flex-shrink-0 mt-0.5">
+                            <Icon className={`h-5 w-5 ${
+                              isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
+                            }`} />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="flex items-center justify-between">
+                              <span className={`font-medium ${
+                                isActive ? 'text-blue-900 dark:text-blue-300' : 'text-gray-900 dark:text-white'
+                              }`}>
+                                {option.label}
+                              </span>
+                              {isActive && (
+                                <Check className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                              )}
+                            </div>
+                            <p className={`text-sm mt-1 ${
+                              isActive ? 'text-blue-700 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400'
+                            }`}>
+                              {option.description}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      These settings are saved locally and will persist across sessions.
+                    </p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
       </div>
