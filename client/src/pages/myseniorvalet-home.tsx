@@ -39,6 +39,7 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
+import { MascotLoadingDisplay } from '@/components/MascotLoadingDisplay';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { AIChatResponse } from '@/components/AIChatResponse';
@@ -1108,10 +1109,11 @@ function HeroSectionWithTransformingSearch() {
                   )}
                   
                   {/* Regular Search Results List */}
-                  {/* Regular Results Header - Glass Morphism */}
-                  <div className="">
-                    <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
-                      <h3 className="text-lg font-semibold text-white">
+                  {/* Only show header when not loading */}
+                  {!(isLoading || searchResults?.metadata?.isLoading) && (
+                    <div className="">
+                      <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
+                        <h3 className="text-lg font-semibold text-white">
                         {searchQuery ? (
                           <>
                             Found {searchResults?.results?.length || 0}
@@ -1134,6 +1136,7 @@ function HeroSectionWithTransformingSearch() {
                       </h3>
                     </div>
                   </div>
+                  )}
                 </>
               )}
               
@@ -1141,17 +1144,14 @@ function HeroSectionWithTransformingSearch() {
               {!searchResults?.metadata?.isResearchMode && (
                 <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
                   {(isLoading || searchResults?.metadata?.isLoading) ? (
-                  <div className="flex flex-col items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full mb-4" />
-                    <span className="text-gray-300 font-medium">
-                      {searchResults?.metadata?.loadingMessage || 'Searching...'}
-                    </span>
-                    {searchCategory === 'services' && (
-                      <span className="text-gray-400 text-sm mt-2">
-                        Discovery Mode is searching across multiple sources...
-                      </span>
-                    )}
-                  </div>
+                    <MascotLoadingDisplay
+                      compact={true}
+                      title={searchResults?.metadata?.loadingMessage || (searchCategory === 'services' ? 'Discovery Mode Active' : 'Searching Communities')}
+                      subtitle={searchCategory === 'services' ? 'Searching across multiple global sources...' : `Analyzing ${searchQuery || 'all communities'}`}
+                      showProgress={true}
+                      progressDuration={searchCategory === 'services' ? 30 : 15}
+                      factRotationSpeed={5000}
+                    />
                 ) : (
                   <>
                     {/* Scroll indicator for more results - Outside scrollable area */}
