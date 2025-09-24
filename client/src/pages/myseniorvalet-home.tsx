@@ -1458,15 +1458,21 @@ export default function MySeniorValetHome() {
   // Conditionally set SEO based on search parameters
   const hasSearchParams = urlSearchParams && (urlSearchParams.get('location') || urlSearchParams.get('q') || urlSearchParams.get('query'));
   
-  // Only use default SEO if no search parameters
-  if (!hasSearchParams) {
-    useSEO({
-      title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
-      description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
-      keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
-      canonicalUrl: 'https://www.myseniorvalet.com/'
-    });
-  }
+  // Always use the hook but conditionally set the parameters
+  useSEO({
+    title: hasSearchParams 
+      ? 'Search Results | MySeniorValet' 
+      : 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
+    description: hasSearchParams
+      ? 'Search results for senior living communities'
+      : 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+    keywords: hasSearchParams
+      ? 'senior living search results'
+      : 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
+    canonicalUrl: hasSearchParams 
+      ? undefined // Let DynamicSearchSEO handle canonical for search pages
+      : 'https://www.myseniorvalet.com/'
+  });
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
