@@ -744,62 +744,62 @@ function HeroSectionWithTransformingSearch() {
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'communities' 
                     ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-xs sm:text-sm">🏘️</span>
+                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🏘️</span>
                 <div className="flex flex-col items-start leading-none">
                   <span className="hidden sm:inline">Communities</span>
                   <span className="sm:hidden">Homes</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
+                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'services' 
                     ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-xs sm:text-sm">🛍️</span>
+                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🛍️</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Services</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
+                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'healthcare' 
                     ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-xs sm:text-sm">🏥</span>
+                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🏥</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">Global</span>
+                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Global</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-xl
+                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'resources' 
                     ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-xs sm:text-sm">📚</span>
+                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">📚</span>
                 <div className="flex flex-col items-start leading-none">
                   <span>Resources</span>
-                  <span className="text-[8px] opacity-75 mt-0.5">Growing</span>
+                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Growing</span>
                 </div>
               </button>
             </div>
@@ -854,7 +854,7 @@ function HeroSectionWithTransformingSearch() {
                 }}
                 placeholder={searchPlaceholder}
                 isLoading={isLoading}
-                inputClassName="w-full"
+                inputClassName="w-full pl-10 pr-6 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl lg:text-2xl border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 forceClearSuggestions={forceClearAutocomplete}
               />
             </div>
@@ -866,43 +866,43 @@ function HeroSectionWithTransformingSearch() {
                 <button
                   type="button"
                   onClick={() => setViewMode('list')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                  className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
                     ${viewMode === 'list' 
                       ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
                       : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
                     }`}
                 >
-                  <span className="text-xs sm:text-sm">🔍</span>
+                  <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🔍</span>
                   <div className="flex flex-col items-start leading-none">
                     <span>Database</span>
-                    <span className="text-[8px] opacity-75 mt-0.5">Search</span>
+                    <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Search</span>
                   </div>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('map')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                  className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
                     ${viewMode === 'map' 
                       ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
                       : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
                     }`}
                 >
-                  <span className="text-xs sm:text-sm">🗺️</span>
+                  <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🗺️</span>
                   <span>Map</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setViewMode('discover')}
-                  className={`relative px-3 sm:px-4 py-1.5 sm:py-2 transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1 rounded-xl
+                  className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
                     ${viewMode === 'discover' 
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
                       : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
                     }`}
                 >
-                  <span className="text-xs sm:text-sm">🌍</span>
+                  <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🌍</span>
                   <div className="flex flex-col items-start leading-none">
                     <span>Discovery</span>
-                    <span className="text-[8px] opacity-75 mt-0.5">Mode</span>
+                    <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Mode</span>
                   </div>
                 </button>
               </div>
@@ -965,14 +965,14 @@ function HeroSectionWithTransformingSearch() {
         {/* Key Value Props - Below search component */}
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
           <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-              <span className="mr-0.5 text-[10px] sm:text-xs">🔍</span> Transparent Pricing
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">🔍</span> Transparent Pricing
             </div>
-            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-              <span className="mr-0.5 text-[10px] sm:text-xs">📅</span> Schedule Tours
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">📅</span> Schedule Tours
             </div>
-            <div className="flex items-center text-[9px] sm:text-[10px] text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
-              <span className="mr-0.5 text-[10px] sm:text-xs">✅</span> Direct Reservations
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">✅</span> Direct Reservations
             </div>
           </div>
         </div>
