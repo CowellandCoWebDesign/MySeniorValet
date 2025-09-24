@@ -665,23 +665,66 @@ body {
   filter: brightness(110%) !important;
 }
 
-/* Dark mode support for layers control */
+/* FORCE layers control to ALWAYS have black text on white background */
+/* This overrides dark mode to ensure readability */
+.leaflet-control-layers-expanded,
 .dark .leaflet-control-layers-expanded {
-  background: #1f2937 !important;
-  color: #f3f4f6 !important;
-  border: 2px solid #374151 !important;
+  background: white !important;
+  color: black !important;
+  border: 2px solid #333 !important;
 }
 
+.leaflet-control-layers label,
 .dark .leaflet-control-layers label {
-  color: #f3f4f6 !important;
+  color: black !important;
 }
 
+.leaflet-control-layers label span,
+.dark .leaflet-control-layers label span {
+  color: black !important;
+}
+
+.leaflet-control-layers label:hover,
 .dark .leaflet-control-layers label:hover {
-  background-color: #374151 !important;
+  background-color: #e0e0e0 !important;
 }
 
+.leaflet-control-layers-separator,
 .dark .leaflet-control-layers-separator {
-  border-top: 1px solid #4b5563 !important;
+  border-top: 2px solid #333 !important;
+}
+
+/* Additional specificity to override any theme styles */
+.leaflet-control-layers-list label,
+.dark .leaflet-control-layers-list label {
+  color: black !important;
+}
+
+.leaflet-control-layers-list span,
+.dark .leaflet-control-layers-list span {
+  color: black !important;
+}
+
+/* Ultra-specific selectors to catch ALL text elements */
+.leaflet-control-layers *,
+.dark .leaflet-control-layers * {
+  color: black !important;
+}
+
+.leaflet-control-layers-base label,
+.dark .leaflet-control-layers-base label {
+  color: black !important;
+}
+
+.leaflet-control-layers-overlays label,
+.dark .leaflet-control-layers-overlays label {
+  color: black !important;
+}
+
+/* Target the actual text nodes inside labels */
+.leaflet-control-layers label > *,
+.dark .leaflet-control-layers label > * {
+  color: black !important;
 }
 
 /* Custom scrollbar utilities */
