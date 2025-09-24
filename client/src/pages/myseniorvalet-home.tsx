@@ -1195,7 +1195,8 @@ function HeroSectionWithTransformingSearch() {
                                 vendor={item}
                                 variant="list"
                                 onSelect={() => {
-                                  window.open(item.website || '#', '_blank');
+                                  // Navigate to service details page, not external website
+                                  window.location.href = `/service/${item.id}`;
                                 }}
                               />
                             ) : searchCategory === 'healthcare' ? (
