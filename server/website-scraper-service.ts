@@ -81,6 +81,19 @@ export class WebsiteScraperService {
   async scrapeWebsite(url: string, communityName?: string): Promise<ScrapedCommunityData> {
     console.log(`🕸️ Scraping website: ${url}`);
     
+    // Determine if this is a service (restaurant, shop, etc.) vs a senior community
+    const isService = communityName && 
+                     !communityName.toLowerCase().includes('senior') && 
+                     !communityName.toLowerCase().includes('assisted') && 
+                     !communityName.toLowerCase().includes('memory') &&
+                     !communityName.toLowerCase().includes('retirement') &&
+                     !communityName.toLowerCase().includes('nursing') &&
+                     !communityName.toLowerCase().includes('hospice');
+    
+    if (isService) {
+      console.log(`🍴 Detected service business: ${communityName}`);
+    }
+    
     // Check if this is a seniorlivingnearme listing (official community listing service)
     const isSeniorLivingNearMe = url.includes('seniorlivingnearme.com');
     if (isSeniorLivingNearMe) {
@@ -176,17 +189,28 @@ export class WebsiteScraperService {
         
         const imgLower = imgUrl.toLowerCase();
         
-        // Skip marketing materials, logos, banners, and ads
-        if (imgLower.includes('logo') || imgLower.includes('icon') || 
-            imgLower.includes('favicon') || imgLower.includes('sprite') ||
-            imgLower.includes('.svg') || imgLower.includes('banner') ||
-            imgLower.includes('slider') || imgLower.includes('campaign') ||
-            imgLower.includes('ad_') || imgLower.includes('_ad') ||
-            imgLower.includes('promo') || imgLower.includes('podcast') ||
-            imgLower.includes('newsletter') || imgLower.includes('header') ||
-            imgLower.includes('footer') || imgLower.includes('background') ||
-            imgLower.includes('button') || imgLower.includes('arrow')) {
-          continue;
+        // For services (restaurants, shops), be less restrictive with filtering
+        if (isService) {
+          // For services: Only skip obvious non-photo images
+          if (imgLower.includes('favicon') || imgLower.includes('sprite') ||
+              imgLower.includes('.svg') || imgLower.includes('pixel') || 
+              imgLower.includes('tracking') || imgLower.includes('analytics') ||
+              imgLower.includes('1x1') || imgLower.includes('spacer')) {
+            continue;
+          }
+        } else {
+          // For senior communities: Skip marketing materials, logos, banners, and ads
+          if (imgLower.includes('logo') || imgLower.includes('icon') || 
+              imgLower.includes('favicon') || imgLower.includes('sprite') ||
+              imgLower.includes('.svg') || imgLower.includes('banner') ||
+              imgLower.includes('slider') || imgLower.includes('campaign') ||
+              imgLower.includes('ad_') || imgLower.includes('_ad') ||
+              imgLower.includes('promo') || imgLower.includes('podcast') ||
+              imgLower.includes('newsletter') || imgLower.includes('header') ||
+              imgLower.includes('footer') || imgLower.includes('background') ||
+              imgLower.includes('button') || imgLower.includes('arrow')) {
+            continue;
+          }
         }
         
         // Skip images with marketing dimensions (likely ads)
@@ -214,7 +238,7 @@ export class WebsiteScraperService {
       data.photos = processedPhotos.slice(0, 30); // Allow up to 30 photos from official site
       data.floorPlans = processedFloorPlans.slice(0, 10);
       
-      console.log(`✅ Extracted ${data.photos.length} community photos from ${pageCount} pages`);
+      console.log(`✅ Extracted ${data.photos.length} ${isService ? 'business' : 'community'} photos from ${pageCount} pages`);
       console.log(`📐 Found ${data.floorPlans.length} floor plans`);
       
       // Look for virtual tour links
