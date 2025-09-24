@@ -81,13 +81,16 @@ export function EnhancedPhotoCarousel({
       allPhotos.push(...photos.map((p: any) => {
         let url = typeof p === 'string' ? p : (p.image_url || p.url || p);
         
-        // Use proxy for external images to bypass CORS
-        if (url && (url.includes('tripadvisor.com') || 
-                   url.includes('yelp.com') || 
-                   url.includes('yelpcdn.com') ||
-                   url.includes('googleusercontent.com') ||
-                   url.includes('otstatic.com'))) {
-          url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+        // Skip proxy if URL is already proxied
+        if (url && !url.startsWith('/api/image-proxy')) {
+          // Use proxy for external images to bypass CORS
+          if (url.includes('tripadvisor.com') || 
+              url.includes('yelp.com') || 
+              url.includes('yelpcdn.com') ||
+              url.includes('googleusercontent.com') ||
+              url.includes('otstatic.com')) {
+            url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+          }
         }
         
         return { url, source: 'prop' };
@@ -119,13 +122,16 @@ export function EnhancedPhotoCarousel({
         .map((img: any) => {
           let url = typeof img === 'string' ? img : (img.image_url || img.url || img);
           
-          // Use proxy for external images to bypass CORS
-          if (url && (url.includes('tripadvisor.com') || 
-                     url.includes('yelp.com') || 
-                     url.includes('yelpcdn.com') ||
-                     url.includes('googleusercontent.com') ||
-                     url.includes('otstatic.com'))) {
-            url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+          // Skip proxy if URL is already proxied
+          if (url && !url.startsWith('/api/image-proxy')) {
+            // Use proxy for external images to bypass CORS
+            if (url.includes('tripadvisor.com') || 
+                url.includes('yelp.com') || 
+                url.includes('yelpcdn.com') ||
+                url.includes('googleusercontent.com') ||
+                url.includes('otstatic.com')) {
+              url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+            }
           }
           
           if (typeof img === 'string') {
