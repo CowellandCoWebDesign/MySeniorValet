@@ -1394,7 +1394,7 @@ function HeroSectionWithTransformingSearch() {
                     <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
                   </div>
                   <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-purple-600/80 backdrop-blur-sm rounded-full px-2 py-1">
-                    <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI-Powered Orchestra (Perplexity, Claude, ChatGPT)
+                    <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI Orchestra (Perplexity, Grok, Claude, ChatGPT)
                   </div>
                 </div>
               </div>
@@ -3476,13 +3476,16 @@ export default function MySeniorValetHome() {
                   <span className="text-xs text-white/80">Powered by:</span>
                   <div className="flex flex-wrap items-center justify-center gap-2">
                     <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                      1. Perplexity AI (Primary - Web Search)
+                      1. Perplexity AI (Web Search & Discovery)
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-gray-700 to-gray-500 text-white px-2 py-0.5 text-xs">
+                      2. Grok (Reviews & Live Intelligence)
                     </Badge>
                     <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
-                      2. Claude Sonnet 4.0 (Secondary - Analysis)
+                      3. Claude Sonnet 4.0 (Analysis & Reasoning)
                     </Badge>
                     <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                      3. ChatGPT-4o (Backup - Verification)
+                      4. ChatGPT-4o (Verification & Backup)
                     </Badge>
                   </div>
                 </div>
