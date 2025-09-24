@@ -253,7 +253,7 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
         if (realPhotosFromProvider.length > 0) {
           console.log(`✅ Using ${realPhotosFromProvider.length} real photos from Perplexity provider_metadata`);
           // Use proxy for external images
-          extractedPhotos = realPhotosFromProvider.slice(0, 10).map(photoUrl => {
+          extractedPhotos = realPhotosFromProvider.slice(0, 50).map(photoUrl => {
             if (photoUrl.includes('http')) {
               return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
             }
@@ -271,7 +271,7 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
             
             if (scrapedData.photos && scrapedData.photos.length > 0) {
               // Use proxied URLs for external images
-              extractedPhotos = scrapedData.photos.slice(0, 10).map(photoUrl => {
+              extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
                 if (photoUrl.includes('http')) {
                   return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
                 }
@@ -306,12 +306,20 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
           return { url, source: 'Perplexity', confidence: 0.8, isAuthentic: true };
         });
         
-        // Also extract common photo URL patterns from the response
+        // Also extract common photo URL patterns from the response - expanded for more sources
         const photoPatterns = [
           /https?:\/\/media-cdn\.tripadvisor\.com\/media\/photo-[^\s\"\'<>]+/gi,
+          /https?:\/\/dynamic-media-cdn\.tripadvisor\.com\/[^\s\"\'<>]+/gi,
           /https?:\/\/s3-media\d*\.fl\.yelpcdn\.com\/bphoto\/[^\s\"\'<>]+/gi,
-          /https?:\/\/lh[35]\.googleusercontent\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/lh[3-6]\.googleusercontent\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/streetviewpixels-pa\.googleapis\.com\/[^\s\"\'<>]+/gi,
           /https?:\/\/images\.otstatic\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/resizer\.otstatic\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/cf\.bstatic\.com\/[^\s\"\'<>]+\.(jpg|jpeg|png|webp)/gi,
+          /https?:\/\/[^\s\"\'<>]*cloudinary[^\s\"\'<>]+\.(jpg|jpeg|png|webp)/gi,
+          /https?:\/\/[^\s\"\'<>]*fbcdn\.net\/[^\s\"\'<>]+/gi,
+          /https?:\/\/[^\s\"\'<>]*cdninstagram\.com\/[^\s\"\'<>]+/gi,
+          /https?:\/\/scontent[^\s\"\'<>]+\.fbcdn\.net\/[^\s\"\'<>]+/gi,
           /https?:\/\/[^\s\"\'<>]+\.(jpg|jpeg|png|webp|gif)(\?[^\s\"\'<>]*)?/gi
         ];
         
@@ -427,7 +435,7 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
               
               if (scrapedData.photos && scrapedData.photos.length > 0) {
                 // Use proxied URLs for external images
-                extractedPhotos = scrapedData.photos.slice(0, 10).map(photoUrl => {
+                extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
                   if (photoUrl.includes('http')) {
                     return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
                   }

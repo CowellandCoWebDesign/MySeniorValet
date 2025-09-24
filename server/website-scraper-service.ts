@@ -243,7 +243,7 @@ export class WebsiteScraperService {
       }
       
       // Transfer processed photos to data structure
-      data.photos = processedPhotos.slice(0, 30); // Allow up to 30 photos from official site
+      data.photos = processedPhotos.slice(0, 50); // Allow up to 50 photos for services
       data.floorPlans = processedFloorPlans.slice(0, 10);
       
       console.log(`✅ Extracted ${data.photos.length} ${isService ? 'business' : 'community'} photos from ${pageCount} pages`);
