@@ -1244,6 +1244,87 @@ export default function Map({
     });
   }, [isLoading, error, markerData]);
 
+  // FIX: Force layers control to be scrollable on mobile
+  useEffect(() => {
+    const fixLayersControlHeight = () => {
+      // Find the layers control elements
+      const layersControl = document.querySelector('.leaflet-control-layers-expanded');
+      const layersList = document.querySelector('.leaflet-control-layers-list');
+      
+      if (layersControl && layersList) {
+        // Calculate max height (60% of viewport, max 480px)
+        const viewportHeight = window.innerHeight;
+        const maxHeight = Math.min(viewportHeight * 0.6, 480);
+        
+        // Force inline styles to override Leaflet's defaults
+        (layersList as HTMLElement).style.maxHeight = `${maxHeight}px`;
+        (layersList as HTMLElement).style.overflowY = 'auto';
+        (layersList as HTMLElement).style.overflowX = 'hidden';
+        (layersList as HTMLElement).style.webkitOverflowScrolling = 'touch'; // iOS smooth scrolling
+        (layersList as HTMLElement).style.overscrollBehavior = 'contain';
+        
+        // Ensure the control itself is properly styled
+        (layersControl as HTMLElement).style.maxHeight = 'none';
+        (layersControl as HTMLElement).style.overflow = 'visible';
+      }
+    };
+
+    // Apply fix whenever layers control is toggled
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const target = mutation.target as HTMLElement;
+          if (target.classList.contains('leaflet-control-layers') && 
+              target.classList.contains('leaflet-control-layers-expanded')) {
+            // Small delay to ensure Leaflet has finished its DOM manipulation
+            setTimeout(fixLayersControlHeight, 10);
+          }
+        }
+      });
+    });
+
+    // Start observing for layers control changes
+    const controlElement = document.querySelector('.leaflet-control-layers');
+    if (controlElement) {
+      observer.observe(controlElement, { 
+        attributes: true, 
+        attributeFilter: ['class'] 
+      });
+    }
+
+    // Also apply on window resize
+    window.addEventListener('resize', fixLayersControlHeight);
+    window.addEventListener('orientationchange', fixLayersControlHeight);
+
+    // Initial check in case control is already expanded
+    fixLayersControlHeight();
+
+    // Poll for the element every 500ms for 5 seconds in case it's created later
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      pollCount++;
+      fixLayersControlHeight();
+      const control = document.querySelector('.leaflet-control-layers');
+      if (control && !observer) {
+        observer.observe(control, { 
+          attributes: true, 
+          attributeFilter: ['class'] 
+        });
+      }
+      if (pollCount >= 10) {
+        clearInterval(pollInterval);
+      }
+    }, 500);
+
+    // Cleanup
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', fixLayersControlHeight);
+      window.removeEventListener('orientationchange', fixLayersControlHeight);
+      clearInterval(pollInterval);
+    };
+  }, [mapInstance]); // Re-run when map instance changes
+
   const formatPrice = (priceRange: string) => {
     if (!priceRange) return 'Contact for pricing';
     return priceRange;
