@@ -78,10 +78,20 @@ export function EnhancedPhotoCarousel({
     
     // Add passed photos prop
     if (photos && photos.length > 0) {
-      allPhotos.push(...photos.map((p: any) => ({
-        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
-        source: 'prop'
-      })));
+      allPhotos.push(...photos.map((p: any) => {
+        let url = typeof p === 'string' ? p : (p.image_url || p.url || p);
+        
+        // Use proxy for external images to bypass CORS
+        if (url && (url.includes('tripadvisor.com') || 
+                   url.includes('yelp.com') || 
+                   url.includes('yelpcdn.com') ||
+                   url.includes('googleusercontent.com') ||
+                   url.includes('otstatic.com'))) {
+          url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+        }
+        
+        return { url, source: 'prop' };
+      }));
     }
     
     // Add web intelligence photos
@@ -103,25 +113,26 @@ export function EnhancedPhotoCarousel({
             return false;
           }
           
-          // Skip known CORS-problematic domains
-          // These sites don't allow direct image embedding
-          if (url.includes('tripadvisor.com') || 
-              url.includes('yelp.com') || 
-              url.includes('yelpcdn.com') ||
-              url.includes('googleusercontent.com') ||
-              url.includes('otstatic.com')) {
-            console.log(`Skipping CORS-restricted image: ${url}`);
-            return false;
-          }
           
           return true;
         })
         .map((img: any) => {
+          let url = typeof img === 'string' ? img : (img.image_url || img.url || img);
+          
+          // Use proxy for external images to bypass CORS
+          if (url && (url.includes('tripadvisor.com') || 
+                     url.includes('yelp.com') || 
+                     url.includes('yelpcdn.com') ||
+                     url.includes('googleusercontent.com') ||
+                     url.includes('otstatic.com'))) {
+            url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+          }
+          
           if (typeof img === 'string') {
-            return { url: img, source: 'web' };
+            return { url, source: 'web' };
           }
           return {
-            url: img.image_url || img.url || img,
+            url,
             source: 'web',
             isAuthentic: img.isAuthentic
           };
