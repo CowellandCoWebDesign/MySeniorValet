@@ -2665,7 +2665,7 @@ export default function CommunityDetail() {
                             </div>
                             <div className="mb-4">
                               <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                {unit.price || 'Contact for pricing'}
+                                {unit.price || 'Click for pricing'}
                               </p>
                               {unit.available && (
                                 <Badge className="mt-2 bg-green-100 text-green-800">
