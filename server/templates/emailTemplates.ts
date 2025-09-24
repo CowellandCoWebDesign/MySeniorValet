@@ -7,20 +7,6 @@ export interface EmailTemplate {
   text?: (data: any) => string;
 }
 
-// Get base URL dynamically based on environment
-const getBaseUrl = (): string => {
-  // Use environment variable if available
-  if (process.env.REPLIT_DEV_DOMAIN) {
-    return `https://${process.env.REPLIT_DEV_DOMAIN}`;
-  }
-  // For now, always use Replit URL until SSL is fixed on production domain
-  // Once SSL is fixed, uncomment the line below and remove the Replit URL
-  // return 'https://myseniorvalet.com';
-  return 'https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev';
-};
-
-const BASE_URL = getBaseUrl();
-
 // Brand colors and styling constants
 const BRAND_PRIMARY = '#1e40af';
 const BRAND_SECONDARY = '#f59e0b';
