@@ -672,35 +672,43 @@ body {
   background: white !important;
   color: black !important;
   border: 2px solid #333 !important;
-  max-height: 60vh !important; /* Limit height to 60% of viewport on mobile */
-  overflow-y: auto !important; /* Add vertical scroll when needed */
-  overflow-x: hidden !important; /* Hide horizontal scroll */
+  display: block !important; /* Ensure block display for proper child scrolling */
+}
+
+/* Target the INNER LIST for scrolling - this is where the actual items are */
+.leaflet-control-layers-expanded .leaflet-control-layers-list,
+.dark .leaflet-control-layers-expanded .leaflet-control-layers-list {
+  max-height: clamp(240px, 60vh, 480px) !important; /* Responsive height with min/max */
+  overflow-y: auto !important; /* Enable vertical scrolling */
+  overflow-x: hidden !important; /* No horizontal scroll */
+  -webkit-overflow-scrolling: touch !important; /* Smooth scrolling on iOS */
+  overscroll-behavior: contain !important; /* Prevent scroll chaining */
 }
 
 /* Better scrolling on larger screens */
 @media (min-width: 768px) {
-  .leaflet-control-layers-expanded,
-  .dark .leaflet-control-layers-expanded {
-    max-height: 80vh !important; /* Allow more height on desktop */
+  .leaflet-control-layers-expanded .leaflet-control-layers-list,
+  .dark .leaflet-control-layers-expanded .leaflet-control-layers-list {
+    max-height: clamp(300px, 80vh, 600px) !important; /* More height on desktop */
   }
 }
 
-/* Style the scrollbar for better visibility */
-.leaflet-control-layers-expanded::-webkit-scrollbar {
+/* Style the scrollbar for the INNER LIST */
+.leaflet-control-layers-list::-webkit-scrollbar {
   width: 8px !important;
 }
 
-.leaflet-control-layers-expanded::-webkit-scrollbar-track {
+.leaflet-control-layers-list::-webkit-scrollbar-track {
   background: #f1f1f1 !important;
   border-radius: 4px !important;
 }
 
-.leaflet-control-layers-expanded::-webkit-scrollbar-thumb {
+.leaflet-control-layers-list::-webkit-scrollbar-thumb {
   background: #888 !important;
   border-radius: 4px !important;
 }
 
-.leaflet-control-layers-expanded::-webkit-scrollbar-thumb:hover {
+.leaflet-control-layers-list::-webkit-scrollbar-thumb:hover {
   background: #555 !important;
 }
 
