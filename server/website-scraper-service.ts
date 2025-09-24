@@ -189,15 +189,16 @@ export class WebsiteScraperService {
         
         const imgLower = imgUrl.toLowerCase();
         
-        // For services (restaurants, shops), be less restrictive with filtering
+        // For services (restaurants, shops), be MUCH less restrictive with filtering
         if (isService) {
-          // For services: Only skip obvious non-photo images
-          if (imgLower.includes('favicon') || imgLower.includes('sprite') ||
-              imgLower.includes('.svg') || imgLower.includes('pixel') || 
+          // For services: Only skip SVGs and tracking pixels
+          if (imgLower.includes('.svg') || imgLower.includes('pixel') || 
               imgLower.includes('tracking') || imgLower.includes('analytics') ||
-              imgLower.includes('1x1') || imgLower.includes('spacer')) {
+              imgLower.includes('1x1') || imgLower.includes('spacer') ||
+              imgUrl.includes('data:image')) {  // Skip base64 encoded images
             continue;
           }
+          // Accept ALL other images for services including logos, banners, etc. as they might be food/business photos
         } else {
           // For senior communities: Skip marketing materials, logos, banners, and ads
           if (imgLower.includes('logo') || imgLower.includes('icon') || 
@@ -213,23 +214,36 @@ export class WebsiteScraperService {
           }
         }
         
-        // Skip images with marketing dimensions (likely ads)
-        if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
-            imgLower.includes('width=250') || imgLower.includes('width=540') ||
-            imgLower.includes('height=73') || imgLower.includes('height=450')) {
-          continue;
+        // For services, don't skip any image dimensions (food photos can be any size)
+        // For senior communities, skip images with marketing dimensions (likely ads)
+        if (!isService) {
+          if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
+              imgLower.includes('width=250') || imgLower.includes('width=540') ||
+              imgLower.includes('height=73') || imgLower.includes('height=450')) {
+            continue;
+          }
         }
         
         // Categorize images
-        if (imgLower.includes('floor') || imgLower.includes('plan') || imgLower.includes('layout')) {
-          if (!processedFloorPlans.includes(imgUrl)) {
-            processedFloorPlans.push(imgUrl);
-          }
-        } else if (imgUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i)) {
-          // Since we're on the official community website, be inclusive with photos
-          // Only exclude obvious non-community images (which we already filtered above)
+        if (isService) {
+          // For services: Accept ALL remaining images as business photos
+          // (food photos, interior, staff, products, etc.)
           if (!processedPhotos.includes(imgUrl)) {
             processedPhotos.push(imgUrl);
+            console.log(`✅ Added service image: ${imgUrl.substring(0, 80)}`);
+          }
+        } else {
+          // For senior communities: Categorize floor plans vs regular photos
+          if (imgLower.includes('floor') || imgLower.includes('plan') || imgLower.includes('layout')) {
+            if (!processedFloorPlans.includes(imgUrl)) {
+              processedFloorPlans.push(imgUrl);
+            }
+          } else if (imgUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i)) {
+            // Since we're on the official community website, be inclusive with photos
+            // Only exclude obvious non-community images (which we already filtered above)
+            if (!processedPhotos.includes(imgUrl)) {
+              processedPhotos.push(imgUrl);
+            }
           }
         }
       }
