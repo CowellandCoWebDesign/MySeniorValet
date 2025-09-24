@@ -739,67 +739,66 @@ function HeroSectionWithTransformingSearch() {
         {/* Unified Search Component */}
         <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
           {/* Category Tabs - Sleek Modern Style */}
-          <div className="flex justify-center">
+          <div className="flex justify-center overflow-x-auto">
             <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
               <button
                 type="button"
                 onClick={() => setSearchCategory('communities')}
-                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
+                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'communities' 
                     ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🏘️</span>
+                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">🏘️</span>
                 <div className="flex flex-col items-start leading-none">
-                  <span className="hidden sm:inline">Communities</span>
-                  <span className="sm:hidden">Homes</span>
-                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.communities || 'Worldwide'}</span>
+                  <span className="text-[10px] sm:text-base">Homes</span>
+                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.communities || '33.5k'}</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('services')}
-                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
+                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'services' 
                     ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🛍️</span>
+                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">🛍️</span>
                 <div className="flex flex-col items-start leading-none">
-                  <span>Services</span>
-                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.services || 'Global'}</span>
+                  <span className="text-[10px] sm:text-base">Services</span>
+                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.services || '506'}</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
+                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'healthcare' 
                     ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🏥</span>
+                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">🏥</span>
                 <div className="flex flex-col items-start leading-none">
-                  <span>Healthcare</span>
-                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Global</span>
+                  <span className="text-[10px] sm:text-base">Health</span>
+                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Global</span>
                 </div>
               </button>
               <button
                 type="button"
                 onClick={() => setSearchCategory('resources')}
-                className={`relative px-4 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-t-xl
+                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
                   ${searchCategory === 'resources' 
                     ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
                     : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
                   }`}
               >
-                <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">📚</span>
+                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">📚</span>
                 <div className="flex flex-col items-start leading-none">
-                  <span>Resources</span>
-                  <span className="text-[10px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Growing</span>
+                  <span className="text-[10px] sm:text-base">Info</span>
+                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Growing</span>
                 </div>
               </button>
             </div>
