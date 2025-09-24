@@ -287,6 +287,31 @@ const MapEvents: React.FC<{
                 timeout: 15000
               }
             });
+            
+            // Add error handling to prevent crashes when locating
+            locateControl.on('locationerror', function(e: any) {
+              console.error('Location error:', e.message);
+            });
+            
+            // Override the _setView method to add validation
+            if (locateControl._setView) {
+              const originalSetView = locateControl._setView.bind(locateControl);
+              locateControl._setView = function() {
+                try {
+                  const args = arguments;
+                  if (args && args[0] && typeof args[0].lat === 'number' && typeof args[0].lng === 'number') {
+                    const lat = args[0].lat;
+                    const lng = args[0].lng;
+                    if (!isNaN(lat) && !isNaN(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+                      return originalSetView.apply(this, arguments);
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error in locate control setView:', e);
+                }
+              };
+            }
+            
             map.addControl(locateControl);
             (map as any)._locateControl = locateControl;
           }
@@ -819,6 +844,45 @@ export default function Map({
             return originalGetTranslateString.call(this, point);
           } catch (e) {
             return 'translate3d(0px, 0px, 0px)';
+          }
+        };
+      }
+      
+      // Critical fix: Patch Map.setView to prevent crash with invalid coordinates
+      if ((window as any).L?.Map?.prototype?.setView) {
+        const originalMapSetView = (window as any).L.Map.prototype.setView;
+        (window as any).L.Map.prototype.setView = function(center: any, zoom?: any, options?: any) {
+          try {
+            // Detect and prevent priceRange object being passed as coordinates
+            if (center && typeof center === 'object' && 'min' in center && 'max' in center) {
+              console.error('CRITICAL ERROR: setView received priceRange object instead of coordinates:', center);
+              // Return without doing anything to prevent crash
+              return this;
+            }
+            
+            // Validate array format [lat, lng]
+            if (Array.isArray(center) && center.length === 2) {
+              const lat = Number(center[0]);
+              const lng = Number(center[1]);
+              if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+                console.error('Invalid coordinates for setView:', center);
+                return this;
+              }
+            } 
+            // Validate object format {lat, lng}
+            else if (center && typeof center === 'object' && 'lat' in center && 'lng' in center) {
+              const lat = Number(center.lat);
+              const lng = Number(center.lng);
+              if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+                console.error('Invalid coordinates for setView:', center);
+                return this;
+              }
+            }
+            
+            return originalMapSetView.call(this, center, zoom, options);
+          } catch (e) {
+            console.error('Error in Map.setView:', e);
+            return this;
           }
         };
       }
