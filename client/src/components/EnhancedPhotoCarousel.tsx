@@ -103,6 +103,17 @@ export function EnhancedPhotoCarousel({
             return false;
           }
           
+          // Skip known CORS-problematic domains
+          // These sites don't allow direct image embedding
+          if (url.includes('tripadvisor.com') || 
+              url.includes('yelp.com') || 
+              url.includes('yelpcdn.com') ||
+              url.includes('googleusercontent.com') ||
+              url.includes('otstatic.com')) {
+            console.log(`Skipping CORS-restricted image: ${url}`);
+            return false;
+          }
+          
           return true;
         })
         .map((img: any) => {
@@ -249,19 +260,31 @@ export function EnhancedPhotoCarousel({
 
   // Check if we have any photos to display
   if (!safePhotos || safePhotos.length === 0) {
+    // Check if photos were found but filtered out due to CORS
+    const originalPhotoCount = photos?.length || 0;
+    const hadCorsIssues = originalPhotoCount > 0 && processedPhotos.length === 0;
+    
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">
           <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
             <ZoomIn className="w-8 h-8" />
           </div>
-          <p className="text-sm">No photos available</p>
-          {photos.length > 0 && imageErrors.size > 0 && (
+          <p className="text-sm font-medium">
+            {hadCorsIssues ? 'Photos cannot be displayed' : 'No photos available'}
+          </p>
+          {hadCorsIssues && (
+            <p className="text-xs text-gray-400 mt-2 max-w-xs mx-auto">
+              {originalPhotoCount} photo{originalPhotoCount > 1 ? 's were' : ' was'} found from external sources 
+              but cannot be displayed due to security restrictions from TripAdvisor, Yelp, and other sites.
+            </p>
+          )}
+          {photos.length > 0 && imageErrors.size > 0 && !hadCorsIssues && (
             <p className="text-xs text-orange-500 mt-2">
               {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be loaded
             </p>
           )}
-          {showValidation && (
+          {showValidation && !hadCorsIssues && (
             <p className="text-xs text-gray-400 mt-2">
               Consider adding authentic photos from verified sources
             </p>
