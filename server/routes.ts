@@ -223,20 +223,50 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
       
       console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
       
-      // Extract photos using MultiAIPhotoExtractor for services (hotels, restaurants, etc.)
+      // Extract photos - ALWAYS scrape website first (like communities do)
       let extractedPhotos: string[] = [];
+      let triedWebsiteScraping = false;
+      
       try {
-        const photoExtractor = new MultiAIPhotoExtractor();
-        const photoCandidates = await MultiAIPhotoExtractor.extractPhotosFromServiceDirectorySites(
-          answer, 
-          serviceName, 
-          serviceType || 'service'
-        );
+        // PRIORITY 1: Scrape the website directly if we have one (this is what makes communities work)
+        if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
+          try {
+            console.log(`🕸️ Primary method: Scraping website for real photos: ${extractedWebsite}`);
+            const { websiteScraperService } = await import('./website-scraper-service');
+            const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+            triedWebsiteScraping = true;
+            
+            if (scrapedData.photos && scrapedData.photos.length > 0) {
+              // Use proxied URLs for external images
+              extractedPhotos = scrapedData.photos.slice(0, 10).map(photoUrl => {
+                if (photoUrl.includes('http')) {
+                  return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+                }
+                return photoUrl;
+              });
+              console.log(`✅ Successfully scraped ${extractedPhotos.length} real photos from website`);
+            } else {
+              console.log(`📷 Website scraper found no photos`);
+            }
+          } catch (scrapeError) {
+            console.error(`Website scraping failed, will try fallback methods:`, scrapeError);
+          }
+        }
         
-        // Also try to extract directly from HTML content
-        const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
+        // PRIORITY 2: Only if website scraping failed or found no photos, try MultiAI extraction as fallback
+        if (extractedPhotos.length === 0) {
+          console.log(`📷 Trying fallback photo extraction methods...`);
+          const photoExtractor = new MultiAIPhotoExtractor();
+          const photoCandidates = await MultiAIPhotoExtractor.extractPhotosFromServiceDirectorySites(
+            answer, 
+            serviceName, 
+            serviceType || 'service'
+          );
+          
+          // Also try to extract directly from HTML content
+          const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
         
-        // Extract photos marked with PHOTO: in the response
+          // Extract photos marked with PHOTO: in the response
         const photoMatches = answer.match(/PHOTO:\s*(https?:\/\/[^\s\n]+)/gi) || [];
         const markedPhotos = photoMatches.map((match: string) => {
           const url = match.replace(/^PHOTO:\s*/i, '').trim();
@@ -345,14 +375,14 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
         
         console.log(`📸 Extracted ${extractedPhotos.length} real photos for ${serviceName} (filtered from ${allPhotoCandidates.length} candidates)`);
         
-        // If we filtered out all photos due to being synthetic, try website scraping
+        // Log if all candidates were filtered as synthetic
         if (allPhotoCandidates.length > 0 && extractedPhotos.length === 0) {
           console.log(`⚠️ All ${allPhotoCandidates.length} photo URLs appeared to be synthetic/fake and were filtered out`);
           
-          // Try to scrape the website if we have one
-          if (extractedWebsite && extractedWebsite.includes('http')) {
+          // Try website scraping one more time if we haven't already
+          if (!triedWebsiteScraping && extractedWebsite && extractedWebsite.includes('http')) {
             try {
-              console.log(`🕸️ Attempting to scrape real photos from website: ${extractedWebsite}`);
+              console.log(`🕸️ Final attempt: Scraping website for real photos: ${extractedWebsite}`);
               const { websiteScraperService } = await import('./website-scraper-service');
               const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
               
@@ -364,17 +394,19 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
                   }
                   return photoUrl;
                 });
-                console.log(`✅ Successfully scraped ${extractedPhotos.length} real photos from website`);
+                console.log(`✅ Final attempt succeeded: scraped ${extractedPhotos.length} real photos from website`);
               }
             } catch (scrapeError) {
-              console.error(`Failed to scrape website for photos:`, scrapeError);
+              console.error(`Final website scraping attempt failed:`, scrapeError);
             }
           }
+        }
+        }  // Add missing closing bracket for the if (extractedPhotos.length === 0) block
           
-          // If still no photos, that's okay - we'll show "no photos available" which is better than fake photos
-          if (extractedPhotos.length === 0) {
-            console.log(`📷 No real photos found for ${serviceName} - will display "no photos available"`);
-          }
+        // If still no photos, that's okay - we'll show "no photos available" which is better than fake photos
+        if (extractedPhotos.length === 0) {
+          console.log(`📷 No real photos found for ${serviceName} - will display "no photos available"`);
+          console.log(`📊 Debug: Had website? ${!!extractedWebsite}, Tried scraping? ${triedWebsiteScraping}`);
         }
       } catch (error) {
         console.error('Failed to extract photos:', error);
