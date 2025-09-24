@@ -98,18 +98,23 @@ Provide the following information:
 8. Google Maps listing URL for this business
 9. TripAdvisor, Yelp, or Facebook page URLs if available
 
-IMPORTANT: Find and list actual photo URLs from these sources:
-- Direct image URLs from the business website (e.g., https://example.com/images/photo.jpg)
-- TripAdvisor photo URLs (https://media-cdn.tripadvisor.com/media/photo-*)
-- Yelp photo URLs (https://s3-media*.fl.yelpcdn.com/bphoto/*)
-- Google Maps photo URLs (https://lh3.googleusercontent.com/* or https://lh5.googleusercontent.com/p/*)
-- OpenTable photo URLs (https://images.otstatic.com/*)
-- Any other actual image URLs you can find
+IMPORTANT: Find the actual business listing pages where this business has photos:
+- The actual TripAdvisor page URL for this specific business 
+- The Yelp business page URL
+- The Google Maps/Business listing URL
+- OpenTable page if it's a restaurant
+- Facebook business page URL
+- Instagram business profile URL
 
-Please list each photo URL on a separate line with the format:
-PHOTO: [actual URL here]
+DO NOT generate or list individual photo URLs. Instead, provide the main business listing pages.
+List each page with format:
+LISTING: [platform name] - [full URL]
 
-Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide actual direct image URLs, not just links to galleries.`;
+For example:
+LISTING: TripAdvisor - https://www.tripadvisor.com/Restaurant_Review-g60763-d457808-Reviews-Eleven_Madison_Park-New_York_City.html
+LISTING: Yelp - https://www.yelp.com/biz/eleven-madison-park-new-york
+
+Important: Only provide URLs that actually exist and are for ${serviceName} in ${city}, ${state} specifically.`;
 
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -299,37 +304,49 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
           // Also try to extract directly from HTML content
           const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
         
-          // Extract photos marked with PHOTO: in the response
-        const photoMatches = answer.match(/PHOTO:\s*(https?:\/\/[^\s\n]+)/gi) || [];
-        const markedPhotos = photoMatches.map((match: string) => {
-          const url = match.replace(/^PHOTO:\s*/i, '').trim();
-          return { url, source: 'Perplexity', confidence: 0.8, isAuthentic: true };
-        });
+          // Extract listing pages marked with LISTING: in the response
+        const listingMatches = answer.match(/LISTING:\s*([^\n]+)/gi) || [];
+        const listingPages: string[] = [];
         
-        // Also extract common photo URL patterns from the response - expanded for more sources
-        const photoPatterns = [
-          /https?:\/\/media-cdn\.tripadvisor\.com\/media\/photo-[^\s\"\'<>]+/gi,
-          /https?:\/\/dynamic-media-cdn\.tripadvisor\.com\/[^\s\"\'<>]+/gi,
-          /https?:\/\/s3-media\d*\.fl\.yelpcdn\.com\/bphoto\/[^\s\"\'<>]+/gi,
-          /https?:\/\/lh[3-6]\.googleusercontent\.com\/[^\s\"\'<>]+/gi,
-          /https?:\/\/streetviewpixels-pa\.googleapis\.com\/[^\s\"\'<>]+/gi,
-          /https?:\/\/images\.otstatic\.com\/[^\s\"\'<>]+/gi,
-          /https?:\/\/resizer\.otstatic\.com\/[^\s\"\'<>]+/gi,
-          /https?:\/\/cf\.bstatic\.com\/[^\s\"\'<>]+\.(jpg|jpeg|png|webp)/gi,
-          /https?:\/\/[^\s\"\'<>]*cloudinary[^\s\"\'<>]+\.(jpg|jpeg|png|webp)/gi,
-          /https?:\/\/[^\s\"\'<>]*fbcdn\.net\/[^\s\"\'<>]+/gi,
-          /https?:\/\/[^\s\"\'<>]*cdninstagram\.com\/[^\s\"\'<>]+/gi,
-          /https?:\/\/scontent[^\s\"\'<>]+\.fbcdn\.net\/[^\s\"\'<>]+/gi,
-          /https?:\/\/[^\s\"\'<>]+\.(jpg|jpeg|png|webp|gif)(\?[^\s\"\'<>]*)?/gi
-        ];
-        
-        const extractedUrls: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
-        for (const pattern of photoPatterns) {
-          const matches = answer.match(pattern) || [];
-          for (const url of matches) {
-            extractedUrls.push({ url, source: 'Pattern Match', confidence: 0.7, isAuthentic: true });
+        for (const match of listingMatches) {
+          const listingInfo = match.replace(/^LISTING:\s*/i, '').trim();
+          // Extract URL from format "Platform - URL"
+          const urlMatch = listingInfo.match(/https?:\/\/[^\s]+/);
+          if (urlMatch) {
+            listingPages.push(urlMatch[0]);
+            console.log(`📍 Found listing page: ${urlMatch[0]}`);
           }
         }
+        
+        // Scrape each listing page for real photos
+        const scrapedPhotos: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
+        for (const listingUrl of listingPages) {
+          try {
+            console.log(`🕸️ Scraping listing page for photos: ${listingUrl}`);
+            const { websiteScraperService } = await import('./website-scraper-service');
+            const scrapedData = await websiteScraperService.scrapeWebsite(listingUrl, serviceName);
+            
+            if (scrapedData.photos && scrapedData.photos.length > 0) {
+              for (const photoUrl of scrapedData.photos) {
+                scrapedPhotos.push({ 
+                  url: photoUrl, 
+                  source: new URL(listingUrl).hostname, 
+                  confidence: 0.9, 
+                  isAuthentic: true 
+                });
+              }
+              console.log(`✅ Found ${scrapedData.photos.length} photos from ${new URL(listingUrl).hostname}`);
+            }
+          } catch (error) {
+            console.error(`Failed to scrape listing page ${listingUrl}:`, error);
+          }
+        }
+        
+        const markedPhotos = scrapedPhotos;
+        
+        // Skip pattern extraction to avoid hallucinated URLs
+        // We now only trust real photos from scraped listing pages
+        const extractedUrls: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
         
         // Combine all photo candidates
         const allPhotoCandidates = [...photoCandidates, ...contentPhotos, ...markedPhotos, ...extractedUrls];
