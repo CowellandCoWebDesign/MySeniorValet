@@ -1369,21 +1369,40 @@ export default function Map({
             />
           </LayersControl.BaseLayer>
 
-          {/* High Contrast - Stamen Toner replacement via Stadia Maps */}
-          <LayersControl.BaseLayer name="High Contrast">
+          {/* High Contrast - Black and White for maximum visibility */}
+          <LayersControl.BaseLayer name="High Contrast B&W">
             <TileLayer
-              url="https://tiles.stadiamaps.com/tiles/stamen_toner/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-              maxZoom={20}
-              minZoom={0}
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
+              className="grayscale contrast-150 brightness-110"
             />
           </LayersControl.BaseLayer>
 
-          {/* Satellite View - Aerial photography */}
+          {/* Satellite View - Aerial photography from Esri */}
           <LayersControl.BaseLayer name="Satellite">
             <TileLayer
               url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
               attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Streets with Transit - Shows public transit routes */}
+          <LayersControl.BaseLayer name="Transit Map">
+            <TileLayer
+              url="https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=7c352c8ff1244dd8b732e349e0b0fe8d"
+              attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Dark Mode Map - Optimized for night viewing */}
+          <LayersControl.BaseLayer name="Dark Mode">
+            <TileLayer
+              url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+              subdomains="abcd"
               maxZoom={19}
             />
           </LayersControl.BaseLayer>

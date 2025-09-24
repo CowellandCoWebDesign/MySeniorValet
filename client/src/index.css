@@ -605,37 +605,64 @@ body {
   margin-top: 60px !important;
 }
 
-/* Fix Layers Control visibility - ensure proper contrast */
+/* Fix Layers Control visibility - AGGRESSIVE contrast fix */
 .leaflet-control-layers-expanded {
   background: white !important;
-  color: #333 !important;
-  border: 2px solid #ddd !important;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  color: black !important;
+  border: 2px solid #333 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-control-layers-expanded * {
+  color: black !important;
+  font-weight: 600 !important;
 }
 
 .leaflet-control-layers label {
-  color: #333 !important;
-  font-weight: 500 !important;
-  padding: 4px 8px !important;
+  color: black !important;
+  font-weight: 600 !important;
+  padding: 6px 10px !important;
   display: flex !important;
   align-items: center !important;
   cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+.leaflet-control-layers label span {
+  color: black !important;
+  font-weight: 600 !important;
 }
 
 .leaflet-control-layers label:hover {
-  background-color: #f5f5f5 !important;
+  background-color: #e0e0e0 !important;
   border-radius: 4px !important;
 }
 
 .leaflet-control-layers input[type="radio"],
 .leaflet-control-layers input[type="checkbox"] {
-  margin-right: 8px !important;
+  margin-right: 10px !important;
   cursor: pointer !important;
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: #2563eb !important;
 }
 
 .leaflet-control-layers-separator {
-  border-top: 1px solid #ddd !important;
-  margin: 4px 0 !important;
+  border-top: 2px solid #333 !important;
+  margin: 6px 0 !important;
+}
+
+/* Grayscale filter for high contrast mode */
+.grayscale {
+  filter: grayscale(100%) !important;
+}
+
+.contrast-150 {
+  filter: contrast(150%) !important;
+}
+
+.brightness-110 {
+  filter: brightness(110%) !important;
 }
 
 /* Dark mode support for layers control */
