@@ -974,8 +974,8 @@ function HeroSectionWithTransformingSearch() {
               className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
               <div className="flex flex-col items-center">
                 <span className="text-xl mb-1">🔍</span>
-                <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
-                <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
               </div>
             </Button>
 
@@ -988,8 +988,8 @@ function HeroSectionWithTransformingSearch() {
               className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
                 <span className="text-xl mb-1">🤖</span>
-                <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
-                <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">AI Assistant</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Ask Questions</div>
               </div>
             </Button>
 
@@ -1002,8 +1002,8 @@ function HeroSectionWithTransformingSearch() {
               className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
                 <span className="text-xl mb-1 animate-pulse">🔥</span>
-                <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
-                <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Live Heatmap</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Availability Now</div>
               </div>
             </Button>
 
@@ -1016,8 +1016,8 @@ function HeroSectionWithTransformingSearch() {
               className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
                 <span className="text-xl mb-1">📊</span>
-                <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
-                <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Market Analysis</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Price Compare</div>
               </div>
             </Button>
           </div>
