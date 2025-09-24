@@ -962,21 +962,6 @@ function HeroSectionWithTransformingSearch() {
           
         </div>
         
-        {/* Key Value Props - Below search component */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
-          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
-              <span className="mr-0.5 text-sm sm:text-base md:text-lg">🔍</span> Transparent Pricing
-            </div>
-            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
-              <span className="mr-0.5 text-sm sm:text-base md:text-lg">📅</span> Schedule Tours
-            </div>
-            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
-              <span className="mr-0.5 text-sm sm:text-base md:text-lg">✅</span> Direct Reservations
-            </div>
-          </div>
-        </div>
-        
         {/* Quick Action Buttons - Moved from Community Directory Section */}
         {!isSearchActive && (
         <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
@@ -1039,6 +1024,22 @@ function HeroSectionWithTransformingSearch() {
           </div>
         </div>
         )}
+        
+        {/* Key Value Props - Below action buttons */}
+        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">🔍</span> Transparent Pricing
+            </div>
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">📅</span> Schedule Tours
+            </div>
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">✅</span> Direct Reservations
+            </div>
+          </div>
+        </div>
+        
         </div>
           
           {/* Search Results - Premium Glass Design */}
