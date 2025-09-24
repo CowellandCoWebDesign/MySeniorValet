@@ -131,6 +131,17 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
           ],
           temperature: 0.2,
           max_tokens: 2000,
+          return_images: true,  // Enable real image URLs
+          image_domain_filter: [
+            "yelp.com",
+            "google.com", 
+            "tripadvisor.com",
+            "opentable.com",
+            "foursquare.com",
+            "-shutterstock.com",  // Exclude stock photos
+            "-getty.com",
+            "-stock.adobe.com"
+          ]
         })
       });
 
@@ -143,6 +154,16 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
       const citations = data.citations || [];
 
       console.log(`📝 Perplexity response length: ${answer.length} characters`);
+      
+      // Check for real images in provider_metadata (return_images feature)
+      let realPhotosFromProvider: string[] = [];
+      if (data.provider_metadata?.images) {
+        console.log(`📸 Found ${data.provider_metadata.images.length} real images from Perplexity provider_metadata`);
+        realPhotosFromProvider = data.provider_metadata.images.map((img: any) => img.imageUrl);
+        console.log(`📸 Real photo URLs:`, realPhotosFromProvider);
+      } else {
+        console.log(`⚠️ No provider_metadata.images found in Perplexity response`);
+      }
 
       // Parse the response to extract business information
       let businessData: {
@@ -223,15 +244,27 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
       
       console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
       
-      // Extract photos - ALWAYS scrape website first (like communities do)
+      // Extract photos - Use real photos from provider_metadata FIRST (Perplexity return_images feature)
       let extractedPhotos: string[] = [];
       let triedWebsiteScraping = false;
       
       try {
-        // PRIORITY 1: Scrape the website directly if we have one (this is what makes communities work)
-        if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
+        // PRIORITY 1: Use real photos from Perplexity provider_metadata if available
+        if (realPhotosFromProvider.length > 0) {
+          console.log(`✅ Using ${realPhotosFromProvider.length} real photos from Perplexity provider_metadata`);
+          // Use proxy for external images
+          extractedPhotos = realPhotosFromProvider.slice(0, 10).map(photoUrl => {
+            if (photoUrl.includes('http')) {
+              return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+            }
+            return photoUrl;
+          });
+        }
+        
+        // PRIORITY 2: If no provider photos, try scraping the website
+        if (extractedPhotos.length === 0 && extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
-            console.log(`🕸️ Primary method: Scraping website for real photos: ${extractedWebsite}`);
+            console.log(`🕸️ Fallback method: Scraping website for real photos: ${extractedWebsite}`);
             const { websiteScraperService } = await import('./website-scraper-service');
             const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
             triedWebsiteScraping = true;
@@ -249,13 +282,13 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
               console.log(`📷 Website scraper found no photos`);
             }
           } catch (scrapeError) {
-            console.error(`Website scraping failed, will try fallback methods:`, scrapeError);
+            console.error(`Website scraping failed, will try additional fallback methods:`, scrapeError);
           }
         }
         
-        // PRIORITY 2: Only if website scraping failed or found no photos, try MultiAI extraction as fallback
+        // PRIORITY 3: Only if no real photos yet, try text extraction as last resort
         if (extractedPhotos.length === 0) {
-          console.log(`📷 Trying fallback photo extraction methods...`);
+          console.log(`📷 Trying text-based photo extraction as final fallback...`);
           const photoExtractor = new MultiAIPhotoExtractor();
           const photoCandidates = await MultiAIPhotoExtractor.extractPhotosFromServiceDirectorySites(
             answer, 

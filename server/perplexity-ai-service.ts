@@ -10,7 +10,15 @@ export interface PerplexityResponse {
     };
   }>;
   citations?: string[];
-  images?: string[];  // URLs of relevant images found
+  images?: string[];  // URLs of relevant images found (deprecated)
+  provider_metadata?: {
+    images?: Array<{
+      imageUrl: string;
+      originUrl: string;
+      height?: number;
+      width?: number;
+    }>;
+  };
   usage: {
     prompt_tokens: number;
     completion_tokens: number;
@@ -121,8 +129,15 @@ CRITICAL INSTRUCTIONS:
       const summary = response.data.choices[0]?.message?.content || 'No results found';
       const sources = response.data.citations || [];
       
-      // Extract image URLs from the response text
-      const images = this.extractImagesFromResponse(summary, response.data.images);
+      // Extract real image URLs from provider_metadata if available (return_images feature)
+      let images: string[] = [];
+      if (response.data.provider_metadata?.images) {
+        console.log(`📸 Found ${response.data.provider_metadata.images.length} real images from provider_metadata`);
+        images = response.data.provider_metadata.images.map(img => img.imageUrl);
+      } else {
+        // Fallback to extracting from response text
+        images = this.extractImagesFromResponse(summary, response.data.images);
+      }
       
       // Log the unfiltered Perplexity response for debugging
       console.log('\n=== UNFILTERED PERPLEXITY RESPONSE ===');
