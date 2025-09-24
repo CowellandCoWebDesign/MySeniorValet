@@ -672,6 +672,36 @@ body {
   background: white !important;
   color: black !important;
   border: 2px solid #333 !important;
+  max-height: 60vh !important; /* Limit height to 60% of viewport on mobile */
+  overflow-y: auto !important; /* Add vertical scroll when needed */
+  overflow-x: hidden !important; /* Hide horizontal scroll */
+}
+
+/* Better scrolling on larger screens */
+@media (min-width: 768px) {
+  .leaflet-control-layers-expanded,
+  .dark .leaflet-control-layers-expanded {
+    max-height: 80vh !important; /* Allow more height on desktop */
+  }
+}
+
+/* Style the scrollbar for better visibility */
+.leaflet-control-layers-expanded::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.leaflet-control-layers-expanded::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers-expanded::-webkit-scrollbar-thumb {
+  background: #888 !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers-expanded::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
 }
 
 .leaflet-control-layers label,
