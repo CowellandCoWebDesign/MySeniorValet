@@ -189,16 +189,10 @@ export class WebsiteScraperService {
         
         const imgLower = imgUrl.toLowerCase();
         
-        // For services (restaurants, shops), be MUCH less restrictive with filtering
+        // For services (restaurants, shops), accept EVERYTHING - no filtering at all
         if (isService) {
-          // For services: Only skip SVGs and tracking pixels
-          if (imgLower.includes('.svg') || imgLower.includes('pixel') || 
-              imgLower.includes('tracking') || imgLower.includes('analytics') ||
-              imgLower.includes('1x1') || imgLower.includes('spacer') ||
-              imgUrl.includes('data:image')) {  // Skip base64 encoded images
-            continue;
-          }
-          // Accept ALL other images for services including logos, banners, etc. as they might be food/business photos
+          // For services: Don't skip ANYTHING - accept all images without exception
+          // Every image could be a product photo, menu item, interior shot, etc.
         } else {
           // For senior communities: Skip marketing materials, logos, banners, and ads
           if (imgLower.includes('logo') || imgLower.includes('icon') || 
@@ -226,11 +220,11 @@ export class WebsiteScraperService {
         
         // Categorize images
         if (isService) {
-          // For services: Accept ALL remaining images as business photos
-          // (food photos, interior, staff, products, etc.)
+          // For services: Accept EVERY SINGLE IMAGE without any restrictions whatsoever
+          // No extension checks, no filtering, accept everything
           if (!processedPhotos.includes(imgUrl)) {
             processedPhotos.push(imgUrl);
-            console.log(`✅ Added service image: ${imgUrl.substring(0, 80)}`);
+            console.log(`✅ Added service image (no filtering): ${imgUrl.substring(0, 80)}`);
           }
         } else {
           // For senior communities: Categorize floor plans vs regular photos
