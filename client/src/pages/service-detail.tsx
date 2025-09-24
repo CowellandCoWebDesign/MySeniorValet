@@ -298,7 +298,8 @@ export default function ServiceDetail() {
           serviceName: service.name,
           city: service.city,
           state: service.state,
-          serviceType: service.careTypes?.[0] || 'service'
+          serviceType: service.careTypes?.[0] || 'service',
+          website: service.website  // Pass the database website so we don't override it with Google Maps URLs
         }),
       });
       

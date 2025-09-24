@@ -68,7 +68,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // API endpoint for service web intelligence
   app.post('/api/service-intelligence', async (req, res) => {
     try {
-      const { serviceName, city, state, serviceType } = req.body;
+      const { serviceName, city, state, serviceType, website } = req.body;  // Accept website from client
       
       if (!serviceName || !city) {
         return res.status(400).json({ error: 'Service name and city are required' });
@@ -177,40 +177,51 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
         found: answer.length > 0
       };
 
-      // Extract website URL from Perplexity response - try multiple patterns
-      let extractedWebsite: string | undefined;
+      // Use the website from database if provided, otherwise try to extract from Perplexity
+      let extractedWebsite: string | undefined = website;  // Prioritize database website
       
-      // Pattern 1: Look for "website:" or similar followed by URL
-      const websiteMatch = answer.match(/(?:website|Website|WEBSITE|URL|url|Official website)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery)[^\s,\)]*)/i);
-      if (websiteMatch) {
-        extractedWebsite = websiteMatch[1];
-        if (extractedWebsite && !extractedWebsite.startsWith('http')) {
-          extractedWebsite = 'https://' + extractedWebsite;
-        }
-      }
-      
-      // Pattern 2: If not found, look for any URL that matches the business name
-      if (!extractedWebsite) {
-        const businessNameSimplified = serviceName.toLowerCase().replace(/[^a-z0-9]/g, '');
-        const urlMatch = answer.match(/(https?:\/\/[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi);
-        if (urlMatch) {
-          for (const url of urlMatch) {
-            const urlSimplified = url.toLowerCase().replace(/[^a-z0-9]/g, '');
-            if (urlSimplified.includes(businessNameSimplified) || businessNameSimplified.includes(urlSimplified.substring(8, 20))) {
-              extractedWebsite = url;
-              break;
+      // Only extract from Perplexity if we don't have a website from database
+      if (!extractedWebsite || extractedWebsite.includes('google.com/maps')) {
+        // Pattern 1: Look for "website:" or similar followed by URL
+        const websiteMatch = answer.match(/(?:website|Website|WEBSITE|URL|url|Official website)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery)[^\s,\)]*)/i);
+        if (websiteMatch) {
+          const candidateUrl = websiteMatch[1];
+          // Don't override with Google Maps URLs
+          if (!candidateUrl.includes('google.com/maps')) {
+            extractedWebsite = candidateUrl;
+            if (extractedWebsite && !extractedWebsite.startsWith('http')) {
+              extractedWebsite = 'https://' + extractedWebsite;
             }
+          }
+        }
+        
+        // Pattern 2: If not found, look for any URL that matches the business name
+        if (!extractedWebsite || extractedWebsite.includes('google.com/maps')) {
+          const businessNameSimplified = serviceName.toLowerCase().replace(/[^a-z0-9]/g, '');
+          const urlMatch = answer.match(/(https?:\/\/[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi);
+          if (urlMatch) {
+            for (const url of urlMatch) {
+              if (!url.includes('google.com/maps')) {  // Skip Google Maps URLs
+                const urlSimplified = url.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (urlSimplified.includes(businessNameSimplified) || businessNameSimplified.includes(urlSimplified.substring(8, 20))) {
+                  extractedWebsite = url;
+                  break;
+                }
+              }
+            }
+          }
+        }
+        
+        // Pattern 3: Look for www. patterns
+        if (!extractedWebsite || extractedWebsite.includes('google.com/maps')) {
+          const wwwMatch = answer.match(/(www\.[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/i);
+          if (wwwMatch) {
+            extractedWebsite = 'https://' + wwwMatch[1];
           }
         }
       }
       
-      // Pattern 3: Look for www. patterns
-      if (!extractedWebsite) {
-        const wwwMatch = answer.match(/(www\.[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/i);
-        if (wwwMatch) {
-          extractedWebsite = 'https://' + wwwMatch[1];
-        }
-      }
+      console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
       
       // Extract photos using MultiAIPhotoExtractor for services (hotels, restaurants, etc.)
       let extractedPhotos: string[] = [];
