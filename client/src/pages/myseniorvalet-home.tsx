@@ -46,6 +46,7 @@ import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
+import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -1433,13 +1434,39 @@ export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
   
-  // Set SEO metadata for home page
-  useSEO({
-    title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
-    description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
-    keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
-    canonicalUrl: 'https://www.myseniorvalet.com/'
-  });
+  // Parse URL search parameters for dynamic SEO
+  const [urlSearchParams, setUrlSearchParams] = useState<URLSearchParams | null>(null);
+  const [searchMetadata, setSearchMetadata] = useState<any>({});
+  
+  useEffect(() => {
+    // Get URL parameters
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setUrlSearchParams(params);
+      
+      // Extract search parameters for SEO
+      const location = params.get('location');
+      const query = params.get('q') || params.get('query');
+      const careType = params.get('careType');
+      const city = params.get('city');
+      const state = params.get('state');
+      
+      setSearchMetadata({ location, query, careType, city, state });
+    }
+  }, []);
+  
+  // Conditionally set SEO based on search parameters
+  const hasSearchParams = urlSearchParams && (urlSearchParams.get('location') || urlSearchParams.get('q') || urlSearchParams.get('query'));
+  
+  // Only use default SEO if no search parameters
+  if (!hasSearchParams) {
+    useSEO({
+      title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
+      description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+      keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
+      canonicalUrl: 'https://www.myseniorvalet.com/'
+    });
+  }
   
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobile, setIsMobile] = useState(false);
@@ -1893,6 +1920,18 @@ export default function MySeniorValetHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Dynamic SEO for search pages */}
+      {hasSearchParams && (
+        <DynamicSearchSEO
+          location={searchMetadata.location}
+          query={searchMetadata.query}
+          careType={searchMetadata.careType}
+          city={searchMetadata.city}
+          state={searchMetadata.state}
+          totalResults={0} // Will be updated when search results are fetched
+        />
+      )}
+      
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed top-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
