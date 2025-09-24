@@ -28,6 +28,7 @@ import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import resortGardenImage from '@assets/generated_images/Resort_courtyard_garden_f7db92ce.png';
+import GlobalNetwork from '@assets/generated_images/Global_network_connections_3f9d63f4.png';
 
 // State abbreviation to full name mapping
 const stateNames: Record<string, string> = {
@@ -690,9 +691,9 @@ export default function CommunityDirectory() {
       <section className="relative py-16 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
-            alt="Cosmic background"
-            className="w-full h-full object-cover opacity-40"
+            src={GlobalNetwork}
+            alt="Global network connections"
+            className="w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20"></div>
         </div>
