@@ -333,9 +333,15 @@ Important: Focus on ${serviceName} in ${city}, ${state} specifically. Provide ac
           }
         }
         
-        // Helper function to detect synthetic/fake URLs
+        // Helper function to detect synthetic/fake URLs - BUT NOT FOR SERVICES
         const isSyntheticUrl = (url: string): boolean => {
-          // Check for repeating patterns that indicate fake URLs
+          // FOR SERVICES: Never reject photos as synthetic - accept everything
+          // Services need photos from directories like TripAdvisor, Yelp, Google Maps
+          if (serviceType === 'service' || serviceType === 'restaurant' || serviceType === 'hotel') {
+            return false; // Never treat service photos as synthetic
+          }
+          
+          // For senior communities only, check for synthetic patterns
           const patterns = [
             /([a-zA-Z0-9]{2,4})\1{3,}/,  // Repeating patterns like QwQwQwQw or n1n1n1n1
             /([a-zA-Z0-9])\1{10,}/,       // Same character repeated many times
