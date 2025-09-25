@@ -55,7 +55,7 @@ export default function SeniorMarketplace() {
   const { data: recentServices, isLoading } = useQuery({
     queryKey: ['/api/vendors/recently-discovered'],
     queryFn: async () => {
-      const response = await fetch('/api/vendors/recently-discovered?limit=30');
+      const response = await fetch('/api/vendors/recently-discovered?limit=100');
       if (!response.ok) throw new Error('Failed to fetch recent services');
       return response.json();
     }
@@ -265,7 +265,7 @@ export default function SeniorMarketplace() {
                     </div>
                   ))
                 ) : recentServices && recentServices.length > 0 ? (
-                  recentServices.slice(0, 12).map((vendor: any, index: number) => (
+                  recentServices.map((vendor: any, index: number) => (
                     <motion.div 
                       key={vendor.id} 
                       className="flex-shrink-0 w-72"
