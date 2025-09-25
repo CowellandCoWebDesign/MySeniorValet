@@ -3456,6 +3456,13 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Featured Excellence Communities Section */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
       {/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
