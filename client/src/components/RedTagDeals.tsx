@@ -146,12 +146,13 @@ export function RedTagDeals() {
             <Star className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0 animate-pulse" />
             <div className="text-left">
               <p className="text-sm text-green-800 dark:text-green-200 font-bold mb-1">
-                🎉 Early Adopter Opportunity - First 5 Communities Get FREE Placement!
+                🎉 Early Adopter Opportunity - First 5 PAID Communities Get FREE Featured Placement!
               </p>
               <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                Community partners: Be among the first 5 to join MySeniorValet and receive FREE featured placement in this premium 
-                home page section! This exclusive early adopter offer showcases your community to thousands of families actively 
-                searching for senior care. Contact us today to claim your spot - only 2 positions remaining!
+                Community partners: Be among the first 5 paying subscribers to MySeniorValet and receive FREE premium featured placement 
+                in this high-visibility home page section! As an early adopter who commits with a paid subscription, your community will be 
+                showcased to thousands of families actively searching for senior care. Contact us today to become a paid member and claim 
+                your free featured spot - only 2 positions remaining!
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
                 Current featured communities represent excellence in senior living across specialized care types including 
