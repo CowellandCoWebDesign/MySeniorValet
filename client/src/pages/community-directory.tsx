@@ -938,10 +938,13 @@ export default function CommunityDirectory() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setLocation(`/community/${community.id}`);
+                      }}
                     >
                       <div 
-                        className="bg-white/95 backdrop-blur rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden cursor-pointer"
-                        onClick={() => setLocation(`/community/${community.id}`)}
+                        className="bg-white/95 backdrop-blur rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden cursor-pointer"
                       >
                         <EnhancedCommunityCard 
                           community={community}
