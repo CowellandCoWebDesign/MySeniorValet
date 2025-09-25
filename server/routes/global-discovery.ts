@@ -66,17 +66,41 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Clean query for database search (remove parentheses which can cause injection warnings)
         const cleanedQuery = queryLower.replace(/[()]/g, ' ').trim();
         
+        // Handle plural/singular forms for common service searches
+        let searchTerms = [cleanedQuery];
+        
+        // Check if the query contains these keywords and add both forms
+        if (cleanedQuery.includes('hotels') || cleanedQuery.includes('hotel')) {
+          searchTerms.push('hotel');
+          searchTerms.push('hotels');
+        } else if (cleanedQuery.includes('restaurants') || cleanedQuery.includes('restaurant')) {
+          searchTerms.push('restaurant');
+          searchTerms.push('restaurants');
+        } else if (cleanedQuery.includes('pharmacies') || cleanedQuery.includes('pharmacy')) {
+          searchTerms.push('pharmacy');
+          searchTerms.push('pharmacies');
+        } else if (cleanedQuery.includes('stores') || cleanedQuery.includes('store')) {
+          searchTerms.push('store');
+          searchTerms.push('stores');
+        }
+        
+        // Remove duplicates
+        searchTerms = [...new Set(searchTerms)];
+        
+        // Build search conditions for all terms
+        const searchConditions = searchTerms.map(term => 
+          or(
+            sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
+            sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
+            sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
+            sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
+          )
+        );
+        
         // ALWAYS prioritize exact/partial name matches first
         const vendorResults = await db.select()
           .from(vendors)
-          .where(
-            or(
-              sql`LOWER(${vendors.businessName}) LIKE ${'%' + cleanedQuery + '%'}`,
-              sql`LOWER(${vendors.businessType}) LIKE ${'%' + cleanedQuery + '%'}`,
-              sql`LOWER(${vendors.description}) LIKE ${'%' + cleanedQuery + '%'}`,
-              sql`LOWER(${vendors.businessCity}) LIKE ${'%' + cleanedQuery + '%'}`
-            )
-          )
+          .where(or(...searchConditions))
           .limit(50);
         
         console.log(`💾 Found ${vendorResults.length} existing vendors in database for "${query}"`);
