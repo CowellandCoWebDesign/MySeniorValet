@@ -87,16 +87,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 This is NOT a senior living community - it's a regular business/restaurant.
 
+FIRST PRIORITY - PHOTOS: Please find and return actual photos of ${serviceName} from:
+- The restaurant/business's own website gallery
+- Google Maps/Business photos  
+- Yelp business photos
+- TripAdvisor photos
+- Facebook/Instagram photos
+
 Provide the following information:
 1. What type of business/restaurant it is and what they serve/sell
 2. Their complete street address
 3. Phone number
-4. Website URL
+4. Website URL (without any citation markers like [1])
 5. Business hours of operation
 6. Menu highlights or popular items (if it's a restaurant)
 7. Customer reviews summary
-8. Google Maps listing URL for this business
-9. TripAdvisor, Yelp, or Facebook page URLs if available
+8. Photos of the actual business (exterior, interior, food/products)
 
 IMPORTANT: Find the actual business listing pages where this business has photos:
 - The actual TripAdvisor page URL for this specific business 
@@ -106,7 +112,7 @@ IMPORTANT: Find the actual business listing pages where this business has photos
 - Facebook business page URL
 - Instagram business profile URL
 
-DO NOT generate or list individual photo URLs. Instead, provide the main business listing pages.
+Include any photo URLs you find showing the actual business, its interior, exterior, food, or products.
 List each page with format:
 LISTING: [platform name] - [full URL]
 
@@ -127,7 +133,7 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           messages: [
             {
               role: 'system',
-              content: 'You are a business information specialist. Provide accurate, current information about businesses and restaurants. Include real photo URLs when available.'
+              content: 'You are a business information specialist with access to photos and images. Always prioritize finding and returning real photos of businesses. Include direct image URLs from Google Maps, Yelp, TripAdvisor, and the business website. Return actual photo URLs whenever possible.'
             },
             {
               role: 'user',
@@ -245,6 +251,13 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
             extractedWebsite = 'https://' + wwwMatch[1];
           }
         }
+      }
+      
+      // Clean URL of any citation markers like [1], [2], etc.
+      if (extractedWebsite) {
+        extractedWebsite = extractedWebsite.replace(/\[\d+\].*$/, '').trim();
+        // Also remove any trailing asterisks or special characters
+        extractedWebsite = extractedWebsite.replace(/\*+$/, '').trim();
       }
       
       console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);

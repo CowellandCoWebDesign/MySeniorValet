@@ -264,8 +264,8 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     /(\bSP_\w+)/i,
     // XSS patterns
     /(<script|<\/script>|javascript:|vbscript:|onload=|onerror=|eval\(|alert\()/i,
-    // Command injection patterns
-    /(\||;|&|`|\$\(|exec|system|shell_exec|passthru)/i,
+    // Command injection patterns (exclude standalone & for business names)
+    /(\||;|&&|`|\$\(|exec|system|shell_exec|passthru)/i,
     // LDAP injection patterns
     /(\*\)|&\(|\|\(|\)|\(cn=|\(uid=|\(mail=)/i,
     // NoSQL injection patterns
