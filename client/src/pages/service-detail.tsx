@@ -388,6 +388,8 @@ export default function ServiceDetail() {
               enrichment_data: webPhotos.length > 0 ? { photos: webPhotos } : null,
               last_enrichment_date: webPhotos.length > 0 ? new Date().toISOString() : null
             }}
+            sources={webIntelligence?.sources || []}
+            photoSources={webIntelligence?.photoSources || {}}
             verificationReport={webIntelligence}
             isLoading={isLoadingIntelligence}
             showSourceIndicator={true}

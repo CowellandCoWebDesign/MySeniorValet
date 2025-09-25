@@ -19,6 +19,13 @@ interface PhotoCarouselProps {
   isLoading?: boolean;
   currentPhotoIndex?: number;
   onPhotoIndexChange?: (index: number) => void;
+  sources?: string[];
+  photoSources?: {
+    googleMaps?: string | null;
+    yelp?: string | null;
+    tripAdvisor?: string | null;
+    searchQuery?: string;
+  };
 }
 
 interface PhotoValidationResult {
@@ -43,7 +50,9 @@ export function EnhancedPhotoCarousel({
   showSourceIndicator = true,
   isLoading = false,
   currentPhotoIndex,
-  onPhotoIndexChange
+  onPhotoIndexChange,
+  sources = [],
+  photoSources
 }: PhotoCarouselProps) {
   // Use controlled or uncontrolled mode
   const isControlled = currentPhotoIndex !== undefined;
@@ -171,11 +180,10 @@ export function EnhancedPhotoCarousel({
     refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
   });
 
-  // Keyboard navigation
+  // Keyboard navigation with smooth transitions
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!showFullscreen) return;
-
+      // Allow navigation with arrow keys even when not in fullscreen
       switch (event.key) {
         case 'ArrowLeft':
           event.preventDefault();
@@ -187,7 +195,19 @@ export function EnhancedPhotoCarousel({
           break;
         case 'Escape':
           event.preventDefault();
-          setShowFullscreen(false);
+          if (showFullscreen) {
+            setShowFullscreen(false);
+          }
+          break;
+        case 'f':
+        case 'F':
+          // Press 'f' to toggle fullscreen
+          event.preventDefault();
+          if (!showFullscreen && safePhotos.length > 0) {
+            setShowFullscreen(true);
+          } else if (showFullscreen) {
+            setShowFullscreen(false);
+          }
           break;
       }
     };
@@ -445,42 +465,66 @@ export function EnhancedPhotoCarousel({
             </div>
           )}
 
-          {/* Enhanced Navigation Arrows */}
+          {/* Enhanced Navigation Arrows with smooth transitions */}
           {photos.length > 1 && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white border-0 w-10 h-10 shadow-lg z-20"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white border-0 w-12 h-12 shadow-xl z-20 transition-all duration-200 hover:scale-110"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   prevPhoto();
                 }}
+                aria-label="Previous photo"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-7 h-7" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white border-0 w-10 h-10 shadow-lg z-20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white border-0 w-12 h-12 shadow-xl z-20 transition-all duration-200 hover:scale-110"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   nextPhoto();
                 }}
+                aria-label="Next photo"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-7 h-7" />
               </Button>
             </>
+          )}
+          
+          {/* Thumbnail navigation dots */}
+          {photos.length > 1 && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+              {safePhotos.slice(0, 10).map((_, idx) => (
+                <button
+                  key={idx}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    idx === currentIndex 
+                      ? 'bg-white w-8' 
+                      : 'bg-white/50 hover:bg-white/70'
+                  }`}
+                  onClick={() => setCurrentIndex(idx)}
+                  aria-label={`Go to photo ${idx + 1}`}
+                />
+              ))}
+              {safePhotos.length > 10 && (
+                <span className="text-white/70 text-xs ml-1">+{safePhotos.length - 10}</span>
+              )}
+            </div>
           )}
 
           {/* Fullscreen Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 text-white border-0"
+            className="absolute top-4 left-4 bg-black/50 hover:bg-black/70 text-white border-0 transition-all duration-200 hover:scale-110"
             onClick={() => setShowFullscreen(true)}
+            aria-label="View fullscreen"
           >
             <ZoomIn className="w-4 h-4" />
           </Button>
@@ -508,6 +552,99 @@ export function EnhancedPhotoCarousel({
           </div>
         )}
       </div>
+
+      {/* Citations and Sources Section */}
+      {(sources.length > 0 || photoSources) && (
+        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Photo Sources & Citations
+            </h4>
+            
+            {/* Photo source platforms */}
+            {photoSources && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {photoSources.googleMaps && (
+                  <a 
+                    href={photoSources.googleMaps} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  >
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    </svg>
+                    Google Maps
+                  </a>
+                )}
+                {photoSources.yelp && (
+                  <a 
+                    href={photoSources.yelp} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-xs hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                  >
+                    Yelp
+                  </a>
+                )}
+                {photoSources.tripAdvisor && (
+                  <a 
+                    href={photoSources.tripAdvisor} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                  >
+                    TripAdvisor
+                  </a>
+                )}
+              </div>
+            )}
+            
+            {/* Citation sources */}
+            {sources.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs text-gray-600 dark:text-gray-400">Information sources:</p>
+                <div className="flex flex-wrap gap-1">
+                  {sources.slice(0, 5).map((source, idx) => {
+                    // Extract domain name from URL
+                    let displayName = source;
+                    try {
+                      const url = new URL(source);
+                      displayName = url.hostname.replace('www.', '');
+                    } catch {
+                      // If not a valid URL, use as is
+                    }
+                    
+                    return (
+                      <a
+                        key={idx}
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+                        title={source}
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        {displayName}
+                      </a>
+                    );
+                  })}
+                  {sources.length > 5 && (
+                    <span className="inline-flex items-center px-2 py-1 text-gray-500 dark:text-gray-400 text-xs">
+                      +{sources.length - 5} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Fullscreen Modal */}
       <Dialog open={showFullscreen} onOpenChange={setShowFullscreen}>
