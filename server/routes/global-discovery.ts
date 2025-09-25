@@ -61,34 +61,60 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // For services, search vendors table; for locations, search communities
       if (searchType === 'services' || searchType === 'service') {
         // Search vendors table for services like hotels, restaurants, etc.
-        const searchTerms = query.toLowerCase().split(' ').filter(term => 
-          term.length > 2 && !['for', 'in', 'at', 'the', 'and', 'or', 'near'].includes(term)
+        const queryLower = query.toLowerCase();
+        
+        // Clean query for database search (remove parentheses which can cause injection warnings)
+        const cleanedQuery = queryLower.replace(/[()]/g, ' ').trim();
+        
+        // Build search conditions - first try full query match, then individual terms
+        const vendorConditions = [];
+        
+        // Primary condition: Search for full query (handles specific business names)
+        vendorConditions.push(
+          or(
+            sql`LOWER(${vendors.businessName}) LIKE ${'%' + cleanedQuery + '%'}`,
+            sql`LOWER(${vendors.businessType}) LIKE ${'%' + cleanedQuery + '%'}`,
+            sql`LOWER(${vendors.description}) LIKE ${'%' + cleanedQuery + '%'}`
+          )
         );
         
-        // Handle plural/singular forms for common business types
-        const expandedTerms = [];
-        for (const term of searchTerms) {
-          expandedTerms.push(term);
-          // Add singular form if plural
-          if (term === 'hotels') expandedTerms.push('hotel');
-          else if (term === 'restaurants') expandedTerms.push('restaurant');
-          else if (term === 'pharmacies') expandedTerms.push('pharmacy');
-          else if (term === 'stores') expandedTerms.push('store');
-          else if (term === 'shops') expandedTerms.push('shop');
-          else if (term === 'cafes') expandedTerms.push('cafe');
-        }
+        // Secondary condition: Also search for individual terms if query has multiple words
+        const searchTerms = cleanedQuery.split(' ').filter(term => 
+          term.length > 2 && !['for', 'in', 'at', 'the', 'and', 'or', 'near', 'adult', 'only'].includes(term)
+        );
         
-        // Build search conditions for vendors
-        const vendorConditions = [];
-        for (const term of expandedTerms) {
-          vendorConditions.push(
-            or(
-              sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
-              sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
-              sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
-              sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
-            )
-          );
+        if (searchTerms.length > 0) {
+          // Handle plural/singular forms for common business types
+          const expandedTerms = [];
+          for (const term of searchTerms) {
+            expandedTerms.push(term);
+            // Add singular form if plural
+            if (term === 'hotels') expandedTerms.push('hotel');
+            else if (term === 'restaurants') expandedTerms.push('restaurant');
+            else if (term === 'pharmacies') expandedTerms.push('pharmacy');
+            else if (term === 'stores') expandedTerms.push('store');
+            else if (term === 'shops') expandedTerms.push('shop');
+            else if (term === 'cafes') expandedTerms.push('cafe');
+            // Add plural form if singular  
+            else if (term === 'hotel') expandedTerms.push('hotels');
+            else if (term === 'restaurant') expandedTerms.push('restaurants');
+            else if (term === 'pharmacy') expandedTerms.push('pharmacies');
+            else if (term === 'store') expandedTerms.push('stores');
+            else if (term === 'shop') expandedTerms.push('shops');
+            else if (term === 'cafe') expandedTerms.push('cafes');
+          }
+          
+          // Add conditions for individual terms
+          for (const term of expandedTerms) {
+            vendorConditions.push(
+              or(
+                sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
+                sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
+                sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
+                sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
+              )
+            );
+          }
         }
         
         // Execute vendor search
