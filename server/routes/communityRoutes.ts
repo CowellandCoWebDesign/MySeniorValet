@@ -1570,7 +1570,7 @@ Provide specific, factual information with current pricing and availability.`;
           
           // Filter out placeholder images and deduplicate
           realTimeData.photos = [...new Set(allImages)].filter(url => {
-            if (!url) return false;
+            if (!url || typeof url !== 'string') return false;
             const placeholderPatterns = [
               '/api/placeholder/',
               'placeholder.com',
@@ -1709,12 +1709,12 @@ Provide specific, factual information with current pricing and availability.`;
         };
 
         // Extract key information from search results
-        if (searchResults) {
+        if (searchResults && searchResults.summary) {
           // Simple parsing - in production this would be more sophisticated
-          const lines = searchResults.split('\n').filter(line => line.trim());
+          const lines = searchResults.summary.split('\n').filter((line: string) => line.trim());
           
           // Try to identify news items
-          const newsItems = lines.slice(0, 2).map(line => ({
+          const newsItems = lines.slice(0, 2).map((line: any) => ({
             summary: line.trim(),
             source: "Web Search"
           }));
@@ -1724,13 +1724,13 @@ Provide specific, factual information with current pricing and availability.`;
           }
 
           // Extract reputation and area insights
-          insights.reputation = lines.find(line => 
+          insights.reputation = lines.find((line: any) => 
             line.toLowerCase().includes('rating') || 
             line.toLowerCase().includes('review') || 
             line.toLowerCase().includes('reputation')
           ) || `${communityName} is a senior living community in ${city}, ${state}. Contact them directly for the most current information.`;
 
-          insights.areaInsights = lines.find(line => 
+          insights.areaInsights = lines.find((line: any) => 
             line.toLowerCase().includes('area') || 
             line.toLowerCase().includes('location') || 
             line.toLowerCase().includes('neighborhood')
