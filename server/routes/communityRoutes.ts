@@ -1592,10 +1592,14 @@ Provide specific, factual information with current pricing and availability.`;
         }
       }
 
-      // Enrich community photos if needed (but not if we have real-time photos)
-      let enrichedCommunity = community;
-      if (!realTimeData.photos || realTimeData.photos.length === 0) {
-        enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+      // ALWAYS filter photos through enrichment service to remove non-photo content
+      let enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+      
+      // If we have real-time photos, combine them with filtered community photos
+      if (realTimeData.photos && realTimeData.photos.length > 0) {
+        // Combine and deduplicate photos
+        const allPhotos = [...(enrichedCommunity.photos || []), ...realTimeData.photos];
+        enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 15); // Limit to 15 photos
       }
       
       // Skip claimed community check for now - table doesn't exist
