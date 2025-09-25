@@ -130,7 +130,7 @@ export function Footer() {
         <div className="border-t border-purple-500/30 pt-4 mb-4">
           <h3 className="text-sm font-semibold mb-3 text-white flex items-center gap-2">
             <Zap className="h-4 w-4 text-yellow-400" />
-            v2.0.2025 Technical Enhancements
+            v2.1.2025 Technical Enhancements
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
@@ -173,7 +173,7 @@ export function Footer() {
               <span className="hidden md:inline text-gray-600">•</span>
               <p className="text-gray-500">Data from AI-assisted web search across all online sources</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v2.0.2025</p>
+              <p className="text-gray-500">v2.1.2025</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
