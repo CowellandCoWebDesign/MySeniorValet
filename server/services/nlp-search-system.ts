@@ -1035,8 +1035,13 @@ export class NLPSearchSystem {
       
       const orConditions = [];
       
-      // PRIORITY 1: First, try searching for the exact or partial business name
-      // This handles specific searches like "Hotel Moana" or "Marriott"
+      // Check if this is a specific business name search vs generic type search
+      const businessKeywords = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'pharmacies', 'store', 'stores', 'shop', 'shops', 'cafe', 'cafes'];
+      const firstWord = queryLower.split(' ')[0];
+      const isGenericSearch = businessKeywords.includes(firstWord) && queryLower.split(' ').length <= 3;
+      
+      // PRIORITY 1: Always search for the full query as a business name
+      // This handles specific searches like "Hotel Moana Shinjuku" or "Marriott Downtown"
       if (queryLower.length > 0) {
         orConditions.push(
           ilike(vendors.businessName, `%${cleanedQuery}%`)
@@ -1044,7 +1049,6 @@ export class NLPSearchSystem {
       }
       
       // Extract location from query (e.g., "hotels in dallas" -> location: "dallas")
-      // Handle both original query format and enhanced query format
       let location: string | null = null;
       
       // Try to extract from enhanced format first (e.g., "location:dallas")
@@ -1053,42 +1057,43 @@ export class NLPSearchSystem {
         location = enhancedLocationMatch[1].trim();
       } else {
         // Fallback to original format (e.g., "hotels in dallas")
-        // Match location after in/at/near but before any additional keywords
         const locationMatch = cleanedQuery.match(/(?:in|at|near)\s+([a-zA-Z\s]+?)(?:\s+at\s+|\s+within\s+|$)/i);
         location = locationMatch ? locationMatch[1].trim() : null;
       }
       
-      // Extract business type from query (e.g., "hotels" from "hotels in dallas")
-      const businessTypeMatch = cleanedQuery.match(/^([a-zA-Z\s]+?)(?:\s+in|\s+at|\s+near|$)/i);
-      const businessType = businessTypeMatch ? businessTypeMatch[1].trim() : cleanedQuery;
-      
-      // PRIORITY 2: Search for business type in name, description, and service type
-      // For "hotels", also search for common hotel brand names
-      if (businessType) {
-        const searchTerms = [];
+      // Only extract business type if this looks like a generic search
+      if (isGenericSearch) {
+        // Extract business type from query (e.g., "hotels" from "hotels in dallas")
+        const businessTypeMatch = cleanedQuery.match(/^(hotel|hotels|restaurant|restaurants|pharmacy|pharmacies|store|stores|shop|shops|cafe|cafes)(?:\s|$)/i);
+        const businessType = businessTypeMatch ? businessTypeMatch[1].trim() : null;
         
-        // Add common variations for hotel searches
-        if (businessType.toLowerCase().includes('hotel')) {
-          searchTerms.push('hotel', 'inn', 'suites', 'resort', 'lodge', 'motel');
-        } else if (businessType.toLowerCase().includes('restaurant')) {
-          searchTerms.push('restaurant', 'cafe', 'bistro', 'diner', 'grill');
-        } else if (businessType.toLowerCase().includes('pharmacy')) {
-          searchTerms.push('pharmacy', 'drug', 'drugstore', 'chemist');
-        } else {
-          searchTerms.push(businessType);
-        }
-        
-        // Build conditions for each search term
-        for (const term of searchTerms) {
+        // PRIORITY 2: Search for business type in businessType field and description
+        if (businessType) {
+          const searchTerms = [];
+          
+          // Add common variations for hotel searches
+          if (businessType.toLowerCase().includes('hotel')) {
+            searchTerms.push('hotel', 'inn', 'suites', 'resort', 'lodge', 'motel');
+          } else if (businessType.toLowerCase().includes('restaurant')) {
+            searchTerms.push('restaurant', 'cafe', 'bistro', 'diner', 'grill');
+          } else if (businessType.toLowerCase().includes('pharmacy')) {
+            searchTerms.push('pharmacy', 'drug', 'drugstore', 'chemist');
+          } else {
+            searchTerms.push(businessType);
+          }
+          
+          // Build conditions for each search term
+          for (const term of searchTerms) {
+            orConditions.push(
+              ilike(vendors.businessType, `%${term}%`)
+            );
+          }
+          
+          // Also check description
           orConditions.push(
-            ilike(vendors.businessType, `%${term}%`)
+            ilike(vendors.description, `%${businessType}%`)
           );
         }
-        
-        // Also check description for all business types
-        orConditions.push(
-          ilike(vendors.description, `%${businessType}%`)
-        );
       }
       
       // Build WHERE clause based on what we have
