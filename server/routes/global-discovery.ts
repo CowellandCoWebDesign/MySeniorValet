@@ -57,9 +57,92 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`🌍 Global Discovery Search: "${query}" (type: ${searchType || 'auto-detect'})`);
       
-      // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities!
-      // Skip database search for services - we're looking for commercial services, not communities
-      if (searchType !== 'services') {
+      // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities AND vendors!
+      // For services, search vendors table; for locations, search communities
+      if (searchType === 'services' || searchType === 'service') {
+        // Search vendors table for services like hotels, restaurants, etc.
+        const searchTerms = query.toLowerCase().split(' ').filter(term => 
+          term.length > 2 && !['for', 'in', 'at', 'the', 'and', 'or', 'near'].includes(term)
+        );
+        
+        // Handle plural/singular forms for common business types
+        const expandedTerms = [];
+        for (const term of searchTerms) {
+          expandedTerms.push(term);
+          // Add singular form if plural
+          if (term === 'hotels') expandedTerms.push('hotel');
+          else if (term === 'restaurants') expandedTerms.push('restaurant');
+          else if (term === 'pharmacies') expandedTerms.push('pharmacy');
+          else if (term === 'stores') expandedTerms.push('store');
+          else if (term === 'shops') expandedTerms.push('shop');
+          else if (term === 'cafes') expandedTerms.push('cafe');
+        }
+        
+        // Build search conditions for vendors
+        const vendorConditions = [];
+        for (const term of expandedTerms) {
+          vendorConditions.push(
+            or(
+              sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
+              sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
+              sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
+              sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
+            )
+          );
+        }
+        
+        // Execute vendor search
+        const vendorResults = await db.select()
+          .from(vendors)
+          .where(
+            vendorConditions.length > 0 ? or(...vendorConditions) : sql`true`
+          )
+          .limit(50);
+        
+        console.log(`💾 Found ${vendorResults.length} existing vendors in database for "${query}"`);
+        
+        // If we found vendors, format them as results
+        if (vendorResults.length > 0) {
+          const formattedVendorResults = vendorResults.map(vendor => ({
+            id: vendor.id,
+            name: vendor.businessName,
+            type: 'vendor',
+            businessType: vendor.businessType || 'Service',
+            address: vendor.businessAddress || '',
+            city: vendor.businessCity || '',
+            state: vendor.businessState || '',
+            phone: vendor.primaryContactPhone || '',
+            website: vendor.website || '',
+            description: vendor.description || '',
+            isExisting: true,
+            isDiscovered: false
+          }));
+          
+          // Return vendor results immediately if we have enough
+          if (!req.body.discoveryMode && vendorResults.length >= 5) {
+            return res.json({
+              success: true,
+              query: query,
+              searchType: 'services',
+              results: formattedVendorResults.slice(0, limit),
+              metadata: {
+                totalFound: vendorResults.length,
+                existingCount: vendorResults.length,
+                discoveredCount: 0,
+                sources: ['Database'],
+                searchLocation: query,
+                timestamp: new Date().toISOString(),
+                aiConfidence: 100,
+                dataSource: 'Vendors Database'
+              },
+              message: `Found ${vendorResults.length} services/vendors in database`
+            });
+          }
+          
+          // Store vendor results for later combination with discovery results
+          existingCommunities = formattedVendorResults;
+        }
+      } else if (searchType !== 'services') {
         // Parse location from query (e.g., "Dallas, Texas" or just "France")
         const queryParts = query.split(',').map(p => p.trim());
         const citySearch = queryParts[0] || query;
