@@ -174,6 +174,11 @@ export default function CommunityDirectory() {
   // Recently discovered communities query
   const { data: recentCommunities, isLoading: isLoadingRecent } = useQuery({
     queryKey: ['/api/communities/recently-discovered'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/recently-discovered?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch recent communities');
+      return response.json();
+    }
   });
   
   const oakmontQuery = useQuery({
@@ -926,7 +931,7 @@ export default function CommunityDirectory() {
                     </div>
                   ))
                 ) : recentCommunities && recentCommunities.length > 0 ? (
-                  recentCommunities.slice(0, 20).map((community: any, index: number) => (
+                  recentCommunities.map((community: any, index: number) => (
                     <motion.div 
                       key={community.id} 
                       className="flex-shrink-0 w-80"
