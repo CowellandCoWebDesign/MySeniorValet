@@ -123,25 +123,35 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Featured Excellence Communities - specific communities with real photos
+  // Featured Excellence Communities - from database
   app.get("/api/featured-communities", async (req, res) => {
     try {
-      // Featured community IDs: Atria La Jolla, Highland Village, Verdeza Retirement
-      const featuredIds = [51463, 54540, 72147];
+      // Get featured communities from the database table
+      const featuredRecords = await storage.getFeaturedCommunities();
+      
+      if (featuredRecords.length === 0) {
+        return res.json([]);
+      }
+      
+      // Extract community IDs from featured records
+      const featuredIds = featuredRecords.map(f => f.communityId);
       
       const featuredCommunities = await db
         .select()
         .from(communities)
         .where(inArray(communities.id, featuredIds));
 
-      // Enrich each community with photos
+      // Enrich each community with photos and use database metadata
       const enrichedFeatured = await Promise.all(
         featuredCommunities.map(async community => {
           const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
           
+          // Find the matching featured record for this community
+          const featuredRecord = featuredRecords.find(f => f.communityId === community.id);
+          
           // For Verdeza, find the first real photo (not social media icons)
-          let heroImage = enriched.photo || null;
-          if (enriched.photos && enriched.photos.length > 0) {
+          let heroImage = featuredRecord?.heroImage || enriched.photo || null;
+          if (!heroImage && enriched.photos && enriched.photos.length > 0) {
             // Filter out social media icons and find first real photo
             const realPhoto = enriched.photos.find(photo => 
               photo && 
@@ -159,37 +169,30 @@ export function registerCommunityRoutes(app: Express) {
             heroImage = realPhoto || enriched.photos[0];
           }
           
-          // For Highland Village, use a nice lakefront senior community photo
+          // For Highland Village, use a nice lakefront senior community photo if no photo
           if (community.id === 54540 && !heroImage) {
             heroImage = "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&q=80";
           }
           
-          // Transform to match the frontend format
+          // Transform to match the frontend format using database data
           return {
             id: community.id,
             communityId: community.id,
             community: enriched,
-            featuredTitle: community.name,
-            dealType: 
-              community.id === 51463 ? "Premium Coastal Living" :
-              community.id === 54540 ? "Canadian Healthcare Excellence" :
-              "Tropical Paradise Retirement",
-            highlights: 
-              community.id === 51463 ? ["Ocean views", "Award-winning dining", "Wellness-focused care"] :
-              community.id === 54540 ? ["Provincial healthcare integration", "Lakefront setting", "Bilingual services"] :
-              ["Year-round perfect weather", "International expat community", "Affordable luxury"],
-            availability: 
-              community.id === 51463 ? "Available Now" :
-              community.id === 54540 ? "Move-in Ready" :
-              "Limited Spots",
-            whyFeatured:
-              community.id === 51463 ? ["Part of the prestigious Atria network", "Stunning La Jolla location", "Excellence in senior care"] :
-              community.id === 54540 ? ["Beautiful Ontario lakefront property", "Full Canadian healthcare benefits", "Strong community reputation"] :
-              ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"],
-            heroImage
+            featuredTitle: featuredRecord?.featuredTitle || community.name,
+            dealType: featuredRecord?.dealType || "Featured Community",
+            highlights: featuredRecord?.highlights || [],
+            availability: featuredRecord?.availability || "Available Now",
+            whyFeatured: featuredRecord?.whyFeatured || [],
+            heroImage,
+            displayOrder: featuredRecord?.displayOrder || 999,
+            subscriptionTier: featuredRecord?.subscriptionTier
           };
         })
       );
+      
+      // Sort by display order
+      enrichedFeatured.sort((a, b) => (a.displayOrder || 999) - (b.displayOrder || 999));
       
       res.json(enrichedFeatured);
     } catch (error) {
