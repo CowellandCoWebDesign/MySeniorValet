@@ -716,26 +716,27 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
   app.use('/api', aiChatRoutes.default);
   
   // Register featured communities routes
-  app.get('/api/featured-communities', async (req, res) => {
-    try {
-      const featured = await storage.getFeaturedCommunities();
-      
-      // Join with community data to get full details
-      const fullFeatured = await Promise.all(featured.map(async (f) => {
-        const community = await storage.getCommunity(f.communityId);
-        return {
-          ...f,
-          community
-        };
-      }));
-      
-      // Only return top 3 for the Red Tag Deals section
-      res.json(fullFeatured.slice(0, 3));
-    } catch (error) {
-      console.error('Error fetching featured communities:', error);
-      res.status(500).json({ error: 'Failed to fetch featured communities' });
-    }
-  });
+  // NOTE: Commented out to avoid duplicate route conflict - using the enriched version in communityRoutes.ts
+  // app.get('/api/featured-communities', async (req, res) => {
+  //   try {
+  //     const featured = await storage.getFeaturedCommunities();
+  //     
+  //     // Join with community data to get full details
+  //     const fullFeatured = await Promise.all(featured.map(async (f) => {
+  //       const community = await storage.getCommunity(f.communityId);
+  //       return {
+  //         ...f,
+  //         community
+  //       };
+  //     }));
+  //     
+  //     // Only return top 3 for the Red Tag Deals section
+  //     res.json(fullFeatured.slice(0, 3));
+  //   } catch (error) {
+  //     console.error('Error fetching featured communities:', error);
+  //     res.status(500).json({ error: 'Failed to fetch featured communities' });
+  //   }
+  // });
   
   // Contact form submission endpoint
   app.post('/api/contact', async (req, res) => {
