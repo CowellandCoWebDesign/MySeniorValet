@@ -2142,6 +2142,22 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
 
+            </div>
+          </div>
+        </section>
+        
+        {/* Featured Excellence Communities Section */}
+        <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+          <div className="max-w-7xl mx-auto">
+            <RedTagDeals />
+          </div>
+        </section>
+        
+        {/* Resume Directory Cards Grid */}
+        <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+
             {/* Senior Marketplace */}
             <Link to="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
@@ -3453,13 +3469,6 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
           </div>
-        </div>
-      </section>
-
-      {/* Featured Excellence Communities Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
         </div>
       </section>
 
