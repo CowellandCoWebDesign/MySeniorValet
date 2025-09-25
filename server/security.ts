@@ -249,12 +249,6 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     console.log('Skipping SQL injection protection for service intelligence - business names with special characters');
     return next();
   }
-  
-  // Skip global discovery endpoint - business names often have parentheses like "Hotel Name (Adult Only)"
-  if (req.path === '/api/global-discovery/search' || req.path === '/api/nlp/search' || req.path === '/api/search/unified') {
-    console.log('Skipping SQL injection protection for discovery/search - business names can have parentheses');
-    return next();
-  }
 
   const suspiciousPatterns = [
     // Enhanced SQL injection patterns

@@ -61,27 +61,47 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // For services, search vendors table; for locations, search communities
       if (searchType === 'services' || searchType === 'service') {
         // Search vendors table for services like hotels, restaurants, etc.
-        const queryLower = query.toLowerCase();
+        const searchTerms = query.toLowerCase().split(' ').filter(term => 
+          term.length > 2 && !['for', 'in', 'at', 'the', 'and', 'or', 'near'].includes(term)
+        );
         
-        // Clean query for database search (remove parentheses which can cause injection warnings)
-        const cleanedQuery = queryLower.replace(/[()]/g, ' ').trim();
+        // Handle plural/singular forms for common business types
+        const expandedTerms = [];
+        for (const term of searchTerms) {
+          expandedTerms.push(term);
+          // Add singular form if plural
+          if (term === 'hotels') expandedTerms.push('hotel');
+          else if (term === 'restaurants') expandedTerms.push('restaurant');
+          else if (term === 'pharmacies') expandedTerms.push('pharmacy');
+          else if (term === 'stores') expandedTerms.push('store');
+          else if (term === 'shops') expandedTerms.push('shop');
+          else if (term === 'cafes') expandedTerms.push('cafe');
+        }
         
-        // ALWAYS prioritize exact/partial name matches first
+        // Build search conditions for vendors
+        const vendorConditions = [];
+        for (const term of expandedTerms) {
+          vendorConditions.push(
+            or(
+              sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
+              sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
+              sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
+              sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
+            )
+          );
+        }
+        
+        // Execute vendor search
         const vendorResults = await db.select()
           .from(vendors)
           .where(
-            or(
-              sql`LOWER(${vendors.businessName}) LIKE ${'%' + cleanedQuery + '%'}`,
-              sql`LOWER(${vendors.businessType}) LIKE ${'%' + cleanedQuery + '%'}`,
-              sql`LOWER(${vendors.description}) LIKE ${'%' + cleanedQuery + '%'}`,
-              sql`LOWER(${vendors.businessCity}) LIKE ${'%' + cleanedQuery + '%'}`
-            )
+            vendorConditions.length > 0 ? or(...vendorConditions) : sql`true`
           )
           .limit(50);
         
         console.log(`💾 Found ${vendorResults.length} existing vendors in database for "${query}"`);
         
-        // If we found vendors, format and return them
+        // If we found vendors, format them as results
         if (vendorResults.length > 0) {
           const formattedVendorResults = vendorResults.map(vendor => ({
             id: vendor.id,
@@ -98,118 +118,29 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             isDiscovered: false
           }));
           
-          // Return vendor results immediately
-          return res.json({
-            success: true,
-            query: query,
-            searchType: 'services',
-            results: formattedVendorResults.slice(0, limit),
-            metadata: {
-              totalFound: vendorResults.length,
-              existingCount: vendorResults.length,
-              discoveredCount: 0,
-              sources: ['Database'],
-              searchLocation: query,
-              timestamp: new Date().toISOString(),
-              aiConfidence: 100,
-              dataSource: 'Vendors Database'
-            },
-            message: `Found ${vendorResults.length} services/vendors in database`
-          });
-        }
-        // If we didn't find enough results with exact match, fall back to expanded search
-        if (vendorResults.length === 0) {
-          // Secondary condition: Also search for individual terms if query has multiple words
-          const searchTerms = cleanedQuery.split(' ').filter(term => 
-            term.length > 2 && !['for', 'in', 'at', 'the', 'and', 'or', 'near', 'adult', 'only'].includes(term)
-          );
-          
-          if (searchTerms.length > 0) {
-            // Handle plural/singular forms for common business types
-            const expandedTerms = [];
-            for (const term of searchTerms) {
-              expandedTerms.push(term);
-              // Add singular form if plural
-              if (term === 'hotels') expandedTerms.push('hotel');
-              else if (term === 'restaurants') expandedTerms.push('restaurant');
-              else if (term === 'pharmacies') expandedTerms.push('pharmacy');
-              else if (term === 'stores') expandedTerms.push('store');
-              else if (term === 'shops') expandedTerms.push('shop');
-              else if (term === 'cafes') expandedTerms.push('cafe');
-              // Add plural form if singular  
-              else if (term === 'hotel') expandedTerms.push('hotels');
-              else if (term === 'restaurant') expandedTerms.push('restaurants');
-              else if (term === 'pharmacy') expandedTerms.push('pharmacies');
-              else if (term === 'store') expandedTerms.push('stores');
-              else if (term === 'shop') expandedTerms.push('shops');
-              else if (term === 'cafe') expandedTerms.push('cafes');
-            }
-            
-            // Build conditions for individual terms
-            const vendorConditions = [];
-            for (const term of expandedTerms) {
-              vendorConditions.push(
-                or(
-                  sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
-                  sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
-                  sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
-                  sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
-                )
-              );
-            }
-            
-            // Execute expanded vendor search
-            const expandedVendorResults = await db.select()
-              .from(vendors)
-              .where(
-                vendorConditions.length > 0 ? or(...vendorConditions) : sql`true`
-              )
-              .limit(50);
-            
-            console.log(`💾 Found ${expandedVendorResults.length} vendors with expanded search for "${query}"`);
-            
-            // If we found vendors with expanded search, use those
-            if (expandedVendorResults.length > 0) {
-              const formattedVendorResults = expandedVendorResults.map(vendor => ({
-                id: vendor.id,
-                name: vendor.businessName,
-                type: 'vendor',
-                businessType: vendor.businessType || 'Service',
-                address: vendor.businessAddress || '',
-                city: vendor.businessCity || '',
-                state: vendor.businessState || '',
-                phone: vendor.primaryContactPhone || '',
-                website: vendor.website || '',
-                description: vendor.description || '',
-                isExisting: true,
-                isDiscovered: false
-              }));
-              
-              // Store vendor results for later combination with discovery results
-              existingCommunities = formattedVendorResults;
-              
-              // Return vendor results immediately if we have enough
-              if (!req.body.discoveryMode && expandedVendorResults.length >= 5) {
-                return res.json({
-                  success: true,
-                  query: query,
-                  searchType: 'services',
-                  results: formattedVendorResults.slice(0, limit),
-                  metadata: {
-                    totalFound: expandedVendorResults.length,
-                    existingCount: expandedVendorResults.length,
-                    discoveredCount: 0,
-                    sources: ['Database'],
-                    searchLocation: query,
-                    timestamp: new Date().toISOString(),
-                    aiConfidence: 100,
-                    dataSource: 'Vendors Database'
-                  },
-                  message: `Found ${expandedVendorResults.length} services/vendors in database`
-                });
-              }
-            }
+          // Return vendor results immediately if we have enough
+          if (!req.body.discoveryMode && vendorResults.length >= 5) {
+            return res.json({
+              success: true,
+              query: query,
+              searchType: 'services',
+              results: formattedVendorResults.slice(0, limit),
+              metadata: {
+                totalFound: vendorResults.length,
+                existingCount: vendorResults.length,
+                discoveredCount: 0,
+                sources: ['Database'],
+                searchLocation: query,
+                timestamp: new Date().toISOString(),
+                aiConfidence: 100,
+                dataSource: 'Vendors Database'
+              },
+              message: `Found ${vendorResults.length} services/vendors in database`
+            });
           }
+          
+          // Store vendor results for later combination with discovery results
+          existingCommunities = formattedVendorResults;
         }
       } else if (searchType !== 'services') {
         // Parse location from query (e.g., "Dallas, Texas" or just "France")

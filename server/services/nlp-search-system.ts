@@ -1029,70 +1029,51 @@ export class NLPSearchSystem {
     options?: any
   ): Promise<UnifiedSearchResult[]> {
     try {
-      // Clean query for database search (remove parentheses which can cause issues)
-      const cleanedQuery = query.replace(/[()]/g, ' ').trim();
-      const queryLower = cleanedQuery.toLowerCase();
-      
       const orConditions = [];
       
-      // Check if this is a specific business name search vs generic type search
-      const businessKeywords = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'pharmacies', 'store', 'stores', 'shop', 'shops', 'cafe', 'cafes'];
-      const firstWord = queryLower.split(' ')[0];
-      const isGenericSearch = businessKeywords.includes(firstWord) && queryLower.split(' ').length <= 3;
-      
-      // PRIORITY 1: Always search for the full query as a business name
-      // This handles specific searches like "Hotel Moana Shinjuku" or "Marriott Downtown"
-      if (queryLower.length > 0) {
-        orConditions.push(
-          ilike(vendors.businessName, `%${cleanedQuery}%`)
-        );
-      }
-      
       // Extract location from query (e.g., "hotels in dallas" -> location: "dallas")
+      // Handle both original query format and enhanced query format
       let location: string | null = null;
       
       // Try to extract from enhanced format first (e.g., "location:dallas")
-      const enhancedLocationMatch = cleanedQuery.match(/location:([a-zA-Z\s]+?)(?:\s|$)/i);
+      const enhancedLocationMatch = query.match(/location:([a-zA-Z\s]+?)(?:\s|$)/i);
       if (enhancedLocationMatch) {
         location = enhancedLocationMatch[1].trim();
       } else {
         // Fallback to original format (e.g., "hotels in dallas")
-        const locationMatch = cleanedQuery.match(/(?:in|at|near)\s+([a-zA-Z\s]+?)(?:\s+at\s+|\s+within\s+|$)/i);
+        // Match location after in/at/near but before any additional keywords
+        const locationMatch = query.match(/(?:in|at|near)\s+([a-zA-Z\s]+?)(?:\s+at\s+|\s+within\s+|$)/i);
         location = locationMatch ? locationMatch[1].trim() : null;
       }
       
-      // Only extract business type if this looks like a generic search
-      let businessType: string | null = null;
-      if (isGenericSearch) {
-        // Extract business type from query (e.g., "hotels" from "hotels in dallas")
-        const businessTypeMatch = cleanedQuery.match(/^(hotel|hotels|restaurant|restaurants|pharmacy|pharmacies|store|stores|shop|shops|cafe|cafes)(?:\s|$)/i);
-        businessType = businessTypeMatch ? businessTypeMatch[1].trim() : null;
+      // Extract business type from query (e.g., "hotels" from "hotels in dallas")
+      const businessTypeMatch = query.match(/^([a-zA-Z\s]+?)(?:\s+in|\s+at|\s+near|$)/i);
+      const businessType = businessTypeMatch ? businessTypeMatch[1].trim() : query;
+      
+      // Search for business type in name, description, and service type
+      // For "hotels", also search for common hotel brand names
+      if (businessType) {
+        const searchTerms = [];
         
-        // PRIORITY 2: Search for business type in businessType field and description
-        if (businessType) {
-          const searchTerms = [];
-          
-          // Add common variations for hotel searches
-          if (businessType.toLowerCase().includes('hotel')) {
-            searchTerms.push('hotel', 'inn', 'suites', 'resort', 'lodge', 'motel');
-          } else if (businessType.toLowerCase().includes('restaurant')) {
-            searchTerms.push('restaurant', 'cafe', 'bistro', 'diner', 'grill');
-          } else if (businessType.toLowerCase().includes('pharmacy')) {
-            searchTerms.push('pharmacy', 'drug', 'drugstore', 'chemist');
-          } else {
-            searchTerms.push(businessType);
-          }
-          
-          // Build conditions for each search term
-          for (const term of searchTerms) {
-            orConditions.push(
-              ilike(vendors.businessType, `%${term}%`)
-            );
-          }
-          
-          // Also check description
+        // Add common variations for hotel searches
+        if (businessType.toLowerCase().includes('hotel')) {
+          searchTerms.push('hotel', 'inn', 'suites', 'resort', 'lodge', 'motel');
+        } else {
+          searchTerms.push(businessType);
+        }
+        
+        // Build conditions for each search term
+        for (const term of searchTerms) {
           orConditions.push(
-            ilike(vendors.description, `%${businessType}%`)
+            ilike(vendors.businessName, `%${term}%`)
+          );
+        }
+        
+        // Also check description and business type for non-hotel searches
+        if (!businessType.toLowerCase().includes('hotel')) {
+          orConditions.push(
+            ilike(vendors.description, `%${businessType}%`),
+            ilike(vendors.businessType, `%${businessType}%`)
           );
         }
       }
@@ -1116,11 +1097,11 @@ export class NLPSearchSystem {
           ilike(vendors.businessState, `%${location}%`)
         );
       } else if (!location && orConditions.length > 0) {
-        // Just business type search or name search
+        // Just business type search
         whereClause = or(...orConditions);
-      } else if (!businessType && !location && orConditions.length === 0) {
+      } else if (!businessType && !location) {
         // If no business type and no location, search the full query in all text fields
-        const fullQuery = cleanedQuery.trim();
+        const fullQuery = query.trim();
         if (fullQuery) {
           whereClause = or(
             ilike(vendors.businessName, `%${fullQuery}%`),
@@ -1139,7 +1120,7 @@ export class NLPSearchSystem {
       // Debug logging
       console.log(`🔍 Vendor search for "${query}":`, {
         location,
-        businessType: businessType || 'none',
+        businessType,
         businessTypeConditions: orConditions.length,
         hasWhereClause: !!whereClause
       });
