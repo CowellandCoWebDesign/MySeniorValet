@@ -149,9 +149,11 @@ export function registerCommunityRoutes(app: Express) {
           // Find the matching featured record for this community
           const featuredRecord = featuredRecords.find(f => f.communityId === community.id);
           
-          // For Verdeza, find the first real photo (not social media icons)
-          let heroImage = featuredRecord?.heroImage || enriched.photo || null;
-          if (!heroImage && enriched.photos && enriched.photos.length > 0) {
+          // Get the best photo: prioritize enriched photos, then database photos, then featured record heroImage
+          let heroImage = null;
+          
+          // First try to use actual community photos from enrichment
+          if (enriched.photos && enriched.photos.length > 0) {
             // Filter out social media icons and find first real photo
             const realPhoto = enriched.photos.find(photo => 
               photo && 
@@ -162,16 +164,21 @@ export function registerCommunityRoutes(app: Express) {
               !photo.includes('waze.png') &&
               !photo.includes('getlisted') &&
               !photo.includes('mt-association') &&
-              (photo.includes('Verdeza') || photo.includes('verdeza') || 
-               photo.includes('Restaurante') || photo.includes('Cuarto') || 
-               photo.includes('823x420'))
+              !photo.includes('social') &&
+              !photo.includes('icon') &&
+              (photo.includes('http') || photo.includes('https'))
             );
             heroImage = realPhoto || enriched.photos[0];
           }
           
-          // For Highland Village, use a nice lakefront senior community photo if no photo
-          if (community.id === 54540 && !heroImage) {
-            heroImage = "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&q=80";
+          // If no enriched photos, try the main photo field
+          if (!heroImage && enriched.photo) {
+            heroImage = enriched.photo;
+          }
+          
+          // Only use the featured record's heroImage if we have no real community photos
+          if (!heroImage && featuredRecord?.heroImage) {
+            heroImage = featuredRecord.heroImage;
           }
           
           // Transform to match the frontend format using database data
