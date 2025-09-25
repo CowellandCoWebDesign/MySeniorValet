@@ -942,7 +942,7 @@ export default function CommunityDirectory() {
                       <div className="bg-white/95 backdrop-blur rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                         <EnhancedCommunityCard 
                           community={community}
-                          onClick={() => setLocation(`/community/${community.id}`)}
+                          onSelect={() => setLocation(`/community/${community.id}`)}
                         />
                       </div>
                     </motion.div>
