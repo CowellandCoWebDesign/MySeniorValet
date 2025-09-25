@@ -355,8 +355,17 @@ export class NLPSearchSystem {
     }
     
     // If no locations found and query is a single word (likely a city name), use it
+    // But exclude business type keywords from being treated as locations
     if (locations.length === 0 && query.split(' ').length === 1 && !query.includes('?')) {
-      locations.push(query.trim());
+      const businessTypes = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'pharmacies', 
+                            'store', 'stores', 'shop', 'shops', 'cafe', 'cafes', 'service', 'services',
+                            'lawyer', 'lawyers', 'attorney', 'attorneys', 'doctor', 'doctors'];
+      const queryLower = query.toLowerCase().trim();
+      
+      // Only treat as location if it's NOT a business type keyword
+      if (!businessTypes.includes(queryLower)) {
+        locations.push(query.trim());
+      }
     }
     
     // Remove duplicates and assign
@@ -1068,7 +1077,8 @@ export class NLPSearchSystem {
         const businessTypeMatch = cleanedQuery.match(/^(hotel|hotels|restaurant|restaurants|pharmacy|pharmacies|store|stores|shop|shops|cafe|cafes)(?:\s|$)/i);
         businessType = businessTypeMatch ? businessTypeMatch[1].trim() : null;
         
-        // PRIORITY 2: Search for business type in businessType field and description
+        // PRIORITY 2: Search for business type in business name and description
+        // Most businesses have generic business_type='service', so search in name/description instead
         if (businessType) {
           const searchTerms = [];
           
@@ -1083,17 +1093,17 @@ export class NLPSearchSystem {
             searchTerms.push(businessType);
           }
           
-          // Build conditions for each search term
+          // Build conditions for each search term - search in business name and description
           for (const term of searchTerms) {
+            // Search in business name (primary)
             orConditions.push(
-              ilike(vendors.businessType, `%${term}%`)
+              ilike(vendors.businessName, `%${term}%`)
+            );
+            // Also search in description
+            orConditions.push(
+              ilike(vendors.description, `%${term}%`)
             );
           }
-          
-          // Also check description
-          orConditions.push(
-            ilike(vendors.description, `%${businessType}%`)
-          );
         }
       }
       
