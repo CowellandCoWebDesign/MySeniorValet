@@ -252,7 +252,6 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
       // Extract photos - Use real photos from provider_metadata FIRST (Perplexity return_images feature)
       let extractedPhotos: string[] = [];
       let triedWebsiteScraping = false;
-      let listingPages: string[] = [];  // Declare at outer scope
       
       try {
         // PRIORITY 1: Use real photos from Perplexity provider_metadata if available
@@ -307,7 +306,7 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
         
           // Extract listing pages marked with LISTING: in the response
         const listingMatches = answer.match(/LISTING:\s*([^\n]+)/gi) || [];
-        // listingPages already declared in outer scope
+        const listingPages: string[] = [];
         
         for (const match of listingMatches) {
           const listingInfo = match.replace(/^LISTING:\s*/i, '').trim();
@@ -545,28 +544,10 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
         console.log(answer.substring(0, 500));
       }
       
-      // Track all listing sources found
-      const listingSources: string[] = [];
-      for (const listingUrl of listingPages) {
-        try {
-          const hostname = new URL(listingUrl).hostname.replace('www.', '');
-          if (!listingSources.includes(hostname)) {
-            listingSources.push(hostname);
-          }
-        } catch {}
-      }
-      
       // Create the proper response structure expected by frontend
       const response = {
         photos: businessData.photos,
         sources: businessData.citations,
-        listingSources: listingSources,  // Actual sources we scraped from
-        searchedPlatforms: [  // All platforms we can search
-          'TripAdvisor', 'Yelp', 'Google Maps', 'OpenTable', 'Booking.com',
-          'Hotels.com', 'Facebook', 'Instagram', 'DoorDash', 'UberEats',
-          'Grubhub', 'Zagat', 'Michelin Guide', 'HappyCow', 'Foursquare',
-          'Bing Places', 'Zomato', 'Expedia', 'Airbnb', 'VRBO'
-        ],
         description: businessData.description,
         services: businessData.services,
         contactInfo: {

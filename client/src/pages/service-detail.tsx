@@ -390,8 +390,6 @@ export default function ServiceDetail() {
             }}
             sources={webIntelligence?.sources || []}
             photoSources={webIntelligence?.photoSources || {}}
-            listingSources={webIntelligence?.listingSources || []}
-            searchedPlatforms={webIntelligence?.searchedPlatforms || []}
             verificationReport={webIntelligence}
             isLoading={isLoadingIntelligence}
             showSourceIndicator={true}
