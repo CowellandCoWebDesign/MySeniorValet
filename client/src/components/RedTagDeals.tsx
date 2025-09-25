@@ -42,7 +42,7 @@ export function RedTagDeals() {
       dealType: "Premium Coastal Living",
       highlights: ["Ocean views", "Award-winning dining", "Wellness-focused care"],
       rating: 4.7,
-      heroImage: "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg",
+      heroImage: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
       availability: "Available Now",
       amenities: ["Ocean Views", "Gourmet Dining", "Wellness Center", "Concierge Service"],
       whyFeatured: ["Part of the prestigious Atria network", "Stunning La Jolla location", "Excellence in senior care"]
@@ -54,7 +54,7 @@ export function RedTagDeals() {
       dealType: "Canadian Healthcare Excellence",
       highlights: ["Provincial healthcare integration", "Lakefront setting", "Bilingual services"],
       rating: 4.6,
-      heroImage: "https://cdn.pixabay.com/photo/2016/11/30/08/46/living-room-1872192_1280.jpg",
+      heroImage: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80",
       availability: "Move-in Ready",
       amenities: ["Lakefront Views", "Canadian Healthcare", "Bilingual Staff", "Indoor Pool"],
       whyFeatured: ["Beautiful Ontario lakefront property", "Full Canadian healthcare benefits", "Strong community reputation"]
@@ -66,7 +66,7 @@ export function RedTagDeals() {
       dealType: "Tropical Paradise Retirement",
       highlights: ["Year-round perfect weather", "International expat community", "Affordable luxury"],
       rating: 4.8,
-      heroImage: "https://cdn.pixabay.com/photo/2017/03/28/12/10/chairs-2181947_1280.jpg",
+      heroImage: "https://images.unsplash.com/photo-1540541338287-41700207dee6?w=800&q=80",
       availability: "Limited Spots",
       amenities: ["Mountain Views", "Private Healthcare", "Spa Services", "Organic Gardens"],
       whyFeatured: ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"]
@@ -76,7 +76,7 @@ export function RedTagDeals() {
   }, []);
   
   // Transform API data to RedTagDeal format or use fallback
-  const redTagDeals: RedTagDeal[] = featuredCommunities?.length > 0
+  const redTagDeals: RedTagDeal[] = Array.isArray(featuredCommunities) && featuredCommunities.length > 0
     ? featuredCommunities.map((featured: any) => ({
         id: featured.community?.id || featured.communityId,
         communityName: featured.featuredTitle || featured.community?.name || 'Community',
@@ -84,7 +84,7 @@ export function RedTagDeals() {
         dealType: featured.dealType || 'Premium Living',
         highlights: featured.highlights || [],
         rating: featured.community?.rating || 4.5,
-        heroImage: featured.heroImage || featured.community?.photos?.[0] || "https://cdn.pixabay.com/photo/2016/11/18/17/20/living-room-1835923_1280.jpg",
+        heroImage: featured.heroImage || featured.community?.photos?.[0] || featured.community?.photo || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
         availability: featured.availability || "Available Now",
         amenities: featured.community?.amenities?.slice(0, 4) || [],
         whyFeatured: featured.whyFeatured || [],

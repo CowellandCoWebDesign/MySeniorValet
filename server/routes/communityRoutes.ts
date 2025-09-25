@@ -123,6 +123,56 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Featured Excellence Communities - specific communities with real photos
+  app.get("/api/featured-communities", async (req, res) => {
+    try {
+      // Featured community IDs: Atria La Jolla, Highland Village, Verdeza Retirement
+      const featuredIds = [51463, 54540, 72147];
+      
+      const featuredCommunities = await db
+        .select()
+        .from(communities)
+        .where(inArray(communities.id, featuredIds));
+
+      // Enrich each community with photos
+      const enrichedFeatured = await Promise.all(
+        featuredCommunities.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          
+          // Transform to match the frontend format
+          return {
+            id: community.id,
+            communityId: community.id,
+            community: enriched,
+            featuredTitle: community.name,
+            dealType: 
+              community.id === 51463 ? "Premium Coastal Living" :
+              community.id === 54540 ? "Canadian Healthcare Excellence" :
+              "Tropical Paradise Retirement",
+            highlights: 
+              community.id === 51463 ? ["Ocean views", "Award-winning dining", "Wellness-focused care"] :
+              community.id === 54540 ? ["Provincial healthcare integration", "Lakefront setting", "Bilingual services"] :
+              ["Year-round perfect weather", "International expat community", "Affordable luxury"],
+            availability: 
+              community.id === 51463 ? "Available Now" :
+              community.id === 54540 ? "Move-in Ready" :
+              "Limited Spots",
+            whyFeatured:
+              community.id === 51463 ? ["Part of the prestigious Atria network", "Stunning La Jolla location", "Excellence in senior care"] :
+              community.id === 54540 ? ["Beautiful Ontario lakefront property", "Full Canadian healthcare benefits", "Strong community reputation"] :
+              ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"],
+            heroImage: enriched.photos?.[0] || enriched.photo || null
+          };
+        })
+      );
+      
+      res.json(enrichedFeatured);
+    } catch (error) {
+      console.error("Error fetching featured communities:", error);
+      res.status(500).json({ error: "Failed to fetch featured communities" });
+    }
+  });
+
   // Get single community (MUST come after specific routes to avoid conflicts)
   // COMMENTED OUT - This route is defined later after all specific routes
   /* app.get("/api/communities/:id", async (req, res) => {
