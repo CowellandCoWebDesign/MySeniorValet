@@ -141,17 +141,21 @@ export function RedTagDeals() {
         </p>
         
         {/* Launch Transparency Notice - Compact */}
-        <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-700 rounded-lg max-w-4xl mx-auto">
+        <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 border border-green-400 dark:border-green-700 rounded-lg max-w-4xl mx-auto">
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <Star className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0 animate-pulse" />
             <div className="text-left">
-              <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-1">
-                Excellence Spotlight
+              <p className="text-sm text-green-800 dark:text-green-200 font-bold mb-1">
+                🎉 Early Adopter Opportunity - First 5 Communities Get FREE Placement!
               </p>
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                These three exceptional communities from our database of 35,264+ authentic locations represent the best in senior living 
-                across North America and internationally. While many communities offer move-in specials and promotions, these must be 
-                verified directly with each community. Contact them to discover their current availability and any special offers.
+              <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                Community partners: Be among the first 5 to join MySeniorValet and receive FREE featured placement in this premium 
+                home page section! This exclusive early adopter offer showcases your community to thousands of families actively 
+                searching for senior care. Contact us today to claim your spot - only 2 positions remaining!
+              </p>
+              <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                Current featured communities represent excellence in senior living across specialized care types including 
+                memory care, coastal luxury, and international retirement options.
               </p>
             </div>
           </div>
