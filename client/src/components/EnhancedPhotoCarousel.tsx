@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface PhotoCarouselProps {
@@ -76,6 +76,7 @@ export function EnhancedPhotoCarousel({
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [showValidationReport, setShowValidationReport] = useState(false);
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
+  const [isSourcesExpanded, setIsSourcesExpanded] = useState(false);
   
   // Get all photos from database and web intelligence  
   const getAllPhotos = () => {
@@ -557,123 +558,139 @@ export function EnhancedPhotoCarousel({
         )}
       </div>
 
-      {/* Citations and Sources Section */}
+      {/* Citations and Sources Section - Collapsible */}
       {(sources.length > 0 || photoSources || searchedPlatforms.length > 0) && (
-        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-          <div className="space-y-3">
-            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              Photo Sources & Citations
-            </h4>
-            
-            {/* Show all platforms we search */}
-            {searchedPlatforms.length > 0 && (
-              <div className="space-y-2">
-                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          {/* Collapsed View - Single Line */}
+          {!isSourcesExpanded ? (
+            <div 
+              className="flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded px-2 py-1 transition-colors"
+              onClick={() => setIsSourcesExpanded(true)}
+            >
+              <div className="flex items-center gap-2 text-sm">
+                <svg className="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">Photo Sources & Citations</span>
+                <span className="text-gray-500 dark:text-gray-400 text-xs">
+                  ({searchedPlatforms.length}+ platforms searched{sources.length > 0 && `, ${sources.length} sources`})
+                </span>
+              </div>
+              <ChevronDown className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            </div>
+          ) : (
+            /* Expanded View - Full Details */
+            <div className="space-y-3">
+              <div 
+                className="flex items-center justify-between cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 rounded px-2 py-1 transition-colors"
+                onClick={() => setIsSourcesExpanded(false)}
+              >
+                <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  We search {searchedPlatforms.length}+ platforms including:
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {searchedPlatforms.slice(0, 12).map((platform, idx) => (
-                    <span 
-                      key={idx}
-                      className="inline-flex items-center px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded text-xs"
-                    >
-                      {platform}
-                    </span>
-                  ))}
-                  {searchedPlatforms.length > 12 && (
-                    <span className="inline-flex items-center px-2 py-0.5 text-gray-500 dark:text-gray-400 text-xs">
-                      +{searchedPlatforms.length - 12} more
-                    </span>
-                  )}
-                </div>
+                  Photo Sources & Citations
+                </h4>
+                <ChevronUp className="w-4 h-4 text-gray-500 dark:text-gray-400" />
               </div>
-            )}
-            
-            {/* Photo source platforms */}
-            {photoSources && (
-              <div className="flex flex-wrap gap-2 mb-2">
-                {photoSources.googleMaps && (
-                  <a 
-                    href={photoSources.googleMaps} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
-                  >
-                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+              
+              {/* Show all platforms we search */}
+              {searchedPlatforms.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    Google Maps
-                  </a>
-                )}
-                {photoSources.yelp && (
-                  <a 
-                    href={photoSources.yelp} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-xs hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
-                  >
-                    Yelp
-                  </a>
-                )}
-                {photoSources.tripAdvisor && (
-                  <a 
-                    href={photoSources.tripAdvisor} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
-                  >
-                    TripAdvisor
-                  </a>
-                )}
-              </div>
-            )}
-            
-            {/* Citation sources */}
-            {sources.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-xs text-gray-600 dark:text-gray-400">Information sources:</p>
-                <div className="flex flex-wrap gap-1">
-                  {sources.slice(0, 5).map((source, idx) => {
-                    // Extract domain name from URL
-                    let displayName = source;
-                    try {
-                      const url = new URL(source);
-                      displayName = url.hostname.replace('www.', '');
-                    } catch {
-                      // If not a valid URL, use as is
-                    }
-                    
-                    return (
-                      <a
+                    We search {searchedPlatforms.length}+ platforms including:
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {searchedPlatforms.map((platform, idx) => (
+                      <span 
                         key={idx}
-                        href={source}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
-                        title={source}
+                        className="inline-flex items-center px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded text-xs"
                       >
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                        </svg>
-                        {displayName}
-                      </a>
-                    );
-                  })}
-                  {sources.length > 5 && (
-                    <span className="inline-flex items-center px-2 py-1 text-gray-500 dark:text-gray-400 text-xs">
-                      +{sources.length - 5} more
-                    </span>
+                        {platform}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Photo source platforms */}
+              {photoSources && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {photoSources.googleMaps && (
+                    <a 
+                      href={photoSources.googleMaps} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                    >
+                      <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                      </svg>
+                      Google Maps
+                    </a>
+                  )}
+                  {photoSources.yelp && (
+                    <a 
+                      href={photoSources.yelp} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-xs hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                    >
+                      Yelp
+                    </a>
+                  )}
+                  {photoSources.tripAdvisor && (
+                    <a 
+                      href={photoSources.tripAdvisor} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                    >
+                      TripAdvisor
+                    </a>
                   )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+              
+              {/* Citation sources */}
+              {sources.length > 0 && (
+                <div className="space-y-1">
+                  <p className="text-xs text-gray-600 dark:text-gray-400">Information sources:</p>
+                  <div className="flex flex-wrap gap-1">
+                    {sources.map((source, idx) => {
+                      // Extract domain name from URL
+                      let displayName = source;
+                      try {
+                        const url = new URL(source);
+                        displayName = url.hostname.replace('www.', '');
+                      } catch {
+                        // If not a valid URL, use as is
+                      }
+                      
+                      return (
+                        <a
+                          key={idx}
+                          href={source}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+                          title={source}
+                        >
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                          {displayName}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
