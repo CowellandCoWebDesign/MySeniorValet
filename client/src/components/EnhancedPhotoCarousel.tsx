@@ -26,6 +26,8 @@ interface PhotoCarouselProps {
     tripAdvisor?: string | null;
     searchQuery?: string;
   };
+  listingSources?: string[];  // Actual sources we found
+  searchedPlatforms?: string[];  // All platforms we can search
 }
 
 interface PhotoValidationResult {
@@ -52,7 +54,9 @@ export function EnhancedPhotoCarousel({
   currentPhotoIndex,
   onPhotoIndexChange,
   sources = [],
-  photoSources
+  photoSources,
+  listingSources = [],
+  searchedPlatforms = []
 }: PhotoCarouselProps) {
   // Use controlled or uncontrolled mode
   const isControlled = currentPhotoIndex !== undefined;
@@ -554,15 +558,42 @@ export function EnhancedPhotoCarousel({
       </div>
 
       {/* Citations and Sources Section */}
-      {(sources.length > 0 || photoSources) && (
+      {(sources.length > 0 || photoSources || searchedPlatforms.length > 0) && (
         <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-          <div className="space-y-2">
+          <div className="space-y-3">
             <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Photo Sources & Citations
             </h4>
+            
+            {/* Show all platforms we search */}
+            {searchedPlatforms.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  We search {searchedPlatforms.length}+ platforms including:
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {searchedPlatforms.slice(0, 12).map((platform, idx) => (
+                    <span 
+                      key={idx}
+                      className="inline-flex items-center px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded text-xs"
+                    >
+                      {platform}
+                    </span>
+                  ))}
+                  {searchedPlatforms.length > 12 && (
+                    <span className="inline-flex items-center px-2 py-0.5 text-gray-500 dark:text-gray-400 text-xs">
+                      +{searchedPlatforms.length - 12} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             
             {/* Photo source platforms */}
             {photoSources && (
