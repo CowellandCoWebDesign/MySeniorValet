@@ -365,11 +365,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
         
         searchQuery = `Find at least 15-20 senior living communities, assisted living facilities, nursing homes, memory care centers, and retirement communities in ${query}. ${searchScope} List ALL facilities you can find, not just a few examples. For each facility provide: exact facility name, complete street address with street number, city, state/region, country, phone number, website, and description of their services. Provide comprehensive results - list every facility you know of in this location. Minimum 15 facilities if they exist in this area.`;
-      } else if (searchType === 'service') {
-        // Legacy service type for backward compatibility
-        searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
+      } else if (searchType === 'service' || searchType === 'services') {
+        // Service searches should be general, not senior-specific
+        searchQuery = `Find at least 10-15 ${query} businesses or service providers. Include business names, locations, contact information, websites, and service descriptions. List as many providers as possible with accurate details.`;
       } else {
-        searchQuery = `Find at least 10-15 facilities about ${query} related to senior living, assisted living, or elder care. Include facility names, locations, and contact details. Provide comprehensive results.`;
+        // Default to general business search
+        searchQuery = `Find at least 10-15 businesses or services related to ${query}. Include business names, locations, contact details, and descriptions. Provide comprehensive results with accurate information.`;
       }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
@@ -395,7 +396,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           messages: [
             {
               role: 'system',
-              content: 'You are a senior care research assistant. Return ONLY facilities from the requested location with accurate information.'
+              content: searchType === 'services' || searchType === 'service' 
+                ? 'You are a business research assistant. Return accurate information about businesses and services from the requested location or category.'
+                : 'You are a senior care research assistant. Return ONLY facilities from the requested location with accurate information.'
             },
             {
               role: 'user',
