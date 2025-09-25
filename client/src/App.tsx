@@ -123,6 +123,7 @@ import AISearchComparison from "@/pages/AISearchComparison";
 import FinancialAnalyticsDashboard from "@/pages/financial-analytics-dashboard";
 import ComplianceDashboard from "@/pages/compliance-dashboard";
 import MarketingAutomationDashboard from "@/pages/marketing-automation-dashboard";
+import AdminFeaturedCommunitiesPage from "@/pages/admin-featured-communities";
 import ResidentPortal from "@/pages/resident-portal";
 import PublicResidentPortal from "@/pages/public-resident-portal";
 import ResidentDashboard from "@/pages/resident-dashboard";
@@ -232,6 +233,7 @@ function Router() {
       <Route path="/community-claim" component={CommunityClaim} />
       {/* ALL ADMIN ROUTES NOW REDIRECT TO UNIFIED SUPER ADMIN DASHBOARD */}
       <Route path="/admin" component={SuperAdminAnalytics} />
+      <Route path="/admin/featured-communities" component={AdminFeaturedCommunitiesPage} />
       <Route path="/admin-creative" component={SuperAdminAnalytics} />
       <Route path="/admin-unified" component={SuperAdminAnalytics} />
       <Route path="/admin-portal" component={SuperAdminAnalytics} />
