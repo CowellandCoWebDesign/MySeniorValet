@@ -1062,10 +1062,11 @@ export class NLPSearchSystem {
       }
       
       // Only extract business type if this looks like a generic search
+      let businessType: string | null = null;
       if (isGenericSearch) {
         // Extract business type from query (e.g., "hotels" from "hotels in dallas")
         const businessTypeMatch = cleanedQuery.match(/^(hotel|hotels|restaurant|restaurants|pharmacy|pharmacies|store|stores|shop|shops|cafe|cafes)(?:\s|$)/i);
-        const businessType = businessTypeMatch ? businessTypeMatch[1].trim() : null;
+        businessType = businessTypeMatch ? businessTypeMatch[1].trim() : null;
         
         // PRIORITY 2: Search for business type in businessType field and description
         if (businessType) {
@@ -1117,7 +1118,7 @@ export class NLPSearchSystem {
       } else if (!location && orConditions.length > 0) {
         // Just business type search or name search
         whereClause = or(...orConditions);
-      } else if (!businessType && !location) {
+      } else if (!businessType && !location && orConditions.length === 0) {
         // If no business type and no location, search the full query in all text fields
         const fullQuery = cleanedQuery.trim();
         if (fullQuery) {
@@ -1138,7 +1139,7 @@ export class NLPSearchSystem {
       // Debug logging
       console.log(`🔍 Vendor search for "${query}":`, {
         location,
-        businessType,
+        businessType: businessType || 'none',
         businessTypeConditions: orConditions.length,
         hasWhereClause: !!whereClause
       });
