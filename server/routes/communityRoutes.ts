@@ -139,6 +139,31 @@ export function registerCommunityRoutes(app: Express) {
         featuredCommunities.map(async community => {
           const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
           
+          // For Verdeza, find the first real photo (not social media icons)
+          let heroImage = enriched.photo || null;
+          if (enriched.photos && enriched.photos.length > 0) {
+            // Filter out social media icons and find first real photo
+            const realPhoto = enriched.photos.find(photo => 
+              photo && 
+              !photo.includes('foot-facebook') && 
+              !photo.includes('foot-twitter') && 
+              !photo.includes('foot-youtube') && 
+              !photo.includes('loading.gif') && 
+              !photo.includes('waze.png') &&
+              !photo.includes('getlisted') &&
+              !photo.includes('mt-association') &&
+              (photo.includes('Verdeza') || photo.includes('verdeza') || 
+               photo.includes('Restaurante') || photo.includes('Cuarto') || 
+               photo.includes('823x420'))
+            );
+            heroImage = realPhoto || enriched.photos[0];
+          }
+          
+          // For Highland Village, use a nice lakefront senior community photo
+          if (community.id === 54540 && !heroImage) {
+            heroImage = "https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=800&q=80";
+          }
+          
           // Transform to match the frontend format
           return {
             id: community.id,
@@ -161,7 +186,7 @@ export function registerCommunityRoutes(app: Express) {
               community.id === 51463 ? ["Part of the prestigious Atria network", "Stunning La Jolla location", "Excellence in senior care"] :
               community.id === 54540 ? ["Beautiful Ontario lakefront property", "Full Canadian healthcare benefits", "Strong community reputation"] :
               ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"],
-            heroImage: enriched.photos?.[0] || enriched.photo || null
+            heroImage
           };
         })
       );
