@@ -1467,85 +1467,85 @@ export function registerCommunityRoutes(app: Express) {
             }).filter(s => s.length > 10);
           };
 
-          // Query for current availability and pricing with full context
+          // CONSOLIDATED SINGLE QUERY - Reduced from 3 calls to 1 for cost optimization
           const careTypesStr = community.careTypes?.join(', ') || 'senior living';
           const communityDetails = `${community.name} ${community.communitySubtype || 'senior living'} community offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zipCode || ''}`;
           
-          const availabilityQuery = `What is the current availability and pricing at ${communityDetails}? Include: 
-          1. Current monthly pricing ranges for ${careTypesStr}
-          2. Any waitlist information or room availability
-          3. Market rates for similar ${community.communitySubtype || 'senior living'} communities in ${community.city}, ${community.state}
-          4. Pricing for different care levels (Independent Living, Assisted Living, Memory Care) if available`;
+          const comprehensiveQuery = `Provide comprehensive real-time information for ${communityDetails}:
+
+**PRICING & AVAILABILITY (2024-2025):**
+- Current monthly pricing ranges for ${careTypesStr}
+- Any waitlist information or room availability
+- Market rates for similar communities in ${community.city}
+- Pricing for different care levels if available
+
+**RECENT UPDATES & NEWS:**
+- Recent pricing changes or promotions
+- Any events, staff changes, or renovations from 2024-2025
+- Awards, recognitions, or certifications
+- Upcoming events or activities
+
+**VISUAL CONTENT:**
+- Photo gallery URLs from their website
+- Virtual tour links if available
+- Interior photos (rooms, dining, common areas)
+- Exterior photos (building and grounds)
+- Activity and amenity photos
+
+Provide specific, factual information with current pricing and availability.`;
           
-          const availabilityResult = await perplexityService.searchRealTime(
-            availabilityQuery,
-            `Finding real-time availability and market pricing for ${community.name}`
+          // SINGLE API CALL instead of 3 separate calls
+          const comprehensiveResult = await perplexityService.searchRealTime(
+            comprehensiveQuery,
+            `Comprehensive real-time data for ${community.name}`
           );
 
-          // Query for recent news and updates with pricing focus
-          const newsQuery = `What are the latest news, pricing updates, or changes at ${communityDetails}? Include: 
-          1. Recent pricing changes or promotions for ${careTypesStr}
-          2. Current market rates in ${community.city}, ${community.state} for ${community.communitySubtype || 'senior living'}
-          3. Any recent events, staff changes, renovations from 2024-2025
-          4. Average costs for ${careTypesStr} in the ${community.state} area`;
-          
-          const newsResult = await perplexityService.searchRealTime(
-            newsQuery,
-            `Finding recent updates and market pricing for ${community.name}`
-          );
-
-          // Query specifically for photos and visual content
-          const photosQuery = `Find photos, images, and visual content for ${communityDetails}. Include:
-          1. Interior photos of rooms, dining areas, common spaces
-          2. Exterior photos of the building and grounds
-          3. Photos of activities, amenities, and facilities
-          4. Any virtual tours or photo galleries available`;
-          
-          const photosResult = await perplexityService.searchRealTime(
-            photosQuery,
-            `Finding photos and visual content for ${community.name}`
-          );
-
-          // Parse availability information
-          if (availabilityResult.summary) {
+          // Parse the SINGLE comprehensive response
+          if (comprehensiveResult.summary) {
+            const fullContent = comprehensiveResult.summary;
+            const sentences = splitSentences(fullContent);
+            
             // Extract pricing information
-            const priceMatch = availabilityResult.summary.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi);
+            const priceMatch = fullContent.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi);
             if (priceMatch) {
               realTimeData.currentPricing = priceMatch[0];
             }
 
             // Extract availability status
-            if (availabilityResult.summary.toLowerCase().includes('available') || 
-                availabilityResult.summary.toLowerCase().includes('availability')) {
-              // Use the same sentence splitting function to avoid breaking on abbreviations
-              const availSentences = splitSentences(availabilityResult.summary);
+            if (fullContent.toLowerCase().includes('available') || 
+                fullContent.toLowerCase().includes('availability')) {
+              const availSentences = sentences.filter(s => 
+                s.toLowerCase().includes('available') || s.toLowerCase().includes('availability')
+              );
               if (availSentences.length > 0) {
                 realTimeData.currentAvailability = availSentences[0];
               }
             }
 
             // Extract waitlist information
-            if (availabilityResult.summary.toLowerCase().includes('waitlist') || 
-                availabilityResult.summary.toLowerCase().includes('waiting list')) {
-              const availSentences = splitSentences(availabilityResult.summary);
-              const waitlistSentences = availSentences.filter(s => 
+            if (fullContent.toLowerCase().includes('waitlist') || 
+                fullContent.toLowerCase().includes('waiting list')) {
+              const waitlistSentences = sentences.filter(s => 
                 s.toLowerCase().includes('waitlist') || s.toLowerCase().includes('waiting')
               );
               if (waitlistSentences.length > 0) {
                 realTimeData.waitlistStatus = waitlistSentences[0];
               }
             }
-          }
-
-          // Parse news and updates
-          if (newsResult.summary) {
-            const sentences = splitSentences(newsResult.summary);
-            realTimeData.recentNews = sentences.slice(0, 3);
             
-            // Extract highlights
-            if (newsResult.summary.toLowerCase().includes('award') || 
-                newsResult.summary.toLowerCase().includes('recognition') ||
-                newsResult.summary.toLowerCase().includes('certified')) {
+            // Extract recent news (sentences mentioning dates, events, updates)
+            const newsSentences = sentences.filter(s => 
+              s.match(/202[4-5]/) || 
+              s.toLowerCase().includes('recent') ||
+              s.toLowerCase().includes('update') ||
+              s.toLowerCase().includes('new')
+            );
+            realTimeData.recentNews = newsSentences.slice(0, 3);
+            
+            // Extract highlights (awards, recognitions)
+            if (fullContent.toLowerCase().includes('award') || 
+                fullContent.toLowerCase().includes('recognition') ||
+                fullContent.toLowerCase().includes('certified')) {
               const highlightSentences = sentences.filter(s => 
                 s.toLowerCase().includes('award') || 
                 s.toLowerCase().includes('recognition') ||
@@ -1555,8 +1555,8 @@ export function registerCommunityRoutes(app: Express) {
             }
 
             // Extract upcoming events
-            if (newsResult.summary.toLowerCase().includes('event') || 
-                newsResult.summary.toLowerCase().includes('upcoming')) {
+            if (fullContent.toLowerCase().includes('event') || 
+                fullContent.toLowerCase().includes('upcoming')) {
               const eventSentences = sentences.filter(s => 
                 s.toLowerCase().includes('event') || 
                 s.toLowerCase().includes('upcoming')
@@ -1565,12 +1565,8 @@ export function registerCommunityRoutes(app: Express) {
             }
           }
 
-          // Collect all images from Perplexity searches
-          const allImages = [
-            ...(availabilityResult.images || []),
-            ...(newsResult.images || []),
-            ...(photosResult.images || [])
-          ].filter(Boolean);
+          // Use images from the single comprehensive result
+          const allImages = comprehensiveResult.images || [];
           
           // Filter out placeholder images and deduplicate
           realTimeData.photos = [...new Set(allImages)].filter(url => {
@@ -1587,12 +1583,8 @@ export function registerCommunityRoutes(app: Express) {
             return !placeholderPatterns.some(pattern => url.toLowerCase().includes(pattern));
           });
 
-          // Combine sources
-          realTimeData.sources = [
-            ...availabilityResult.sources.slice(0, 2),
-            ...newsResult.sources.slice(0, 2),
-            ...(photosResult.sources || []).slice(0, 2)
-          ].filter(Boolean);
+          // Use sources from the single comprehensive result
+          realTimeData.sources = comprehensiveResult.sources.slice(0, 6).filter(Boolean);
 
         } catch (perplexityError) {
           console.log("Perplexity enrichment skipped:", perplexityError);
