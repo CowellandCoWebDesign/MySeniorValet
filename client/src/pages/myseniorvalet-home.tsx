@@ -2133,7 +2133,7 @@ export default function MySeniorValetHome() {
 
       {/* Services Tab */}
       <TabsContent value="services" className="mt-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 gap-8">
           {/* Senior Marketplace */}
           <Link to="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
@@ -2358,205 +2358,6 @@ export default function MySeniorValetHome() {
                   <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
                     <Search className="mr-2 h-4 w-4" />
                     <span className="font-semibold">Research Businesses & Services</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Senior Healthcare Services Directory */}
-            <Link to="/senior-healthcare-directory">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Medical Sign Image at top of card */}
-                <div className="relative h-64 w-full">
-                  <img 
-                    src={RetroMedicalSign} 
-                    alt="Retro medical clinic neon sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
-                    <span className="text-3xl">🏥</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
-                    HEALTHCARE
-                  </Badge>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">🏥 Global Healthcare Discovery Platform</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Research Healthcare Providers Worldwide
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🌍 Research hospitals, clinics, specialists, and healthcare services globally. From CMS-certified facilities in the US to international medical centers, therapy services, and specialized care providers anywhere in the world.
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Provider count and Checkmarks */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Globe className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Unlimited</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Global Access</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Hospitals Worldwide</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">International Clinics</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Tourism</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Specialists Globally</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Maximum Height Scrollable Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-900/10 dark:to-blue-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-teal-700 dark:text-teal-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌍</span> Healthcare Categories Worldwide
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🩺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌿</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦴</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Physical Therapy</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Memory Care Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🗣️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Speech Therapy</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎯</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Occupational Therapy</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦽</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Medical Equipment Suppliers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💉</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Infusion Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🩹</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Wound Care Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Dialysis Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Urgent Care Clinics</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦷</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Dental Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">👁️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Vision Care Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎧</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Hearing Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧘</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Pain Management</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🫀</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Cardiac Rehabilitation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🫁</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Pulmonary Rehab</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦴</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Orthopedic Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Lab Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Imaging Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Specialty Pharmacies</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🩺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Geriatric Specialists</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Neurological Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦶</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Podiatry Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌟</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Palliative Care</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-teal-600 dark:text-teal-400 mt-2 font-medium">
-                        All Countries • Real-Time Discovery
-                      </p>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <Search className="mr-2 h-4 w-4" />
-                    <span className="font-semibold">Research Healthcare Worldwide</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
@@ -3486,6 +3287,205 @@ export default function MySeniorValetHome() {
                 <Button className="w-full mt-4 bg-gradient-to-r from-red-500 to-pink-500 text-white">
                   <Hospital className="mr-2 h-4 w-4" />
                   Browse Healthcare Providers
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Global Healthcare Discovery Platform */}
+          <Link to="/senior-healthcare-directory">
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
+              {/* Full-size Retro Medical Sign Image at top of card */}
+              <div className="relative h-64 w-full">
+                <img 
+                  src={RetroMedicalSign} 
+                  alt="Retro medical clinic neon sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {/* Overlay elements on the image */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
+                  <span className="text-3xl">🏥</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
+                  HEALTHCARE
+                </Badge>
+              </div>
+              <CardHeader className="relative z-10">
+                <CardTitle className="text-2xl mb-2">🏥 Global Healthcare Discovery Platform</CardTitle>
+                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Research Healthcare Providers Worldwide
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  🌍 Research hospitals, clinics, specialists, and healthcare services globally. From CMS-certified facilities in the US to international medical centers, therapy services, and specialized care providers anywhere in the world.
+                </p>
+                
+                {/* Flex container for side-by-side layout */}
+                <div className="flex gap-3 mb-6">
+                  {/* Left side - Provider count and Checkmarks */}
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Globe className="h-5 w-5 text-green-500" />
+                      <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Unlimited</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Global Access</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Hospitals Worldwide</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">International Clinics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Medical Tourism</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Specialists Globally</span>
+                    </div>
+                  </div>
+                  
+                  {/* Right side - Maximum Height Scrollable Preview */}
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-900/10 dark:to-blue-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-teal-700 dark:text-teal-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>🌍</span> Healthcare Categories Worldwide
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏠</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💊</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🩺</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🔬</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🌿</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦴</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Physical Therapy</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧠</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Memory Care Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🗣️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Speech Therapy</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🎯</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Occupational Therapy</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦽</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Medical Equipment Suppliers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💉</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Infusion Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🩹</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Wound Care Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🔬</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Dialysis Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Urgent Care Clinics</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦷</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Senior Dental Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">👁️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Vision Care Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🎧</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Hearing Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧘</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Pain Management</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🫀</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Cardiac Rehabilitation</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🫁</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Pulmonary Rehab</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦴</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Orthopedic Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧬</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Lab Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">📸</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Imaging Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💊</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Specialty Pharmacies</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🩺</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Geriatric Specialists</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧠</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Neurological Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦶</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Podiatry Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🌟</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Palliative Care</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-center text-teal-600 dark:text-teal-400 mt-2 font-medium">
+                      All Countries • Real-Time Discovery
+                    </p>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Search className="mr-2 h-4 w-4" />
+                  <span className="font-semibold">Research Healthcare Worldwide</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </CardContent>
             </Card>
