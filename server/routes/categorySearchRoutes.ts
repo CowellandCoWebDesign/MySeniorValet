@@ -16,7 +16,53 @@ router.post('/api/vendors/search', async (req, res) => {
     const { query = '', limit = 100, offset = 0 } = req.body;
     const searchTerm = query.toLowerCase().trim();
     
+    // Define care-related keywords that indicate user is looking for actual care services
+    const careKeywords = [
+      'home care', 'homecare', 'in-home care', 'in home care',
+      'hospice', 'palliative', 'nursing', 'caregiver', 'caregiving',
+      'assisted living', 'memory care', 'dementia', 'alzheimer',
+      'senior care', 'elder care', 'elderly care', 'companion care',
+      'respite care', 'adult day care', 'rehabilitation', 'therapy',
+      'medical equipment', 'mobility aid', 'wheelchair', 'walker',
+      'home health', 'health aide', 'personal care', 'daily living'
+    ];
+    
+    // Check if search is for care services
+    // Only check for care keywords if there's an actual search term (not empty)
+    // And require at least 3 characters to avoid false positives on short queries
+    const isSearchingForCareServices = searchTerm.length >= 3 && careKeywords.some(keyword => {
+      // Check if the full keyword phrase appears in the search term
+      // This avoids false positives like "home" matching "home care"
+      return searchTerm.includes(keyword);
+    });
+    
     const startTime = Date.now();
+    
+    // Build appropriate WHERE clause based on search type
+    let vendorWhereClause;
+    if (isSearchingForCareServices) {
+      // For care services, be more selective - only match relevant business types
+      vendorWhereClause = sql`(
+        LOWER(business_type) IN ('home care', 'home health', 'hospice', 'medical equipment', 
+          'senior care', 'assisted living', 'nursing', 'therapy', 'rehabilitation',
+          'personal care', 'companion care', 'respite care', 'adult day care')
+        OR LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
+        OR (LOWER(description) LIKE ${'%' + searchTerm + '%'} 
+            AND (LOWER(description) LIKE '%care%' OR LOWER(description) LIKE '%health%'
+                OR LOWER(description) LIKE '%senior%' OR LOWER(description) LIKE '%medical%'))
+      )`;
+    } else if (searchTerm) {
+      // For non-care searches, use the original broad matching
+      vendorWhereClause = sql`(
+        LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(business_city) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(business_state) LIKE ${'%' + searchTerm + '%'}
+      )`;
+    } else {
+      vendorWhereClause = sql`true`;
+    }
     
     // First try vendors table for featured/verified vendors
     const vendorResults = await db.execute(sql`
@@ -29,22 +75,54 @@ router.post('/api/vendors/search', async (req, res) => {
         average_rating, total_reviews, featured, status
       FROM vendors
       WHERE status = 'active'
-        AND (
-          ${searchTerm ? sql`(
-            LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(business_city) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(business_state) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`}
-        )
+        AND ${vendorWhereClause}
+      ORDER BY
+        CASE 
+          WHEN ${isSearchingForCareServices} AND LOWER(business_type) LIKE '%care%' THEN 0
+          WHEN ${isSearchingForCareServices} AND LOWER(business_type) LIKE '%health%' THEN 1
+          ELSE 2
+        END,
+        featured DESC,
+        average_rating DESC NULLS LAST
+      LIMIT ${limit}
     `);
+    
+    // Build service provider WHERE clause based on search type  
+    let serviceProviderWhereClause;
+    if (isSearchingForCareServices) {
+      // For care services, filter more strictly
+      serviceProviderWhereClause = sql`(
+        (LOWER(name) LIKE ${'%' + searchTerm + '%'} 
+         AND (LOWER(name) LIKE '%care%' OR LOWER(name) LIKE '%health%' 
+              OR LOWER(name) LIKE '%senior%' OR LOWER(name) LIKE '%hospice%'
+              OR LOWER(name) LIKE '%therapy%' OR LOWER(name) LIKE '%medical%'))
+        OR (LOWER(description) LIKE ${'%' + searchTerm + '%'}
+            AND (LOWER(description) LIKE '%care%' OR LOWER(description) LIKE '%health%'
+                OR LOWER(description) LIKE '%senior%' OR LOWER(description) LIKE '%medical%'
+                OR LOWER(description) LIKE '%assist%' OR LOWER(description) LIKE '%nursing%'))
+      )`;
+    } else if (searchTerm) {
+      serviceProviderWhereClause = sql`(
+        LOWER(name) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+      )`;
+    } else {
+      serviceProviderWhereClause = sql`true`;
+    }
     
     // Then search service_providers table for comprehensive results
     const serviceProviderResults = await db.execute(sql`
       SELECT 
         'provider' as source_type,
-        id, name, 'Service Provider' as business_type, description, 
+        id, name, 
+        CASE 
+          WHEN LOWER(name) LIKE '%home care%' OR LOWER(description) LIKE '%home care%' THEN 'Home Care'
+          WHEN LOWER(name) LIKE '%hospice%' OR LOWER(description) LIKE '%hospice%' THEN 'Hospice Care'
+          WHEN LOWER(name) LIKE '%therapy%' OR LOWER(description) LIKE '%therapy%' THEN 'Therapy Services'
+          WHEN LOWER(name) LIKE '%medical%' OR LOWER(description) LIKE '%medical%' THEN 'Medical Services'
+          ELSE 'Service Provider'
+        END as business_type,
+        description, 
         description as short_description,
         contact_email as email, contact_phone as phone, 
         '' as city, '' as state,
@@ -54,16 +132,16 @@ router.post('/api/vendors/search', async (req, res) => {
         is_partner as featured, 'active' as status
       FROM service_providers
       WHERE is_active = true
-        AND (
-          ${searchTerm ? sql`(
-            LOWER(name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`}
-        )
+        AND ${serviceProviderWhereClause}
       ORDER BY 
+        CASE 
+          WHEN ${isSearchingForCareServices} AND LOWER(name) LIKE ${'%' + searchTerm + '%'} THEN 0
+          WHEN ${isSearchingForCareServices} AND LOWER(description) LIKE '%care%' THEN 1
+          ELSE 2
+        END,
         is_partner DESC, 
         rating DESC NULLS LAST
-      LIMIT ${limit - vendorResults.rows.length}
+      LIMIT ${Math.max(0, limit - vendorResults.rows.length)}
       OFFSET ${Math.max(0, offset - vendorResults.rows.length)}
     `);
     
@@ -73,15 +151,9 @@ router.post('/api/vendors/search', async (req, res) => {
     const totalCount = await db.execute(sql`
       SELECT 
         (SELECT COUNT(*) FROM vendors WHERE status = 'active' 
-          AND (${searchTerm ? sql`(
-            LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`})) +
+          AND ${vendorWhereClause}) +
         (SELECT COUNT(*) FROM service_providers WHERE is_active = true
-          AND (${searchTerm ? sql`(
-            LOWER(name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`})) as count
+          AND ${serviceProviderWhereClause}) as count
     `);
     
     res.json({
