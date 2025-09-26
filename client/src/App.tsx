@@ -161,6 +161,7 @@ import PrivacyPolicy from "@/pages/privacy-policy";
 import CookiePolicy from "@/pages/cookie-policy";
 import LegalNotice from "@/pages/legal-notice";
 import LegalDocumentHistory from "@/pages/legal-document-history";
+import DmcaNotice from "@/pages/dmca-notice";
 import PaymentRecovery from "@/pages/payment-recovery";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
@@ -299,6 +300,7 @@ function Router() {
       <Route path="/cookie-policy" component={CookiePolicy} />
       <Route path="/legal-notice" component={LegalNotice} />
       <Route path="/legal-document-history" component={LegalDocumentHistory} />
+      <Route path="/dmca-notice" component={DmcaNotice} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/accessibility" component={Accessibility} />
       <Route path="/mission" component={Mission} />
