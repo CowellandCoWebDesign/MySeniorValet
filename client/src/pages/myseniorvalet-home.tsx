@@ -758,46 +758,46 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Clean Tab Navigation - Below hero text, above search */}
-        <div className="w-full mt-6 mb-4">
-          <TabsList className="bg-black/40 backdrop-blur-lg border border-white/20 px-4 py-3 w-auto h-auto rounded-xl max-w-fit mx-auto">
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 mt-6 mb-4">
+          <TabsList className="bg-black/40 backdrop-blur-xl border border-white/20 px-4 py-3 w-full h-auto rounded-xl shadow-2xl">
             <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
               <TabsTrigger
                 value="communities"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10 transition-all duration-300"
               >
-                <Building className="h-6 w-6" />
+                <span className="text-2xl">🏘️</span>
                 <span className="text-sm font-semibold">Communities</span>
               </TabsTrigger>
               
               <TabsTrigger
                 value="services"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10 transition-all duration-300"
               >
-                <Users className="h-6 w-6" />
+                <span className="text-2xl">👥</span>
                 <span className="text-sm font-semibold">Services</span>
               </TabsTrigger>
               
               <TabsTrigger
                 value="healthcare"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10 transition-all duration-300"
               >
-                <Stethoscope className="h-6 w-6" />
+                <span className="text-2xl">🩺</span>
                 <span className="text-sm font-semibold">Healthcare</span>
               </TabsTrigger>
               
               <TabsTrigger
                 value="resources"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10 transition-all duration-300"
               >
-                <BookOpen className="h-6 w-6" />
+                <span className="text-2xl">📚</span>
                 <span className="text-sm font-semibold">Resources</span>
               </TabsTrigger>
               
               <TabsTrigger
                 value="vendors"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10 transition-all duration-300"
               >
-                <ShoppingCart className="h-6 w-6" />
+                <span className="text-2xl">🛍️</span>
                 <span className="text-sm font-semibold">Vendors</span>
               </TabsTrigger>
             </div>
