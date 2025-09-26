@@ -276,10 +276,10 @@ export default function SeniorMarketplace() {
                       <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                         <VendorServiceCard 
                           vendor={vendor} 
-                          variant="compact"
+                          variant="grid"
                           onSelect={() => {
-                            // Navigate to vendor details
-                            window.location.href = `/vendor/${vendor.id}`;
+                            // Navigate to service details
+                            window.location.href = `/service/${vendor.id}`;
                           }}
                         />
                       </div>
