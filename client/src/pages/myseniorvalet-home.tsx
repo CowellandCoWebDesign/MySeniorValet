@@ -192,7 +192,7 @@ function HeroSectionWithTransformingSearch() {
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [forceClearAutocomplete, setForceClearAutocomplete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
+  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -717,9 +717,80 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col h-full min-h-screen px-2 sm:px-4 py-4 sm:py-8">
-        {/* Hero Title - Positioned at Very Top on Mobile, Better Centered on Desktop */}
-        <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16">
+        <div className="relative z-10 flex flex-col h-full min-h-screen">
+        
+        {/* Clean Tab Navigation at Top */}
+        <div className="bg-black/40 backdrop-blur-lg border-b border-white/20 px-4 py-3">
+          <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
+            <button
+              type="button"
+              onClick={() => setSearchCategory('communities')}
+              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                searchCategory === 'communities'
+                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+              }`}
+            >
+              <Building className="h-6 w-6" />
+              <span className="text-sm font-semibold">Communities</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setSearchCategory('services')}
+              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                searchCategory === 'services'
+                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+              }`}
+            >
+              <Users className="h-6 w-6" />
+              <span className="text-sm font-semibold">Services</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setSearchCategory('healthcare')}
+              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                searchCategory === 'healthcare'
+                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+              }`}
+            >
+              <Stethoscope className="h-6 w-6" />
+              <span className="text-sm font-semibold">Healthcare</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setSearchCategory('resources')}
+              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                searchCategory === 'resources'
+                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+              }`}
+            >
+              <BookOpen className="h-6 w-6" />
+              <span className="text-sm font-semibold">Resources</span>
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setSearchCategory('vendors')}
+              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                searchCategory === 'vendors'
+                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+              }`}
+            >
+              <ShoppingCart className="h-6 w-6" />
+              <span className="text-sm font-semibold">Vendors</span>
+            </button>
+          </div>
+        </div>
+        
+        {/* Hero Title - Keep Original */}
+        <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
             <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4 whitespace-nowrap">
@@ -727,107 +798,24 @@ function HeroSectionWithTransformingSearch() {
               <span className="inline-block animate-slide-in-left text-white ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Every Step of the Journey.</span>
             </h1>
             
-            {/* Platform Description - Enhanced Readability with Better Contrast */}
+            {/* Updated Subtitle */}
             <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 sm:py-3 max-w-4xl mx-auto animate-fade-in-delayed">
               <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white font-medium leading-relaxed">
-                <span className="text-blue-200 font-semibold">My Senior Valet</span> is an AI-powered platform for transparent senior living — compare communities, pricing, and reviews, book tours instantly, reserve with ease, and access local care and resources — all in one place.
+                Your comprehensive guide to senior living, services, healthcare, resources, and products
               </p>
             </div>
           </div>
         </div>
 
         {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-2' : 'justify-center'}`}>
+        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
         
         {/* Unified Search Component */}
-        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
-          {/* Category Tabs - Sleek Modern Style */}
-          <div className="flex justify-center overflow-x-auto">
-            <div className="inline-flex bg-gradient-to-r from-gray-900/60 to-gray-800/60 backdrop-blur-lg p-0.5 rounded-t-2xl">
-              <button
-                type="button"
-                onClick={() => setSearchCategory('communities')}
-                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
-                  ${searchCategory === 'communities' 
-                    ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">🏘️</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] sm:text-base">Homes</span>
-                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.communities || '33.5k'}</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('services')}
-                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
-                  ${searchCategory === 'services' 
-                    ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">🛍️</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] sm:text-base">Services</span>
-                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">{communityStats?.services || '506'}</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
-                  ${searchCategory === 'healthcare' 
-                    ? 'bg-gradient-to-br from-red-500 to-pink-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">🏥</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] sm:text-base">Health</span>
-                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Global</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('resources')}
-                className={`relative px-2 sm:px-6 md:px-8 py-1.5 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-0.5 sm:gap-2 rounded-t-xl
-                  ${searchCategory === 'resources' 
-                    ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg'
-                    : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/10'
-                  }`}
-              >
-                <span className="text-xs sm:text-lg md:text-xl lg:text-2xl">📚</span>
-                <div className="flex flex-col items-start leading-none">
-                  <span className="text-[10px] sm:text-base">Info</span>
-                  <span className="text-[8px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Growing</span>
-                </div>
-              </button>
-            </div>
-          </div>
-          
-          {/* Search Bar Container - Enhanced styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 backdrop-blur-xl border-2 border-t-0 pb-8 sm:pb-10 pt-2 sm:pt-3 px-2 sm:px-3 shadow-2xl ${
-            searchCategory === 'services'
-              ? 'border-green-500 dark:border-green-600' 
-              : searchCategory === 'healthcare'
-              ? 'border-red-500 dark:border-red-600' 
-              : searchCategory === 'resources'
-              ? 'border-amber-500 dark:border-amber-600' 
-              : 'border-purple-500 dark:border-purple-600'
-          }`}>
-            <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
-              searchCategory === 'services'
-                ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200/50 dark:border-green-700/50'
-                : searchCategory === 'healthcare'
-                ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
-                : searchCategory === 'resources'
-                ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
-                : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
-            }`}>
-              {/* Search component wrapper */}
-              <div>
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+          {/* Search Bar Container - Clean styling like vendor marketplace */}
+          <div className="w-full relative z-10 bg-black/40 backdrop-blur-xl rounded-xl p-4 shadow-2xl border border-white/20">
+            {/* Clean search input wrapper */}
+            <div className="relative">
               <AutocompleteSearch 
                 value={searchQuery}
                 onChange={(value) => {
@@ -860,53 +848,41 @@ function HeroSectionWithTransformingSearch() {
                 forceClearSuggestions={forceClearAutocomplete}
               />
             </div>
-            </div>
             
-            {/* View Mode Tabs - Bottom tabs attached to search box with transparent style */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20 w-[calc(100%-1rem)] sm:w-auto">
-              <div className="flex gap-1 sm:gap-2 justify-center">
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  className={`relative px-3 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
-                    ${viewMode === 'list' 
-                      ? 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg'
-                      : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
-                    }`}
-                >
-                  <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🔍</span>
-                  <div className="flex flex-col items-start leading-none">
-                    <span className="text-[11px] sm:text-base">Database</span>
-                    <span className="text-[9px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Search</span>
-                  </div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('map')}
-                  className={`relative px-3 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
-                    ${viewMode === 'map' 
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg'
-                      : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
-                    }`}
-                >
-                  <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🗺️</span>
-                  <span className="text-[11px] sm:text-base">Map</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('discover')}
-                  className={`relative px-3 sm:px-6 md:px-8 py-2 sm:py-3 md:py-4 transition-all duration-300 text-xs sm:text-base md:text-lg lg:text-xl font-semibold flex items-center gap-1 sm:gap-2 rounded-xl
-                    ${viewMode === 'discover' 
-                      ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-gray-700 dark:bg-gray-800 text-white border border-gray-600 dark:border-gray-700 hover:bg-gray-800 dark:hover:bg-gray-700 shadow-md'
-                    }`}
-                >
-                  <span className="text-sm sm:text-lg md:text-xl lg:text-2xl">🌍</span>
-                  <div className="flex flex-col items-start leading-none">
-                    <span className="text-[11px] sm:text-base">Discovery</span>
-                    <span className="text-[9px] sm:text-xs md:text-sm lg:text-base opacity-75 mt-0.5">Mode</span>
-                  </div>
-                </button>
+            
+            {/* Mode Toggle Switches - Below search bar */}
+            <div className="mt-4 flex items-center justify-center gap-6">
+              {/* Database Search Toggle */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="database-toggle" className="text-white text-sm font-medium">Database</label>
+                <Switch
+                  id="database-toggle"
+                  checked={viewMode === 'list'}
+                  onCheckedChange={(checked) => checked && setViewMode('list')}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-blue-500"
+                />
+              </div>
+              
+              {/* Map Toggle */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="map-toggle" className="text-white text-sm font-medium">Map</label>
+                <Switch
+                  id="map-toggle"
+                  checked={viewMode === 'map'}
+                  onCheckedChange={(checked) => checked && setViewMode('map')}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-500"
+                />
+              </div>
+              
+              {/* Discovery Mode Toggle */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="discovery-toggle" className="text-white text-sm font-medium">Discovery Mode</label>
+                <Switch
+                  id="discovery-toggle"
+                  checked={viewMode === 'discover'}
+                  onCheckedChange={(checked) => checked && setViewMode('discover')}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
+                />
               </div>
             </div>
             
@@ -959,7 +935,6 @@ function HeroSectionWithTransformingSearch() {
                 </div>
               </div>
             )}
-            
           </div>
           
         </div>
