@@ -16,7 +16,7 @@ import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
 
 // Import Leaflet CSS globally for map functionality
 import 'leaflet/dist/leaflet.css';
-import MySeniorValetHome from "@/pages/myseniorvalet-home";
+import MySeniorValetHome from "@/pages/myseniorvalet-home-fixed";
 import Claim from "@/pages/claim";
 // All admin functionality consolidated into SuperAdminAnalytics
 import SuperAdminAnalytics from "@/pages/super-admin-analytics";

@@ -117,6 +117,13 @@ const SEARCH_PLACEHOLDERS = {
       "🌍 Find 'Resources in Canada' or 'Guides for Germany'...",
       "🌍 Explore 'Senior help in Spain' or 'Care info in Italy'...",
       "🌍 Discover 'Support in Singapore' or 'Resources in Netherlands'..."
+    ],
+    vendors: [
+      "🌍 Try 'Medical supplies in London' or 'Equipment in Tokyo'...",
+      "🌍 Search 'Senior products in Paris' or 'Devices in Sydney'...",
+      "🌍 Find 'Mobility aids in Berlin' or 'Safety gear in Dubai'...",
+      "🌍 Explore 'Health monitors in Rome' or 'Alerts in Toronto'...",
+      "🌍 Discover 'Senior discounts worldwide' or 'Global suppliers'..."
     ]
   },
   map: {
@@ -147,6 +154,13 @@ const SEARCH_PLACEHOLDERS = {
       "📍 Find 'Government offices' or 'Churches nearby'...",
       "📍 Explore 'Recreation centers' or 'Local programs'...",
       "📍 Discover 'Volunteer opportunities' or 'Neighborhood help'..."
+    ],
+    vendors: [
+      "📍 Try 'Medical supply stores' or 'Equipment rental nearby'...",
+      "📍 Search 'Senior product shops' or 'Assistive tech stores'...",
+      "📍 Find 'Mobility stores' or 'Safety equipment dealers'...",
+      "📍 Explore 'Health product stores' or 'Alert system providers'...",
+      "📍 Discover 'Senior discount stores' or 'Product showrooms'..."
     ]
   },
   list: {
@@ -177,6 +191,13 @@ const SEARCH_PLACEHOLDERS = {
       "🔍 Find 'Financial planning' or 'Insurance info'...",
       "🔍 Explore 'Caregiver support' or 'Senior benefits'...",
       "🔍 Discover 'Support groups' or 'Crisis hotlines'..."
+    ],
+    vendors: [
+      "🔍 Search 'Medical supplies' or 'Equipment rental'...",
+      "🔍 Find 'Senior products' or 'Assistive devices'...",
+      "🔍 Discover 'Mobility aids' or 'Safety equipment'...",
+      "🔍 Browse 'Health monitors' or 'Emergency alerts'...",
+      "🔍 Explore 'Senior discounts' or 'Product reviews'..."
     ]
   }
 };
@@ -719,77 +740,7 @@ function HeroSectionWithTransformingSearch() {
         
         <div className="relative z-10 flex flex-col h-full min-h-screen">
         
-        {/* Clean Tab Navigation at Top */}
-        <div className="bg-black/40 backdrop-blur-lg border-b border-white/20 px-4 py-3">
-          <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setSearchCategory('communities')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'communities'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
-            >
-              <Building className="h-6 w-6" />
-              <span className="text-sm font-semibold">Communities</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setSearchCategory('services')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'services'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
-            >
-              <Users className="h-6 w-6" />
-              <span className="text-sm font-semibold">Services</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setSearchCategory('healthcare')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'healthcare'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
-            >
-              <Stethoscope className="h-6 w-6" />
-              <span className="text-sm font-semibold">Healthcare</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setSearchCategory('resources')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'resources'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
-            >
-              <BookOpen className="h-6 w-6" />
-              <span className="text-sm font-semibold">Resources</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => setSearchCategory('vendors')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'vendors'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
-            >
-              <ShoppingCart className="h-6 w-6" />
-              <span className="text-sm font-semibold">Vendors</span>
-            </button>
-          </div>
-        </div>
-        
-        {/* Hero Title - Keep Original */}
+        {/* Hero Title - Keep Original */
         <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
@@ -806,14 +757,84 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         </div>
-
+        
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
         
         {/* Unified Search Component */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+          {/* Tab Navigation - Right above search bar */}
+          <div className="bg-black/40 backdrop-blur-lg rounded-t-xl border border-white/20 border-b-0 px-4 py-3">
+            <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setSearchCategory('communities')}
+                className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                  searchCategory === 'communities'
+                    ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                    : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+                }`}
+              >
+                <Building className="h-6 w-6" />
+                <span className="text-sm font-semibold">Communities</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setSearchCategory('services')}
+                className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                  searchCategory === 'services'
+                    ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                    : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+                }`}
+              >
+                <Users className="h-6 w-6" />
+                <span className="text-sm font-semibold">Services</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setSearchCategory('healthcare')}
+                className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                  searchCategory === 'healthcare'
+                    ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                    : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+                }`}
+              >
+                <Stethoscope className="h-6 w-6" />
+                <span className="text-sm font-semibold">Healthcare</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setSearchCategory('resources')}
+                className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                  searchCategory === 'resources'
+                    ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                    : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+                }`}
+              >
+                <BookOpen className="h-6 w-6" />
+                <span className="text-sm font-semibold">Resources</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setSearchCategory('vendors')}
+                className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
+                  searchCategory === 'vendors'
+                    ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
+                    : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
+                }`}
+              >
+                <ShoppingCart className="h-6 w-6" />
+                <span className="text-sm font-semibold">Vendors</span>
+              </button>
+            </div>
+          </div>
+          
           {/* Search Bar Container - Clean styling like vendor marketplace */}
-          <div className="w-full relative z-10 bg-black/40 backdrop-blur-xl rounded-xl p-4 shadow-2xl border border-white/20">
+          <div className="w-full relative z-10 bg-black/40 backdrop-blur-xl rounded-b-xl rounded-t-none p-4 shadow-2xl border border-white/20 border-t-0">
             {/* Clean search input wrapper */}
             <div className="relative">
               <AutocompleteSearch 
@@ -1379,6 +1400,7 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         )}
+        </div>
         </div>
         
         {/* Back to Top Button - appears when there are many results */}
