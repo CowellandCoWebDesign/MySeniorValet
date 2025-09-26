@@ -739,51 +739,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         <div className="relative z-10 flex flex-col h-full min-h-screen">
         
-        {/* Clean Tab Navigation at Top */}
-        <TabsList className="bg-black/40 backdrop-blur-lg border-b border-white/20 px-4 py-3 w-full h-auto rounded-none">
-          <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto w-full">
-            <TabsTrigger
-              value="communities"
-              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
-            >
-              <Building className="h-6 w-6" />
-              <span className="text-sm font-semibold">Communities</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="services"
-              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
-            >
-              <Users className="h-6 w-6" />
-              <span className="text-sm font-semibold">Services</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="healthcare"
-              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
-            >
-              <Stethoscope className="h-6 w-6" />
-              <span className="text-sm font-semibold">Healthcare</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="resources"
-              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
-            >
-              <BookOpen className="h-6 w-6" />
-              <span className="text-sm font-semibold">Resources</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="vendors"
-              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
-            >
-              <ShoppingCart className="h-6 w-6" />
-              <span className="text-sm font-semibold">Vendors</span>
-            </TabsTrigger>
-          </div>
-        </TabsList>
-        
         {/* Hero Title - Keep Original */}
         <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
@@ -800,6 +755,53 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               </p>
             </div>
           </div>
+        </div>
+        
+        {/* Clean Tab Navigation - Below hero text, above search */}
+        <div className="w-full mt-6 mb-4">
+          <TabsList className="bg-black/40 backdrop-blur-lg border border-white/20 px-4 py-3 w-auto h-auto rounded-xl max-w-fit mx-auto">
+            <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
+              <TabsTrigger
+                value="communities"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+              >
+                <Building className="h-6 w-6" />
+                <span className="text-sm font-semibold">Communities</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="services"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+              >
+                <Users className="h-6 w-6" />
+                <span className="text-sm font-semibold">Services</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="healthcare"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+              >
+                <Stethoscope className="h-6 w-6" />
+                <span className="text-sm font-semibold">Healthcare</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="resources"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+              >
+                <BookOpen className="h-6 w-6" />
+                <span className="text-sm font-semibold">Resources</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="vendors"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
+              >
+                <ShoppingCart className="h-6 w-6" />
+                <span className="text-sm font-semibold">Vendors</span>
+              </TabsTrigger>
+            </div>
+          </TabsList>
         </div>
 
         {/* Content Container - Search First, Then Value Props */}
