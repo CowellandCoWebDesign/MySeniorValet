@@ -309,8 +309,33 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           console.log(`🔍 Performing comprehensive photo search across the internet...`);
           
           try {
-            const comprehensiveSearchQuery = `${serviceName} ${city} ${state} photos images gallery`;
-            console.log(`🔎 Single comprehensive search: ${comprehensiveSearchQuery}`);
+            // Determine the business category for better search targeting
+            const businessCategory = serviceType?.toLowerCase() || 'business';
+            let searchContext = '';
+            
+            // Adapt search based on service type
+            if (businessCategory.includes('restaurant') || businessCategory.includes('food') || businessCategory.includes('cafe') || businessCategory.includes('bar')) {
+              searchContext = 'restaurant, cafe, or food service';
+            } else if (businessCategory.includes('medical') || businessCategory.includes('doctor') || businessCategory.includes('clinic') || businessCategory.includes('hospital')) {
+              searchContext = 'medical facility or healthcare provider';
+            } else if (businessCategory.includes('legal') || businessCategory.includes('attorney') || businessCategory.includes('lawyer')) {
+              searchContext = 'law firm or legal services provider';
+            } else if (businessCategory.includes('home') || businessCategory.includes('care') || businessCategory.includes('senior')) {
+              searchContext = 'senior care or home services provider';
+            } else if (businessCategory.includes('transport') || businessCategory.includes('shuttle') || businessCategory.includes('taxi')) {
+              searchContext = 'transportation or mobility service';
+            } else if (businessCategory.includes('retail') || businessCategory.includes('store') || businessCategory.includes('shop')) {
+              searchContext = 'retail store or shopping location';
+            } else if (businessCategory.includes('fitness') || businessCategory.includes('gym') || businessCategory.includes('recreation')) {
+              searchContext = 'fitness or recreation facility';
+            } else if (businessCategory.includes('bank') || businessCategory.includes('financial') || businessCategory.includes('insurance')) {
+              searchContext = 'financial services provider';
+            } else {
+              searchContext = businessCategory || 'business or service provider';
+            }
+            
+            const comprehensiveSearchQuery = `${serviceName} ${city} ${state} photos images`;
+            console.log(`🔎 Single comprehensive search for ${searchContext}: ${comprehensiveSearchQuery}`);
             
             const expandedSearchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
               method: 'POST',
@@ -323,11 +348,11 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
                 messages: [
                   {
                     role: 'system',
-                    content: 'You are a comprehensive photo finder. Search EVERYWHERE across the internet for photos of this business. Check ALL sources: Google Images, Yelp, TripAdvisor, OpenTable, Foursquare, Zomato, GrubHub, DoorDash, Seamless, Postmates, Eater, Timeout, Thrillist, Facebook, Instagram, Twitter, restaurant websites, blogs, news sites, and any other source with real photos. Return ALL actual photo URLs you can find.'
+                    content: 'You are a comprehensive photo finder for ALL types of businesses and services. Search EVERYWHERE across the internet for photos. Check ALL relevant sources: Google Images, Google Maps, Google Business, Bing, Yahoo, business directories, review sites (Yelp, Google Reviews, Angie\'s List, Better Business Bureau), social media (Facebook, Instagram, Twitter, LinkedIn), industry-specific directories, local news sites, community websites, the business\'s own website, professional networks, healthcare directories (if medical), legal directories (if legal), senior care directories (if care-related), and any other source with real photos. Return ALL actual photo URLs you can find.'
                   },
                   {
                     role: 'user',
-                    content: `Find ALL available photos for: ${serviceName} in ${city}, ${state}. This is a ${serviceType || 'restaurant/business'}. Search comprehensively across ALL platforms and websites. Include direct image URLs from every possible source - review sites, delivery apps, social media, news articles, blogs, the business website, and anywhere else photos exist. Return as many actual photo URLs as possible.`
+                    content: `Find ALL available photos for: ${serviceName} in ${city}, ${state}. This is a ${searchContext}. Search comprehensively across ALL relevant platforms and websites for this type of business. Include direct image URLs from every possible source - the business website, Google Maps/Business, review platforms, social media, news articles, professional directories, industry websites, local business directories, and anywhere else photos exist. Focus on finding photos of: the building exterior, interior spaces, staff/team photos, service photos, equipment/facilities, signage, and any other relevant visual content. Return as many actual photo URLs as possible.`
                   }
                 ],
                 temperature: 0.2,
@@ -353,7 +378,7 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
                 extractedPhotos.push(...newPhotos);
                 console.log(`🎉 Successfully retrieved ${extractedPhotos.length} photos with single comprehensive search`);
               } else {
-                console.log(`📷 Comprehensive search found no photos`);
+                console.log(`📷 Comprehensive search found no photos for ${searchContext}`);
               }
             }
           } catch (searchError) {
