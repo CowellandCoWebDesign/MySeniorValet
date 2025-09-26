@@ -883,30 +883,55 @@ export class NLPSearchSystem {
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
+      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
       
-      // Service type matching
-      const serviceKeywords = ['transport', 'therapy', 'meal', 'cleaning', 'medical'];
+      // General text search across name and description
+      // This will now search for ANY term in the query, not just specific keywords
+      if (searchTerms.length > 0) {
+        const searchConditions = searchTerms.map(term =>
+          or(
+            ilike(services.name, `%${term}%`),
+            ilike(services.description, `%${term}%`),
+            ilike(services.shortDescription, `%${term}%`)
+          )
+        );
+        
+        // Combine with OR so it matches if ANY term is found
+        if (searchConditions.length > 0) {
+          conditions.push(or(...searchConditions));
+        }
+      }
+      
+      // Also check for service type keywords for better relevance
+      const serviceKeywords = ['hotel', 'restaurant', 'walmart', 'transport', 'therapy', 
+                               'meal', 'cleaning', 'medical', 'moving', 'storage', 
+                               'pharmacy', 'grocery', 'food', 'delivery'];
       const matchedKeywords = serviceKeywords.filter(k => query.toLowerCase().includes(k));
       
       if (matchedKeywords.length > 0) {
-        const serviceConditions = matchedKeywords.map(keyword =>
+        const keywordConditions = matchedKeywords.map(keyword =>
           or(
             ilike(services.name, `%${keyword}%`),
-            ilike(services.description, `%${keyword}%`)
+            ilike(services.serviceType, `%${keyword}%`)
           )
         );
-        conditions.push(or(...serviceConditions));
+        conditions.push(or(...keywordConditions));
       }
       
-      // Location filters - services don't have serviceAreas field
-      // We'll match based on description or name containing location
+      // Build query - include services that are active
+      let dbQuery = db.select().from(services)
+        .where(
+          conditions.length > 0 ? 
+            and(
+              or(...conditions),
+              eq(services.isActive, true)
+            ) : 
+            eq(services.isActive, true)
+        ) as any;
       
-      let dbQuery = db.select().from(services) as any;
-      if (conditions.length > 0) {
-        dbQuery = dbQuery.where(and(...conditions));
-      }
+      const results = await dbQuery.limit(options?.limit || 50);
       
-      const results = await dbQuery.limit(options?.limit || 30);
+      console.log(`🔍 Services search for "${query}" found ${results.length} results`);
       
       return results.map((service: any) => ({
         type: 'service' as const,
@@ -987,11 +1012,51 @@ export class NLPSearchSystem {
     options?: any
   ): Promise<UnifiedSearchResult[]> {
     try {
-      // Since educationalResources table doesn't exist yet,
-      // return empty results for now
-      // TODO: Implement resources search when educationalResources table is created
-      console.log('Resources search not yet implemented - educationalResources table does not exist');
-      return [];
+      const conditions = [];
+      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
+      
+      // Search educational resources with general text search
+      if (searchTerms.length > 0) {
+        const resourceConditions = searchTerms.map(term =>
+          or(
+            ilike(educationalResources.title, `%${term}%`),
+            ilike(educationalResources.description, `%${term}%`),
+            ilike(educationalResources.category, `%${term}%`),
+            ilike(educationalResources.subcategory, `%${term}%`),
+            ilike(educationalResources.content, `%${term}%`),
+            ilike(educationalResources.summary, `%${term}%`)
+          )
+        );
+        
+        if (resourceConditions.length > 0) {
+          conditions.push(or(...resourceConditions));
+        }
+      }
+      
+      // Only get active resources
+      conditions.push(eq(educationalResources.is_active, true));
+      
+      const results = await db
+        .select()
+        .from(educationalResources)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(educationalResources.view_count))
+        .limit(options?.limit || 50);
+      
+      console.log(`📚 Resources search for "${query}" found ${results.length} results`);
+      
+      return results.map(resource => ({
+        type: 'resource' as const,
+        id: resource.id,
+        data: resource,
+        score: 0.85,
+        source: 'educational_resources',
+        metadata: {
+          database: 'educational_resources',
+          matchedFields: ['title', 'category', 'content'],
+          queryRelevance: 0.85,
+        }
+      }));
     } catch (error) {
       console.error('Resources search error:', error);
       return [];
