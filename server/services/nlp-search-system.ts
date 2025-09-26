@@ -536,8 +536,9 @@ export class NLPSearchSystem {
     // Combine expansions
     let finalQuery = Array.from(expansions).join(' ');
     
-    // Add location context
-    if (intent.entities.locations?.length) {
+    // Add location context (but not for services since the table doesn't have location fields)
+    // For services, the location is already part of the search term
+    if (intent.entities.locations?.length && !intent.databases.includes('services')) {
       finalQuery += ` location:${intent.entities.locations.join(',')}`;
     }
     

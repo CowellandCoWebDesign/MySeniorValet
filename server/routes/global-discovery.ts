@@ -423,7 +423,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           if (looksLikeLocation) {
             // Treat as a location search for general services
             location = query;
-            serviceType = 'senior services, home care agencies, medical equipment, pharmacies, and healthcare providers';
+            // For location-only searches in Services tab, find ALL types of businesses
+            serviceType = 'businesses and services including restaurants, hotels, stores, professional services, healthcare providers, and any other local businesses';
           } else {
             // Treat as a service type search in general area
             serviceType = query;
