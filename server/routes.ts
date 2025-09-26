@@ -646,6 +646,58 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
         const serviceData = service[0];
         const metadata = serviceData.metadata as any || {};
         
+        // Extract city from service name if not in metadata
+        let city = metadata.city || '';
+        let state = metadata.state || '';
+        
+        if (!city && serviceData.name) {
+          // Try to extract location from name (e.g., "ElderHelp of San Diego")
+          const locationPatterns = [
+            /of\s+([A-Za-z\s]+)\)$/i,     // "of San Diego)"
+            /of\s+([A-Za-z\s]+)$/i,        // "of San Diego"
+            /in\s+([A-Za-z\s]+)\)$/i,      // "in San Diego)"
+            /in\s+([A-Za-z\s]+)$/i,        // "in San Diego"
+            /\-\s*([A-Za-z\s]+)\)$/i,      // "- San Diego)"
+            /\-\s*([A-Za-z\s]+)$/i,        // "- San Diego"
+            /,\s*([A-Za-z\s]+)\)$/i,       // ", San Diego)"
+            /,\s*([A-Za-z\s]+)$/i,         // ", San Diego"
+            /\(([A-Za-z\s]+)\)$/i,         // "(San Diego)"
+            /\s+([A-Za-z\s]+)$/i           // " San Diego" at end
+          ];
+          
+          for (const pattern of locationPatterns) {
+            const match = serviceData.name.match(pattern);
+            if (match) {
+              city = match[1].trim();
+              // Remove trailing parenthesis if captured
+              city = city.replace(/\)$/, '').trim();
+              
+              // Default to California for San Diego, Texas for Houston, etc.
+              if (city.toLowerCase().includes('san diego')) {
+                city = 'San Diego';
+                state = 'CA';
+              }
+              else if (city.toLowerCase().includes('houston')) {
+                city = 'Houston';
+                state = 'TX';
+              }
+              else if (city.toLowerCase().includes('phoenix')) {
+                city = 'Phoenix';
+                state = 'AZ';
+              }
+              else if (city.toLowerCase().includes('dallas')) {
+                city = 'Dallas';
+                state = 'TX';
+              }
+              else if (city.toLowerCase().includes('austin')) {
+                city = 'Austin';
+                state = 'TX';
+              }
+              break;
+            }
+          }
+        }
+        
         // Transform service data to match the expected structure
         return res.json({
           id: serviceData.id.toString(),
@@ -653,8 +705,8 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           slug: serviceData.slug || serviceData.id.toString(),
           description: serviceData.description || serviceData.shortDescription,
           address: metadata.address || '',
-          city: metadata.city || '',
-          state: metadata.state || '',
+          city: city,
+          state: state,
           country: metadata.country || 'US',
           zipCode: metadata.zipCode || '',
           phone: metadata.phone || '',
