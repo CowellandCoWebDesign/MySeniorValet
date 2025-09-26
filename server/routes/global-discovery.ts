@@ -907,24 +907,28 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       let discoveredWithRealIds: any[] = [];
       
       if (searchType === 'services') {
-        // Map saved vendors to display format
-        discoveredWithRealIds = savedServices.map((vendor) => ({
-          id: vendor.id, // Use real database ID
-          name: vendor.businessName,
-          type: 'service',
-          serviceType: vendor.businessType || 'General Service',
-          address: vendor.businessAddress || '',
-          city: vendor.businessCity || '',
-          state: vendor.businessState || '',
-          phone: vendor.primaryContactPhone || '',
-          website: vendor.website || '',
-          description: vendor.description || '',
-          isDiscovered: true,
-          isService: true,
-          confidence: 90,
-          data_source: 'AI Discovery',
-          citations: citations
-        }));
+        // Map saved services to display format
+        discoveredWithRealIds = savedServices.map((service) => {
+          // Extract location data from metadata
+          const metadata = service.metadata as any || {};
+          return {
+            id: service.id, // Use real database ID
+            name: service.name, // Services table uses 'name' column
+            type: 'service',
+            serviceType: service.serviceType || 'General Service',
+            address: metadata.address || '',
+            city: metadata.city || '',
+            state: metadata.state || '',
+            phone: metadata.phone || '',
+            website: service.externalUrl || metadata.website || '',
+            description: service.description || '',
+            isDiscovered: true,
+            isService: true,
+            confidence: 90,
+            data_source: 'AI Discovery',
+            citations: citations
+          };
+        });
       } else {
         // For communities, map saved communities
         discoveredWithRealIds = savedCommunities.map((saved) => {
