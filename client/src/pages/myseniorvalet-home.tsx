@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { Button } from "@/components/ui/button";
@@ -64,6 +65,7 @@ import RetroGuestServices from '@assets/generated_images/Retro_guest_services_si
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
@@ -1972,9 +1974,56 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
+      {/* 5-Tab Directory Organization */}
+      <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <Tabs defaultValue="communities" className="w-full">
+            <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 dark:bg-gray-800">
+              <TabsTrigger 
+                value="communities" 
+                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+              >
+                <Building className="w-5 h-5" />
+                <span className="text-xs sm:text-sm font-medium">Communities</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="services" 
+                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-amber-500 data-[state=active]:text-white"
+              >
+                <Users className="w-5 h-5" />
+                <span className="text-xs sm:text-sm font-medium">Services</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="healthcare" 
+                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-teal-500 data-[state=active]:text-white"
+              >
+                <Stethoscope className="w-5 h-5" />
+                <span className="text-xs sm:text-sm font-medium">Healthcare</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="resources" 
+                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+              >
+                <BookOpen className="w-5 h-5" />
+                <span className="text-xs sm:text-sm font-medium">Resources</span>
+              </TabsTrigger>
+              
+              <TabsTrigger 
+                value="vendors" 
+                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-indigo-500 data-[state=active]:text-white"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                <span className="text-xs sm:text-sm font-medium">Vendors</span>
+              </TabsTrigger>
+            </TabsList>
 
-      {/* Four Directory Cards Grid - Seamlessly Connected */}
-      <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            {/* Communities Tab */}
+            <TabsContent value="communities" className="mt-6">
+              {/* Four Directory Cards Grid - Seamlessly Connected */}
+              <section className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
           <div className="max-w-7xl mx-auto">
             {/* Four Directory Cards in 2x2 Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
@@ -2141,22 +2190,13 @@ export default function MySeniorValetHome() {
                   </Button>
                 </CardContent>
               </Card>
-
             </div>
           </div>
         </section>
-        
-        {/* Featured Excellence Communities Section */}
-        <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-          <div className="max-w-7xl mx-auto">
-            <RedTagDeals />
-          </div>
-        </section>
-        
-        {/* Resume Directory Cards Grid */}
-        <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+      </TabsContent>
+
+      {/* Services Tab */}
+      <TabsContent value="services" className="mt-6">
 
             {/* Senior Marketplace */}
             <Link to="/senior-marketplace">
@@ -2586,7 +2626,11 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
+        </TabsContent>
 
+        {/* Resources Tab */}
+        <TabsContent value="resources" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Resident Portal - Comprehensive Dashboard */}
             <Link to="/resident-dashboard">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
@@ -3469,10 +3513,110 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
           </div>
-        </div>
-      </section>
+        </TabsContent>
 
-      {/* Senior Living Command Center Section - Moved after Resources */}
+      {/* Healthcare Tab */}
+      <TabsContent value="healthcare" className="mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          {/* Healthcare Provider Directory Card */}
+          <Link to="/healthcare">
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-red-400 relative overflow-hidden group transform hover:scale-105">
+              <CardHeader>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1">
+                  HEALTHCARE
+                </Badge>
+                <CardTitle className="text-2xl mb-2">Healthcare Provider Directory</CardTitle>
+                <CardDescription>Find doctors, specialists, and medical services</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Connect with 6,800+ healthcare providers nationwide specializing in senior care.
+                </p>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Primary Care Physicians</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Specialists & Surgeons</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-sm">Home Health Services</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4 bg-gradient-to-r from-red-500 to-pink-500 text-white">
+                  <Hospital className="mr-2 h-4 w-4" />
+                  Browse Healthcare Providers
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </TabsContent>
+
+      {/* Vendors Tab - Consumer Products */}
+      <TabsContent value="vendors" className="mt-6">
+        <div className="flex items-center justify-center py-8">
+          <Card className="max-w-4xl w-full">
+            <CardContent className="p-8">
+              <div className="text-center mb-6">
+                <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-indigo-500" />
+                <h3 className="text-2xl font-bold mb-2">Consumer Vendor Marketplace</h3>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Coming soon - Shop for senior products from our affiliate partners
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
+                  <Pill className="w-8 h-8 text-blue-500 mb-2" />
+                  <h4 className="font-semibold">Amazon Pharmacy</h4>
+                  <p className="text-sm text-gray-600">Prescription medications</p>
+                </div>
+                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
+                  <Package className="w-8 h-8 text-green-500 mb-2" />
+                  <h4 className="font-semibold">Medical Supplies</h4>
+                  <p className="text-sm text-gray-600">DME & consumables</p>
+                </div>
+                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
+                  <ShoppingCart className="w-8 h-8 text-purple-500 mb-2" />
+                  <h4 className="font-semibold">Mobility Aids</h4>
+                  <p className="text-sm text-gray-600">Walkers, wheelchairs</p>
+                </div>
+                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
+                  <Heart className="w-8 h-8 text-red-500 mb-2" />
+                  <h4 className="font-semibold">Daily Living</h4>
+                  <p className="text-sm text-gray-600">Adaptive products</p>
+                </div>
+                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
+                  <Shield className="w-8 h-8 text-indigo-500 mb-2" />
+                  <h4 className="font-semibold">Safety Products</h4>
+                  <p className="text-sm text-gray-600">Fall prevention, alerts</p>
+                </div>
+                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
+                  <Brain className="w-8 h-8 text-pink-500 mb-2" />
+                  <h4 className="font-semibold">Cognitive Health</h4>
+                  <p className="text-sm text-gray-600">Memory aids, games</p>
+                </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <p className="text-sm text-center text-gray-700 dark:text-gray-300">
+                  <Sparkles className="inline w-4 h-4 mr-1 text-yellow-500" />
+                  Launching Q1 2025 - Earn affiliate commissions on every purchase
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </TabsContent>
+    </Tabs>
+  </div>
+</section>
+
+{/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
         <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
