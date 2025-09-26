@@ -57,10 +57,65 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`🌍 Global Discovery Search: "${query}" (type: ${searchType || 'auto-detect'})`);
       
+      // Senior care domain check - CRITICAL for data integrity
+      const isSeniorCareRelated = (searchQuery: string): boolean => {
+        const lower = searchQuery.toLowerCase();
+        
+        // Allow empty or short queries for browsing
+        if (!lower || lower.length <= 2) return true;
+        
+        // Senior care keywords
+        const seniorKeywords = [
+          'senior', 'elderly', 'elder', 'retirement', 'assisted', 'memory care',
+          'nursing home', 'home care', 'home health', 'hospice', 'caregiver',
+          'care', 'health', 'medical', 'therapy', 'rehabilitation'
+        ];
+        
+        // Non-care businesses to block
+        const blockedKeywords = [
+          'castello', 'winery', 'wine', 'vineyard', 'restaurant', 'hotel',
+          'resort', 'spa', 'golf', 'country club', 'amazon', 'walmart',
+          'target', 'costco', 'casino', 'theater', 'museum'
+        ];
+        
+        const hasSeniorKeyword = seniorKeywords.some(k => lower.includes(k));
+        const hasBlockedKeyword = blockedKeywords.some(k => lower.includes(k));
+        
+        // Block non-care businesses unless they have senior keywords
+        if (hasBlockedKeyword && !hasSeniorKeyword) {
+          return false;
+        }
+        
+        // Allow location searches and senior-related searches
+        return true;
+      };
+      
+      // Check if search is senior care related
+      if (!isSeniorCareRelated(query)) {
+        console.log(`🚫 Blocking non-senior-care discovery search: "${query}"`);
+        return res.json({
+          success: false,
+          query,
+          searchType: searchType || 'blocked',
+          results: [],
+          metadata: {
+            totalFound: 0,
+            existingCount: 0,
+            discoveredCount: 0,
+            sources: [],
+            searchLocation: query,
+            timestamp: new Date().toISOString(),
+            blocked: true,
+            message: 'Search outside senior care domain'
+          },
+          message: `"${query}" is outside the scope of senior care services. Please search for senior living, care services, or healthcare providers.`
+        });
+      }
+      
       // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities AND vendors!
       // For services, search vendors table; for locations, search communities
       if (searchType === 'services' || searchType === 'service') {
-        // Search vendors table for services like hotels, restaurants, etc.
+        // Search vendors table for SENIOR CARE services only
         const queryLower = query.toLowerCase();
         
         // Clean query for database search (remove parentheses which can cause injection warnings)
