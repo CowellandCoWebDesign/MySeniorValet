@@ -2197,9 +2197,9 @@ export default function MySeniorValetHome() {
 
       {/* Services Tab */}
       <TabsContent value="services" className="mt-6">
-
-            {/* Senior Marketplace */}
-            <Link to="/senior-marketplace">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          {/* Senior Marketplace */}
+          <Link to="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Shopping Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2626,6 +2626,7 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
+          </div>
         </TabsContent>
 
         {/* Resources Tab */}
