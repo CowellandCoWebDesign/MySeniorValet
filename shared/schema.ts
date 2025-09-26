@@ -7219,3 +7219,38 @@ export const staffOptimization = pgTable("staff_optimization", {
 });
 
 // ==================== PHASE 6: AI INTELLIGENCE LAYER COMPLETE ====================
+
+// ==================== DMCA COMPLIANCE ====================
+
+// DMCA Takedown Notices - Track and handle copyright claims
+export const dmcaTakedowns = pgTable("dmca_takedowns", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id),
+  serviceId: integer("service_id").references(() => vendors.id), // For service/vendor photos
+  contentType: varchar("content_type", { length: 50 }).notNull(), // 'photo', 'description', 'logo'
+  contentUrl: text("content_url"), // URL of the disputed content
+  claimantName: varchar("claimant_name", { length: 255 }).notNull(),
+  claimantEmail: varchar("claimant_email", { length: 255 }).notNull(),
+  claimantPhone: varchar("claimant_phone", { length: 20 }),
+  claimDescription: text("claim_description").notNull(),
+  copyrightInfo: text("copyright_info"), // Copyright registration info if provided
+  signature: varchar("signature", { length: 255 }).notNull(), // Electronic signature
+  receivedAt: timestamp("received_at").defaultNow(),
+  actionTaken: varchar("action_taken", { length: 50 }).default("pending"), // 'pending', 'removed', 'counter_notice', 'restored'
+  actionDate: timestamp("action_date"),
+  notes: text("notes"),
+  counterNoticeReceived: boolean("counter_notice_received").default(false),
+  counterNoticeDate: timestamp("counter_notice_date"),
+  finalStatus: varchar("final_status", { length: 50 }), // 'content_removed', 'content_restored', 'resolved'
+  isValid: boolean("is_valid").default(true), // Mark false for invalid/abusive claims
+}, (table) => [
+  index("idx_dmca_community").on(table.communityId),
+  index("idx_dmca_service").on(table.serviceId),
+  index("idx_dmca_status").on(table.actionTaken),
+  index("idx_dmca_received").on(table.receivedAt),
+]);
+
+export const insertDmcaTakedownSchema = createInsertSchema(dmcaTakedowns)
+  .omit({ id: true, receivedAt: true });
+export type InsertDmcaTakedown = z.infer<typeof insertDmcaTakedownSchema>;
+export type SelectDmcaTakedown = typeof dmcaTakedowns.$inferSelect;

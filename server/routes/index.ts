@@ -43,6 +43,7 @@ import { registerInfrastructureRoutes } from "./infrastructureRoutes";
 import { registerEmailRoutes } from "./emailRoutes";
 import { registerFloralRoutes } from "./floralRoutes";
 import { registerMoveInServicesRoutes } from "./moveInServicesRoutes";
+import { registerDmcaRoutes } from "./dmca-routes";
 import movingRoutes from "./movingRoutes";
 import transportationRoutes from "./transportationRoutes";
 import familyConnectRoutes from "./familyConnectRoutes";
@@ -167,6 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerEmailRoutes(app);
   registerFloralRoutes(app);
   registerMoveInServicesRoutes(app);
+  registerDmcaRoutes(app);
   registerAnalyticsRoutes(app);
   setupVAResourcesRoutes(app);
   setupSeniorResourcesRoutes(app);

@@ -1,7 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
-  removalRequests, auditLogs, featuredCommunities, contactSubmissions,
+  removalRequests, auditLogs, featuredCommunities, contactSubmissions, dmcaTakedowns,
   type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
@@ -19,7 +19,8 @@ import {
   type MarketplaceVendor, type InsertMarketplaceVendor,
   type MarketplaceVendorClick, type InsertMarketplaceVendorClick,
   type SelectFeaturedCommunity, type InsertFeaturedCommunity,
-  type InsertContactSubmission, type SelectContactSubmission
+  type InsertContactSubmission, type SelectContactSubmission,
+  type InsertDmcaTakedown, type SelectDmcaTakedown
 } from "@shared/schema";
 import { db } from "./db";
 
@@ -197,6 +198,12 @@ export interface IStorage {
   createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission>;
   getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]>;
   updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined>;
+  
+  // DMCA takedown methods
+  createDmcaTakedown(takedown: InsertDmcaTakedown): Promise<SelectDmcaTakedown>;
+  getDmcaTakedowns(params?: { status?: string; communityId?: number; serviceId?: number }): Promise<SelectDmcaTakedown[]>;
+  processDmcaTakedown(id: number, action: 'removed' | 'counter_notice' | 'restored'): Promise<SelectDmcaTakedown | undefined>;
+  removeCopyrightedContent(communityId?: number, serviceId?: number, contentType: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {

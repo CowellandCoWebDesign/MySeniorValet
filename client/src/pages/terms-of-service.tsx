@@ -15,7 +15,7 @@ export default function TermsOfService() {
           </h1>
           
           <p className="text-lg text-gray-600 dark:text-gray-300 mb-8">
-            Last updated: August 7, 2025
+            Last updated: September 26, 2025
           </p>
 
           <section className="mb-8">
@@ -191,7 +191,58 @@ export default function TermsOfService() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-              10. Termination
+              10. Data Caching & Copyright Policy (DMCA Compliance)
+            </h2>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+              MySeniorValet operates as a search engine and information aggregator under DMCA safe harbor provisions.
+              To provide comprehensive and up-to-date information while respecting copyright, we maintain the following cache policy:
+            </p>
+            
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-4">
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-3">Cache Duration Policy:</h3>
+              <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 space-y-2">
+                <li><strong>Photos & Images:</strong> 24 hours (DMCA 512(b) safe harbor compliance)</li>
+                <li><strong>Community Descriptions:</strong> 7 days (regularly refreshed for accuracy)</li>
+                <li><strong>Pricing Information:</strong> 7 days (updated weekly for market changes)</li>
+                <li><strong>Contact Information:</strong> 30 days (factual data, less frequent updates)</li>
+                <li><strong>Availability Status:</strong> Real-time (not cached)</li>
+              </ul>
+            </div>
+            
+            <h3 className="font-semibold text-gray-900 dark:text-white mb-3">DMCA Takedown Process:</h3>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+              If you believe content on MySeniorValet infringes your copyright, please submit a DMCA notice to:
+            </p>
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
+              <p className="text-gray-700 dark:text-gray-300">
+                <strong>DMCA Agent:</strong> MySeniorValet Legal Department<br/>
+                <strong>Email:</strong> dmca@myseniorvalet.com<br/>
+                <strong>Response Time:</strong> Within 24 hours of receipt
+              </p>
+            </div>
+            
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+              Your DMCA notice must include:
+            </p>
+            <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 space-y-1 text-sm">
+              <li>Your name and contact information</li>
+              <li>Identification of the copyrighted work</li>
+              <li>URL or description of the allegedly infringing content</li>
+              <li>A statement of good faith belief that the use is unauthorized</li>
+              <li>A statement under penalty of perjury that the information is accurate</li>
+              <li>Your electronic or physical signature</li>
+            </ul>
+            
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4 text-sm">
+              Upon receipt of a valid DMCA notice, we will immediately remove the content and notify 
+              the content provider. Counter-notices may be submitted within 14 days. Content may be 
+              restored after 10-14 business days if no legal action is taken.
+            </p>
+          </section>
+
+          <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+              11. Termination
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
               Either party may terminate this agreement at any time. MySeniorValet 
@@ -205,7 +256,7 @@ export default function TermsOfService() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-              11. Changes to Terms
+              12. Changes to Terms
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
               MySeniorValet reserves the right to modify these terms at any time. 
@@ -216,7 +267,7 @@ export default function TermsOfService() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-              12. Governing Law and Dispute Resolution
+              13. Governing Law and Dispute Resolution
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
               These terms are governed by the laws of the jurisdiction where MySeniorValet 
@@ -226,7 +277,7 @@ export default function TermsOfService() {
 
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
-              13. Contact Information
+              14. Contact Information
             </h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
               For questions about these Terms of Service, please contact us:

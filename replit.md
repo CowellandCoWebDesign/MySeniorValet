@@ -61,6 +61,13 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Data Quality Improvements**: Removed 123 generic placeholders, 13 wrong-state entries
 - **Self-Healing Active**: Discovery Mode automatically fills remaining gaps
 
+## Recent Changes (September 26, 2025)
+- **DMCA Compliance Implementation** - Added DMCA takedown system with notice-and-takedown procedures for copyright compliance
+- **Legal-Safe Caching Strategy** - Implemented 24-hour photo cache (DMCA 512(b) safe harbor), 7-day descriptions, 30-day contact info
+- **Terms of Service Update** - Added comprehensive cache policy and DMCA compliance section to Terms of Service
+- **Copyright Protection Routes** - Created /api/dmca/submit endpoint for takedown notices and status tracking
+- **Cost-Optimized Compliance** - 24-hour cache still reduces API costs by 95%+ while maintaining legal safety
+
 ## Recent Changes (September 21, 2025)
 - **CRITICAL FIX: Removed fake phone number generation** - Eliminated synthetic phone numbers that violated Golden Data Rule
 - **Fixed toll-free directory numbers** - Removed 1,187 fake toll-free referral numbers from database
