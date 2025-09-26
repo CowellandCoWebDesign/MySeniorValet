@@ -39,34 +39,38 @@ Icon.Default.mergeOptions({
 // Circular icons with bold borders (no pointing portion)
 const createSimpleIcon = (color: string) => {
   const size = 30; // Size of the circular marker
+  // Sanitize color input to prevent XSS
+  const safeColor = color.replace(/[^a-zA-Z0-9#]/g, '');
+  const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <!-- Drop shadow for depth -->
+      <defs>
+        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+          <feOffset dx="0" dy="2" result="offsetblur"/>
+          <feFlood flood-color="rgba(0,0,0,0.3)"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      <!-- Main circle with bold colored border -->
+      <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
+              fill="white" 
+              stroke="${safeColor}" 
+              stroke-width="4" 
+              filter="url(#shadow)"/>
+      
+      <!-- Inner dot for visual interest -->
+      <circle cx="${size/2}" cy="${size/2}" r="4" fill="${safeColor}"/>
+    </svg>
+  `;
+  
   return new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-        <!-- Drop shadow for depth -->
-        <defs>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-            <feOffset dx="0" dy="2" result="offsetblur"/>
-            <feFlood flood-color="rgba(0,0,0,0.3)"/>
-            <feComposite in2="offsetblur" operator="in"/>
-            <feMerge>
-              <feMergeNode/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        
-        <!-- Main circle with bold colored border -->
-        <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
-                fill="white" 
-                stroke="${color}" 
-                stroke-width="4" 
-                filter="url(#shadow)"/>
-        
-        <!-- Inner dot for visual interest -->
-        <circle cx="${size/2}" cy="${size/2}" r="4" fill="${color}"/>
-      </svg>
-    `)}`,
+    iconUrl: `data:image/svg+xml;base64,${btoa(svgString)}`,
     iconSize: [size, size],
     iconAnchor: [size/2, size/2],
     popupAnchor: [0, -size/2],

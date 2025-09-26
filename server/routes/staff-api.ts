@@ -40,6 +40,7 @@ function sanitizeOutput(input: any): any {
 }
 
 // Mock data store - will be replaced with database
+// Using clearly example/placeholder data to prevent security warnings
 const staffData = {
   members: [
     {
@@ -48,8 +49,8 @@ const staffData = {
       role: 'Director of Nursing',
       department: 'Nursing',
       photo: '/api/placeholder/100/100',
-      email: 'sarah.j@community.com',
-      phone: '(555) 123-4567',
+      email: 'example1@example.local',  // Using .local domain to indicate non-routable
+      phone: '(000) 000-0001',  // Using clearly non-functional numbers
       certifications: ['RN', 'CPR', 'Dementia Care', 'Wound Care'],
       specializations: ['Memory Care', 'Rehabilitation', 'Palliative Care'],
       shift: 'Day Shift (7AM-3PM)',
@@ -57,7 +58,7 @@ const staffData = {
       rating: 4.9,
       yearsExperience: 15,
       languages: ['English', 'Spanish'],
-      emergencyContact: '(555) 987-6543',
+      emergencyContact: '(000) 000-0002',  // Using clearly non-functional numbers
       nextTraining: 'Annual CPR Recertification',
       complianceScore: 98
     },
@@ -67,8 +68,8 @@ const staffData = {
       role: 'Charge Nurse',
       department: 'Nursing',
       photo: '/api/placeholder/100/100',
-      email: 'michael.c@community.com',
-      phone: '(555) 234-5678',
+      email: 'example2@example.local',  // Using .local domain to indicate non-routable
+      phone: '(000) 000-0003',  // Using clearly non-functional numbers
       certifications: ['LPN', 'CPR', 'Medication Administration'],
       specializations: ['Cardiac Care', 'Diabetes Management'],
       shift: 'Evening Shift (3PM-11PM)',
@@ -76,7 +77,7 @@ const staffData = {
       rating: 4.7,
       yearsExperience: 8,
       languages: ['English', 'Mandarin'],
-      emergencyContact: '(555) 876-5432',
+      emergencyContact: '(000) 000-0004',  // Using clearly non-functional numbers
       nextTraining: 'Infection Control Update',
       complianceScore: 95
     },
@@ -86,8 +87,8 @@ const staffData = {
       role: 'Certified Nursing Assistant',
       department: 'Care Team',
       photo: '/api/placeholder/100/100',
-      email: 'emily.r@community.com',
-      phone: '(555) 345-6789',
+      email: 'example3@example.local',  // Using .local domain to indicate non-routable
+      phone: '(000) 000-0005',  // Using clearly non-functional numbers
       certifications: ['CNA', 'CPR', 'First Aid'],
       specializations: ['Personal Care', 'Mobility Assistance'],
       shift: 'Day Shift (7AM-3PM)',
@@ -95,7 +96,7 @@ const staffData = {
       rating: 4.8,
       yearsExperience: 5,
       languages: ['English', 'Spanish', 'Portuguese'],
-      emergencyContact: '(555) 765-4321',
+      emergencyContact: '(000) 000-0006',  // Using clearly non-functional numbers
       nextTraining: 'Infection Control',
       complianceScore: 97
     }
