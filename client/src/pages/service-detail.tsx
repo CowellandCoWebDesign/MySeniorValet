@@ -308,9 +308,9 @@ export default function ServiceDetail() {
       // Add demo partnership tier if missing
       partnershipTier: rawService.partnershipTier || 'featured',
       
-      // Add demo view count and response rate if missing
-      viewCount: rawService.viewCount || Math.floor(Math.random() * 500 + 200),
-      responseRate: rawService.responseRate || Math.floor(Math.random() * 10 + 85),
+      // Use real view count or default, no random numbers
+      viewCount: rawService.viewCount || 247, // Default to a realistic fixed number
+      responseRate: rawService.responseRate || 92, // Default to a realistic fixed percentage
       
       // Add demo special offers if missing
       specialOffers: rawService.specialOffers?.length ? rawService.specialOffers : [
@@ -628,7 +628,7 @@ export default function ServiceDetail() {
                   <div className="flex items-center gap-4 mt-4 text-sm text-gray-600 dark:text-gray-400">
                     <div className="flex items-center gap-1">
                       <Eye className="w-4 h-4" />
-                      <span>{service.viewCount || Math.floor(Math.random() * 300 + 100)} views this month</span>
+                      <span>{service.viewCount || 247} views this month</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <TrendingUp className="w-4 h-4 text-green-500" />
@@ -819,64 +819,6 @@ export default function ServiceDetail() {
                         Valid until {new Date(offer.validUntil).toLocaleDateString()}
                       </p>
                     )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Service Packages / Pricing */}
-        {(service.servicePackages && service.servicePackages.length > 0) && (
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <DollarSign className="w-5 h-5 text-green-500" />
-              Service Packages
-            </h2>
-            <div className="grid gap-4 md:grid-cols-3">
-              {service.servicePackages.map((pkg, idx) => (
-                <Card key={idx} className={pkg.popular ? "border-2 border-blue-500 relative" : ""}>
-                  {pkg.popular && (
-                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-blue-500 text-white">
-                        <Star className="w-3 h-3 mr-1" />
-                        Most Popular
-                      </Badge>
-                    </div>
-                  )}
-                  <CardHeader>
-                    <CardTitle className="text-lg">{pkg.name}</CardTitle>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-white">{pkg.price}</div>
-                    <CardDescription>{pkg.description}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="space-y-2">
-                      {pkg.features.map((feature, fidx) => (
-                        <li key={fidx} className="flex items-center gap-2 text-sm">
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                          <span className="text-gray-700 dark:text-gray-300">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <Button 
-                      className="w-full mt-4" 
-                      variant={pkg.popular ? "default" : "outline"}
-                      onClick={() => {
-                        toast({
-                          title: "Package Selected",
-                          description: `${pkg.name} package selected. Redirecting to booking...`,
-                        });
-                        // If website available, redirect with package info
-                        if (service.website) {
-                          setTimeout(() => {
-                            window.open(`${service.website}?package=${encodeURIComponent(pkg.name)}`, '_blank');
-                          }, 1000);
-                        }
-                      }}
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      Choose Package
-                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -1153,6 +1095,64 @@ export default function ServiceDetail() {
                 </CardContent>
               </Card>
             </div>
+            
+            {/* Service Packages / Pricing */}
+            {(service.servicePackages && service.servicePackages.length > 0) && (
+              <div className="mt-6">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-green-500" />
+                  Service Packages
+                </h2>
+                <div className="grid gap-4 md:grid-cols-3">
+                  {service.servicePackages.map((pkg, idx) => (
+                    <Card key={idx} className={pkg.popular ? "border-2 border-blue-500 relative" : ""}>
+                      {pkg.popular && (
+                        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                          <Badge className="bg-blue-500 text-white">
+                            <Star className="w-3 h-3 mr-1" />
+                            Most Popular
+                          </Badge>
+                        </div>
+                      )}
+                      <CardHeader>
+                        <CardTitle className="text-lg">{pkg.name}</CardTitle>
+                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{pkg.price}</div>
+                        <CardDescription>{pkg.description}</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-2">
+                          {pkg.features.map((feature, fidx) => (
+                            <li key={fidx} className="flex items-center gap-2 text-sm">
+                              <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                              <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        <Button 
+                          className="w-full mt-4" 
+                          variant={pkg.popular ? "default" : "outline"}
+                          onClick={() => {
+                            toast({
+                              title: "Package Selected",
+                              description: `${pkg.name} package selected. Redirecting to booking...`,
+                            });
+                            // If website available, redirect with package info
+                            if (service.website) {
+                              setTimeout(() => {
+                                window.open(`${service.website}?package=${encodeURIComponent(pkg.name)}`, '_blank');
+                              }, 1000);
+                            }
+                          }}
+                        >
+                          <ShoppingCart className="w-4 h-4 mr-2" />
+                          Choose Package
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           <TabsContent value="services">
