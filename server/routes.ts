@@ -304,44 +304,39 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           }
         }
         
-        // PRIORITY 3: Use the new PhotoAcquisitionPipeline for comprehensive multi-source photo discovery
+        // PRIORITY 3: Try to extract photos from Perplexity response text
         if (extractedPhotos.length === 0) {
-          console.log(`🔍 Using PhotoAcquisitionPipeline for comprehensive multi-source photo discovery...`);
+          console.log(`🔍 Extracting photos from Perplexity response text...`);
           
-          try {
-            const { PhotoAcquisitionPipeline } = await import('./photo-acquisition-pipeline');
-            
-            const photoAssets = await PhotoAcquisitionPipeline.acquirePhotos(
-              serviceName,
-              { city, state },
-              serviceType,
-              extractedWebsite,
-              answer // Pass the Perplexity response for source extraction
-            );
-            
-            if (photoAssets.length > 0) {
-              console.log(`✅ PhotoAcquisitionPipeline found ${photoAssets.length} photos from multiple sources`);
-              
-              // Convert PhotoAssets to proxied URLs
-              extractedPhotos = photoAssets.map(asset => {
-                if (asset.url.includes('http')) {
-                  return `/api/image-proxy?url=${encodeURIComponent(asset.url)}`;
-                }
-                return asset.url;
-              });
-              
-              // Log source breakdown
-              const sourceBreakdown: { [key: string]: number } = {};
-              photoAssets.forEach(asset => {
-                sourceBreakdown[asset.sourceType] = (sourceBreakdown[asset.sourceType] || 0) + 1;
-              });
-              console.log(`📊 Photo sources:`, sourceBreakdown);
-              console.log(`🎉 Successfully acquired ${extractedPhotos.length} photos through multi-source pipeline`);
-            } else {
-              console.log(`📷 PhotoAcquisitionPipeline couldn't find photos for ${serviceName}`);
-            }
-          } catch (pipelineError) {
-            console.error(`PhotoAcquisitionPipeline error:`, pipelineError);
+          // Look for image URLs in the response content
+          const imageUrlRegex = /https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif)/gi;
+          const foundUrls = answer.match(imageUrlRegex) || [];
+          
+          if (foundUrls.length > 0) {
+            console.log(`✅ Found ${foundUrls.length} image URLs in response text`);
+            extractedPhotos = foundUrls.slice(0, 20).map(url => {
+              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+            });
+          }
+          
+          // Also try to find photos from any directory listings mentioned
+          const directoryUrls = [
+            'yelp.com',
+            'tripadvisor.com',
+            'google.com/maps',
+            'facebook.com',
+            'instagram.com'
+          ];
+          
+          // Extract any directory URLs mentioned in the response
+          const urlMatches = answer.match(/https?:\/\/[^\s]+/gi) || [];
+          const directoryListings = urlMatches.filter(url => 
+            directoryUrls.some(dir => url.includes(dir))
+          );
+          
+          if (directoryListings.length > 0 && extractedPhotos.length === 0) {
+            console.log(`📍 Found ${directoryListings.length} directory listings for ${serviceName}`);
+            // Note: We can't scrape these directly due to blocking, but we log them for reference
           }
         }
         
