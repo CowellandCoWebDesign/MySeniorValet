@@ -111,7 +111,7 @@ export class NLPSearchSystem {
     limit?: number;
     filters?: any;
     userContext?: any;
-    category?: 'communities' | 'services' | 'healthcare' | 'resources';
+    category?: 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors';
   }): Promise<{
     results: UnifiedSearchResult[];
     intent: QueryIntent;
@@ -126,10 +126,15 @@ export class NLPSearchSystem {
     
     // Override databases based on category if provided
     if (options?.category) {
-      // Services category should search both services AND vendors tables
-      // (vendors table contains discovered hotels, restaurants, etc.)
+      // Services category should only search services table
+      // Vendors should be searched separately in vendors tab
       if (options.category === 'services') {
-        intent.databases = ['services', 'vendors'];
+        intent.databases = ['services'];
+      } else if (options.category === 'vendors') {
+        intent.databases = ['vendors'];
+      } else if (options.category === 'resources') {
+        // Resources doesn't have a table yet, but set it anyway
+        intent.databases = ['resources'];
       } else {
         intent.databases = [options.category];
       }
@@ -649,7 +654,7 @@ export class NLPSearchSystem {
         let state = '';
         
         // First check if we have a location entity with city-state pattern
-        if (intent.entities?.locations?.length > 0) {
+        if (intent.entities?.locations && intent.entities.locations.length > 0) {
           const locationEntity = intent.entities.locations[0];
           cityStateMatch = locationEntity.match(/^([^,]+),\s*([A-Z]{2})$/i);
           if (cityStateMatch) {
@@ -982,47 +987,11 @@ export class NLPSearchSystem {
     options?: any
   ): Promise<UnifiedSearchResult[]> {
     try {
-      const conditions = [];
-      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
-      
-      // Search educational resources
-      const resourceConditions = searchTerms.map(term =>
-        or(
-          ilike(educationalResources.title, `%${term}%`),
-          ilike(educationalResources.description, `%${term}%`),
-          ilike(educationalResources.category, `%${term}%`),
-          ilike(educationalResources.subcategory, `%${term}%`),
-          ilike(educationalResources.content, `%${term}%`),
-          ilike(educationalResources.summary, `%${term}%`)
-        )
-      );
-      
-      if (resourceConditions.length > 0) {
-        conditions.push(or(...resourceConditions));
-      }
-      
-      // Only get active resources
-      conditions.push(eq(educationalResources.isActive, true));
-      
-      const results = await db
-        .select()
-        .from(educationalResources)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(educationalResources.viewCount))
-        .limit(options?.limit || 50);
-      
-      return results.map(resource => ({
-        type: 'resource' as const,
-        id: resource.id,
-        data: resource,
-        score: 0.85,
-        source: 'educational_resources',
-        metadata: {
-          database: 'educational_resources',
-          matchedFields: ['title', 'category', 'content'],
-          queryRelevance: 0.85,
-        }
-      }));
+      // Since educationalResources table doesn't exist yet,
+      // return empty results for now
+      // TODO: Implement resources search when educationalResources table is created
+      console.log('Resources search not yet implemented - educationalResources table does not exist');
+      return [];
     } catch (error) {
       console.error('Resources search error:', error);
       return [];
@@ -1068,6 +1037,18 @@ export class NLPSearchSystem {
         // Fallback to original format (e.g., "hotels in dallas")
         const locationMatch = cleanedQuery.match(/(?:in|at|near)\s+([a-zA-Z\s]+?)(?:\s+at\s+|\s+within\s+|$)/i);
         location = locationMatch ? locationMatch[1].trim() : null;
+        
+        // If no location pattern found, check if the query itself might be a location
+        // (e.g., simple searches like "Houston", "Dallas", "New York")
+        if (!location && !isGenericSearch) {
+          // Check if query might be a city/state name
+          const possibleLocation = cleanedQuery.trim();
+          // Simple heuristic: if it's 1-3 words and not a business keyword, treat as location
+          const words = possibleLocation.split(' ');
+          if (words.length <= 3 && !businessKeywords.includes(words[0].toLowerCase())) {
+            location = possibleLocation;
+          }
+        }
       }
       
       // Only extract business type if this looks like a generic search
