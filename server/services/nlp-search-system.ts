@@ -565,19 +565,9 @@ export class NLPSearchSystem {
           searchPromises.push(this.searchCommunities(query, intent, options));
           break;
         case 'services':
-          // Check if the query is for business types that belong in vendors
-          const lowerQuery = query.toLowerCase();
-          const businessTypes = ['hotel', 'restaurant', 'pharmacy', 'store', 'shop', 'cafe', 'lawyer', 'attorney'];
-          const isBusinessQuery = businessTypes.some(type => lowerQuery.includes(type));
-          
-          if (isBusinessQuery) {
-            // Only search vendors for business-type queries
-            searchPromises.push(this.searchVendors(query, intent, options));
-          } else {
-            // For actual services (therapy, transport, etc.), search both tables
-            searchPromises.push(this.searchServices(query, intent, options));
-            searchPromises.push(this.searchVendors(query, intent, options));
-          }
+          // When searching in Services tab, ONLY search the services table
+          // Don't mix in vendors or communities regardless of query type
+          searchPromises.push(this.searchServices(query, intent, options));
           break;
         case 'healthcare':
           searchPromises.push(this.searchHealthcare(query, intent, options));
@@ -887,6 +877,7 @@ export class NLPSearchSystem {
       
       // General text search across name and description
       // This will now search for ANY term in the query, not just specific keywords
+      // Also look for location references in service names/descriptions
       if (searchTerms.length > 0) {
         const searchConditions = searchTerms.map(term =>
           or(
@@ -900,6 +891,17 @@ export class NLPSearchSystem {
         if (searchConditions.length > 0) {
           conditions.push(or(...searchConditions));
         }
+      } else if (query.trim().length > 0) {
+        // If no search terms but we have a query, use the full query
+        // This handles single word searches like "Houston"
+        const term = query.trim();
+        conditions.push(
+          or(
+            ilike(services.name, `%${term}%`),
+            ilike(services.description, `%${term}%`),
+            ilike(services.shortDescription, `%${term}%`)
+          )
+        );
       }
       
       // Also check for service type keywords for better relevance
@@ -1031,6 +1033,20 @@ export class NLPSearchSystem {
         if (resourceConditions.length > 0) {
           conditions.push(or(...resourceConditions));
         }
+      } else if (query.trim().length > 0) {
+        // If no search terms but we have a query, use the full query
+        // This handles single word searches like "Houston"
+        const term = query.trim();
+        conditions.push(
+          or(
+            ilike(educationalResources.title, `%${term}%`),
+            ilike(educationalResources.description, `%${term}%`),
+            ilike(educationalResources.category, `%${term}%`),
+            ilike(educationalResources.subcategory, `%${term}%`),
+            ilike(educationalResources.content, `%${term}%`),
+            ilike(educationalResources.summary, `%${term}%`)
+          )
+        );
       }
       
       // Only get active resources
