@@ -49,8 +49,11 @@ export function VendorServiceCard({ vendor, variant = 'list', onSelect }: Vendor
   const description = vendor.description || vendor.short_description || vendor.shortDescription || '';
   const city = vendor.business_city || vendor.businessCity || vendor.city || '';
   const state = vendor.business_state || vendor.businessState || vendor.state || '';
-  const rating = vendor.average_rating || vendor.averageRating || vendor.rating || 0;
-  const reviews = vendor.total_reviews || vendor.totalReviews || 0;
+  // Ensure rating and reviews are always valid numbers
+  const ratingValue = vendor.average_rating || vendor.averageRating || vendor.rating || 0;
+  const rating = isNaN(parseFloat(ratingValue)) ? 0 : parseFloat(ratingValue);
+  const reviewsValue = vendor.total_reviews || vendor.totalReviews || 0;
+  const reviews = isNaN(parseInt(reviewsValue, 10)) ? 0 : parseInt(reviewsValue, 10);
   const isVerified = vendor.is_verified || vendor.isVerified || false;
   const logoUrl = vendor.logo_url || vendor.logoUrl;
   const phone = vendor.primary_contact_phone || vendor.primaryContactPhone;
