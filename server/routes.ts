@@ -304,146 +304,44 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           }
         }
         
-        // PRIORITY 3: If still no photos, do ONE comprehensive search across the entire internet
+        // PRIORITY 3: Use the new PhotoAcquisitionPipeline for comprehensive multi-source photo discovery
         if (extractedPhotos.length === 0) {
-          console.log(`🔍 Performing comprehensive photo search across the internet...`);
+          console.log(`🔍 Using PhotoAcquisitionPipeline for comprehensive multi-source photo discovery...`);
           
           try {
-            // Determine the business category for better search targeting
-            const businessCategory = serviceType?.toLowerCase() || 'business';
-            let searchContext = '';
+            const { PhotoAcquisitionPipeline } = await import('./photo-acquisition-pipeline');
             
-            // Adapt search based on service type
-            if (businessCategory.includes('restaurant') || businessCategory.includes('food') || businessCategory.includes('cafe') || businessCategory.includes('bar')) {
-              searchContext = 'restaurant, cafe, or food service';
-            } else if (businessCategory.includes('medical') || businessCategory.includes('doctor') || businessCategory.includes('clinic') || businessCategory.includes('hospital')) {
-              searchContext = 'medical facility or healthcare provider';
-            } else if (businessCategory.includes('legal') || businessCategory.includes('attorney') || businessCategory.includes('lawyer')) {
-              searchContext = 'law firm or legal services provider';
-            } else if (businessCategory.includes('home') || businessCategory.includes('care') || businessCategory.includes('senior')) {
-              searchContext = 'senior care or home services provider';
-            } else if (businessCategory.includes('transport') || businessCategory.includes('shuttle') || businessCategory.includes('taxi')) {
-              searchContext = 'transportation or mobility service';
-            } else if (businessCategory.includes('retail') || businessCategory.includes('store') || businessCategory.includes('shop')) {
-              searchContext = 'retail store or shopping location';
-            } else if (businessCategory.includes('fitness') || businessCategory.includes('gym') || businessCategory.includes('recreation')) {
-              searchContext = 'fitness or recreation facility';
-            } else if (businessCategory.includes('bank') || businessCategory.includes('financial') || businessCategory.includes('insurance')) {
-              searchContext = 'financial services provider';
-            } else {
-              searchContext = businessCategory || 'business or service provider';
-            }
+            const photoAssets = await PhotoAcquisitionPipeline.acquirePhotos(
+              serviceName,
+              { city, state },
+              serviceType,
+              extractedWebsite,
+              answer // Pass the Perplexity response for source extraction
+            );
             
-            const comprehensiveSearchQuery = `${serviceName} ${city} ${state} photos images`;
-            console.log(`🔎 Single comprehensive search for ${searchContext}: ${comprehensiveSearchQuery}`);
-            
-            const expandedSearchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${perplexityApiKey}`,
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                model: 'sonar-pro',
-                messages: [
-                  {
-                    role: 'system',
-                    content: 'You are a comprehensive photo finder. Your job is to find and list actual image URLs. Return a numbered list of direct image URLs (JPG, PNG, WEBP, etc.) from across the internet. Include the full URL for each image.'
-                  },
-                  {
-                    role: 'user',
-                    content: `Find photos for "${serviceName}" located in ${city}, ${state}. This is a ${searchContext}.
-
-Search these sources for images:
-1. Google Images and Google Maps photos
-2. Yelp, TripAdvisor, OpenTable photos
-3. Facebook, Instagram, Twitter images
-4. The business's official website
-5. Local news sites and blogs
-6. Review platforms and directories
-
-Return a numbered list of at least 20 direct image URLs like:
-1. https://example.com/image1.jpg
-2. https://example.com/image2.png
-3. https://example.com/image3.webp
-
-Focus on actual photos of:
-- Building exterior
-- Interior spaces
-- Products/services
-- Staff/team
-- Signage
-
-IMPORTANT: Return actual direct image URLs that end in .jpg, .png, .webp, etc.`
-                  }
-                ],
-                temperature: 0.1,
-                max_tokens: 3000,
-                search_domain_filter: [''],  // Search all domains
-                return_images: true,
-                return_related_questions: false,
-                search_recency_filter: 'all'
-              })
-            });
-            
-            if (expandedSearchResponse.ok) {
-              const expandedData = await expandedSearchResponse.json();
-              console.log(`📊 Comprehensive search response:`, {
-                hasImages: !!expandedData.provider_metadata?.images,
-                imageCount: expandedData.provider_metadata?.images?.length || 0,
-                hasCitations: !!expandedData.citations,
-                hasContent: !!expandedData.choices?.[0]?.message?.content
+            if (photoAssets.length > 0) {
+              console.log(`✅ PhotoAcquisitionPipeline found ${photoAssets.length} photos from multiple sources`);
+              
+              // Convert PhotoAssets to proxied URLs
+              extractedPhotos = photoAssets.map(asset => {
+                if (asset.url.includes('http')) {
+                  return `/api/image-proxy?url=${encodeURIComponent(asset.url)}`;
+                }
+                return asset.url;
               });
               
-              // Check for images in multiple places in the response
-              let foundImages: string[] = [];
-              
-              // Try provider_metadata.images first
-              if (expandedData.provider_metadata?.images && Array.isArray(expandedData.provider_metadata.images)) {
-                console.log(`✅ Found ${expandedData.provider_metadata.images.length} photos in provider_metadata`);
-                foundImages = expandedData.provider_metadata.images.map((img: any) => {
-                  const url = img.imageUrl || img.url || img;
-                  return typeof url === 'string' ? url : '';
-                }).filter(Boolean);
-              }
-              
-              // Try citations if no images found
-              if (foundImages.length === 0 && expandedData.citations) {
-                console.log(`🔍 Checking citations for images...`);
-                for (const citation of expandedData.citations) {
-                  if (citation.images && Array.isArray(citation.images)) {
-                    foundImages.push(...citation.images);
-                  }
-                }
-              }
-              
-              // Extract images from the content text using regex
-              if (foundImages.length === 0 && expandedData.choices?.[0]?.message?.content) {
-                console.log(`🔍 Extracting images from response content...`);
-                const content = expandedData.choices[0].message.content;
-                const imageRegex = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^\s]*)?/gi;
-                const matches = content.match(imageRegex) || [];
-                foundImages.push(...matches);
-              }
-              
-              if (foundImages.length > 0) {
-                console.log(`✅ Found ${foundImages.length} total photos from comprehensive search`);
-                const newPhotos = foundImages.slice(0, 50).map((photoUrl: string) => {
-                  if (photoUrl.includes('http')) {
-                    return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                  }
-                  return photoUrl;
-                });
-                extractedPhotos.push(...newPhotos);
-                console.log(`🎉 Successfully retrieved ${extractedPhotos.length} photos with single comprehensive search`);
-              } else {
-                console.log(`📷 Comprehensive search found no photos for ${searchContext} - API may not be returning images`);
-              }
+              // Log source breakdown
+              const sourceBreakdown: { [key: string]: number } = {};
+              photoAssets.forEach(asset => {
+                sourceBreakdown[asset.sourceType] = (sourceBreakdown[asset.sourceType] || 0) + 1;
+              });
+              console.log(`📊 Photo sources:`, sourceBreakdown);
+              console.log(`🎉 Successfully acquired ${extractedPhotos.length} photos through multi-source pipeline`);
             } else {
-              console.log(`❌ Comprehensive search API error: ${expandedSearchResponse.status} ${expandedSearchResponse.statusText}`);
+              console.log(`📷 PhotoAcquisitionPipeline couldn't find photos for ${serviceName}`);
             }
-          } catch (searchError) {
-            console.log(`Comprehensive search failed:`, searchError);
+          } catch (pipelineError) {
+            console.error(`PhotoAcquisitionPipeline error:`, pipelineError);
           }
         }
         
