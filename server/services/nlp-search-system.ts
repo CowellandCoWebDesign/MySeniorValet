@@ -147,7 +147,8 @@ export class NLPSearchSystem {
     console.log('🔍 Enhanced Query:', enhancedQuery);
     
     // 3. Multi-Database Federation
-    const federatedResults = await this.federatedSearch(enhancedQuery, intent, options);
+    // Pass both original and enhanced query - vendors need original query (no location tags)
+    const federatedResults = await this.federatedSearch(enhancedQuery, intent, options, query);
     
     // 4. RAG Pipeline for Q&A
     let answer: string | undefined;
@@ -554,7 +555,8 @@ export class NLPSearchSystem {
   private async federatedSearch(
     query: string, 
     intent: QueryIntent,
-    options?: any
+    options?: any,
+    originalQuery?: string
   ): Promise<UnifiedSearchResult[]> {
     const searchPromises: Promise<UnifiedSearchResult[]>[] = [];
     
@@ -576,7 +578,8 @@ export class NLPSearchSystem {
           searchPromises.push(this.searchResources(query, intent, options));
           break;
         case 'vendors':
-          searchPromises.push(this.searchVendors(query, intent, options));
+          // Use original query for vendors (they're online affiliates, not location-based)
+          searchPromises.push(this.searchVendors(originalQuery || query, intent, options));
           break;
       }
     }
@@ -873,12 +876,24 @@ export class NLPSearchSystem {
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
+      const fullQuery = query.trim();
       const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
       
-      // General text search across name and description
-      // This will now search for ANY term in the query, not just specific keywords
-      // Also look for location references in service names/descriptions
-      if (searchTerms.length > 0) {
+      // FIRST: Try exact match on the full query for better results
+      // This will find "Madison Bear Garden" when searching for "Madison Bear Garden"
+      if (fullQuery.length > 0) {
+        conditions.push(
+          or(
+            ilike(services.name, `%${fullQuery}%`),
+            ilike(services.description, `%${fullQuery}%`),
+            ilike(services.shortDescription, `%${fullQuery}%`)
+          )
+        );
+      }
+      
+      // ALSO: Search for individual terms to catch partial matches
+      // This ensures we still find relevant results even if exact match fails
+      if (searchTerms.length > 0 && searchTerms.join(' ') !== fullQuery.toLowerCase()) {
         const searchConditions = searchTerms.map(term =>
           or(
             ilike(services.name, `%${term}%`),
@@ -891,17 +906,6 @@ export class NLPSearchSystem {
         if (searchConditions.length > 0) {
           conditions.push(or(...searchConditions));
         }
-      } else if (query.trim().length > 0) {
-        // If no search terms but we have a query, use the full query
-        // This handles single word searches like "Houston"
-        const term = query.trim();
-        conditions.push(
-          or(
-            ilike(services.name, `%${term}%`),
-            ilike(services.description, `%${term}%`),
-            ilike(services.shortDescription, `%${term}%`)
-          )
-        );
       }
       
       // Also check for service type keywords for better relevance
@@ -1017,22 +1021,6 @@ export class NLPSearchSystem {
       const conditions = [];
       const queryLower = query.toLowerCase();
       
-      // Resources are not location-specific, so ignore pure location searches
-      // Only search if the query contains relevant keywords for resources
-      const isLocationOnly = intent.entities?.locations && intent.entities.locations.length > 0 && 
-                            !queryLower.includes('guide') && 
-                            !queryLower.includes('resource') &&
-                            !queryLower.includes('help') &&
-                            !queryLower.includes('information') &&
-                            !queryLower.includes('article') &&
-                            !queryLower.includes('tips');
-      
-      if (isLocationOnly) {
-        // Don't search resources for pure location queries
-        console.log(`📚 Skipping resources search for location-only query: "${query}"`);
-        return [];
-      }
-      
       const searchTerms = queryLower.split(' ').filter(term => term.length > 1);
       
       // Search educational resources with general text search
@@ -1105,142 +1093,51 @@ export class NLPSearchSystem {
     options?: any
   ): Promise<UnifiedSearchResult[]> {
     try {
+      // Vendors are online affiliate partners, not location-based
+      // Skip searches that are definitely city/state names
+      const queryLower = query.toLowerCase();
+      
+      // Check if this looks like a genuine location search (city or state name)
+      // Common city names and state names/abbreviations
+      const locationPatterns = /^(chicago|dallas|houston|austin|phoenix|philadelphia|san antonio|san diego|san francisco|new york|los angeles|seattle|denver|boston|miami|atlanta|chico|sacramento|fresno|oakland|san jose|CA|TX|NY|FL|IL|PA|OH|GA|NC|MI|NJ|VA|WA|AZ|MA|TN|IN|MO|MD|WI|CO|MN|OR|SC|AL|LA|KY|OK|CT|UT|IA|NV|AR|MS|KS|NM|NE|WV|ID|HI|NH|ME|MT|RI|DE|SD|ND|AK|VT|WY)$/i;
+      
+      const isDefinitelyLocation = locationPatterns.test(query.trim());
+      
+      if (isDefinitelyLocation) {
+        // Don't search vendors for pure location queries
+        console.log(`🛍️ Skipping vendors search for location query: "${query}"`);
+        return [];
+      }
+      
       // Clean query for database search (remove parentheses which can cause issues)
       const cleanedQuery = query.replace(/[()]/g, ' ').trim();
-      const queryLower = cleanedQuery.toLowerCase();
       
-      const orConditions = [];
+      // Search for vendor names matching the query
+      const conditions = [];
       
-      // Check if this is a specific business name search vs generic type search
-      const businessKeywords = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'pharmacies', 'store', 'stores', 'shop', 'shops', 'cafe', 'cafes'];
-      const firstWord = queryLower.split(' ')[0];
-      const isGenericSearch = businessKeywords.includes(firstWord) && queryLower.split(' ').length <= 3;
-      
-      // PRIORITY 1: Search for the full query as a business name
-      // BUT skip this if the query is just a location name (will be handled by location search)
-      // This handles specific searches like "Hotel Moana Shinjuku" or "Marriott Downtown"
-      const isLocationOnly = intent.entities?.locations && intent.entities.locations.length > 0 && 
-                            !isGenericSearch && 
-                            queryLower.split(' ').length <= 2;
-      
-      if (queryLower.length > 0 && !isLocationOnly) {
-        orConditions.push(
-          ilike(vendors.businessName, `%${cleanedQuery}%`)
-        );
-      }
-      
-      // Extract location from query (e.g., "hotels in dallas" -> location: "dallas")
-      let location: string | null = null;
-      
-      // Try to extract from enhanced format first (e.g., "location:dallas")
-      const enhancedLocationMatch = cleanedQuery.match(/location:([a-zA-Z\s]+?)(?:\s|$)/i);
-      if (enhancedLocationMatch) {
-        location = enhancedLocationMatch[1].trim();
-      } else {
-        // Fallback to original format (e.g., "hotels in dallas")
-        const locationMatch = cleanedQuery.match(/(?:in|at|near)\s+([a-zA-Z\s]+?)(?:\s+at\s+|\s+within\s+|$)/i);
-        location = locationMatch ? locationMatch[1].trim() : null;
-        
-        // If no location pattern found, check if the query itself might be a location
-        // (e.g., simple searches like "Houston", "Dallas", "New York")
-        if (!location && !isGenericSearch) {
-          // Check if query might be a city/state name
-          const possibleLocation = cleanedQuery.trim();
-          // Simple heuristic: if it's 1-3 words and not a business keyword, treat as location
-          const words = possibleLocation.split(' ');
-          if (words.length <= 3 && !businessKeywords.includes(words[0].toLowerCase())) {
-            location = possibleLocation;
-          }
-        }
-      }
-      
-      // Only extract business type if this looks like a generic search
-      let businessType: string | null = null;
-      if (isGenericSearch) {
-        // Extract business type from query (e.g., "hotels" from "hotels in dallas")
-        const businessTypeMatch = cleanedQuery.match(/^(hotel|hotels|restaurant|restaurants|pharmacy|pharmacies|store|stores|shop|shops|cafe|cafes)(?:\s|$)/i);
-        businessType = businessTypeMatch ? businessTypeMatch[1].trim() : null;
-        
-        // PRIORITY 2: Search for business type in business name and description
-        // Most businesses have generic business_type='service', so search in name/description instead
-        if (businessType) {
-          const searchTerms = [];
-          
-          // Add common variations for hotel searches
-          if (businessType.toLowerCase().includes('hotel')) {
-            searchTerms.push('hotel', 'inn', 'suites', 'resort', 'lodge', 'motel');
-          } else if (businessType.toLowerCase().includes('restaurant')) {
-            searchTerms.push('restaurant', 'cafe', 'bistro', 'diner', 'grill');
-          } else if (businessType.toLowerCase().includes('pharmacy')) {
-            searchTerms.push('pharmacy', 'drug', 'drugstore', 'chemist');
-          } else {
-            searchTerms.push(businessType);
-          }
-          
-          // Build conditions for each search term - search in business name and description
-          for (const term of searchTerms) {
-            // Search in business name (primary)
-            orConditions.push(
-              ilike(vendors.businessName, `%${term}%`)
-            );
-            // Also search in description
-            orConditions.push(
-              ilike(vendors.description, `%${term}%`)
-            );
-          }
-        }
-      }
-      
-      // Build WHERE clause based on what we have
-      let whereClause;
-      
-      if (location && orConditions.length > 0) {
-        // Both location and business type: location AND (any business type match)
-        whereClause = and(
+      if (cleanedQuery.length > 0) {
+        conditions.push(
           or(
-            ilike(vendors.businessCity, `%${location}%`),
-            ilike(vendors.businessState, `%${location}%`)
-          ),
-          or(...orConditions)
+            ilike(vendors.businessName, `%${cleanedQuery}%`),
+            ilike(vendors.businessType, `%${cleanedQuery}%`),
+            ilike(vendors.description, `%${cleanedQuery}%`)
+          )
         );
-      } else if (location && orConditions.length === 0) {
-        // Just location search
-        whereClause = or(
-          ilike(vendors.businessCity, `%${location}%`),
-          ilike(vendors.businessState, `%${location}%`)
-        );
-      } else if (!location && orConditions.length > 0) {
-        // Just business type search or name search
-        whereClause = or(...orConditions);
-      } else if (!businessType && !location && orConditions.length === 0) {
-        // If no business type and no location, search the full query in all text fields
-        const fullQuery = cleanedQuery.trim();
-        if (fullQuery) {
-          whereClause = or(
-            ilike(vendors.businessName, `%${fullQuery}%`),
-            ilike(vendors.businessCity, `%${fullQuery}%`),
-            ilike(vendors.description, `%${fullQuery}%`)
-          );
-        }
       }
+      
       
       let dbQuery = db.select().from(vendors) as any;
       
-      if (whereClause) {
-        dbQuery = dbQuery.where(whereClause);
+      if (conditions.length > 0) {
+        dbQuery = dbQuery.where(and(...conditions));
       }
       
       // Debug logging
-      console.log(`🔍 Vendor search for "${query}":`, {
-        location,
-        businessType: businessType || 'none',
-        businessTypeConditions: orConditions.length,
-        hasWhereClause: !!whereClause
-      });
+      console.log(`🔍 Vendor search for "${query}" (cleaned: "${cleanedQuery}"), conditions:`, conditions.length);
       
       const results = await dbQuery.limit(options?.limit || 50);
       
-      console.log(`✅ Vendor search found ${results.length} results for "${query}" in ${location || 'any location'}`);
+      console.log(`✅ Vendor search found ${results.length} results for "${query}"`);
       
       return results.map((vendor: any) => ({
         type: 'vendor' as const,

@@ -848,6 +848,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             
             {/* Mode Toggle Switches - Below search bar */}
+            {/* Hide map and discovery for vendors tab since vendors are online affiliates */}
             <div className="mt-4 flex items-center justify-center gap-6">
               {/* Database Search Toggle */}
               <div className="flex items-center gap-2">
@@ -860,24 +861,38 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                 />
               </div>
               
-              {/* Map Toggle */}
-              <div className="flex items-center gap-2">
-                <label htmlFor="map-toggle" className="text-white text-sm font-medium">Map</label>
+              {/* Map Toggle - Disabled for Vendors tab */}
+              <div className={`flex items-center gap-2 ${activeTab === 'vendors' ? 'opacity-50' : ''}`}>
+                <label 
+                  htmlFor="map-toggle" 
+                  className={`text-white text-sm font-medium ${activeTab === 'vendors' ? 'cursor-not-allowed' : ''}`}
+                  title={activeTab === 'vendors' ? 'Map not available for online vendors' : ''}
+                >
+                  Map
+                </label>
                 <Switch
                   id="map-toggle"
                   checked={viewMode === 'map'}
-                  onCheckedChange={(checked) => checked && setViewMode('map')}
+                  onCheckedChange={(checked) => activeTab !== 'vendors' && checked && setViewMode('map')}
+                  disabled={activeTab === 'vendors'}
                   className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-500"
                 />
               </div>
               
-              {/* Discovery Mode Toggle */}
-              <div className="flex items-center gap-2">
-                <label htmlFor="discovery-toggle" className="text-white text-sm font-medium">Discovery Mode</label>
+              {/* Discovery Mode Toggle - Disabled for Vendors tab */}
+              <div className={`flex items-center gap-2 ${activeTab === 'vendors' ? 'opacity-50' : ''}`}>
+                <label 
+                  htmlFor="discovery-toggle" 
+                  className={`text-white text-sm font-medium ${activeTab === 'vendors' ? 'cursor-not-allowed' : ''}`}
+                  title={activeTab === 'vendors' ? 'Discovery not available for approved vendors' : ''}
+                >
+                  Discovery Mode
+                </label>
                 <Switch
                   id="discovery-toggle"
                   checked={viewMode === 'discover'}
-                  onCheckedChange={(checked) => checked && setViewMode('discover')}
+                  onCheckedChange={(checked) => activeTab !== 'vendors' && checked && setViewMode('discover')}
+                  disabled={activeTab === 'vendors'}
                   className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
                 />
               </div>
