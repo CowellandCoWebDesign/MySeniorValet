@@ -683,6 +683,45 @@ export default function ServiceDetail() {
                   
                   <Separator className="my-4" />
                   
+                  {/* Direct Action CTAs */}
+                  {service.partnershipTier === 'featured' || service.partnershipTier === 'national' ? (
+                    <div className="space-y-3 mb-4">
+                      <Button 
+                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold"
+                        size="lg"
+                        onClick={() => {
+                          if (service.website) {
+                            window.open(service.website, '_blank');
+                          } else {
+                            toast({
+                              title: "Opening booking page",
+                              description: `Connecting you with ${service.name}`,
+                            });
+                          }
+                        }}
+                      >
+                        <ShoppingCart className="w-5 h-5 mr-2" />
+                        Book Service Now
+                      </Button>
+                      {service.specialOffers && service.specialOffers.length > 0 && (
+                        <Button 
+                          variant="outline"
+                          className="w-full border-purple-300 text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+                          onClick={() => {
+                            // Scroll to special offers section
+                            const offersSection = document.querySelector('[data-section="special-offers"]');
+                            if (offersSection) {
+                              offersSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                          }}
+                        >
+                          <Gift className="w-4 h-4 mr-2" />
+                          View Special Offers ({service.specialOffers.length})
+                        </Button>
+                      )}
+                    </div>
+                  ) : null}
+                  
                   {/* Booking Form */}
                   <ServiceBookingForm service={service} />
                 </CardContent>
@@ -693,7 +732,7 @@ export default function ServiceDetail() {
 
         {/* Special Offers Section */}
         {(service.specialOffers && service.specialOffers.length > 0) && (
-          <div className="mb-6">
+          <div className="mb-6" data-section="special-offers">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
               <Gift className="w-5 h-5 text-purple-500" />
               Special Offers
@@ -755,7 +794,22 @@ export default function ServiceDetail() {
                         </li>
                       ))}
                     </ul>
-                    <Button className="w-full mt-4" variant={pkg.popular ? "default" : "outline"}>
+                    <Button 
+                      className="w-full mt-4" 
+                      variant={pkg.popular ? "default" : "outline"}
+                      onClick={() => {
+                        toast({
+                          title: "Package Selected",
+                          description: `${pkg.name} package selected. Redirecting to booking...`,
+                        });
+                        // If website available, redirect with package info
+                        if (service.website) {
+                          setTimeout(() => {
+                            window.open(`${service.website}?package=${encodeURIComponent(pkg.name)}`, '_blank');
+                          }, 1000);
+                        }
+                      }}
+                    >
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       Choose Package
                     </Button>
