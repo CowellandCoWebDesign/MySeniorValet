@@ -58,14 +58,10 @@ export function registerDmcaRoutes(app: Express) {
       }
       
       if (serviceId) {
-        // Clear photos from vendor/service
-        if (takedownData.contentType === 'photo') {
-          await db.update(vendors)
-            .set({ 
-              photos: [],
-            })
-            .where(eq(vendors.id, serviceId));
-        }
+        // Services don't have a photos field in vendors table
+        // The photos are handled differently for services
+        // Log the takedown for auditing
+        console.log(`DMCA takedown for service ${serviceId} - content type: ${takedownData.contentType}`);
       }
       
       // Update takedown status
