@@ -2628,10 +2628,10 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
           </div>
-        </TabsContent>
+      </TabsContent>
 
-        {/* Resources Tab */}
-        <TabsContent value="resources" className="mt-6">
+      {/* Resources Tab */}
+      <TabsContent value="resources" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Resident Portal - Comprehensive Dashboard */}
             <Link to="/resident-dashboard">
@@ -3515,7 +3515,7 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
           </div>
-        </TabsContent>
+      </TabsContent>
 
       {/* Healthcare Tab */}
       <TabsContent value="healthcare" className="mt-6">
