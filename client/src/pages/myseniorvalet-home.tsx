@@ -932,8 +932,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                               isResearchMode: false
                             }
                           });
-                          // Then trigger the actual search
-                          handleAutoExpandingSearch(suggestion, true);
+                          // Then trigger the actual search using current viewMode
+                          handleAutoExpandingSearch(suggestion, viewMode === 'discover');
                         }}
                         className="px-3 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 rounded-full border border-purple-300 dark:border-purple-600 transition-colors"
                       >
