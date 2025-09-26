@@ -51,11 +51,11 @@ export default function SeniorMarketplace() {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // Fetch recently discovered services
+  // Fetch recently discovered services from services table
   const { data: recentServices, isLoading } = useQuery({
-    queryKey: ['/api/vendors/recently-discovered'],
+    queryKey: ['/api/services/recently-discovered'],
     queryFn: async () => {
-      const response = await fetch('/api/vendors/recently-discovered?limit=100');
+      const response = await fetch('/api/services/recently-discovered?limit=100');
       if (!response.ok) throw new Error('Failed to fetch recent services');
       return response.json();
     }

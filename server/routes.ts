@@ -23,7 +23,7 @@ import { eq, or, like, desc, and, sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
-import { vendors, users } from "../shared/schema";
+import { vendors, users, services } from "../shared/schema";
 import * as schema from "../shared/schema";
 import { sendEmail } from "./sendgrid-service";
 
@@ -590,6 +590,40 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
     } catch (error) {
       console.error('Error fetching service intelligence:', error);
       res.status(500).json({ error: 'Failed to fetch service intelligence' });
+    }
+  });
+
+  // Get recently discovered services (from services table)
+  app.get('/api/services/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Get recent services ordered by creation date
+      const recentServices = await db.select()
+        .from(services)
+        .orderBy(desc(services.id))
+        .limit(limit);
+      
+      // Transform to match the card display format
+      const transformedServices = recentServices.map(service => ({
+        id: service.id,
+        businessName: service.name, // Map name to businessName for card compatibility
+        description: service.description,
+        shortDescription: service.shortDescription,
+        businessCity: '', // Services table doesn't have city/state
+        businessState: '',
+        businessType: service.serviceType,
+        website: '',
+        primaryContactPhone: '',
+        logoUrl: '',
+        createdAt: service.createdAt,
+        updatedAt: service.updatedAt
+      }));
+      
+      res.json(transformedServices);
+    } catch (error) {
+      console.error('Error fetching recently discovered services:', error);
+      res.status(500).json({ error: 'Failed to fetch recent services' });
     }
   });
 
