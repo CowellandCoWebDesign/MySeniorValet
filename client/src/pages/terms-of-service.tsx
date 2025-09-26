@@ -216,7 +216,7 @@ export default function TermsOfService() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
               <p className="text-gray-700 dark:text-gray-300">
                 <strong>DMCA Agent:</strong> MySeniorValet Legal Department<br/>
-                <strong>Email:</strong> dmca@myseniorvalet.com<br/>
+                <strong>Email:</strong> admin@myseniorvalet.com<br/>
                 <strong>Response Time:</strong> Within 24 hours of receipt
               </p>
             </div>

@@ -124,7 +124,7 @@ export function registerDmcaRoutes(app: Express) {
   app.get("/api/dmca/policy", async (req, res) => {
     res.json({
       agentName: "MySeniorValet Legal Department",
-      agentEmail: "dmca@myseniorvalet.com",
+      agentEmail: "admin@myseniorvalet.com",
       agentAddress: "MySeniorValet, Legal Department, [Address]",
       policy: {
         cachePolicy: {

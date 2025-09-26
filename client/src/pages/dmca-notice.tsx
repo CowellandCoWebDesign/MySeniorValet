@@ -368,8 +368,8 @@ export default function DmcaNotice() {
             <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded">
               <p className="text-sm text-blue-800 dark:text-blue-200">
                 <strong>Alternative Contact:</strong> You can also email DMCA notices directly to{' '}
-                <a href="mailto:dmca@myseniorvalet.com" className="underline">
-                  dmca@myseniorvalet.com
+                <a href="mailto:admin@myseniorvalet.com" className="underline">
+                  admin@myseniorvalet.com
                 </a>
               </p>
             </div>
