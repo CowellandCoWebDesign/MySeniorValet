@@ -119,6 +119,7 @@ export function Footer() {
               <li><Link to="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
               <li><Link to="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
               <li><Link to="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
+              <li><Link to="/dmca-notice" className="hover:text-blue-400 transition-colors">DMCA</Link></li>
               <li><Link to="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
               <li><Link to="/legal-notice" className="hover:text-blue-400 transition-colors">Legal Notice</Link></li>
               <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>

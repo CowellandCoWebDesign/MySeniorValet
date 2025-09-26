@@ -2615,6 +2615,16 @@ export default function CommunityDetail() {
                           Contact Support
                         </Button>
                       </div>
+                      
+                      {/* DMCA Copyright Notice Link */}
+                      <div className="mt-3 text-center">
+                        <a 
+                          href={`/dmca-notice?communityId=${community.id}`}
+                          className="text-xs text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 underline"
+                        >
+                          Report copyright issue (DMCA)
+                        </a>
+                      </div>
                     </div>
                     
                     <div className="text-center pt-2">

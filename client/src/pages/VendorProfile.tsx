@@ -418,6 +418,16 @@ export default function VendorProfile({}: VendorProfileProps) {
             <p className="text-gray-400 text-sm">
               Professional florist delivery • Same-day available • 95+ years experience • Nationwide coverage
             </p>
+            
+            {/* DMCA Copyright Notice Link */}
+            <div className="mt-4">
+              <a 
+                href="/dmca-notice"
+                className="text-xs text-gray-500 hover:text-pink-400 underline"
+              >
+                Report copyright issue (DMCA)
+              </a>
+            </div>
           </div>
         </div>
       </footer>
