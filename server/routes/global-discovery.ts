@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import { communities, vendors } from '@shared/schema';
+import { communities, vendors, services } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
 
@@ -57,10 +57,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       console.log(`🌍 Global Discovery Search: "${query}" (type: ${searchType || 'auto-detect'})`);
       
-      // Step 1: PRIORITIZE DATABASE SEARCH - We have 33k+ communities AND vendors!
-      // For services, search vendors table; for locations, search communities
+      // Step 1: PRIORITIZE DATABASE SEARCH - We have services and communities tables!
+      // For services, search SERVICES table; for locations, search communities
       if (searchType === 'services' || searchType === 'service') {
-        // Search vendors table for services like hotels, restaurants, etc.
+        // Search SERVICES table for discovered businesses like hotels, restaurants, etc.
         const queryLower = query.toLowerCase();
         
         // Clean query for database search (remove parentheses which can cause injection warnings)
@@ -90,59 +90,56 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Build search conditions for all terms
         const searchConditions = searchTerms.map(term => 
           or(
-            sql`LOWER(${vendors.businessName}) LIKE ${'%' + term + '%'}`,
-            sql`LOWER(${vendors.businessType}) LIKE ${'%' + term + '%'}`,
-            sql`LOWER(${vendors.description}) LIKE ${'%' + term + '%'}`,
-            sql`LOWER(${vendors.businessCity}) LIKE ${'%' + term + '%'}`
+            sql`LOWER(${services.name}) LIKE ${'%' + term + '%'}`,
+            sql`LOWER(${services.description}) LIKE ${'%' + term + '%'}`,
+            sql`LOWER(${services.shortDescription}) LIKE ${'%' + term + '%'}`
           )
         );
         
-        // ALWAYS prioritize exact/partial name matches first
-        const vendorResults = await db.select()
-          .from(vendors)
+        // Search the SERVICES table for discovered businesses
+        const serviceResults = await db.select()
+          .from(services)
           .where(or(...searchConditions))
           .limit(50);
         
-        console.log(`💾 Found ${vendorResults.length} existing vendors in database for "${query}"`);
+        console.log(`💾 Found ${serviceResults.length} existing services in database for "${query}"`);
         
-        // If we found vendors, format and return them
-        if (vendorResults.length > 0) {
-          const formattedVendorResults = vendorResults.map(vendor => ({
-            id: vendor.id,
-            name: vendor.businessName,
-            type: 'vendor',
-            businessType: vendor.businessType || 'Service',
-            address: vendor.businessAddress || '',
-            city: vendor.businessCity || '',
-            state: vendor.businessState || '',
-            phone: vendor.primaryContactPhone || '',
-            website: vendor.website || '',
-            description: vendor.description || '',
+        // If we found services, format and return them
+        if (serviceResults.length > 0) {
+          const formattedServiceResults = serviceResults.map(service => ({
+            id: service.id,
+            name: service.name,
+            type: 'service',
+            serviceType: service.serviceType || 'Service',
+            description: service.description || '',
+            shortDescription: service.shortDescription || '',
+            website: service.externalUrl || '',
+            metadata: service.metadata || {},
             isExisting: true,
             isDiscovered: false
           }));
           
-          // Return vendor results immediately
+          // Return service results immediately
           return res.json({
             success: true,
             query: query,
             searchType: 'services',
-            results: formattedVendorResults.slice(0, limit),
+            results: formattedServiceResults.slice(0, limit),
             metadata: {
-              totalFound: vendorResults.length,
-              existingCount: vendorResults.length,
+              totalFound: serviceResults.length,
+              existingCount: serviceResults.length,
               discoveredCount: 0,
               sources: ['Database'],
               searchLocation: query,
               timestamp: new Date().toISOString(),
               aiConfidence: 100,
-              dataSource: 'Vendors Database'
+              dataSource: 'Services Database'
             },
-            message: `Found ${vendorResults.length} services/vendors in database`
+            message: `Found ${serviceResults.length} services in database`
           });
         }
         // If we didn't find enough results with exact match, fall back to expanded search
-        if (vendorResults.length === 0) {
+        if (serviceResults.length === 0) {
           // Secondary condition: Also search for individual terms if query has multiple words
           const searchTerms = cleanedQuery.split(' ').filter(term => 
             term.length > 2 && !['for', 'in', 'at', 'the', 'and', 'or', 'near', 'adult', 'only'].includes(term)
@@ -744,48 +741,50 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const savedServices = [];
       
       if (searchType === 'services') {
-        // Save discovered services to vendors table
+        // Save discovered services to SERVICES table (not vendors!)
         for (const discovered of discoveredCommunities) {
           try {
-            // Check if vendor already exists
+            // Check if service already exists
             const existing = await db.select()
-              .from(vendors)
+              .from(services)
               .where(
-                and(
-                  sql`LOWER(${vendors.businessName}) LIKE ${'%' + discovered.name.toLowerCase() + '%'}`,
-                  discovered.city ? 
-                    sql`LOWER(${vendors.businessCity}) = ${discovered.city.toLowerCase()}` : 
-                    sql`true`
-                )
+                sql`LOWER(${services.name}) LIKE ${'%' + discovered.name.toLowerCase() + '%'}`
               )
               .limit(1);
             
             if (existing.length === 0 && discovered.name) {
-              // Create a new vendor/service record
-              const [newVendor] = await db.insert(vendors)
+              // Create a new service record in the SERVICES table
+              const [newService] = await db.insert(services)
                 .values({
-                  businessName: discovered.name,
-                  businessType: discovered.serviceType || 'service',
-                  primaryContactName: discovered.name,
-                  primaryContactEmail: discovered.email || 'info@example.com',
-                  primaryContactPhone: discovered.phone || '000-000-0000',
-                  businessAddress: discovered.address || discovered.location || 'Address pending',
-                  businessCity: discovered.city || query.split(',')[0] || 'Unknown',
-                  businessState: discovered.state || query.split(',')[1]?.trim() || '',
-                  businessZip: discovered.zipCode || '',
-                  website: discovered.website || null,
+                  name: discovered.name,
                   description: discovered.description || `Discovered via search for "${query}"`,
                   shortDescription: discovered.description ? discovered.description.substring(0, 500) : `Service in ${discovered.city || query}`,
-                  serviceAreas: discovered.city ? [discovered.city] : [],
-                  isVerified: false, // Requires verification
-                  status: 'pending', // Requires approval
+                  serviceType: 'service', // default to 'service' type
+                  deliveryMethod: ['in-person'], // default to in-person
+                  availability: {
+                    regions: discovered.state ? [discovered.state] : [],
+                  },
+                  externalUrl: discovered.website || null,
+                  isActive: true,
+                  isFeatured: false,
+                  sortOrder: 0,
+                  metadata: {
+                    discoverySource: 'Perplexity Web Search',
+                    discoveryQuery: query,
+                    discoveryDate: new Date().toISOString(),
+                    city: discovered.city,
+                    state: discovered.state,
+                    address: discovered.address || discovered.location,
+                    phone: discovered.phone,
+                    email: discovered.email,
+                  },
                   createdAt: new Date(),
                   updatedAt: new Date(),
                 })
                 .returning();
               
-              console.log(`💾 Saved new discovered service: ${discovered.name} (ID: ${newVendor.id})`);
-              savedServices.push(newVendor);
+              console.log(`💾 Saved new discovered service to SERVICES table: ${discovered.name} (ID: ${newService.id})`);
+              savedServices.push(newService);
             }
           } catch (saveError) {
             console.error(`⚠️ Error saving discovered service ${discovered.name}:`, saveError);
