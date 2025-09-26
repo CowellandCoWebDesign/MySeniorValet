@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -3560,7 +3560,264 @@ export default function MySeniorValetHome() {
 
       {/* Vendors Tab - Consumer Products */}
       <TabsContent value="vendors" className="mt-6">
-        <VendorMarketplaceTabs />
+        <div className="space-y-8">
+          {/* Vendor Categories Title */}
+          <div className="text-center">
+            <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 mb-4">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              SENIOR LIVING MARKETPLACE
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+              Products & Services for Senior Living
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Carefully curated products and services to enhance quality of life, safety, and comfort
+            </p>
+          </div>
+          
+          {/* Vendor Category Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Medical Equipment & Supplies */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-red-400 hover:border-red-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-red-500 to-pink-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Stethoscope className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-red-600 px-3 py-1">
+                  MEDICAL
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Medical Equipment & Supplies</CardTitle>
+                <CardDescription>Hospital beds, wheelchairs, oxygen equipment</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Hospital beds & mattresses</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Wheelchairs & scooters</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Oxygen & respiratory</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Wound care supplies</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white hover:opacity-90">
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Browse Medical Supplies
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Mobility & Safety */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-400 hover:border-blue-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Shield className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-blue-600 px-3 py-1">
+                  SAFETY
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Mobility & Safety Solutions</CardTitle>
+                <CardDescription>Walking aids, bathroom safety, fall prevention</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Walking aids & canes</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Grab bars & rails</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Shower chairs & benches</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Fall detection systems</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-90">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Shop Safety Products
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Daily Living Aids */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-green-400 hover:border-green-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-green-500 to-emerald-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Home className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-green-600 px-3 py-1">
+                  DAILY LIVING
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Daily Living Aids</CardTitle>
+                <CardDescription>Adaptive clothing, eating aids, personal care</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Adaptive clothing</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Eating & drinking aids</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Dressing aids</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Medication organizers</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90">
+                  <Home className="mr-2 h-4 w-4" />
+                  Explore Living Aids
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Technology & Communication */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-purple-400 hover:border-purple-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-500 to-indigo-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Wifi className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-purple-600 px-3 py-1">
+                  TECHNOLOGY
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Technology & Communication</CardTitle>
+                <CardDescription>Emergency systems, tablets, hearing devices</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Medical alert systems</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Senior-friendly tablets</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Hearing amplifiers</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Video calling devices</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:opacity-90">
+                  <Wifi className="mr-2 h-4 w-4" />
+                  View Tech Solutions
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Comfort & Wellness */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-amber-400 hover:border-amber-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Heart className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-amber-600 px-3 py-1">
+                  COMFORT
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Comfort & Wellness</CardTitle>
+                <CardDescription>Lift chairs, massage, therapy products</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Lift chairs & recliners</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Massage equipment</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Therapy products</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Comfort bedding</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90">
+                  <Heart className="mr-2 h-4 w-4" />
+                  Browse Comfort Items
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Vision & Hearing */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-teal-400 hover:border-teal-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-teal-500 to-cyan-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Eye className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-teal-600 px-3 py-1">
+                  SENSORY
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Vision & Hearing Solutions</CardTitle>
+                <CardDescription>Magnifiers, large print, hearing aids</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Magnifying devices</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Large print items</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Hearing aids</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">TV audio systems</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white hover:opacity-90">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Shop Sensory Aids
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </TabsContent>
     </Tabs>
   </div>
