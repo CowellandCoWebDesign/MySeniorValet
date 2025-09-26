@@ -497,26 +497,6 @@ export function EnhancedPhotoCarousel({
             </>
           )}
           
-          {/* Thumbnail navigation dots */}
-          {photos.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
-              {safePhotos.slice(0, 10).map((_, idx) => (
-                <button
-                  key={idx}
-                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                    idx === currentIndex 
-                      ? 'bg-white w-8' 
-                      : 'bg-white/50 hover:bg-white/70'
-                  }`}
-                  onClick={() => setCurrentIndex(idx)}
-                  aria-label={`Go to photo ${idx + 1}`}
-                />
-              ))}
-              {safePhotos.length > 10 && (
-                <span className="text-white/70 text-xs ml-1">+{safePhotos.length - 10}</span>
-              )}
-            </div>
-          )}
 
           {/* Fullscreen Button */}
           <Button
@@ -538,6 +518,104 @@ export function EnhancedPhotoCarousel({
           )}
         </div>
 
+        {/* Enhanced Thumbnail Navigation Strip */}
+        {safePhotos.length > 1 && (
+          <div className="mt-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              {/* Left scroll button */}
+              {safePhotos.length > 8 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0 w-8 h-8 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => {
+                    const thumbnailContainer = document.getElementById('thumbnail-container');
+                    if (thumbnailContainer) {
+                      thumbnailContainer.scrollBy({ left: -200, behavior: 'smooth' });
+                    }
+                  }}
+                  aria-label="Scroll thumbnails left"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+              )}
+              
+              {/* Thumbnail container with horizontal scroll */}
+              <div 
+                id="thumbnail-container"
+                className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                } as React.CSSProperties}
+              >
+                {safePhotos.map((photo, idx) => (
+                  <button
+                    key={idx}
+                    className={`relative flex-shrink-0 w-20 h-16 rounded-md overflow-hidden transition-all duration-200 ${
+                      idx === currentIndex 
+                        ? 'ring-2 ring-purple-500 scale-105 shadow-lg' 
+                        : 'hover:opacity-80 hover:scale-105'
+                    }`}
+                    onClick={() => goToPhoto(idx)}
+                    aria-label={`View photo ${idx + 1}`}
+                  >
+                    <img
+                      src={photo.url}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          // Add placeholder for broken thumbnail
+                          const placeholder = document.createElement('div');
+                          placeholder.className = 'w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center';
+                          placeholder.innerHTML = '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
+                          parent.appendChild(placeholder);
+                        }
+                      }}
+                    />
+                    {/* Photo number badge */}
+                    <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1 rounded">
+                      {idx + 1}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              
+              {/* Right scroll button */}
+              {safePhotos.length > 8 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0 w-8 h-8 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => {
+                    const thumbnailContainer = document.getElementById('thumbnail-container');
+                    if (thumbnailContainer) {
+                      thumbnailContainer.scrollBy({ left: 200, behavior: 'smooth' });
+                    }
+                  }}
+                  aria-label="Scroll thumbnails right"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Photo count and navigation hints */}
+            <div className="mt-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+              <span className="font-medium">
+                Viewing {currentIndex + 1} of {safePhotos.length} photos
+              </span>
+              <span className="text-gray-500">
+                Use arrows or click thumbnails to navigate
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Overall Photo Health Indicator */}
         {showValidation && validationSummary && (
