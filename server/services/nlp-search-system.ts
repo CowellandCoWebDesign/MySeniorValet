@@ -1015,7 +1015,25 @@ export class NLPSearchSystem {
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
-      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
+      const queryLower = query.toLowerCase();
+      
+      // Resources are not location-specific, so ignore pure location searches
+      // Only search if the query contains relevant keywords for resources
+      const isLocationOnly = intent.entities?.locations && intent.entities.locations.length > 0 && 
+                            !queryLower.includes('guide') && 
+                            !queryLower.includes('resource') &&
+                            !queryLower.includes('help') &&
+                            !queryLower.includes('information') &&
+                            !queryLower.includes('article') &&
+                            !queryLower.includes('tips');
+      
+      if (isLocationOnly) {
+        // Don't search resources for pure location queries
+        console.log(`📚 Skipping resources search for location-only query: "${query}"`);
+        return [];
+      }
+      
+      const searchTerms = queryLower.split(' ').filter(term => term.length > 1);
       
       // Search educational resources with general text search
       if (searchTerms.length > 0) {
@@ -1035,7 +1053,6 @@ export class NLPSearchSystem {
         }
       } else if (query.trim().length > 0) {
         // If no search terms but we have a query, use the full query
-        // This handles single word searches like "Houston"
         const term = query.trim();
         conditions.push(
           or(
@@ -1099,9 +1116,14 @@ export class NLPSearchSystem {
       const firstWord = queryLower.split(' ')[0];
       const isGenericSearch = businessKeywords.includes(firstWord) && queryLower.split(' ').length <= 3;
       
-      // PRIORITY 1: Always search for the full query as a business name
+      // PRIORITY 1: Search for the full query as a business name
+      // BUT skip this if the query is just a location name (will be handled by location search)
       // This handles specific searches like "Hotel Moana Shinjuku" or "Marriott Downtown"
-      if (queryLower.length > 0) {
+      const isLocationOnly = intent.entities?.locations && intent.entities.locations.length > 0 && 
+                            !isGenericSearch && 
+                            queryLower.split(' ').length <= 2;
+      
+      if (queryLower.length > 0 && !isLocationOnly) {
         orConditions.push(
           ilike(vendors.businessName, `%${cleanedQuery}%`)
         );
