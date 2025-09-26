@@ -203,7 +203,7 @@ const SEARCH_PLACEHOLDERS = {
 };
 
 // Simplified Hero Section with Fixed Search Bar
-function HeroSectionWithTransformingSearch() {
+function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
@@ -213,7 +213,6 @@ function HeroSectionWithTransformingSearch() {
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [forceClearAutocomplete, setForceClearAutocomplete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -221,10 +220,10 @@ function HeroSectionWithTransformingSearch() {
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {
-    const placeholders = SEARCH_PLACEHOLDERS[viewMode]?.[searchCategory] || SEARCH_PLACEHOLDERS.list.communities;
+    const placeholders = SEARCH_PLACEHOLDERS[viewMode]?.[activeTab as keyof typeof SEARCH_PLACEHOLDERS.list] || SEARCH_PLACEHOLDERS.list.communities;
     const randomPlaceholder = placeholders[Math.floor(Math.random() * placeholders.length)];
     setSearchPlaceholder(randomPlaceholder);
-  }, [viewMode, searchCategory]);
+  }, [viewMode, activeTab]);
   
   // Fetch dynamic community and service counts
   const { data: communityStats } = useQuery<{ count: string; communities: string; services: string; isGlobal: boolean }>({
@@ -272,7 +271,7 @@ function HeroSectionWithTransformingSearch() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query, 
-            searchType: searchCategory === 'services' ? 'services' : 'location',
+            searchType: activeTab === 'services' ? 'services' : 'location',
             limit: 50,
             discoveryMode: true  // CRITICAL: This flag tells the backend to actually search the web
           }),
@@ -284,7 +283,7 @@ function HeroSectionWithTransformingSearch() {
           setGlobalDiscoveryResults({
             query,
             results: data.results || [],
-            metadata: {...(data.metadata || {}), discoveryType: searchCategory}
+            metadata: {...(data.metadata || {}), discoveryType: activeTab}
           });
           setForceClearAutocomplete(true);
           setShowGlobalDiscoveryModal(true);
@@ -359,7 +358,7 @@ function HeroSectionWithTransformingSearch() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             query, 
-            searchType: searchCategory === 'services' ? 'services' : 'location',
+            searchType: activeTab === 'services' ? 'services' : 'location',
             limit: 50 
           }),
           signal: AbortSignal.timeout(60000) // 60 second timeout for international searches
@@ -387,7 +386,7 @@ function HeroSectionWithTransformingSearch() {
 
     // Handle map view redirect
     if (viewMode === 'map' && query) {
-      const categoryParam = searchCategory !== 'communities' ? `&category=${searchCategory}` : '';
+      const categoryParam = activeTab !== 'communities' ? `&category=${activeTab}` : '';
       setLocation(`/map-search?q=${encodeURIComponent(query)}${categoryParam}`);
       return;
     }
@@ -398,7 +397,7 @@ function HeroSectionWithTransformingSearch() {
 
     try {
       // Discovery mode for Communities - use global discovery to find facilities
-      if (viewMode === 'discover' && searchCategory === 'communities') {
+      if (viewMode === 'discover' && activeTab === 'communities') {
         // Call global discovery endpoint to find actual facilities
         const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
@@ -436,7 +435,7 @@ function HeroSectionWithTransformingSearch() {
           });
         }
         
-      } else if (viewMode === 'discover' && searchCategory === 'services') {
+      } else if (viewMode === 'discover' && activeTab === 'services') {
         // For services, use NLP search which searches both services and vendors tables
         // This will find hotels, restaurants, and other discovered businesses
         
@@ -511,7 +510,7 @@ function HeroSectionWithTransformingSearch() {
           });
         }
         
-      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
+      } else if (isResearchMode || (viewMode === 'discover' && activeTab !== 'communities' && activeTab !== 'services')) {
         // Use Public AI Chat for research mode or non-implemented discovery categories
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
@@ -541,7 +540,7 @@ function HeroSectionWithTransformingSearch() {
 
       } else {
         // Regular search for list/map view - use comprehensive search for communities
-        if (searchCategory === 'communities') {
+        if (activeTab === 'communities') {
           // Use the comprehensive search endpoint for community searches
           const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
           
@@ -576,7 +575,7 @@ function HeroSectionWithTransformingSearch() {
             body: JSON.stringify({ 
               query: query,
               limit: 50,
-              category: searchCategory
+              category: activeTab
             })
           });
 
@@ -634,7 +633,7 @@ function HeroSectionWithTransformingSearch() {
           query: query,
           includeHospitals: true,
           includeServices: true,
-          searchType: searchCategory, // Pass the current search category
+          searchType: activeTab, // Pass the current search category
           limit: 50
         })
       });
@@ -741,74 +740,49 @@ function HeroSectionWithTransformingSearch() {
         <div className="relative z-10 flex flex-col h-full min-h-screen">
         
         {/* Clean Tab Navigation at Top */}
-        <div className="bg-black/40 backdrop-blur-lg border-b border-white/20 px-4 py-3">
-          <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
-            <button
-              type="button"
-              onClick={() => setSearchCategory('communities')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'communities'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
+        <TabsList className="bg-black/40 backdrop-blur-lg border-b border-white/20 px-4 py-3 w-full h-auto rounded-none">
+          <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto w-full">
+            <TabsTrigger
+              value="communities"
+              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
             >
               <Building className="h-6 w-6" />
               <span className="text-sm font-semibold">Communities</span>
-            </button>
+            </TabsTrigger>
             
-            <button
-              type="button"
-              onClick={() => setSearchCategory('services')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'services'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
+            <TabsTrigger
+              value="services"
+              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
             >
               <Users className="h-6 w-6" />
               <span className="text-sm font-semibold">Services</span>
-            </button>
+            </TabsTrigger>
             
-            <button
-              type="button"
-              onClick={() => setSearchCategory('healthcare')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'healthcare'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
+            <TabsTrigger
+              value="healthcare"
+              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
             >
               <Stethoscope className="h-6 w-6" />
               <span className="text-sm font-semibold">Healthcare</span>
-            </button>
+            </TabsTrigger>
             
-            <button
-              type="button"
-              onClick={() => setSearchCategory('resources')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'resources'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
+            <TabsTrigger
+              value="resources"
+              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
             >
               <BookOpen className="h-6 w-6" />
               <span className="text-sm font-semibold">Resources</span>
-            </button>
+            </TabsTrigger>
             
-            <button
-              type="button"
-              onClick={() => setSearchCategory('vendors')}
-              className={`flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg transition-all duration-300 min-w-[100px] ${
-                searchCategory === 'vendors'
-                  ? 'bg-white/20 backdrop-blur-sm text-white border-2 border-white'
-                  : 'bg-transparent text-gray-300 hover:text-white hover:bg-white/10 border-2 border-transparent'
-              }`}
+            <TabsTrigger
+              value="vendors"
+              className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-300 data-[state=active]:bg-white/20 data-[state=active]:backdrop-blur-sm data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-white hover:text-white hover:bg-white/10 border-2 border-transparent transition-all duration-300"
             >
               <ShoppingCart className="h-6 w-6" />
               <span className="text-sm font-semibold">Vendors</span>
-            </button>
+            </TabsTrigger>
           </div>
-        </div>
+        </TabsList>
         
         {/* Hero Title - Keep Original */}
         <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
@@ -908,7 +882,7 @@ function HeroSectionWithTransformingSearch() {
             </div>
             
             {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
-            {viewMode === 'discover' && searchCategory === 'services' && !searchQuery && (
+            {viewMode === 'discover' && activeTab === 'services' && !searchQuery && (
               <div className="absolute top-full mt-2 left-0 right-0 z-30">
                 <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-3">
                   <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Popular service searches:</p>
@@ -1115,9 +1089,9 @@ function HeroSectionWithTransformingSearch() {
                         {searchQuery ? (
                           <>
                             Found {searchResults?.results?.length || 0}
-                            {searchCategory === 'services' ? ' services' : 
-                             searchCategory === 'healthcare' ? ' healthcare providers' : 
-                             searchCategory === 'resources' ? ' resources' : ' communities'}
+                            {activeTab === 'services' ? ' services' : 
+                             activeTab === 'healthcare' ? ' healthcare providers' : 
+                             activeTab === 'resources' ? ' resources' : ' communities'}
                             {' matching "'}
                             <span className="text-green-400">{searchQuery}</span>
                             {'"'}
@@ -1125,9 +1099,9 @@ function HeroSectionWithTransformingSearch() {
                         ) : (
                           <span>
                             {searchResults?.results?.length || 0}
-                            {searchCategory === 'services' ? ' Services' : 
-                             searchCategory === 'healthcare' ? ' Healthcare Providers' : 
-                             searchCategory === 'resources' ? ' Resources' : ' Communities'}
+                            {activeTab === 'services' ? ' Services' : 
+                             activeTab === 'healthcare' ? ' Healthcare Providers' : 
+                             activeTab === 'resources' ? ' Resources' : ' Communities'}
                             {' Found'}
                           </span>
                         )}
@@ -1144,10 +1118,10 @@ function HeroSectionWithTransformingSearch() {
                   {(isLoading || searchResults?.metadata?.isLoading) ? (
                     <MascotLoadingDisplay
                       compact={true}
-                      title={searchResults?.metadata?.loadingMessage || (searchCategory === 'services' ? 'Discovery Mode Active' : 'Searching Communities')}
-                      subtitle={searchCategory === 'services' ? 'Searching across multiple global sources...' : `Analyzing ${searchQuery || 'all communities'}`}
+                      title={searchResults?.metadata?.loadingMessage || (activeTab === 'services' ? 'Discovery Mode Active' : 'Searching Communities')}
+                      subtitle={activeTab === 'services' ? 'Searching across multiple global sources...' : `Analyzing ${searchQuery || 'all communities'}`}
                       showProgress={true}
-                      progressDuration={searchCategory === 'services' ? 30 : 15}
+                      progressDuration={activeTab === 'services' ? 30 : 15}
                       factRotationSpeed={5000}
                     />
                 ) : (
@@ -1188,7 +1162,7 @@ function HeroSectionWithTransformingSearch() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.01 }}
                           >
-                            {searchCategory === 'services' ? (
+                            {activeTab === 'services' ? (
                               <VendorServiceCard
                                 vendor={item}
                                 variant="list"
@@ -1197,7 +1171,7 @@ function HeroSectionWithTransformingSearch() {
                                   window.location.href = `/service/${item.id}`;
                                 }}
                               />
-                            ) : searchCategory === 'healthcare' ? (
+                            ) : activeTab === 'healthcare' ? (
                               // Enhanced Healthcare Provider Card with Hospital Data
                               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-red-200 dark:border-red-800">
                                 <div className="flex items-start gap-4">
@@ -1281,7 +1255,7 @@ function HeroSectionWithTransformingSearch() {
                                   </div>
                                 </div>
                               </div>
-                            ) : searchCategory === 'resources' ? (
+                            ) : activeTab === 'resources' ? (
                               // Resource Card
                               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-amber-200 dark:border-amber-800">
                                 <div className="flex items-start gap-4">
@@ -1351,9 +1325,9 @@ function HeroSectionWithTransformingSearch() {
                               <p className="text-white/70">
                                 {searchQuery 
                                   ? `We couldn't find any ${
-                                      searchCategory === 'services' ? 'services' : 
-                                      searchCategory === 'healthcare' ? 'healthcare providers' :
-                                      searchCategory === 'resources' ? 'resources' :
+                                      activeTab === 'services' ? 'services' : 
+                                      activeTab === 'healthcare' ? 'healthcare providers' :
+                                      activeTab === 'resources' ? 'resources' :
                                       'communities'
                                     } matching "${searchQuery}"`
                                   : "Try adjusting your search criteria"}
@@ -1432,6 +1406,7 @@ function HeroSectionWithTransformingSearch() {
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState('communities');
   
   // Parse URL search parameters for dynamic SEO
   const [urlSearchParams, setUrlSearchParams] = useState<URLSearchParams | null>(null);
@@ -1958,8 +1933,10 @@ export default function MySeniorValetHome() {
       )}
       
       {/* Old header removed - using ProfessionalNavbar */}
-      {/* Transforming Hero Section with Search - Mobile optimized */}
-      <HeroSectionWithTransformingSearch />
+      {/* Unified Tab System for Hero and Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Transforming Hero Section with Search - Mobile optimized */}
+        <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
 
 
 
@@ -1970,51 +1947,9 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
-      {/* 5-Tab Directory Organization */}
+      {/* 5-Tab Directory Content */}
       <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
-          <Tabs defaultValue="communities" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 h-auto p-1 bg-gray-100 dark:bg-gray-800">
-              <TabsTrigger 
-                value="communities" 
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-blue-500 data-[state=active]:text-white"
-              >
-                <Building className="w-5 h-5" />
-                <span className="text-xs sm:text-sm font-medium">Communities</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="services" 
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-amber-500 data-[state=active]:text-white"
-              >
-                <Users className="w-5 h-5" />
-                <span className="text-xs sm:text-sm font-medium">Services</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="healthcare" 
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-teal-500 data-[state=active]:text-white"
-              >
-                <Stethoscope className="w-5 h-5" />
-                <span className="text-xs sm:text-sm font-medium">Healthcare</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="resources" 
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
-              >
-                <BookOpen className="w-5 h-5" />
-                <span className="text-xs sm:text-sm font-medium">Resources</span>
-              </TabsTrigger>
-              
-              <TabsTrigger 
-                value="vendors" 
-                className="flex flex-col items-center gap-1 py-3 data-[state=active]:bg-indigo-500 data-[state=active]:text-white"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                <span className="text-xs sm:text-sm font-medium">Vendors</span>
-              </TabsTrigger>
-            </TabsList>
 
             {/* Communities Tab */}
             <TabsContent value="communities" className="mt-6">
@@ -3819,9 +3754,9 @@ export default function MySeniorValetHome() {
           </div>
         </div>
       </TabsContent>
+        </div>
+      </section>
     </Tabs>
-  </div>
-</section>
 
 {/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
