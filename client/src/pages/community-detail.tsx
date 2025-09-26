@@ -1187,13 +1187,38 @@ export default function CommunityDetail() {
   // Store market analysis data to share with web intelligence
   const [marketAnalysisData, setMarketAnalysisData] = useState<any>(null);
   // Photos now stay in LiveWebIntelligence section only
+  const [liveIntelligenceLoading, setLiveIntelligenceLoading] = useState(true);
+  const [liveIntelligenceReady, setLiveIntelligenceReady] = useState(false);
+  const [hasAutoScrolled, setHasAutoScrolled] = useState(false);
   
   // Debug helper to track when verification report updates
   React.useEffect(() => {
     if (verificationReport) {
       console.log('Parent verificationReport updated:', verificationReport);
+      // Mark Live Intelligence as ready when we have data
+      if (verificationReport.verificationResults || verificationReport.webIntelligence) {
+        setLiveIntelligenceLoading(false);
+        setLiveIntelligenceReady(true);
+        
+        // Auto-scroll to the market data tab if not already done
+        if (!hasAutoScrolled) {
+          setTimeout(() => {
+            const marketDataTab = document.querySelector('[value="market-data"]');
+            if (marketDataTab) {
+              // Smooth scroll to the tab
+              marketDataTab.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // Optionally click the tab to open it
+              const isActive = marketDataTab.getAttribute('data-state') === 'active';
+              if (!isActive) {
+                (marketDataTab as HTMLElement).click();
+              }
+            }
+            setHasAutoScrolled(true);
+          }, 1500); // Wait a bit for initial page load
+        }
+      }
     }
-  }, [verificationReport]);
+  }, [verificationReport, hasAutoScrolled]);
   
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
@@ -1873,23 +1898,39 @@ export default function CommunityDetail() {
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className="relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10"
+                  className={`relative flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-2 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">📊</span>
                     <span className="text-xs sm:text-sm font-bold hidden sm:inline">Market Data</span>
                     <span className="text-xs sm:text-sm font-bold sm:hidden">Market</span>
-                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
-                      <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse ml-1"></div>
+                    {liveIntelligenceLoading && !liveIntelligenceReady && (
+                      <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
+                    )}
+                    {liveIntelligenceReady && (
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] px-1 py-0">
+                          NEW
+                        </Badge>
+                      </div>
                     )}
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal">
-                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) ? 
-                      "Live Intelligence" : 
+                    {liveIntelligenceReady ? 
+                      "🔥 Live Intelligence Ready!" : 
+                      liveIntelligenceLoading ? 
+                      "Loading Intelligence..." : 
                       "Market Analysis"
                     }
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  {liveIntelligenceReady && (
+                    <div className="absolute -top-2 -right-2 flex items-center justify-center">
+                      <span className="absolute inline-flex h-5 w-5 rounded-full bg-purple-400 opacity-75 animate-ping"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+                    </div>
+                  )}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 

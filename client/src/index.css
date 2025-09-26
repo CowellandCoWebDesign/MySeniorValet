@@ -7,6 +7,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .animate-pulse-once {
+    animation: pulseOnce 1s ease-in-out;
+  }
+}
+
 /* 3D Carousel Styles */
 .carousel-wrapper {
   perspective: 1200px;
@@ -55,6 +61,19 @@
   50% {
     transform: scale(1.02);
     filter: brightness(1.2) contrast(1.15) saturate(1.2);
+  }
+}
+
+@keyframes pulseOnce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
