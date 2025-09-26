@@ -3514,20 +3514,6 @@ export default function MySeniorValetHome() {
             </p>
           </div>
           
-          {/* Vendor Categories Title */}
-          <div className="text-center">
-            <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 mb-4">
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              SENIOR LIVING MARKETPLACE
-            </Badge>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-              Products & Services for Senior Living
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Carefully curated products and services to enhance quality of life, safety, and comfort
-            </p>
-          </div>
-          
           {/* Vendor Category Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {/* Medical Equipment & Supplies */}
