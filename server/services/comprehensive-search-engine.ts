@@ -48,95 +48,9 @@ export interface SearchResult {
 
 export class ComprehensiveSearchEngine {
   
-  /**
-   * Check if a search query is related to senior care domain
-   * Returns true only for senior care, healthcare, or elderly-related searches
-   */
-  private isSeniorCareRelated(query: string): boolean {
-    const lowerQuery = query.toLowerCase().trim();
-    
-    // If query is empty or very short (1-2 chars), allow it for browsing
-    if (!lowerQuery || lowerQuery.length <= 2) {
-      return true;
-    }
-    
-    // Senior care keywords that indicate valid searches
-    const seniorCareKeywords = [
-      // Senior living types
-      'senior', 'elderly', 'elder', 'retirement', 'assisted', 'memory care',
-      'nursing home', 'independent living', 'continuing care', 'ccrc',
-      'adult family', 'board and care', 'residential care', 'skilled nursing',
-      'alzheimer', 'dementia', 'hospice', 'palliative', 'respite',
-      
-      // Healthcare services
-      'home care', 'home health', 'caregiver', 'aide', 'companion',
-      'therapy', 'rehabilitation', 'rehab', 'medical', 'healthcare',
-      'hospital', 'clinic', 'doctor', 'physician', 'nurse',
-      
-      // Age-related
-      '55+', '62+', '65+', 'aging', 'aged', 'geriatric',
-      
-      // Housing related
-      'hud', 'housing', 'subsidized', 'section 8', 'affordable housing',
-      'low income', 'rent assistance', 'senior housing',
-      
-      // Care services
-      'care', 'service', 'support', 'assistance', 'help'
-    ];
-    
-    // Location searches are allowed (cities, states, zip codes)
-    const locationPattern = /^[a-z]{2}$|^\d{5}$|^[a-zA-Z\s,]+$/;
-    const isLocation = locationPattern.test(lowerQuery) && lowerQuery.split(' ').length <= 3;
-    
-    // Check if it's a care-related search
-    const hasSeniorKeyword = seniorCareKeywords.some(keyword => lowerQuery.includes(keyword));
-    
-    // Allow location-only searches
-    if (isLocation && !hasSeniorKeyword) {
-      // Check if it's NOT a known non-care business
-      const nonCareIndicators = [
-        'castello', 'winery', 'wine', 'vineyard', 'restaurant', 'hotel',
-        'resort', 'spa', 'golf', 'country club', 'mall', 'store', 'shop',
-        'amazon', 'walmart', 'target', 'costco', 'casino', 'theater',
-        'museum', 'park', 'beach', 'airport', 'station'
-      ];
-      
-      const isNonCareBusiness = nonCareIndicators.some(indicator => lowerQuery.includes(indicator));
-      return !isNonCareBusiness;
-    }
-    
-    return hasSeniorKeyword;
-  }
-  
   async search(query: string, filters: SearchFilters = {}, options: { limit?: number; offset?: number } = {}): Promise<SearchResult> {
     const startTime = Date.now();
     const { limit = 100, offset = 0 } = options;
-    
-    // Check if this search is senior-care related
-    const isSeniorCare = this.isSeniorCareRelated(query);
-    
-    // If NOT senior care related, return empty results with explanation
-    if (!isSeniorCare) {
-      console.log(`🚫 Blocking non-senior-care search: "${query}"`);
-      return {
-        communities: [],
-        totalResults: 0,
-        searchMetadata: {
-          query,
-          searchType: 'blocked',
-          filters: {},
-          processingTime: Date.now() - startTime,
-          fallbackApplied: false,
-          fallbackMessage: `"${query}" appears to be outside the scope of senior care services. Please search for senior living communities, care services, or healthcare providers.`
-        },
-        facets: {
-          states: [],
-          careTypes: [],
-          priceRanges: [],
-          ratings: []
-        }
-      };
-    }
     
     // Store original filters for fallback message
     const originalFilters = { ...filters };
