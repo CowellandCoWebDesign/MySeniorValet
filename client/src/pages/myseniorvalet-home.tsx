@@ -3559,59 +3559,7 @@ export default function MySeniorValetHome() {
 
       {/* Vendors Tab - Consumer Products */}
       <TabsContent value="vendors" className="mt-6">
-        <div className="flex items-center justify-center py-8">
-          <Card className="max-w-4xl w-full">
-            <CardContent className="p-8">
-              <div className="text-center mb-6">
-                <ShoppingCart className="w-16 h-16 mx-auto mb-4 text-indigo-500" />
-                <h3 className="text-2xl font-bold mb-2">Consumer Vendor Marketplace</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Coming soon - Shop for senior products from our affiliate partners
-                </p>
-              </div>
-              
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
-                  <Pill className="w-8 h-8 text-blue-500 mb-2" />
-                  <h4 className="font-semibold">Amazon Pharmacy</h4>
-                  <p className="text-sm text-gray-600">Prescription medications</p>
-                </div>
-                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
-                  <Package className="w-8 h-8 text-green-500 mb-2" />
-                  <h4 className="font-semibold">Medical Supplies</h4>
-                  <p className="text-sm text-gray-600">DME & consumables</p>
-                </div>
-                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
-                  <ShoppingCart className="w-8 h-8 text-purple-500 mb-2" />
-                  <h4 className="font-semibold">Mobility Aids</h4>
-                  <p className="text-sm text-gray-600">Walkers, wheelchairs</p>
-                </div>
-                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
-                  <Heart className="w-8 h-8 text-red-500 mb-2" />
-                  <h4 className="font-semibold">Daily Living</h4>
-                  <p className="text-sm text-gray-600">Adaptive products</p>
-                </div>
-                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
-                  <Shield className="w-8 h-8 text-indigo-500 mb-2" />
-                  <h4 className="font-semibold">Safety Products</h4>
-                  <p className="text-sm text-gray-600">Fall prevention, alerts</p>
-                </div>
-                <div className="p-4 border rounded-lg hover:shadow-md transition-all">
-                  <Brain className="w-8 h-8 text-pink-500 mb-2" />
-                  <h4 className="font-semibold">Cognitive Health</h4>
-                  <p className="text-sm text-gray-600">Memory aids, games</p>
-                </div>
-              </div>
-              
-              <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <p className="text-sm text-center text-gray-700 dark:text-gray-300">
-                  <Sparkles className="inline w-4 h-4 mr-1 text-yellow-500" />
-                  Launching Q1 2025 - Earn affiliate commissions on every purchase
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <VendorMarketplaceTabs />
       </TabsContent>
     </Tabs>
   </div>
