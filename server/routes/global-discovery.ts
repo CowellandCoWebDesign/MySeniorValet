@@ -984,6 +984,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Process all web-discovered communities
       discoveredWithRealIds.forEach(webCommunity => {
+        // Skip if no name exists
+        if (!webCommunity.name) {
+          console.log('⚠️ Skipping web result with no name:', webCommunity);
+          return;
+        }
+        
         // Normalize the web result name for matching
         const normalizedName = webCommunity.name
           .toLowerCase()
