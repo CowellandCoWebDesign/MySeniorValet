@@ -117,6 +117,13 @@ const SEARCH_PLACEHOLDERS = {
       "🌍 Find 'Resources in Canada' or 'Guides for Germany'...",
       "🌍 Explore 'Senior help in Spain' or 'Care info in Italy'...",
       "🌍 Discover 'Support in Singapore' or 'Resources in Netherlands'..."
+    ],
+    vendors: [
+      "🌍 Try 'Medical supplies' or 'Mobility aids'...",
+      "🌍 Search 'Senior products' or 'Healthcare equipment'...",
+      "🌍 Find 'Daily living aids' or 'Safety devices'...",
+      "🌍 Explore 'Comfort products' or 'Adaptive clothing'...",
+      "🌍 Discover 'Technology for seniors' or 'Emergency systems'..."
     ]
   },
   map: {
@@ -147,6 +154,13 @@ const SEARCH_PLACEHOLDERS = {
       "📍 Find 'Government offices' or 'Churches nearby'...",
       "📍 Explore 'Recreation centers' or 'Local programs'...",
       "📍 Discover 'Volunteer opportunities' or 'Neighborhood help'..."
+    ],
+    vendors: [
+      "📍 Try 'Medical supply stores' or 'Pharmacy nearby'...",
+      "📍 Search 'Equipment rental' or 'Home medical supplies'...",
+      "📍 Find 'Mobility stores' or 'Senior shops nearby'...",
+      "📍 Explore 'Healthcare retailers' or 'Adaptive equipment'...",
+      "📍 Discover 'Local vendors' or 'Medical device stores'..."
     ]
   },
   list: {
@@ -177,6 +191,13 @@ const SEARCH_PLACEHOLDERS = {
       "🔍 Find 'Financial planning' or 'Insurance info'...",
       "🔍 Explore 'Caregiver support' or 'Senior benefits'...",
       "🔍 Discover 'Support groups' or 'Crisis hotlines'..."
+    ],
+    vendors: [
+      "🔍 Try 'Wheelchairs' or 'Walking aids'...",
+      "🔍 Search 'Hospital beds' or 'Lift chairs'...",
+      "🔍 Find 'Bathroom safety' or 'Grab bars'...",
+      "🔍 Explore 'Compression socks' or 'Pain relief'...",
+      "🔍 Discover 'Hearing aids' or 'Vision aids'..."
     ]
   }
 };
