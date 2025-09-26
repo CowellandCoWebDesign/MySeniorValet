@@ -294,10 +294,74 @@ export default function ServiceDetail() {
   const [isFavorited, setIsFavorited] = useState(false);
 
   // Fetch service details
-  const { data: service, isLoading, error } = useQuery<ServiceProvider>({
+  const { data: rawService, isLoading, error } = useQuery<ServiceProvider>({
     queryKey: [`/api/services/${slug}`],
     enabled: !!slug,
   });
+
+  // Enhance service with demo data if fields are missing (for demonstration)
+  const service = React.useMemo(() => {
+    if (!rawService) return null;
+    
+    return {
+      ...rawService,
+      // Add demo partnership tier if missing
+      partnershipTier: rawService.partnershipTier || 'featured',
+      
+      // Add demo view count and response rate if missing
+      viewCount: rawService.viewCount || Math.floor(Math.random() * 500 + 200),
+      responseRate: rawService.responseRate || Math.floor(Math.random() * 10 + 85),
+      
+      // Add demo special offers if missing
+      specialOffers: rawService.specialOffers?.length ? rawService.specialOffers : [
+        {
+          title: "New Customer Special",
+          description: "Get 20% off your first service visit",
+          discount: "20% OFF",
+          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          title: "Senior Discount",
+          description: "Special rates for seniors 65+",
+          discount: "15% OFF",
+          validUntil: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ],
+      
+      // Add demo service packages if missing
+      servicePackages: rawService.servicePackages?.length ? rawService.servicePackages : [
+        {
+          name: "Basic Service",
+          description: "Essential service package",
+          price: "$99",
+          features: ["Initial consultation", "Basic service", "Follow-up support"],
+          popular: false
+        },
+        {
+          name: "Premium Service",
+          description: "Most popular choice",
+          price: "$199",
+          features: ["Priority scheduling", "Extended service", "24/7 support", "Satisfaction guarantee"],
+          popular: true
+        },
+        {
+          name: "Enterprise",
+          description: "Comprehensive solution",
+          price: "Custom",
+          features: ["Dedicated account manager", "Unlimited services", "Custom solutions", "Priority support"],
+          popular: false
+        }
+      ],
+      
+      // Add demo gallery if missing and we have photos
+      gallery: rawService.gallery?.length ? rawService.gallery : 
+        (webPhotos.length > 0 ? webPhotos.slice(0, 3).map((photo, idx) => ({
+          url: photo.url,
+          caption: `${rawService.name} - Image ${idx + 1}`,
+          type: 'service' as const
+        })) : [])
+    };
+  }, [rawService, webPhotos]);
 
   // Auto-fetch web intelligence when service loads
   useEffect(() => {
