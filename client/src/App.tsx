@@ -225,8 +225,8 @@ function Router() {
       </Route>
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
-      <Route path="/service/:slug" component={ServiceDetail} />
-      <Route path="/services/:slug" component={ServiceDetail} />
+      <Route path="/service/:id" component={ServiceDetail} />
+      <Route path="/services/:id" component={ServiceDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
       <Route path="/hospital/:slug" component={HospitalDetails} />
       <Route path="/hospitals" component={SeniorHealthcareDirectory} />

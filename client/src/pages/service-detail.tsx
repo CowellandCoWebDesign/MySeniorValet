@@ -286,7 +286,7 @@ const ServiceWebIntelligence = ({
 };
 
 export default function ServiceDetail() {
-  const { slug } = useParams<{ slug: string }>();
+  const { id } = useParams<{ id: string }>();
   const { toast } = useToast();
   const [webPhotos, setWebPhotos] = useState<any[]>([]);
   const [webIntelligence, setWebIntelligence] = useState<any>(null);
@@ -295,8 +295,8 @@ export default function ServiceDetail() {
 
   // Fetch service details
   const { data: rawService, isLoading, error } = useQuery<ServiceProvider>({
-    queryKey: [`/api/services/${slug}`],
-    enabled: !!slug,
+    queryKey: [`/api/services/${id}`],
+    enabled: !!id,
   });
 
   // Enhance service with demo data if fields are missing (for demonstration)

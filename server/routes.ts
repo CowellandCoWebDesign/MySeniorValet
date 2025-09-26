@@ -634,7 +634,49 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
       const { id } = req.params;
       console.log('Fetching service with ID:', id);
       
-      // Try to fetch from vendors table
+      // Try to fetch from services table first
+      const service = await db.select()
+        .from(services)
+        .where(eq(services.id, parseInt(id)))
+        .limit(1);
+      
+      console.log('Found service:', service.length > 0 ? 'YES' : 'NO');
+      
+      if (service.length > 0) {
+        const serviceData = service[0];
+        const metadata = serviceData.metadata as any || {};
+        
+        // Transform service data to match the expected structure
+        return res.json({
+          id: serviceData.id.toString(),
+          name: serviceData.name,
+          slug: serviceData.slug || serviceData.id.toString(),
+          description: serviceData.description || serviceData.shortDescription,
+          address: metadata.address || '',
+          city: metadata.city || '',
+          state: metadata.state || '',
+          country: metadata.country || 'US',
+          zipCode: metadata.zipCode || '',
+          phone: metadata.phone || '',
+          email: metadata.email || '',
+          website: metadata.website || serviceData.externalUrl || '',
+          careTypes: serviceData.serviceType ? [serviceData.serviceType] : [],
+          services: serviceData.features || [],
+          hours: metadata.hours || null,
+          pricing: serviceData.pricing,
+          rating: metadata.rating || null,
+          reviews: metadata.reviewCount || 0,
+          isDiscovered: true,
+          isVerified: metadata.isVerified || false,
+          data_source: metadata.data_source || 'Database',
+          confidence: metadata.confidence || 100,
+          citations: metadata.citations || [],
+          createdAt: serviceData.createdAt?.toISOString(),
+          updatedAt: serviceData.updatedAt?.toISOString()
+        });
+      }
+      
+      // Try to fetch from vendors table if not found in services
       const vendor = await db.select()
         .from(vendors)
         .where(eq(vendors.id, parseInt(id)))
