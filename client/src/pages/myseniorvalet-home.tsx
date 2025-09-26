@@ -1997,82 +1997,9 @@ export default function MySeniorValetHome() {
 
             {/* Communities Tab */}
             <TabsContent value="communities" className="mt-6">
-              {/* Features Excellence Section */}
-              <div className="mb-12 p-8 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-800 rounded-2xl border-2 border-purple-200 dark:border-purple-800">
-                <div className="text-center mb-8">
-                  <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-1 mb-4">
-                    <Sparkles className="h-4 w-4 mr-2" />
-                    PLATFORM EXCELLENCE
-                  </Badge>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                    Why MySeniorValet Leads the Industry
-                  </h2>
-                  <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                    The most comprehensive senior living platform with authentic data, transparent pricing, and AI-powered intelligence
-                  </p>
-                </div>
-                
-                {/* Excellence Features Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  {/* Real Data Integrity */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl border border-purple-200 dark:border-purple-700">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                        <Shield className="h-6 w-6 text-white" />
-                      </div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">100% Authentic Data</h3>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      Zero tolerance for synthetic data. Every community, price, and review is real and verified through our multi-AI verification system.
-                    </p>
-                  </div>
-                  
-                  {/* Transparent Pricing */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl border border-purple-200 dark:border-purple-700">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
-                        <DollarSign className="h-6 w-6 text-white" />
-                      </div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">No Hidden Fees</h3>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      HUD-verified pricing, real market rates, and complete transparency. No paywalls, no surprises, just honest pricing information.
-                    </p>
-                  </div>
-                  
-                  {/* Self-Healing AI */}
-                  <div className="bg-white/80 dark:bg-gray-800/80 p-6 rounded-xl border border-purple-200 dark:border-purple-700">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg">
-                        <Sparkles className="h-6 w-6 text-white" />
-                      </div>
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">Self-Healing Database</h3>
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm">
-                      AI automatically discovers and adds new communities when you search. The platform gets smarter with every query.
-                    </p>
-                  </div>
-                </div>
-                
-                {/* Platform Stats Bar */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">33,000+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Communities</div>
-                  </div>
-                  <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-green-600 dark:text-green-400">100%</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Authentic</div>
-                  </div>
-                  <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">24/7</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">AI Support</div>
-                  </div>
-                  <div className="bg-white/60 dark:bg-gray-800/60 p-4 rounded-lg text-center">
-                    <div className="text-2xl font-bold text-amber-600 dark:text-amber-400">Free</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">For Families</div>
-                  </div>
-                </div>
+              {/* Featured Excellence Communities Section */}
+              <div className="mb-12">
+                <RedTagDeals />
               </div>
               
               {/* Four Directory Cards Grid - Seamlessly Connected */}
