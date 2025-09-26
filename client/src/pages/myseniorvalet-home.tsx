@@ -739,8 +739,7 @@ function HeroSectionWithTransformingSearch() {
         </div>
         
         <div className="relative z-10 flex flex-col h-full min-h-screen">
-        
-        {/* Hero Title - Keep Original */
+        {/* Hero Title - Keep Original */}
         <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
@@ -1400,7 +1399,6 @@ function HeroSectionWithTransformingSearch() {
             </div>
           </div>
         )}
-        </div>
         </div>
         
         {/* Back to Top Button - appears when there are many results */}
