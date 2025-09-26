@@ -10,49 +10,22 @@ import { sql, like, or, and, eq, desc } from 'drizzle-orm';
 
 const router = Router();
 
-// Vendor/Services search endpoint - Using service_providers table (3,584 providers)
+// Services search endpoint - ALL businesses and services (not just care-related)
 router.post('/api/vendors/search', async (req, res) => {
   try {
-    const { query = '', limit = 100, offset = 0 } = req.body;
+    const { query = '', limit = 100, offset = 0, category = 'services' } = req.body;
     const searchTerm = query.toLowerCase().trim();
     
-    // Define care-related keywords that indicate user is looking for actual care services
-    const careKeywords = [
-      'home care', 'homecare', 'in-home care', 'in home care',
-      'hospice', 'palliative', 'nursing', 'caregiver', 'caregiving',
-      'assisted living', 'memory care', 'dementia', 'alzheimer',
-      'senior care', 'elder care', 'elderly care', 'companion care',
-      'respite care', 'adult day care', 'rehabilitation', 'therapy',
-      'medical equipment', 'mobility aid', 'wheelchair', 'walker',
-      'home health', 'health aide', 'personal care', 'daily living'
-    ];
-    
-    // Check if search is for care services
-    // Only check for care keywords if there's an actual search term (not empty)
-    // And require at least 3 characters to avoid false positives on short queries
-    const isSearchingForCareServices = searchTerm.length >= 3 && careKeywords.some(keyword => {
-      // Check if the full keyword phrase appears in the search term
-      // This avoids false positives like "home" matching "home care"
-      return searchTerm.includes(keyword);
-    });
+    // Services tab should return ALL businesses, not filtered by care services
+    // This includes restaurants, stores, salons, any business type
+    const isServicesSearch = category === 'services';
     
     const startTime = Date.now();
     
-    // Build appropriate WHERE clause based on search type
+    // Build WHERE clause - Services tab searches ALL businesses
     let vendorWhereClause;
-    if (isSearchingForCareServices) {
-      // For care services, be more selective - only match relevant business types
-      vendorWhereClause = sql`(
-        LOWER(business_type) IN ('home care', 'home health', 'hospice', 'medical equipment', 
-          'senior care', 'assisted living', 'nursing', 'therapy', 'rehabilitation',
-          'personal care', 'companion care', 'respite care', 'adult day care')
-        OR LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-        OR (LOWER(description) LIKE ${'%' + searchTerm + '%'} 
-            AND (LOWER(description) LIKE '%care%' OR LOWER(description) LIKE '%health%'
-                OR LOWER(description) LIKE '%senior%' OR LOWER(description) LIKE '%medical%'))
-      )`;
-    } else if (searchTerm) {
-      // For non-care searches, use the original broad matching
+    if (searchTerm) {
+      // Broad matching for ALL business types
       vendorWhereClause = sql`(
         LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
         OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
@@ -77,31 +50,14 @@ router.post('/api/vendors/search', async (req, res) => {
       WHERE status = 'active'
         AND ${vendorWhereClause}
       ORDER BY
-        CASE 
-          WHEN ${isSearchingForCareServices} AND LOWER(business_type) LIKE '%care%' THEN 0
-          WHEN ${isSearchingForCareServices} AND LOWER(business_type) LIKE '%health%' THEN 1
-          ELSE 2
-        END,
         featured DESC,
         average_rating DESC NULLS LAST
       LIMIT ${limit}
     `);
     
-    // Build service provider WHERE clause based on search type  
+    // Build service provider WHERE clause - search ALL businesses  
     let serviceProviderWhereClause;
-    if (isSearchingForCareServices) {
-      // For care services, filter more strictly
-      serviceProviderWhereClause = sql`(
-        (LOWER(name) LIKE ${'%' + searchTerm + '%'} 
-         AND (LOWER(name) LIKE '%care%' OR LOWER(name) LIKE '%health%' 
-              OR LOWER(name) LIKE '%senior%' OR LOWER(name) LIKE '%hospice%'
-              OR LOWER(name) LIKE '%therapy%' OR LOWER(name) LIKE '%medical%'))
-        OR (LOWER(description) LIKE ${'%' + searchTerm + '%'}
-            AND (LOWER(description) LIKE '%care%' OR LOWER(description) LIKE '%health%'
-                OR LOWER(description) LIKE '%senior%' OR LOWER(description) LIKE '%medical%'
-                OR LOWER(description) LIKE '%assist%' OR LOWER(description) LIKE '%nursing%'))
-      )`;
-    } else if (searchTerm) {
+    if (searchTerm) {
       serviceProviderWhereClause = sql`(
         LOWER(name) LIKE ${'%' + searchTerm + '%'}
         OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
@@ -134,11 +90,6 @@ router.post('/api/vendors/search', async (req, res) => {
       WHERE is_active = true
         AND ${serviceProviderWhereClause}
       ORDER BY 
-        CASE 
-          WHEN ${isSearchingForCareServices} AND LOWER(name) LIKE ${'%' + searchTerm + '%'} THEN 0
-          WHEN ${isSearchingForCareServices} AND LOWER(description) LIKE '%care%' THEN 1
-          ELSE 2
-        END,
         is_partner DESC, 
         rating DESC NULLS LAST
       LIMIT ${Math.max(0, limit - vendorResults.rows.length)}
@@ -489,6 +440,89 @@ router.post('/api/resources/search', async (req, res) => {
         searchType: 'error',
         processingTime: 0,
         searchCategory: 'resources'
+      },
+      facets: {
+        states: [],
+        careTypes: [],
+        priceRanges: []
+      }
+    });
+  }
+});
+
+// Vendors/Affiliate Products search endpoint - For purchasable products only
+router.post('/api/affiliate/search', async (req, res) => {
+  try {
+    const { query = '', limit = 100, offset = 0 } = req.body;
+    const searchTerm = query.toLowerCase().trim();
+    
+    const startTime = Date.now();
+    
+    // Search for affiliate products from marketplace_vendors table
+    // These are purchasable products from Amazon, Walmart, etc.
+    let affiliateWhereClause;
+    if (searchTerm) {
+      affiliateWhereClause = sql`(
+        LOWER(name) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(short_description) LIKE ${'%' + searchTerm + '%'}
+      )`;
+    } else {
+      affiliateWhereClause = sql`true`;
+    }
+    
+    const affiliateResults = await db.execute(sql`
+      SELECT 
+        id, 
+        name, 
+        description, 
+        short_description,
+        logo_url, 
+        external_url,
+        is_featured as featured,
+        display_order,
+        category_id
+      FROM marketplace_vendors
+      WHERE ${affiliateWhereClause}
+      ORDER BY 
+        is_featured DESC,
+        display_order ASC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `);
+    
+    const totalCount = await db.execute(sql`
+      SELECT COUNT(*) as count 
+      FROM marketplace_vendors
+      WHERE ${affiliateWhereClause}
+    `);
+    
+    res.json({
+      communities: affiliateResults.rows || [],
+      totalResults: parseInt((totalCount.rows[0] as any)?.count || '0'),
+      searchMetadata: {
+        query,
+        searchType: 'affiliate',
+        processingTime: Date.now() - startTime,
+        searchCategory: 'vendors'
+      },
+      facets: {
+        states: [],
+        careTypes: [],
+        priceRanges: []
+      }
+    });
+  } catch (error) {
+    console.error('Affiliate products search error:', error);
+    res.status(500).json({ 
+      error: 'Failed to search affiliate products',
+      communities: [],
+      totalResults: 0,
+      searchMetadata: {
+        query: req.body.query,
+        searchType: 'error',
+        processingTime: 0,
+        searchCategory: 'vendors'
       },
       facets: {
         states: [],

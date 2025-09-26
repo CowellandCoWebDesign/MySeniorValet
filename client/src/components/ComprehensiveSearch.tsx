@@ -34,7 +34,7 @@ interface ComprehensiveSearchProps {
   placeholder?: string;
   className?: string;
   showSuggestions?: boolean;
-  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
+  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors';
   isSearchActive?: boolean;
 }
 
@@ -193,6 +193,8 @@ export function ComprehensiveSearch({
         apiEndpoint = '/api/healthcare/search';
       } else if (searchCategory === 'resources') {
         apiEndpoint = '/api/resources/search';
+      } else if (searchCategory === 'vendors') {
+        apiEndpoint = '/api/affiliate/search';
       }
       
       const response = await fetch(apiEndpoint, {

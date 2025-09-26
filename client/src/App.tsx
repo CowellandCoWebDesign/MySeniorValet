@@ -179,6 +179,7 @@ import MoveInCoordination from "@/pages/move-in-coordination";
 import SecuritySettingsPage from "@/pages/security-settings";
 import Marketplace from "@/pages/marketplace";
 import SeniorMarketplace from "@/pages/senior-marketplace";
+import VendorsMarketplace from "@/pages/vendors-marketplace";
 import SeniorHealthcareDirectory from "@/pages/senior-healthcare-directory";
 import SeniorResourcesCenter from "@/pages/senior-resources-center";
 import CommunityDirectory from "@/pages/community-directory";
@@ -346,6 +347,7 @@ function Router() {
       <Route path="/vendors/cvs-pharmacy" component={CVSPharmacyPage} />
       <Route path="/resources/medicare-guide" component={MedicareGuidePage} />
       <Route path="/community-directory" component={CommunityDirectory} />
+      <Route path="/vendors-marketplace" component={VendorsMarketplace} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/florals" component={FloralServices} />
