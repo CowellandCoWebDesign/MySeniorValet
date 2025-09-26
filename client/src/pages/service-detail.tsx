@@ -826,33 +826,6 @@ export default function ServiceDetail() {
           </div>
         )}
 
-        {/* Service Gallery */}
-        {(service.gallery && service.gallery.length > 0) && (
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <Image className="w-5 h-5 text-blue-500" />
-              Service Gallery
-            </h2>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
-              {service.gallery.map((item, idx) => (
-                <Card key={idx} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="aspect-video bg-gray-100 dark:bg-gray-800">
-                    <img
-                      src={item.url}
-                      alt={item.caption}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <Badge variant="outline" className="mb-2">{item.type}</Badge>
-                    <p className="text-sm text-gray-700 dark:text-gray-300">{item.caption}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Detailed Information Tabs */}
         <Tabs defaultValue="intelligence" className="space-y-6">
