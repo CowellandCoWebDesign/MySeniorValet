@@ -304,7 +304,95 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           }
         }
         
-        // PRIORITY 3: Only if no real photos yet, try text extraction as last resort
+        // PRIORITY 3: If still no photos, search broader across the internet
+        if (extractedPhotos.length === 0) {
+          console.log(`🔍 Expanding photo search across the internet...`);
+          
+          // Search for photos using expanded queries
+          const expandedSearchQueries = [
+            `${serviceName} ${city} ${state} photos gallery images restaurant`,
+            `${serviceName} restaurant food photos interior exterior`,
+            `${serviceName} photos site:foursquare.com OR site:opentable.com OR site:zomato.com`,
+            `${serviceName} photos site:grubhub.com OR site:doordash.com OR site:seamless.com`,
+            `${serviceName} photos site:eater.com OR site:timeout.com OR site:thrillist.com`
+          ];
+          
+          // Try multiple search queries to find photos
+          for (const searchQuery of expandedSearchQueries.slice(0, 2)) { // Try first 2 queries
+            try {
+              console.log(`🔎 Searching: ${searchQuery}`);
+              
+              const expandedSearchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${perplexityApiKey}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  model: 'sonar-pro',
+                  messages: [
+                    {
+                      role: 'system',
+                      content: 'You are a photo finder specialist. Find and return actual photo URLs from various restaurant and food delivery platforms. Focus on finding real photos of the business.'
+                    },
+                    {
+                      role: 'user',
+                      content: `Find photos for: ${searchQuery}. Include direct image URLs from any restaurant websites, food delivery platforms, review sites, or social media. Return actual photo URLs.`
+                    }
+                  ],
+                  temperature: 0.2,
+                  max_tokens: 1000,
+                  return_images: true,  // Enable real image URLs
+                  image_domain_filter: [
+                    "foursquare.com",
+                    "opentable.com",
+                    "zomato.com",
+                    "grubhub.com",
+                    "doordash.com",
+                    "seamless.com",
+                    "postmates.com",
+                    "eater.com",
+                    "timeout.com",
+                    "thrillist.com",
+                    "toasttab.com",
+                    "squarespace.com",
+                    "wix.com",
+                    "-shutterstock.com",  // Exclude stock photos
+                    "-getty.com",
+                    "-stock.adobe.com"
+                  ]
+                })
+              });
+              
+              if (expandedSearchResponse.ok) {
+                const expandedData = await expandedSearchResponse.json();
+                if (expandedData.provider_metadata?.images && expandedData.provider_metadata.images.length > 0) {
+                  console.log(`✅ Found ${expandedData.provider_metadata.images.length} photos from expanded search`);
+                  const newPhotos = expandedData.provider_metadata.images.slice(0, 20).map((img: any) => {
+                    const photoUrl = img.imageUrl || img;
+                    if (photoUrl.includes('http')) {
+                      return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+                    }
+                    return photoUrl;
+                  });
+                  extractedPhotos.push(...newPhotos);
+                  
+                  if (extractedPhotos.length >= 5) {
+                    break; // Stop if we have enough photos
+                  }
+                }
+              }
+            } catch (searchError) {
+              console.log(`Search query failed, trying next...`);
+            }
+          }
+          
+          if (extractedPhotos.length > 0) {
+            console.log(`🎉 Successfully found ${extractedPhotos.length} photos through expanded search`);
+          }
+        }
+        
+        // PRIORITY 4: Try text-based extraction as last resort
         if (extractedPhotos.length === 0) {
           console.log(`📷 Trying text-based photo extraction as final fallback...`);
           const photoExtractor = new MultiAIPhotoExtractor();
