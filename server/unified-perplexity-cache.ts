@@ -115,7 +115,7 @@ Format all information clearly with section headers.
       );
 
       // Parse and structure the comprehensive response
-      const structuredData = this.parseComprehensiveResponse(
+      const structuredData = await this.parseComprehensiveResponse(
         response,
         communityId,
         communityName,
@@ -149,12 +149,12 @@ Format all information clearly with section headers.
     }
   }
 
-  private parseComprehensiveResponse(
+  private async parseComprehensiveResponse(
     response: { summary: string; sources: string[]; images?: string[] },
     communityId: string,
     communityName: string,
     location: string
-  ): CachedCommunityData {
+  ): Promise<CachedCommunityData> {
     const content = response.summary;
     
     // Extract market data
@@ -190,7 +190,7 @@ Format all information clearly with section headers.
       marketData,
       reviews,
       inspections,
-      photos: this.extractPhotosFromResponse(response) || [],
+      photos: await this.extractPhotosFromResponse(response, communityName, location) || [],
       sources: response.sources || [],
       timestamp: Date.now(),
       communityId,
@@ -328,53 +328,94 @@ Format all information clearly with section headers.
     return 'Unknown';
   }
 
-  private extractPhotosFromResponse(response: { summary: string; sources: string[]; images?: string[] }): string[] {
-    const extractedPhotos = new Set<string>();
+  private async extractPhotosFromResponse(
+    response: { summary: string; sources: string[]; images?: string[] },
+    communityName: string,
+    location: string
+  ): Promise<string[]> {
+    const extractedPhotos: string[] = [];
     
-    // First add any images that were directly returned
+    // First add any images that were directly returned by Perplexity
     if (response.images && Array.isArray(response.images)) {
-      response.images.forEach(img => extractedPhotos.add(img));
+      response.images.forEach(img => {
+        if (img && img.includes('http')) {
+          extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(img)}`);
+        }
+      });
     }
     
-    const text = response.summary;
+    // If we already have photos, return them
+    if (extractedPhotos.length >= 10) {
+      console.log(`✅ Found ${extractedPhotos.length} photos from Perplexity response`);
+      return extractedPhotos;
+    }
     
-    // Extract photo gallery links and image URLs from the text
-    // Look for patterns like "photo gallery: URL" or "photos: URL"
-    const photoLinkPatterns = [
-      /(?:photos?|gallery|images?):\s*(https?:\/\/[^\s]+)/gi,
-      /\*\*PHOTOS[^\*]*\*\*[^\n]*?(https?:\/\/[^\s]+)/gi,
-      /photo gallery[^\n]*?(https?:\/\/[^\s]+)/gi
-    ];
+    // If not enough photos, do ONE comprehensive search across the entire internet
+    console.log(`🔍 Performing comprehensive photo search for ${communityName}...`);
     
-    for (const pattern of photoLinkPatterns) {
-      const matches = text.matchAll(pattern);
-      for (const match of matches) {
-        if (match[1]) {
-          // These might be gallery pages, not direct images, but we'll include them
-          extractedPhotos.add(match[1]);
+    const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+    if (!perplexityApiKey) {
+      console.log('No Perplexity API key for photo search');
+      return extractedPhotos;
+    }
+    
+    try {
+      const [city, state] = location.split(',').map(s => s.trim());
+      
+      const comprehensiveSearchQuery = `${communityName} ${city} ${state} photos images gallery`;
+      console.log(`🔎 Single comprehensive photo search: ${comprehensiveSearchQuery}`);
+      
+      const photoSearchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${perplexityApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'sonar-pro',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a comprehensive photo finder for senior living communities. Search EVERYWHERE across the internet for photos. Check ALL relevant sources: Google Images, Google Maps, Google Business, Bing, Yahoo, senior living directories (A Place for Mom, Caring.com, SeniorLiving.org, Assisted Living Facilities), review sites (Yelp, Google Reviews), social media (Facebook, Instagram), the community\'s own website, local news sites, virtual tour providers, and any other source with real photos. Return ALL actual photo URLs you can find.'
+            },
+            {
+              role: 'user',
+              content: `Find ALL available photos for: ${communityName} senior living community in ${city}, ${state}. Search comprehensively across ALL relevant platforms and websites. Include direct image URLs from every possible source - the facility website, Google Maps/Business, review platforms, social media, news articles, senior living directories, virtual tours, and anywhere else photos exist. Focus on finding photos of: the building exterior, interior common areas, resident rooms, dining areas, activity spaces, grounds/gardens, staff, and amenities. Return as many actual photo URLs as possible.`
+            }
+          ],
+          temperature: 0.2,
+          max_tokens: 2000,
+          return_images: true,  // Enable real image URLs
+          search_depth: 'comprehensive',  // Use comprehensive search
+          search_recency_filter: 'none',  // Don't filter by recency to get all photos
+          // Don't restrict domains - search everywhere
+        })
+      });
+      
+      if (photoSearchResponse.ok) {
+        const photoData = await photoSearchResponse.json();
+        if (photoData.provider_metadata?.images && photoData.provider_metadata.images.length > 0) {
+          console.log(`✅ Found ${photoData.provider_metadata.images.length} photos from comprehensive search`);
+          const newPhotos = photoData.provider_metadata.images.slice(0, 50).map((img: any) => {
+            const photoUrl = img.imageUrl || img;
+            if (photoUrl.includes('http')) {
+              return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+            }
+            return photoUrl;
+          });
+          extractedPhotos.push(...newPhotos);
+          console.log(`🎉 Successfully retrieved ${extractedPhotos.length} total photos with single comprehensive search`);
+        } else {
+          console.log(`📷 Comprehensive search found no additional photos`);
         }
       }
+    } catch (searchError) {
+      console.log(`Comprehensive photo search failed:`, searchError);
     }
     
-    // Look for direct image URLs in the text
-    const imageUrlRegex = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|svg)(?:\?[^\s]*)?/gi;
-    const urlMatches = text.match(imageUrlRegex);
-    if (urlMatches) {
-      urlMatches.forEach(url => extractedPhotos.add(url.trim()));
-    }
-    
-    // Look for markdown image syntax
-    const markdownImageRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
-    let match;
-    while ((match = markdownImageRegex.exec(text)) !== null) {
-      if (match[1]) {
-        extractedPhotos.add(match[1]);
-      }
-    }
-    
-    const photoArray = Array.from(extractedPhotos);
+    const photoArray = Array.from(new Set(extractedPhotos)); // Remove duplicates
     if (photoArray.length > 0) {
-      console.log(`📸 Extracted ${photoArray.length} photo URLs from comprehensive data`);
+      console.log(`📸 Total ${photoArray.length} unique photo URLs for ${communityName}`);
     }
     return photoArray;
   }
