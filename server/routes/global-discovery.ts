@@ -524,18 +524,37 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           console.log(`✅ Search API found ${businesses.length} businesses from ${searchResults.results.length} search results`);
           
           // Convert to discovery format
-          discoveredCommunities = businesses.map(business => ({
-            name: business.name,
-            website: business.website || '',
-            description: business.description || `${serviceType} service in ${location}`,
-            city: location.split(',')[0]?.trim() || '',
-            state: location.split(',')[1]?.trim() || '',
-            country: 'United States',
-            source: 'Search API',
-            confidence: business.confidence,
-            isDiscovered: true,
-            careTypes: [serviceType]
-          }));
+          // Parse location more intelligently
+          let city = '';
+          let state = '';
+          if (location) {
+            const locationParts = location.split(/[,\s]+/);
+            if (locationParts.length >= 2) {
+              // Last part is likely state (CA, California, etc.)
+              state = locationParts[locationParts.length - 1];
+              // Everything before that is city
+              city = locationParts.slice(0, -1).join(' ');
+            } else {
+              city = location;
+            }
+          }
+          
+          discoveredCommunities = businesses
+            .filter(business => !business.isResource) // FILTER OUT ARTICLES/GUIDES
+            .map(business => ({
+              name: business.name,
+              website: business.website || '',
+              description: business.description || `${serviceType} service in ${location}`,
+              city: city || location || 'Unknown',
+              state: state || '',
+              country: 'United States',
+              source: 'Search API',
+              confidence: business.confidence,
+              isDiscovered: true,
+              isResource: business.isResource || false,
+              resourceType: business.resourceType || 'direct_business',
+              careTypes: [serviceType]
+            }));
           
         } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
           // Use specialized senior community search
@@ -1080,20 +1099,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         discoveredWithRealIds = savedServices.map((service) => {
           // Extract location data from metadata
           const metadata = service.metadata as any || {};
+          const locationInfo = metadata.location || {};
+          
           return {
             id: service.id, // Use real database ID
             name: service.name, // Services table uses 'name' column
             type: 'service',
             serviceType: service.serviceType || 'General Service',
-            address: metadata.address || '',
-            city: metadata.city || '',
-            state: metadata.state || '',
-            phone: metadata.phone || '',
+            address: locationInfo.address || metadata.address || '',
+            city: locationInfo.city || metadata.city || '',
+            state: locationInfo.state || metadata.state || '',
+            phone: locationInfo.phone || metadata.phone || '',
             website: service.externalUrl || metadata.website || '',
             description: service.description || '',
             isDiscovered: true,
             isService: true,
-            confidence: 90,
+            isResource: metadata.isResource || false,
+            resourceType: metadata.resourceType || 'direct_business',
+            confidence: metadata.confidence || 90,
             data_source: 'AI Discovery',
             citations: citations
           };
@@ -1199,13 +1222,38 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const existingInWebResults = allResults.filter(r => r.isExisting).length;
       const newlyDiscovered = allResults.filter(r => r.isDiscovered).length;
       
+      // Filter out articles/resources from display (but keep them in database)
+      const displayResults = allResults.filter(result => {
+        // Check if it's a resource/article
+        if (result.isResource || result.resourceType !== 'direct_business') {
+          console.log(`🚫 Filtering out article from display: "${result.name}"`);
+          return false;
+        }
+        
+        // Also filter based on name patterns for double safety
+        const articlePatterns = [
+          /^(the\s+)?(\d+\s+)?(best|top)\s+/i,
+          /guide\s+(to|for)\s+/i,
+          /^\d+\s+of\s+/i,
+          /(2024|2025)\s+guide/i
+        ];
+        
+        const isArticle = articlePatterns.some(pattern => pattern.test(result.name));
+        if (isArticle) {
+          console.log(`🚫 Filtering out article pattern from display: "${result.name}"`);
+          return false;
+        }
+        
+        return true;
+      });
+      
       res.json({
         success: true,
         query: query,
         searchType: searchType || 'auto-detected',
-        results: allResults.slice(0, limit),
+        results: displayResults.slice(0, limit),
         metadata: {
-          totalFound: allResults.length,
+          totalFound: displayResults.length,
           existingCount: existingInWebResults,
           discoveredCount: newlyDiscovered,
           sources: citations.length > 0 ? [...citations, 'Database'] : ['Perplexity Web Search', 'Database'],
@@ -1213,11 +1261,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           timestamp: new Date().toISOString(),
           aiConfidence: discoveredCommunities.length > 0 ? 85 : 50,
           rawPerplexityResponse: aiResponse, // Include raw AI response for display
-          perplexityQuery: searchQuery // Include the actual query sent to Perplexity
+          perplexityQuery: searchQuery, // Include the actual query sent to Perplexity
+          articlesFound: allResults.length - displayResults.length // Track how many articles were filtered
         },
-        message: allResults.length === 0 
-          ? `No communities found for "${query}". Try a different location or search term.`
-          : `Discovery Mode found ${allResults.length} communities via web search: ${existingInWebResults} already in our database, ${newlyDiscovered} newly discovered`
+        message: displayResults.length === 0 
+          ? `No businesses found for "${query}". Try a different location or search term.`
+          : `Discovery Mode found ${displayResults.length} businesses via web search: ${existingInWebResults} already in our database, ${newlyDiscovered} newly discovered`
       });
       
     } catch (error) {
