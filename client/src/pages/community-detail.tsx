@@ -42,6 +42,7 @@ import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
 import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
+import { MatterportEmbed } from "@/components/MatterportEmbed";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
 import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
@@ -1985,14 +1986,34 @@ export default function CommunityDetail() {
                       {/* Virtual Tour Options */}
                       <div className="space-y-3">
                         {(() => {
+                          // Check multiple sources for virtual tour URLs
                           const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
-                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour;
+                          const virtualTourFromPerplexity = comprehensiveData?.marketData?.virtualTourUrl;
+                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour || virtualTourFromPerplexity;
                           
                           if (hasVirtualOptions) {
                             return (
                               <>
                                 <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
-                                {webIntel?.videoTour && (
+                                
+                                {/* 3D Tour from Perplexity (Matterport, YouVisit, etc.) */}
+                                {virtualTourFromPerplexity && (
+                                  <div className="space-y-3">
+                                    <MatterportEmbed
+                                      tourId={`tour-${community.id}`}
+                                      tourUrl={virtualTourFromPerplexity}
+                                      communityName={community.name}
+                                      showControls={true}
+                                      metadata={{
+                                        tourDescription: `Experience ${community.name} with an interactive 3D virtual tour`,
+                                        features: community.amenities?.slice(0, 6)
+                                      }}
+                                    />
+                                  </div>
+                                )}
+                                
+                                {/* Video Tour from Web Intelligence */}
+                                {webIntel?.videoTour && !virtualTourFromPerplexity && (
                                   <ExternalLinkWarning
                                     href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
                                     className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -2001,7 +2022,9 @@ export default function CommunityDetail() {
                                     <span>Watch Video Tour</span>
                                   </ExternalLinkWarning>
                                 )}
-                                {webIntel?.virtualTour && (
+                                
+                                {/* Virtual Tour from Web Intelligence (as fallback) */}
+                                {webIntel?.virtualTour && !virtualTourFromPerplexity && (
                                   <ExternalLinkWarning
                                     href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
                                     className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"

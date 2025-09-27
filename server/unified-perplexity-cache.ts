@@ -10,6 +10,7 @@ interface CachedCommunityData {
     availability?: string;
     description?: string;
     managementCompany?: string;
+    virtualTourUrl?: string;
   };
   reviews: {
     googleReviews?: any[];
@@ -166,7 +167,8 @@ Format all information clearly with section headers.
       email: this.extractEmail(content),
       availability: this.extractSection(content, 'AVAILABILITY'),
       description: this.extractDescription(content),
-      managementCompany: this.extractSection(content, 'MANAGEMENT')
+      managementCompany: this.extractSection(content, 'MANAGEMENT'),
+      virtualTourUrl: this.extractVirtualTourUrl(content, sources)
     };
 
     // Extract reviews
@@ -252,6 +254,41 @@ Format all information clearly with section headers.
     // Get first substantial paragraph
     const paragraphs = content.split('\n').filter(p => p.length > 50);
     return paragraphs[0] || content.substring(0, 200);
+  }
+
+  private extractVirtualTourUrl(content: string, sources: string[]): string | undefined {
+    // Look for virtual tour URLs in the content
+    const patterns = [
+      /(?:virtual tour|3d tour|360 tour)[^\n]*?(https?:\/\/[^\s\n]+)/i,
+      /(https?:\/\/(my\.)?matterport\.com\/show\/\?m=[\w-]+)/i,
+      /(https?:\/\/www\.youvisit\.com\/tour\/[\w-]+)/i,
+      /(https?:\/\/[\w-]+\.eyespy360\.com\/[\w-]+)/i,
+      /(https?:\/\/kuula\.co\/share\/[\w-]+)/i,
+      /(https?:\/\/[^\s]+(?:virtual-?tour|3d-?tour|360)[^\s]*)/i
+    ];
+
+    // First check the content
+    for (const pattern of patterns) {
+      const match = content.match(pattern);
+      if (match) {
+        const url = match[1] || match[0];
+        if (url.startsWith('http')) {
+          console.log(`🎬 Found 3D tour URL: ${url}`);
+          return url;
+        }
+      }
+    }
+
+    // Also check the sources for tour providers
+    const tourProviders = ['matterport.com', 'youvisit.com', 'eyespy360.com', 'kuula.co', 'virtual-tour', '3d-tour'];
+    for (const source of sources) {
+      if (tourProviders.some(provider => source.toLowerCase().includes(provider))) {
+        console.log(`🎬 Found 3D tour source: ${source}`);
+        return source;
+      }
+    }
+
+    return undefined;
   }
 
   private extractGoogleReviews(content: string): any[] {
