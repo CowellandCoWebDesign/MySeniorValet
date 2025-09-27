@@ -176,7 +176,7 @@ Format all information clearly with section headers.
       availability: this.extractSection(content, 'AVAILABILITY'),
       description: this.extractDescription(content),
       managementCompany: this.extractSection(content, 'MANAGEMENT'),
-      virtualTourUrl: this.extractVirtualTourUrl(content, sources)
+      virtualTourUrl: this.extractVirtualTourUrl(content, response.sources)
     };
 
     // Extract reviews
