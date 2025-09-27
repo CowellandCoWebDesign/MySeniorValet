@@ -474,10 +474,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         if (isCountrySearch && !isSpecificCitySearch) {
           locationScope = `Search across major cities and regions in ${location}. Include businesses from different areas of the country.`;
         } else {
-          locationScope = `Include ONLY businesses physically located in ${location}.`;
+          locationScope = `Focus on businesses in ${location} and surrounding areas within the same metro region.`;
         }
         
-        searchQuery = `Find at least 15-20 ${serviceType || 'businesses and services'} that are physically located in ${location}. CRITICAL: ${locationScope} DO NOT include businesses from other cities or locations. For each business provide: exact business name, complete street address, city (must be ${location}), state/region, country, phone number, website, and description of their services. ${businessFocus} List ONLY businesses that are actually in ${location}, not in nearby cities or other locations.`;
+        searchQuery = `Find at least 15-20 ${serviceType || 'businesses and services'} in ${location}. ${locationScope} For each business provide: exact business name, complete street address, city, state/region, country, phone number, website, and description of their services. ${businessFocus} List as many businesses as possible, minimum 15.`;
       } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
         // Adjust for country-level searches
         let searchScope = '';
@@ -509,7 +509,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Adjust system prompt based on search type
       let systemPrompt = '';
       if (searchType === 'services') {
-        systemPrompt = 'You are a comprehensive business and services research assistant. Search for businesses and services in the specified location. Return ONLY businesses that are physically located in the requested city/state/country. Do not include businesses from other locations even if they have similar names. Be precise about location - if asked for "San Diego", only return San Diego businesses, not Los Angeles or other cities.';
+        systemPrompt = 'You are a comprehensive business and services research assistant. Search for businesses and services in the specified location and surrounding areas. Focus primarily on the requested location but include nearby areas within the same metro area or region. Provide accurate location information for each business.';
       } else {
         systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. Return ONLY facilities from the requested location with accurate information.';
       }
