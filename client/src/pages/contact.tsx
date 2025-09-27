@@ -14,6 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// MySeniorValet Logo Concepts - New Set
+import abstractLogo from '@assets/generated_images/Abstract_geometric_care_logo_f696cf3f.png';
+import valetLogo from '@assets/generated_images/Elegant_valet_butler_logo_4a1bf582.png';
+import compassLogo from '@assets/generated_images/Compass_navigation_guide_logo_c0c2b260.png';
+import treeLogo from '@assets/generated_images/Tree_of_life_care_logo_802d0f97.png';
+import infinityLogo from '@assets/generated_images/Infinity_journey_care_logo_0ad0c7f0.png';
+
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
@@ -143,6 +150,12 @@ export default function Contact() {
   };
 
   const brandImages = [
+    // Logo Concepts
+    { src: abstractLogo, title: 'Abstract Geometric Care Logo', description: 'Modern tech-forward design with interconnected shapes representing community and support - Currently Active' },
+    { src: valetLogo, title: 'Elegant Valet Butler Logo', description: 'Sophisticated gentleman valet with premium luxury service aesthetic' },
+    { src: compassLogo, title: 'Compass Navigation Guide Logo', description: 'Four-point compass representing guidance through the senior care journey' },
+    { src: treeLogo, title: 'Tree of Life Care Logo', description: 'Strong roots and flourishing branches symbolizing support and growth' },
+    { src: infinityLogo, title: 'Infinity Journey Logo', description: 'Continuous loop representing endless support throughout the care journey' },
     // Brand Style Images
     { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic representing premium senior care assistance' },
     { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology - the future of senior living search' },
