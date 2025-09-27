@@ -1266,7 +1266,12 @@ export function registerCommunityRoutes(app: Express) {
 
       // Use unified Perplexity cache to get comprehensive data
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(community.name, community);
+      const location = `${community.city}, ${community.state}`;
+      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+        communityId.toString(),
+        community.name,
+        location
+      );
 
       // Ensure photos are properly formatted as strings
       let normalizedPhotos = comprehensiveData.photos?.map(photo => {
