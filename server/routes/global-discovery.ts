@@ -439,45 +439,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
       if (searchType === 'services') {
-        // For services, extract the service type and location from the query
-        // Common patterns: "restaurants in France", "hotels in Japan", "restaurants in San Francisco"
-        let serviceType = '';
-        let location = query;
-        
-        // Try to extract location from patterns like "X in Y" or "X near Y"
-        const locationMatch = query.match(/(.+?)\s+(?:in|near|at|around)\s+(.+)/i);
-        if (locationMatch) {
-          serviceType = locationMatch[1].trim();
-          location = locationMatch[2].trim();
-        } else {
-          // Check if the query looks like a location
-          const looksLikeLocation = query.match(/\b([A-Z]{2}|california|texas|florida|new york|san|los|las|fort|saint|port)\b/i) || isCountrySearch;
-          if (looksLikeLocation) {
-            // Treat as a location search for general services
-            location = query;
-            // For location-only searches in Services tab, find ALL types of businesses
-            serviceType = 'businesses and services including restaurants, hotels, stores, professional services, healthcare providers, and any other local businesses';
-          } else {
-            // Treat as a service type search in general area
-            serviceType = query;
-            location = 'nearby areas';
-          }
-        }
-        
-        // Dynamically adjust the search based on the service type
-        const businessFocus = serviceType && !serviceType.includes('senior') ? 
-          `Focus specifically on ${serviceType} businesses.` : 
-          `Focus on ${serviceType || 'various services'} including relevant businesses and services in this category.`;
-        
-        // Adjust search scope based on location type
-        let locationScope = '';
-        if (isCountrySearch && !isSpecificCitySearch) {
-          locationScope = `Search across major cities and regions in ${location}. Include businesses from different areas of the country.`;
-        } else {
-          locationScope = `Focus on businesses in ${location} and surrounding areas within the same metro region.`;
-        }
-        
-        searchQuery = `Find at least 15-20 ${serviceType || 'businesses and services'} in ${location}. ${locationScope} For each business provide: exact business name, complete street address, city, state/region, country, phone number, website, and description of their services. ${businessFocus} List as many businesses as possible, minimum 15.`;
+        // KISS approach - use the user's query directly with minimal wrapper
+        searchQuery = `Find at least 15-20 businesses or services matching: "${query}". For each result provide: exact business name, complete street address, city, state/region, country, phone number, website, and description of their services. Include as many relevant results as possible.`;
       } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
         // Adjust for country-level searches
         let searchScope = '';
@@ -509,7 +472,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Adjust system prompt based on search type
       let systemPrompt = '';
       if (searchType === 'services') {
-        systemPrompt = 'You are a comprehensive business and services research assistant. Search for businesses and services in the specified location and surrounding areas. Focus primarily on the requested location but include nearby areas within the same metro area or region. Provide accurate location information for each business.';
+        systemPrompt = 'You are a helpful assistant that finds businesses and services based on user searches. Provide accurate and relevant results.';
       } else {
         systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. Return ONLY facilities from the requested location with accurate information.';
       }
