@@ -8,6 +8,7 @@ import { NavigationHeader } from '@/components/NavigationHeader';
 import { Footer } from '@/components/footer';
 import { useSEO } from '@/hooks/useSEO';
 import { useQuery } from '@tanstack/react-query';
+import sanFranciscoImage from '@assets/generated_images/San_Francisco_skyline_sunset_91c43f25.png';
 
 export default function SeniorLivingSanFranciscoPage() {
   const [, setLocation] = useLocation();
@@ -26,7 +27,7 @@ export default function SeniorLivingSanFranciscoPage() {
   });
 
   const handleSearch = () => {
-    setLocation('/search?location=San Francisco, CA');
+    setLocation('/');
   };
 
   return (
@@ -34,7 +35,14 @@ export default function SeniorLivingSanFranciscoPage() {
       <NavigationHeader />
       
       {/* Hero Section - SEO Optimized */}
-      <section className="relative py-20 px-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700">
+      <section 
+        className="relative py-20 px-4 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-700"
+        style={{
+          backgroundImage: `linear-gradient(rgba(37, 99, 235, 0.8), rgba(147, 51, 234, 0.8)), url(${sanFranciscoImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
         <div className="max-w-6xl mx-auto text-center text-white">
           <Badge className="mb-4 bg-white/20 text-white border-white/30">UPDATED DECEMBER 2025</Badge>
           <h1 className="text-4xl md:text-6xl font-bold mb-6">
@@ -50,12 +58,12 @@ export default function SeniorLivingSanFranciscoPage() {
               className="bg-white text-blue-600 hover:bg-gray-100"
             >
               <Search className="mr-2 h-5 w-5" />
-              Search All San Francisco Communities
+              Start Your Search on Our Amazing Home Page
             </Button>
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => setLocation('/map-search?location=San Francisco, CA')}
+              onClick={() => setLocation('/map')}
               className="border-white text-white hover:bg-white/10"
             >
               <MapPin className="mr-2 h-5 w-5" />
@@ -68,16 +76,16 @@ export default function SeniorLivingSanFranciscoPage() {
               <div className="text-sm opacity-90">Total Communities</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">$7,800-$12,500</div>
-              <div className="text-sm opacity-90">Monthly Price Range</div>
+              <div className="text-3xl font-bold">10+ Levels</div>
+              <div className="text-sm opacity-90">All Care Types</div>
             </div>
             <div>
               <div className="text-3xl font-bold">42</div>
               <div className="text-sm opacity-90">HUD Affordable Options</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">89%</div>
-              <div className="text-sm opacity-90">Average Occupancy Rate</div>
+              <div className="text-3xl font-bold">100% Free</div>
+              <div className="text-sm opacity-90">No Referral Fees</div>
             </div>
           </div>
         </div>
@@ -299,6 +307,45 @@ export default function SeniorLivingSanFranciscoPage() {
         </div>
       </section>
 
+      {/* Complete Care Levels Section */}
+      <section className="py-16 px-4">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8 text-center">All 10+ Levels of Senior Care Available</h2>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-8">MySeniorValet covers every type of senior housing and care in San Francisco</p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Button variant="outline" onClick={() => setLocation('/community-directory')} className="justify-start p-4">
+              <Building className="mr-2 h-5 w-5 text-blue-600" />All Communities Directory</Button>
+            <Button variant="outline" onClick={() => setLocation('/care-spectrum')} className="justify-start p-4">
+              <Heart className="mr-2 h-5 w-5 text-purple-600" />Complete Care Spectrum</Button>
+            <Button variant="outline" onClick={() => setLocation('/senior-healthcare-directory')} className="justify-start p-4">
+              <Shield className="mr-2 h-5 w-5 text-green-600" />Healthcare Providers</Button>
+            <Button variant="outline" onClick={() => setLocation('/vendor-marketplace')} className="justify-start p-4">
+              <Users className="mr-2 h-5 w-5 text-orange-600" />Senior Services Directory</Button>
+            <Button variant="outline" onClick={() => setLocation('/senior-resources-center')} className="justify-start p-4">
+              <Info className="mr-2 h-5 w-5 text-red-600" />Resources & Support</Button>
+            <Button variant="outline" onClick={() => setLocation('/hud-housing')} className="justify-start p-4">
+              <Home className="mr-2 h-5 w-5 text-indigo-600" />HUD & Affordable Housing</Button>
+          </div>
+          <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <h3 className="text-xl font-bold mb-4">All Care Types We Cover:</h3>
+            <div className="grid md:grid-cols-2 gap-3 text-sm">
+              <div>• Independent Living Communities</div>
+              <div>• Assisted Living Facilities</div>
+              <div>• Memory Care Units</div>
+              <div>• Skilled Nursing Facilities</div>
+              <div>• HUD Section 202 Housing</div>
+              <div>• Mobile Home Parks (55+)</div>
+              <div>• Senior Apartments</div>
+              <div>• Board & Care Homes</div>
+              <div>• CCRCs (Continuing Care)</div>
+              <div>• Adult Day Care Centers</div>
+              <div>• Home Health Agencies</div>
+              <div>• Hospice Care Services</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
         <div className="max-w-4xl mx-auto text-center">
@@ -309,11 +356,11 @@ export default function SeniorLivingSanFranciscoPage() {
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Button 
               size="lg" 
-              onClick={handleSearch}
+              onClick={() => setLocation('/')}
               className="bg-white text-blue-600 hover:bg-gray-100"
             >
               <Search className="mr-2 h-5 w-5" />
-              Start Your Search
+              Start on Our Amazing Home Page
             </Button>
             <Button 
               size="lg" 
