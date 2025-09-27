@@ -57,6 +57,19 @@ export class CheerioPhotoScraper {
         const src = $img.attr('src') || $img.attr('data-src') || $img.attr('data-lazy-src');
         const alt = $img.attr('alt');
         const title = $img.attr('title');
+        const width = $img.attr('width');
+        const height = $img.attr('height');
+        
+        // Skip if alt text indicates it's an icon/logo
+        if (alt && this.isIconOrLogo(alt)) return;
+        if (title && this.isIconOrLogo(title)) return;
+        
+        // Skip small images (likely icons)
+        if (width && height) {
+          const w = parseInt(width);
+          const h = parseInt(height);
+          if (!isNaN(w) && !isNaN(h) && (w < 100 || h < 100)) return;
+        }
         
         if (src && this.isValidPhotoUrl(src) && !this.isStockPhoto(src)) {
           photos.push({
@@ -157,11 +170,23 @@ export class CheerioPhotoScraper {
       // Remove duplicates
       const uniquePhotos = this.deduplicatePhotos(photos);
       
-      console.log(`✅ Scraped ${uniquePhotos.length} unique photos from ${websiteUrl}`);
+      // Score and sort photos by relevance to community name
+      const scoredPhotos = uniquePhotos.map(photo => ({
+        ...photo,
+        relevanceScore: this.scorePhotoRelevance(photo, communityName)
+      }));
+      
+      // Sort by relevance score (highest first)
+      scoredPhotos.sort((a, b) => b.relevanceScore - a.relevanceScore);
+      
+      // Filter out low-scoring photos (likely unrelated)
+      const relevantPhotos = scoredPhotos.filter(photo => photo.relevanceScore > 0);
+      
+      console.log(`✅ Scraped ${relevantPhotos.length} relevant photos from ${websiteUrl} (filtered from ${uniquePhotos.length} total)`);
       
       // Apply maxPhotos limit
       const limit = options?.maxPhotos || 30;
-      return uniquePhotos.slice(0, limit);
+      return relevantPhotos.slice(0, limit).map(({ relevanceScore, ...photo }) => photo);
       
     } catch (error) {
       console.error(`❌ Error scraping ${websiteUrl}:`, error instanceof Error ? error.message : error);
@@ -214,19 +239,47 @@ export class CheerioPhotoScraper {
   private isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
     
-    // Check for image extensions or patterns
+    // Reject icon/logo patterns FIRST
+    const iconPatterns = [
+      /icon/i,
+      /logo/i,
+      /badge/i,
+      /button/i,
+      /avatar/i,
+      /emoji/i,
+      /social/i,
+      /facebook/i,
+      /twitter/i,
+      /instagram/i,
+      /linkedin/i,
+      /youtube/i,
+      /pinterest/i,
+      /arrow/i,
+      /chevron/i,
+      /caret/i,
+      /sprite/i,
+      /thumbnail-[xs|sm|tiny]/i,
+      /\.(svg|ico)$/i  // Reject SVG and ICO files completely
+    ];
+    
+    // If URL contains any icon pattern, reject it
+    if (iconPatterns.some(pattern => pattern.test(url))) {
+      return false;
+    }
+    
+    // Check for valid image extensions (removed SVG)
     const imagePatterns = [
-      /\.(jpg|jpeg|png|gif|webp|bmp|svg)/i,
+      /\.(jpg|jpeg|png|gif|webp|bmp)$/i,  // Must end with these extensions
       /\/image\//i,
       /\/photo\//i,
-      /\/media\//i,
-      /\/upload\//i,
       /\/gallery\//i,
+      /\/property\//i,
+      /\/community\//i,
+      /\/facility\//i,
+      /\/residence\//i,
       /cloudinary\.com/i,
       /amazonaws\.com/i,
-      /googleusercontent\.com/i,
-      /fbcdn\.net/i,
-      /twimg\.com/i
+      /googleusercontent\.com/i
     ];
     
     return imagePatterns.some(pattern => pattern.test(url));
@@ -296,6 +349,64 @@ export class CheerioPhotoScraper {
     }
     
     return unique;
+  }
+  
+  private isIconOrLogo(text: string): boolean {
+    if (!text) return false;
+    
+    const iconKeywords = [
+      'icon', 'logo', 'badge', 'button', 'arrow',
+      'facebook', 'twitter', 'instagram', 'linkedin', 
+      'youtube', 'pinterest', 'social', 'share',
+      'email', 'phone', 'map', 'location',
+      'search', 'menu', 'close', 'hamburger',
+      'cart', 'user', 'account', 'login'
+    ];
+    
+    const lowerText = text.toLowerCase();
+    return iconKeywords.some(keyword => lowerText.includes(keyword));
+  }
+  
+  private scorePhotoRelevance(photo: ScrapedPhoto, communityName: string): number {
+    let score = 0;
+    const nameParts = communityName.toLowerCase().split(/\s+/);
+    
+    // Check URL for community name parts
+    const urlLower = photo.url.toLowerCase();
+    nameParts.forEach(part => {
+      if (part.length > 3 && urlLower.includes(part)) score += 2;
+    });
+    
+    // Check alt text
+    if (photo.alt) {
+      const altLower = photo.alt.toLowerCase();
+      nameParts.forEach(part => {
+        if (part.length > 3 && altLower.includes(part)) score += 3;
+      });
+      
+      // Boost for specific keywords
+      if (altLower.includes('building') || 
+          altLower.includes('exterior') || 
+          altLower.includes('interior') ||
+          altLower.includes('room') ||
+          altLower.includes('dining') ||
+          altLower.includes('common') ||
+          altLower.includes('lobby')) {
+        score += 2;
+      }
+    }
+    
+    // Check context
+    if (photo.context) {
+      const contextLower = photo.context.toLowerCase();
+      if (contextLower.includes('gallery') || 
+          contextLower.includes('facility') ||
+          contextLower.includes('property')) {
+        score += 1;
+      }
+    }
+    
+    return score;
   }
 }
 
