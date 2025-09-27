@@ -699,7 +699,7 @@ export default function AdminMegaDashboard() {
   });
   
   // Dashboard stats from community cache
-  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
+  const { data: dashboardStats, isLoading: dashboardStatsLoading } = useQuery({
     queryKey: ['/api/admin/dashboard/stats'],
     refetchInterval: 60000, // Refresh every minute
   });
