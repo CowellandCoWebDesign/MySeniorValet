@@ -440,7 +440,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       if (searchType === 'services') {
         // KISS approach - use the user's query directly with minimal wrapper
-        searchQuery = `Find at least 15-20 businesses or services matching: "${query}". For each result provide: exact business name, complete street address, city, state/region, country, phone number, website, and description of their services. Include as many relevant results as possible.`;
+        searchQuery = `Find at least 15-20 businesses or services matching: "${query}". For each result provide: exact business name, complete street address, city, state/region, country, phone number, website, description of their services, and suggested places to find photos (like their website gallery, Facebook page, Instagram, Yelp, TripAdvisor, or other review sites where they might have photos). Include as many relevant results as possible.`;
       } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
         // Adjust for country-level searches
         let searchScope = '';
@@ -615,6 +615,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 zipCode: facility.zipCode || '',
                 description: facility.description || `Senior living facility in ${facility.city || query}`,
                 careTypes: facility.careTypes || [],
+                photoSources: facility.photoSources || [], // Add photo sources from Perplexity
                 source: 'Perplexity AI Discovery',
                 confidence: 95,
                 isDiscovered: true
@@ -675,6 +676,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                     state: query.split(',')[1]?.trim() || '',
                     country: defaultCountry,
                     description: `${name} - found via search for "${query}"`,
+                    photoSources: [], // Empty array for fallback parsing
                     source: 'Perplexity Web Search',
                     confidence: 85,
                     isDiscovered: true
@@ -721,6 +723,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                     state: query.split(',')[1]?.trim() || '',
                     country: defaultCountry,
                     description: `Found via search for "${query}"`,
+                    photoSources: [], // Empty array for fallback parsing
                     source: 'Perplexity Web Search',
                     confidence: 85,
                     isDiscovered: true
@@ -773,15 +776,20 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   isFeatured: false,
                   sortOrder: 0,
                   metadata: {
-                    discoverySource: 'Perplexity Web Search',
-                    discoveryQuery: query,
-                    discoveryDate: new Date().toISOString(),
-                    city: discovered.city,
-                    state: discovered.state,
-                    address: discovered.address || discovered.location,
-                    phone: discovered.phone,
-                    email: discovered.email,
-                  },
+                    source: 'Perplexity Web Search',
+                    lastUpdated: new Date().toISOString(),
+                    tags: ['discovered', 'service', query],
+                    // Store additional discovery info as stringified JSON
+                    discoveryInfo: JSON.stringify({
+                      discoveryQuery: query,
+                      city: discovered.city,
+                      state: discovered.state,
+                      address: discovered.address || discovered.location,
+                      phone: discovered.phone,
+                      email: discovered.email,
+                      photoSources: discovered.photoSources || [], // Include photo sources for later photo discovery
+                    })
+                  } as any,
                   createdAt: new Date(),
                   updatedAt: new Date(),
                 })
