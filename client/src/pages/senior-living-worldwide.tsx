@@ -26,7 +26,7 @@ export default function SeniorLivingWorldwidePage() {
   });
 
   const handleSearch = () => {
-    setLocation('/search');
+    setLocation('/');
   };
 
   return (

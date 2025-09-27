@@ -381,11 +381,11 @@ export default function SeniorLivingSanFranciscoPage() {
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => setLocation('/search?type=affordable&location=San Francisco, CA')}
+              onClick={() => setLocation('/community-directory')}
               className="border-white text-white hover:bg-white/10"
             >
               <DollarSign className="mr-2 h-5 w-5" />
-              View Affordable Options
+              View All Housing Options
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-75">

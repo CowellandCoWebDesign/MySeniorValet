@@ -348,7 +348,7 @@ export default function SeniorResourcesCenter() {
       name: "Care Guide",
       description: "Comprehensive guide to senior care options",
       icon: Book,
-      link: "/care-guide",
+      link: "/senior-healthcare-directory",
       color: "from-blue-500 to-indigo-500",
       items: ["Types of Care", "Levels of Care", "How to Choose", "Questions to Ask"],
       badge: "ESSENTIAL"
@@ -358,7 +358,7 @@ export default function SeniorResourcesCenter() {
       name: "Cost Information",
       description: "Understanding senior living costs and financial planning",
       icon: Calculator,
-      link: "/costs",
+      link: "/pricing",
       color: "from-green-500 to-emerald-500",
       items: ["Average Costs", "Payment Options", "Insurance", "Financial Aid"],
       badge: "FINANCIAL"
@@ -368,7 +368,7 @@ export default function SeniorResourcesCenter() {
       name: "All-In-One Planner",
       description: "Step-by-step planning tools and checklists",
       icon: FileText,
-      link: "/all-in-one-planner",
+      link: "/family-collaboration-center",
       color: "from-purple-500 to-pink-500",
       items: ["Timeline", "Checklists", "Documents", "Moving Guide"]
     },
@@ -377,7 +377,7 @@ export default function SeniorResourcesCenter() {
       name: "Memory Care Guide",
       description: "Understanding dementia and Alzheimer's care",
       icon: Brain,
-      link: "/memory-care",
+      link: "/community-directory",
       color: "from-orange-500 to-red-500",
       items: ["Warning Signs", "Care Stages", "Communication", "Support"],
       badge: "SPECIALIZED"

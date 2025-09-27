@@ -603,7 +603,7 @@ export default function SeniorHealthcareDirectory() {
             <Button 
               size="lg"
               className="bg-white text-blue-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => setLocation('/care-guide')}
+              onClick={() => setLocation('/community-directory')}
             >
               <Zap className="mr-2 h-5 w-5" />
               Browse Care Guide
@@ -2814,7 +2814,7 @@ export default function SeniorHealthcareDirectory() {
                 <Button 
                   variant="outline"
                   className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/care-guide')}
+                  onClick={() => setLocation('/community-directory')}
                 >
                   <Brain className="h-6 w-6 text-purple-500" />
                   <span className="text-xs">Care Guide</span>

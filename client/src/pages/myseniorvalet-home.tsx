@@ -4411,7 +4411,7 @@ export default function MySeniorValetHome() {
                 <Button 
                   variant="outline"
                   className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/care-guide')}
+                  onClick={() => setLocation('/senior-healthcare-directory')}
                 >
                   <Brain className="h-6 w-6 text-purple-500" />
                   <span className="text-xs">Care Guide</span>
