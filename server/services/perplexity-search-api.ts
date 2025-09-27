@@ -46,69 +46,53 @@ export class PerplexitySearchAPI {
   }
 
   /**
-   * Perform a search using Perplexity's Chat Completions API with online models
-   * Cost-effective approach using sonar-small model for search tasks
+   * Perform a raw search using Perplexity's actual Search API
+   * Cost: $5 per 1,000 requests (significantly cheaper than chat completions)
    */
   async search(query: string, options: SearchOptions = {}): Promise<SearchResponse> {
     try {
-      console.log(`🔍 Perplexity Chat API (Search Mode): "${query}"`);
+      console.log(`🔍 Perplexity Search API: "${query}"`);
       
       if (!this.apiKey) {
         throw new Error('Perplexity API key not configured');
       }
 
-      // Use chat completions with search-enabled model
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      // Build request body with proper Search API parameters
+      const requestBody: any = {
+        query,
+        max_results: options.max_results || 10,
+        max_tokens_per_page: options.max_tokens_per_page || 1024
+      };
+      
+      // Add optional parameters if provided
+      if (options.regional_filter) requestBody.country = options.regional_filter;
+      if (options.date_filter) requestBody.date_filter = options.date_filter;
+      if (options.domain_allowlist) requestBody.domain_allowlist = options.domain_allowlist;
+      if (options.domain_denylist) requestBody.domain_denylist = options.domain_denylist;
+
+      // Use the actual Search API endpoint
+      const response = await fetch(`${this.baseUrl}/search`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: 'llama-3.1-sonar-small-128k-online', // Cost-effective search model
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a search assistant. Extract structured information from web searches. Return results in a clear, factual manner with sources.'
-            },
-            {
-              role: 'user',
-              content: query
-            }
-          ],
-          max_tokens: options.max_tokens_per_page || 1024,
-          temperature: 0.2,
-          return_images: false,
-          return_related_questions: false,
-          search_recency_filter: 'month',
-          stream: false
-        })
+        body: JSON.stringify(requestBody)
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ Perplexity Chat API error (${response.status}):`, errorText);
+        console.error(`❌ Search API error (${response.status}):`, errorText);
         throw new Error(`Search API failed: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
-      const citations = data.citations || [];
+      console.log(`✅ Found ${data.results?.length || 0} search results`);
       
-      console.log(`✅ Perplexity search completed with ${citations.length} citations`);
-      
-      // Convert chat response to search results format
-      const results: SearchResult[] = citations.map((url: string, index: number) => ({
-        title: `Search Result ${index + 1}`,
-        url,
-        snippet: content.slice(index * 100, (index + 1) * 100) + '...',
-        domain: new URL(url).hostname
-      }));
-
       return {
-        results,
-        query,
-        total_results: citations.length
+        results: data.results || [],
+        query: data.query || query,
+        total_results: data.results?.length || 0
       };
 
     } catch (error) {
