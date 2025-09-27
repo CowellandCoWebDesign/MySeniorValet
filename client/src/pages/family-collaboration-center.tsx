@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -114,7 +114,7 @@ export default function FamilyCollaborationCenter() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
   const { user, isLoading: authLoading } = useAuth();
-  const queryClient = useQueryClient();
+  const queryClientHook = useQueryClient();
   const [proText, setProText] = useState('');
   const [conText, setConText] = useState('');
 
@@ -137,7 +137,7 @@ export default function FamilyCollaborationCenter() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/family/messages'] });
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/messages'] });
       setNewMessage('');
     },
   });
