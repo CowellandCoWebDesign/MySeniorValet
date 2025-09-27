@@ -42,6 +42,8 @@ export class PerplexitySearchAPI {
     this.apiKey = process.env.PERPLEXITY_API_KEY || '';
     if (!this.apiKey) {
       console.warn('⚠️ Perplexity API key not found - Search API will not work');
+    } else {
+      console.log(`✅ Perplexity Search API initialized with key: ${this.apiKey.substring(0, 10)}...${this.apiKey.substring(this.apiKey.length - 4)}`);
     }
   }
 
