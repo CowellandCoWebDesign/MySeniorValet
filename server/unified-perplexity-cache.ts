@@ -338,7 +338,8 @@ Format all information clearly with section headers.
     // First add any images that were directly returned by Perplexity
     if (response.images && Array.isArray(response.images)) {
       response.images.forEach(img => {
-        if (img && img.includes('http')) {
+        // Ensure img is a string before calling includes
+        if (img && typeof img === 'string' && img.includes('http')) {
           extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(img)}`);
         }
       });
