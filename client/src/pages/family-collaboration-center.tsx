@@ -22,11 +22,6 @@ import { FamilyMedicareManager } from '@/components/family/FamilyMedicareManager
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
-import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
-import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
-import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
-import ApiIntegrationHub from '@/components/enterprise/ApiIntegrationHub';
-import CustomReportBuilder from '@/components/enterprise/CustomReportBuilder';
 import { 
   Calendar, 
   MessageCircle, 
@@ -453,61 +448,6 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Daily Life</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="staff" 
-                  className="flex-1 min-w-[120px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-indigo-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Users className="w-5 h-5 mr-2 flex-shrink-0 text-blue-600 dark:text-blue-400 group-data-[state=active]:text-blue-700 dark:group-data-[state=active]:text-blue-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Staff</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="availability" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 data-[state=active]:from-amber-500/20 data-[state=active]:to-orange-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Home className="w-5 h-5 mr-2 flex-shrink-0 text-amber-600 dark:text-amber-400 group-data-[state=active]:text-amber-700 dark:group-data-[state=active]:text-amber-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Availability</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="corporate" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400 group-data-[state=active]:text-purple-700 dark:group-data-[state=active]:text-purple-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Corporate</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="integrations" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 to-red-500/0 group-hover:from-orange-500/10 group-hover:to-red-500/10 data-[state=active]:from-orange-500/20 data-[state=active]:to-red-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Zap className="w-5 h-5 mr-2 flex-shrink-0 text-orange-600 dark:text-orange-400 group-data-[state=active]:text-orange-700 dark:group-data-[state=active]:text-orange-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Integrations</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-red-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="reports" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 data-[state=active]:from-indigo-500/20 data-[state=active]:to-purple-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <FileText className="w-5 h-5 mr-2 flex-shrink-0 text-indigo-600 dark:text-indigo-400 group-data-[state=active]:text-indigo-700 dark:group-data-[state=active]:text-indigo-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Reports</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
@@ -1171,61 +1111,7 @@ export default function FamilyCollaborationCenter() {
             </Card>
           </TabsContent>
 
-          {/* Staff Directory Tab - Family View */}
-          <TabsContent value="staff" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-blue-500" />
-                      Care Team Directory
-                    </CardTitle>
-                    <CardDescription>
-                      Meet the dedicated professionals caring for your loved one
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-blue-100 text-blue-700">
-                    Transparent Care
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <StaffManagementSystem 
-                  communityId="family-view"
-                  viewMode="family"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          {/* Availability Tab - Family View of Available Units */}
-          <TabsContent value="availability" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Home className="w-5 h-5 text-amber-500" />
-                      Available Rooms & Tours
-                    </CardTitle>
-                    <CardDescription>
-                      Explore available accommodations and schedule a tour
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-amber-100 text-amber-700">
-                    Live Availability
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <MarketingOccupancyManager 
-                  communityId="family-view"
-                  viewMode="family"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Billing Tab - Family View of Financial Transparency */}
           <TabsContent value="billing" className="space-y-6">
@@ -1365,110 +1251,8 @@ export default function FamilyCollaborationCenter() {
             </Card>
           </TabsContent>
 
-          {/* Corporate Tab - View of Managing Organization */}
-          <TabsContent value="corporate" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-purple-500" />
-                      Corporate Management
-                    </CardTitle>
-                    <CardDescription>
-                      View the organization managing your loved one's community
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-purple-100 text-purple-700">
-                    Transparency View
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6 border-purple-200 bg-purple-50">
-                  <Building2 className="h-4 w-4 text-purple-600" />
-                  <AlertDescription>
-                    <strong>Why This Matters:</strong> Understanding the corporate structure behind your loved one's community helps you see the resources, support systems, and quality standards in place for their care.
-                  </AlertDescription>
-                </Alert>
-                
-                <MultiPropertyDashboard 
-                  corporateId="family-view"
-                  viewMode="family"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          {/* Integrations Tab - View Connected Systems */}
-          <TabsContent value="integrations" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-orange-500" />
-                      Connected Systems
-                    </CardTitle>
-                    <CardDescription>
-                      See the technology powering your loved one's care
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-orange-100 text-orange-700">
-                    Transparency View
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6 border-orange-200 bg-orange-50">
-                  <Zap className="h-4 w-4 text-orange-600" />
-                  <AlertDescription>
-                    <strong>Why This Matters:</strong> Understanding the integrated systems helps you see how your loved one's community uses technology to enhance care quality, safety monitoring, and family communication.
-                  </AlertDescription>
-                </Alert>
-                
-                <ApiIntegrationHub 
-                  corporateId="family-view"
-                  viewMode="readonly"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          {/* Reports Tab - View Community Reports */}
-          <TabsContent value="reports" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-indigo-500" />
-                      Community Reports
-                    </CardTitle>
-                    <CardDescription>
-                      View reports and analytics for your loved one's community
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-indigo-100 text-indigo-700">
-                    Transparency Reports
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6 border-indigo-200 bg-indigo-50">
-                  <BarChart3 className="h-4 w-4 text-indigo-600" />
-                  <AlertDescription>
-                    <strong>Data-Driven Care:</strong> These reports show how your loved one's community uses data analytics to continuously improve care quality, operational efficiency, and resident satisfaction.
-                  </AlertDescription>
-                </Alert>
-                
-                <CustomReportBuilder 
-                  corporateId="family-view"
-                  viewMode="viewer"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
 
