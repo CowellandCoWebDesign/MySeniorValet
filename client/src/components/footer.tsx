@@ -1,7 +1,12 @@
 import { Link } from "wouter";
-import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store, Globe, Database, Zap, Brain } from "lucide-react";
+import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store, Globe, Database, Zap, Brain, Mail, Phone as PhoneIcon } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
+import abstractLogo from '@assets/generated_images/Abstract_geometric_care_logo_f696cf3f.png';
+import valetLogo from '@assets/generated_images/Elegant_valet_butler_logo_4a1bf582.png';
+import compassLogo from '@assets/generated_images/Compass_navigation_guide_logo_c0c2b260.png';
+import treeLogo from '@assets/generated_images/Tree_of_life_care_logo_802d0f97.png';
+import infinityLogo from '@assets/generated_images/Infinity_journey_care_logo_0ad0c7f0.png';
 
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
@@ -48,8 +53,8 @@ export function Footer() {
         {/* Logo & Social */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <Home className="text-white h-4 w-4" />
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center p-1">
+              <img src={abstractLogo} alt="MySeniorValet" className="w-full h-full object-contain" />
             </div>
             <div>
               <span className="text-lg font-bold">MySeniorValet</span>
@@ -69,6 +74,71 @@ export function Footer() {
             <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
               <Linkedin className="h-4 w-4" />
             </a>
+          </div>
+        </div>
+
+        {/* Contact Us & Logo Gallery Section */}
+        <div className="mb-8 bg-gray-900/50 backdrop-blur-sm rounded-lg border border-purple-500/30 p-4">
+          <h3 className="text-sm font-semibold mb-4 text-white flex items-center gap-2">
+            <Mail className="h-4 w-4 text-blue-400" />
+            Contact Us & Brand Gallery
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Contact Information */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3 text-sm">
+                <PhoneIcon className="h-4 w-4 text-green-400" />
+                <span className="text-gray-300">1-800-222-1222</span>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <Mail className="h-4 w-4 text-blue-400" />
+                <a href="mailto:hello@myseniorvalet.com" className="text-gray-300 hover:text-blue-400 transition-colors">
+                  hello@myseniorvalet.com
+                </a>
+              </div>
+              <div className="flex items-center gap-3 text-sm">
+                <MapPin className="h-4 w-4 text-purple-400" />
+                <span className="text-gray-300">Serving Communities Worldwide</span>
+              </div>
+            </div>
+            
+            {/* Logo Gallery */}
+            <div>
+              <p className="text-xs text-gray-400 mb-3">MySeniorValet Logo Concepts:</p>
+              <div className="grid grid-cols-5 gap-2">
+                <div className="group relative">
+                  <div className="w-12 h-12 bg-gray-800/50 rounded-lg p-1.5 border border-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer">
+                    <img src={abstractLogo} alt="Abstract Geometric" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Current</span>
+                </div>
+                <div className="group relative">
+                  <div className="w-12 h-12 bg-gray-800/50 rounded-lg p-1.5 border border-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer">
+                    <img src={valetLogo} alt="Elegant Valet" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Valet</span>
+                </div>
+                <div className="group relative">
+                  <div className="w-12 h-12 bg-gray-800/50 rounded-lg p-1.5 border border-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer">
+                    <img src={compassLogo} alt="Compass Guide" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Compass</span>
+                </div>
+                <div className="group relative">
+                  <div className="w-12 h-12 bg-gray-800/50 rounded-lg p-1.5 border border-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer">
+                    <img src={treeLogo} alt="Tree of Life" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Tree</span>
+                </div>
+                <div className="group relative">
+                  <div className="w-12 h-12 bg-gray-800/50 rounded-lg p-1.5 border border-purple-500/20 hover:border-purple-500/50 transition-all cursor-pointer">
+                    <img src={infinityLogo} alt="Infinity Journey" className="w-full h-full object-contain" />
+                  </div>
+                  <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Infinity</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
