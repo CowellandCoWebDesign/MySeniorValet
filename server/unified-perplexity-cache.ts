@@ -1,4 +1,5 @@
 import { PerplexityAIService } from './perplexity-ai-service';
+import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 
 interface CachedCommunityData {
   marketData: {
@@ -462,9 +463,78 @@ Format all information clearly with section headers.
       console.log(`Comprehensive photo search failed:`, searchError);
     }
     
-    const photoArray = Array.from(new Set(extractedPhotos)); // Remove duplicates
+    // NEW: Use Playwright to scrape photos from sources that Perplexity found
+    if (response.sources && response.sources.length > 0) {
+      console.log(`🕷️ Using Playwright to scrape photos from ${response.sources.length} sources...`);
+      
+      // Filter sources to find potential community websites
+      const websitesToScrape = response.sources.filter(source => {
+        const url = source.toLowerCase();
+        // Priority sources to scrape
+        return (
+          !url.includes('youtube.com') && // Skip video sites
+          !url.includes('.pdf') && // Skip PDFs
+          !url.includes('.doc') && // Skip documents
+          !url.includes('wikipedia') && // Skip Wikipedia
+          (
+            url.includes(communityName.toLowerCase().replace(/\s+/g, '-')) || // Community name in URL
+            url.includes(communityName.toLowerCase().replace(/\s+/g, '')) || // Community name without spaces
+            url.includes('seniorliving') ||
+            url.includes('assistedliving') ||
+            url.includes('nursinghome') ||
+            url.includes('caring.com') ||
+            url.includes('aplaceformom') ||
+            url.includes('senioridy') ||
+            url.includes('seniorhousing') ||
+            url.includes('.com/community') ||
+            url.includes('/facilities/') ||
+            url.includes('yelp.com') ||
+            url.includes('facebook.com') ||
+            url.includes('google.com/maps')
+          )
+        );
+      }).slice(0, 3); // Limit to 3 sites to prevent timeout
+      
+      // If no specific community sites found, try the first few sources
+      if (websitesToScrape.length === 0 && response.sources.length > 0) {
+        websitesToScrape.push(...response.sources.slice(0, 2));
+      }
+      
+      // Scrape each website for photos
+      for (const websiteUrl of websitesToScrape) {
+        try {
+          console.log(`🌐 Scraping photos from: ${websiteUrl}`);
+          const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+            websiteUrl,
+            communityName,
+            {
+              maxPhotos: 20,
+              timeout: 15000 // 15 second timeout per site
+            }
+          );
+          
+          if (scrapedPhotos && scrapedPhotos.length > 0) {
+            console.log(`📸 Found ${scrapedPhotos.length} photos from ${websiteUrl}`);
+            
+            // Add scraped photos to our collection
+            scrapedPhotos.forEach(photo => {
+              if (photo.url && !photo.url.startsWith('/api/image-proxy')) {
+                // Ensure we use the image proxy for all external images
+                extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+              } else if (photo.url) {
+                extractedPhotos.push(photo.url);
+              }
+            });
+          }
+        } catch (scrapeError) {
+          console.log(`⚠️ Failed to scrape ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+        }
+      }
+    }
+    
+    const photoArray = Array.from(new Set(extractedPhotos)).slice(0, 50); // Remove duplicates and limit to 50
     if (photoArray.length > 0) {
-      console.log(`📸 Total ${photoArray.length} unique photo URLs for ${communityName}`);
+      console.log(`📸 Total ${photoArray.length} unique photo URLs for ${communityName} (including scraped)`);
     }
     return photoArray;
   }
