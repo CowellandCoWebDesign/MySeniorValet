@@ -3950,9 +3950,9 @@ export default function MySeniorValetHome() {
                       <Button 
                         variant="link" 
                         className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/search?location=San Francisco, CA'}
+                        onClick={() => window.location.href = '/senior-living-san-francisco'}
                       >
-                        View All San Francisco Communities →
+                        Read Full Article →
                       </Button>
                     </div>
                   </div>
@@ -3996,9 +3996,9 @@ export default function MySeniorValetHome() {
                       <Button 
                         variant="link" 
                         className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/search?location=San Diego, CA'}
+                        onClick={() => window.location.href = '/senior-living-san-diego'}
                       >
-                        View All San Diego Communities →
+                        Read Full Article →
                       </Button>
                     </div>
                   </div>

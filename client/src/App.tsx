@@ -46,6 +46,9 @@ import CommunityDetail from "@/pages/community-detail";
 import ServiceDetail from "@/pages/service-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
+// SEO City Landing Pages
+import SeniorLivingSanFrancisco from "@/pages/senior-living-san-francisco";
+import SeniorLivingSanDiego from "@/pages/senior-living-san-diego";
 
 // Rentals page removed - consolidated to use BasicSearch
 // MapboxTest removed
@@ -207,6 +210,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={MySeniorValetHome} />
+      <Route path="/senior-living-san-francisco" component={SeniorLivingSanFrancisco} />
+      <Route path="/senior-living-san-diego" component={SeniorLivingSanDiego} />
       <Route path="/pricing" component={PricingPage} />
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
