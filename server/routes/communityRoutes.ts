@@ -1242,6 +1242,65 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // Get comprehensive data for community detail page including photos
+  app.get("/api/community/:id/comprehensive-data", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      // Get the community from database
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      console.log(`📊 Fetching comprehensive data for community ${communityId}: ${community.name}`);
+
+      // Use unified Perplexity cache to get comprehensive data
+      const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
+      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveData(community.name, community);
+
+      // Ensure photos are properly formatted as strings
+      const normalizedPhotos = comprehensiveData.photos?.map(photo => {
+        if (typeof photo === 'string') return photo;
+        if (typeof photo === 'object' && photo !== null) {
+          return photo.imageUrl || photo.url || photo.src || '';
+        }
+        return '';
+      }).filter(url => url && url.trim() !== '') || [];
+
+      // Return comprehensive data with normalized photos
+      res.json({
+        communityId,
+        name: community.name,
+        address: community.address,
+        city: community.city,
+        state: community.state,
+        photos: normalizedPhotos,
+        marketData: comprehensiveData.marketData || null,
+        analysis: comprehensiveData.analysis || null,
+        lastUpdated: comprehensiveData.lastUpdated || new Date().toISOString(),
+        dataSource: 'Perplexity AI - Real-time Web Data'
+      });
+
+    } catch (error) {
+      console.error("Error fetching comprehensive data:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch comprehensive data",
+        message: error.message,
+        communityId: req.params.id
+      });
+    }
+  });
+
   // Get single community by ID with Perplexity real-time enrichment - MUST BE LAST
   app.get("/api/communities/:id", async (req, res) => {
     try {
