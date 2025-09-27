@@ -4,6 +4,7 @@ import { db } from '../db';
 import { communities, vendors, services } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
+import { perplexitySearchAPI } from '../services/perplexity-search-api';
 
 // Schema for global discovery search
 const globalSearchSchema = z.object({
@@ -39,47 +40,19 @@ const discoveredCommunitySchema = z.object({
 // Import multi-AI orchestrator for comparisons
 // import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
 
-// Business validation function
+// Business validation function using new Search API
 async function validateBusinessExists(businessName: string, city?: string, state?: string): Promise<boolean> {
   try {
     const location = [city, state].filter(Boolean).join(', ');
-    const searchQuery = `"${businessName}"${location ? ` in ${location}` : ''}`;
+    console.log(`🔍 Validating business exists: ${businessName}${location ? ` in ${location}` : ''}`);
     
-    console.log(`🔍 Validating business exists: ${searchQuery}`);
+    // Use new Search API for cost-effective validation ($5/1K vs higher Sonar Pro costs)
+    const validation = await perplexitySearchAPI.validateBusinessExists(businessName, location);
     
-    const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
-    if (!perplexityApiKey) {
-      console.log('⚠️ No Perplexity API key - assuming business is valid');
-      return true; // Default to true if we can't validate
-    }
+    // Consider it valid if confidence is 50% or higher, or if we have multiple sources
+    const isValid = validation.confidence >= 50 || validation.sources.length >= 2;
     
-    const response = await fetch('https://api.perplexity.ai/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${perplexityApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'sonar-pro',
-        messages: [{
-          role: 'user',
-          content: `Does "${businessName}" exist as a real business${location ? ` in ${location}` : ''}? Reply with just YES or NO. Check if it has any web presence on Google Maps, Yelp, official website, or business directories.`
-        }],
-        temperature: 0.1,
-        max_tokens: 10
-      })
-    });
-    
-    if (!response.ok) {
-      console.log('⚠️ Validation API failed - assuming business is valid');
-      return true; // Default to true if validation fails
-    }
-    
-    const data = await response.json();
-    const answer = data.choices?.[0]?.message?.content?.trim().toUpperCase() || '';
-    
-    const isValid = answer.includes('YES') && !answer.includes('NO');
-    console.log(`✅ Business validation result: ${businessName} = ${isValid ? 'VALID' : 'INVALID'} (response: ${answer})`);
+    console.log(`✅ Search API validation: ${businessName} = ${isValid ? 'VALID' : 'INVALID'} (confidence: ${validation.confidence}%, sources: ${validation.sources.length})`);
     
     return isValid;
   } catch (error) {
@@ -460,6 +433,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // ============ DISCOVERY MODE ACTIVE ============
       // When Discovery Mode is TRUE, ALWAYS search the web to find ALL options,
       // then compare to database to identify which ones we already have
+      // 🚀 USING NEW SEARCH API (Sept 25, 2025) - $5/1K requests vs higher Sonar costs
       
       const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
       if (!perplexityApiKey) {
@@ -467,7 +441,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         return res.status(500).json({ error: 'Search service not configured for Discovery Mode' });
       }
       
-      console.log(`🔍 Discovery Mode ACTIVE: Always searching web for ALL communities in ${query}, then comparing to database`);
+      console.log(`🔍 Discovery Mode ACTIVE: Using NEW Search API for cost-effective discovery in ${query}, then comparing to database`);
       
       // Construct an intelligent search query for Perplexity - optimized for international searches
       let searchQuery = '';
@@ -487,10 +461,113 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const isCountrySearch = countryNames.some(country => queryLower.includes(country));
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
-      if (searchType === 'services') {
-        // KISS approach - use the user's query directly with minimal wrapper
-        searchQuery = `Find at least 15-20 businesses or services matching: "${query}". For each result provide: exact business name, complete street address, city, state/region, country, phone number, website, description of their services, and suggested places to find photos (like their website gallery, Facebook page, Instagram, Yelp, TripAdvisor, or other review sites where they might have photos). Include as many relevant results as possible.`;
-      } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
+      let discoveredCommunities = [];
+
+      // Helper function to detect country from query
+      const detectCountry = (query: string): string => {
+        const lowerQuery = query.toLowerCase();
+        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
+        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
+        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
+        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
+        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
+        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
+        if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
+        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
+        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
+        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
+        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
+        return 'United States'; // Default
+      };
+
+      // Step 1: TRY NEW SEARCH API FIRST (much cheaper at $5/1K requests)
+      try {
+        console.log(`🔍 Step 1: Using NEW Search API for initial discovery...`);
+        
+        if (searchType === 'services') {
+          // Parse service type and location from query
+          const queryParts = query.toLowerCase().split(' in ');
+          const serviceType = queryParts[0]?.trim() || query;
+          const location = queryParts[1]?.trim() || '';
+          
+          console.log(`🔍 Searching for services: "${serviceType}" in "${location}"`);
+          
+          // Use specialized business search
+          const searchResults = await perplexitySearchAPI.searchBusinesses(serviceType, location, {
+            max_results: 20,
+            max_tokens_per_page: 512
+          });
+          
+          // Extract business data from search results
+          const businesses = perplexitySearchAPI.extractBusinessData(searchResults.results, 'service');
+          
+          console.log(`✅ Search API found ${businesses.length} businesses from ${searchResults.results.length} search results`);
+          
+          // Convert to discovery format
+          discoveredCommunities = businesses.map(business => ({
+            name: business.name,
+            website: business.website || '',
+            description: business.description || `${serviceType} service in ${location}`,
+            city: location.split(',')[0]?.trim() || '',
+            state: location.split(',')[1]?.trim() || '',
+            country: 'United States',
+            source: 'Search API',
+            confidence: business.confidence,
+            isDiscovered: true,
+            careTypes: [serviceType]
+          }));
+          
+        } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
+          // Use specialized senior community search
+          const location = query;
+          const searchResults = await perplexitySearchAPI.searchSeniorCommunities(location, '', {
+            max_results: 15,
+            max_tokens_per_page: 512
+          });
+          
+          // Extract community data from search results
+          const communities = perplexitySearchAPI.extractBusinessData(searchResults.results, 'senior_community');
+          
+          console.log(`✅ Search API found ${communities.length} senior communities from ${searchResults.results.length} search results`);
+          
+          // Convert to discovery format
+          discoveredCommunities = communities.map(community => ({
+            name: community.name,
+            website: community.website || '',
+            description: community.description || `Senior living community in ${location}`,
+            city: location.split(',')[0]?.trim() || '',
+            state: location.split(',')[1]?.trim() || '',
+            country: detectCountry(query),
+            source: 'Search API',
+            confidence: community.confidence,
+            isDiscovered: true,
+            careTypes: ['Senior Living']
+          }));
+        }
+        
+        // If Search API found good results, use them directly
+        if (discoveredCommunities.length >= 5) {
+          console.log(`✅ Search API success: Found ${discoveredCommunities.length} results, skipping expensive Sonar API`);
+        } else {
+          console.log(`⚠️ Search API found only ${discoveredCommunities.length} results, falling back to Sonar API for comprehensive search`);
+          discoveredCommunities = []; // Clear for fallback
+        }
+        
+      } catch (searchApiError) {
+        console.error('⚠️ Search API failed, falling back to Sonar API:', searchApiError);
+        discoveredCommunities = []; // Clear for fallback
+      }
+
+      // Step 2: FALLBACK TO SONAR API if Search API didn't find enough results
+      if (discoveredCommunities.length < 5) {
+        console.log(`🔍 Step 2: Using Sonar API for comprehensive discovery (fallback)...`);
+        
+        try {
+
+        if (searchType === 'services') {
+          // KISS approach - use the user's query directly with minimal wrapper
+          searchQuery = `Find at least 15-20 businesses or services matching: "${query}". For each result provide: exact business name, complete street address, city, state/region, country, phone number, website, description of their services, and suggested places to find photos (like their website gallery, Facebook page, Instagram, Yelp, TripAdvisor, or other review sites where they might have photos). Include as many relevant results as possible.`;
+        } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
         // Adjust for country-level searches
         let searchScope = '';
         if (isCountrySearch && !isSpecificCitySearch) {
@@ -1119,6 +1196,68 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           : `Discovery Mode found ${allResults.length} communities via web search: ${existingInWebResults} already in our database, ${newlyDiscovered} newly discovered`
       });
       
+    } catch (error) {
+      console.error('❌ Global discovery search error:', error);
+      
+      // If it's a timeout error, return existing results or timeout indicator
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('⏱️ Perplexity API timeout - checking for existing results');
+        const { query, searchType, limit } = req.body;
+        
+        // If we have existing communities, return them
+        if (existingCommunities.length > 0) {
+          res.json({
+            success: true,
+            query: query || '',
+            searchType: searchType || 'auto-detected',
+            results: existingCommunities.slice(0, limit || 30),
+            metadata: {
+              totalFound: existingCommunities.length,
+              existingCount: existingCommunities.length,
+              discoveredCount: 0,
+              sources: ['Database'],
+              searchLocation: query,
+              timestamp: new Date().toISOString(),
+              aiConfidence: 0,
+              timeout: true,
+              status: 'partial',
+              note: 'Discovery service timed out - showing existing communities only'
+            },
+            message: `Found ${existingCommunities.length} existing communities. Discovery service timed out while searching for new results.`
+          });
+        } else {
+          // No existing results - indicate timeout clearly
+          res.json({
+            success: true,
+            query: query || '',
+            searchType: searchType || 'auto-detected',
+            results: [],
+            metadata: {
+              totalFound: 0,
+              existingCount: 0,
+              discoveredCount: 0,
+              sources: [],
+              searchLocation: query,
+              timestamp: new Date().toISOString(),
+              aiConfidence: 0,
+              timeout: true,
+              status: 'timeout',
+              retryAfterMs: 30000,
+              note: 'Discovery service timed out before results could be retrieved'
+            },
+            message: `Discovery service timed out while searching for "${query}". This search is taking longer than expected. Please try again in a moment, or try searching for a specific city instead of a country.`
+          });
+        }
+        return;
+      } else {
+        res.status(500).json({ 
+          success: false,
+          error: 'Failed to perform global search',
+          message: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
+    }
+      } // Close the 'if (discoveredCommunities.length < 5)' block
     } catch (error) {
       console.error('❌ Global discovery search error:', error);
       
