@@ -421,6 +421,45 @@ Format all information clearly with section headers.
   ): Promise<string[]> {
     const extractedPhotos: string[] = [];
     
+    // Filter function to reject inappropriate photos
+    const isValidCommunityPhoto = (url: string): boolean => {
+      if (!url) return false;
+      const urlLower = url.toLowerCase();
+      
+      // Reject people/staff/realtor photos
+      const peoplePatterns = [
+        'headshot', 'portrait', 'staff', 'team', 'realtor',
+        'agent', 'broker', 'professional', 'profile', 'employee',
+        'member', 'board', 'director', 'executive', 'manager',
+        'about-us', 'testimonial', 'smile', 'smiling'
+      ];
+      
+      if (peoplePatterns.some(pattern => urlLower.includes(pattern))) {
+        console.log(`❌ Rejecting people photo: ${url.substring(0, 100)}...`);
+        return false;
+      }
+      
+      // Reject logos/icons
+      const iconPatterns = ['icon', 'logo', 'badge', 'button', 'avatar', '.svg', '.ico'];
+      if (iconPatterns.some(pattern => urlLower.includes(pattern))) {
+        console.log(`❌ Rejecting icon/logo: ${url.substring(0, 100)}...`);
+        return false;
+      }
+      
+      // Reject stock photos
+      const stockDomains = [
+        'unsplash.com', 'pexels.com', 'pixabay.com', 'shutterstock.com',
+        'gettyimages.com', 'istockphoto.com', 'depositphotos.com'
+      ];
+      
+      if (stockDomains.some(domain => urlLower.includes(domain))) {
+        console.log(`❌ Rejecting stock photo: ${url.substring(0, 100)}...`);
+        return false;
+      }
+      
+      return true;
+    };
+    
     // First add any images that were directly returned by Perplexity
     if (response.images && Array.isArray(response.images)) {
       response.images.forEach((img: any) => {
@@ -435,8 +474,8 @@ Format all information clearly with section headers.
           imageUrl = img.url;
         }
         
-        // Only process valid HTTP URLs
-        if (imageUrl && imageUrl.includes('http')) {
+        // Only process valid HTTP URLs that pass our filter
+        if (imageUrl && imageUrl.includes('http') && isValidCommunityPhoto(imageUrl)) {
           extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(imageUrl)}`);
         }
       });
@@ -523,7 +562,7 @@ Format all information clearly with section headers.
                   photoUrl = img.image_url;
                 }
                 
-                if (photoUrl && photoUrl.includes('http')) {
+                if (photoUrl && photoUrl.includes('http') && isValidCommunityPhoto(photoUrl)) {
                   extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photoUrl)}`);
                 }
               });
@@ -532,10 +571,12 @@ Format all information clearly with section headers.
           
           // Also extract URLs from the text content if present
           const textContent = photoData.choices?.[0]?.message?.content || photoData.content || '';
-          const imageUrlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+\.(jpg|jpeg|png|gif|webp|bmp|svg|JPG|JPEG|PNG)/gi;
+          const imageUrlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+\.(jpg|jpeg|png|gif|webp|bmp|JPG|JPEG|PNG)/gi;
           const foundUrls = textContent.match(imageUrlRegex) || [];
-          foundUrls.forEach(url => {
-            extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(url)}`);
+          foundUrls.forEach((url: string) => {
+            if (isValidCommunityPhoto(url)) {
+              extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(url)}`);
+            }
           });
           
           if (extractedPhotos.length > 5) {
@@ -555,28 +596,33 @@ Format all information clearly with section headers.
       // Filter sources to find potential community websites
       const websitesToScrape = response.sources.filter(source => {
         const url = source.toLowerCase();
-        // Priority sources to scrape
+        
+        // Skip these domains entirely - they often have staff/people photos
+        const skipDomains = [
+          'youtube.com', '.pdf', '.doc', 'wikipedia',
+          'chamber', 'realtor', 'remax', 'coldwell',
+          'keller', 'century21', 'zillow', 'trulia'
+        ];
+        
+        if (skipDomains.some(domain => url.includes(domain))) {
+          return false;
+        }
+        
+        // Priority sources to scrape - must have community name or be a known good source
         return (
-          !url.includes('youtube.com') && // Skip video sites
-          !url.includes('.pdf') && // Skip PDFs
-          !url.includes('.doc') && // Skip documents
-          !url.includes('wikipedia') && // Skip Wikipedia
-          (
-            url.includes(communityName.toLowerCase().replace(/\s+/g, '-')) || // Community name in URL
-            url.includes(communityName.toLowerCase().replace(/\s+/g, '')) || // Community name without spaces
-            url.includes('seniorliving') ||
-            url.includes('assistedliving') ||
-            url.includes('nursinghome') ||
-            url.includes('caring.com') ||
-            url.includes('aplaceformom') ||
-            url.includes('senioridy') ||
-            url.includes('seniorhousing') ||
-            url.includes('.com/community') ||
-            url.includes('/facilities/') ||
-            url.includes('yelp.com') ||
-            url.includes('facebook.com') ||
-            url.includes('google.com/maps')
-          )
+          url.includes(communityName.toLowerCase().replace(/\s+/g, '-')) || // Community name in URL
+          url.includes(communityName.toLowerCase().replace(/\s+/g, '')) || // Community name without spaces
+          url.includes('seniorliving') ||
+          url.includes('assistedliving') ||
+          url.includes('nursinghome') ||
+          url.includes('seniorhousing') ||
+          url.includes('.com/community') ||
+          url.includes('/facilities/') ||
+          // Only include these aggregators if community name is in URL
+          (url.includes('caring.com') && url.includes(communityName.toLowerCase().split(' ')[0])) ||
+          (url.includes('aplaceformom') && url.includes(communityName.toLowerCase().split(' ')[0])) ||
+          (url.includes('yelp.com') && url.includes(communityName.toLowerCase().split(' ')[0])) ||
+          (url.includes('facebook.com') && url.includes(communityName.toLowerCase().split(' ')[0]))
         );
       }).slice(0, 3); // Limit to 3 sites to prevent timeout
       

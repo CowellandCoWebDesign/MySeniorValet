@@ -239,8 +239,8 @@ export class CheerioPhotoScraper {
   private isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
     
-    // Reject icon/logo patterns FIRST
-    const iconPatterns = [
+    // Reject icon/logo/people patterns FIRST
+    const rejectPatterns = [
       /icon/i,
       /logo/i,
       /badge/i,
@@ -259,11 +259,29 @@ export class CheerioPhotoScraper {
       /caret/i,
       /sprite/i,
       /thumbnail-[xs|sm|tiny]/i,
-      /\.(svg|ico)$/i  // Reject SVG and ICO files completely
+      /\.(svg|ico)$/i,  // Reject SVG and ICO files completely
+      // NEW: Reject people/staff photos
+      /headshot/i,
+      /portrait/i,
+      /staff/i,
+      /team/i,
+      /realtor/i,
+      /agent/i,
+      /broker/i,
+      /professional/i,
+      /profile/i,
+      /employee/i,
+      /member/i,
+      /board/i,
+      /director/i,
+      /executive/i,
+      /manager/i,
+      /about-us/i,
+      /testimonial/i
     ];
     
-    // If URL contains any icon pattern, reject it
-    if (iconPatterns.some(pattern => pattern.test(url))) {
+    // If URL contains any reject pattern, reject it
+    if (rejectPatterns.some(pattern => pattern.test(url))) {
       return false;
     }
     
@@ -371,27 +389,57 @@ export class CheerioPhotoScraper {
     let score = 0;
     const nameParts = communityName.toLowerCase().split(/\s+/);
     
-    // Check URL for community name parts
+    // PENALIZE photos with people in them
+    const peoplePatterns = [
+      /headshot/i, /portrait/i, /staff/i, /team/i,
+      /realtor/i, /agent/i, /broker/i, /professional/i,
+      /member/i, /testimonial/i, /smile/i, /smiling/i,
+      /person/i, /people/i, /man/i, /woman/i, /lady/i
+    ];
+    
     const urlLower = photo.url.toLowerCase();
+    const altLower = (photo.alt || '').toLowerCase();
+    const contextLower = (photo.context || '').toLowerCase();
+    const combinedText = urlLower + ' ' + altLower + ' ' + contextLower;
+    
+    // Heavy penalty for people photos
+    if (peoplePatterns.some(pattern => pattern.test(combinedText))) {
+      score -= 10;
+    }
+    
+    // PENALIZE unrelated domains
+    const unrelatedDomains = [
+      'chamber', 'realtor', 'remax', 'coldwell',
+      'keller', 'century21', 'zillow', 'trulia',
+      'apartments.com', 'rent.com', 'forrent.com'
+    ];
+    
+    if (unrelatedDomains.some(domain => urlLower.includes(domain))) {
+      score -= 15;
+    }
+    
+    // Check URL for community name parts
     nameParts.forEach(part => {
       if (part.length > 3 && urlLower.includes(part)) score += 2;
     });
     
     // Check alt text
     if (photo.alt) {
-      const altLower = photo.alt.toLowerCase();
       nameParts.forEach(part => {
         if (part.length > 3 && altLower.includes(part)) score += 3;
       });
       
-      // Boost for specific keywords
+      // Boost for specific BUILDING keywords
       if (altLower.includes('building') || 
           altLower.includes('exterior') || 
           altLower.includes('interior') ||
           altLower.includes('room') ||
           altLower.includes('dining') ||
           altLower.includes('common') ||
-          altLower.includes('lobby')) {
+          altLower.includes('lobby') ||
+          altLower.includes('apartment') ||
+          altLower.includes('facility') ||
+          altLower.includes('entrance')) {
         score += 2;
       }
     }
