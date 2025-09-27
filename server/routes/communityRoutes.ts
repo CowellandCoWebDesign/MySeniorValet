@@ -1266,16 +1266,69 @@ export function registerCommunityRoutes(app: Express) {
 
       // Use unified Perplexity cache to get comprehensive data
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveData(community.name, community);
+      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(community.name, community);
 
       // Ensure photos are properly formatted as strings
-      const normalizedPhotos = comprehensiveData.photos?.map(photo => {
+      let normalizedPhotos = comprehensiveData.photos?.map(photo => {
         if (typeof photo === 'string') return photo;
         if (typeof photo === 'object' && photo !== null) {
           return photo.imageUrl || photo.url || photo.src || '';
         }
         return '';
       }).filter(url => url && url.trim() !== '') || [];
+
+      // FALLBACK: If no photos from Perplexity, use database photos
+      if (normalizedPhotos.length === 0) {
+        console.log(`🖼️ No photos from Perplexity, checking database for community ${communityId}`);
+        
+        // Check if community has photos in database
+        if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
+          console.log(`✅ Found ${community.photos.length} photos in database`);
+          normalizedPhotos = community.photos.map(photo => {
+            // Handle various photo formats in database
+            if (typeof photo === 'string') {
+              // If it's already a full URL, use it as-is
+              if (photo.includes('http')) {
+                return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
+              }
+              return photo;
+            }
+            if (typeof photo === 'object' && photo !== null) {
+              const url = photo.url || photo.imageUrl || photo.src || '';
+              if (url && url.includes('http')) {
+                return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+              }
+            }
+            return '';
+          }).filter(url => url && url.trim() !== '');
+        }
+        
+        // If still no photos, try to enrich the community
+        if (normalizedPhotos.length === 0) {
+          console.log(`🔄 No database photos, attempting photo enrichment for ${community.name}`);
+          try {
+            // Use the photo enrichment service
+            const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+            if (enrichedCommunity.photos && Array.isArray(enrichedCommunity.photos) && enrichedCommunity.photos.length > 0) {
+              console.log(`✅ Photo enrichment found ${enrichedCommunity.photos.length} photos`);
+              normalizedPhotos = enrichedCommunity.photos.map(photo => {
+                if (typeof photo === 'string' && photo.includes('http')) {
+                  return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
+                }
+                return photo;
+              }).filter(url => url && url.trim() !== '');
+              
+              // Update the community in database with new photos
+              await db
+                .update(communities)
+                .set({ photos: enrichedCommunity.photos })
+                .where(eq(communities.id, communityId));
+            }
+          } catch (enrichError) {
+            console.error(`Failed to enrich photos for community ${communityId}:`, enrichError);
+          }
+        }
+      }
 
       // Return comprehensive data with normalized photos
       res.json({
@@ -1288,7 +1341,7 @@ export function registerCommunityRoutes(app: Express) {
         marketData: comprehensiveData.marketData || null,
         analysis: comprehensiveData.analysis || null,
         lastUpdated: comprehensiveData.lastUpdated || new Date().toISOString(),
-        dataSource: 'Perplexity AI - Real-time Web Data'
+        dataSource: normalizedPhotos.length > 0 ? 'Combined Sources' : 'Perplexity AI - Real-time Web Data'
       });
 
     } catch (error) {
