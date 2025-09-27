@@ -4089,7 +4089,7 @@ export default function MySeniorValetHome() {
                       <Button 
                         variant="link" 
                         className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/search?location=Los Angeles, CA'}
+                        onClick={() => window.location.href = '/'}
                       >
                         View All Los Angeles Communities →
                       </Button>
@@ -4135,7 +4135,7 @@ export default function MySeniorValetHome() {
                       <Button 
                         variant="link" 
                         className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/search?type=affordable'}
+                        onClick={() => window.location.href = '/'}
                       >
                         Find Affordable Housing Now →
                       </Button>
@@ -4181,7 +4181,7 @@ export default function MySeniorValetHome() {
                       <Button 
                         variant="link" 
                         className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/search?location=New York, NY'}
+                        onClick={() => window.location.href = '/'}
                       >
                         View All NYC Communities →
                       </Button>
@@ -4202,7 +4202,7 @@ export default function MySeniorValetHome() {
                   </div>
                   <Button 
                     className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90"
-                    onClick={() => window.location.href = '/search'}
+                    onClick={() => window.location.href = '/'}
                   >
                     <Search className="mr-2 h-4 w-4" />
                     Search All 33,657 Communities
