@@ -461,10 +461,27 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const isCountrySearch = countryNames.some(country => queryLower.includes(country));
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
-      let discoveredCommunities = [];
-      let citations = []; // Initialize citations for both Search API and Sonar API paths
+      let discoveredCommunities: any[] = [];
+      let citations: any[] = []; // Initialize citations for both Search API and Sonar API paths
       let aiResponse = ''; // Initialize for both paths
       // searchQuery already declared earlier in the function
+
+      // Detect default country from the beginning
+      const defaultCountry = (() => {
+        const lowerQuery = query.toLowerCase();
+        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
+        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
+        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
+        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
+        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
+        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
+        if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
+        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
+        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
+        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
+        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
+        return 'United States'; // Default
+      })();
 
       // Helper function to detect country from query
       const detectCountry = (query: string): string => {
@@ -907,10 +924,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                       zipCode: discovered.zipCode || '',
                       phone: discovered.phone || null,
                       email: discovered.email || null
-                    }
-                  },
-                  createdAt: new Date(),
-                  updatedAt: new Date()
+                    },
+                    // Mark as resource if it's an article/guide
+                    isResource: discovered.isResource || false,
+                    resourceType: discovered.resourceType || 'direct_business'
+                  }
                 })
                 .returning();
               
@@ -1015,9 +1033,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                     fieldsUpdated: ['initial_discovery'],
                     autoApproved: false
                   }] as any[], // Cast to any[] to match JSON type
-                  isVerified: false,
-                  createdAt: new Date(),
-                  updatedAt: new Date()
+                  isVerified: false
                 })
                 .returning();
               

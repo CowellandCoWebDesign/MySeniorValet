@@ -351,9 +351,9 @@ export class PerplexitySearchAPI {
         'michelin'
       ];
       
-      const isFromListingSite = listingSites.some(site => 
+      const isFromListingSite = result.domain ? listingSites.some(site => 
         result.domain.toLowerCase().includes(site)
-      );
+      ) : false;
       
       // Calculate confidence
       let confidence = 70; // Base confidence
