@@ -248,23 +248,124 @@ export class PerplexitySearchAPI {
     source: string;
     confidence: number;
   }> {
-    return results.map(result => {
+    const businesses: Array<{
+      name: string;
+      website?: string;
+      description?: string;
+      source: string;
+      confidence: number;
+    }> = [];
+
+    for (const result of results) {
       // Extract business name from title
       let name = result.title;
+      
+      // FILTER OUT ARTICLE TITLES AND GUIDES
+      const articlePatterns = [
+        /^(the\s+)?(\d+\s+)?(best|top|ultimate|complete|definitive|essential)\s+/i,
+        /^(where|how|why|when|what)\s+/i,
+        /^guide\s+(to|for)\s+/i,
+        /\s+(guide|list|tips|masterclass|explained|opportunities)$/i,
+        /^(a|the)\s+guide\s+to\s+/i,
+        /^(must|should|need|want)\s+/i,
+        /franchise\s+opportunities/i,
+        /^(find|finding|discover|discovering)\s+/i,
+        /beginners?\s+guide/i,
+        /ultimate\s+guide/i,
+        /\s+for\s+(tourists|expats|beginners|visitors)$/i,
+        /\s+you\s+(must|should|need|can|will|might)\s+/i,
+        /\s+that\s+you('ll)?\s+/i,
+        /^why\s+.+\s+are\s+/i
+      ];
+      
+      // Check if title matches article patterns
+      const isArticle = articlePatterns.some(pattern => pattern.test(name));
+      
+      if (isArticle) {
+        console.log(`🚫 Filtered out article/guide: "${name}"`);
+        continue; // Skip this result
+      }
       
       // Clean up common title patterns
       name = name.replace(/\s*[-|]\s*.*$/, ''); // Remove everything after dash or pipe
       name = name.replace(/\s*\(.*\)/, ''); // Remove content in parentheses
+      name = name.replace(/,\s+à\s+.*$/, ''); // Remove location suffixes like ", à Paris"
+      name = name.replace(/\s+in\s+[A-Z][\w\s]*$/i, ''); // Remove "in City" suffixes
       name = name.trim();
+      
+      // ADDITIONAL VALIDATION: Check if it looks like a real business name
+      // Business names usually:
+      // - Are shorter than 50 characters
+      // - Don't have too many words
+      // - May contain business indicators (Hotel, Cafe, Pharmacy, Inc, LLC, etc.)
+      // - Have proper capitalization
+      
+      if (name.length > 60) {
+        console.log(`🚫 Filtered out too long: "${name}"`);
+        continue; // Too long to be a business name
+      }
+      
+      const wordCount = name.split(/\s+/).length;
+      if (wordCount > 8) {
+        console.log(`🚫 Filtered out too many words: "${name}"`);
+        continue; // Too many words for a business name
+      }
+      
+      // Check for business indicators (positive signal but not required)
+      const businessIndicators = /\b(hotel|cafe|café|coffee|pharmacy|pharmacie|restaurant|bistro|bar|shop|store|clinic|center|centre|inc|llc|ltd|corp|co|group|services?|resort|inn|suites?|plaza|tower)\b/i;
+      const hasBusinessIndicator = businessIndicators.test(name);
+      
+      // Check if URL is from a listing/article site vs actual business site
+      const listingSites = [
+        'tripadvisor',
+        'yelp',
+        'foursquare',
+        'timeout',
+        'thrillist',
+        'eater',
+        'zagat',
+        'michelin',
+        'lonelyplanet',
+        'fodors',
+        'frommers',
+        'viator',
+        'getyourguide',
+        'booking.com',
+        'hotels.com',
+        'expedia',
+        'kayak',
+        'indeed',
+        'glassdoor'
+      ];
+      
+      const isFromListingSite = listingSites.some(site => 
+        result.domain.toLowerCase().includes(site)
+      );
+      
+      // Calculate confidence based on various factors
+      let confidence = 50; // Base confidence
+      
+      if (hasBusinessIndicator) confidence += 20;
+      if (!isFromListingSite) confidence += 15;
+      if (name.length < 30) confidence += 10;
+      if (wordCount <= 4) confidence += 5;
+      
+      // Only include if confidence is reasonable
+      if (confidence >= 60) {
+        businesses.push({
+          name,
+          website: result.url,
+          description: result.snippet,
+          source: `search_api_${result.domain}`,
+          confidence
+        });
+        console.log(`✅ Accepted business: "${name}" (confidence: ${confidence}%)`);
+      } else {
+        console.log(`🚫 Filtered out low confidence: "${name}" (confidence: ${confidence}%)`);
+      }
+    }
 
-      return {
-        name,
-        website: result.url,
-        description: result.snippet,
-        source: `search_api_${result.domain}`,
-        confidence: 85 // High confidence for Search API results
-      };
-    });
+    return businesses;
   }
 }
 
