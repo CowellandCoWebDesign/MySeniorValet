@@ -500,66 +500,17 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         return 'United States'; // Default
       };
 
-      // Step 1: TRY NEW SEARCH API FIRST (much cheaper at $5/1K requests)
-      try {
-        console.log(`🔍 Step 1: Using NEW Search API for initial discovery...`);
+      // Step 1: For services, skip Search API completely and go to Sonar
+      // Search API returns generic results, not actual business listings
+      if (searchType === 'services') {
+        console.log(`🔍 Skipping Search API for service discovery - going straight to Sonar API for real business listings`);
+        discoveredCommunities = []; // Empty to trigger Sonar fallback
         
-        if (searchType === 'services') {
-          // Parse service type and location from query
-          const queryParts = query.toLowerCase().split(' in ');
-          const serviceType = queryParts[0]?.trim() || query;
-          const location = queryParts[1]?.trim() || '';
+      } else {
+        // Try Search API only for senior communities (might work better)
+        try {
+          console.log(`🔍 Step 1: Using NEW Search API for senior community discovery...`);
           
-          console.log(`🔍 Searching for services: "${serviceType}" in "${location}"`);
-          
-          // Use specialized business search
-          const searchResults = await perplexitySearchAPI.searchBusinesses(serviceType, location, {
-            max_results: 20,
-            max_tokens_per_page: 512
-          });
-          
-          // Extract business data from search results
-          const businesses = perplexitySearchAPI.extractBusinessData(searchResults.results, 'service');
-          
-          console.log(`✅ Search API found ${businesses.length} businesses from ${searchResults.results.length} search results`);
-          
-          // Convert to discovery format
-          // Parse location more intelligently
-          let city = '';
-          let state = '';
-          if (location) {
-            const locationParts = location.split(/[,\s]+/);
-            if (locationParts.length >= 2) {
-              // Last part is likely state (CA, California, etc.)
-              state = locationParts[locationParts.length - 1];
-              // Everything before that is city
-              city = locationParts.slice(0, -1).join(' ');
-            } else {
-              city = location;
-            }
-          }
-          
-          discoveredCommunities = businesses
-            .filter(business => !business.isResource) // FILTER OUT ARTICLES/GUIDES
-            .map(business => ({
-              name: business.name,
-              website: business.website || '',
-              description: business.description || `${serviceType} service in ${location}`,
-              phone: business.phone || '',  // Include extracted phone
-              address: business.address || '',  // Include extracted address
-              city: city || location || 'Unknown',
-              state: state || '',
-              country: 'United States',
-              source: 'Search API',
-              confidence: business.confidence,
-              isDiscovered: true,
-              isResource: business.isResource || false,
-              resourceType: business.resourceType || 'direct_business',
-              careTypes: [serviceType]
-            }));
-          
-        } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
-          // Use specialized senior community search
           const location = query;
           const searchResults = await perplexitySearchAPI.searchSeniorCommunities(location, '', {
             max_results: 15,
@@ -588,19 +539,35 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               isDiscovered: true,
               careTypes: ['Senior Living']
             }));
-        }
-        
-        // If Search API found good results, use them directly
-        if (discoveredCommunities.length >= 5) {
-          console.log(`✅ Search API success: Found ${discoveredCommunities.length} results, skipping expensive Sonar API`);
-        } else {
-          console.log(`⚠️ Search API found only ${discoveredCommunities.length} results, falling back to Sonar API for comprehensive search`);
+            
+          // VALIDATE SEARCH API RESULTS - Check if we got real businesses
+          const realBusinesses = discoveredCommunities.filter(c => {
+            // Reject generic results that aren't actual businesses
+            const genericPatterns = [
+              /^list\s+of\s+/i,
+              /^find\s+/i,
+              /number\s+of\s+.*\s+businesses/i,
+              /^food\s+&?\s*drink$/i,
+              /^these\s+/i,
+              /the\s+secret\s+to/i
+            ];
+            
+            return !genericPatterns.some(pattern => pattern.test(c.name));
+          });
+          
+          // Only accept Search API results if we have at least 3 real businesses
+          if (realBusinesses.length >= 3) {
+            console.log(`✅ Search API success: Found ${realBusinesses.length} real businesses, using them`);
+            discoveredCommunities = realBusinesses;
+          } else {
+            console.log(`⚠️ Search API returned mostly generic results (${realBusinesses.length} real businesses out of ${discoveredCommunities.length}), falling back to Sonar API`);
+            discoveredCommunities = []; // Clear for fallback
+          }
+          
+        } catch (searchApiError) {
+          console.error('⚠️ Search API failed, falling back to Sonar API:', searchApiError);
           discoveredCommunities = []; // Clear for fallback
         }
-        
-      } catch (searchApiError) {
-        console.error('⚠️ Search API failed, falling back to Sonar API:', searchApiError);
-        discoveredCommunities = []; // Clear for fallback
       }
 
       // Step 2: FALLBACK TO SONAR API if Search API didn't find enough results

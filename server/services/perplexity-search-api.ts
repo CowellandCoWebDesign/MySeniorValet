@@ -108,48 +108,36 @@ export class PerplexitySearchAPI {
    * Optimized for MySeniorValet's service discovery needs
    */
   async searchBusinesses(businessType: string, location: string, options: SearchOptions = {}): Promise<SearchResponse> {
-    // Create more specific queries based on business type
+    // COMPLETELY NEW APPROACH: Query for actual business names directly
     let query = '';
     
     // Normalize business type for better matching
     const normalizedType = businessType.toLowerCase().trim();
     
-    // Build more targeted queries based on common service types
+    // Use specific queries that will return actual business names, not articles
     if (normalizedType.includes('restaurant') || normalizedType.includes('dining')) {
-      query = `best ${businessType} restaurants "${location}" address phone hours menu`;
+      // Ask for specific restaurant names, not articles about restaurants
+      query = `list of popular restaurant names in ${location} with addresses`;
     } else if (normalizedType.includes('moving') || normalizedType.includes('movers')) {
-      query = `professional moving companies "${location}" licensed insured contact information`;
+      query = `moving company names in ${location} with phone numbers`;
     } else if (normalizedType.includes('hotel') || normalizedType.includes('lodging')) {
-      query = `${businessType} hotels accommodations "${location}" booking contact`;
+      query = `hotel names in ${location} with booking information`;
     } else if (normalizedType.includes('pharmacy') || normalizedType.includes('drugstore')) {
-      query = `${businessType} pharmacies drugstores "${location}" phone address hours`;
+      query = `pharmacy names in ${location} CVS Walgreens Rite Aid`;
     } else if (normalizedType.includes('lawyer') || normalizedType.includes('attorney') || normalizedType.includes('legal')) {
-      query = `${businessType} law firms attorneys "${location}" consultation contact`;
+      query = `law firm names in ${location} contact information`;
     } else if (normalizedType.includes('doctor') || normalizedType.includes('medical') || normalizedType.includes('clinic')) {
-      query = `${businessType} medical clinics doctors "${location}" appointments phone`;
+      query = `medical clinic names in ${location} doctors offices`;
     } else {
-      // Generic query for other business types
-      query = `local ${businessType} businesses services "${location}" contact information phone address`;
+      // Generic query focusing on actual business names
+      query = `list of ${businessType} business names in ${location}`;
     }
     
-    console.log(`🔍 Refined business search query: "${query}"`);
+    console.log(`🔍 Business name search query: "${query}"`);
     
+    // Don't restrict domains - let it search broadly for business names
     return this.search(query, {
       max_results: options.max_results || 20,
-      domain_allowlist: [
-        'yelp.com',
-        'google.com',
-        'facebook.com',
-        'yellowpages.com',
-        'bbb.org',
-        'tripadvisor.com',
-        'opentable.com',
-        'doordash.com',
-        'grubhub.com',
-        'maps.google.com',
-        'foursquare.com',
-        'zomato.com'
-      ],
       ...options
     });
   }
@@ -320,7 +308,14 @@ export class PerplexitySearchAPI {
         { pattern: /^how\s+to\s+/i, type: 'how_to_guide' },
         { pattern: /\s+you\s+(must|should)\s+/i, type: 'recommendation_list' },
         { pattern: /^\d+\s+of\s+/i, type: 'numbered_list' },
-        { pattern: /franchise\s+opportunities/i, type: 'business_directory' }
+        { pattern: /franchise\s+opportunities/i, type: 'business_directory' },
+        // ADD MORE GENERIC PATTERNS TO FILTER OUT
+        { pattern: /^list\s+of\s+/i, type: 'generic_list' },
+        { pattern: /number\s+of\s+.*\s+businesses/i, type: 'statistics' },
+        { pattern: /^find\s+.*\s+companies/i, type: 'directory' },
+        { pattern: /the\s+secret\s+to/i, type: 'advice_article' },
+        { pattern: /business\s+guide/i, type: 'business_guide' },
+        { pattern: /food\s+guide/i, type: 'food_guide' }
       ];
       
       // Check if this is an article/guide
