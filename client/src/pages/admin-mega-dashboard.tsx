@@ -567,10 +567,10 @@ export default function AdminMegaDashboard() {
     select: (data: any) => Array.isArray(data) ? data : [],
   });
 
-  // Users data
-  const { data: users } = useQuery({
-    queryKey: ['/api/admin/users'],
-  });
+  // Remove duplicate user query - we're using usersList instead
+  // const { data: users } = useQuery({
+  //   queryKey: ['/api/admin/users'],
+  // });  // REMOVED - using usersList query instead
 
   // Fetch real subscription tiers from API
   const { data: subscriptionTiers } = useQuery({
@@ -671,6 +671,112 @@ export default function AdminMegaDashboard() {
   const { data: engagementMetrics } = useQuery({
     queryKey: ['/api/admin/engagement', timeRange],
   });
+  
+  // REAL DATA QUERIES - Fetch actual platform data
+  // Main dashboard metrics with real user data
+  const { data: dashboardMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/admin/metrics'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+  
+  // Recent activity feed with real user registrations
+  const { data: recentActivity, isLoading: activityLoading } = useQuery({
+    queryKey: ['/api/admin/activity/recent'],
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+  
+  // Real user list with pagination
+  const { data: usersList, isLoading: usersLoading } = useQuery({
+    queryKey: ['/api/admin/users', currentPage, searchQuery],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+        search: searchQuery
+      });
+      return await apiRequest('GET', `/api/admin/users?${params}`);
+    },
+  });
+  
+  // Dashboard stats from community cache
+  const { data: dashboardStats, isLoading: statsLoading } = useQuery({
+    queryKey: ['/api/admin/dashboard/stats'],
+    refetchInterval: 60000, // Refresh every minute
+  });
+  
+  // Use real metrics if available, otherwise default to empty state
+  const metrics: DashboardMetrics = dashboardMetrics || {
+    platform: {
+      totalCommunities: 0,
+      totalUsers: 0,
+      totalVendors: 0,
+      activeSubscriptions: 0,
+      monthlyRevenue: 0,
+      yearlyRevenue: 0,
+      growthRate: 0
+    },
+    performance: {
+      responseTime: 0,
+      uptime: 99.9,
+      errorRate: 0,
+      apiCalls: 0,
+      cacheHitRate: 0,
+      dbQueries: 0
+    },
+    ai: {
+      totalRequests: 0,
+      byProvider: {
+        claude: 0,
+        chatgpt: 0,
+        perplexity: 0,
+        gemini: 0,
+        grok: 0
+      },
+      costs: {
+        total: 0,
+        claude: 0,
+        chatgpt: 0,
+        perplexity: 0,
+        gemini: 0
+      },
+      successRate: 0,
+      avgResponseTime: 0
+    },
+    financial: {
+      revenue: {
+        today: 0,
+        week: 0,
+        month: 0,
+        year: 0
+      },
+      subscriptions: {
+        community: { free: 0, standard: 0, featured: 0, platinum: 0 },
+        vendor: { basic: 0, featured: 0, national: 0 }
+      },
+      paymentSuccess: 0,
+      churnRate: 0,
+      ltv: 0,
+      arpu: 0
+    },
+    geographic: dashboardMetrics?.geographic || {
+      byState: {},
+      byCountry: { usa: 0, canada: 0 },
+      topCities: [],
+      expansionProgress: 0
+    },
+    engagement: dashboardMetrics?.engagement || {
+      dailyActiveUsers: 0,
+      weeklyActiveUsers: 0,
+      monthlyActiveUsers: 0,
+      avgSessionDuration: 0,
+      bounceRate: 0,
+      pageViews: 0,
+      searches: 0,
+      communityViews: 0,
+      favorites: 0,
+      messages: 0
+    }
+  };
 
   // Revenue analytics
   const { data: revenueAnalytics } = useQuery({
@@ -1185,7 +1291,8 @@ export default function AdminMegaDashboard() {
     };
   };
 
-  const metrics = calculateMetrics();
+  // Remove the old calculateMetrics and use real data from API
+  // const metrics = calculateMetrics(); // OLD - removed to use real data
 
   // ========== RENDER COMPONENTS ==========
 
@@ -1286,15 +1393,19 @@ export default function AdminMegaDashboard() {
                 const res = await fetch(`/api/admin/users/search?query=${encodeURIComponent(searchQuery)}`);
                 const results = await res.json();
                 
-                // Update the users state with search results
+                // Show search results
                 if (results.length > 0) {
-                  setUsers(results);
-                  toast.success(`Found ${results.length} users`);
+                  // Refresh the users list query to show search results
+                  queryClient.setQueryData(['/api/admin/users', currentPage, searchQuery], {
+                    users: results,
+                    pagination: usersList?.pagination
+                  });
+                  toast({ title: "Success", description: `Found ${results.length} users` });
                 } else {
-                  toast.info('No users found');
+                  toast({ title: "Info", description: 'No users found' });
                 }
               } catch (error) {
-                toast.error('Search failed');
+                toast({ title: "Error", description: 'Search failed', variant: "destructive" });
               }
             }}
           >
@@ -1314,7 +1425,7 @@ export default function AdminMegaDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.isArray(users) && users.slice(0, 10).map((user: any) => (
+              {Array.isArray(usersList?.users) && usersList.users.slice(0, 10).map((user: any) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
@@ -1371,7 +1482,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                             
                             alert(detailsMessage);
                           } catch (error) {
-                            toast.error('Failed to fetch user details');
+                            toast({ title: "Error", description: 'Failed to fetch user details', variant: "destructive" });
                           }
                         }}
                       >
@@ -2821,6 +2932,66 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </ScrollArea>
           
           <TabsContent value="overview" className="space-y-4">
+            {/* Real Platform Metrics */}
+            {renderOverviewCards()}
+            
+            {/* Recent Activity Feed with Real User Data */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-500" />
+                  Recent Platform Activity
+                </CardTitle>
+                <CardDescription>
+                  Live feed of user registrations and platform events
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  {activityLoading ? (
+                    <div className="flex items-center justify-center h-32">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    </div>
+                  ) : recentActivity?.activities && recentActivity.activities.length > 0 ? (
+                    <div className="space-y-2">
+                      {recentActivity.activities.map((activity: any) => (
+                        <div key={`${activity.type}-${activity.id}-${activity.timestamp}`} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                          <div className={`h-2 w-2 rounded-full mt-1.5 ${
+                            activity.type === 'user_registration' ? 'bg-green-500 animate-pulse' :
+                            activity.type === 'community_claim' ? 'bg-blue-500' :
+                            activity.type === 'vendor_registration' ? 'bg-purple-500' :
+                            'bg-gray-500'
+                          }`} />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">
+                                {activity.type === 'user_registration' && '👤 New User Registered'}
+                                {activity.type === 'community_claim' && '🏢 Community Claimed'}
+                                {activity.type === 'vendor_registration' && '🛍️ Vendor Joined'}
+                              </span>
+                              <Badge variant="outline" className="text-xs">
+                                {activity.details || activity.type}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {activity.name || activity.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {activity.timestamp ? format(new Date(activity.timestamp), 'MMM d, h:mm a') : 'Just now'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No recent activity
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+            
             {/* Data Quality Dashboard */}
             <Suspense fallback={<div className="flex items-center justify-center h-40"><Loader2 className="w-6 h-6 animate-spin" /></div>}>
               <DataQualityDashboard />
