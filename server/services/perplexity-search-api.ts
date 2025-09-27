@@ -239,7 +239,7 @@ export class PerplexitySearchAPI {
 
   /**
    * Extract structured business data from search results
-   * Converts raw search results into MySeniorValet-compatible format
+   * Intelligently handles both direct businesses AND article/guide sources
    */
   extractBusinessData(results: SearchResult[], businessType: string = 'service'): Array<{
     name: string;
@@ -247,6 +247,8 @@ export class PerplexitySearchAPI {
     description?: string;
     source: string;
     confidence: number;
+    isResource?: boolean;
+    resourceType?: string;
   }> {
     const businesses: Array<{
       name: string;
@@ -254,68 +256,90 @@ export class PerplexitySearchAPI {
       description?: string;
       source: string;
       confidence: number;
+      isResource?: boolean;
+      resourceType?: string;
     }> = [];
 
     for (const result of results) {
-      // Extract business name from title
+      // Extract name from title
       let name = result.title;
       
-      // FILTER OUT ARTICLE TITLES AND GUIDES
+      // IDENTIFY ARTICLE/GUIDE PATTERNS - These are VALUABLE discovery sources!
       const articlePatterns = [
-        /^(the\s+)?(\d+\s+)?(best|top|ultimate|complete|definitive|essential)\s+/i,
-        /^(where|how|why|when|what)\s+/i,
-        /^guide\s+(to|for)\s+/i,
-        /\s+(guide|list|tips|masterclass|explained|opportunities)$/i,
-        /^(a|the)\s+guide\s+to\s+/i,
-        /^(must|should|need|want)\s+/i,
-        /franchise\s+opportunities/i,
-        /^(find|finding|discover|discovering)\s+/i,
-        /beginners?\s+guide/i,
-        /ultimate\s+guide/i,
-        /\s+for\s+(tourists|expats|beginners|visitors)$/i,
-        /\s+you\s+(must|should|need|can|will|might)\s+/i,
-        /\s+that\s+you('ll)?\s+/i,
-        /^why\s+.+\s+are\s+/i
+        { pattern: /^(the\s+)?(\d+\s+)?(best|top)\s+/i, type: 'curated_list' },
+        { pattern: /^(ultimate|complete|definitive|essential)\s+guide/i, type: 'comprehensive_guide' },
+        { pattern: /^guide\s+(to|for)\s+/i, type: 'guide' },
+        { pattern: /\s+(guide|list|tips|masterclass|explained)$/i, type: 'educational_resource' },
+        { pattern: /^where\s+(to\s+find|can\s+i\s+find)/i, type: 'location_guide' },
+        { pattern: /^how\s+to\s+/i, type: 'how_to_guide' },
+        { pattern: /\s+you\s+(must|should)\s+/i, type: 'recommendation_list' },
+        { pattern: /^\d+\s+of\s+/i, type: 'numbered_list' },
+        { pattern: /franchise\s+opportunities/i, type: 'business_directory' }
       ];
       
-      // Check if title matches article patterns
-      const isArticle = articlePatterns.some(pattern => pattern.test(name));
+      // Check if this is an article/guide
+      let isArticle = false;
+      let resourceType = 'direct_business';
       
-      if (isArticle) {
-        console.log(`🚫 Filtered out article/guide: "${name}"`);
-        continue; // Skip this result
+      for (const { pattern, type } of articlePatterns) {
+        if (pattern.test(name)) {
+          isArticle = true;
+          resourceType = type;
+          console.log(`📚 Found ${type}: "${name}" - This is a valuable discovery source!`);
+          break;
+        }
       }
       
-      // Clean up common title patterns
+      // Clean up the name
+      const originalName = name;
       name = name.replace(/\s*[-|]\s*.*$/, ''); // Remove everything after dash or pipe
-      name = name.replace(/\s*\(.*\)/, ''); // Remove content in parentheses
-      name = name.replace(/,\s+à\s+.*$/, ''); // Remove location suffixes like ", à Paris"
+      name = name.replace(/\s*\(.*\)/, ''); // Remove content in parentheses  
+      name = name.replace(/,\s+à\s+.*$/, ''); // Remove location suffixes
       name = name.replace(/\s+in\s+[A-Z][\w\s]*$/i, ''); // Remove "in City" suffixes
       name = name.trim();
       
-      // ADDITIONAL VALIDATION: Check if it looks like a real business name
-      // Business names usually:
-      // - Are shorter than 50 characters
-      // - Don't have too many words
-      // - May contain business indicators (Hotel, Cafe, Pharmacy, Inc, LLC, etc.)
-      // - Have proper capitalization
+      // For articles/guides, we want to KEEP them as discovery sources
+      if (isArticle) {
+        // Articles are valuable - they contain lists of real businesses!
+        businesses.push({
+          name: originalName, // Keep full article title
+          website: result.url,
+          description: result.snippet,
+          source: `search_api_${result.domain}`,
+          confidence: 95, // High confidence for curated content
+          isResource: true,
+          resourceType: resourceType
+        });
+        console.log(`✅ Saved as discovery resource: "${originalName}" (type: ${resourceType})`);
+        
+        // TODO: In the future, we can crawl this URL with Sonar API 
+        // to extract the actual business names mentioned in the article
+        continue;
+      }
       
-      if (name.length > 60) {
-        console.log(`🚫 Filtered out too long: "${name}"`);
-        continue; // Too long to be a business name
+      // For direct businesses, apply validation
+      if (name.length > 80) {
+        console.log(`⚠️ Name too long, might be article: "${name}"`);
+        // Still save it as a potential resource
+        businesses.push({
+          name: originalName,
+          website: result.url,
+          description: result.snippet,
+          source: `search_api_${result.domain}`,
+          confidence: 60,
+          isResource: true,
+          resourceType: 'potential_article'
+        });
+        continue;
       }
       
       const wordCount = name.split(/\s+/).length;
-      if (wordCount > 8) {
-        console.log(`🚫 Filtered out too many words: "${name}"`);
-        continue; // Too many words for a business name
-      }
       
-      // Check for business indicators (positive signal but not required)
-      const businessIndicators = /\b(hotel|cafe|café|coffee|pharmacy|pharmacie|restaurant|bistro|bar|shop|store|clinic|center|centre|inc|llc|ltd|corp|co|group|services?|resort|inn|suites?|plaza|tower)\b/i;
+      // Check for business indicators
+      const businessIndicators = /\b(hotel|motel|hostel|cafe|café|coffee|pharmacy|pharmacie|restaurant|ristorante|trattoria|osteria|pizzeria|bistro|brasserie|bar|pub|shop|store|boutique|market|clinic|center|centre|hospital|medical|dental|inc|llc|ltd|corp|co|company|group|services?|resort|inn|lodge|suites?|plaza|tower|place|mansion|villa|residence)\b/i;
       const hasBusinessIndicator = businessIndicators.test(name);
       
-      // Check if URL is from a listing/article site vs actual business site
+      // Check source credibility
       const listingSites = [
         'tripadvisor',
         'yelp',
@@ -324,47 +348,35 @@ export class PerplexitySearchAPI {
         'thrillist',
         'eater',
         'zagat',
-        'michelin',
-        'lonelyplanet',
-        'fodors',
-        'frommers',
-        'viator',
-        'getyourguide',
-        'booking.com',
-        'hotels.com',
-        'expedia',
-        'kayak',
-        'indeed',
-        'glassdoor'
+        'michelin'
       ];
       
       const isFromListingSite = listingSites.some(site => 
         result.domain.toLowerCase().includes(site)
       );
       
-      // Calculate confidence based on various factors
-      let confidence = 50; // Base confidence
+      // Calculate confidence
+      let confidence = 70; // Base confidence
       
-      if (hasBusinessIndicator) confidence += 20;
-      if (!isFromListingSite) confidence += 15;
-      if (name.length < 30) confidence += 10;
-      if (wordCount <= 4) confidence += 5;
+      if (hasBusinessIndicator) confidence += 15;
+      if (!isFromListingSite) confidence += 10;
+      if (wordCount <= 5) confidence += 5;
       
-      // Only include if confidence is reasonable
-      if (confidence >= 60) {
-        businesses.push({
-          name,
-          website: result.url,
-          description: result.snippet,
-          source: `search_api_${result.domain}`,
-          confidence
-        });
-        console.log(`✅ Accepted business: "${name}" (confidence: ${confidence}%)`);
-      } else {
-        console.log(`🚫 Filtered out low confidence: "${name}" (confidence: ${confidence}%)`);
-      }
+      // Save everything - both direct businesses and potential resources
+      businesses.push({
+        name,
+        website: result.url,
+        description: result.snippet,
+        source: `search_api_${result.domain}`,
+        confidence,
+        isResource: false,
+        resourceType: 'direct_business'
+      });
+      
+      console.log(`✅ Accepted: "${name}" (confidence: ${confidence}%, type: ${resourceType})`);
     }
 
+    console.log(`📊 Extracted ${businesses.filter(b => !b.isResource).length} businesses and ${businesses.filter(b => b.isResource).length} discovery resources`);
     return businesses;
   }
 }
