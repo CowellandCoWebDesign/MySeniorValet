@@ -1476,7 +1476,7 @@ export default function Map({
           {/* Streets with Transit - Shows public transit routes */}
           <LayersControl.BaseLayer name="Transit Map">
             <TileLayer
-              url="https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=7c352c8ff1244dd8b732e349e0b0fe8d"
+              url={`https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=${import.meta.env.VITE_THUNDERFOREST_API_KEY}`}
               attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
               maxZoom={19}
             />
