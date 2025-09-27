@@ -66,15 +66,65 @@ import {
   Building2
 } from 'lucide-react';
 
+// Type definitions
+interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
+}
+
+interface MessagesResponse {
+  messages: Message[];
+  currentUserId: string;
+}
+
+interface Tour {
+  id: string;
+  communityName: string;
+  date: string;
+  time: string;
+  contactPerson: string;
+  phone: string;
+  status?: string;
+}
+
+interface Visit {
+  id: string;
+  community: string;
+  date: string;
+  rating: number;
+  familyMember: string;
+  impressions: string;
+  notes?: string;
+  pros: string[];
+  cons: string[];
+}
+
+interface SharedFavorite {
+  id: string | number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  priceRange: string;
+  careType: string;
+  rating: number;
+}
+
 export default function FamilyCollaborationCenter() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
   const { user, isLoading: authLoading } = useAuth();
+  const queryClient = useQueryClient();
+  const [proText, setProText] = useState('');
+  const [conText, setConText] = useState('');
 
   // Only fetch data if user is authenticated
-  const { data: messagesData, isLoading: messagesLoading } = useQuery({
+  const { data: messagesData, isLoading: messagesLoading } = useQuery<MessagesResponse>({
     queryKey: ['/api/family/messages'],
     refetchInterval: 5000, // Poll for updates every 5 seconds
     enabled: !!user, // Only run query if user is authenticated
@@ -98,19 +148,19 @@ export default function FamilyCollaborationCenter() {
   });
 
   // Fetch upcoming tours from the API
-  const { data: upcomingTours = [], isLoading: toursLoading } = useQuery({
+  const { data: upcomingTours = [], isLoading: toursLoading } = useQuery<Tour[]>({
     queryKey: ['/api/tours'],
     enabled: !!user, // Only run query if user is authenticated
   });
 
   // Fetch visit history from the API
-  const { data: visitHistory = [], isLoading: historyLoading } = useQuery({
+  const { data: visitHistory = [], isLoading: historyLoading } = useQuery<Visit[]>({
     queryKey: ['/api/family/visit-history'],
     enabled: !!user, // Only run query if user is authenticated
   });
 
   // Format messages from API data
-  const familyMessages = messagesData?.messages?.map((msg: any) => ({
+  const familyMessages = messagesData?.messages?.map((msg) => ({
     id: msg.id,
     sender: msg.senderName || 'Unknown',
     avatar: msg.senderName?.substring(0, 2).toUpperCase() || 'UN',
@@ -120,7 +170,7 @@ export default function FamilyCollaborationCenter() {
   })) || [];
 
   // Fetch shared favorites from the API
-  const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery({
+  const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery<SharedFavorite[]>({
     queryKey: ['/api/family/shared-favorites'],
     enabled: !!user, // Only run query if user is authenticated
   });
@@ -647,7 +697,7 @@ export default function FamilyCollaborationCenter() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {visitHistory.map((visit) => (
+                {visitHistory.map((visit: Visit) => (
                   <Card key={visit.id} className="border-l-4 border-l-orange-500">
                     <CardContent className="pt-6">
                       <div className="flex flex-col lg:flex-row justify-between gap-4">
@@ -737,7 +787,7 @@ export default function FamilyCollaborationCenter() {
                     <CalendarCheck className="w-4 h-4" />
                     Upcoming Tours
                   </h3>
-                  {upcomingTours.map((tour) => (
+                  {upcomingTours.map((tour: Tour) => (
                     <Card key={tour.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="pt-4">
                         <div className="space-y-3">
@@ -1014,7 +1064,7 @@ export default function FamilyCollaborationCenter() {
                 </div>
 
                 <div className="space-y-4">
-                  {sharedFavorites.map((fav) => (
+                  {sharedFavorites.map((fav: SharedFavorite) => (
                     <Card key={fav.id} className="border-l-4 border-l-rose-500">
                       <CardContent className="pt-4">
                         <div className="flex justify-between items-start">
