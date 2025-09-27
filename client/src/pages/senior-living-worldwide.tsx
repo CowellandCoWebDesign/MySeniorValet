@@ -85,35 +85,43 @@ export default function SeniorLivingWorldwidePage() {
         </div>
       </section>
 
-      {/* All Care Levels Section */}
+      {/* All Housing & Care Options Section */}
       <section className="py-16 px-4">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl font-bold mb-4 text-center">Every Level of Senior Care, All in One Platform</h2>
+          <h2 className="text-3xl font-bold mb-4 text-center">Every Housing Type & Care Level, All in One Platform</h2>
           <p className="text-xl text-center text-gray-600 dark:text-gray-400 mb-12">
-            From active seniors to those needing 24/7 medical care - we cover the complete care spectrum
+            From mobile homes to skilled nursing, from companion care to hospice - we cover everything
           </p>
           <div className="grid md:grid-cols-3 gap-6">
-            {/* Independent Living & Active Senior */}
+            {/* Housing Options */}
             <Card className="hover:shadow-lg transition-shadow border-green-200 dark:border-green-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Home className="h-5 w-5 text-green-600" />
-                  Independent & Active Living
+                  Housing Options
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span><strong>8,924 Independent Living</strong> communities</span>
+                    <span><strong>55+ Mobile Home Parks</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span><strong>55+ Active Adult</strong> communities</span>
+                    <span><strong>Senior Apartments</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span><strong>Senior Apartments</strong> with amenities</span>
+                    <span><strong>Independent Living</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <span><strong>Assisted Living Facilities</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
+                    <span><strong>Board & Care Homes</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
@@ -123,31 +131,39 @@ export default function SeniorLivingWorldwidePage() {
               </CardContent>
             </Card>
 
-            {/* Assisted Living & Support */}
+            {/* Care Levels */}
             <Card className="hover:shadow-lg transition-shadow border-blue-200 dark:border-blue-800">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Heart className="h-5 w-5 text-blue-600" />
-                  Assisted & Supportive Care
+                  Care Levels
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                    <span><strong>12,847 Assisted Living</strong> facilities</span>
+                    <span><strong>Companion Care</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                    <span><strong>Board & Care Homes</strong> (6 beds or less)</span>
+                    <span><strong>Adult Day Care</strong> (PACE)</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                    <span><strong>Adult Day Care</strong> programs</span>
+                    <span><strong>Home Health Care</strong></span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
-                    <span><strong>Respite Care</strong> options</span>
+                    <span><strong>Respite Care</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <span><strong>Assisted Living Care</strong></span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <CheckCircle className="h-4 w-4 text-blue-500 mt-0.5" />
+                    <span><strong>Hospice Care</strong></span>
                   </li>
                 </ul>
               </CardContent>
@@ -440,11 +456,11 @@ export default function SeniorLivingWorldwidePage() {
             <Button 
               size="lg" 
               variant="outline"
-              onClick={() => setLocation('/care-guide')}
+              onClick={() => setLocation('/senior-healthcare-directory')}
               className="border-white text-white hover:bg-white/10"
             >
               <BookOpen className="mr-2 h-5 w-5" />
-              Learn About Care Options
+              Explore Care Spectrum
             </Button>
             <Button 
               size="lg" 

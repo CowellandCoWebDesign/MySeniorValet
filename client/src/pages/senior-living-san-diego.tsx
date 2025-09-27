@@ -369,40 +369,56 @@ export default function SeniorLivingSanDiegoPage() {
         </div>
       </section>
 
-      {/* Complete Care Levels Section */}
+      {/* Complete Platform Section */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold mb-8 text-center">All 10+ Levels of Senior Care Available</h2>
-          <p className="text-center text-gray-600 dark:text-gray-400 mb-8">MySeniorValet covers every type of senior housing and care in San Diego</p>
+          <h2 className="text-3xl font-bold mb-8 text-center">Complete Senior Living Platform</h2>
+          <p className="text-center text-gray-600 dark:text-gray-400 mb-8">MySeniorValet covers every type of senior housing and all care levels in San Diego</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Button variant="outline" onClick={() => setLocation('/community-directory')} className="justify-start p-4">
-              <Building className="mr-2 h-5 w-5 text-blue-600" />All Communities Directory</Button>
-            <Button variant="outline" onClick={() => setLocation('/care-spectrum')} className="justify-start p-4">
-              <Heart className="mr-2 h-5 w-5 text-purple-600" />Complete Care Spectrum</Button>
+              <Building className="mr-2 h-5 w-5 text-blue-600" />Housing Types Directory</Button>
             <Button variant="outline" onClick={() => setLocation('/senior-healthcare-directory')} className="justify-start p-4">
-              <Shield className="mr-2 h-5 w-5 text-green-600" />Healthcare Providers</Button>
+              <Heart className="mr-2 h-5 w-5 text-purple-600" />Healthcare & Care Spectrum</Button>
             <Button variant="outline" onClick={() => setLocation('/vendor-marketplace')} className="justify-start p-4">
               <Users className="mr-2 h-5 w-5 text-orange-600" />Senior Services Directory</Button>
             <Button variant="outline" onClick={() => setLocation('/senior-resources-center')} className="justify-start p-4">
               <Info className="mr-2 h-5 w-5 text-red-600" />Resources & Support</Button>
-            <Button variant="outline" onClick={() => setLocation('/hud-housing')} className="justify-start p-4">
-              <Home className="mr-2 h-5 w-5 text-indigo-600" />HUD & Affordable Housing</Button>
+            <Button variant="outline" onClick={() => setLocation('/hospitals')} className="justify-start p-4">
+              <Shield className="mr-2 h-5 w-5 text-green-600" />Healthcare Providers</Button>
+            <Button variant="outline" onClick={() => setLocation('/')} className="justify-start p-4">
+              <Home className="mr-2 h-5 w-5 text-indigo-600" />Amazing Home Page</Button>
           </div>
-          <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <h3 className="text-xl font-bold mb-4">All Care Types We Cover:</h3>
-            <div className="grid md:grid-cols-2 gap-3 text-sm">
-              <div>• Independent Living Communities</div>
-              <div>• Assisted Living Facilities</div>
-              <div>• Memory Care Units</div>
-              <div>• Skilled Nursing Facilities</div>
-              <div>• HUD Section 202 Housing</div>
-              <div>• Mobile Home Parks (55+)</div>
-              <div>• Senior Apartments</div>
-              <div>• Board & Care Homes</div>
-              <div>• CCRCs (Continuing Care)</div>
-              <div>• Adult Day Care Centers</div>
-              <div>• Home Health Agencies</div>
-              <div>• Hospice Care Services</div>
+          
+          <div className="grid md:grid-cols-2 gap-6 mt-8">
+            {/* Housing Options */}
+            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <h3 className="text-xl font-bold mb-4">Housing Options We Cover:</h3>
+              <div className="space-y-2 text-sm">
+                <div>• 55+ Mobile Home Parks</div>
+                <div>• HUD Section 202 Housing</div>
+                <div>• Senior Apartments</div>
+                <div>• Independent Living Communities</div>
+                <div>• Assisted Living Facilities</div>
+                <div>• Memory Care Units</div>
+                <div>• Skilled Nursing Facilities</div>
+                <div>• Board & Care Homes</div>
+                <div>• CCRCs (Continuing Care)</div>
+              </div>
+            </div>
+            
+            {/* Care Levels */}
+            <div className="p-6 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+              <h3 className="text-xl font-bold mb-4">Care Levels Available:</h3>
+              <div className="space-y-2 text-sm">
+                <div>• Companion Care</div>
+                <div>• Adult Day Care (PACE)</div>
+                <div>• Home Health Care</div>
+                <div>• Respite Care</div>
+                <div>• Assisted Living Care</div>
+                <div>• Memory/Dementia Care</div>
+                <div>• Skilled Nursing Care</div>
+                <div>• Hospice & Palliative Care</div>
+              </div>
             </div>
           </div>
         </div>
