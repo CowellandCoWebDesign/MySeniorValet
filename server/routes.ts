@@ -65,6 +65,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Import MultiAIPhotoExtractor for enhanced photo extraction
   const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
 
+  // Function to get fallback photos for service types
+  function getServiceTypeFallbackPhotos(serviceType: string): string[] {
+    const fallbackMap: Record<string, string[]> = {
+      'restaurant': [
+        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop&auto=format'
+      ],
+      'hotel': [
+        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&h=600&fit=crop&auto=format'
+      ],
+      'lawyer': [
+        'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&auto=format'
+      ],
+      'shop': [
+        'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop&auto=format'
+      ],
+      'service': [
+        'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop&auto=format',
+        'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&h=600&fit=crop&auto=format'
+      ]
+    };
+
+    // Try to match service type to fallback photos
+    const lowerServiceType = (serviceType || '').toLowerCase();
+    
+    // Direct matches first
+    if (fallbackMap[lowerServiceType]) {
+      return fallbackMap[lowerServiceType];
+    }
+    
+    // Partial matches for common business types
+    if (lowerServiceType.includes('restaurant') || lowerServiceType.includes('food') || lowerServiceType.includes('dining')) {
+      return fallbackMap['restaurant'];
+    }
+    if (lowerServiceType.includes('hotel') || lowerServiceType.includes('accommodation') || lowerServiceType.includes('lodge')) {
+      return fallbackMap['hotel'];
+    }
+    if (lowerServiceType.includes('lawyer') || lowerServiceType.includes('attorney') || lowerServiceType.includes('legal')) {
+      return fallbackMap['lawyer'];
+    }
+    if (lowerServiceType.includes('shop') || lowerServiceType.includes('store') || lowerServiceType.includes('retail')) {
+      return fallbackMap['shop'];
+    }
+    
+    // Default to generic service photos
+    return fallbackMap['service'];
+  }
+
   // API endpoint for service web intelligence
   app.post('/api/service-intelligence', async (req, res) => {
     try {
@@ -516,10 +572,17 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
         }
         }  // Add missing closing bracket for the if (extractedPhotos.length === 0) block
           
-        // If still no photos, that's okay - we'll show "no photos available" which is better than fake photos
+        // If still no photos, provide service type fallback photos
         if (extractedPhotos.length === 0) {
-          console.log(`📷 No real photos found for ${serviceName} - will display "no photos available"`);
+          console.log(`📷 No real photos found for ${serviceName} - providing service type fallback photos`);
           console.log(`📊 Debug: Had website? ${!!extractedWebsite}, Tried scraping? ${triedWebsiteScraping}`);
+          
+          // Service type fallback photos
+          const serviceTypeFallbacks = getServiceTypeFallbackPhotos(serviceType);
+          if (serviceTypeFallbacks.length > 0) {
+            extractedPhotos = serviceTypeFallbacks;
+            console.log(`✅ Using ${extractedPhotos.length} fallback photos for service type: ${serviceType}`);
+          }
         }
       } catch (error) {
         console.error('Failed to extract photos:', error);
