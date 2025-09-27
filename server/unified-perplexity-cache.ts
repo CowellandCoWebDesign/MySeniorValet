@@ -356,14 +356,8 @@ Format all information clearly with section headers.
       });
     }
     
-    // If we already have photos, return them
-    if (extractedPhotos.length >= 10) {
-      console.log(`✅ Found ${extractedPhotos.length} photos from Perplexity response`);
-      return extractedPhotos;
-    }
-    
-    // If not enough photos, do ONE comprehensive search across the entire internet
-    console.log(`🔍 Performing comprehensive photo search for ${communityName}...`);
+    // ALWAYS do a comprehensive photo search to find as many photos as possible
+    console.log(`🔍 Performing unrestricted web-wide photo search for ${communityName}...`);
     
     const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
     if (!perplexityApiKey) {
@@ -374,51 +368,94 @@ Format all information clearly with section headers.
     try {
       const [city, state] = location.split(',').map(s => s.trim());
       
-      const comprehensiveSearchQuery = `${communityName} ${city} ${state} photos images gallery`;
-      console.log(`🔎 Single comprehensive photo search: ${comprehensiveSearchQuery}`);
+      // Try multiple search approaches to maximize photo discovery
+      const searchQueries = [
+        `${communityName} ${city} ${state} photos images gallery virtual tour`,
+        `"${communityName}" site:facebook.com OR site:instagram.com OR site:yelp.com OR site:google.com/maps ${city} ${state}`,
+        `${communityName} senior living nursing home assisted living ${city} ${state} exterior interior photos`
+      ];
       
-      const photoSearchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${perplexityApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'sonar-pro',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a comprehensive photo finder for senior living communities. Search EVERYWHERE across the internet for photos. Check ALL relevant sources: Google Images, Google Maps, Google Business, Bing, Yahoo, senior living directories (A Place for Mom, Caring.com, SeniorLiving.org, Assisted Living Facilities), review sites (Yelp, Google Reviews), social media (Facebook, Instagram), the community\'s own website, local news sites, virtual tour providers, and any other source with real photos. Return ALL actual photo URLs you can find.'
-            },
-            {
-              role: 'user',
-              content: `Find ALL available photos for: ${communityName} senior living community in ${city}, ${state}. Search comprehensively across ALL relevant platforms and websites. Include direct image URLs from every possible source - the facility website, Google Maps/Business, review platforms, social media, news articles, senior living directories, virtual tours, and anywhere else photos exist. Focus on finding photos of: the building exterior, interior common areas, resident rooms, dining areas, activity spaces, grounds/gardens, staff, and amenities. Return as many actual photo URLs as possible.`
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 2000,
-          return_images: true,  // Enable real image URLs
-          search_depth: 'comprehensive',  // Use comprehensive search
-          search_recency_filter: 'none',  // Don't filter by recency to get all photos
-          // Don't restrict domains - search everywhere
-        })
-      });
+      for (const searchQuery of searchQueries) {
+        console.log(`🔎 Trying photo search: ${searchQuery}`);
+        
+        const photoSearchResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${perplexityApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'sonar-pro',
+            messages: [
+              {
+                role: 'system',
+                content: `You are an unrestricted web crawler that finds ALL photos from ANYWHERE on the internet. Search without any limitations across: Google Images, Bing Images, Yahoo Images, DuckDuckGo, Facebook, Instagram, Twitter, Pinterest, LinkedIn, Yelp, TripAdvisor, Google Maps, Google Business, Apple Maps, MapQuest, OpenStreetMap, Zillow, Redfin, Trulia, Apartments.com, senior living directories (A Place for Mom, Caring.com, SeniorLiving.org, SeniorAdvisor.com, AssistedLiving.com), healthcare sites, government databases, inspection reports, news websites, local newspapers, community newsletters, blogs, personal websites, church bulletins, local business directories, Chamber of Commerce sites, YouTube thumbnails, Vimeo, virtual tour platforms, real estate MLS listings, property management sites, construction company portfolios, architectural firm websites, and literally ANY other website that might have photos. Find and return EVERY SINGLE photo URL you can discover, regardless of the source.`
+              },
+              {
+                role: 'user',
+                content: `${searchQuery}\n\nFind ALL photos of this location from anywhere on the internet. Return the direct image URLs (not page URLs). Include:\n- Official facility photos\n- User-submitted photos from reviews\n- Street view and satellite images\n- Photos from news articles and blogs\n- Social media photos\n- Historical photos\n- Construction or renovation photos\n- Photos from nearby businesses showing the building\n- Any other photos you can find\n\nSearch without restrictions and return every photo URL you find.`
+              }
+            ],
+            temperature: 0.5, // Slightly higher for more creative searching
+            max_tokens: 4000, // More tokens for more URLs
+            return_images: true,
+            search_depth: 'comprehensive',
+            search_recency_filter: 'none',
+            top_p: 0.95,
+            frequency_penalty: 0.1,
+            presence_penalty: 0.1
+          })
+        });
       
-      if (photoSearchResponse.ok) {
-        const photoData = await photoSearchResponse.json();
-        if (photoData.provider_metadata?.images && photoData.provider_metadata.images.length > 0) {
-          console.log(`✅ Found ${photoData.provider_metadata.images.length} photos from comprehensive search`);
-          const newPhotos = photoData.provider_metadata.images.slice(0, 50).map((img: any) => {
-            const photoUrl = img.imageUrl || img;
-            if (photoUrl.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+        if (photoSearchResponse.ok) {
+          const photoData = await photoSearchResponse.json();
+          
+          // Check ALL possible locations where images might be returned
+          const possibleImageFields = [
+            photoData.images,
+            photoData.provider_metadata?.images,
+            photoData.choices?.[0]?.message?.images,
+            photoData.choices?.[0]?.images,
+            photoData.results?.images,
+            photoData.data?.images
+          ];
+          
+          for (const imageField of possibleImageFields) {
+            if (imageField && Array.isArray(imageField)) {
+              console.log(`✅ Found ${imageField.length} photos in response`);
+              imageField.forEach((img: any) => {
+                let photoUrl = '';
+                if (typeof img === 'string') {
+                  photoUrl = img;
+                } else if (img?.imageUrl) {
+                  photoUrl = img.imageUrl;
+                } else if (img?.url) {
+                  photoUrl = img.url;
+                } else if (img?.src) {
+                  photoUrl = img.src;
+                } else if (img?.image_url) {
+                  photoUrl = img.image_url;
+                }
+                
+                if (photoUrl && photoUrl.includes('http')) {
+                  extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photoUrl)}`);
+                }
+              });
             }
-            return photoUrl;
+          }
+          
+          // Also extract URLs from the text content if present
+          const textContent = photoData.choices?.[0]?.message?.content || photoData.content || '';
+          const imageUrlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+\.(jpg|jpeg|png|gif|webp|bmp|svg|JPG|JPEG|PNG)/gi;
+          const foundUrls = textContent.match(imageUrlRegex) || [];
+          foundUrls.forEach(url => {
+            extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(url)}`);
           });
-          extractedPhotos.push(...newPhotos);
-          console.log(`🎉 Successfully retrieved ${extractedPhotos.length} total photos with single comprehensive search`);
-        } else {
-          console.log(`📷 Comprehensive search found no additional photos`);
+          
+          if (extractedPhotos.length > 5) {
+            console.log(`🎉 Found ${extractedPhotos.length} photos, stopping search`);
+            break;
+          }
         }
       }
     } catch (searchError) {

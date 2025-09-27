@@ -100,10 +100,10 @@ export class CommunityPhotoEnrichment {
     // Get only real photos (no stock photos)
     const realPhotos = this.getEnrichedPhotosForCommunity(community);
     
-    // Return community with only real photos
+    // Return community with only real photos (empty array if none found)
     return {
       ...community,
-      photos: realPhotos.length > 0 ? realPhotos : []
+      photos: realPhotos
     };
   }
   
