@@ -108,7 +108,31 @@ export class PerplexitySearchAPI {
    * Optimized for MySeniorValet's service discovery needs
    */
   async searchBusinesses(businessType: string, location: string, options: SearchOptions = {}): Promise<SearchResponse> {
-    const query = `"${businessType}" businesses in ${location}`;
+    // Create more specific queries based on business type
+    let query = '';
+    
+    // Normalize business type for better matching
+    const normalizedType = businessType.toLowerCase().trim();
+    
+    // Build more targeted queries based on common service types
+    if (normalizedType.includes('restaurant') || normalizedType.includes('dining')) {
+      query = `best ${businessType} restaurants "${location}" address phone hours menu`;
+    } else if (normalizedType.includes('moving') || normalizedType.includes('movers')) {
+      query = `professional moving companies "${location}" licensed insured contact information`;
+    } else if (normalizedType.includes('hotel') || normalizedType.includes('lodging')) {
+      query = `${businessType} hotels accommodations "${location}" booking contact`;
+    } else if (normalizedType.includes('pharmacy') || normalizedType.includes('drugstore')) {
+      query = `${businessType} pharmacies drugstores "${location}" phone address hours`;
+    } else if (normalizedType.includes('lawyer') || normalizedType.includes('attorney') || normalizedType.includes('legal')) {
+      query = `${businessType} law firms attorneys "${location}" consultation contact`;
+    } else if (normalizedType.includes('doctor') || normalizedType.includes('medical') || normalizedType.includes('clinic')) {
+      query = `${businessType} medical clinics doctors "${location}" appointments phone`;
+    } else {
+      // Generic query for other business types
+      query = `local ${businessType} businesses services "${location}" contact information phone address`;
+    }
+    
+    console.log(`🔍 Refined business search query: "${query}"`);
     
     return this.search(query, {
       max_results: options.max_results || 20,
@@ -118,7 +142,13 @@ export class PerplexitySearchAPI {
         'facebook.com',
         'yellowpages.com',
         'bbb.org',
-        'tripadvisor.com'
+        'tripadvisor.com',
+        'opentable.com',
+        'doordash.com',
+        'grubhub.com',
+        'maps.google.com',
+        'foursquare.com',
+        'zomato.com'
       ],
       ...options
     });
@@ -129,10 +159,16 @@ export class PerplexitySearchAPI {
    * Specialized for community discovery
    */
   async searchSeniorCommunities(location: string, careType?: string, options: SearchOptions = {}): Promise<SearchResponse> {
-    let query = `senior living communities in ${location}`;
+    // Build more specific queries that will return actual community names
+    let query = '';
+    
     if (careType) {
-      query = `${careType} senior living communities in ${location}`;
+      query = `${careType} assisted living memory care nursing homes "${location}" facility names addresses phone numbers`;
+    } else {
+      query = `senior living retirement communities assisted living "${location}" facility names contact information addresses`;
     }
+    
+    console.log(`🏠 Refined senior community search query: "${query}"`);
     
     return this.search(query, {
       max_results: options.max_results || 15,
@@ -142,7 +178,11 @@ export class PerplexitySearchAPI {
         'seniorliving.org',
         'assistedliving.com',
         'aplaceformom.com',
-        'seniorlivingguide.com'
+        'seniorlivingguide.com',
+        'senioradvisor.com',
+        'medicare.gov',
+        'nursinghomes.org',
+        'memorycare.com'
       ],
       ...options
     });
@@ -245,6 +285,8 @@ export class PerplexitySearchAPI {
     name: string;
     website?: string;
     description?: string;
+    phone?: string;
+    address?: string;
     source: string;
     confidence: number;
     isResource?: boolean;
@@ -254,6 +296,8 @@ export class PerplexitySearchAPI {
       name: string;
       website?: string;
       description?: string;
+      phone?: string;
+      address?: string;
       source: string;
       confidence: number;
       isResource?: boolean;
@@ -261,8 +305,10 @@ export class PerplexitySearchAPI {
     }> = [];
 
     for (const result of results) {
-      // Extract name from title
+      // Extract name from title - but also look for business names in snippet
       let name = result.title;
+      let phone: string | undefined;
+      let address: string | undefined;
       
       // IDENTIFY ARTICLE/GUIDE PATTERNS - These are VALUABLE discovery sources!
       const articlePatterns = [
@@ -317,6 +363,20 @@ export class PerplexitySearchAPI {
         continue;
       }
       
+      // Try to extract phone and address from snippet
+      const phoneMatch = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+      if (phoneMatch) {
+        phone = phoneMatch[0];
+        console.log(`📞 Extracted phone from snippet: ${phone}`);
+      }
+      
+      // Try to extract address patterns
+      const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|Pkwy|Parkway|Plaza|Place|Ct|Court)/i);
+      if (addressMatch) {
+        address = addressMatch[0];
+        console.log(`📍 Extracted address from snippet: ${address}`);
+      }
+      
       // For direct businesses, apply validation
       if (name.length > 80) {
         console.log(`⚠️ Name too long, might be article: "${name}"`);
@@ -325,6 +385,8 @@ export class PerplexitySearchAPI {
           name: originalName,
           website: result.url,
           description: result.snippet,
+          phone,
+          address,
           source: `search_api_${result.domain}`,
           confidence: 60,
           isResource: true,
@@ -367,13 +429,15 @@ export class PerplexitySearchAPI {
         name,
         website: result.url,
         description: result.snippet,
+        phone,
+        address,
         source: `search_api_${result.domain}`,
         confidence,
         isResource: false,
         resourceType: 'direct_business'
       });
       
-      console.log(`✅ Accepted: "${name}" (confidence: ${confidence}%, type: ${resourceType})`);
+      console.log(`✅ Accepted: "${name}" (confidence: ${confidence}%, type: direct_business${phone ? ' with phone' : ''}${address ? ' with address' : ''})`);
     }
 
     console.log(`📊 Extracted ${businesses.filter(b => !b.isResource).length} businesses and ${businesses.filter(b => b.isResource).length} discovery resources`);

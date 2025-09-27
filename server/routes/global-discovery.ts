@@ -545,6 +545,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               name: business.name,
               website: business.website || '',
               description: business.description || `${serviceType} service in ${location}`,
+              phone: business.phone || '',  // Include extracted phone
+              address: business.address || '',  // Include extracted address
               city: city || location || 'Unknown',
               state: state || '',
               country: 'United States',
@@ -570,18 +572,22 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           console.log(`✅ Search API found ${communities.length} senior communities from ${searchResults.results.length} search results`);
           
           // Convert to discovery format
-          discoveredCommunities = communities.map(community => ({
-            name: community.name,
-            website: community.website || '',
-            description: community.description || `Senior living community in ${location}`,
-            city: location.split(',')[0]?.trim() || '',
-            state: location.split(',')[1]?.trim() || '',
-            country: detectCountry(query),
-            source: 'Search API',
-            confidence: community.confidence,
-            isDiscovered: true,
-            careTypes: ['Senior Living']
-          }));
+          discoveredCommunities = communities
+            .filter(community => !community.isResource) // FILTER OUT ARTICLES/GUIDES
+            .map(community => ({
+              name: community.name,
+              website: community.website || '',
+              description: community.description || `Senior living community in ${location}`,
+              phone: community.phone || '',  // Include extracted phone
+              address: community.address || '',  // Include extracted address
+              city: location.split(',')[0]?.trim() || '',
+              state: location.split(',')[1]?.trim() || '',
+              country: detectCountry(query),
+              source: 'Search API',
+              confidence: community.confidence,
+              isDiscovered: true,
+              careTypes: ['Senior Living']
+            }));
         }
         
         // If Search API found good results, use them directly
