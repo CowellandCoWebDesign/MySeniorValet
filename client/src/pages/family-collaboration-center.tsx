@@ -207,31 +207,6 @@ export default function FamilyCollaborationCenter() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
-        {/* Demo Mode Notice - Only show when not signed in */}
-        <Card className="mb-6 border-amber-500/50 bg-amber-50/10 dark:bg-amber-950/10">
-          <CardContent className="py-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-amber-900 dark:text-amber-100">
-                  Preview Mode - Example Data Shown
-                </p>
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                  Sign in to access your family's real collaboration tools and saved information.
-                </p>
-              </div>
-              <Button 
-                size="sm" 
-                className="bg-amber-600 hover:bg-amber-700 text-white"
-                onClick={() => setLocation('/login')}
-              >
-                Sign In
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Value Proposition Hero */}
         <Card className="mb-8 border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -612,7 +587,6 @@ export default function FamilyCollaborationCenter() {
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5 text-purple-500" />
                   Recent Family Activity
-                  <Badge variant="outline" className="ml-2">Example Data</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -669,7 +643,7 @@ export default function FamilyCollaborationCenter() {
                       Document your community visits with detailed reports your whole family can review
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -754,7 +728,7 @@ export default function FamilyCollaborationCenter() {
                       Coordinate tour schedules with your family and never miss an appointment
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -999,8 +973,8 @@ export default function FamilyCollaborationCenter() {
           {/* Medicare Tab */}
           <TabsContent value="medicare" className="space-y-6">
             <FamilyMedicareManager 
-              userId="demo-user"
-              residentName="Demo Resident"
+              userId={user?.id || ''}
+              residentName={user?.name || 'Your Loved One'}
             />
           </TabsContent>
 
@@ -1018,7 +992,7 @@ export default function FamilyCollaborationCenter() {
                       Communities your family is considering - compare and discuss together
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
