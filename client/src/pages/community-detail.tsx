@@ -1173,6 +1173,7 @@ export default function CommunityDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
   const [showReservationDialog, setShowReservationDialog] = useState(false);
+  const [activeTab, setActiveTab] = useState('market-data');
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [waitlistName, setWaitlistName] = useState('');
@@ -1854,7 +1855,7 @@ export default function CommunityDetail() {
             })()}
 
             {/* Tabbed Content Section - Mobile Responsive */}
-            <Tabs defaultValue="market-data" className="w-full mt-4 sm:mt-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4 sm:mt-6">
               <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-1 sm:p-1.5 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-600 gap-1 sm:gap-1.5">
                 <TabsTrigger 
                   value="community-info" 
@@ -2738,9 +2739,18 @@ export default function CommunityDetail() {
                               </p>
                             </div>
                             <div className="mb-4">
-                              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                {unit.price || 'Click for pricing'}
-                              </p>
+                              {unit.price === '__MARKET_DATA_TAB__' ? (
+                                <button
+                                  onClick={() => setActiveTab('market-data')}
+                                  className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline transition-colors"
+                                >
+                                  See Market Data tab for pricing
+                                </button>
+                              ) : (
+                                <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                  {unit.price || 'Click for pricing'}
+                                </p>
+                              )}
                               {unit.available && (
                                 <Badge className="mt-2 bg-green-100 text-green-800">
                                   Available Now
@@ -2790,7 +2800,9 @@ export default function CommunityDetail() {
                                 type: 'Studio', 
                                 price: comprehensiveData?.marketData?.pricing?.studio || 
                                        verificationReport?.verificationResults?.pricing?.studio || 
-                                       (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : 'Contact for pricing'),
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : 
+                                        (comprehensiveData?.marketData?.pricing?.general || verificationReport?.webIntelligence?.pricing ? 
+                                         '__MARKET_DATA_TAB__' : 'Contact for pricing')),
                                 features: '400-600 sq ft',
                                 floorPlanImage: null, // No stock photos
                                 amenities: ['Kitchenette', 'Private Bath', 'Emergency Call System']
@@ -2799,7 +2811,9 @@ export default function CommunityDetail() {
                                 type: 'One Bedroom', 
                                 price: comprehensiveData?.marketData?.pricing?.oneBedroom || 
                                        verificationReport?.verificationResults?.pricing?.oneBedroom || 
-                                       (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : 'Contact for pricing'),
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : 
+                                        (comprehensiveData?.marketData?.pricing?.general || verificationReport?.webIntelligence?.pricing ? 
+                                         '__MARKET_DATA_TAB__' : 'Contact for pricing')),
                                 features: '600-800 sq ft',
                                 floorPlanImage: null, // No stock photos
                                 amenities: ['Full Kitchen', 'Living Area', 'Walk-in Closet']
@@ -2808,7 +2822,9 @@ export default function CommunityDetail() {
                                 type: 'Two Bedroom', 
                                 price: comprehensiveData?.marketData?.pricing?.twoBedroom || 
                                        verificationReport?.verificationResults?.pricing?.twoBedroom || 
-                                       (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : 'Contact for pricing'),
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : 
+                                        (comprehensiveData?.marketData?.pricing?.general || verificationReport?.webIntelligence?.pricing ? 
+                                         '__MARKET_DATA_TAB__' : 'Contact for pricing')),
                                 features: '800-1200 sq ft',
                                 floorPlanImage: null, // No stock photos
                                 amenities: ['Full Kitchen', '2 Bathrooms', 'Washer/Dryer Hookups']
@@ -2864,9 +2880,18 @@ export default function CommunityDetail() {
                                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
                                       Estimated Monthly Cost
                                     </p>
-                                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                                      {unit.price}
-                                    </p>
+                                    {unit.price === '__MARKET_DATA_TAB__' ? (
+                                      <button
+                                        onClick={() => setActiveTab('market-data')}
+                                        className="text-2xl font-bold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline transition-colors"
+                                      >
+                                        See Market Data tab for pricing
+                                      </button>
+                                    ) : (
+                                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                        {unit.price}
+                                      </p>
+                                    )}
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                       {comprehensiveData?.marketData?.pricing ? 
                                         'Live pricing from market analysis' :
