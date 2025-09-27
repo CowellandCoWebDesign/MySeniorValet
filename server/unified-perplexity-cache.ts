@@ -337,10 +337,21 @@ Format all information clearly with section headers.
     
     // First add any images that were directly returned by Perplexity
     if (response.images && Array.isArray(response.images)) {
-      response.images.forEach(img => {
-        // Ensure img is a string before calling includes
-        if (img && typeof img === 'string' && img.includes('http')) {
-          extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(img)}`);
+      response.images.forEach((img: any) => {
+        // Normalize various image formats to strings
+        let imageUrl: string | null = null;
+        
+        if (typeof img === 'string') {
+          imageUrl = img;
+        } else if (img?.imageUrl && typeof img.imageUrl === 'string') {
+          imageUrl = img.imageUrl;
+        } else if (img?.url && typeof img.url === 'string') {
+          imageUrl = img.url;
+        }
+        
+        // Only process valid HTTP URLs
+        if (imageUrl && imageUrl.includes('http')) {
+          extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(imageUrl)}`);
         }
       });
     }

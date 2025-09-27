@@ -136,7 +136,17 @@ CRITICAL INSTRUCTIONS:
         images = response.data.provider_metadata.images.map(img => img.imageUrl);
       } else {
         // Fallback to extracting from response text
-        images = this.extractImagesFromResponse(summary, response.data.images);
+        // Normalize response.data.images to ensure they're strings
+        const normalizedImages = response.data.images ? 
+          response.data.images.map(img => {
+            // Handle various image formats from Perplexity API
+            if (typeof img === 'string') return img;
+            if (img?.imageUrl) return img.imageUrl;
+            if (img?.url) return img.url;
+            return null;
+          }).filter(Boolean) : [];
+        
+        images = this.extractImagesFromResponse(summary, normalizedImages);
       }
       
       // Log the unfiltered Perplexity response for debugging
