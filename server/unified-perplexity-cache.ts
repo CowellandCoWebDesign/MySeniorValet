@@ -39,7 +39,8 @@ interface CachedCommunityData {
 class UnifiedPerplexityCache {
   private static instance: UnifiedPerplexityCache;
   private cache = new Map<string, { data: CachedCommunityData; timestamp: number }>();
-  private CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+  private CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days default
+  private FEATURED_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for featured communities
   private perplexityService: PerplexityAIService;
 
   constructor() {
@@ -56,14 +57,19 @@ class UnifiedPerplexityCache {
   async getComprehensiveCommunityData(
     communityId: string,
     communityName: string,
-    location: string
+    location: string,
+    isFeatured: boolean = false
   ): Promise<CachedCommunityData> {
     const cacheKey = `community_${communityId}`;
     const cached = this.cache.get(cacheKey);
+    
+    // Use shorter cache duration for featured communities (24 hours instead of 7 days)
+    const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
+    const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
 
     // Return cached data if fresh
-    if (cached && cached.timestamp > Date.now() - this.CACHE_DURATION) {
-      console.log(`📦 Returning cached data for ${communityName} (saved ${new Date(cached.timestamp).toLocaleString()})`);
+    if (cached && cached.timestamp > Date.now() - cacheDuration) {
+      console.log(`📦 Returning cached data for ${communityName} (saved ${new Date(cached.timestamp).toLocaleString()}, cache: ${cacheLabel})`);
       return cached.data;
     }
 
@@ -130,7 +136,9 @@ Format all information clearly with section headers.
         timestamp: Date.now()
       });
 
-      console.log(`✅ Cached comprehensive data for ${communityName} - Next refresh: ${new Date(Date.now() + this.CACHE_DURATION).toLocaleString()}`);
+      const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
+      const nextRefresh = Date.now() + cacheDuration;
+      console.log(`✅ Cached comprehensive data for ${communityName} (${cacheLabel}) - Next refresh: ${new Date(nextRefresh).toLocaleString()}`);
 
       return structuredData;
     } catch (error) {

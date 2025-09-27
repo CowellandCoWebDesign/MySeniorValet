@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs } from "@shared/schema";
+import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities } from "@shared/schema";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { insertCommunitySchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
@@ -891,13 +891,28 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
+      // Check if this community is featured (for cache duration)
+      const [featuredRecord] = await db
+        .select()
+        .from(featuredCommunities)
+        .where(
+          and(
+            eq(featuredCommunities.communityId, communityId),
+            eq(featuredCommunities.isActive, true)
+          )
+        )
+        .limit(1);
+      
+      const isFeatured = featuredRecord ? true : false;
+      
       // CRITICAL FIX: Use unified cache instead of separate enrichment service
       // This prevents the $0.07 cost spike
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
       const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
         communityId.toString(),
         community.name,
-        `${community.city}, ${community.state}`
+        `${community.city}, ${community.state}`,
+        isFeatured
       );
       
       // Create enrichmentResult from unified cache data
@@ -1264,13 +1279,28 @@ export function registerCommunityRoutes(app: Express) {
 
       console.log(`📊 Fetching comprehensive data for community ${communityId}: ${community.name}`);
 
+      // Check if this community is featured (for cache duration)
+      const [featuredRecord] = await db
+        .select()
+        .from(featuredCommunities)
+        .where(
+          and(
+            eq(featuredCommunities.communityId, communityId),
+            eq(featuredCommunities.isActive, true)
+          )
+        )
+        .limit(1);
+      
+      const isFeatured = featuredRecord ? true : false;
+      
       // Use unified Perplexity cache to get comprehensive data
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
       const location = `${community.city}, ${community.state}`;
       const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
         communityId.toString(),
         community.name,
-        location
+        location,
+        isFeatured
       );
 
       // Ensure photos are properly formatted as strings
