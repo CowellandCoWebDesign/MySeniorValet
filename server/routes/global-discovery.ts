@@ -39,6 +39,55 @@ const discoveredCommunitySchema = z.object({
 // Import multi-AI orchestrator for comparisons
 // import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
 
+// Business validation function
+async function validateBusinessExists(businessName: string, city?: string, state?: string): Promise<boolean> {
+  try {
+    const location = [city, state].filter(Boolean).join(', ');
+    const searchQuery = `"${businessName}"${location ? ` in ${location}` : ''}`;
+    
+    console.log(`🔍 Validating business exists: ${searchQuery}`);
+    
+    const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+    if (!perplexityApiKey) {
+      console.log('⚠️ No Perplexity API key - assuming business is valid');
+      return true; // Default to true if we can't validate
+    }
+    
+    const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${perplexityApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'sonar-pro',
+        messages: [{
+          role: 'user',
+          content: `Does "${businessName}" exist as a real business${location ? ` in ${location}` : ''}? Reply with just YES or NO. Check if it has any web presence on Google Maps, Yelp, official website, or business directories.`
+        }],
+        temperature: 0.1,
+        max_tokens: 10
+      })
+    });
+    
+    if (!response.ok) {
+      console.log('⚠️ Validation API failed - assuming business is valid');
+      return true; // Default to true if validation fails
+    }
+    
+    const data = await response.json();
+    const answer = data.choices?.[0]?.message?.content?.trim().toUpperCase() || '';
+    
+    const isValid = answer.includes('YES') && !answer.includes('NO');
+    console.log(`✅ Business validation result: ${businessName} = ${isValid ? 'VALID' : 'INVALID'} (response: ${answer})`);
+    
+    return isValid;
+  } catch (error) {
+    console.error('⚠️ Business validation error:', error);
+    return true; // Default to true if validation fails
+  }
+}
+
 export function setupGlobalDiscoveryRoutes(app: Express) {
   
   // Global discovery search endpoint
@@ -760,6 +809,14 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               .limit(1);
             
             if (existing.length === 0 && discovered.name) {
+              // VALIDATION: Check if business actually exists before saving
+              const isValidBusiness = await validateBusinessExists(discovered.name, discovered.city, discovered.state);
+              
+              if (!isValidBusiness) {
+                console.log(`⚠️ Skipping phantom business: ${discovered.name} (no web presence found)`);
+                continue;
+              }
+              
               // Create a new service record in the SERVICES table
               const [newService] = await db.insert(services)
                 .values({
