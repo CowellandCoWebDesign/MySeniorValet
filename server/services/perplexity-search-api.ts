@@ -46,46 +46,69 @@ export class PerplexitySearchAPI {
   }
 
   /**
-   * Perform a raw search using Perplexity's new Search API
-   * Cost: $5 per 1,000 requests (no token fees)
+   * Perform a search using Perplexity's Chat Completions API with online models
+   * Cost-effective approach using sonar-small model for search tasks
    */
   async search(query: string, options: SearchOptions = {}): Promise<SearchResponse> {
     try {
-      console.log(`🔍 Perplexity Search API: "${query}"`);
+      console.log(`🔍 Perplexity Chat API (Search Mode): "${query}"`);
       
       if (!this.apiKey) {
         throw new Error('Perplexity API key not configured');
       }
 
-      const searchParams = {
-        query,
-        max_results: options.max_results || 10,
-        max_tokens_per_page: options.max_tokens_per_page || 1024,
-        ...options
-      };
-
-      const response = await fetch(`${this.baseUrl}/search`, {
+      // Use chat completions with search-enabled model
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(searchParams)
+        body: JSON.stringify({
+          model: 'llama-3.1-sonar-small-128k-online', // Cost-effective search model
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a search assistant. Extract structured information from web searches. Return results in a clear, factual manner with sources.'
+            },
+            {
+              role: 'user',
+              content: query
+            }
+          ],
+          max_tokens: options.max_tokens_per_page || 1024,
+          temperature: 0.2,
+          return_images: false,
+          return_related_questions: false,
+          search_recency_filter: 'month',
+          stream: false
+        })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ Search API error (${response.status}):`, errorText);
+        console.error(`❌ Perplexity Chat API error (${response.status}):`, errorText);
         throw new Error(`Search API failed: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log(`✅ Found ${data.results?.length || 0} search results`);
+      const content = data.choices?.[0]?.message?.content || '';
+      const citations = data.citations || [];
       
+      console.log(`✅ Perplexity search completed with ${citations.length} citations`);
+      
+      // Convert chat response to search results format
+      const results: SearchResult[] = citations.map((url: string, index: number) => ({
+        title: `Search Result ${index + 1}`,
+        url,
+        snippet: content.slice(index * 100, (index + 1) * 100) + '...',
+        domain: new URL(url).hostname
+      }));
+
       return {
-        results: data.results || [],
-        query: data.query || query,
-        total_results: data.total_results
+        results,
+        query,
+        total_results: citations.length
       };
 
     } catch (error) {
