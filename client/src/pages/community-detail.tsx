@@ -1243,11 +1243,11 @@ export default function CommunityDetail() {
   });
 
   // Fetch comprehensive data once for all tabs
-  const { data: comprehensiveData } = useQuery({
+  const { data: comprehensiveData } = useQuery<any>({
     queryKey: [`/api/community/${id}/comprehensive-data`],
     enabled: !!id && !!community && id !== '-1' && !isNaN(Number(id)),
     staleTime: 7 * 24 * 60 * 60 * 1000, // Cache for 7 days
-    cacheTime: 7 * 24 * 60 * 60 * 1000,
+    gcTime: 7 * 24 * 60 * 60 * 1000, // TanStack Query v5 uses gcTime instead of cacheTime
   });
 
   // Reset all state when community ID changes (but don't return early)
@@ -2784,45 +2784,58 @@ export default function CommunityDetail() {
                               </Button>
                             </div>
                           ) : (
-                            /* Default estimated pricing with enhanced display */
+                            /* Use real pricing from Perplexity data when available */
                             [
                               { 
                                 type: 'Studio', 
-                                price: verificationReport?.verificationResults?.pricing?.studio || 
-                                       (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : '$2,500-3,500'),
+                                price: comprehensiveData?.marketData?.pricing?.studio || 
+                                       verificationReport?.verificationResults?.pricing?.studio || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : 'Contact for pricing'),
                                 features: '400-600 sq ft',
-                                floorPlanImage: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600&h=400&fit=crop',
+                                floorPlanImage: null, // No stock photos
                                 amenities: ['Kitchenette', 'Private Bath', 'Emergency Call System']
                               },
                               { 
                                 type: 'One Bedroom', 
-                                price: verificationReport?.verificationResults?.pricing?.oneBedroom || 
-                                       (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : '$3,000-4,500'),
+                                price: comprehensiveData?.marketData?.pricing?.oneBedroom || 
+                                       verificationReport?.verificationResults?.pricing?.oneBedroom || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : 'Contact for pricing'),
                                 features: '600-800 sq ft',
-                                floorPlanImage: 'https://images.unsplash.com/photo-1565183997392-2f6f122e5912?w=600&h=400&fit=crop', 
+                                floorPlanImage: null, // No stock photos
                                 amenities: ['Full Kitchen', 'Living Area', 'Walk-in Closet']
                               },
                               { 
                                 type: 'Two Bedroom', 
-                                price: verificationReport?.verificationResults?.pricing?.twoBedroom || 
-                                       (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : '$4,000-6,000'),
+                                price: comprehensiveData?.marketData?.pricing?.twoBedroom || 
+                                       verificationReport?.verificationResults?.pricing?.twoBedroom || 
+                                       (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : 'Contact for pricing'),
                                 features: '800-1200 sq ft',
-                                floorPlanImage: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600&h=400&fit=crop',
+                                floorPlanImage: null, // No stock photos
                                 amenities: ['Full Kitchen', '2 Bathrooms', 'Washer/Dryer Hookups']
                               }
                             ].map((unit) => (
                               <div key={unit.type} className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                                {/* Floor Plan Image */}
-                                <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
-                                  <img 
-                                    src={unit.floorPlanImage} 
-                                    alt={`${unit.type} floor plan`}
-                                    className="w-full h-full object-cover"
-                                  />
-                                  <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                                    Floor Plan
+                                {/* Floor Plan Image - Only show if we have a real floor plan */}
+                                {unit.floorPlanImage ? (
+                                  <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                                    <img 
+                                      src={unit.floorPlanImage} 
+                                      alt={`${unit.type} floor plan`}
+                                      className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                      Floor Plan
+                                    </div>
                                   </div>
-                                </div>
+                                ) : (
+                                  <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                                    <div className="text-center p-6">
+                                      <Home className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-2" />
+                                      <p className="text-sm font-medium text-gray-600 dark:text-gray-300">{unit.type}</p>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Floor plan available upon request</p>
+                                    </div>
+                                  </div>
+                                )}
                                 
                                 <div className="p-4">
                                   <div className="mb-3">
@@ -2855,9 +2868,11 @@ export default function CommunityDetail() {
                                       {unit.price}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                      {verificationReport?.verificationResults?.pricing ? 
+                                      {comprehensiveData?.marketData?.pricing ? 
+                                        'Live pricing from market analysis' :
+                                        verificationReport?.verificationResults?.pricing ? 
                                         'AI-verified pricing' : 
-                                        'Market estimate - contact for exact pricing'}
+                                        'Contact community for current pricing'}
                                     </p>
                                   </div>
                                   
@@ -2985,7 +3000,6 @@ export default function CommunityDetail() {
                   onVerificationReport={setVerificationReport}
                   onPhotosUpdate={undefined}
                   verificationReport={verificationReport}
-                  comprehensiveData={comprehensiveData}
                 />
 
                 {/* Intelligent Pricing Prediction */}

@@ -167,9 +167,9 @@ Format all information clearly with section headers.
   ): Promise<CachedCommunityData> {
     const content = response.summary;
     
-    // Extract market data
+    // Extract market data with enhanced pricing extraction
     const marketData = {
-      pricing: this.extractSection(content, 'PRICING'),
+      pricing: this.extractEnhancedPricing(content),
       website: this.extractWebsite(content),
       phone: this.extractPhone(content),
       email: this.extractEmail(content),
@@ -216,6 +216,46 @@ Format all information clearly with section headers.
     const regex = new RegExp(`\\*\\*${sectionName}[^\\*]*\\*\\*([^\\*]+)(?=\\*\\*|$)`, 'i');
     const match = content.match(regex);
     return match ? match[1].trim() : undefined;
+  }
+  
+  private extractEnhancedPricing(content: string): any {
+    const pricingSection = this.extractSection(content, 'PRICING') || 
+                          this.extractSection(content, 'CURRENT PRICING') || '';
+    
+    const pricing: any = {
+      general: pricingSection,
+      studio: undefined,
+      oneBedroom: undefined, 
+      twoBedroom: undefined
+    };
+    
+    // Look for specific unit type pricing patterns
+    const patterns = [
+      // Pattern: Studio: $X,XXX - $X,XXX
+      { type: 'studio', regex: /\bstudio\b[^$]*?(\$[\d,]+-?\$?[\d,]+|\$[\d,]+)/i },
+      // Pattern: One Bedroom: $X,XXX - $X,XXX or 1BR: $X,XXX
+      { type: 'oneBedroom', regex: /\b(?:one[\s-]?bedroom|1[\s-]?br|1[\s-]?bedroom)\b[^$]*?(\$[\d,]+-?\$?[\d,]+|\$[\d,]+)/i },
+      // Pattern: Two Bedroom: $X,XXX - $X,XXX or 2BR: $X,XXX
+      { type: 'twoBedroom', regex: /\b(?:two[\s-]?bedroom|2[\s-]?br|2[\s-]?bedroom)\b[^$]*?(\$[\d,]+-?\$?[\d,]+|\$[\d,]+)/i }
+    ];
+    
+    const fullContent = content + ' ' + pricingSection;
+    
+    patterns.forEach(({ type, regex }) => {
+      const match = fullContent.match(regex);
+      if (match && match[1]) {
+        pricing[type] = match[1].trim();
+      }
+    });
+    
+    // Also check for "Monthly Rates" or "rates range from" patterns
+    const rateMatch = fullContent.match(/rates?.{0,30}(?:range)?[^$]*?(\$[\d,]+(?: to |\s?-\s?)\$[\d,]+)/i);
+    if (rateMatch && !pricing.studio && !pricing.oneBedroom) {
+      // Use as general pricing if no specific unit pricing found
+      pricing.general = pricing.general || rateMatch[1];
+    }
+    
+    return pricing;
   }
 
   private extractWebsite(content: string): string | undefined {
