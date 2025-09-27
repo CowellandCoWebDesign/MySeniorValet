@@ -131,36 +131,36 @@ export function Footer() {
         <div className="border-t border-purple-500/30 pt-4 mb-4">
           <h3 className="text-sm font-semibold mb-3 text-white flex items-center gap-2">
             <Zap className="h-4 w-4 text-yellow-400" />
-            v2.1.2025 Technical Enhancements
+            v2.2.2025 Technical Enhancements
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
             <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
               <div className="flex items-center gap-2 mb-1">
                 <Globe className="h-3 w-3 text-blue-400" />
-                <span className="text-gray-300 font-medium">Global Discovery</span>
+                <span className="text-gray-300 font-medium">Perplexity Search API</span>
               </div>
-              <p className="text-gray-500">Worldwide search across all countries & business types</p>
+              <p className="text-gray-500">Real-time web scraping with Sonar model integration</p>
             </div>
             <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
               <div className="flex items-center gap-2 mb-1">
                 <Database className="h-3 w-3 text-green-400" />
-                <span className="text-gray-300 font-medium">Self-Healing Database</span>
+                <span className="text-gray-300 font-medium">Enhanced Photo Discovery</span>
               </div>
-              <p className="text-gray-500">Auto-enrichment learns from searches & fills gaps</p>
+              <p className="text-gray-500">Unrestricted web-wide photo search & smart filtering</p>
             </div>
             <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
               <div className="flex items-center gap-2 mb-1">
                 <Brain className="h-3 w-3 text-purple-400" />
-                <span className="text-gray-300 font-medium">Enhanced AI Parser</span>
+                <span className="text-gray-300 font-medium">Family Collaboration</span>
               </div>
-              <p className="text-gray-500">Improved extraction of real community data</p>
+              <p className="text-gray-500">Real-time family tools with live user data sync</p>
             </div>
             <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
               <div className="flex items-center gap-2 mb-1">
                 <MapPin className="h-3 w-3 text-red-400" />
-                <span className="text-gray-300 font-medium">Smart Location Detection</span>
+                <span className="text-gray-300 font-medium">3D Virtual Tours</span>
               </div>
-              <p className="text-gray-500">Recognizes cities globally without country codes</p>
+              <p className="text-gray-500">Integrated Matterport & 360° community walkthroughs</p>
             </div>
           </div>
         </div>
@@ -174,7 +174,7 @@ export function Footer() {
               <span className="hidden md:inline text-gray-600">•</span>
               <p className="text-gray-500">Data from AI-assisted web search across all online sources</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v2.1.2025</p>
+              <p className="text-gray-500">v2.2.2025</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
