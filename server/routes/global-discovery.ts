@@ -896,8 +896,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   name: discovered.name,
                   description: discovered.description || `Service discovered in ${discovered.city || query}`,
                   shortDescription: discovered.description ? discovered.description.substring(0, 200) : `Service in ${discovered.city || query}`,
-                  serviceType: 'service', // Using the enum value from schema
-                  deliveryMethod: ['in-person'], // Default to in-person
+                  serviceType: 'service' as const,  // Using the enum value from schema
+                  deliveryMethod: ['in-person'] as const,  // Default to in-person
                   externalUrl: discovered.website || null,
                   isActive: true,
                   isFeatured: false,
