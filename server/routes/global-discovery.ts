@@ -462,6 +462,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
       
       let discoveredCommunities = [];
+      let citations = []; // Initialize citations for both Search API and Sonar API paths
+      let aiResponse = ''; // Initialize for both paths
+      // searchQuery already declared earlier in the function
 
       // Helper function to detect country from query
       const detectCountry = (query: string): string => {
@@ -684,25 +687,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`🔍 Raw Perplexity Response:`, aiResponse.substring(0, 500));
       
       // Step 3: Parse the structured JSON response
-      let discoveredCommunities = [];
+      // discoveredCommunities already declared above
       
-      // Helper function to detect country from query
-      const detectCountry = (query: string): string => {
-        const lowerQuery = query.toLowerCase();
-        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
-        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
-        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
-        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
-        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
-        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
-        if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
-        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
-        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
-        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
-        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
-        return 'United States'; // Default
-      };
-      
+      // Use the detectCountry function already defined above
       const defaultCountry = detectCountry(query);
       
       try {
@@ -869,73 +856,94 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       }
       
+      } catch (sonarError) {
+        console.error('⚠️ Sonar API error:', sonarError);
+        // Continue with empty results if Sonar fails
+      }
+      } // End of Sonar API fallback block
+      
       // Step 4: Save discovered communities or services to database
       const savedCommunities = [];
       const savedServices = [];
       
       if (searchType === 'services') {
-        // Save discovered services to SERVICES table (not vendors!)
+        // Save discovered services to services table
+        console.log(`💾 Saving ${discoveredCommunities.length} discovered services to database`);
+        
         for (const discovered of discoveredCommunities) {
           try {
-            // Check if service already exists
+            // Check if service already exists in services table
             const existing = await db.select()
               .from(services)
               .where(
-                sql`LOWER(${services.name}) LIKE ${'%' + discovered.name.toLowerCase() + '%'}`
+                sql`LOWER(${services.name}) = ${discovered.name.toLowerCase()}`
               )
               .limit(1);
             
             if (existing.length === 0 && discovered.name) {
-              // VALIDATION: Check if business actually exists before saving
-              const isValidBusiness = await validateBusinessExists(discovered.name, discovered.city, discovered.state);
-              
-              if (!isValidBusiness) {
-                console.log(`⚠️ Skipping phantom business: ${discovered.name} (no web presence found)`);
-                continue;
-              }
-              
-              // Create a new service record in the SERVICES table
+              // Save new discovered service to database
               const [newService] = await db.insert(services)
                 .values({
                   name: discovered.name,
-                  description: discovered.description || `Discovered via search for "${query}"`,
-                  shortDescription: discovered.description ? discovered.description.substring(0, 500) : `Service in ${discovered.city || query}`,
-                  serviceType: 'service', // default to 'service' type
-                  deliveryMethod: ['in-person'], // default to in-person
-                  availability: {
-                    regions: discovered.state ? [discovered.state] : [],
-                  },
+                  description: discovered.description || `Service discovered in ${discovered.city || query}`,
+                  shortDescription: discovered.description ? discovered.description.substring(0, 200) : `Service in ${discovered.city || query}`,
+                  serviceType: 'service', // Using the enum value from schema
+                  deliveryMethod: ['in-person'], // Default to in-person
                   externalUrl: discovered.website || null,
                   isActive: true,
                   isFeatured: false,
                   sortOrder: 0,
                   metadata: {
-                    source: 'Perplexity Web Search',
-                    lastUpdated: new Date().toISOString(),
-                    tags: ['discovered', 'service', query],
-                    // Store additional discovery info as stringified JSON
-                    discoveryInfo: JSON.stringify({
-                      discoveryQuery: query,
-                      city: discovered.city,
-                      state: discovered.state,
-                      address: discovered.address || discovered.location,
-                      phone: discovered.phone,
-                      email: discovered.email,
-                      photoSources: discovered.photoSources || [], // Include photo sources for later photo discovery
-                    })
-                  } as any,
+                    source: 'Perplexity Search API Discovery',
+                    discoveryQuery: query,
+                    discoveryDate: new Date().toISOString(),
+                    confidence: discovered.confidence || 85,
+                    photoSources: discovered.photoSources || [],
+                    // Store location info in metadata
+                    location: {
+                      address: discovered.address || discovered.location || '',
+                      city: discovered.city || query.split(',')[0]?.trim() || '',
+                      state: discovered.state || query.split(',')[1]?.trim() || '',
+                      zipCode: discovered.zipCode || '',
+                      phone: discovered.phone || null,
+                      email: discovered.email || null
+                    }
+                  },
                   createdAt: new Date(),
-                  updatedAt: new Date(),
+                  updatedAt: new Date()
                 })
                 .returning();
               
-              console.log(`💾 Saved new discovered service to SERVICES table: ${discovered.name} (ID: ${newService.id})`);
               savedServices.push(newService);
+              console.log(`💾 Saved new service to database: ${discovered.name} (ID: ${newService.id})`);
+            } else if (existing.length > 0) {
+              // Use existing service
+              savedServices.push(existing[0]);
+              console.log(`✅ Found existing service: ${existing[0].name} (ID: ${existing[0].id})`);
             }
           } catch (saveError) {
             console.error(`⚠️ Error saving discovered service ${discovered.name}:`, saveError);
+            // Create a fallback object if save fails
+            const fallbackService = {
+              id: 0,
+              name: discovered.name,
+              serviceType: 'service',
+              description: discovered.description || '',
+              metadata: {
+                location: {
+                  city: discovered.city || '',
+                  state: discovered.state || '',
+                  phone: discovered.phone || null
+                }
+              },
+              externalUrl: discovered.website || null,
+              isDiscovered: true,
+              confidence: discovered.confidence || 85
+            };
+            savedServices.push(fallbackService as any);
           }
         }
+        console.log(`📊 Processed ${savedServices.length} services for display`);
       } else {
         // Save communities (existing logic)
         for (const discovered of discoveredCommunities) {
@@ -1196,68 +1204,6 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           : `Discovery Mode found ${allResults.length} communities via web search: ${existingInWebResults} already in our database, ${newlyDiscovered} newly discovered`
       });
       
-    } catch (error) {
-      console.error('❌ Global discovery search error:', error);
-      
-      // If it's a timeout error, return existing results or timeout indicator
-      if (error instanceof Error && error.name === 'AbortError') {
-        console.log('⏱️ Perplexity API timeout - checking for existing results');
-        const { query, searchType, limit } = req.body;
-        
-        // If we have existing communities, return them
-        if (existingCommunities.length > 0) {
-          res.json({
-            success: true,
-            query: query || '',
-            searchType: searchType || 'auto-detected',
-            results: existingCommunities.slice(0, limit || 30),
-            metadata: {
-              totalFound: existingCommunities.length,
-              existingCount: existingCommunities.length,
-              discoveredCount: 0,
-              sources: ['Database'],
-              searchLocation: query,
-              timestamp: new Date().toISOString(),
-              aiConfidence: 0,
-              timeout: true,
-              status: 'partial',
-              note: 'Discovery service timed out - showing existing communities only'
-            },
-            message: `Found ${existingCommunities.length} existing communities. Discovery service timed out while searching for new results.`
-          });
-        } else {
-          // No existing results - indicate timeout clearly
-          res.json({
-            success: true,
-            query: query || '',
-            searchType: searchType || 'auto-detected',
-            results: [],
-            metadata: {
-              totalFound: 0,
-              existingCount: 0,
-              discoveredCount: 0,
-              sources: [],
-              searchLocation: query,
-              timestamp: new Date().toISOString(),
-              aiConfidence: 0,
-              timeout: true,
-              status: 'timeout',
-              retryAfterMs: 30000,
-              note: 'Discovery service timed out before results could be retrieved'
-            },
-            message: `Discovery service timed out while searching for "${query}". This search is taking longer than expected. Please try again in a moment, or try searching for a specific city instead of a country.`
-          });
-        }
-        return;
-      } else {
-        res.status(500).json({ 
-          success: false,
-          error: 'Failed to perform global search',
-          message: error instanceof Error ? error.message : 'Unknown error'
-        });
-      }
-    }
-      } // Close the 'if (discoveredCommunities.length < 5)' block
     } catch (error) {
       console.error('❌ Global discovery search error:', error);
       
