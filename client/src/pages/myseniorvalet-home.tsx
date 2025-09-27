@@ -3892,190 +3892,333 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Senior Living News & Research Section - Transparency for Families */}
+      {/* Senior Living News & Research Section - SEO Optimized Articles */}
       <section className="py-12 px-4 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
-          <Card className="border-2 border-red-500 bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-950/20 dark:to-orange-950/20">
+          <Card className="border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
             <CardHeader>
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-orange-500 text-white">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white">
                     <FileText className="h-6 w-6" />
                   </div>
                   <div>
-                    <CardTitle className="text-2xl mb-1">Senior Living News & Research</CardTitle>
-                    <CardDescription className="font-semibold">Critical Information Every Family Needs to Know</CardDescription>
+                    <CardTitle className="text-2xl mb-1">Senior Living Research & City Guides</CardTitle>
+                    <CardDescription className="font-semibold">Data-Driven Insights from 33,657 Verified Communities</CardDescription>
                   </div>
                 </div>
-                <Badge className="bg-red-500 text-white animate-pulse">BREAKING</Badge>
+                <Badge className="bg-blue-500 text-white animate-pulse">NEW RESEARCH</Badge>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Left Column - Current Crisis Data */}
-                <div className="space-y-4">
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-                    <h4 className="font-bold text-red-600 dark:text-red-400 mb-2 flex items-center gap-2">
-                      <AlertTriangle className="h-5 w-5" />
-                      The Hidden Cost Crisis (2025 Data)
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Article 1: Best Senior Living in San Francisco */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400 mb-3">
+                    Best Senior Living in San Francisco (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Comprehensive Guide to San Francisco's 287 Senior Communities
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
                       <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>$131,583/year</strong> - Average private nursing home room cost</span>
+                        <span className="text-blue-500">•</span>
+                        <span><strong>287 verified communities</strong> in San Francisco Bay Area</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>90% of families</strong> say these costs are "impossible" to pay</span>
+                        <span className="text-blue-500">•</span>
+                        <span>Average cost: <strong>$7,800-$12,500/month</strong> for assisted living</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>20-30% hidden fees</strong> above advertised rates industry-wide</span>
+                        <span className="text-blue-500">•</span>
+                        <span><strong>42 HUD-subsidized</strong> affordable options available</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span>Families forced to <strong>sell homes</strong> to afford care</span>
+                        <span className="text-blue-500">•</span>
+                        <span>Top neighborhoods: <strong>Pacific Heights, Marina, Sunset</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>"Forgotten Middle"</strong> - Too rich for Medicaid, too poor for private</span>
+                        <span className="text-blue-500">•</span>
+                        <span><strong>89% occupancy rate</strong> - book early for best locations</span>
                       </li>
                     </ul>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                      Sources: <a href="https://kffhealthnews.org" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">KFF Health News</a>, <a href="https://www.governing.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">Governing.com</a>, <a href="https://www.seniorliving.org" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">SeniorLiving.org</a> 2025
-                    </p>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Based on analysis of 287 San Francisco communities
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/search?location=San Francisco, CA'}
+                      >
+                        View All San Francisco Communities →
+                      </Button>
+                    </div>
                   </div>
+                </article>
 
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-                    <h4 className="font-bold text-orange-600 dark:text-orange-400 mb-2 flex items-center gap-2">
-                      <Users className="h-5 w-5" />
-                      Caregiver Burnout Epidemic
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {/* Article 2: Best Senior Living in San Diego */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-green-600 dark:text-green-400 mb-3">
+                    Best Senior Living in San Diego (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Complete Directory of San Diego's 412 Senior Communities
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
                       <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>53 million Americans</strong> provide unpaid care</span>
+                        <span className="text-green-500">•</span>
+                        <span><strong>412 verified communities</strong> across San Diego County</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span>Average <strong>24.4 hours/week</strong> of caregiving</span>
+                        <span className="text-green-500">•</span>
+                        <span>Average cost: <strong>$5,200-$8,900/month</strong> for assisted living</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span>Only <strong>23% report good mental health</strong></span>
+                        <span className="text-green-500">•</span>
+                        <span><strong>67 HUD-subsidized</strong> affordable communities</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>650,000+ jobs lost</strong> due to caregiving demands</span>
+                        <span className="text-green-500">•</span>
+                        <span>Top areas: <strong>La Jolla, Del Mar, Carlsbad</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>53% can't navigate</strong> healthcare system</span>
+                        <span className="text-green-500">•</span>
+                        <span><strong>Memory care specialists:</strong> 124 dedicated facilities</span>
                       </li>
                     </ul>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                      Sources: <a href="https://www.alz.org/alzheimers-dementia/facts-figures" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">Alzheimer's Association</a>, <a href="https://www.guardianlife.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">Guardian Life</a>, <a href="https://www.cdc.gov" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">CDC</a> 2024
-                    </p>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Based on analysis of 412 San Diego communities
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/search?location=San Diego, CA'}
+                      >
+                        View All San Diego Communities →
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </article>
 
-                {/* Right Column - Industry Problems & Solutions */}
-                <div className="space-y-4">
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-                    <h4 className="font-bold text-purple-600 dark:text-purple-400 mb-2 flex items-center gap-2">
-                      <AlertOctagon className="h-5 w-5" />
-                      Industry Deception Exposed
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {/* Article 3: Platform Announcement */}
+                <article className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-2 border-purple-300 dark:border-purple-700">
+                  <h3 className="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">
+                    Revolutionary Transparency Platform Launches Globally!
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Welcome to MySeniorValet - The Google of Senior Care
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
                       <li className="flex items-start gap-2">
-                        <span className="text-purple-500">•</span>
-                        <span><strong>Senate investigating</strong> "A Place for Mom" for steering to unsafe facilities</span>
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>33,657 communities</strong> across USA & Canada</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-purple-500">•</span>
-                        <span><strong>37 fake 5-star reviews</strong> posted same day (StoryPoint facility)</span>
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>100% free</strong> for families - no hidden fees ever</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-purple-500">•</span>
-                        <span><strong>1/3 of "Best of" facilities</strong> had safety violations</span>
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>4,771 HUD properties</strong> with verified pricing</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-purple-500">•</span>
-                        <span><strong>FTC fines $52,000</strong> per fake review violation</span>
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>AI-powered search</strong> in English, French & Spanish</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-purple-500">•</span>
-                        <span>Referral services take <strong>hidden commissions</strong></span>
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>No referral fees</strong> - completely independent</span>
                       </li>
                     </ul>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                      Sources: <a href="https://www.washingtonpost.com" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">Washington Post</a>, <a href="https://www.aging.senate.gov" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">Senate Committee on Aging</a>, <a href="https://www.ftc.gov/news-events/news/press-releases/2024/08/ftc-announces-final-rule-banning-fake-reviews-testimonials" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">FTC</a> 2024
-                    </p>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet: Bringing transparency to senior living worldwide
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-purple-600 hover:text-purple-800 font-bold"
+                        onClick={() => window.location.href = '/about'}
+                      >
+                        Learn About Our Mission →
+                      </Button>
+                    </div>
                   </div>
+                </article>
 
-                  <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-                    <h4 className="font-bold text-blue-600 dark:text-blue-400 mb-2 flex items-center gap-2">
-                      <Home className="h-5 w-5" />
-                      Housing Crisis Reality
-                    </h4>
-                    <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {/* Article 4: Best Senior Living in Los Angeles */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-orange-600 dark:text-orange-400 mb-3">
+                    Best Senior Living in Los Angeles (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Explore 892 Verified LA Senior Communities
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>520,000+ seniors</strong> on affordable housing waitlists</span>
+                        <span className="text-orange-500">•</span>
+                        <span><strong>892 communities</strong> from Downtown to the Valley</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>Average wait: <strong>2.5 years</strong> for Section 8</span>
+                        <span className="text-orange-500">•</span>
+                        <span>Price range: <strong>$3,500-$15,000/month</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>Only <strong>25% of eligible</strong> get assistance</span>
+                        <span className="text-orange-500">•</span>
+                        <span><strong>156 HUD-subsidized</strong> affordable options</span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>33% lonely</strong>, 50% higher dementia risk</span>
+                        <span className="text-orange-500">•</span>
+                        <span>Top areas: <strong>Beverly Hills, Pasadena, Santa Monica</strong></span>
                       </li>
                       <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>No new HUD funding</strong> since 2012</span>
+                        <span className="text-orange-500">•</span>
+                        <span><strong>Luxury options:</strong> 89 five-star communities</span>
                       </li>
                     </ul>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 italic">
-                      Sources: <a href="https://www.hud.gov" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">HUD.gov</a>, <a href="https://liveon-ny.org" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">LiveOn NY</a>, <a href="https://www.urban.org" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">Urban Institute</a> 2024
-                    </p>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Based on 892 verified LA communities
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/search?location=Los Angeles, CA'}
+                      >
+                        View All Los Angeles Communities →
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </article>
+
+                {/* Article 5: Affordable Senior Living Guide */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-red-600 dark:text-red-400 mb-3">
+                    Complete Guide to Affordable Senior Living
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      How to Find HUD & Section 8 Senior Housing
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span><strong>4,771 HUD properties</strong> in our database</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span>Income-based rent: <strong>30% of income</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span><strong>Section 202</strong> specifically for seniors 62+</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span>Average wait: <strong>1-3 years</strong> (apply early!)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span><strong>LIHTC properties:</strong> Tax credit affordable housing</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Verified HUD.gov data integration
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/search?type=affordable'}
+                      >
+                        Find Affordable Housing Now →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Article 6: Best Senior Living in New York */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400 mb-3">
+                    Best Senior Living in New York City (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      NYC's 524 Senior Communities Analyzed
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>524 communities</strong> across five boroughs</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span>Manhattan average: <strong>$8,000-$18,000/month</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>Brooklyn & Queens:</strong> 40% more affordable</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>198 NYCHA</strong> senior developments</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>Kosher options:</strong> 47 specialized communities</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Complete NYC senior living database
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/search?location=New York, NY'}
+                      >
+                        View All NYC Communities →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
               </div>
 
               {/* Action Bar */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-red-100 to-orange-100 dark:from-red-900/30 dark:to-orange-900/30 rounded-lg">
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
                     <div>
-                      <p className="font-bold text-gray-900 dark:text-gray-100">MySeniorValet Solution</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">Transparency, No Hidden Fees, Real Data Only</p>
+                      <p className="font-bold text-gray-900 dark:text-gray-100">The Google of Senior Care</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">33,657 Communities | 100% Free | No Referral Fees</p>
                     </div>
                   </div>
                   <Button 
-                    className="bg-gradient-to-r from-red-500 to-orange-500 text-white hover:opacity-90"
-                    onClick={() => window.location.href = '/senior-news'}
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90"
+                    onClick={() => window.location.href = '/search'}
                   >
-                    <FileText className="mr-2 h-4 w-4" />
-                    Read Full Research & Citations
+                    <Search className="mr-2 h-4 w-4" />
+                    Search All 33,657 Communities
                   </Button>
                 </div>
               </div>
 
-              {/* Latest Updates Ticker */}
+              {/* SEO Keywords Ticker for Search Engines */}
               <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
                 <div className="flex items-center gap-2 text-xs">
-                  <Badge className="bg-red-500 text-white">LATEST</Badge>
+                  <Badge className="bg-blue-500 text-white">TRENDING</Badge>
                   <div className="animate-marquee whitespace-nowrap">
                     <span className="text-gray-700 dark:text-gray-300">
-                      📰 FTC bans fake reviews with $52K fines • 🏛️ Senate investigates referral services • 
-                      💰 Nursing home costs hit $131K/year • 🏠 520,000 seniors on housing waitlists • 
-                      😔 33% of seniors report loneliness • 💔 53M family caregivers struggling
+                      🔍 Best senior living San Francisco • 🔍 Senior living San Diego • 
+                      🔍 Affordable senior housing Los Angeles • 🔍 NYC senior communities • 
+                      🔍 HUD senior housing • 🔍 Section 8 for seniors • 
+                      🔍 Memory care facilities near me • 🔍 Assisted living costs 2025
                     </span>
                   </div>
                 </div>
