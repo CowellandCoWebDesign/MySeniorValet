@@ -1197,18 +1197,21 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Filter out articles/resources from display (but keep them in database)
       const displayResults = allResults.filter(result => {
-        // Check if it's a resource/article
-        if (result.isResource || result.resourceType !== 'direct_business') {
-          console.log(`🚫 Filtering out article from display: "${result.name}"`);
+        // Only filter out items explicitly marked as resources
+        if (result.isResource === true) {
+          console.log(`🚫 Filtering out resource from display: "${result.name}"`);
           return false;
         }
         
-        // Also filter based on name patterns for double safety
+        // Also filter based on obvious article name patterns
         const articlePatterns = [
-          /^(the\s+)?(\d+\s+)?(best|top)\s+/i,
-          /guide\s+(to|for)\s+/i,
-          /^\d+\s+of\s+/i,
-          /(2024|2025)\s+guide/i
+          /^(the\s+)?(\d+\s+)?(best|top)\s+.*\s+in\s+/i,  // "Best X in Y" articles
+          /^guide\s+(to|for)\s+/i,  // Guide articles
+          /^\d+\s+of\s+the\s+/i,  // "X of the..." lists
+          /(2024|2025)\s+guide/i,  // Year-based guides
+          /^how\s+to\s+/i,  // How-to articles
+          /^list\s+of\s+/i,  // "List of..." articles
+          /number\s+of\s+.*\s+businesses/i,  // Statistics articles
         ];
         
         const isArticle = articlePatterns.some(pattern => pattern.test(result.name));
