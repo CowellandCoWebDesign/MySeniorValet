@@ -66,29 +66,45 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Clean query for database search (remove parentheses which can cause injection warnings)
         const cleanedQuery = queryLower.replace(/[()]/g, ' ').trim();
         
-        // Handle plural/singular forms for common service searches
-        let searchTerms = [cleanedQuery];
+        // Parse location if query contains " in "
+        let serviceType = '';
+        let searchLocation = '';
         
-        // Check if the query contains these keywords and add both forms
-        if (cleanedQuery.includes('hotels') || cleanedQuery.includes('hotel')) {
+        if (cleanedQuery.includes(' in ')) {
+          const parts = cleanedQuery.split(' in ');
+          serviceType = parts[0].trim();
+          searchLocation = parts[1].trim();
+        } else {
+          serviceType = cleanedQuery;
+        }
+        
+        console.log(`🔍 Parsed service search - Type: "${serviceType}", Location: "${searchLocation}"`);
+        
+        // Handle plural/singular forms for common service searches
+        let searchTerms = [];
+        
+        // Check if the service type contains these keywords and add both forms
+        if (serviceType.includes('hotels') || serviceType.includes('hotel')) {
           searchTerms.push('hotel');
           searchTerms.push('hotels');
-        } else if (cleanedQuery.includes('restaurants') || cleanedQuery.includes('restaurant')) {
+        } else if (serviceType.includes('restaurants') || serviceType.includes('restaurant')) {
           searchTerms.push('restaurant');
           searchTerms.push('restaurants');
-        } else if (cleanedQuery.includes('pharmacies') || cleanedQuery.includes('pharmacy')) {
+        } else if (serviceType.includes('pharmacies') || serviceType.includes('pharmacy')) {
           searchTerms.push('pharmacy');
           searchTerms.push('pharmacies');
-        } else if (cleanedQuery.includes('stores') || cleanedQuery.includes('store')) {
+        } else if (serviceType.includes('stores') || serviceType.includes('store')) {
           searchTerms.push('store');
           searchTerms.push('stores');
+        } else {
+          searchTerms.push(serviceType);
         }
         
         // Remove duplicates
         searchTerms = [...new Set(searchTerms)];
         
-        // Build search conditions for all terms
-        const searchConditions = searchTerms.map(term => 
+        // Build search conditions for service type
+        const typeConditions = searchTerms.map(term => 
           or(
             sql`LOWER(${services.name}) LIKE ${'%' + term + '%'}`,
             sql`LOWER(${services.description}) LIKE ${'%' + term + '%'}`,
@@ -96,10 +112,26 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           )
         );
         
+        // Build location conditions if location specified
+        const locationConditions = [];
+        if (searchLocation) {
+          locationConditions.push(
+            or(
+              sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`,
+              sql`LOWER(CAST(${services.availability} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`
+            )
+          );
+        }
+        
+        // Combine conditions
+        const allConditions = searchLocation 
+          ? [or(...typeConditions), ...locationConditions]
+          : [or(...typeConditions)];
+        
         // Search the SERVICES table for discovered businesses
         const serviceResults = await db.select()
           .from(services)
-          .where(or(...searchConditions))
+          .where(allConditions.length > 0 ? and(...allConditions) : sql`true`)
           .limit(50);
         
         console.log(`💾 Found ${serviceResults.length} existing services in database for "${query}"`);
