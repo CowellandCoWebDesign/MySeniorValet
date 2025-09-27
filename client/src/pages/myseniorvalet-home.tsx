@@ -4004,47 +4004,48 @@ export default function MySeniorValetHome() {
                   </div>
                 </article>
 
-                {/* Article 3: Platform Announcement */}
+                {/* Article 3: Platform Announcement - FEATURED */}
                 <article className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-2 border-purple-300 dark:border-purple-700">
+                  <Badge className="mb-2 bg-purple-600 text-white">FEATURED</Badge>
                   <h3 className="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">
-                    Revolutionary Transparency Platform Launches Globally!
+                    Complete Senior Living Platform: Search to Support
                   </h3>
                   <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                     <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Welcome to MySeniorValet - The Google of Senior Care
+                      The Google of Senior Care - ALL Levels, WORLDWIDE Coverage
                     </p>
                     <ul className="space-y-1.5 mt-3">
                       <li className="flex items-start gap-2">
                         <span className="text-purple-500">⭐</span>
-                        <span><strong>33,657 communities</strong> across USA & Canada</span>
+                        <span><strong>ALL 9 Care Levels</strong> from Independent to Hospice</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-purple-500">⭐</span>
-                        <span><strong>100% free</strong> for families - no hidden fees ever</span>
+                        <span><strong>Complete Journey</strong> - Search to Move-in to Support</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-purple-500">⭐</span>
-                        <span><strong>4,771 HUD properties</strong> with verified pricing</span>
+                        <span><strong>Healthcare Network</strong> - 6,800+ providers</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-purple-500">⭐</span>
-                        <span><strong>AI-powered search</strong> in English, French & Spanish</span>
+                        <span><strong>Resident Portals</strong> & ongoing support tools</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="text-purple-500">⭐</span>
-                        <span><strong>No referral fees</strong> - completely independent</span>
+                        <span><strong>100% Free</strong> - No referral fees ever</span>
                       </li>
                     </ul>
                     <div className="mt-4 pt-3 border-t">
                       <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet: Bringing transparency to senior living worldwide
+                        MySeniorValet: Complete platform from search to settled
                       </p>
                       <Button 
                         variant="link" 
                         className="p-0 h-auto text-xs text-purple-600 hover:text-purple-800 font-bold"
-                        onClick={() => window.location.href = '/about'}
+                        onClick={() => window.location.href = '/senior-living-worldwide'}
                       >
-                        Learn About Our Mission →
+                        Read Complete Platform Overview →
                       </Button>
                     </div>
                   </div>
