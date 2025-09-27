@@ -349,8 +349,8 @@ export function NavigationHeader({
                     size="icon"
                     className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-500 dark:to-purple-600 flex items-center justify-center shadow-md">
+                      <span className="text-white font-semibold text-sm drop-shadow-md">
                         {user?.firstName?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
