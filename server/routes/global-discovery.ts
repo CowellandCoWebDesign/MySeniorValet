@@ -441,7 +441,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         return res.status(500).json({ error: 'Search service not configured for Discovery Mode' });
       }
       
-      console.log(`🔍 Discovery Mode ACTIVE: Using NEW Search API for cost-effective discovery in ${query}, then comparing to database`);
+      console.log(`🔍 Discovery Mode ACTIVE: Using Sonar API for comprehensive discovery in ${query}, then comparing to database`);
       
       // Construct an intelligent search query for Perplexity - optimized for international searches
       let searchQuery = '';
@@ -500,79 +500,14 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         return 'United States'; // Default
       };
 
-      // Step 1: For services, skip Search API completely and go to Sonar
-      // Search API returns generic results, not actual business listings
-      if (searchType === 'services') {
-        console.log(`🔍 Skipping Search API for service discovery - going straight to Sonar API for real business listings`);
-        discoveredCommunities = []; // Empty to trigger Sonar fallback
-        
-      } else {
-        // Try Search API only for senior communities (might work better)
-        try {
-          console.log(`🔍 Step 1: Using NEW Search API for senior community discovery...`);
-          
-          const location = query;
-          const searchResults = await perplexitySearchAPI.searchSeniorCommunities(location, '', {
-            max_results: 15,
-            max_tokens_per_page: 512
-          });
-          
-          // Extract community data from search results
-          const communities = perplexitySearchAPI.extractBusinessData(searchResults.results, 'senior_community');
-          
-          console.log(`✅ Search API found ${communities.length} senior communities from ${searchResults.results.length} search results`);
-          
-          // Convert to discovery format
-          discoveredCommunities = communities
-            .filter(community => !community.isResource) // FILTER OUT ARTICLES/GUIDES
-            .map(community => ({
-              name: community.name,
-              website: community.website || '',
-              description: community.description || `Senior living community in ${location}`,
-              phone: community.phone || '',  // Include extracted phone
-              address: community.address || '',  // Include extracted address
-              city: location.split(',')[0]?.trim() || '',
-              state: location.split(',')[1]?.trim() || '',
-              country: detectCountry(query),
-              source: 'Search API',
-              confidence: community.confidence,
-              isDiscovered: true,
-              careTypes: ['Senior Living']
-            }));
-            
-          // VALIDATE SEARCH API RESULTS - Check if we got real businesses
-          const realBusinesses = discoveredCommunities.filter(c => {
-            // Reject generic results that aren't actual businesses
-            const genericPatterns = [
-              /^list\s+of\s+/i,
-              /^find\s+/i,
-              /number\s+of\s+.*\s+businesses/i,
-              /^food\s+&?\s*drink$/i,
-              /^these\s+/i,
-              /the\s+secret\s+to/i
-            ];
-            
-            return !genericPatterns.some(pattern => pattern.test(c.name));
-          });
-          
-          // Only accept Search API results if we have at least 3 real businesses
-          if (realBusinesses.length >= 3) {
-            console.log(`✅ Search API success: Found ${realBusinesses.length} real businesses, using them`);
-            discoveredCommunities = realBusinesses;
-          } else {
-            console.log(`⚠️ Search API returned mostly generic results (${realBusinesses.length} real businesses out of ${discoveredCommunities.length}), falling back to Sonar API`);
-            discoveredCommunities = []; // Clear for fallback
-          }
-          
-        } catch (searchApiError) {
-          console.error('⚠️ Search API failed, falling back to Sonar API:', searchApiError);
-          discoveredCommunities = []; // Clear for fallback
-        }
-      }
-
-      // Step 2: FALLBACK TO SONAR API if Search API didn't find enough results
-      if (discoveredCommunities.length < 5) {
-        console.log(`🔍 Step 2: Using Sonar API for comprehensive discovery (fallback)...`);
+      // ALWAYS USE SONAR API FOR DISCOVERY MODE - Per user request, we only use Sonar for discovery searches
+      // Skip Search API completely as it returns articles and generic content
+      console.log(`🔍 Discovery Mode: Using ONLY Sonar API for discovery searches (not Search API)`);
+      discoveredCommunities = []; // Initialize empty to trigger Sonar search below
+      
+      // Always use Sonar API for discovery
+      if (true) {
+        console.log(`🔍 Using Sonar API for comprehensive discovery...`);
         
         try {
 
