@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, Bell, Menu, Settings, Shield, Eye, Volume2, Move, Type, Phone, Accessibility, Contrast, ZoomIn, User, LogOut, LogIn } from "lucide-react";
+// Neon logo import
 import neonHeartHomeLogo from '@assets/generated_images/Neon_heart_home_combo_902daa25.png';
 import { Link, useLocation } from "wouter";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -302,13 +303,8 @@ export function NavigationHeader({
             )}
             
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center p-1">
-                <img 
-                  src={neonHeartHomeLogo} 
-                  alt="MySeniorValet" 
-                  className="w-10 h-10 md:w-12 md:h-12 object-contain" 
-                  style={{ filter: 'drop-shadow(0 0 15px rgba(236,72,153,0.7))' }}
-                />
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center p-2">
+                <span className="text-2xl">🏡</span>
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
