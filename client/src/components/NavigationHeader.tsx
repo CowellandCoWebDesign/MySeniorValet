@@ -306,7 +306,8 @@ export function NavigationHeader({
                 <img 
                   src={abstractLogo} 
                   alt="MySeniorValet" 
-                  className="w-full h-full object-contain" 
+                  className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-screen" 
+                  style={{ filter: 'brightness(0) invert(1)' }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const sibling = e.currentTarget.nextElementSibling as HTMLElement;

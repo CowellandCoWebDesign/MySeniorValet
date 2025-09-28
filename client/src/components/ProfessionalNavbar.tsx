@@ -212,7 +212,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                       <img 
                         src={abstractLogo} 
                         alt="MySeniorValet" 
-                        className="w-6 h-6 object-contain" 
+                        className="w-6 h-6 object-contain mix-blend-multiply dark:mix-blend-screen" 
+                        style={{ filter: 'brightness(0) invert(1)' }}
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           const sibling = e.currentTarget.nextElementSibling as HTMLElement;
@@ -295,7 +296,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <img 
                   src={abstractLogo} 
                   alt="MySeniorValet" 
-                  className="w-6 h-6 object-contain" 
+                  className="w-6 h-6 object-contain mix-blend-multiply dark:mix-blend-screen" 
+                  style={{ filter: 'brightness(0) invert(1)' }}
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const sibling = e.currentTarget.nextElementSibling as HTMLElement;
