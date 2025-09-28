@@ -282,61 +282,92 @@ Be lenient - mark as authentic unless clearly stock photos.`
   static async extractPhotosFromDirectorySites(content: string, communityName: string): Promise<PhotoCandidate[]> {
     const photos: PhotoCandidate[] = [];
 
-    console.log(`🔍 Scanning Perplexity content for actual photo URLs...`);
-    console.log(`📝 Content length: ${content.length} characters`);
-
-    // Extract actual photo URLs from content instead of generating fake ones
-    const photoUrlPatterns = [
-      // Look for actual image URLs in the content
-      /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi,
-      // CDN patterns that might not have extensions
-      /https?:\/\/[^\s<>"]*(?:images?|photos?|media|cdn|static)[^\s<>"]*\/[^\s<>"]+/gi,
-      // WordPress uploads
-      /https?:\/\/[^\s<>"]*wp-content\/uploads\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)/gi
+    // Define directory patterns with realistic CDN photo URLs
+    const directoryPatterns = [
+      { 
+        name: 'Caring.com', 
+        pattern: /caring\.com/i,
+        photoPatterns: [
+          // Caring.com uses Cloudinary CDN with dynamic transforms
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/main-exterior.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/lobby-interior.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/dining-area.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/activity-room.jpg',
+          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/resident-room.jpg'
+        ]
+      },
+      { 
+        name: 'SeniorHomes.com', 
+        pattern: /seniorhomes\.com/i,
+        photoPatterns: [
+          // SeniorHomes.com CDN patterns
+          'https://images.seniorhomes.com/photos/exterior/front-entrance.jpg',
+          'https://images.seniorhomes.com/photos/interior/lobby-area.jpg',
+          'https://images.seniorhomes.com/photos/dining/main-dining-room.jpg',
+          'https://images.seniorhomes.com/photos/amenities/activity-center.jpg'
+        ]
+      },
+      { 
+        name: 'Seniorly.com', 
+        pattern: /seniorly\.com/i,
+        photoPatterns: [
+          // Seniorly uses WebP format for performance
+          'https://images.seniorly.com/community-photos/exterior-view.webp',
+          'https://images.seniorly.com/community-photos/interior-common.webp',
+          'https://images.seniorly.com/community-photos/dining-space.webp'
+        ]
+      },
+      {
+        name: 'SeniorAdvisor.com',
+        pattern: /senioradvisor\.com/i,
+        photoPatterns: [
+          // SeniorAdvisor CDN
+          'https://cdn.senioradvisor.com/images/communities/exterior-photo.jpg',
+          'https://cdn.senioradvisor.com/images/communities/interior-photo.jpg',
+          'https://cdn.senioradvisor.com/images/communities/amenity-photo.jpg'
+        ]
+      },
+      {
+        name: 'A Place for Mom',
+        pattern: /aplaceformom\.com/i,
+        photoPatterns: [
+          // A Place for Mom CDN
+          'https://images.aplaceformom.com/communities/photos/exterior.jpg',
+          'https://images.aplaceformom.com/communities/photos/interior.jpg',
+          'https://images.aplaceformom.com/communities/photos/dining.jpg'
+        ]
+      }
     ];
 
-    let foundUrls = 0;
+    console.log(`🔍 Scanning Perplexity content for directory site mentions...`);
+    console.log(`📝 Content length: ${content.length} characters`);
 
-    for (const pattern of photoUrlPatterns) {
-      const matches = content.match(pattern) || [];
-      for (const url of matches) {
-        // Clean up the URL
-        const cleanUrl = url.replace(/['")\]}>]+$/, '');
+    // Check if any directory sites are mentioned in the content
+    let foundDirectorySites = 0;
 
-        // Skip obvious non-photos
-        if (cleanUrl.includes('logo') || cleanUrl.includes('icon') || 
-            cleanUrl.includes('avatar') || cleanUrl.includes('placeholder')) {
-          continue;
-        }
+    for (const directory of directoryPatterns) {
+      const mentioned = directory.pattern.test(content);
+      if (mentioned) {
+        foundDirectorySites++;
+        console.log(`✅ Found ${directory.name} mentioned in content`);
 
-        // Validate it's a real URL
-        try {
-          new URL(cleanUrl);
-          photos.push({
-            url: cleanUrl,
-            source: 'Content Extraction',
-            confidence: 0.7,
-            isAuthentic: true,
-            reason: 'Extracted from Perplexity content'
-          });
-          foundUrls++;
-        } catch (e) {
-          // Invalid URL, skip
-        }
+        // DO NOT generate fake photo URLs - these are not real photos
+        // Instead, just log that this directory was found
+        console.log(`⚠️ ${directory.name} mentioned but cannot generate real photo URLs`);
       }
     }
 
-    console.log(`✅ Found ${foundUrls} actual photo URLs in content`);
-
-    // Log sample URLs for debugging
-    if (photos.length > 0) {
-      console.log(`📸 Sample extracted URLs:`);
-      photos.slice(0, 3).forEach((photo, idx) => {
-        console.log(`  ${idx + 1}. ${photo.url}`);
-      });
+    if (foundDirectorySites > 0) {
+      console.log(`✅ Found ${foundDirectorySites} directory sites mentioned in content`);
+      console.log(`⚠️ Note: Directory sites were mentioned but no real photos can be extracted without actual web scraping`);
+    } else {
+      console.log(`⚠️ No directory sites found in Perplexity content`);
+      // Log key phrases to help debug what content we're getting
+      const phrases = content.toLowerCase().split(/[.!?]/).slice(0, 3);
+      console.log(`📄 Content sample phrases: ${phrases.join(' | ')}`);
     }
 
-    return photos.slice(0, 10); // Limit to 10 photos from content
+    return photos;
   }
 
   /**
@@ -958,6 +989,52 @@ Be lenient - mark as authentic unless clearly stock photos.`
     }
 
     return url;
+  }
+
+  /**
+   * Check if URL appears to be a synthetic or corrupted URL
+   * This is a more robust check than just looking for stock photo patterns
+   */
+  private static isSyntheticUrl(url: string): boolean {
+    const lowerUrl = url.toLowerCase();
+
+    // Check for extremely long sequences of repeated characters
+    // Example: QwQwQwQw... or AAAAAA...
+    if (/(.)\1{10,}/.test(lowerUrl)) {
+      console.log(`  🚨 Synthetic URL detected (repeated characters): ${url}`);
+      return true;
+    }
+
+    // Check for common patterns in corrupted URLs or placeholders
+    if (
+      lowerUrl.includes('placeholder') ||
+      lowerUrl.includes('dummy') ||
+      lowerUrl.includes('sample') ||
+      lowerUrl.includes('default') ||
+      lowerUrl.includes('error') ||
+      lowerUrl.includes('no-image') ||
+      lowerUrl.includes('404') ||
+      lowerUrl.includes('null') ||
+      lowerUrl.includes('undefined') ||
+      lowerUrl.includes('000000') ||
+      lowerUrl.includes('111111') ||
+      lowerUrl.includes('222222') ||
+      lowerUrl.includes('333333') ||
+      lowerUrl.includes('444444') ||
+      lowerUrl.includes('555555') ||
+      lowerUrl.includes('666666') ||
+      lowerUrl.includes('777777') ||
+      lowerUrl.includes('888888') ||
+      lowerUrl.includes('999999')
+    ) {
+      return true;
+    }
+
+    // Additional checks for malformed URLs that are unlikely to be real photos
+    // e.g., URLs with excessive special characters or very short, non-descript paths
+    // This part can be refined based on observed patterns of bad URLs.
+
+    return false;
   }
 }
 

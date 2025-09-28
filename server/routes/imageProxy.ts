@@ -6,143 +6,147 @@ const router = Router();
 // Image proxy endpoint to bypass CORS restrictions
 router.get('/api/image-proxy', async (req, res) => {
   try {
-    let imageUrl = req.query.url as string;
+    const imageUrl = req.query.url as string;
 
     if (!imageUrl) {
-      return res.status(400).json({ error: 'URL parameter required' });
+      return res.status(400).json({ error: 'URL parameter is required' });
     }
 
-    // Decode URL if it's encoded
-    try {
-      imageUrl = decodeURIComponent(imageUrl);
-    } catch (e) {
-      // If decoding fails, use original URL
-    }
+    // Decode the URL in case it's double-encoded
+    let decodedUrl = decodeURIComponent(imageUrl);
 
-    console.log(`🖼️ Proxying image: ${imageUrl}`);
-
-    // Skip validation for known photo CDNs - they may not have standard extensions
-    const trustedDomains = [
-      'westpace.net',
-      'wp-content',
-      'tripadvisor.com',
-      'yelpcdn.com',
-      'googleusercontent.com',
-      'bstatic.com',
-      'trvl-media.com',
-      'otstatic.com',
-      'fbcdn.net',
-      'cdninstagram.com',
-      'cloudinary.com',
-      'amazonaws.com'
-    ];
-
-    const isTrustedDomain = trustedDomains.some(domain => imageUrl.toLowerCase().includes(domain));
-
-    // For non-trusted domains, do basic validation
-    if (!isTrustedDomain) {
-      const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?|$)/i.test(imageUrl);
-      const hasImageKeyword = /image|photo|pic|img/i.test(imageUrl);
-
-      if (!hasImageExtension && !hasImageKeyword) {
-        console.log('⚠️ Skipping non-image URL:', imageUrl);
-        return res.status(400).json({ error: 'URL does not appear to be an image' });
-      }
-    }
-
-    // Set up AbortController for timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-
-    try {
-      // Fetch the image from the external source
-      const response = await fetch(imageUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-          'Accept': 'image/webp,image/apng/image/svg+xml,image/*,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.9',
-          'Cache-Control': 'no-cache',
-          'Referer': imageUrl.includes('westpace.net') ? 'https://www.westpace.net/' : undefined
-        },
-        signal: controller.signal,
-        redirect: 'follow'
-      });
-
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        console.error(`❌ Failed to fetch image: ${response.status} ${response.statusText} for URL: ${imageUrl}`);
-
-        // For 404s, return a placeholder
-        if (response.status === 404) {
-          const placeholder = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
-          res.set('Content-Type', 'image/gif');
-          return res.send(placeholder);
-        }
-
-        return res.status(response.status).json({ 
-          error: `Failed to fetch image: ${response.status} ${response.statusText}` 
-        });
-      }
-
-      // Get content type from response
-      const contentType = response.headers.get('content-type') || 'image/jpeg';
-
-      // Validate content type is actually an image
-      if (!contentType.startsWith('image/') && !contentType.includes('image')) {
-        console.error(`❌ Invalid content type: ${contentType} for URL: ${imageUrl}`);
-        return res.status(400).json({ error: 'Response is not an image' });
-      }
-
-      // Set cache headers for performance (cache for 1 day)
+    // Filter out obviously corrupted URLs before processing
+    if (decodedUrl.includes('QwQwQwQw') || 
+        decodedUrl.includes('kQz8kQz8') ||
+        decodedUrl.length > 2000) {
+      console.log(`❌ Corrupted/synthetic URL detected: ${decodedUrl.substring(0, 100)}...`);
+      // Return transparent pixel for corrupted URLs
+      const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
       res.set({
-        'Content-Type': contentType,
-        'Cache-Control': 'public, max-age=86400', // 1 day cache
-        'X-Proxied-From': new URL(imageUrl).hostname,
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=300',
         'Access-Control-Allow-Origin': '*'
       });
-
-      // Stream the image directly to the response
-      const arrayBuffer = await response.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      // Basic validation - check if buffer looks like an image
-      if (buffer.length < 100) {
-        console.error(`❌ Image too small: ${buffer.length} bytes for URL: ${imageUrl}`);
-        const placeholder = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
-        res.set('Content-Type', 'image/gif');
-        return res.send(placeholder);
-      }
-
-      res.send(buffer);
-      console.log(`✅ Successfully proxied image from ${new URL(imageUrl).hostname} (${buffer.length} bytes)`);
-
-    } catch (fetchError) {
-      clearTimeout(timeoutId);
-
-      if (fetchError.name === 'AbortError') {
-        console.error(`⏰ Image fetch timeout for URL: ${imageUrl}`);
-        return res.status(408).json({ error: 'Image fetch timeout' });
-      }
-
-      console.error(`❌ Image fetch error for URL: ${imageUrl}:`, fetchError.message);
-
-      // Return a transparent placeholder
-      const placeholder = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
-      res.set('Content-Type', 'image/gif');
-      res.send(placeholder);
+      return res.send(transparentPixel);
     }
 
-  } catch (error) {
-    console.error('Image proxy general error:', error);
+    // Basic URL validation
+    let validUrl: URL;
+    try {
+      validUrl = new URL(decodedUrl);
+    } catch (error) {
+      console.log(`❌ Invalid URL format: ${decodedUrl.substring(0, 100)}`);
+      return res.status(400).json({ error: 'Invalid URL format' });
+    }
 
-    // Return a transparent 1x1 pixel as fallback
-    const placeholder = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+    // Security checks - block internal/private IPs
+    const hostname = validUrl.hostname.toLowerCase();
+    if (hostname === 'localhost' || 
+        hostname === '127.0.0.1' || 
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.')) {
+      return res.status(403).json({ error: 'Access to internal URLs not allowed' });
+    }
+
+    console.log(`🔍 Attempting to proxy image from: ${decodedUrl}`);
+
+    // Fetch the image with retry mechanism
+    let response;
+    let attempts = 0;
+    const maxAttempts = 2;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per attempt
+
+      try {
+        response = await fetch(decodedUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Cache-Control': 'no-cache',
+            'Sec-Fetch-Dest': 'image',
+            'Sec-Fetch-Mode': 'no-cors',
+            'Sec-Fetch-Site': 'cross-site',
+            'Referer': validUrl.origin
+          },
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          break; // Success, exit retry loop
+        } else if (attempts === maxAttempts) {
+          console.log(`❌ Image proxy failed after ${maxAttempts} attempts for ${decodedUrl}: ${response.status} ${response.statusText}`);
+        }
+      } catch (fetchError: any) {
+        clearTimeout(timeoutId);
+        if (attempts === maxAttempts) {
+          console.log(`❌ Image proxy fetch error after ${maxAttempts} attempts for ${decodedUrl}: ${fetchError.message}`);
+          throw fetchError;
+        }
+        // Wait a bit before retry
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+
+    if (!response.ok) {
+      console.log(`❌ Image proxy failed for ${decodedUrl}: ${response.status} ${response.statusText}`);
+
+      // Return a transparent 1x1 pixel PNG for failed images
+      const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+      res.set({
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=300', // Cache failed attempts for 5 minutes
+        'Access-Control-Allow-Origin': '*'
+      });
+      return res.send(transparentPixel);
+    }
+
+    // Get content type
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+
+    // If it's not an image, return transparent pixel
+    if (!contentType.startsWith('image/')) {
+      console.log(`⚠️ Non-image content type: ${contentType} for ${decodedUrl}`);
+      const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+      res.set({
+        'Content-Type': 'image/png',
+        'Cache-Control': 'public, max-age=300',
+        'Access-Control-Allow-Origin': '*'
+      });
+      return res.send(transparentPixel);
+    }
+
+    // Stream the image
     res.set({
-      'Content-Type': 'image/gif',
-      'Cache-Control': 'no-cache'
+      'Content-Type': contentType,
+      'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+      'Access-Control-Allow-Origin': '*',
+      'Cross-Origin-Resource-Policy': 'cross-origin'
     });
-    res.send(placeholder);
+
+    // Get the image buffer and send it
+    const imageBuffer = await response.arrayBuffer();
+    res.send(Buffer.from(imageBuffer));
+
+    console.log(`✅ Successfully proxied image from ${validUrl.hostname}`);
+
+  } catch (error: any) {
+    console.error(`❌ Image proxy error for ${imageUrl}:`, error.message);
+
+    // Return transparent pixel for any error
+    const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+    res.set({
+      'Content-Type': 'image/png',
+      'Cache-Control': 'public, max-age=300',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.send(transparentPixel);
   }
 });
 
