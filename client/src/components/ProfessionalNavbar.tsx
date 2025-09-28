@@ -212,17 +212,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                       <img 
                         src={neonHeartHomeLogo} 
                         alt="MySeniorValet" 
-                        className="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(236,72,153,0.7)]" 
-                        onError={(e) => {
-                          const img = e.currentTarget;
-                          const fallback = img.nextElementSibling;
-                          if (img && fallback) {
-                            img.style.display = 'none';
-                            (fallback as HTMLElement).style.display = 'block';
-                          }
-                        }}
+                        className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+                        style={{ filter: 'drop-shadow(0 0 15px rgba(236,72,153,0.7))' }}
                       />
-                      <span className="text-xl hidden">🏡</span>
                     </div>
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
@@ -298,17 +290,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <img 
                   src={neonHeartHomeLogo} 
                   alt="MySeniorValet" 
-                  className="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(236,72,153,0.7)]" 
-                  onError={(e) => {
-                    const img = e.currentTarget;
-                    const fallback = img.nextElementSibling;
-                    if (img && fallback) {
-                      img.style.display = 'none';
-                      (fallback as HTMLElement).style.display = 'block';
-                    }
-                  }}
+                  className="w-8 h-8 md:w-10 md:h-10 object-contain" 
+                  style={{ filter: 'drop-shadow(0 0 15px rgba(236,72,153,0.7))' }}
                 />
-                <span className="text-xl hidden">🏡</span>
               </div>
               <div className="hidden sm:flex flex-col">
                 <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
