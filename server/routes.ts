@@ -375,7 +375,7 @@ Provide complete business data with ALL actual image URLs found.`;
             );
 
             const scrapedData = {
-              photos: photoResult?.authenticPhotos?.map(p => p.url || p) || []
+              photos: photoResult?.authenticPhotos?.map(p => typeof p === 'string' ? p : p.url || p) || []
             };
             triedWebsiteScraping = true;
 
@@ -575,7 +575,7 @@ Provide complete business data with ALL actual image URLs found.`;
             );
             
             const scrapedData = {
-              photos: photoResult?.authenticPhotos?.map(p => p.url || p) || []
+              photos: photoResult?.authenticPhotos?.map(p => typeof p === 'string' ? p : p.url || p) || []
             };
 
             if (scrapedData.photos && scrapedData.photos.length > 0) {
@@ -699,7 +699,7 @@ Provide complete business data with ALL actual image URLs found.`;
               );
               
               const scrapedData = {
-                photos: photoResult?.authenticPhotos?.map(p => p.url || p) || []
+                photos: photoResult?.authenticPhotos?.map(p => typeof p === 'string' ? p : p.url || p) || []
               };
 
               if (scrapedData.photos && scrapedData.photos.length > 0) {
