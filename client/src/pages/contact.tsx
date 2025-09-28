@@ -21,6 +21,16 @@ import handsLogo from '@assets/generated_images/Hands_cradling_home_logo_dc3127a
 import monogramLogo from '@assets/generated_images/MV_monogram_logo_9bfb3e97.png';
 import infinityLogo from '@assets/generated_images/Infinity_home_logo_f2e641ce.png';
 
+// New Logo Options with Various Colors - All Transparent
+import blackSuitValetLogo from '@assets/generated_images/Black_suit_valet_logo_c4dc92b7.png';
+import greenGoldHouseLogo from '@assets/generated_images/Green_gold_house_logo_eb64012b.png';
+import tuxedoValetLogo from '@assets/generated_images/Tuxedo_valet_logo_94613189.png';
+import orangeHandsLogo from '@assets/generated_images/Orange_coral_hands_logo_a8306d6f.png';
+import goldBellLogo from '@assets/generated_images/Gold_service_bell_logo_d70cd935.png';
+import navyShieldLogo from '@assets/generated_images/Navy_silver_shield_logo_92b709cd.png';
+import burgundyCompassLogo from '@assets/generated_images/Burgundy_compass_logo_41080728.png';
+import bronzeKeyLogo from '@assets/generated_images/Bronze_key_logo_84e57c60.png';
+
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
@@ -151,11 +161,19 @@ export default function Contact() {
 
   const brandImages = [
     // Logo Concepts - All With Transparent Backgrounds
-    { src: houseLogo, title: 'House with Heart Logo', description: 'Elegant home silhouette with heart integrated into roofline - warm and welcoming design' },
-    { src: valetLogo, title: 'Valet Butler Icon Logo', description: 'Professional gentleman valet figure - represents premium concierge service' },
-    { src: handsLogo, title: 'Hands Cradling Home Logo', description: 'Protective hands embracing a home - symbolizes care and security' },
-    { src: monogramLogo, title: 'MV Monogram Logo', description: 'Interlocking M and V letters in flowing design - modern brand identity' },
-    { src: infinityLogo, title: 'Infinity Home Logo', description: 'Continuous loop forming both infinity and house - endless care concept' },
+    { src: blackSuitValetLogo, title: '⭐ Black Suit Valet with Red Tie', description: 'Distinguished butler in black suit, red tie, gold lapel pin - premium service aesthetic' },
+    { src: tuxedoValetLogo, title: '⭐ Tuxedo Valet with Gold Details', description: 'Sophisticated butler in black tuxedo, red bow tie, gold pocket square - luxury concierge' },
+    { src: greenGoldHouseLogo, title: 'Green & Gold House', description: 'Modern home in emerald green and gold - fresh, premium real estate branding' },
+    { src: orangeHandsLogo, title: 'Orange Coral Hands', description: 'Warm hands forming heart in orange/coral gradient - caring and supportive' },
+    { src: goldBellLogo, title: 'Gold Service Bell', description: 'Classic hotel service bell in polished gold - luxury hospitality symbol' },
+    { src: navyShieldLogo, title: 'Navy & Silver Shield', description: 'Heraldic shield in navy blue and silver - trust and protection theme' },
+    { src: burgundyCompassLogo, title: 'Burgundy Compass', description: 'Navigation compass in burgundy red and gold - guidance through senior care journey' },
+    { src: bronzeKeyLogo, title: 'Bronze Key to Care', description: 'Ornate vintage key in antique bronze - unlocking senior care solutions' },
+    { src: houseLogo, title: 'Purple/Blue House with Heart', description: 'Elegant home silhouette with heart integrated into roofline - warm and welcoming design' },
+    { src: valetLogo, title: 'Purple/Blue Valet Butler', description: 'Professional gentleman valet figure - represents premium concierge service' },
+    { src: handsLogo, title: 'Purple/Blue Hands Cradling Home', description: 'Protective hands embracing a home - symbolizes care and security' },
+    { src: monogramLogo, title: 'Purple/Blue MV Monogram', description: 'Interlocking M and V letters in flowing design - modern brand identity' },
+    { src: infinityLogo, title: 'Purple/Blue Infinity Home', description: 'Continuous loop forming both infinity and house - endless care concept' },
     // Brand Style Images
     { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic representing premium senior care assistance' },
     { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology - the future of senior living search' },
