@@ -31,6 +31,14 @@ import navyShieldLogo from '@assets/generated_images/Navy_silver_shield_logo_92b
 import burgundyCompassLogo from '@assets/generated_images/Burgundy_compass_logo_41080728.png';
 import bronzeKeyLogo from '@assets/generated_images/Bronze_key_logo_84e57c60.png';
 
+// Tuxedo Valet Options - All With Transparent Backgrounds
+import classicTuxedoLogo from '@assets/generated_images/Classic_tuxedo_valet_transparent_76e47d69.png';
+import artDecoValetLogo from '@assets/generated_images/Art_deco_valet_transparent_c364ba7a.png';
+import minimalistValetLogo from '@assets/generated_images/Minimalist_valet_transparent_3a79d17c.png';
+import portraitValetLogo from '@assets/generated_images/Portrait_valet_transparent_6bc9dd0d.png';
+import badgeValetLogo from '@assets/generated_images/Badge_valet_transparent_33dceeae.png';
+import fullBodyValetLogo from '@assets/generated_images/Full_body_valet_transparent_e24eda4d.png';
+
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
@@ -160,9 +168,16 @@ export default function Contact() {
   };
 
   const brandImages = [
-    // Logo Concepts - All With Transparent Backgrounds
-    { src: blackSuitValetLogo, title: '⭐ Black Suit Valet with Red Tie', description: 'Distinguished butler in black suit, red tie, gold lapel pin - premium service aesthetic' },
-    { src: tuxedoValetLogo, title: '⭐ Tuxedo Valet with Gold Details', description: 'Sophisticated butler in black tuxedo, red bow tie, gold pocket square - luxury concierge' },
+    // TUXEDO VALET OPTIONS - All With Transparent Backgrounds
+    { src: classicTuxedoLogo, title: '🎩 CLASSIC Tuxedo Valet', description: 'Elegant butler in black tuxedo, white shirt, red bow tie, gold cufflinks - timeless style' },
+    { src: artDecoValetLogo, title: '🎩 ART DECO Tuxedo Valet', description: 'Distinguished butler with silver tray, black tuxedo, red bow tie, gold lapel pin - vintage luxury' },
+    { src: minimalistValetLogo, title: '🎩 MINIMALIST Tuxedo Valet', description: 'Simple geometric butler silhouette, black tuxedo, red bow tie, gold pocket square - modern clean' },
+    { src: portraitValetLogo, title: '🎩 PORTRAIT Tuxedo Valet', description: 'Butler head and shoulders, black tuxedo, red bow tie, gold monocle - sophisticated detail' },
+    { src: badgeValetLogo, title: '🎩 BADGE Tuxedo Valet', description: 'Butler silhouette in circular frame, black tuxedo, red bow tie, gold border - emblem style' },
+    { src: fullBodyValetLogo, title: '🎩 FULL BODY Tuxedo Valet', description: 'Standing butler in tailcoat tuxedo, red cummerbund and bow tie, gold watch chain - complete figure' },
+    // Other Logo Options
+    { src: blackSuitValetLogo, title: 'Black Suit Valet with Red Tie', description: 'Distinguished butler in black suit, red tie, gold lapel pin - premium service aesthetic' },
+    { src: tuxedoValetLogo, title: 'Tuxedo Valet with Gold Details', description: 'Sophisticated butler in black tuxedo, red bow tie, gold pocket square - luxury concierge' },
     { src: greenGoldHouseLogo, title: 'Green & Gold House', description: 'Modern home in emerald green and gold - fresh, premium real estate branding' },
     { src: orangeHandsLogo, title: 'Orange Coral Hands', description: 'Warm hands forming heart in orange/coral gradient - caring and supportive' },
     { src: goldBellLogo, title: 'Gold Service Bell', description: 'Classic hotel service bell in polished gold - luxury hospitality symbol' },
