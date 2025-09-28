@@ -6,7 +6,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
-         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera, Search } from 'lucide-react';
+         ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera, Search, RefreshCw } from 'lucide-react';
 import type { Community } from '@shared/schema';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -824,12 +824,58 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     </>
                   ) : (
                     <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Search temporarily unavailable
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                        No public website or additional online information found for this specific community. Contact them directly for the most current information.
-                      </p>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            Search temporarily unavailable
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                            No public website or additional online information found for this specific community. Contact them directly for the most current information.
+                          </p>
+                        </div>
+                        <button
+                          onClick={async () => {
+                            try {
+                              // Show loading state
+                              const button = event?.currentTarget as HTMLButtonElement;
+                              if (button) {
+                                button.disabled = true;
+                                button.innerHTML = '<svg class="animate-spin h-3 w-3 mx-auto" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
+                              }
+                              
+                              // Call verify endpoint with forceRefresh: true
+                              const response = await fetch(`/api/communities/${id}/verify`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ forceRefresh: true })
+                              });
+                              
+                              if (response.ok) {
+                                // Reload the page to show updated data
+                                window.location.reload();
+                              } else {
+                                // Reset button on error
+                                if (button) {
+                                  button.disabled = false;
+                                  button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Retry Search';
+                                }
+                              }
+                            } catch (error) {
+                              console.error('Error refreshing data:', error);
+                              // Reset button on error
+                              const button = event?.currentTarget as HTMLButtonElement;
+                              if (button) {
+                                button.disabled = false;
+                                button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Retry Search';
+                              }
+                            }
+                          }}
+                          className="ml-4 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center gap-1 min-w-[90px]"
+                        >
+                          <RefreshCw className="w-3 h-3" />
+                          Retry Search
+                        </button>
+                      </div>
                     </div>
                   );
                 })()}
