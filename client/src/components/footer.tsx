@@ -2,7 +2,6 @@ import { Link } from "wouter";
 import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store, Globe, Database, Zap, Brain } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
-import abstractLogo from '@assets/generated_images/Abstract_geometric_care_logo_f696cf3f.png';
 
 export function Footer() {
   const { data: formattedStats, isLoading } = useQuery({
@@ -49,8 +48,8 @@ export function Footer() {
         {/* Logo & Social */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center p-1">
-              <img src={abstractLogo} alt="MySeniorValet" className="w-full h-full object-contain" />
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Home className="text-white h-4 w-4" />
             </div>
             <div>
               <span className="text-lg font-bold">MySeniorValet</span>

@@ -14,35 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// MySeniorValet Logo Concepts - Transparent Backgrounds
-import houseLogo from '@assets/generated_images/House_with_heart_logo_adaa978e.png';
-import valetLogo from '@assets/generated_images/Valet_butler_icon_logo_b800a706.png';
-import handsLogo from '@assets/generated_images/Hands_cradling_home_logo_dc3127aa.png';
-import monogramLogo from '@assets/generated_images/MV_monogram_logo_9bfb3e97.png';
-import infinityLogo from '@assets/generated_images/Infinity_home_logo_f2e641ce.png';
-
-// New Logo Options with Various Colors - All Transparent
-import blackSuitValetLogo from '@assets/generated_images/Black_suit_valet_logo_c4dc92b7.png';
-import greenGoldHouseLogo from '@assets/generated_images/Green_gold_house_logo_eb64012b.png';
-import tuxedoValetLogo from '@assets/generated_images/Tuxedo_valet_logo_94613189.png';
-import orangeHandsLogo from '@assets/generated_images/Orange_coral_hands_logo_a8306d6f.png';
-import goldBellLogo from '@assets/generated_images/Gold_service_bell_logo_d70cd935.png';
-import navyShieldLogo from '@assets/generated_images/Navy_silver_shield_logo_92b709cd.png';
-import burgundyCompassLogo from '@assets/generated_images/Burgundy_compass_logo_41080728.png';
-import bronzeKeyLogo from '@assets/generated_images/Bronze_key_logo_84e57c60.png';
-
-// 80s Neon Theme Logos - All With Transparent Backgrounds
-import neonTextLogo from '@assets/generated_images/Neon_text_logo_pink_cyan_95a4eac9.png';
-import neonHouseLogo from '@assets/generated_images/Neon_house_purple_turquoise_12e03343.png';
-import neonCompassLogo from '@assets/generated_images/Neon_compass_navigation_5f271eb4.png';
-import neonHeartHomeLogo from '@assets/generated_images/Neon_heart_home_combo_902daa25.png';
-import neonMSVLogo from '@assets/generated_images/Neon_MSV_monogram_dd866f36.png';
-import neonSearchLogo from '@assets/generated_images/Neon_search_house_6409aa89.png';
-import neonInfinityLogo from '@assets/generated_images/Neon_infinity_loop_32c5700c.png';
-import neonKeyLogo from '@assets/generated_images/Neon_digital_key_dbd588e2.png';
-import neonHandsLogo from '@assets/generated_images/Neon_hands_house_63934bda.png';
-import neonStarLogo from '@assets/generated_images/Neon_star_burst_7dbef337.png';
-
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 import TechAI from '@assets/generated_images/Tech_AI_logo_121fb756.png';
@@ -172,31 +143,6 @@ export default function Contact() {
   };
 
   const brandImages = [
-    // 80s NEON THEME LOGOS - Matching Platform Aesthetic
-    { src: neonTextLogo, title: '💫 Neon MySeniorValet Text', description: 'Glowing neon sign with pink and cyan retro script - pure 80s synthwave aesthetic' },
-    { src: neonHouseLogo, title: '💫 Neon House Outline', description: 'Purple and turquoise neon tube house - Miami Vice style lighting' },
-    { src: neonCompassLogo, title: '💫 Neon Compass Navigation', description: 'Hot pink and electric blue compass with laser grid - guiding your journey' },
-    { src: neonHeartHomeLogo, title: '💫 Neon Heart & Home', description: 'Interconnected heart and house in magenta and cyan - care meets technology' },
-    { src: neonMSVLogo, title: '💫 Neon MSV Monogram', description: 'Bold geometric letters in electric purple and neon green - cyberpunk style' },
-    { src: neonSearchLogo, title: '💫 Neon Search House', description: 'Magnifying glass with house in pink and yellow neon - find your perfect home' },
-    { src: neonInfinityLogo, title: '💫 Neon Infinity Loop', description: 'Flowing infinity in purple-pink-cyan gradient - endless care and support' },
-    { src: neonKeyLogo, title: '💫 Neon Digital Key', description: 'Circuit pattern key in neon blue and magenta - unlock senior care solutions' },
-    { src: neonHandsLogo, title: '💫 Neon Hands & House', description: 'Protective hands cradling home in teal and orange - retro care symbol' },
-    { src: neonStarLogo, title: '💫 Neon Star Burst', description: 'Radiating star with purple-pink-cyan gradient - your guiding light' },
-    // Other Logo Options
-    { src: blackSuitValetLogo, title: 'Black Suit Valet with Red Tie', description: 'Distinguished butler in black suit, red tie, gold lapel pin - premium service aesthetic' },
-    { src: tuxedoValetLogo, title: 'Tuxedo Valet with Gold Details', description: 'Sophisticated butler in black tuxedo, red bow tie, gold pocket square - luxury concierge' },
-    { src: greenGoldHouseLogo, title: 'Green & Gold House', description: 'Modern home in emerald green and gold - fresh, premium real estate branding' },
-    { src: orangeHandsLogo, title: 'Orange Coral Hands', description: 'Warm hands forming heart in orange/coral gradient - caring and supportive' },
-    { src: goldBellLogo, title: 'Gold Service Bell', description: 'Classic hotel service bell in polished gold - luxury hospitality symbol' },
-    { src: navyShieldLogo, title: 'Navy & Silver Shield', description: 'Heraldic shield in navy blue and silver - trust and protection theme' },
-    { src: burgundyCompassLogo, title: 'Burgundy Compass', description: 'Navigation compass in burgundy red and gold - guidance through senior care journey' },
-    { src: bronzeKeyLogo, title: 'Bronze Key to Care', description: 'Ornate vintage key in antique bronze - unlocking senior care solutions' },
-    { src: houseLogo, title: 'Purple/Blue House with Heart', description: 'Elegant home silhouette with heart integrated into roofline - warm and welcoming design' },
-    { src: valetLogo, title: 'Purple/Blue Valet Butler', description: 'Professional gentleman valet figure - represents premium concierge service' },
-    { src: handsLogo, title: 'Purple/Blue Hands Cradling Home', description: 'Protective hands embracing a home - symbolizes care and security' },
-    { src: monogramLogo, title: 'Purple/Blue MV Monogram', description: 'Interlocking M and V letters in flowing design - modern brand identity' },
-    { src: infinityLogo, title: 'Purple/Blue Infinity Home', description: 'Continuous loop forming both infinity and house - endless care concept' },
     // Brand Style Images
     { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic representing premium senior care assistance' },
     { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology - the future of senior living search' },
