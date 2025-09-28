@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, Bell, Menu, Settings, Shield, Eye, Volume2, Move, Type, Phone, Accessibility, Contrast, ZoomIn, User, LogOut, LogIn } from "lucide-react";
-import abstractLogo from '@assets/generated_images/Transparent_abstract_care_logo_b3db1314.png';
+import neonHeartHomeLogo from '@assets/generated_images/Neon_heart_home_combo_902daa25.png';
 import { Link, useLocation } from "wouter";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -304,9 +304,9 @@ export function NavigationHeader({
             <Link href="/" className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center p-1">
                 <img 
-                  src={abstractLogo} 
+                  src={neonHeartHomeLogo} 
                   alt="MySeniorValet" 
-                  className="w-full h-full object-contain" 
+                  className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]" 
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const sibling = e.currentTarget.nextElementSibling as HTMLElement;

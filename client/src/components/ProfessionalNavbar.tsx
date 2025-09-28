@@ -9,7 +9,7 @@ import {
   Bell, User, LogOut, ChevronRight, Languages, Sun, Moon,
   Eye, Type, Volume2, MousePointer, AlertCircle, Check
 } from "lucide-react";
-import abstractLogo from '@assets/generated_images/Transparent_abstract_care_logo_b3db1314.png';
+import neonHeartHomeLogo from '@assets/generated_images/Neon_heart_home_combo_902daa25.png';
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
@@ -210,9 +210,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
                       <img 
-                        src={abstractLogo} 
+                        src={neonHeartHomeLogo} 
                         alt="MySeniorValet" 
-                        className="w-6 h-6 object-contain" 
+                        className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(236,72,153,0.6)]" 
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           const sibling = e.currentTarget.nextElementSibling as HTMLElement;
@@ -293,9 +293,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
               <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
                 <img 
-                  src={abstractLogo} 
+                  src={neonHeartHomeLogo} 
                   alt="MySeniorValet" 
-                  className="w-6 h-6 object-contain" 
+                  className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(236,72,153,0.6)]" 
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const sibling = e.currentTarget.nextElementSibling as HTMLElement;
