@@ -4,7 +4,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
-import { websiteScraperService } from './website-scraper-service';
+import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 
 // Initialize AI clients
 const anthropic = new Anthropic({
@@ -204,20 +204,26 @@ export class MultiAIVerificationService {
       if (websiteUrl) {
         console.log(`🌐 Scraping website for photos and pricing: ${websiteUrl}`);
         try {
-          const scrapedData = await websiteScraperService.scrapeWebsite(websiteUrl);
-          if (scrapedData?.photos && scrapedData.photos.length > 0) {
-            scrapedPhotos = scrapedData.photos.map((photo: any) => ({
-              url: photo,
+          // Use MultiAIPhotoExtractor for consolidated photo extraction
+          const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+            community.name || 'Unknown Community',
+            community.city || 'Unknown',
+            community.state || 'Unknown',
+            `${community.name} senior living community photos`,
+            websiteUrl,
+            []
+          );
+          
+          if (photoResult?.authenticPhotos && photoResult.authenticPhotos.length > 0) {
+            scrapedPhotos = photoResult.authenticPhotos.map((photo: any) => ({
+              url: photo.url || photo,
               source: 'web'
             }));
-            console.log(`📸 Found ${scrapedPhotos.length} photos from website`);
+            console.log(`📸 Found ${scrapedPhotos.length} authentic photos from MultiAIPhotoExtractor`);
           }
           
-          // Store official website pricing if found
-          if (scrapedData?.pricing && (scrapedData.pricing.min || scrapedData.pricing.max || scrapedData.pricing.details)) {
-            scrapedPricing = scrapedData.pricing;
-            console.log(`💰 Found official website pricing:`, scrapedPricing);
-          }
+          // Note: Website pricing extraction is not currently supported by MultiAIPhotoExtractor
+          // This functionality would need to be added if official website pricing is required
         } catch (error) {
           console.error('Error scraping website:', error);
         }

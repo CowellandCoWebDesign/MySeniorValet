@@ -2,7 +2,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { CommunityEnrichmentService } from "../community-enrichment-service";
-import { WebsiteScraperService } from "../website-scraper-service";
+import { MultiAIPhotoExtractor } from "./multi-ai-photo-extractor";
 import { OpenAIIntegration } from "../openai-integration";
 
 interface EnrichmentResult {
@@ -28,12 +28,10 @@ export class OnDemandEnrichmentService {
   private readonly COPYRIGHT_NOTICE = 'Photos cached temporarily for network efficiency under DMCA 512(b)';
   
   private communityEnrichmentService: CommunityEnrichmentService;
-  private websiteScraperService: WebsiteScraperService;
   private openAIIntegration: OpenAIIntegration;
 
   constructor() {
     this.communityEnrichmentService = new CommunityEnrichmentService();
-    this.websiteScraperService = new WebsiteScraperService();
     this.openAIIntegration = new OpenAIIntegration();
   }
 
@@ -139,7 +137,27 @@ export class OnDemandEnrichmentService {
       let scrapedData: any = null;
       if (community.website && !community.websiteProtected) {
         try {
-          scrapedData = await this.websiteScraperService.scrapeWebsite(community.website);
+          // Use MultiAIPhotoExtractor for consolidated photo extraction
+          const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+            community.name || 'Unknown Community',
+            community.city || 'Unknown',
+            community.state || 'Unknown',
+            `${community.name} photos`,
+            community.website,
+            []
+          );
+          
+          scrapedData = {
+            photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+            floorPlans: [], // Not currently extracted
+            virtualTours: [], // Not currently extracted 
+            videos: [], // Not currently extracted
+            amenities: [], // Not currently extracted
+            pricing: {}, // Not currently extracted
+            careLevels: [], // Not currently extracted
+            features: [], // Not currently extracted
+            contactInfo: {} // Not currently extracted
+          };
         } catch (error) {
           console.error(`Failed to scrape website for community ${communityId}:`, error);
         }
@@ -319,8 +337,27 @@ export class OnDemandEnrichmentService {
         return result;
       }
 
-      // Force scrape for dynamic content only
-      const scrapedData = await this.websiteScraperService.scrapeWebsite(community.website);
+      // Force scrape for dynamic content only  
+      const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+        community.name || 'Unknown Community',
+        community.city || 'Unknown',
+        community.state || 'Unknown',
+        `${community.name} photos`,
+        community.website,
+        []
+      );
+      
+      const scrapedData = {
+        photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+        floorPlans: [], // Not currently extracted
+        virtualTours: [], // Not currently extracted
+        videos: [], // Not currently extracted
+        amenities: [], // Not currently extracted
+        pricing: {}, // Not currently extracted
+        careLevels: [], // Not currently extracted
+        features: [], // Not currently extracted
+        contactInfo: {} // Not currently extracted
+      };
       const updates: any = {};
 
       // Update only dynamic fields

@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
 import { MultiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
-import { websiteScraperService } from '../website-scraper-service';
+// websiteScraperService replaced by MultiAIPhotoExtractor for consolidated photo extraction
 import { discoveredCommunityService } from '../services/discovered-community-service';
 import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
 
@@ -128,7 +128,27 @@ router.post('/api/web-intelligence/search', async (req, res) => {
     if (website && website.includes('http')) {
       try {
         console.log(`🕸️ Directly scraping provided website: ${website}`);
-        scrapedData = await websiteScraperService.scrapeWebsite(website);
+        // Use MultiAIPhotoExtractor for consolidated photo extraction
+        const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+          communityName,
+          city,
+          state,
+          `${communityName} ${city} ${state} photos`,
+          website,
+          []
+        );
+        
+        scrapedData = {
+          photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+          floorPlans: [], // Not currently extracted
+          virtualTours: [], // Not currently extracted
+          videos: [], // Not currently extracted
+          amenities: [], // Not currently extracted
+          pricing: {}, // Not currently extracted
+          careLevels: [], // Not currently extracted
+          features: [], // Not currently extracted
+          contactInfo: {} // Not currently extracted
+        };
       } catch (scrapeError) {
         console.error(`Failed to scrape website ${website}:`, scrapeError);
       }
@@ -167,7 +187,27 @@ Search for this EXACT community at this SPECIFIC location.`;
         officialWebsite = potentialWebsite;
         try {
           console.log(`🕸️ Found and scraping official website: ${potentialWebsite}`);
-          scrapedData = await websiteScraperService.scrapeWebsite(potentialWebsite);
+          // Use MultiAIPhotoExtractor for consolidated photo extraction
+          const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+            communityName,
+            city,
+            state,
+            `${communityName} ${city} ${state} photos`,
+            potentialWebsite,
+            []
+          );
+          
+          scrapedData = {
+            photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+            floorPlans: [], // Not currently extracted
+            virtualTours: [], // Not currently extracted
+            videos: [], // Not currently extracted
+            amenities: [], // Not currently extracted
+            pricing: {}, // Not currently extracted
+            careLevels: [], // Not currently extracted
+            features: [], // Not currently extracted
+            contactInfo: {} // Not currently extracted
+          };
         } catch (scrapeError) {
           console.error(`Failed to scrape found website ${potentialWebsite}:`, scrapeError);
         }

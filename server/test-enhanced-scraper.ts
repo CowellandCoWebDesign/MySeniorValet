@@ -4,7 +4,8 @@
  * Test the enhanced website scraper with improved data extraction
  */
 
-import { websiteScraperService } from './website-scraper-service';
+// Test file disabled - WebsiteScraperService consolidated into MultiAIPhotoExtractor
+// import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 
 async function testEnhancedScraper() {
   console.log('🧪 Testing Enhanced Website Scraper...\n');

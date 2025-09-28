@@ -361,34 +361,22 @@ Provide complete business data with ALL actual image URLs found.`;
         if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
             console.log(`🕸️ Primary method: Scraping website for real photos using Cheerio: ${extractedWebsite}`);
-            const { websiteScraperService } = await import('./website-scraper-service');
+            const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
+            
+            // Use MultiAIPhotoExtractor for consolidated photo extraction
+            const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+              serviceName,
+              'service', // service type
+              city || 'Unknown', 
+              state || 'Unknown',
+              `${serviceName} photos`,
+              extractedWebsite,
+              []
+            );
 
-            // Try to find and scrape gallery pages
-            const galleryPaths = ['/gallery', '/photos', '/media', '/images', '/portfolio', '/menu', '/our-food', '/our-space'];
-            let allScrapedPhotos: string[] = [];
-
-            // First scrape the main website
-            const mainScrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
-            if (mainScrapedData.photos) {
-              allScrapedPhotos.push(...mainScrapedData.photos);
-            }
-
-            // Then try gallery-specific pages
-            for (const path of galleryPaths) {
-              try {
-                const galleryUrl = extractedWebsite.replace(/\/$/, '') + path;
-                console.log(`📸 Checking gallery page: ${galleryUrl}`);
-                const galleryData = await websiteScraperService.scrapeWebsite(galleryUrl, serviceName);
-                if (galleryData.photos && galleryData.photos.length > 0) {
-                  console.log(`✅ Found ${galleryData.photos.length} photos in ${path}`);
-                  allScrapedPhotos.push(...galleryData.photos);
-                }
-              } catch (e) {
-                // Gallery page might not exist, that's ok
-              }
-            }
-
-            const scrapedData = { ...mainScrapedData, photos: [...new Set(allScrapedPhotos)] }; // Remove duplicates
+            const scrapedData = {
+              photos: photoResult?.authenticPhotos?.map(p => p.url || p) || []
+            };
             triedWebsiteScraping = true;
 
             if (scrapedData.photos && scrapedData.photos.length > 0) {
@@ -573,8 +561,22 @@ Provide complete business data with ALL actual image URLs found.`;
         for (const listingUrl of listingPages) {
           try {
             console.log(`🕸️ Scraping listing page for photos: ${listingUrl}`);
-            const { websiteScraperService } = await import('./website-scraper-service');
-            const scrapedData = await websiteScraperService.scrapeWebsite(listingUrl, serviceName);
+            const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
+            
+            // Use MultiAIPhotoExtractor for consolidated photo extraction
+            const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+              serviceName,
+              'service', // service type
+              city || 'Unknown',
+              state || 'Unknown', 
+              `${serviceName} photos`,
+              listingUrl,
+              []
+            );
+            
+            const scrapedData = {
+              photos: photoResult?.authenticPhotos?.map(p => p.url || p) || []
+            };
 
             if (scrapedData.photos && scrapedData.photos.length > 0) {
               for (const photoUrl of scrapedData.photos) {
@@ -683,8 +685,22 @@ Provide complete business data with ALL actual image URLs found.`;
           if (!triedWebsiteScraping && extractedWebsite && extractedWebsite.includes('http')) {
             try {
               console.log(`🕸️ Final attempt: Scraping website for real photos: ${extractedWebsite}`);
-              const { websiteScraperService } = await import('./website-scraper-service');
-              const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+              const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
+              
+              // Use MultiAIPhotoExtractor for consolidated photo extraction
+              const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+                serviceName,
+                'service', // service type
+                city || 'Unknown',
+                state || 'Unknown',
+                `${serviceName} photos`,
+                extractedWebsite,
+                []
+              );
+              
+              const scrapedData = {
+                photos: photoResult?.authenticPhotos?.map(p => p.url || p) || []
+              };
 
               if (scrapedData.photos && scrapedData.photos.length > 0) {
                 // Use proxied URLs for external images
