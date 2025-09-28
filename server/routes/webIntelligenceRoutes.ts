@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
+import { MultiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
 import { websiteScraperService } from '../website-scraper-service';
 import { discoveredCommunityService } from '../services/discovered-community-service';
 import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
@@ -121,6 +122,7 @@ router.post('/api/web-intelligence/search', async (req, res) => {
     
     let scrapedData = null;
     let officialWebsite = website;
+    let perplexityResponse: any = null;
     
     // If we have a website URL, scrape it directly for rich data
     if (website && website.includes('http')) {
@@ -144,13 +146,13 @@ ${website ? `Known Website: ${website}` : ''}
 
 Search for this EXACT community at this SPECIFIC location.`;
       
-      const response = await perplexityService.searchRealTime(
+      perplexityResponse = await perplexityService.searchRealTime(
         searchQuery,
         communityContext
       );
       
       // Try to extract website from response
-      const websiteMatches = (response.summary || '').match(/https?:\/\/[^\s<>"']+/gi) || [];
+      const websiteMatches = (perplexityResponse.summary || '').match(/https?:\/\/[^\s<>"']+/gi) || [];
       const directorySites = [
         'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org',
         'senioradvisor', 'seniorhousing.net', 'medicare.gov', 'google.com',
@@ -172,7 +174,45 @@ Search for this EXACT community at this SPECIFIC location.`;
       }
     }
     
-    // Build response with scraped data if available
+    // Build photo collection with priority order: scraped > perplexity > MultiAI (if needed)  
+    let allPhotos = [...(scrapedData?.photos || [])];
+    
+    // Add Perplexity images as reliable fallback (from the existing response above)
+    if (perplexityResponse?.images) {
+      const perplexityPhotos = perplexityResponse.images.map((url: string) => 
+        `/api/image-proxy?url=${encodeURIComponent(url)}`
+      );
+      allPhotos.push(...perplexityPhotos);
+      console.log(`📷 Added ${perplexityPhotos.length} photos from Perplexity response`);
+    }
+    
+    // Only use expensive MultiAIPhotoExtractor if we still have very few photos
+    if (allPhotos.length < 2) {
+      try {
+        console.log(`📸 Using MultiAIPhotoExtractor as last resort (only ${allPhotos.length} photos found)...`);
+        const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+          communityName,
+          scrapedData?.description || perplexityResponse?.summary || `${communityName} in ${city}, ${state}`,
+          officialWebsite || undefined,
+          officialWebsite ? [officialWebsite] : []
+        );
+        
+        if (photoExtractionResult?.authenticPhotos) {
+          const enhancedPhotos = photoExtractionResult.authenticPhotos
+            .filter((photo: any) => photo.url && photo.isAuthentic)
+            .map((photo: any) => `/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+          allPhotos.push(...enhancedPhotos);
+          console.log(`✅ Added ${enhancedPhotos.length} photos via MultiAIPhotoExtractor`);
+        }
+      } catch (photoError) {
+        console.log(`⚠️ MultiAIPhotoExtractor failed for ${communityName}:`, photoError instanceof Error ? photoError.message : 'Unknown error');
+      }
+    }
+    
+    // Remove duplicates and limit to reasonable number
+    const uniquePhotos = Array.from(new Set(allPhotos)).slice(0, 50);
+    
+    // Build response with enhanced photo data
     const responseData = {
       communityName,
       location: `${city}, ${state}`,
@@ -181,9 +221,9 @@ Search for this EXACT community at this SPECIFIC location.`;
       summary: scrapedData?.description || 'No information found',
       sources: officialWebsite ? [officialWebsite] : [],
       mediaAssets: {
-        hasPhotos: (scrapedData?.photos?.length || 0) > 0,
-        photoCount: scrapedData?.photos?.length || 0,
-        photos: scrapedData?.photos || [],
+        hasPhotos: uniquePhotos.length > 0,
+        photoCount: uniquePhotos.length,
+        photos: uniquePhotos,
         hasFloorPlans: (scrapedData?.floorPlans?.length || 0) > 0,
         floorPlans: scrapedData?.floorPlans || [],
         has3DTour: (scrapedData?.virtualTours?.length || 0) > 0,
@@ -202,7 +242,7 @@ Search for this EXACT community at this SPECIFIC location.`;
       lastUpdated: new Date().toISOString()
     };
     
-    console.log(`✅ Web intelligence complete. Found ${responseData.mediaAssets.photoCount} photos, ${responseData.mediaAssets.floorPlans.length} floor plans`);
+    console.log(`✅ Web intelligence complete. Found ${uniquePhotos.length} photos (${scrapedData?.photos?.length || 0} scraped${uniquePhotos.length > (scrapedData?.photos?.length || 0) ? ` + ${uniquePhotos.length - (scrapedData?.photos?.length || 0)} AI-enhanced` : ''}), ${responseData.mediaAssets.floorPlans.length} floor plans`);
     
     // AUTO-SAVE: Save every discovered community with full contact info
     try {
@@ -215,12 +255,8 @@ Search for this EXACT community at this SPECIFIC location.`;
         website: officialWebsite || '',
         phone: scrapedData?.contactInfo?.phone || '',
         email: scrapedData?.contactInfo?.email || '',
-        fax: scrapedData?.contactInfo?.fax || '',
         description: scrapedData?.description || '',
         careTypes: scrapedData?.careLevels || [],
-        socialMedia: scrapedData?.contactInfo?.socialMedia,
-        hoursOfOperation: scrapedData?.contactInfo?.hours,
-        contactPerson: scrapedData?.contactInfo?.contactPerson,
         discoverySource: 'quick_web_search',
         rawData: responseData
       });
