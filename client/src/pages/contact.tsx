@@ -88,6 +88,9 @@ import MilkyWay from '@assets/generated_images/Milky_Way_starfield_679ddd1a.png'
 import CosmicAurora from '@assets/generated_images/Cosmic_aurora_ribbons_02e37f14.png';
 import EarthSunrise from '@assets/generated_images/Earth_sunrise_space_0eae1811.png';
 
+// Footer Background Image - Added from footer.tsx
+import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
+
 export default function Contact() {
   const [selectedImage, setSelectedImage] = useState<{ src: string; title: string; description: string } | null>(null);
   const { toast } = useToast();
@@ -144,6 +147,7 @@ export default function Contact() {
 
   const brandImages = [
     // Brand Style Images
+    { src: VaporwaveLogo, title: 'Vaporwave Synthwave', description: 'Retro-futuristic synthwave aesthetic - MySeniorValet signature footer background representing innovation meets nostalgia' },
     { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic representing premium senior care assistance' },
     { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology - the future of senior living search' },
     { src: Watercolor, title: 'Watercolor Art', description: 'Artistic creative interpretation showcasing the human touch in care' },
