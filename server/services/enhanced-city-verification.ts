@@ -103,7 +103,7 @@ export class EnhancedCityVerification {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -123,6 +123,9 @@ Format each entry consistently for easy parsing.`
           return_citations: true,
           search_domain_filter: [],
           top_k: 20, // Get more search results
+          web_search_options: {
+            search_context_size: 'low'  // Low context for 70% cost reduction
+          }
         })
       });
 

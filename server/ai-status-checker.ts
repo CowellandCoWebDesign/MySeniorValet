@@ -67,7 +67,7 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar',
           messages: [{ role: 'user', content: 'test' }],
           max_tokens: 10,
           stream: false

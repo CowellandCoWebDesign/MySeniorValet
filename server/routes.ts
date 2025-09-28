@@ -186,7 +186,7 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar',
           messages: [
             {
               role: 'system',
@@ -200,6 +200,9 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           temperature: 0.2,
           max_tokens: 2000,
           return_images: true,  // Enable real image URLs
+          web_search_options: {
+            search_context_size: 'low'  // Low context for 70% cost reduction
+          },
           image_domain_filter: [
             "yelp.com",
             "google.com", 

@@ -601,7 +601,7 @@ Format all information clearly with section headers.
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'sonar-pro',
+            model: 'sonar',
             messages: [
               {
                 role: 'system',
@@ -617,6 +617,9 @@ Format all information clearly with section headers.
             return_images: true,
             search_depth: 'comprehensive',
             search_recency_filter: 'none',
+            web_search_options: {
+              search_context_size: 'low'  // Low context for 70% cost reduction
+            },
             top_p: 0.95,
             frequency_penalty: 0.1,
             presence_penalty: 0.1
