@@ -315,11 +315,15 @@ Gather ALL this information from every available source in this SINGLE response.
         }
       }
       
-      // Clean URL of any citation markers like [1], [2], etc.
+      // Clean URL of any citation markers like [1], [2], etc. and trailing brackets
       if (extractedWebsite) {
         extractedWebsite = extractedWebsite.replace(/\[\d+\].*$/, '').trim();
         // Also remove any trailing asterisks or special characters
         extractedWebsite = extractedWebsite.replace(/\*+$/, '').trim();
+        // Remove any trailing brackets or parentheses
+        extractedWebsite = extractedWebsite.replace(/[\]\)]+$/, '').trim();
+        // Remove any leading brackets
+        extractedWebsite = extractedWebsite.replace(/^[\[\(]+/, '').trim();
       }
       
       console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
@@ -371,13 +375,22 @@ Gather ALL this information from every available source in this SINGLE response.
           console.log(`🔍 Extracting photos from Perplexity response text...`);
           
           // Look for image URLs in the response content
-          const imageUrlRegex = /https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif)/gi;
+          const imageUrlRegex = /https?:\/\/[^\s\]\)]+\.(jpg|jpeg|png|webp|gif)/gi;
           const foundUrls = answer.match(imageUrlRegex) || [];
           
-          if (foundUrls.length > 0) {
-            console.log(`✅ Found ${foundUrls.length} image URLs in response text`);
-            extractedPhotos = foundUrls.slice(0, 20).map(url => {
-              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+          // Also look for photo URLs from known image CDNs and services
+          const cdnPhotoRegex = /(https?:\/\/[^\s\]\)]+(?:yelpcdn\.com|tripadvisor\.com|googleusercontent\.com|fbcdn\.net|instagram\.com)[^\s\]\)]*)(?:\/[^\s\]\)]+)?/gi;
+          const cdnUrls = answer.match(cdnPhotoRegex) || [];
+          
+          const allPhotoUrls = [...foundUrls, ...cdnUrls];
+          const uniqueUrls = [...new Set(allPhotoUrls)]; // Remove duplicates
+          
+          if (uniqueUrls.length > 0) {
+            console.log(`✅ Found ${uniqueUrls.length} image URLs in response text`);
+            extractedPhotos = uniqueUrls.slice(0, 20).map(url => {
+              // Clean the URL of any trailing brackets or special chars
+              const cleanUrl = url.replace(/[\]\)]+$/, '').trim();
+              return `/api/image-proxy?url=${encodeURIComponent(cleanUrl)}`;
             });
           }
           
