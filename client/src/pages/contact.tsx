@@ -14,12 +14,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// MySeniorValet Logo Concepts - New Set
-import abstractLogo from '@assets/generated_images/Abstract_geometric_care_logo_f696cf3f.png';
-import valetLogo from '@assets/generated_images/Elegant_valet_butler_logo_4a1bf582.png';
-import compassLogo from '@assets/generated_images/Compass_navigation_guide_logo_c0c2b260.png';
-import treeLogo from '@assets/generated_images/Tree_of_life_care_logo_802d0f97.png';
-import infinityLogo from '@assets/generated_images/Infinity_journey_care_logo_0ad0c7f0.png';
+// MySeniorValet Logo Concepts - Transparent Backgrounds
+import houseLogo from '@assets/generated_images/House_with_heart_logo_adaa978e.png';
+import valetLogo from '@assets/generated_images/Valet_butler_icon_logo_b800a706.png';
+import handsLogo from '@assets/generated_images/Hands_cradling_home_logo_dc3127aa.png';
+import monogramLogo from '@assets/generated_images/MV_monogram_logo_9bfb3e97.png';
+import infinityLogo from '@assets/generated_images/Infinity_home_logo_f2e641ce.png';
 
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
@@ -150,12 +150,12 @@ export default function Contact() {
   };
 
   const brandImages = [
-    // Logo Concepts
-    { src: abstractLogo, title: 'Abstract Geometric Care Logo', description: 'Modern tech-forward design with interconnected shapes representing community and support - Currently Active' },
-    { src: valetLogo, title: 'Elegant Valet Butler Logo', description: 'Sophisticated gentleman valet with premium luxury service aesthetic' },
-    { src: compassLogo, title: 'Compass Navigation Guide Logo', description: 'Four-point compass representing guidance through the senior care journey' },
-    { src: treeLogo, title: 'Tree of Life Care Logo', description: 'Strong roots and flourishing branches symbolizing support and growth' },
-    { src: infinityLogo, title: 'Infinity Journey Logo', description: 'Continuous loop representing endless support throughout the care journey' },
+    // Logo Concepts - All With Transparent Backgrounds
+    { src: houseLogo, title: 'House with Heart Logo', description: 'Elegant home silhouette with heart integrated into roofline - warm and welcoming design' },
+    { src: valetLogo, title: 'Valet Butler Icon Logo', description: 'Professional gentleman valet figure - represents premium concierge service' },
+    { src: handsLogo, title: 'Hands Cradling Home Logo', description: 'Protective hands embracing a home - symbolizes care and security' },
+    { src: monogramLogo, title: 'MV Monogram Logo', description: 'Interlocking M and V letters in flowing design - modern brand identity' },
+    { src: infinityLogo, title: 'Infinity Home Logo', description: 'Continuous loop forming both infinity and house - endless care concept' },
     // Brand Style Images
     { src: LuxuryValet, title: 'Luxury Valet', description: 'Elegant concierge service aesthetic representing premium senior care assistance' },
     { src: TechAI, title: 'Tech AI', description: 'Modern AI-powered care technology - the future of senior living search' },

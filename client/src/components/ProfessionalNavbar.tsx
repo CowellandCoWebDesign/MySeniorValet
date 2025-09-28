@@ -9,7 +9,7 @@ import {
   Bell, User, LogOut, ChevronRight, Languages, Sun, Moon,
   Eye, Type, Volume2, MousePointer, AlertCircle, Check
 } from "lucide-react";
-import abstractLogo from '@assets/generated_images/Abstract_geometric_care_logo_f696cf3f.png';
+import abstractLogo from '@assets/generated_images/Transparent_abstract_care_logo_b3db1314.png';
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
@@ -212,8 +212,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                       <img 
                         src={abstractLogo} 
                         alt="MySeniorValet" 
-                        className="w-6 h-6 object-contain mix-blend-multiply dark:mix-blend-screen" 
-                        style={{ filter: 'brightness(0) invert(1)' }}
+                        className="w-6 h-6 object-contain" 
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                           const sibling = e.currentTarget.nextElementSibling as HTMLElement;
@@ -296,8 +295,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <img 
                   src={abstractLogo} 
                   alt="MySeniorValet" 
-                  className="w-6 h-6 object-contain mix-blend-multiply dark:mix-blend-screen" 
-                  style={{ filter: 'brightness(0) invert(1)' }}
+                  className="w-6 h-6 object-contain" 
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const sibling = e.currentTarget.nextElementSibling as HTMLElement;

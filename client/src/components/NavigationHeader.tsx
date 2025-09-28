@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, Bell, Menu, Settings, Shield, Eye, Volume2, Move, Type, Phone, Accessibility, Contrast, ZoomIn, User, LogOut, LogIn } from "lucide-react";
-import abstractLogo from '@assets/generated_images/Abstract_geometric_care_logo_f696cf3f.png';
+import abstractLogo from '@assets/generated_images/Transparent_abstract_care_logo_b3db1314.png';
 import { Link, useLocation } from "wouter";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Badge } from "@/components/ui/badge";
@@ -306,8 +306,7 @@ export function NavigationHeader({
                 <img 
                   src={abstractLogo} 
                   alt="MySeniorValet" 
-                  className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-screen" 
-                  style={{ filter: 'brightness(0) invert(1)' }}
+                  className="w-full h-full object-contain" 
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     const sibling = e.currentTarget.nextElementSibling as HTMLElement;
