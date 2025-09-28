@@ -31,13 +31,17 @@ import navyShieldLogo from '@assets/generated_images/Navy_silver_shield_logo_92b
 import burgundyCompassLogo from '@assets/generated_images/Burgundy_compass_logo_41080728.png';
 import bronzeKeyLogo from '@assets/generated_images/Bronze_key_logo_84e57c60.png';
 
-// Tuxedo Valet Options - All With Transparent Backgrounds
-import classicTuxedoLogo from '@assets/generated_images/Classic_tuxedo_valet_transparent_76e47d69.png';
-import artDecoValetLogo from '@assets/generated_images/Art_deco_valet_transparent_c364ba7a.png';
-import minimalistValetLogo from '@assets/generated_images/Minimalist_valet_transparent_3a79d17c.png';
-import portraitValetLogo from '@assets/generated_images/Portrait_valet_transparent_6bc9dd0d.png';
-import badgeValetLogo from '@assets/generated_images/Badge_valet_transparent_33dceeae.png';
-import fullBodyValetLogo from '@assets/generated_images/Full_body_valet_transparent_e24eda4d.png';
+// 80s Neon Theme Logos - All With Transparent Backgrounds
+import neonTextLogo from '@assets/generated_images/Neon_text_logo_pink_cyan_95a4eac9.png';
+import neonHouseLogo from '@assets/generated_images/Neon_house_purple_turquoise_12e03343.png';
+import neonCompassLogo from '@assets/generated_images/Neon_compass_navigation_5f271eb4.png';
+import neonHeartHomeLogo from '@assets/generated_images/Neon_heart_home_combo_902daa25.png';
+import neonMSVLogo from '@assets/generated_images/Neon_MSV_monogram_dd866f36.png';
+import neonSearchLogo from '@assets/generated_images/Neon_search_house_6409aa89.png';
+import neonInfinityLogo from '@assets/generated_images/Neon_infinity_loop_32c5700c.png';
+import neonKeyLogo from '@assets/generated_images/Neon_digital_key_dbd588e2.png';
+import neonHandsLogo from '@assets/generated_images/Neon_hands_house_63934bda.png';
+import neonStarLogo from '@assets/generated_images/Neon_star_burst_7dbef337.png';
 
 // MySeniorValet Brand Gallery Images - First Set
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
@@ -168,13 +172,17 @@ export default function Contact() {
   };
 
   const brandImages = [
-    // TUXEDO VALET OPTIONS - All With Transparent Backgrounds
-    { src: classicTuxedoLogo, title: '🎩 CLASSIC Tuxedo Valet', description: 'Elegant butler in black tuxedo, white shirt, red bow tie, gold cufflinks - timeless style' },
-    { src: artDecoValetLogo, title: '🎩 ART DECO Tuxedo Valet', description: 'Distinguished butler with silver tray, black tuxedo, red bow tie, gold lapel pin - vintage luxury' },
-    { src: minimalistValetLogo, title: '🎩 MINIMALIST Tuxedo Valet', description: 'Simple geometric butler silhouette, black tuxedo, red bow tie, gold pocket square - modern clean' },
-    { src: portraitValetLogo, title: '🎩 PORTRAIT Tuxedo Valet', description: 'Butler head and shoulders, black tuxedo, red bow tie, gold monocle - sophisticated detail' },
-    { src: badgeValetLogo, title: '🎩 BADGE Tuxedo Valet', description: 'Butler silhouette in circular frame, black tuxedo, red bow tie, gold border - emblem style' },
-    { src: fullBodyValetLogo, title: '🎩 FULL BODY Tuxedo Valet', description: 'Standing butler in tailcoat tuxedo, red cummerbund and bow tie, gold watch chain - complete figure' },
+    // 80s NEON THEME LOGOS - Matching Platform Aesthetic
+    { src: neonTextLogo, title: '💫 Neon MySeniorValet Text', description: 'Glowing neon sign with pink and cyan retro script - pure 80s synthwave aesthetic' },
+    { src: neonHouseLogo, title: '💫 Neon House Outline', description: 'Purple and turquoise neon tube house - Miami Vice style lighting' },
+    { src: neonCompassLogo, title: '💫 Neon Compass Navigation', description: 'Hot pink and electric blue compass with laser grid - guiding your journey' },
+    { src: neonHeartHomeLogo, title: '💫 Neon Heart & Home', description: 'Interconnected heart and house in magenta and cyan - care meets technology' },
+    { src: neonMSVLogo, title: '💫 Neon MSV Monogram', description: 'Bold geometric letters in electric purple and neon green - cyberpunk style' },
+    { src: neonSearchLogo, title: '💫 Neon Search House', description: 'Magnifying glass with house in pink and yellow neon - find your perfect home' },
+    { src: neonInfinityLogo, title: '💫 Neon Infinity Loop', description: 'Flowing infinity in purple-pink-cyan gradient - endless care and support' },
+    { src: neonKeyLogo, title: '💫 Neon Digital Key', description: 'Circuit pattern key in neon blue and magenta - unlock senior care solutions' },
+    { src: neonHandsLogo, title: '💫 Neon Hands & House', description: 'Protective hands cradling home in teal and orange - retro care symbol' },
+    { src: neonStarLogo, title: '💫 Neon Star Burst', description: 'Radiating star with purple-pink-cyan gradient - your guiding light' },
     // Other Logo Options
     { src: blackSuitValetLogo, title: 'Black Suit Valet with Red Tie', description: 'Distinguished butler in black suit, red tie, gold lapel pin - premium service aesthetic' },
     { src: tuxedoValetLogo, title: 'Tuxedo Valet with Gold Details', description: 'Sophisticated butler in black tuxedo, red bow tie, gold pocket square - luxury concierge' },
