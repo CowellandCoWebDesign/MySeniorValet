@@ -185,29 +185,114 @@ export default function FamilyCollaborationCenter() {
     );
   }
 
-  // Show login prompt if not authenticated
+  // Show demo version if not authenticated
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
         <NavigationHeader />
-        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
-          <Card className="max-w-md w-full mx-4">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Sign In Required</CardTitle>
-              <CardDescription>
-                Please sign in to access the Family Collaboration Center
-              </CardDescription>
+        
+        {/* Demo Mode Banner */}
+        <div className="bg-yellow-100 dark:bg-yellow-900/20 border-b border-yellow-300 dark:border-yellow-700">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                Demo Mode: Sign in to access your real family collaboration tools
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setLocation('/login')} size="sm" className="bg-blue-600 hover:bg-blue-700">
+                Sign In
+              </Button>
+              <Button onClick={() => setLocation('/signup')} size="sm" variant="outline">
+                Create Account
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Demo Content */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-4">Family Collaboration Center</h1>
+            <p className="text-lg text-muted-foreground">Experience how families work together to find the perfect senior care</p>
+          </div>
+          
+          {/* Example Family Members */}
+          <Card className="mb-6 border-2 border-blue-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Example: Family Video Calls</span>
+                <Badge variant="secondary">DEMO</Badge>
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-center text-gray-600">
-                The Family Collaboration Center allows you to coordinate care decisions with your loved ones.
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { name: 'Sarah Johnson', role: 'Daughter', location: 'New York' },
+                  { name: 'Michael Johnson', role: 'Son', location: 'Chicago' },
+                  { name: 'Emily Johnson', role: 'Daughter', location: 'Los Angeles' },
+                  { name: 'Robert Johnson', role: 'Son', location: 'Boston' }
+                ].map((member, i) => (
+                  <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                        {member.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="font-medium">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.role} • {member.location}</p>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-3" variant="outline" size="sm" disabled>
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Example Messages */}
+          <Card className="mb-6 border-2 border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Example: Family Messages</span>
+                <Badge variant="secondary">DEMO</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                  <p className="text-sm font-medium">Sarah: Has anyone looked at the Sunrise Senior Living community?</p>
+                  <p className="text-xs text-muted-foreground mt-1">Today, 2:45 PM</p>
+                </div>
+                <div className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
+                  <p className="text-sm font-medium">Michael: Yes, I visited yesterday. The memory care unit was impressive!</p>
+                  <p className="text-xs text-muted-foreground mt-1">Today, 3:15 PM</p>
+                </div>
+                <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                  <p className="text-sm font-medium">Emily: Great! Let's schedule a family call to discuss it.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Today, 3:30 PM</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* CTA Card */}
+          <Card className="border-2 border-green-500/20 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4">Ready to Collaborate with Your Family?</h3>
+              <p className="text-muted-foreground mb-6">
+                Sign in to access real-time messaging, video calls, shared favorites, and more.
               </p>
               <div className="flex gap-4 justify-center">
-                <Button onClick={() => setLocation('/login')} className="bg-blue-600 hover:bg-blue-700">
-                  Sign In
+                <Button onClick={() => setLocation('/login')} size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                  Sign In to Get Started
                 </Button>
-                <Button onClick={() => setLocation('/signup')} variant="outline">
-                  Create Account
+                <Button onClick={() => setLocation('/signup')} size="lg" variant="outline">
+                  Create Free Account
                 </Button>
               </div>
             </CardContent>
@@ -946,8 +1031,8 @@ export default function FamilyCollaborationCenter() {
           {/* Video Calls Tab */}
           <TabsContent value="video-calls" className="space-y-6">
             <FamilyVideoCall 
-              familyId="demo"
-              userId="demo"
+              familyId={user?.familyId || user?.id || 'family-' + user?.id}
+              userId={user?.id}
             />
           </TabsContent>
 
