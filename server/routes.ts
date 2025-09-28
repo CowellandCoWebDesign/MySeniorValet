@@ -238,47 +238,51 @@ Provide complete business data with ALL actual image URLs found.`;
         found: answer.length > 0
       };
 
-      // Use the website from database if provided, otherwise try to extract from Perplexity
+      // Use the website from database if provided, otherwise extract from Perplexity
       let extractedWebsite: string | undefined = website;  // Prioritize database website
       
-      // Only extract from Perplexity if we don't have a website from database
-      if (!extractedWebsite || extractedWebsite.includes('google.com/maps')) {
-        // Pattern 1: Look for "website:" or similar followed by URL
-        const websiteMatch = answer.match(/(?:website|Website|WEBSITE|URL|url|Official website)[:\s]*([https?:\/\/]*[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery)[^\s,\)]*)/i);
-        if (websiteMatch) {
-          const candidateUrl = websiteMatch[1];
-          // Don't override with Google Maps URLs
-          if (!candidateUrl.includes('google.com/maps')) {
-            extractedWebsite = candidateUrl;
-            if (extractedWebsite && !extractedWebsite.startsWith('http')) {
-              extractedWebsite = 'https://' + extractedWebsite;
-            }
-          }
+      // If we have a database website, validate and clean it
+      if (extractedWebsite) {
+        // Ensure it has a protocol
+        if (!extractedWebsite.startsWith('http')) {
+          extractedWebsite = 'https://' + extractedWebsite;
         }
+        // Skip if it's just a Google Maps URL (not a real website)
+        if (extractedWebsite.includes('google.com/maps')) {
+          extractedWebsite = undefined;
+        }
+      }
+      
+      // Only extract from Perplexity if we don't have a valid website from database
+      if (!extractedWebsite) {
+        console.log(`🔍 No database website found, extracting from Perplexity response...`);
         
-        // Pattern 2: If not found, look for any URL that matches the business name
-        if (!extractedWebsite || extractedWebsite.includes('google.com/maps')) {
-          const businessNameSimplified = serviceName.toLowerCase().replace(/[^a-z0-9]/g, '');
-          const urlMatch = answer.match(/(https?:\/\/[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi);
-          if (urlMatch) {
-            for (const url of urlMatch) {
-              if (!url.includes('google.com/maps')) {  // Skip Google Maps URLs
-                const urlSimplified = url.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (urlSimplified.includes(businessNameSimplified) || businessNameSimplified.includes(urlSimplified.substring(8, 20))) {
-                  extractedWebsite = url;
-                  break;
-                }
+        // Look for explicitly mentioned website URLs in the response
+        const websitePatterns = [
+          /(?:website|Website|WEBSITE|Official website|Visit)[\s:]+([https?:\/\/]*(?:www\.)?[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery|biz|info)[^\s,\)]*)/gi,
+          /(?:Visit them at|Find them at|Check out)[\s:]+([https?:\/\/]*(?:www\.)?[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi,
+          /((?:www\.)?[a-zA-Z0-9-]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery|biz|info)[^\s,\)]*)/gi
+        ];
+        
+        for (const pattern of websitePatterns) {
+          const matches = answer.matchAll(pattern);
+          for (const match of matches) {
+            const candidateUrl = match[1];
+            // Skip directory sites and Google Maps
+            if (!candidateUrl.includes('google.com') && 
+                !candidateUrl.includes('yelp.com') && 
+                !candidateUrl.includes('tripadvisor.com') &&
+                !candidateUrl.includes('facebook.com') &&
+                !candidateUrl.includes('instagram.com')) {
+              extractedWebsite = candidateUrl;
+              if (extractedWebsite && !extractedWebsite.startsWith('http')) {
+                extractedWebsite = 'https://' + extractedWebsite;
               }
+              console.log(`✅ Found website from Perplexity: ${extractedWebsite}`);
+              break;
             }
           }
-        }
-        
-        // Pattern 3: Look for www. patterns
-        if (!extractedWebsite || extractedWebsite.includes('google.com/maps')) {
-          const wwwMatch = answer.match(/(www\.[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/i);
-          if (wwwMatch) {
-            extractedWebsite = 'https://' + wwwMatch[1];
-          }
+          if (extractedWebsite) break;
         }
       }
       
@@ -300,51 +304,61 @@ Provide complete business data with ALL actual image URLs found.`;
       let triedWebsiteScraping = false;
       
       try {
-        // PRIORITY 1: Always try scraping the website FIRST using Cheerio (most reliable)
+        // PRIORITY 1: Always try scraping the website FIRST using Playwright (most reliable)
         if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
-            console.log(`🕸️ Primary method: Scraping website gallery using Cheerio for real photos: ${extractedWebsite}`);
-            const { websiteScraperService } = await import('./website-scraper-service');
+            console.log(`🎭 Primary method: Using Playwright to scrape website for real photos: ${extractedWebsite}`);
             
-            // Try to find and scrape gallery pages
-            const galleryPaths = ['/gallery', '/photos', '/media', '/images', '/portfolio', '/menu', '/our-food', '/our-space'];
-            let allScrapedPhotos: string[] = [];
+            // Import and use PlaywrightPhotoScraper for robust photo extraction
+            const { PlaywrightPhotoScraper } = await import('./services/playwright-photo-scraper');
+            const playwrightScraper = new PlaywrightPhotoScraper();
             
-            // First scrape the main website
-            const mainScrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
-            if (mainScrapedData.photos) {
-              allScrapedPhotos.push(...mainScrapedData.photos);
-            }
-            
-            // Then try gallery-specific pages
-            for (const path of galleryPaths) {
-              try {
-                const galleryUrl = extractedWebsite.replace(/\/$/, '') + path;
-                console.log(`📸 Checking gallery page: ${galleryUrl}`);
-                const galleryData = await websiteScraperService.scrapeWebsite(galleryUrl, serviceName);
-                if (galleryData.photos && galleryData.photos.length > 0) {
-                  console.log(`✅ Found ${galleryData.photos.length} photos in ${path}`);
-                  allScrapedPhotos.push(...galleryData.photos);
+            try {
+              // Use Playwright to visit the actual website and extract photos
+              const scrapedPhotos = await playwrightScraper.scrapePhotosFromWebsite(
+                extractedWebsite,
+                serviceName,
+                {
+                  maxPhotos: 50,
+                  timeout: 30000
                 }
-              } catch (e) {
-                // Gallery page might not exist, that's ok
+              );
+              
+              if (scrapedPhotos && scrapedPhotos.length > 0) {
+                // Convert to proxied URLs
+                extractedPhotos = scrapedPhotos.map(photo => {
+                  if (photo.url.includes('http')) {
+                    return `/api/image-proxy?url=${encodeURIComponent(photo.url)}`;
+                  }
+                  return photo.url;
+                });
+                console.log(`✅ Playwright successfully scraped ${extractedPhotos.length} real photos from website`);
+                console.log(`📸 Photo contexts: ${scrapedPhotos.slice(0, 5).map(p => p.context).join(', ')}`);
+              } else {
+                console.log(`⚠️ Playwright found no photos on main website`);
               }
+            } finally {
+              // Always close the browser to free resources
+              await playwrightScraper.closeBrowser();
             }
             
-            const scrapedData = { ...mainScrapedData, photos: [...new Set(allScrapedPhotos)] }; // Remove duplicates
             triedWebsiteScraping = true;
             
-            if (scrapedData.photos && scrapedData.photos.length > 0) {
-              // Use proxied URLs for external images
-              extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
-                if (photoUrl.includes('http')) {
-                  return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                }
-                return photoUrl;
-              });
-              console.log(`✅ Successfully scraped ${extractedPhotos.length} real photos from website`);
-            } else {
-              console.log(`📷 Website scraper found no photos`);
+            // If still no photos, try Cheerio as a fallback (faster but less capable)
+            if (extractedPhotos.length === 0) {
+              console.log(`🕸️ Fallback: Trying Cheerio scraping for static HTML photos...`);
+              const { websiteScraperService } = await import('./website-scraper-service');
+              const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+              
+              if (scrapedData.photos && scrapedData.photos.length > 0) {
+                extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
+                  if (photoUrl.includes('http')) {
+                    return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+                  }
+                  return photoUrl;
+                });
+                console.log(`✅ Cheerio found ${extractedPhotos.length} photos from static HTML`);
+              }
             }
           } catch (scrapeError) {
             console.error(`Website scraping failed, will try additional fallback methods:`, scrapeError);
