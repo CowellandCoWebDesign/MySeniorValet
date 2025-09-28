@@ -15,6 +15,7 @@ import { MessagingInterface } from "./MessagingInterface";
 interface CommunityDetailsHeaderProps {
   community: any;
   verificationReport?: any;
+  isVerifying?: boolean;
   isFavorite?: boolean;
   onFavoriteToggle?: () => void;
   getPricingBadgeInfo?: (community: any, verificationReport: any) => any;
@@ -29,6 +30,7 @@ interface CommunityDetailsHeaderProps {
 export function CommunityDetailsHeader({ 
   community, 
   verificationReport,
+  isVerifying = false,
   isFavorite = false,
   onFavoriteToggle,
   getPricingBadgeInfo,
@@ -303,6 +305,7 @@ export function CommunityDetailsHeader({
             communityId={community.id}
             community={community}
             verificationReport={verificationReport}
+            isVerifying={isVerifying}
             className="w-full h-full"
             currentPhotoIndex={currentPhotoIndex}
             onPhotoIndexChange={onPhotoChange}

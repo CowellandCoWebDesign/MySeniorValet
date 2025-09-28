@@ -1702,6 +1702,7 @@ export default function CommunityDetail() {
             <CommunityDetailsHeader 
               community={community}
               verificationReport={verificationReport}
+              isVerifying={isVerifying}
               isFavorite={isFavorite}
               onFavoriteToggle={handleFavorite}
               getPricingBadgeInfo={getPricingBadgeInfo}

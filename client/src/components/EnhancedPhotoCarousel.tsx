@@ -278,8 +278,9 @@ export function EnhancedPhotoCarousel({
     (community?.enrichment_data && (!community.enrichment_data.photos || community.enrichment_data.photos.length === 0))
   );
   
-  // Show loading state only if actively loading AND no photos available yet
-  if (hasNoRealPhotos && isLoadingWebPhotos && !photos?.length) {
+  // Show loading state when we're verifying and have no photos to display
+  // This ensures the loading animation shows when searching for photos
+  if (hasNoRealPhotos && isLoadingWebPhotos) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">
