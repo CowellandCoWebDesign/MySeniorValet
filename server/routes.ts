@@ -304,61 +304,51 @@ Provide complete business data with ALL actual image URLs found.`;
       let triedWebsiteScraping = false;
       
       try {
-        // PRIORITY 1: Always try scraping the website FIRST using Playwright (most reliable)
+        // PRIORITY 1: Always try scraping the website FIRST using Cheerio (works without browser dependencies)
         if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
-            console.log(`🎭 Primary method: Using Playwright to scrape website for real photos: ${extractedWebsite}`);
+            console.log(`🕸️ Primary method: Scraping website for real photos using Cheerio: ${extractedWebsite}`);
+            const { websiteScraperService } = await import('./website-scraper-service');
             
-            // Import and use PlaywrightPhotoScraper for robust photo extraction
-            const { PlaywrightPhotoScraper } = await import('./services/playwright-photo-scraper');
-            const playwrightScraper = new PlaywrightPhotoScraper();
+            // Try to find and scrape gallery pages
+            const galleryPaths = ['/gallery', '/photos', '/media', '/images', '/portfolio', '/menu', '/our-food', '/our-space'];
+            let allScrapedPhotos: string[] = [];
             
-            try {
-              // Use Playwright to visit the actual website and extract photos
-              const scrapedPhotos = await playwrightScraper.scrapePhotosFromWebsite(
-                extractedWebsite,
-                serviceName,
-                {
-                  maxPhotos: 50,
-                  timeout: 30000
-                }
-              );
-              
-              if (scrapedPhotos && scrapedPhotos.length > 0) {
-                // Convert to proxied URLs
-                extractedPhotos = scrapedPhotos.map(photo => {
-                  if (photo.url.includes('http')) {
-                    return `/api/image-proxy?url=${encodeURIComponent(photo.url)}`;
-                  }
-                  return photo.url;
-                });
-                console.log(`✅ Playwright successfully scraped ${extractedPhotos.length} real photos from website`);
-                console.log(`📸 Photo contexts: ${scrapedPhotos.slice(0, 5).map(p => p.context).join(', ')}`);
-              } else {
-                console.log(`⚠️ Playwright found no photos on main website`);
-              }
-            } finally {
-              // Always close the browser to free resources
-              await playwrightScraper.closeBrowser();
+            // First scrape the main website
+            const mainScrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+            if (mainScrapedData.photos) {
+              allScrapedPhotos.push(...mainScrapedData.photos);
             }
             
+            // Then try gallery-specific pages
+            for (const path of galleryPaths) {
+              try {
+                const galleryUrl = extractedWebsite.replace(/\/$/, '') + path;
+                console.log(`📸 Checking gallery page: ${galleryUrl}`);
+                const galleryData = await websiteScraperService.scrapeWebsite(galleryUrl, serviceName);
+                if (galleryData.photos && galleryData.photos.length > 0) {
+                  console.log(`✅ Found ${galleryData.photos.length} photos in ${path}`);
+                  allScrapedPhotos.push(...galleryData.photos);
+                }
+              } catch (e) {
+                // Gallery page might not exist, that's ok
+              }
+            }
+            
+            const scrapedData = { ...mainScrapedData, photos: [...new Set(allScrapedPhotos)] }; // Remove duplicates
             triedWebsiteScraping = true;
             
-            // If still no photos, try Cheerio as a fallback (faster but less capable)
-            if (extractedPhotos.length === 0) {
-              console.log(`🕸️ Fallback: Trying Cheerio scraping for static HTML photos...`);
-              const { websiteScraperService } = await import('./website-scraper-service');
-              const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
-              
-              if (scrapedData.photos && scrapedData.photos.length > 0) {
-                extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
-                  if (photoUrl.includes('http')) {
-                    return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                  }
-                  return photoUrl;
-                });
-                console.log(`✅ Cheerio found ${extractedPhotos.length} photos from static HTML`);
-              }
+            if (scrapedData.photos && scrapedData.photos.length > 0) {
+              // Use proxied URLs for external images
+              extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
+                if (photoUrl.includes('http')) {
+                  return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+                }
+                return photoUrl;
+              });
+              console.log(`✅ Successfully scraped ${extractedPhotos.length} real photos from website`);
+            } else {
+              console.log(`📷 Website scraper found no photos`);
             }
           } catch (scrapeError) {
             console.error(`Website scraping failed, will try additional fallback methods:`, scrapeError);

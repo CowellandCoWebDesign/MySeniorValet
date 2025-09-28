@@ -97,6 +97,32 @@ export class WebsiteScraperService {
     return [...new Set(links)]; // Remove duplicates
   }
 
+  private async validateImageUrl(url: string): Promise<boolean> {
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`❌ Image URL returned ${response.status}: ${url.substring(0, 80)}`);
+        return false;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.startsWith('image/')) {
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.log(`❌ Failed to validate image URL: ${url.substring(0, 80)}`);
+      return false;
+    }
+  }
+
   async scrapeWebsite(url: string, communityName?: string): Promise<ScrapedCommunityData> {
     console.log(`🕸️ Scraping website: ${url}`);
     
@@ -296,6 +322,25 @@ export class WebsiteScraperService {
         });
       }
       
+      // 9. WordPress-specific: Try to find the uploads directory and scan for images
+      const wpUploadsPattern = /wp-content\/uploads\/\d{4}\/\d{2}\//gi;
+      const wpUploadsMatches = allHtml.match(wpUploadsPattern);
+      if (wpUploadsMatches && wpUploadsMatches.length > 0) {
+        console.log(`🔍 Detected WordPress site, found uploads paths: ${wpUploadsMatches.slice(0, 3).join(', ')}`);
+        
+        // Try to find all image paths in WordPress uploads
+        const wpImagePattern = /wp-content\/uploads\/\d{4}\/\d{2}\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi;
+        const wpImages = allHtml.match(wpImagePattern);
+        if (wpImages) {
+          wpImages.forEach(imgPath => {
+            const fullUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}/${imgPath}`;
+            if (!imageUrls.includes(fullUrl)) {
+              imageUrls.push(fullUrl);
+            }
+          });
+        }
+      }
+      
       console.log(`📷 Found ${imageUrls.length} total image URLs`);
       
       // Process and categorize images  
@@ -374,8 +419,17 @@ export class WebsiteScraperService {
         }
       }
       
-      // Transfer processed photos to data structure
-      data.photos = processedPhotos.slice(0, 50); // Allow up to 50 photos for services
+      // Transfer processed photos to data structure - optionally validate URLs
+      // For services, skip validation to speed up response (validation happens during proxy)
+      if (isService && processedPhotos.length > 0) {
+        // For services, don't validate each URL to avoid delays
+        // The image-proxy endpoint will handle validation
+        data.photos = processedPhotos.slice(0, 50);
+      } else {
+        // For communities, optionally validate photos (currently disabled for speed)
+        data.photos = processedPhotos.slice(0, 50);
+      }
+      
       data.floorPlans = processedFloorPlans.slice(0, 10);
       
       console.log(`✅ Extracted ${data.photos.length} ${isService ? 'business' : 'community'} photos from ${pageCount} pages`);
