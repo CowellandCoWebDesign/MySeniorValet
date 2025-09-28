@@ -58,7 +58,9 @@ import {
   Calculator,
   Briefcase,
   Zap,
-  Building2
+  Building2,
+  AlertCircle,
+  Phone
 } from 'lucide-react';
 
 // Type definitions
