@@ -558,7 +558,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective search (same as community details)
+          model: 'sonar-pro', // Enhanced model with low context for quality and cost balance
           messages: [
             {
               role: 'system',
@@ -1354,7 +1354,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'sonar', // Standard model for cost-effective search
+            model: 'sonar-pro', // Enhanced model with low context
             messages: [
               { role: 'system', content: 'List senior living facilities with accurate details.' },
               { role: 'user', content: perplexityQuery }

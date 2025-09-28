@@ -140,44 +140,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ error: 'Perplexity API key not configured' });
       }
       
-      const perplexityPrompt = `Find specific information about "${serviceName}" which is a ${serviceType || 'restaurant/business'} located in ${city}, ${state}. 
+      const perplexityPrompt = `Find ALL of the following information about ${serviceName} (a ${serviceType || 'restaurant/business'}) in ${city}, ${state} in ONE comprehensive search:
 
-This is NOT a senior living community - it's a regular business/restaurant.
+**COMPLETE BUSINESS PROFILE:**
+1. Full business name, exact street address, zip code
+2. Phone, website, email, social media handles
+3. Business hours for all 7 days
+4. Complete service/product offerings with pricing
+5. ${serviceType === 'restaurant' ? 'Full menu with prices, dietary options, specialties' : 'All services with pricing, packages, special offers'}
 
-FIRST PRIORITY - PHOTOS: Please find and return actual photos of ${serviceName} from:
-- The restaurant/business's own website gallery
-- Google Maps/Business photos  
-- Yelp business photos
-- TripAdvisor photos
-- Facebook/Instagram photos
+**RATINGS & REVIEWS (from all platforms):**
+6. Google: rating, review count, recent reviews
+7. Yelp: rating, review count, key feedback
+8. TripAdvisor: rating if applicable
+9. Facebook: rating, reviews
+10. Industry-specific sites ratings
 
-Provide the following information:
-1. What type of business/restaurant it is and what they serve/sell
-2. Their complete street address
-3. Phone number
-4. Website URL (without any citation markers like [1])
-5. Business hours of operation
-6. Menu highlights or popular items (if it's a restaurant)
-7. Customer reviews summary
-8. Photos of the actual business (exterior, interior, food/products)
+**PHOTOS (include direct URLs):**
+11. Google Business photos
+12. Yelp photos (food, interior, exterior)
+13. TripAdvisor gallery
+14. Official website gallery
+15. Facebook/Instagram photos
 
-IMPORTANT: Find the actual business listing pages where this business has photos:
-- The actual TripAdvisor page URL for this specific business 
-- The Yelp business page URL
-- The Google Maps/Business listing URL
-- OpenTable page if it's a restaurant
-- Facebook business page URL
-- Instagram business profile URL
+**COMPLETE ONLINE PRESENCE:**
+Google Maps: [exact URL]
+Yelp: [exact URL]
+TripAdvisor: [exact URL if exists]
+Facebook: [exact URL]
+Instagram: [exact URL]
+Official Website: [exact URL]
+${serviceType === 'restaurant' ? 'OpenTable/Resy: [booking URL]' : 'Booking/Appointment: [URL]'}
 
-Include any photo URLs you find showing the actual business, its interior, exterior, food, or products.
-List each page with format:
-LISTING: [platform name] - [full URL]
+**ADDITIONAL DETAILS:**
+- Current promotions/deals
+- Awards/certifications
+- Accessibility features
+- Parking availability
+- ${serviceType === 'restaurant' ? 'Delivery/takeout options' : 'Online services'}
 
-For example:
-LISTING: TripAdvisor - https://www.tripadvisor.com/Restaurant_Review-g60763-d457808-Reviews-Eleven_Madison_Park-New_York_City.html
-LISTING: Yelp - https://www.yelp.com/biz/eleven-madison-park-new-york
-
-Important: Only provide URLs that actually exist and are for ${serviceName} in ${city}, ${state} specifically.`;
+Gather ALL this information from every available source in this SINGLE response. Include actual photo URLs and complete business data.`;
 
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -186,7 +188,7 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: 'sonar-pro',
           messages: [
             {
               role: 'system',

@@ -103,7 +103,7 @@ export class EnhancedCityVerification {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar',
+          model: 'sonar-pro',
           messages: [
             {
               role: 'system',

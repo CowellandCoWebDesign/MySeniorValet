@@ -253,33 +253,37 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     console.log(`🔍 Fetching web intelligence for: ${communityName} at ${address || 'unspecified address'} in ${city}, ${state}`);
     console.log(`📊 Market analysis data provided: ${marketAnalysisData ? 'Yes' : 'No'}`);
     
-    let officialWebsite = website; // Use provided website if available
-    let websiteSearchResponse = null;
+    // CONSOLIDATED: Make ONE comprehensive API call to get everything we need
+    const comprehensiveQuery = `"${communityName}" ${address ? `"${address}"` : ''} ${city} ${state} senior living`;
+    console.log(`🎯 Making ONE consolidated API call for all community information`);
     
-    // If we don't already have the website, do ONE comprehensive search
-    if (!officialWebsite) {
-      // Single comprehensive search that includes address for accuracy
-      const comprehensiveQuery = `"${communityName}" "${address}" ${city} ${state} senior living official website`;
-      console.log(`🔍 Comprehensive search with address matching: ${comprehensiveQuery}`);
+    const consolidatedResponse = await perplexityService.searchRealTime(
+      comprehensiveQuery,
+      `Find ALL of the following information about ${communityName} at ${address || 'this location'} in ${city}, ${state} in a SINGLE comprehensive search:
       
-      websiteSearchResponse = await perplexityService.searchRealTime(
-        comprehensiveQuery,
-        `Find the official website and comprehensive information for this specific senior living community at ${address}`
-      );
-    } else {
-      console.log(`✅ Using existing official website: ${officialWebsite}`);
-      // Enhanced search for media assets from the official website
-      const siteSpecificQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing photos floor plans virtual tour 3D tour video tour gallery availability amenities`;
-      websiteSearchResponse = await perplexityService.searchRealTime(
-        siteSpecificQuery,
-        `Extract comprehensive information from this official community website including:
-        1. Photo galleries and image counts
-        2. Floor plans and apartment layouts
-        3. Virtual tours, 3D tours, or Matterport tours
-        4. Video tours or walkthrough videos
-        5. Current pricing and availability`
-      );
-    }
+      1. **OFFICIAL WEBSITE**: Find the official website URL for this specific community
+      2. **PRICING**: Current monthly rates for all care levels (Independent, Assisted Living, Memory Care)
+      3. **PHOTOS**: Direct URLs to actual photos of the facility (exterior, interior, rooms, amenities)
+      4. **AMENITIES**: Complete list of amenities and services offered
+      5. **AVAILABILITY**: Current availability status and any waitlist information
+      6. **REVIEWS**: Ratings and reviews from Google, Yelp, A Place for Mom, and other platforms
+      7. **CONTACT**: Phone number, email, contact person
+      8. **VIRTUAL TOURS**: Any virtual tour, video tour, or 3D tour links
+      9. **FLOOR PLANS**: Available room types and floor plan options
+      10. **CERTIFICATIONS**: Medicare/Medicaid acceptance, licenses, accreditations
+      
+      Include information from:
+      - The official community website
+      - Google Business listing
+      - Senior living directories (A Place for Mom, Caring.com, SeniorAdvisor)
+      - Review platforms (Yelp, Google Reviews)
+      - Social media pages
+      
+      Provide comprehensive data from ALL available sources in this single response.`
+    );
+    
+    let officialWebsite = website;
+    const websiteSearchResponse = consolidatedResponse;
     
     // Extract official website from search response if we didn't already have it
     const foundWebsites: string[] = [];
@@ -324,31 +328,15 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       }
     }
     
-    // NOW: If we have an official website, fetch directly from it for the most accurate data
-    let officialWebsiteData = null;
+    // CONSOLIDATED: No need for additional API calls - we got everything in one call
+    let officialWebsiteData = consolidatedResponse;
     let thirdPartySources = [];
+    let thirdPartyResponse = { summary: '', sources: [], images: [] };
     
-    if (officialWebsite) {
-      console.log(`🌐 Fetching comprehensive data from official website: ${officialWebsite}`);
-      const officialSiteQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing rates availability photos virtual tour amenities services contact`;
-      try {
-        officialWebsiteData = await perplexityService.searchRealTime(
-          officialSiteQuery,
-          `Extract ALL information from this official community website including pricing, photos, amenities, and availability`
-        );
-      } catch (error) {
-        console.error('Error fetching from official website:', error);
-      }
+    // Extract third-party sources from the consolidated response
+    if (consolidatedResponse.sources) {
+      thirdPartySources = consolidatedResponse.sources;
     }
-    
-    // Also get third-party information for comprehensive coverage
-    const thirdPartyQuery = `"${communityName}" "${address}" ${city} ${state} reviews ratings pricing`;
-    console.log(`📚 Gathering third-party references and reviews`);
-    
-    const thirdPartyResponse = await perplexityService.searchRealTime(
-      thirdPartyQuery,
-      `Find reviews, ratings, and third-party information about this specific community at ${address}`
-    );
     
     // Separate official sources from third-party references
     let thirdPartySourcesList: string[] = [];
@@ -364,18 +352,8 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     }
     thirdPartySources = thirdPartySourcesList;
     
-    // Combine data with clear source attribution
-    let finalContent = '';
-    
-    if (officialWebsite && officialWebsiteData) {
-      finalContent = `**OFFICIAL COMMUNITY INFORMATION**\n`;
-      finalContent += `Source: ${officialWebsite}\n\n`;
-      finalContent += officialWebsiteData.summary || '';
-      finalContent += `\n\n**THIRD-PARTY REFERENCES & REVIEWS**\n\n`;
-      finalContent += thirdPartyResponse.summary || '';
-    } else {
-      finalContent = websiteSearchResponse?.summary || thirdPartyResponse.summary || '';
-    }
+    // CONSOLIDATED: Use the single response we got from our one API call
+    let finalContent = consolidatedResponse.summary || '';
     
     const response = {
       summary: finalContent,
