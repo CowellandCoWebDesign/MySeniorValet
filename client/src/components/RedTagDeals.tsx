@@ -85,16 +85,16 @@ export function RedTagDeals() {
       whyFeatured: ["Premier European senior living", "Heart of Barcelona location", "Exceptional Mediterranean lifestyle"]
     },
     {
-      id: 76156,
-      communityName: "Conlon L.I.H.F.E. Towers",
-      location: "Queens, NY",
-      dealType: "NYC Public Housing Excellence",
-      highlights: ["Affordable NYC living", "Public housing program", "Community-focused care"],
-      rating: 4.2,
-      heroImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
-      availability: "Waitlist",
-      amenities: ["NYC Location", "Public Transportation", "Community Services", "Social Programs"],
-      whyFeatured: ["Affordable senior housing in NYC", "Strong community support", "Public housing benefits"]
+      id: 51762,
+      communityName: "The Ivy At Hawaii Kai",
+      location: "Honolulu, HI",
+      dealType: "Tropical Paradise Living",
+      highlights: ["Ocean views in Hawaii", "Premium island lifestyle", "Resort-style amenities"],
+      rating: 4.8,
+      heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
+      availability: "Limited Availability",
+      amenities: ["Ocean Views", "Tropical Gardens", "Fine Dining", "Island Activities"],
+      whyFeatured: ["Hawaii's premier senior community", "Paradise island living", "Exceptional tropical lifestyle"]
     },
     {
       id: 76174,
@@ -113,7 +113,7 @@ export function RedTagDeals() {
   }, []);
   
   // Merge API data with our curated list to ensure we show exactly these 6 communities
-  const desiredCommunityIds = [51463, 70616, 72147, 76138, 76156, 76174];
+  const desiredCommunityIds = [51463, 70616, 72147, 76138, 51762, 76174];
   
   // Create a map of API data by ID for quick lookup
   const apiDataMap = new Map();
