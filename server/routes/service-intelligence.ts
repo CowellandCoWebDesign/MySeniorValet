@@ -1,6 +1,6 @@
 
 import { Router } from 'express';
-import { multiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
+import { MultiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
 
 const router = Router();
 
@@ -18,13 +18,17 @@ router.post('/api/service-intelligence', async (req, res) => {
     console.log(`🔍 Service Intelligence Request: ${serviceName} in ${city}, ${state} (${serviceType})`);
 
     // Use the multi-AI photo extractor to find photos for this service
-    const searchQuery = `${serviceName} ${city} ${state} ${serviceType} photos`;
-    const photos = await multiAIPhotoExtractor.extractPhotosFromQuery(searchQuery, {
-      maxPhotos: 20,
-      serviceType: serviceType,
-      location: `${city}, ${state}`,
-      businessName: serviceName
-    });
+    const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+      serviceName,
+      serviceType,
+      city,
+      state,
+      `${serviceName} ${city} ${state} ${serviceType} photos`, // Basic content
+      undefined, // No specific website URL
+      [] // No citations
+    );
+    
+    const photos = photoExtractionResult?.authenticPhotos || [];
 
     // Extract contact information (simplified for testing)
     const contactInfo = {
