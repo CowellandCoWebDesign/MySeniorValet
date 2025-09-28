@@ -421,16 +421,99 @@ Format all information clearly with section headers.
   ): Promise<string[]> {
     const extractedPhotos: string[] = [];
     
-    // USER REQUEST: Show ALL photos without filtering
+    // Smart photo filtering - show facility photos, exclude logos/icons
     const isValidCommunityPhoto = (url: string): boolean => {
       if (!url) return false;
-      // Accept all photos except SVG/ICO files
       const urlLower = url.toLowerCase();
+      
+      // Always reject these file types
       if (urlLower.includes('.svg') || urlLower.includes('.ico')) {
+        console.log(`❌ Rejecting vector/icon file: ${url.substring(0, 100)}...`);
         return false;
       }
-      console.log(`✅ Accepting photo: ${url.substring(0, 100)}...`);
-      return true;
+      
+      // STRONG REJECTION PATTERNS - definitely not facility photos
+      const strongRejectPatterns = [
+        // Logo/Icon indicators
+        'logo', 'icon', 'badge', 'button', 'avatar', 'favicon',
+        'brand', 'symbol', 'emblem', 'seal', 'crest', 'mark',
+        // Technical/UI elements
+        'spinner', 'loader', 'placeholder', 'thumbnail', 'sprite',
+        // Social media profile pics
+        'profile-pic', 'profile_pic', 'profilepic', 'user-avatar',
+        // Ads and banners
+        'banner', 'advertisement', 'ad-', 'promo',
+        // Graphics and illustrations
+        'illustration', 'cartoon', 'clipart', 'drawing'
+      ];
+      
+      // Check for strong rejection patterns
+      for (const pattern of strongRejectPatterns) {
+        if (urlLower.includes(pattern)) {
+          console.log(`❌ Rejecting logo/icon/graphic: ${url.substring(0, 100)}...`);
+          return false;
+        }
+      }
+      
+      // POSITIVE INDICATORS - likely facility photos
+      const positivePatterns = [
+        // Building/facility terms
+        'facility', 'building', 'exterior', 'interior', 'entrance',
+        'lobby', 'reception', 'hallway', 'corridor', 
+        // Room types
+        'room', 'bedroom', 'bathroom', 'dining', 'kitchen',
+        'lounge', 'library', 'chapel', 'gym', 'fitness',
+        'activity', 'recreation', 'therapy', 'salon',
+        // Amenities
+        'garden', 'patio', 'courtyard', 'pool', 'grounds',
+        'amenity', 'amenities', 'outdoor', 'indoor',
+        // Care-related
+        'resident', 'senior', 'living', 'care', 'nursing',
+        'assisted', 'memory', 'alzheimer', 'dementia',
+        // Tours and galleries
+        'tour', 'gallery', 'photo', 'image', 'picture',
+        'view', 'community', 'home'
+      ];
+      
+      // Check if URL contains positive indicators
+      const hasPositiveIndicator = positivePatterns.some(pattern => urlLower.includes(pattern));
+      
+      // Check if it's from a known good source
+      const goodSources = [
+        'seniorliving', 'assistedliving', 'nursinghome',
+        'caring.com', 'aplaceformom', 'senioradvisor',
+        'seniorhousing', 'retirement'
+      ];
+      const fromGoodSource = goodSources.some(source => urlLower.includes(source));
+      
+      // MODERATE REJECTION - only reject if no positive indicators
+      const moderateRejectPatterns = [
+        'headshot', 'portrait', 'staff', 'team', 'employee',
+        'manager', 'director', 'executive', 'realtor', 'agent'
+      ];
+      
+      // Check for staff/people photos
+      const hasModerateReject = moderateRejectPatterns.some(pattern => urlLower.includes(pattern));
+      
+      // Decision logic
+      if (hasPositiveIndicator || fromGoodSource) {
+        // Has positive indicators - likely a good photo
+        console.log(`✅ Accepting facility photo: ${url.substring(0, 100)}...`);
+        return true;
+      } else if (hasModerateReject) {
+        // Has moderate rejection patterns and no positive indicators
+        console.log(`❌ Rejecting staff/people photo: ${url.substring(0, 100)}...`);
+        return false;
+      } else {
+        // Default: accept if it's an image file
+        const isImageFile = /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(urlLower);
+        if (isImageFile) {
+          console.log(`✅ Accepting image (no negative indicators): ${url.substring(0, 100)}...`);
+          return true;
+        }
+        console.log(`❌ Rejecting non-image or uncertain file: ${url.substring(0, 100)}...`);
+        return false;
+      }
     };
     
     // First add any images that were directly returned by Perplexity

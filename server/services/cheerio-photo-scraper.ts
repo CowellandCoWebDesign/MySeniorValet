@@ -226,19 +226,87 @@ export class CheerioPhotoScraper {
   
   private isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
+    const urlLower = url.toLowerCase();
     
-    // Only reject SVG and ICO files - accept everything else
+    // Always reject these file types
     if (/\.(svg|ico)(\?|#|$)/i.test(url)) {
       return false;
     }
     
-    // Accept ANY image that has a common image extension or looks like an image URL
-    const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|bmp|JPG|JPEG|PNG|GIF|WEBP|BMP)(\?|#|$)/i.test(url);
-    const hasImagePath = /\/(image|img|photo|pic|gallery|media|upload|files|assets|static|content|wp-content)\//i.test(url);
-    const isImageCDN = /.+\.(com|net|org|io)/i.test(url); // Any domain could host images
+    // STRONG REJECTION PATTERNS - definitely not facility photos
+    const strongRejectPatterns = [
+      // Logo/Icon indicators
+      'logo', 'icon', 'badge', 'button', 'avatar', 'favicon',
+      'brand', 'symbol', 'emblem', 'seal', 'crest', 'mark',
+      // Technical/UI elements
+      'spinner', 'loader', 'placeholder', 'thumbnail', 'sprite',
+      // Social media profile pics
+      'profile-pic', 'profile_pic', 'profilepic', 'user-avatar',
+      // Ads and banners
+      'banner', 'advertisement', 'ad-', 'promo',
+      // Graphics and illustrations
+      'illustration', 'cartoon', 'clipart', 'drawing'
+    ];
     
-    // Accept if it has an image extension OR contains image-related paths
-    return hasImageExtension || hasImagePath || isImageCDN;
+    // Check for strong rejection patterns
+    for (const pattern of strongRejectPatterns) {
+      if (urlLower.includes(pattern)) {
+        return false;
+      }
+    }
+    
+    // POSITIVE INDICATORS - likely facility photos
+    const positivePatterns = [
+      // Building/facility terms
+      'facility', 'building', 'exterior', 'interior', 'entrance',
+      'lobby', 'reception', 'hallway', 'corridor',
+      // Room types
+      'room', 'bedroom', 'bathroom', 'dining', 'kitchen',
+      'lounge', 'library', 'chapel', 'gym', 'fitness',
+      'activity', 'recreation', 'therapy', 'salon',
+      // Amenities
+      'garden', 'patio', 'courtyard', 'pool', 'grounds',
+      'amenity', 'amenities', 'outdoor', 'indoor',
+      // Care-related
+      'resident', 'senior', 'living', 'care', 'nursing',
+      'assisted', 'memory', 'alzheimer', 'dementia',
+      // Tours and galleries
+      'tour', 'gallery', 'photo', 'image', 'picture',
+      'view', 'community', 'home'
+    ];
+    
+    // Check if URL contains positive indicators
+    const hasPositiveIndicator = positivePatterns.some(pattern => urlLower.includes(pattern));
+    
+    // Check if it's from a known good source
+    const goodSources = [
+      'seniorliving', 'assistedliving', 'nursinghome',
+      'caring.com', 'aplaceformom', 'senioradvisor',
+      'seniorhousing', 'retirement'
+    ];
+    const fromGoodSource = goodSources.some(source => urlLower.includes(source));
+    
+    // MODERATE REJECTION - only reject if no positive indicators
+    const moderateRejectPatterns = [
+      'headshot', 'portrait', 'staff', 'team', 'employee',
+      'manager', 'director', 'executive', 'realtor', 'agent'
+    ];
+    
+    // Check for staff/people photos
+    const hasModerateReject = moderateRejectPatterns.some(pattern => urlLower.includes(pattern));
+    
+    // Decision logic
+    if (hasPositiveIndicator || fromGoodSource) {
+      // Has positive indicators - likely a good photo
+      return true;
+    } else if (hasModerateReject) {
+      // Has moderate rejection patterns and no positive indicators
+      return false;
+    } else {
+      // Default: accept if it's an image file
+      const isImageFile = /\.(jpg|jpeg|png|gif|webp|bmp)(\?|#|$)/i.test(urlLower);
+      return isImageFile;
+    }
   }
   
   private isStockPhoto(url: string): boolean {
