@@ -312,46 +312,11 @@ export default function ServiceDetail() {
       viewCount: rawService.viewCount || 247, // Default to a realistic fixed number
       responseRate: rawService.responseRate || 92, // Default to a realistic fixed percentage
       
-      // Add demo special offers if missing
-      specialOffers: rawService.specialOffers?.length ? rawService.specialOffers : [
-        {
-          title: "New Customer Special",
-          description: "Get 20% off your first service visit",
-          discount: "20% OFF",
-          validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          title: "Senior Discount",
-          description: "Special rates for seniors 65+",
-          discount: "15% OFF",
-          validUntil: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString()
-        }
-      ],
+      // Only show real special offers from database
+      specialOffers: rawService.specialOffers || [],
       
-      // Add demo service packages if missing
-      servicePackages: rawService.servicePackages?.length ? rawService.servicePackages : [
-        {
-          name: "Basic Service",
-          description: "Essential service package",
-          price: "$99",
-          features: ["Initial consultation", "Basic service", "Follow-up support"],
-          popular: false
-        },
-        {
-          name: "Premium Service",
-          description: "Most popular choice",
-          price: "$199",
-          features: ["Priority scheduling", "Extended service", "24/7 support", "Satisfaction guarantee"],
-          popular: true
-        },
-        {
-          name: "Enterprise",
-          description: "Comprehensive solution",
-          price: "Custom",
-          features: ["Dedicated account manager", "Unlimited services", "Custom solutions", "Priority support"],
-          popular: false
-        }
-      ],
+      // Only show real service packages from database
+      servicePackages: rawService.servicePackages || [],
       
       // Add demo gallery if missing and we have photos
       gallery: rawService.gallery?.length ? rawService.gallery : 
