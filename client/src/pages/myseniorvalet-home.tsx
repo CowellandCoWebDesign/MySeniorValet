@@ -1970,18 +1970,11 @@ export default function MySeniorValetHome() {
 
             {/* Communities Tab */}
             <TabsContent value="communities" className="mt-6">
-              {/* Featured Excellence Communities Section */}
+              {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
-                <RedTagDeals />
-              </div>
-              
-              {/* Four Directory Cards Grid - Seamlessly Connected */}
-              <section className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-          <div className="max-w-7xl mx-auto">
-            {/* Four Directory Cards in 2x2 Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {/* Community Directory */}
-            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105 cursor-pointer" onClick={(e) => {
+                <div className="grid grid-cols-1">
+                  {/* Community Directory */}
+                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105 cursor-pointer" onClick={(e) => {
               // Only navigate if clicking on the card background, not buttons
               const target = e.target as HTMLElement;
               if (e.target === e.currentTarget || !target.closest('button')) {
@@ -2143,10 +2136,24 @@ export default function MySeniorValetHome() {
                   </Button>
                 </CardContent>
               </Card>
-            </div>
-          </div>
-        </section>
-      </TabsContent>
+                </div>
+              </div>
+              
+              {/* Featured Excellence Communities Section */}
+              <div className="mb-12">
+                <RedTagDeals />
+              </div>
+              
+              {/* Remaining Directory Cards Grid - Seamlessly Connected */}
+              <section className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+                <div className="max-w-7xl mx-auto">
+                  {/* Remaining Directory Cards in Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    {/* Other cards will go here */}
+                  </div>
+                </div>
+              </section>
+            </TabsContent>
 
       {/* Services Tab */}
       <TabsContent value="services" className="mt-6">
