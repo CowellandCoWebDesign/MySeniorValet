@@ -293,6 +293,7 @@ function Router() {
       {/* HudVashMap route removed */}
       <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaborationCenter} />
+      <Route path="/family-collaboration-center" component={FamilyCollaborationCenter} />
       <Route path="/family-dashboard" component={FamilyDashboard} />
       <Route path="/family-connect" component={FamilyConnect} />
       <Route path="/emergency-contacts" component={EmergencyContacts} />
