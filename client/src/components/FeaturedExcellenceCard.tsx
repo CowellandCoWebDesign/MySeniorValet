@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
-import { useEnrichmentCache } from "@/lib/enrichmentCache";
 
 interface FeaturedExcellenceCardProps {
   community: {
@@ -34,7 +33,6 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
-  const enrichmentCache = useEnrichmentCache();
   
   // Default amenities if none provided
   const amenities = community.amenities && community.amenities.length > 0 
@@ -47,26 +45,20 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
       // Skip if we already have multiple photos
       if (enrichedPhotos.length > 1) return;
       
-      // Use enrichment cache to get verification data which includes photos
+      // Fetch verification data which includes photos
       try {
         setIsLoadingPhotos(true);
-        const verifyData = await enrichmentCache.getOrFetch(
-          `verify-${community.id}`,
-          async () => {
-            const response = await fetch(`/api/communities/${community.id}/verify`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ forceRefresh: false })
-            });
-            
-            if (!response.ok) {
-              throw new Error(`Failed to fetch photos: ${response.status}`);
-            }
-            
-            return response.json();
-          },
-          false
-        );
+        const response = await fetch(`/api/communities/${community.id}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceRefresh: false })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch photos: ${response.status}`);
+        }
+        
+        const verifyData = await response.json();
         
         // Extract photos from verification data
         const webPhotos = verifyData?.verificationResults?.webIntelligence?.images || [];
@@ -98,7 +90,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
     if (community.id && (!enrichedPhotos || enrichedPhotos.length <= 1)) {
       fetchEnrichedPhotos();
     }
-  }, [community.id, enrichmentCache]);
+  }, [community.id]);
   
   // Auto-advance carousel
   useEffect(() => {
