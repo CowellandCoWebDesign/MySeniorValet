@@ -46,60 +46,81 @@ router.get('/api/image-proxy', async (req, res) => {
 
     console.log(`🔍 Attempting to proxy image from: ${decodedUrl}`);
 
-    // Fetch the image with retry mechanism
+    // Fetch the image with enhanced retry mechanism
     let response;
     let attempts = 0;
-    const maxAttempts = 2;
+    const maxAttempts = 3;
 
     while (attempts < maxAttempts) {
       attempts++;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout per attempt
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout per attempt
 
       try {
+        // Use different user agents for different attempts
+        const userAgents = [
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        ];
+
         response = await fetch(decodedUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': userAgents[attempts - 1],
             'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
             'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
             'Sec-Fetch-Dest': 'image',
             'Sec-Fetch-Mode': 'no-cors',
-            'Sec-Fetch-Site': 'cross-site',
-            'Referer': validUrl.origin
+            'Sec-Fetch-Site': 'cross-site'
           },
-          signal: controller.signal
+          signal: controller.signal,
+          redirect: 'follow',
+          mode: 'cors'
         });
 
         clearTimeout(timeoutId);
         
         if (response.ok) {
+          console.log(`✅ Image proxy success on attempt ${attempts} for ${validUrl.hostname}`);
           break; // Success, exit retry loop
         } else if (attempts === maxAttempts) {
           console.log(`❌ Image proxy failed after ${maxAttempts} attempts for ${decodedUrl}: ${response.status} ${response.statusText}`);
+        } else {
+          console.log(`⚠️ Attempt ${attempts} failed (${response.status}), retrying...`);
         }
       } catch (fetchError: any) {
         clearTimeout(timeoutId);
         if (attempts === maxAttempts) {
           console.log(`❌ Image proxy fetch error after ${maxAttempts} attempts for ${decodedUrl}: ${fetchError.message}`);
           throw fetchError;
+        } else {
+          console.log(`⚠️ Attempt ${attempts} error (${fetchError.message}), retrying...`);
         }
         // Wait a bit before retry
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
       }
     }
 
-    if (!response.ok) {
-      console.log(`❌ Image proxy failed for ${decodedUrl}: ${response.status} ${response.statusText}`);
+    if (!response || !response.ok) {
+      console.log(`❌ Image proxy failed for ${decodedUrl}: ${response?.status || 'No response'} ${response?.statusText || ''}`);
 
-      // Return a transparent 1x1 pixel PNG for failed images
-      const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+      // Return a small placeholder image instead of transparent pixel
+      const placeholderSvg = `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#f3f4f6"/>
+        <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#9ca3af" font-family="Arial, sans-serif" font-size="14">
+          Image temporarily unavailable
+        </text>
+      </svg>`;
+      
       res.set({
-        'Content-Type': 'image/png',
+        'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=300', // Cache failed attempts for 5 minutes
         'Access-Control-Allow-Origin': '*'
       });
-      return res.send(transparentPixel);
+      return res.send(placeholderSvg);
     }
 
     // Get content type
