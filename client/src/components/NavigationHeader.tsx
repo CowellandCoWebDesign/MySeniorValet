@@ -308,9 +308,12 @@ export function NavigationHeader({
                   alt="MySeniorValet" 
                   className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]" 
                   onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                    const sibling = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (sibling) sibling.style.display = 'flex';
+                    const img = e.currentTarget;
+                    const fallback = img.nextElementSibling;
+                    if (img && fallback) {
+                      img.style.display = 'none';
+                      (fallback as HTMLElement).style.display = 'flex';
+                    }
                   }}
                 />
                 <Home className="w-6 h-6 text-white hidden" />
