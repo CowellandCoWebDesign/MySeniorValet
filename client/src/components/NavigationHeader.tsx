@@ -302,11 +302,11 @@ export function NavigationHeader({
             )}
             
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center p-1">
+              <div className="w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center p-1">
                 <img 
                   src={neonHeartHomeLogo} 
                   alt="MySeniorValet" 
-                  className="w-8 h-8 object-contain drop-shadow-[0_0_10px_rgba(236,72,153,0.5)]" 
+                  className="w-12 h-12 object-contain drop-shadow-[0_0_15px_rgba(236,72,153,0.7)]" 
                   onError={(e) => {
                     const img = e.currentTarget;
                     const fallback = img.nextElementSibling;

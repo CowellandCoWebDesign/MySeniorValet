@@ -208,11 +208,11 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               <SheetContent side="left" className="w-[320px] p-0 bg-white dark:bg-gray-900 flex flex-col h-full">
                 <SheetHeader className="p-6 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-gray-800 dark:to-gray-900 flex-shrink-0">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
+                    <div className="p-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md flex items-center justify-center">
                       <img 
                         src={neonHeartHomeLogo} 
                         alt="MySeniorValet" 
-                        className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(236,72,153,0.6)]" 
+                        className="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(236,72,153,0.7)]" 
                         onError={(e) => {
                           const img = e.currentTarget;
                           const fallback = img.nextElementSibling;
@@ -294,11 +294,11 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
             {/* Logo - Clean Professional Design */}
             <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
-              <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
+              <div className="p-3 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
                 <img 
                   src={neonHeartHomeLogo} 
                   alt="MySeniorValet" 
-                  className="w-8 h-8 object-contain drop-shadow-[0_0_12px_rgba(236,72,153,0.6)]" 
+                  className="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(236,72,153,0.7)]" 
                   onError={(e) => {
                     const img = e.currentTarget;
                     const fallback = img.nextElementSibling;
