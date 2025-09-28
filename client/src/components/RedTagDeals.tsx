@@ -99,21 +99,9 @@ export function RedTagDeals() {
     setFallbackDeals(defaultDeals);
   }, []);
   
-  // Transform API data to RedTagDeal format or use fallback
-  const redTagDeals: RedTagDeal[] = Array.isArray(featuredCommunities) && featuredCommunities.length > 0
-    ? featuredCommunities.map((featured: any) => ({
-        id: featured.community?.id || featured.communityId,
-        communityName: featured.featuredTitle || featured.community?.name || 'Community',
-        location: featured.community ? `${featured.community.city}, ${featured.community.state}` : 'Location',
-        dealType: featured.dealType || 'Premium Living',
-        highlights: featured.highlights || [],
-        rating: featured.community?.rating || 4.5,
-        heroImage: featured.heroImage || featured.community?.photos?.[0] || featured.community?.photo || "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
-        availability: featured.availability || "Available Now",
-        amenities: featured.community?.amenities?.slice(0, 4) || [],
-        whyFeatured: featured.whyFeatured || [],
-      }))
-    : fallbackDeals;
+  // Always use our curated list of 5 featured communities
+  // (Ignoring API data to ensure we show all 5 communities)
+  const redTagDeals: RedTagDeal[] = fallbackDeals;
 
   const getAmenityIcon = (amenity: string) => {
     if (amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('lake') || amenity.toLowerCase().includes('mountain')) 
@@ -197,7 +185,7 @@ export function RedTagDeals() {
               </div>
               <div>
                 <p className="font-medium text-sm">Excellence Showcase</p>
-                <p className="text-xs text-muted-foreground">Premium communities across 3 countries</p>
+                <p className="text-xs text-muted-foreground">Premium communities across 5 countries</p>
               </div>
             </div>
             <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
@@ -208,7 +196,7 @@ export function RedTagDeals() {
       </Card>
 
       {/* Enhanced Deal Cards with Expanded Information */}
-      <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {redTagDeals.map((deal) => (
           <Card key={deal.id} className="relative overflow-hidden border hover:border-red-300 dark:hover:border-red-700 transition-all">
             {/* Hero Image */}
