@@ -48,16 +48,16 @@ export function RedTagDeals() {
       whyFeatured: ["Part of the prestigious Atria network", "Stunning La Jolla location", "Excellence in senior care"]
     },
     {
-      id: 54540,
-      communityName: "Highland Village",
-      location: "Midland, Ontario, Canada",
-      dealType: "Canadian Healthcare Excellence",
-      highlights: ["Provincial healthcare integration", "Lakefront setting", "Bilingual services"],
-      rating: 4.6,
-      heroImage: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=800&q=80",
-      availability: "Move-in Ready",
-      amenities: ["Lakefront Views", "Canadian Healthcare", "Bilingual Staff", "Indoor Pool"],
-      whyFeatured: ["Beautiful Ontario lakefront property", "Full Canadian healthcare benefits", "Strong community reputation"]
+      id: 70616,
+      communityName: "Willow Springs Alzheimer's Special Care Center",
+      location: "Vernon Hills, IL",
+      dealType: "Memory Care Excellence",
+      highlights: ["Specialized Alzheimer's care", "Award-winning programs", "Secure environment"],
+      rating: 4.5,
+      heroImage: "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80",
+      availability: "Available Now",
+      amenities: ["Memory Care", "Secure Units", "Specialized Activities", "24/7 Nursing"],
+      whyFeatured: ["Leading memory care facility", "Specialized Alzheimer's programs", "Compassionate expert care"]
     },
     {
       id: 72147,
@@ -99,9 +99,35 @@ export function RedTagDeals() {
     setFallbackDeals(defaultDeals);
   }, []);
   
-  // Always use our curated list of 5 featured communities
-  // (Ignoring API data to ensure we show all 5 communities)
-  const redTagDeals: RedTagDeal[] = fallbackDeals;
+  // Merge API data with our curated list to ensure we show exactly these 5 communities
+  const desiredCommunityIds = [51463, 70616, 72147, 76138, 76156];
+  
+  // Create a map of API data by ID for quick lookup
+  const apiDataMap = new Map();
+  if (Array.isArray(featuredCommunities)) {
+    featuredCommunities.forEach((featured: any) => {
+      const id = featured.community?.id || featured.communityId;
+      if (id) apiDataMap.set(id, featured);
+    });
+  }
+  
+  // Build the final list using API data when available, fallback data otherwise
+  const redTagDeals: RedTagDeal[] = fallbackDeals.filter(deal => 
+    desiredCommunityIds.includes(deal.id)
+  ).map(deal => {
+    const apiData = apiDataMap.get(deal.id);
+    if (apiData && apiData.community) {
+      // Use API data for dynamic updates while preserving our curated info
+      return {
+        ...deal,
+        communityName: apiData.community.name || deal.communityName,
+        location: apiData.community ? `${apiData.community.city}, ${apiData.community.state}` : deal.location,
+        rating: apiData.community.rating || deal.rating,
+        heroImage: apiData.community.photos?.[0] || deal.heroImage,
+      };
+    }
+    return deal;
+  });
 
   const getAmenityIcon = (amenity: string) => {
     if (amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('lake') || amenity.toLowerCase().includes('mountain')) 
