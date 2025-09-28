@@ -58,19 +58,37 @@ class UnifiedPerplexityCache {
     communityId: string,
     communityName: string,
     location: string,
-    isFeatured: boolean = false
+    isFeatured: boolean = false,
+    forceRefresh: boolean = false
   ): Promise<CachedCommunityData> {
     const cacheKey = `community_${communityId}`;
+    
+    // If forceRefresh is requested, clear the cache entry first
+    if (forceRefresh) {
+      console.log(`🔄 Force refresh requested for ${communityName} - clearing cache`);
+      this.cache.delete(cacheKey);
+    }
+    
     const cached = this.cache.get(cacheKey);
     
     // Use shorter cache duration for featured communities (24 hours instead of 7 days)
     const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
     const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
 
-    // Return cached data if fresh
+    // Return cached data if fresh and not forcing refresh
     if (cached && cached.timestamp > Date.now() - cacheDuration) {
-      console.log(`📦 Returning cached data for ${communityName} (saved ${new Date(cached.timestamp).toLocaleString()}, cache: ${cacheLabel})`);
-      return cached.data;
+      // Check if cached data is incomplete (failure detection)
+      const isIncomplete = !cached.data.rawPerplexityContent || 
+                          cached.data.rawPerplexityContent.length < 100 ||
+                          cached.data.rawPerplexityContent.includes('temporarily unavailable');
+      
+      if (isIncomplete) {
+        console.log(`⚠️ Cached data for ${communityName} appears incomplete - will refresh`);
+        this.cache.delete(cacheKey);
+      } else {
+        console.log(`📦 Returning cached data for ${communityName} (saved ${new Date(cached.timestamp).toLocaleString()}, cache: ${cacheLabel})`);
+        return cached.data;
+      }
     }
 
     console.log(`🔍 Fetching comprehensive data for ${communityName} in ${location}`);
@@ -130,13 +148,30 @@ Format all information clearly with section headers.
         location
       );
 
-      // Cache the comprehensive data
-      this.cache.set(cacheKey, {
-        data: structuredData,
-        timestamp: Date.now()
-      });
-
-      const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
+      // Check if response is complete before caching
+      const isCompleteResponse = 
+        structuredData.rawPerplexityContent && 
+        structuredData.rawPerplexityContent.length > 100 &&
+        !structuredData.rawPerplexityContent.includes('temporarily unavailable') &&
+        !structuredData.rawPerplexityContent.toLowerCase().includes('no information found') &&
+        !structuredData.rawPerplexityContent.toLowerCase().includes('unable to find');
+      
+      if (isCompleteResponse) {
+        // Cache the comprehensive data with full duration
+        this.cache.set(cacheKey, {
+          data: structuredData,
+          timestamp: Date.now()
+        });
+        const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
+        console.log(`✅ Cached complete response for ${communityName} (cache: ${cacheLabel})`);
+      } else {
+        // Cache incomplete responses for only 5 minutes to allow retry
+        console.log(`⚠️ Response appears incomplete for ${communityName} - caching for 5 minutes only`);
+        this.cache.set(cacheKey, {
+          data: structuredData,
+          timestamp: Date.now() - this.CACHE_DURATION + (5 * 60 * 1000) // Cache for 5 minutes
+        });
+      }
       const nextRefresh = Date.now() + cacheDuration;
       console.log(`✅ Cached comprehensive data for ${communityName} (${cacheLabel}) - Next refresh: ${new Date(nextRefresh).toLocaleString()}`);
 

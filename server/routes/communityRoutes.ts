@@ -912,7 +912,8 @@ export function registerCommunityRoutes(app: Express) {
         communityId.toString(),
         community.name,
         `${community.city}, ${community.state}`,
-        isFeatured
+        isFeatured,
+        forceRefresh // Pass forceRefresh through to cache
       );
       
       // Create enrichmentResult from unified cache data
