@@ -68,7 +68,7 @@ export function registerPerplexityTestRoutes(app: Express) {
       res.json({
         status: result ? 'healthy' : 'unhealthy',
         integration: 'Perplexity AI',
-        model: 'sonar-pro',
+        model: 'sonar',
         capabilities: [
           'Real-time web search',
           'Current pricing data',
