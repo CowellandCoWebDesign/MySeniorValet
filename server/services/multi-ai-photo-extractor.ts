@@ -28,7 +28,109 @@ interface PhotoExtractionResult {
   summary: string;
 }
 
+interface CachedPhotoResult {
+  result: PhotoExtractionResult;
+  timestamp: number;
+  entityKey: string;
+}
+
 export class MultiAIPhotoExtractor {
+  // Unified caching layer to prevent duplicate API calls
+  private static instance: MultiAIPhotoExtractor;
+  private static photoCache = new Map<string, CachedPhotoResult>();
+  private static readonly CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours for photo extraction
+  private static readonly SERVICE_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for service photos
+  
+  static getInstance(): MultiAIPhotoExtractor {
+    if (!MultiAIPhotoExtractor.instance) {
+      MultiAIPhotoExtractor.instance = new MultiAIPhotoExtractor();
+    }
+    return MultiAIPhotoExtractor.instance;
+  }
+  
+  private static generateCacheKey(entityName: string, location?: string, entityType: string = 'community'): string {
+    const normalizedName = entityName.toLowerCase().replace(/[^a-z0-9]/g, '-');
+    const normalizedLocation = location ? location.toLowerCase().replace(/[^a-z0-9]/g, '-') : 'unknown';
+    return `photo-${entityType}-${normalizedName}-${normalizedLocation}`;
+  }
+  
+  private static getCachedResult(cacheKey: string, entityType: string = 'community'): PhotoExtractionResult | null {
+    const cached = this.photoCache.get(cacheKey);
+    if (!cached) return null;
+    
+    const cacheDuration = entityType === 'service' ? this.SERVICE_CACHE_DURATION : this.CACHE_DURATION;
+    const isExpired = cached.timestamp < Date.now() - cacheDuration;
+    
+    if (isExpired) {
+      this.photoCache.delete(cacheKey);
+      return null;
+    }
+    
+    console.log(`📦 Using cached photos for ${cached.entityKey} (${cached.result.authenticPhotos.length} photos, saved ${new Date(cached.timestamp).toLocaleString()})`);
+    return cached.result;
+  }
+  
+  private static setCachedResult(cacheKey: string, result: PhotoExtractionResult, entityKey: string): void {
+    this.photoCache.set(cacheKey, {
+      result,
+      timestamp: Date.now(),
+      entityKey
+    });
+    
+    // Clean up old cache entries (keep last 100)
+    if (this.photoCache.size > 100) {
+      const entries = Array.from(this.photoCache.entries());
+      entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
+      this.photoCache.clear();
+      entries.slice(0, 100).forEach(([key, value]) => {
+        this.photoCache.set(key, value);
+      });
+    }
+  }
+  
+  private static extractLocationFromContent(content: string, communityName: string): string {
+    // Try to extract location from content - look for city, state patterns
+    const locationPatterns = [
+      // Look for community name followed by location  
+      new RegExp(`${communityName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}[^.!?]*?([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)*,\\s*[A-Z]{2})`, 'i'),
+      // Look for "located in", "in", etc.
+      /(?:located|in|at)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,\s*[A-Z]{2})/i,
+      // Look for "City, State" patterns  
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,\s*[A-Z]{2})/,
+      // Look for "City, StateName" (full state names)
+      /([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,\s*[A-Z][a-z]+)/
+    ];
+    
+    for (const pattern of locationPatterns) {
+      // Use exec() instead of match() to get capture groups correctly
+      const match = pattern.exec(content);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    
+    // More aggressive fallback patterns
+    const fallbackPatterns = [
+      /\b([A-Z][a-z]+,\s*[A-Z]{2})\b/,  // Any City, ST
+      /\b([A-Z][a-z]+\s+[A-Z][a-z]+,\s*[A-Z]{2})\b/, // Multi-word City, ST
+    ];
+    
+    for (const pattern of fallbackPatterns) {
+      const match = pattern.exec(content);
+      if (match && match[1]) {
+        return match[1];
+      }
+    }
+    
+    // Final fallback - use a hash of content snippet to avoid collisions
+    const contentHash = Math.abs(content.slice(0, 100).split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0)).toString(36);
+    
+    return `location-${contentHash}`;
+  }
+  
   /**
    * Enhanced pattern-based photo extraction from HTML content
    * Directly extracts photo URLs without OpenAI
@@ -379,6 +481,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
     websiteUrl?: string,
     perplexityCitations?: string[]
   ): Promise<PhotoExtractionResult> {
+    // Check cache first to avoid duplicate API calls
+    const location = this.extractLocationFromContent(perplexityContent, communityName);
+    const cacheKey = this.generateCacheKey(communityName, location, 'community');
+    
+    const cachedResult = this.getCachedResult(cacheKey, 'community');
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     console.log(`🚀 Enhanced Photo Extraction for ${communityName} (No OpenAI)`);
 
     let allPhotoCandidates: PhotoCandidate[] = [];
@@ -529,12 +640,17 @@ Be lenient - mark as authentic unless clearly stock photos.`
     console.log(`   - ${sourceUrls.length} sources checked`);
     console.log(`   - Sources: ${sourceUrls.join(', ')}`);
 
-    return {
+    const result = {
       authenticPhotos: authenticPhotos.slice(0, 25), // Increased to 25 photos
       rejectedPhotos,
       sources: sourceUrls,
       summary: `🚀 Found ${authenticPhotos.length} authentic photos from ${sourceUrls.length} websites`
     };
+
+    // Cache the result to avoid duplicate API calls
+    this.setCachedResult(cacheKey, result, `${communityName} (${location})`);
+
+    return result;
   }
 
   /**
@@ -550,6 +666,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
     websiteUrl?: string,
     perplexityCitations?: string[]
   ): Promise<PhotoExtractionResult> {
+    // Check cache first to avoid duplicate API calls
+    const location = `${city}, ${state}`;
+    const cacheKey = this.generateCacheKey(serviceName, location, 'service');
+    
+    const cachedResult = this.getCachedResult(cacheKey, 'service');
+    if (cachedResult) {
+      return cachedResult;
+    }
+
     console.log(`🚀 Enhanced Service Photo Extraction for ${serviceName} (${serviceType}) in ${city}, ${state}`);
 
     let allPhotoCandidates: PhotoCandidate[] = [];
@@ -748,12 +873,17 @@ Be lenient - mark as authentic unless clearly stock photos.`
     console.log(`   - ${rejectedPhotos.length} rejected`);
     console.log(`   - ${sourceUrls.length} sources checked`);
 
-    return {
+    const result = {
       authenticPhotos: authenticPhotos.slice(0, 20), // Return up to 20 photos
       rejectedPhotos: rejectedPhotos,
       sources: sourceUrls,
       summary: `Found ${authenticPhotos.length} photos for ${serviceName} from ${sourceUrls.length} sources`
     };
+
+    // Cache the result to avoid duplicate API calls
+    this.setCachedResult(cacheKey, result, `${serviceName} (${location})`);
+
+    return result;
   }
 
   /**
