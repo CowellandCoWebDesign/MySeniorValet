@@ -909,63 +909,35 @@ Be lenient - mark as authentic unless clearly stock photos.`
   private static isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
 
-    // Clean up the URL
-    const cleanUrl = url.trim();
+    // Reject corrupted URLs immediately
+    if (url.includes('QwQwQwQw') || 
+        url.includes('kQz8kQz8') ||
+        url.includes('...[TRUNCATED]') ||
+        url.length > 1500) {
+      return false;
+    }
 
-    // WHITELIST: Always accept photos from trusted directory sites
-    const trustedDomains = [
-      'tripadvisor.com',
-      'yelpcdn.com', 
-      'googleusercontent.com',
-      'lh3.googleusercontent.com',
-      'lh5.googleusercontent.com',
-      'bstatic.com',  // Booking.com
-      'trvl-media.com',  // Hotels.com
-      'otstatic.com',  // OpenTable
-      'fbcdn.net',  // Facebook
-      'cdninstagram.com',  // Instagram
-      // Business website domains
-      'westpace.net',
-      'arcadiosproduce.com',
-      'wp-content',
-      'uploads'
+    // Check for valid URL format
+    try {
+      new URL(url);
+    } catch {
+      return false;
+    }
+
+    // Check for image extensions or image-like patterns
+    const imagePatterns = [
+      /\.(jpg|jpeg|png|gif|webp|bmp|svg)/i,
+      /\/image\//i,
+      /\/photo\//i,
+      /\/media\//i,
+      /\/upload\//i,
+      /\/gallery\//i,
+      /cloudinary\.com/i,
+      /amazonaws\.com/i,
+      /googleusercontent\.com/i
     ];
 
-    const lowerUrl = cleanUrl.toLowerCase();
-
-    // If it's from a trusted domain, accept it without further validation
-    if (trustedDomains.some(domain => lowerUrl.includes(domain))) {
-      return true;
-    }
-
-    // Check for common image file extensions
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.svg'];
-    const hasImageExtension = imageExtensions.some(ext => lowerUrl.includes(ext));
-
-    // Check for image-related paths
-    const imagePaths = ['/images/', '/img/', '/photos/', '/gallery/', '/media/', '/assets/', '/uploads/', '/wp-content/'];
-    const hasImagePath = imagePaths.some(path => lowerUrl.includes(path));
-
-    // Accept if it has image extension or image path
-    if (hasImageExtension || hasImagePath) {
-      return true;
-    }
-
-    // Only exclude data URLs and blob URLs
-    if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:')) return false;
-
-    // Only exclude obvious tracking pixels
-    if (lowerUrl.includes('pixel') || lowerUrl.includes('tracking') || lowerUrl.includes('1x1')) {
-      return false;
-    }
-
-    // Exclude social media icons and logos unless they're actual photos
-    if (lowerUrl.includes('logo') && !lowerUrl.includes('gallery')) {
-      return false;
-    }
-
-    // Accept everything else that looks like it could be an image
-    return true;
+    return imagePatterns.some(pattern => pattern.test(url));
   }
 
   /**

@@ -18,16 +18,11 @@ router.get('/api/image-proxy', async (req, res) => {
     // Filter out obviously corrupted URLs before processing
     if (decodedUrl.includes('QwQwQwQw') || 
         decodedUrl.includes('kQz8kQz8') ||
-        decodedUrl.length > 2000) {
-      console.log(`❌ Corrupted/synthetic URL detected: ${decodedUrl.substring(0, 100)}...`);
-      // Return transparent pixel for corrupted URLs
-      const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
-      res.set({
-        'Content-Type': 'image/png',
-        'Cache-Control': 'public, max-age=300',
-        'Access-Control-Allow-Origin': '*'
-      });
-      return res.send(transparentPixel);
+        decodedUrl.includes('QwQwQwQwQwQwQwQw') ||
+        decodedUrl.length > 2000 ||
+        decodedUrl.includes('...[TRUNCATED]')) {
+      console.log(`❌ Corrupted/synthetic URL detected and blocked: ${decodedUrl.substring(0, 100)}...`);
+      return res.status(400).json({ error: 'Invalid or corrupted URL' });
     }
 
     // Basic URL validation

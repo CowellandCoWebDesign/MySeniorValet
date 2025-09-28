@@ -77,18 +77,44 @@ export function EnhancedPhotoCarousel({
   const getAllPhotos = () => {
     const allPhotos = [];
     
+    // Helper function to validate and clean URLs
+    const isValidPhotoUrl = (url: string): boolean => {
+      if (!url || typeof url !== 'string' || url.length < 10) return false;
+      
+      // Reject corrupted URLs immediately
+      if (url.includes('QwQwQwQw') || 
+          url.includes('kQz8kQz8') ||
+          url.includes('QwQwQwQwQwQwQwQw') ||
+          url.includes('...[TRUNCATED]') ||
+          url.length > 1500) {
+        console.log(`🚫 Blocking corrupted URL: ${url.substring(0, 100)}...`);
+        return false;
+      }
+      
+      try {
+        new URL(url.startsWith('/') ? `https://example.com${url}` : url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    
     // Add database photos first  
     if (community?.photos && community.photos.length > 0) {
-      allPhotos.push(...community.photos.map((p: any) => ({
-        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
-        source: 'database'
-      })));
+      community.photos.forEach((p: any) => {
+        const url = typeof p === 'string' ? p : (p.image_url || p.url || p);
+        if (isValidPhotoUrl(url)) {
+          allPhotos.push({ url, source: 'database' });
+        }
+      });
     }
     
     // Add passed photos prop
     if (photos && photos.length > 0) {
-      allPhotos.push(...photos.map((p: any) => {
+      photos.forEach((p: any) => {
         let url = typeof p === 'string' ? p : (p.image_url || p.url || p);
+        
+        if (!isValidPhotoUrl(url)) return;
         
         // Skip proxy if URL is already proxied
         if (url && !url.startsWith('/api/image-proxy')) {
@@ -102,8 +128,8 @@ export function EnhancedPhotoCarousel({
           }
         }
         
-        return { url, source: 'prop' };
-      }));
+        allPhotos.push({ url, source: 'prop' });
+      });
     }
     
     // Add web intelligence photos
@@ -115,44 +141,39 @@ export function EnhancedPhotoCarousel({
     }
     
     if (webImages && webImages.length > 0) {
-      const webPhotos = webImages
-        .filter((img: any) => {
-          const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
-          
-          // Skip logos and icons
-          if (url.includes('logo') || url.includes('icon') || 
-              url.includes('placeholder') || url.includes('default')) {
-            return false;
+      webImages.forEach((img: any) => {
+        const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
+        
+        if (!isValidPhotoUrl(url)) return;
+        
+        // Skip logos and icons
+        if (url.includes('logo') || url.includes('icon') || 
+            url.includes('placeholder') || url.includes('default')) {
+          return;
+        }
+        
+        let processedUrl = url;
+        
+        // Skip proxy if URL is already proxied
+        if (processedUrl && !processedUrl.startsWith('/api/image-proxy')) {
+          // Use proxy for external images to bypass CORS
+          if (processedUrl.includes('tripadvisor.com') || 
+              processedUrl.includes('yelp.com') || 
+              processedUrl.includes('yelpcdn.com') ||
+              processedUrl.includes('googleusercontent.com') ||
+              processedUrl.includes('otstatic.com')) {
+            processedUrl = `/api/image-proxy?url=${encodeURIComponent(processedUrl)}`;
           }
-          
-          
-          return true;
-        })
-        .map((img: any) => {
-          let url = typeof img === 'string' ? img : (img.image_url || img.url || img);
-          
-          // Skip proxy if URL is already proxied
-          if (url && !url.startsWith('/api/image-proxy')) {
-            // Use proxy for external images to bypass CORS
-            if (url.includes('tripadvisor.com') || 
-                url.includes('yelp.com') || 
-                url.includes('yelpcdn.com') ||
-                url.includes('googleusercontent.com') ||
-                url.includes('otstatic.com')) {
-              url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-            }
-          }
-          
-          if (typeof img === 'string') {
-            return { url, source: 'web' };
-          }
-          return {
-            url,
-            source: 'web',
-            isAuthentic: img.isAuthentic
-          };
-        });
-      allPhotos.push(...webPhotos);
+        }
+        
+        const photoData = {
+          url: processedUrl,
+          source: 'web',
+          isAuthentic: typeof img === 'string' ? true : (img.isAuthentic !== false)
+        };
+        
+        allPhotos.push(photoData);
+      });
     }
     
     // Remove duplicates
@@ -431,11 +452,13 @@ export function EnhancedPhotoCarousel({
                 
                 // Check if this is a corrupted URL (very long or has synthetic patterns)
                 const isCorrupted = originalSrc.includes('QwQwQwQw') || 
-                                   originalSrc.includes('kQz8kQz8') || 
+                                   originalSrc.includes('kQz8kQz8') ||
+                                   originalSrc.includes('QwQwQwQwQwQwQwQw') ||
+                                   originalSrc.includes('...[TRUNCATED]') ||
                                    originalSrc.length > 1500;
                 
                 if (isCorrupted) {
-                  console.log(`🚫 Corrupted URL detected, skipping retry: ${originalSrc.substring(0, 100)}...`);
+                  console.log(`🚫 Corrupted URL detected and blocked: ${originalSrc.substring(0, 100)}...`);
                   setImageErrors(prev => new Set([...prev, currentPhoto.url]));
                   // Immediately move to next photo for corrupted URLs
                   if (safePhotos.length > 1) {
@@ -444,8 +467,8 @@ export function EnhancedPhotoCarousel({
                   return;
                 }
                 
-                // Try to reload the image once before marking as failed
-                if (!target.dataset.retried) {
+                // Only retry for legitimate URLs that might be temporarily unavailable
+                if (!target.dataset.retried && !originalSrc.includes('/api/image-proxy')) {
                   target.dataset.retried = "true";
                   console.log(`🔄 Retrying failed image: ${originalSrc.substring(0, 100)}...`);
                   setTimeout(() => {
@@ -455,7 +478,7 @@ export function EnhancedPhotoCarousel({
                 }
                 
                 setImageErrors(prev => new Set([...prev, currentPhoto.url]));
-                console.log(`❌ Failed to load image after retry: ${originalSrc.substring(0, 100)}...`);
+                console.log(`❌ Failed to load image: ${originalSrc.substring(0, 100)}...`);
                 
                 if (showValidation) {
                   setPhotoValidation(prev => ({
@@ -463,7 +486,7 @@ export function EnhancedPhotoCarousel({
                     [currentPhoto.url]: {
                       url: currentPhoto.url,
                       isValid: false,
-                      error: 'Failed to load image after retry',
+                      error: 'Failed to load image',
                       lastChecked: new Date()
                     }
                   }));

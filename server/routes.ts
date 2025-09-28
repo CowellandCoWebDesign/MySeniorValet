@@ -34,11 +34,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Initialize custom authentication (no Replit account required)
   const { setupCustomAuth } = await import('./custom-auth');
   setupCustomAuth(app);
-  
+
   // Initialize social authentication (Google & Facebook OAuth)
   const { setupSocialAuth } = await import('./social-auth');
   setupSocialAuth(app);
-  
+
   // Redirect old Replit Auth endpoint to login page
   app.get('/api/login', (req, res) => {
     // Preserve any query parameters from the original request
@@ -46,14 +46,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const redirectUrl = queryString ? `/login?${queryString}` : '/login';
     res.redirect(redirectUrl);
   });
-  
+
   // Auth bypass for development only - NEVER enable in production
   if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTH_BYPASS === 'true') {
     console.warn('⚠️ AUTH BYPASS ENABLED - Development only!');
     const { setupAuthBypass } = await import('./auth-bypass');
     await setupAuthBypass(app);
   }
-  
+
   // Apply security monitoring middleware to detect and log threats
   const { securityMonitoringMiddleware } = await import('./security-monitor');
   app.use(securityMonitoringMiddleware);
@@ -77,26 +77,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Import the service enrichment cache
   const { serviceEnrichmentCache } = await import('./unified-perplexity-cache');
-  
+
   // API endpoint for service web intelligence  
   app.post('/api/service-intelligence', async (req, res) => {
     try {
       const { serviceName, city, state, serviceType, website, serviceId } = req.body;  // Accept serviceId too
-      
+
       // Only require service name, be flexible about location
       if (!serviceName) {
         return res.status(400).json({ error: 'Service name is required' });
       }
-      
+
       // Construct location string flexibly
       const locationParts = [];
       if (city) locationParts.push(city);
       if (state) locationParts.push(state);
       const location = locationParts.length > 0 ? locationParts.join(', ') : undefined;
-      
+
       console.log(`🔍 Fetching web intelligence for business: ${serviceName} in ${location || 'unspecified location'}`);
       console.log(`📊 Business type: ${serviceType || 'restaurant/business'}`);
-      
+
       // Use the ServiceEnrichmentCache for cached data
       const cacheKey = serviceId || serviceName; // Use ID if available
       try {
@@ -106,7 +106,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           location,
           false // Don't force refresh for now
         );
-        
+
         // Return cached/enriched data in the format the client expects
         return res.json({
           success: true,
@@ -137,13 +137,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.error('Cache enrichment failed, falling back to direct Perplexity call:', cacheError);
         // Continue with the existing direct Perplexity call below if cache fails
       }
-      
+
       // Call Perplexity API directly for business searches (not senior living)
       const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
       if (!perplexityApiKey) {
         return res.status(500).json({ error: 'Perplexity API key not configured' });
       }
-      
+
       const perplexityPrompt = `Find ALL of the following information about ${serviceName} (a ${serviceType || 'restaurant/business'}) in ${city}, ${state} in ONE comprehensive search:
 
 **COMPLETE BUSINESS PROFILE:**
@@ -245,7 +245,7 @@ Provide complete business data with ALL actual image URLs found.`;
       const citations = data.citations || [];
 
       console.log(`📝 Perplexity response length: ${answer.length} characters`);
-      
+
       // Check for real images in provider_metadata (return_images feature)
       let realPhotosFromProvider: string[] = [];
       if (data.provider_metadata?.images) {
@@ -291,7 +291,7 @@ Provide complete business data with ALL actual image URLs found.`;
 
       // Use the website from database if provided, otherwise extract from Perplexity
       let extractedWebsite: string | undefined = website;  // Prioritize database website
-      
+
       // If we have a database website, validate and clean it
       if (extractedWebsite) {
         // Ensure it has a protocol
@@ -303,18 +303,18 @@ Provide complete business data with ALL actual image URLs found.`;
           extractedWebsite = undefined;
         }
       }
-      
+
       // Only extract from Perplexity if we don't have a valid website from database
       if (!extractedWebsite) {
         console.log(`🔍 No database website found, extracting from Perplexity response...`);
-        
+
         // Look for explicitly mentioned website URLs in the response
         const websitePatterns = [
           /(?:website|Website|WEBSITE|Official website|Visit)[\s:]+([https?:\/\/]*(?:www\.)?[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery|biz|info)[^\s,\)]*)/gi,
           /(?:Visit them at|Find them at|Check out)[\s:]+([https?:\/\/]*(?:www\.)?[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi,
           /((?:www\.)?[a-zA-Z0-9-]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery|biz|info)[^\s,\)]*)/gi
         ];
-        
+
         for (const pattern of websitePatterns) {
           const matches = answer.matchAll(pattern);
           for (const match of matches) {
@@ -336,7 +336,7 @@ Provide complete business data with ALL actual image URLs found.`;
           if (extractedWebsite) break;
         }
       }
-      
+
       // Clean URL of any citation markers like [1], [2], etc. and trailing brackets
       if (extractedWebsite) {
         extractedWebsite = extractedWebsite.replace(/\[\d+\].*$/, '').trim();
@@ -347,30 +347,30 @@ Provide complete business data with ALL actual image URLs found.`;
         // Remove any leading brackets
         extractedWebsite = extractedWebsite.replace(/^[\[\(]+/, '').trim();
       }
-      
+
       console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
-      
+
       // Extract photos - Use Cheerio-based website scraping FIRST (most reliable)
       let extractedPhotos: string[] = [];
       let triedWebsiteScraping = false;
-      
+
       try {
         // PRIORITY 1: Always try scraping the website FIRST using Cheerio (works without browser dependencies)
         if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
             console.log(`🕸️ Primary method: Scraping website for real photos using Cheerio: ${extractedWebsite}`);
             const { websiteScraperService } = await import('./website-scraper-service');
-            
+
             // Try to find and scrape gallery pages
             const galleryPaths = ['/gallery', '/photos', '/media', '/images', '/portfolio', '/menu', '/our-food', '/our-space'];
             let allScrapedPhotos: string[] = [];
-            
+
             // First scrape the main website
             const mainScrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
             if (mainScrapedData.photos) {
               allScrapedPhotos.push(...mainScrapedData.photos);
             }
-            
+
             // Then try gallery-specific pages
             for (const path of galleryPaths) {
               try {
@@ -385,10 +385,10 @@ Provide complete business data with ALL actual image URLs found.`;
                 // Gallery page might not exist, that's ok
               }
             }
-            
+
             const scrapedData = { ...mainScrapedData, photos: [...new Set(allScrapedPhotos)] }; // Remove duplicates
             triedWebsiteScraping = true;
-            
+
             if (scrapedData.photos && scrapedData.photos.length > 0) {
               // Use proxied URLs for external images
               extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
@@ -405,7 +405,7 @@ Provide complete business data with ALL actual image URLs found.`;
             console.error(`Website scraping failed, will try additional fallback methods:`, scrapeError);
           }
         }
-        
+
         // PRIORITY 2: Try Perplexity provider_metadata photos (often corrupted, use as fallback)
         if (extractedPhotos.length === 0 && realPhotosFromProvider.length > 0) {
           console.log(`⚠️ Falling back to Perplexity provider_metadata photos (may be corrupted)`);
@@ -416,16 +416,16 @@ Provide complete business data with ALL actual image URLs found.`;
             return photoUrl;
           });
         }
-        
+
         // PRIORITY 3: Try to extract photos from Perplexity response text
         if (extractedPhotos.length === 0) {
           console.log(`🔍 Extracting photos from Perplexity response text...`);
-          
+
           // Look for IMAGE_URL: prefixed URLs first (our new format)
           const imageUrlPrefixRegex = /IMAGE_URL:\s*(https?:\/\/[^\s\n]+)/gi;
           const prefixMatches = answer.matchAll(imageUrlPrefixRegex) || [];
           const prefixedUrls = Array.from(prefixMatches).map(match => match[1]);
-          
+
           // Look for direct image URLs in the response content - including WordPress
           const imageUrlPatterns = [
             // WordPress uploads with flexible year/date patterns
@@ -433,13 +433,13 @@ Provide complete business data with ALL actual image URLs found.`;
             // Standard image URLs
             /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)(\?[^\s\]\)"']*)?(#[^\s\]\)"']*)?/gi,
           ];
-          
+
           const foundUrls: string[] = [];
           for (const pattern of imageUrlPatterns) {
             const matches = answer.match(pattern) || [];
             foundUrls.push(...matches);
           }
-          
+
           // Look for photo URLs from known image CDNs
           const cdnPatterns = [
             /https?:\/\/s3-media[\d]*\.fl\.yelpcdn\.com\/[^\s\]\)"']+/gi,
@@ -450,7 +450,7 @@ Provide complete business data with ALL actual image URLs found.`;
             /https?:\/\/[^\s]*\.cloudinary\.com\/[^\s\]\)"']+/gi,
             /https?:\/\/d[\w]+\.cloudfront\.net\/[^\s\]\)"']+/gi
           ];
-          
+
           const cdnUrls: string[] = [];
           for (const pattern of cdnPatterns) {
             const matches: RegExpMatchArray | null = answer.match(pattern);
@@ -458,28 +458,40 @@ Provide complete business data with ALL actual image URLs found.`;
               cdnUrls.push(...matches);
             }
           }
-          
+
           const allPhotoUrls = [...prefixedUrls, ...foundUrls, ...cdnUrls];
           const processedUrls: string[] = [];
-          
+
           // Process each URL and try variations for WordPress
           for (const url of allPhotoUrls) {
             // Clean the URL
             const cleanUrl = url.replace(/[\]\)"']+$/, '').trim();
-            
-            // Skip only obviously corrupted URLs
-            if (cleanUrl.includes('QwQwQwQwQwQwQwQwQw') || 
-                cleanUrl.includes('kQz8kQz8kQz8kQz8')) {
+
+            // Skip obvious corrupted URLs with enhanced detection
+            if (cleanUrl.includes('QwQwQwQw') || 
+                cleanUrl.includes('kQz8kQz8') ||
+                cleanUrl.includes('QwQwQwQwQwQwQwQw') ||
+                cleanUrl.includes('...[TRUNCATED]') ||
+                cleanUrl.length > 1500) {
+              console.log(`🚫 Blocking corrupted URL from enrichment: ${cleanUrl.substring(0, 100)}...`);
               continue;
             }
-            
+
+            // Validate URL format
+            try {
+              new URL(cleanUrl);
+            } catch {
+              console.log(`🚫 Invalid URL format: ${cleanUrl.substring(0, 100)}...`);
+              continue;
+            }
+
             // For WordPress URLs, try multiple year variations
             if (cleanUrl.includes('/wp-content/uploads/')) {
               const yearMatch = cleanUrl.match(/\/uploads\/(\d{4})\//);
               if (yearMatch) {
                 // Add original
                 processedUrls.push(cleanUrl);
-                
+
                 // Try adjacent years (in case the URL has an outdated year)
                 const currentYear = new Date().getFullYear();
                 const yearsToTry = [currentYear, currentYear - 1, currentYear - 2];
@@ -496,16 +508,16 @@ Provide complete business data with ALL actual image URLs found.`;
               processedUrls.push(cleanUrl);
             }
           }
-          
+
           const uniqueUrls = [...new Set(processedUrls)]; // Remove duplicates
-          
+
           if (uniqueUrls.length > 0) {
             console.log(`✅ Found ${uniqueUrls.length} image URLs in response text`);
             extractedPhotos = uniqueUrls.slice(0, 50).map(url => {
               return `/api/image-proxy?url=${encodeURIComponent(url)}`;
             });
           }
-          
+
           // Also try to find photos from any directory listings mentioned
           const directoryUrls = [
             'yelp.com',
@@ -514,19 +526,19 @@ Provide complete business data with ALL actual image URLs found.`;
             'facebook.com',
             'instagram.com'
           ];
-          
+
           // Extract any directory URLs mentioned in the response
           const urlMatches = answer.match(/https?:\/\/[^\s]+/gi) || [];
           const directoryListings = urlMatches.filter((url: string) => 
             directoryUrls.some(dir => url.includes(dir))
           );
-          
+
           if (directoryListings.length > 0 && extractedPhotos.length === 0) {
             console.log(`📍 Found ${directoryListings.length} directory listings for ${serviceName}`);
             // Note: We can't scrape these directly due to blocking, but we log them for reference
           }
         }
-        
+
         // PRIORITY 4: Try text-based extraction as last resort
         if (extractedPhotos.length === 0) {
           console.log(`📷 Trying text-based photo extraction as final fallback...`);
@@ -536,14 +548,14 @@ Provide complete business data with ALL actual image URLs found.`;
             serviceName, 
             serviceType || 'service'
           );
-          
+
           // Also try to extract directly from HTML content
           const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
-        
+
           // Extract listing pages marked with LISTING: in the response
         const listingMatches = answer.match(/LISTING:\s*([^\n]+)/gi) || [];
         const listingPages: string[] = [];
-        
+
         for (const match of listingMatches) {
           const listingInfo = match.replace(/^LISTING:\s*/i, '').trim();
           // Extract URL from format "Platform - URL"
@@ -553,7 +565,7 @@ Provide complete business data with ALL actual image URLs found.`;
             console.log(`📍 Found listing page: ${urlMatch[0]}`);
           }
         }
-        
+
         // Scrape each listing page for real photos
         const scrapedPhotos: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
         for (const listingUrl of listingPages) {
@@ -561,7 +573,7 @@ Provide complete business data with ALL actual image URLs found.`;
             console.log(`🕸️ Scraping listing page for photos: ${listingUrl}`);
             const { websiteScraperService } = await import('./website-scraper-service');
             const scrapedData = await websiteScraperService.scrapeWebsite(listingUrl, serviceName);
-            
+
             if (scrapedData.photos && scrapedData.photos.length > 0) {
               for (const photoUrl of scrapedData.photos) {
                 scrapedPhotos.push({ 
@@ -577,23 +589,23 @@ Provide complete business data with ALL actual image URLs found.`;
             console.error(`Failed to scrape listing page ${listingUrl}:`, error);
           }
         }
-        
+
         const markedPhotos = scrapedPhotos;
-        
+
         // Skip pattern extraction to avoid hallucinated URLs
         // We now only trust real photos from scraped listing pages
         const extractedUrls: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
-        
+
         // Combine all photo candidates
         const allPhotoCandidates = [...photoCandidates, ...contentPhotos, ...markedPhotos, ...extractedUrls];
         const uniquePhotos = new Map<string, any>();
-        
+
         for (const photo of allPhotoCandidates) {
           if (photo.url && !uniquePhotos.has(photo.url)) {
             uniquePhotos.set(photo.url, photo);
           }
         }
-        
+
         // Helper function to detect synthetic/fake URLs - BUT NOT FOR SERVICES
         const isSyntheticUrl = (url: string): boolean => {
           // FOR SERVICES: Never reject photos as synthetic - accept everything
@@ -601,15 +613,15 @@ Provide complete business data with ALL actual image URLs found.`;
           if (serviceType === 'service' || serviceType === 'restaurant' || serviceType === 'hotel') {
             return false; // Never treat service photos as synthetic
           }
-          
+
           // Only check for obviously synthetic patterns
           const syntheticPatterns = [
-            /QwQwQwQwQw/i,  // Obvious repeating test pattern
-            /kQz8kQz8kQz8/i,  // Another test pattern
+            /QwQwQwQw/i,  // Obvious repeating test pattern
+            /kQz8kQz8/i,  // Another test pattern
             /([a-zA-Z0-9]{2})\1{8,}/,  // Very long repeating patterns (8+ repetitions)
             /^(test|fake|dummy|placeholder|sample)/i,  // Obviously fake prefixes
           ];
-          
+
           // Check for synthetic patterns in the full URL
           for (const pattern of syntheticPatterns) {
             if (pattern.test(url)) {
@@ -617,17 +629,17 @@ Provide complete business data with ALL actual image URLs found.`;
               return true;
             }
           }
-          
+
           // Check for obviously fake Google Photos with impossible patterns
           if (url.includes('googleusercontent.com') && 
               (url.includes('QwQwQwQw') || url.includes('kQz8kQz8'))) {
             console.log(`🚫 Detected fake Google Photos URL: ${url}`);
             return true;
           }
-          
+
           return false;
         };
-        
+
         // Convert to array of photo URLs for frontend, filtering out placeholders and synthetic URLs
         extractedPhotos = Array.from(uniquePhotos.values())
           .filter(photo => {
@@ -640,7 +652,7 @@ Provide complete business data with ALL actual image URLs found.`;
                    !url.includes('654321') &&
                    url.startsWith('http') &&
                    !isSyntheticUrl(photo.url);
-                   
+
             if (!isValid) {
               console.log(`🚫 Filtered out invalid/synthetic photo URL: ${photo.url}`);
             }
@@ -658,20 +670,20 @@ Provide complete business data with ALL actual image URLs found.`;
             }
             return url;
           });
-        
+
         console.log(`📸 Extracted ${extractedPhotos.length} real photos for ${serviceName} (filtered from ${allPhotoCandidates.length} candidates)`);
-        
+
         // Log if all candidates were filtered as synthetic
         if (allPhotoCandidates.length > 0 && extractedPhotos.length === 0) {
           console.log(`⚠️ All ${allPhotoCandidates.length} photo URLs appeared to be synthetic/fake and were filtered out`);
-          
+
           // Try website scraping one more time if we haven't already
           if (!triedWebsiteScraping && extractedWebsite && extractedWebsite.includes('http')) {
             try {
               console.log(`🕸️ Final attempt: Scraping website for real photos: ${extractedWebsite}`);
               const { websiteScraperService } = await import('./website-scraper-service');
               const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
-              
+
               if (scrapedData.photos && scrapedData.photos.length > 0) {
                 // Use proxied URLs for external images
                 extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
@@ -688,7 +700,7 @@ Provide complete business data with ALL actual image URLs found.`;
           }
         }
         }  // Add missing closing bracket for the if (extractedPhotos.length === 0) block
-          
+
         // If still no photos, log but DON'T provide fake fallback photos
         if (extractedPhotos.length === 0) {
           console.log(`📷 No real photos found for ${serviceName}`);
@@ -700,7 +712,7 @@ Provide complete business data with ALL actual image URLs found.`;
       } catch (error) {
         console.error('Failed to extract photos:', error);
       }
-      
+
       businessData.photos = extractedPhotos;
 
       // Set website if found
@@ -722,13 +734,13 @@ Provide complete business data with ALL actual image URLs found.`;
 
       // Extract phone number from answer - try multiple patterns
       let extractedPhone = null;
-      
+
       // Pattern 1: Look for "phone:" or similar followed by number
       const phoneMatch = answer.match(/(?:phone|Phone|PHONE|tel|Tel|TEL|call|Call|contact|Contact)[:\s]*([+\d\s\-\(\)\.]+)/i);
       if (phoneMatch) {
         extractedPhone = phoneMatch[1].trim();
       }
-      
+
       // Pattern 2: Look for standard US phone number patterns
       if (!extractedPhone) {
         const usPhoneMatch = answer.match(/(\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})/);
@@ -736,7 +748,7 @@ Provide complete business data with ALL actual image URLs found.`;
           extractedPhone = usPhoneMatch[1];
         }
       }
-      
+
       // Pattern 3: Look for international format
       if (!extractedPhone) {
         const intlPhoneMatch = answer.match(/(\+\d{1,3}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})/);
@@ -744,31 +756,31 @@ Provide complete business data with ALL actual image URLs found.`;
           extractedPhone = intlPhoneMatch[1];
         }
       }
-      
+
       // Clean up the phone number format
       if (extractedPhone) {
         // Remove trailing punctuation that might be captured
         extractedPhone = extractedPhone.replace(/[,\.\s]+$/, '').trim();
       }
-      
+
       // Extract address from answer
       const addressMatch = answer.match(/(?:address|Address|ADDRESS)[:\s]*([^.\n]+)/i);
       let extractedAddress = null;
       if (addressMatch) {
         extractedAddress = addressMatch[1].trim();
       }
-      
+
       console.log(`✅ Found business information for ${serviceName}`);
       console.log(`📸 Found ${businessData.photos.length} photos`);
       console.log(`🌐 Website: ${businessData.website || 'Not found'}`);
       console.log(`📞 Phone: ${extractedPhone || 'Not found'}`);
-      
+
       // Debug logging to see what we're extracting
       if (!extractedWebsite && !extractedPhone) {
         console.log('⚠️ Failed to extract contact info. Raw response snippet:');
         console.log(answer.substring(0, 500));
       }
-      
+
       // Create the proper response structure expected by frontend
       const response = {
         photos: businessData.photos,
@@ -797,7 +809,7 @@ Provide complete business data with ALL actual image URLs found.`;
           sourcesFound: businessData.citations.length
         }
       };
-      
+
       res.json(response);
     } catch (error) {
       console.error('Error fetching service intelligence:', error);
@@ -809,21 +821,21 @@ Provide complete business data with ALL actual image URLs found.`;
   app.get('/api/services/recently-discovered', async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 20;
-      
+
       // Get recent services ordered by creation date
       const recentServices = await db.select()
         .from(services)
         .orderBy(desc(services.id))
         .limit(limit);
-      
+
       // Transform to match the card display format
       const transformedServices = recentServices.map(service => {
         const metadata = service.metadata as any || {};
-        
+
         // Extract location from metadata - check various location formats
         let city = metadata.city || '';
         let state = metadata.state || '';
-        
+
         // Check if location object exists (new format)
         if (metadata.location) {
           if (metadata.location.city) {
@@ -844,14 +856,14 @@ Provide complete business data with ALL actual image URLs found.`;
             state = metadata.location.state.toUpperCase();
           }
         }
-        
+
         // Check if discoveryInfo exists and parse it (old format)
         if (!city && metadata.discoveryInfo) {
           try {
             const discoveryInfo = typeof metadata.discoveryInfo === 'string' 
               ? JSON.parse(metadata.discoveryInfo) 
               : metadata.discoveryInfo;
-            
+
             if (discoveryInfo.city) {
               city = discoveryInfo.city;
             }
@@ -862,14 +874,14 @@ Provide complete business data with ALL actual image URLs found.`;
             console.log('Failed to parse discoveryInfo:', error);
           }
         }
-        
+
         // If still no city, try to extract from service name
         if (!city && service.name) {
           const locationPatterns = [
             /in\s+([A-Za-z\s]+),?\s*([A-Z]{2})?$/i,  // "in San Diego, CA" or "in San Diego"
             /,\s*([A-Za-z\s]+),?\s*([A-Z]{2})?$/i,   // ", San Diego, CA" or ", San Diego"
           ];
-          
+
           for (const pattern of locationPatterns) {
             const match = service.name.match(pattern);
             if (match) {
@@ -886,7 +898,7 @@ Provide complete business data with ALL actual image URLs found.`;
             }
           }
         }
-        
+
         return {
           id: service.id,
           businessName: service.name, // Map name to businessName for card compatibility
@@ -902,7 +914,7 @@ Provide complete business data with ALL actual image URLs found.`;
           updatedAt: service.updatedAt
         };
       });
-      
+
       res.json(transformedServices);
     } catch (error) {
       console.error('Error fetching recently discovered services:', error);
@@ -916,24 +928,24 @@ Provide complete business data with ALL actual image URLs found.`;
     try {
       const { id } = req.params;
       console.log('Fetching service with ID:', id);
-      
+
       // Try to fetch from services table first
       const service = await db.select()
         .from(services)
         .where(eq(services.id, parseInt(id)))
         .limit(1);
-      
+
       console.log('Found service:', service.length > 0 ? 'YES' : 'NO');
-      
+
       if (service.length > 0) {
         const serviceData = service[0];
         const metadata = serviceData.metadata as any || {};
-        
+
         // Extract location from metadata - check various location formats
         let city = metadata.city || '';
         let state = metadata.state || '';
         let country = metadata.country || 'US';
-        
+
         // Check if location object exists (new format)
         if (metadata.location) {
           if (metadata.location.city) {
@@ -957,7 +969,7 @@ Provide complete business data with ALL actual image URLs found.`;
             country = metadata.location.country;
           }
         }
-        
+
         // Check if discoveryInfo exists and parse it (old format)
         if (!city && metadata.discoveryInfo) {
           try {
@@ -965,7 +977,7 @@ Provide complete business data with ALL actual image URLs found.`;
             const discoveryInfo = typeof metadata.discoveryInfo === 'string' 
               ? JSON.parse(metadata.discoveryInfo) 
               : metadata.discoveryInfo;
-            
+
             // Extract location data from discoveryInfo
             if (discoveryInfo.city) {
               city = discoveryInfo.city;
@@ -980,7 +992,7 @@ Provide complete business data with ALL actual image URLs found.`;
             console.log('Failed to parse discoveryInfo:', error);
           }
         }
-        
+
         // If still no city, try to extract from service name
         if (!city && serviceData.name) {
           // Try to extract location from name (e.g., "ElderHelp of San Diego")
@@ -996,14 +1008,14 @@ Provide complete business data with ALL actual image URLs found.`;
             /\(([A-Za-z\s]+)\)$/i,         // "(San Diego)"
             /\s+([A-Za-z\s]+)$/i           // " San Diego" at end
           ];
-          
+
           for (const pattern of locationPatterns) {
             const match = serviceData.name.match(pattern);
             if (match) {
               city = match[1].trim();
               // Remove trailing parenthesis if captured
               city = city.replace(/\)$/, '').trim();
-              
+
               // Default to California for San Diego, Texas for Houston, etc.
               if (city.toLowerCase().includes('san diego')) {
                 city = 'San Diego';
@@ -1029,7 +1041,7 @@ Provide complete business data with ALL actual image URLs found.`;
             }
           }
         }
-        
+
         // Transform service data to match the expected structure
         return res.json({
           id: serviceData.id.toString(),
@@ -1059,18 +1071,18 @@ Provide complete business data with ALL actual image URLs found.`;
           updatedAt: serviceData.updatedAt?.toISOString()
         });
       }
-      
+
       // Try to fetch from vendors table if not found in services
       const vendor = await db.select()
         .from(vendors)
         .where(eq(vendors.id, parseInt(id)))
         .limit(1);
-      
+
       console.log('Found vendor:', vendor.length > 0 ? 'YES' : 'NO');
-      
+
       if (vendor.length > 0) {
         const vendorData = vendor[0];
-        
+
         // Transform vendor data to match the expected service structure
         const serviceData = {
           id: vendorData.id.toString(),
@@ -1099,13 +1111,13 @@ Provide complete business data with ALL actual image URLs found.`;
           createdAt: vendorData.createdAt?.toISOString(),
           updatedAt: vendorData.updatedAt?.toISOString()
         };
-        
+
         return res.json(serviceData);
       }
-      
+
       // If not found, return 404
       return res.status(404).json({ error: 'Service not found' });
-      
+
     } catch (error) {
       console.error('Error fetching service details:', error);
       res.status(500).json({ error: 'Failed to fetch service details' });
@@ -1114,24 +1126,24 @@ Provide complete business data with ALL actual image URLs found.`;
 
   // Register all modular routes
   registerModularRoutes(app);
-  
+
   // Register test routes - development only
   if (process.env.NODE_ENV === 'development') {
-    console.warn('⚠️ TEST ROUTES ENABLED - Development only!');
+    console.warn('⚠️ TESTROUTES ENABLED - Development only!');
     const { registerTestRoutes } = await import('./test-system');
     registerTestRoutes(app);
   }
-  
+
   // Register location routes for SEO
   const locationRoutes = await import('./routes/locationRoutes');
   app.use(locationRoutes.default);
-  
+
   // Register Perplexity test route - development only
   if (process.env.NODE_ENV === 'development') {
     const testPerplexityRoutes = await import('./routes/test-perplexity');
     app.use(testPerplexityRoutes.default);
   }
-  
+
   // Register Circuit Breaker health endpoint
   const { apiCircuitBreaker } = await import('./infrastructure/api-circuit-breaker');
   app.get('/api/circuit-breaker/health', (req, res) => {
@@ -1141,7 +1153,7 @@ Provide complete business data with ALL actual image URLs found.`;
       timestamp: new Date().toISOString()
     });
   });
-  
+
   // Circuit breaker reset endpoint - admin only for security
   const { isAuthenticated: requireAuth, isAdmin } = await import('./auth-middleware');
   app.post('/api/circuit-breaker/reset/:service', requireAuth, isAdmin, (req, res) => {
@@ -1150,11 +1162,11 @@ Provide complete business data with ALL actual image URLs found.`;
     console.log(`🔧 Circuit breaker reset for ${service} by admin user`);
     res.json({ message: `Circuit breaker for ${service} has been reset` });
   });
-  
+
   // Register City Verification routes
   const cityVerificationRoutes = await import('./routes/city-verification-routes');
   app.use(cityVerificationRoutes.default);
-  
+
   // Register Atria expansion routes
   const { atriaRoutes } = await import('./routes/atria-routes');
   app.use('/api/atria', atriaRoutes);
@@ -1166,15 +1178,15 @@ Provide complete business data with ALL actual image URLs found.`;
   app.use('/api', pricingHistoryRoutes.default);
   app.use('/api', communityClaimsRoutes.default);
   app.use('/api', verifiedProfilesRoutes.default);
-  
+
   // Register duplicate detection routes
   const { duplicateRoutes } = await import('./routes/duplicateRoutes');
   app.use('/api/duplicates', duplicateRoutes);
-  
+
   // Register AI chat/research routes
   const aiChatRoutes = await import('./routes/ai-chat-routes');
   app.use('/api', aiChatRoutes.default);
-  
+
   // Register featured communities routes
   // NOTE: Commented out to avoid duplicate route conflict - using the enriched version in communityRoutes.ts
   // app.get('/api/featured-communities', async (req, res) => {
@@ -1197,7 +1209,7 @@ Provide complete business data with ALL actual image URLs found.`;
   //     res.status(500).json({ error: 'Failed to fetch featured communities' });
   //   }
   // });
-  
+
   // Get community by ID endpoint
   app.get('/api/communities/:id', async (req, res) => {
     try {
@@ -1205,13 +1217,13 @@ Provide complete business data with ALL actual image URLs found.`;
       if (isNaN(communityId)) {
         return res.status(400).json({ message: 'Invalid community ID' });
       }
-      
+
       const community = await storage.getCommunity(communityId);
-      
+
       if (!community) {
         return res.status(404).json({ message: 'Community not found' });
       }
-      
+
       // Add transparency badges if available
       try {
         const badges = pricingTransparencyService.evaluateCommunityBadges(community);
@@ -1230,21 +1242,21 @@ Provide complete business data with ALL actual image URLs found.`;
       res.status(500).json({ message: 'Failed to fetch community' });
     }
   });
-  
+
   // Contact form submission endpoint
   app.post('/api/contact', async (req, res) => {
     try {
       const { name, email, subject, message } = req.body;
-      
+
       // Validate required fields
       if (!name || !email || !subject || !message) {
         return res.status(400).json({ error: 'All fields are required' });
       }
-      
+
       // Get IP address and user agent for tracking
       const ipAddress = req.ip || req.connection.remoteAddress || '';
       const userAgent = req.headers['user-agent'] || '';
-      
+
       // Save the submission to database
       const submission = await storage.createContactSubmission({
         name,
@@ -1254,7 +1266,7 @@ Provide complete business data with ALL actual image URLs found.`;
         ipAddress,
         userAgent
       });
-      
+
       // Send email notification to admin
       try {
         const sgMail = await import('@sendgrid/mail');
@@ -1268,7 +1280,7 @@ Provide complete business data with ALL actual image URLs found.`;
           <hr>
           <p><small>Submitted at ${new Date().toISOString()}</small></p>
         `;
-        
+
         await sgMail.default.send({
           to: 'hello@myseniorvalet.com',
           from: 'admin@myseniorvalet.com',
@@ -1279,7 +1291,7 @@ Provide complete business data with ALL actual image URLs found.`;
         console.error('Error sending contact form email notification:', emailError);
         // Don't fail the request if email fails
       }
-      
+
       res.json({ 
         success: true, 
         message: 'Thank you for contacting us! We will respond within 24 hours.',
@@ -1290,7 +1302,7 @@ Provide complete business data with ALL actual image URLs found.`;
       res.status(500).json({ error: 'Failed to submit contact form. Please try again.' });
     }
   });
-  
+
   // Admin endpoints for managing featured communities
   app.post('/api/admin/featured-communities', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
@@ -1303,7 +1315,7 @@ Provide complete business data with ALL actual image URLs found.`;
       res.status(500).json({ error: 'Failed to create featured community' });
     }
   });
-  
+
   app.put('/api/admin/featured-communities/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
@@ -1318,7 +1330,7 @@ Provide complete business data with ALL actual image URLs found.`;
       res.status(500).json({ error: 'Failed to update featured community' });
     }
   });
-  
+
   app.delete('/api/admin/featured-communities/:id', isAuthenticated, isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
@@ -1332,51 +1344,51 @@ Provide complete business data with ALL actual image URLs found.`;
       res.status(500).json({ error: 'Failed to deactivate featured community' });
     }
   });
-  
+
   // Register sitemap generation for SEO
   const sitemapGenerator = await import('./sitemap-generator');
   app.get('/sitemap.xml', sitemapGenerator.generateSitemap);
-  
+
   // Register admin subscription management routes
   const adminSubscriptionRoutes = await import('./routes/admin-subscription-routes');
   app.use('/api', adminSubscriptionRoutes.default);
-  
+
   // Register analytics intelligence routes
   const analyticsIntelligenceRoutes = await import('./routes/analytics-intelligence-routes');
   app.use(analyticsIntelligenceRoutes.default);
-  
+
   // Register image proxy for CORS handling
   const imageProxyRoutes = await import('./routes/imageProxy');
   app.use(imageProxyRoutes.default);
-  
+
   // Register photo validation routes
   const photoValidationRoutes = await import('./routes/photoValidationRoutes');
   app.use('/api', photoValidationRoutes.default);
-  
+
   // Register web intelligence routes (Perplexity AI-powered)
   const webIntelligenceRoutes = await import('./routes/webIntelligenceRoutes');
   app.use(webIntelligenceRoutes.default);
-  
+
   // Register enhanced pricing intelligence routes
   const { registerPricingIntelligenceRoutes } = await import('./routes/pricingIntelligenceRoutes');
   registerPricingIntelligenceRoutes(app);
-  
+
   // Register photo management routes
   const photoManagementRoutes = await import('./routes/photoManagementRoutes');
   app.use(photoManagementRoutes.default);
-  
+
   // Register performance optimization routes
   const performanceRoutes = await import('./routes/performanceRoutes');
   app.use(performanceRoutes.default);
-  
+
   // Register enterprise feature routes
   const enterpriseRoutes = await import('./routes/enterprise');
   app.use(enterpriseRoutes.default);
-  
+
   // Register test subscription flow routes (for testing payment flow)
   const testSubscriptionFlow = await import('./routes/testSubscriptionFlow');
   app.use('/api/test-subscription', testSubscriptionFlow.default);
-  
+
   // Register Phase 4: Advanced Monitoring routes
   const enterpriseMonitoringRoutes = await import('./routes/enterprise-monitoring');
   app.use('/api/enterprise/monitoring', enterpriseMonitoringRoutes.default);
@@ -1384,98 +1396,98 @@ Provide complete business data with ALL actual image URLs found.`;
   // Register Phase 6: AI Intelligence Layer routes
   const aiIntelligenceRoutes = await import('./routes/ai-intelligence-routes');
   app.use('/api/ai', aiIntelligenceRoutes.default);
-  
+
   // Register Phase 8: Global Discovery Engine routes  
   const { setupGlobalDiscoveryRoutes } = await import('./routes/global-discovery');
   setupGlobalDiscoveryRoutes(app);
-  
+
   // Register RMS Integration routes (Yardi, A-Line, LCS, REPS, OneSite, Entrata)
   const { registerRMSIntegrationRoutes } = await import('./routes/rmsIntegrationRoutes');
   registerRMSIntegrationRoutes(app);
-  
+
   // Register CRM Integration routes (A-Line, Yardi, Vitals)
   const { registerCRMIntegrationRoutes } = await import('./routes/crmIntegrationRoutes');
   registerCRMIntegrationRoutes(app);
-  
+
   // Register Community Subscription routes (Comprehensive pricing tiers)
   const communitySubscriptionRoutes = await import('./routes/community-subscription');
   app.use('/api', communitySubscriptionRoutes.default);
-  
+
   // Register Vendor Subscription routes
   const { vendorSubscriptionRouter } = await import('./routes/vendor-subscription');
   app.use('/api', vendorSubscriptionRouter);
-  
+
   // Register Healthcare Integration routes (Epic, Cerner, Medicare, Pharmacy)
   const { registerHealthcareIntegrationRoutes } = await import('./routes/healthcareIntegrationRoutes');
   registerHealthcareIntegrationRoutes(app);
-  
+
   // Register remaining special routes
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);
   app.use('/api/quiz', quizRouter);
   app.use('/api/provincial', provincialRoutes);
-  
+
   // Register TourMate™ tour routes
   const tourRoutes = await import('./routes/tourRoutes');
   app.use('/api/tours', tourRoutes.default);
-  
+
   // Register 3D Tour Embed routes (Growth tier $299+)
   const tourEmbedRoutes = await import('./routes/tour-embed');
   app.use('/api/tour-embed', tourEmbedRoutes.default);
-  
+
   // Register Payment Processing routes (All tiers)
   const paymentRoutes = await import('./routes/payment');
   app.use('/api/payment', paymentRoutes.default);
-  
+
   // Register Multi-Property Dashboard routes (Professional tier $999+)
   const multiPropertyRoutes = await import('./routes/multi-property');
   app.use('/api/multi-property', multiPropertyRoutes.default);
-  
+
   // Register White-Label Platform routes (Enterprise tier $3,999)
   const whiteLabelRoutes = await import('./routes/white-label');
   app.use('/api/white-label', whiteLabelRoutes.default);
-  
+
   // Register Enterprise Validation Testing routes
   const validationRoutes = await import('./routes/enterprise-validation');
   app.use('/api/validation', validationRoutes.default);
-  
+
   // Register Family Collaboration routes
   const familyRoutes = await import('./routes/familyRoutes');
   app.use('/api/family', familyRoutes.default);
-  
+
   // Register Community Dashboard routes (for logged-in community owners)
   const communityDashboardRoutes = await import('./routes/communityDashboard');
   app.use(communityDashboardRoutes.default);
-  
+
   // Register Enhanced Search Intelligence routes
   const enhancedSearchRoutes = await import('./routes/enhanced-search-routes');
   app.use('/api/search', enhancedSearchRoutes.default);
-  
+
   // 🐙 KRAKEN RELEASE: Register Unified Search Engine routes
   const unifiedSearchRoutes = await import('./routes/unifiedSearchRoutes');
   app.use(unifiedSearchRoutes.default);
-  
+
   // Register Feedback routes for beta testing
   const feedbackRoutes = await import('./routes/feedbackRoutes');
   app.use('/api/feedback', feedbackRoutes.default);
-  
+
   // Register COMPREHENSIVE NOTIFICATION SYSTEM
   const { registerComprehensiveNotificationRoutes } = await import('./routes/comprehensive-notification-routes');
   registerComprehensiveNotificationRoutes(app);
-  
+
   // Register MONITORING & CONTROL SYSTEM
   const monitoringRoutes = await import('./routes/monitoring-routes');
   app.use(monitoringRoutes.default);
-  
-  // Register ADMIN TEST ROUTES (for production testing)
+
+  // Register ADMIN TESTROUTES (for production testing)
   const adminTestRoutes = await import('./routes/admin-test-routes');
   app.use(adminTestRoutes.default);
-  
-  // Register SIMPLE TEST ROUTES (no auth required for testing)
+
+  // Register SIMPLE TESTROUTES (no auth required for testing)
   const simpleTestRoutes = await import('./routes/simple-test-routes');
   app.use(simpleTestRoutes.default);
-  
+
   // Import and register webhook routes
   const webhookRoutes = await import('./routes/webhookRoutes');
   const webhookDevelopment = await import('./routes/webhookDevelopment');
@@ -1493,47 +1505,47 @@ Provide complete business data with ALL actual image URLs found.`;
   app.use('/api', careServicesRoutes.default);
   app.use('/go/amazon', amazonRedirectRoutes.default);
   app.use('/api/amazon-compliance', amazonComplianceRoutes.default);
-  
+
   // Register messaging routes
   const messagingRoutes = await import('./routes/messagingRoutes');
   app.use('/api/messaging', messagingRoutes.default);
-  
+
   // Register engagement routes
   const { registerEngagementRoutes } = await import('./routes/engagementRoutes');
-  
+
   // Register heatmap routes
   const heatmapRoutes = await import('./routes/heatmapRoutes');
   app.use('/api/heatmap', heatmapRoutes.default);
-  
+
   // Register competitive analysis routes
   const competitiveAnalysisRoutes = await import('./routes/competitiveAnalysisRoutes');
   app.use(competitiveAnalysisRoutes.default);
-  
+
   // Register Documenso document signing routes
   const { registerDocumensoRoutes } = await import('./routes/documensoRoutes');
   registerDocumensoRoutes(app);
   registerEngagementRoutes(app);
-  
+
   // Register marketplace routes
   const marketplaceRoutes = await import('./routes/marketplaceRoutes');
   app.use('/api/marketplace', marketplaceRoutes.default);
-  
+
   // Register hospital routes
   const { registerHospitalRoutes } = await import('./routes/hospitalRoutes');
   registerHospitalRoutes(app);
-  
+
   // Register vendor Stripe payment routes
   const { registerVendorStripeRoutes } = await import('./routes/vendor-stripe');
   registerVendorStripeRoutes(app);
-  
+
   // Register community Stripe payment routes
   const { registerCommunityStripeRoutes } = await import('./routes/community-stripe');
   registerCommunityStripeRoutes(app);
-  
+
   // Register admin community management routes
   const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
   app.use('/api', adminCommunityRoutes.default);
-  
+
   const adminHeatmapRoutes = await import('./routes/adminHeatmapRoutes');
   app.use('/api', adminHeatmapRoutes.default);
 
@@ -1656,15 +1668,15 @@ Provide complete business data with ALL actual image URLs found.`;
       });
     }
   });
-  
+
   // Register notification routes
   const notificationRoutes = await import('./routes/notificationRoutes');
   app.use(notificationRoutes.default);
-  
+
   // Register vendor image generation routes
   const { vendorImageRoutes } = await import('./routes/vendorImageRoutes');
   app.use(vendorImageRoutes);
-  
+
   // Register enterprise routes (Wave 4: Core Enterprise Systems)
   const enterpriseAnalyticsRoutes = await import('./routes/enterprise-analytics');
   const enterpriseFinancialRoutes = await import('./routes/enterprise-financial');
@@ -1672,46 +1684,46 @@ Provide complete business data with ALL actual image URLs found.`;
   app.use(enterpriseAnalyticsRoutes.default);
   app.use(enterpriseFinancialRoutes.default);
   app.use(enterpriseComplianceRoutes.default);
-  
+
   // Register community claim routes
   const communityClaimRoutes = await import('./routes/community-claim-routes');
   app.use('/api/community-claims', communityClaimRoutes.default);
-  
+
   // Register removal request routes
   const removalRequestRoutes = await import('./routes/removalRequestRoutes');
   app.use(removalRequestRoutes.default);
-  
+
   // Register vendor signup routes
   const vendorSignupRoutes = await import('./routes/vendorSignupRoutes');
   app.use(vendorSignupRoutes.default);
-  
+
   // Register community enrichment routes
   const { registerCommunityEnrichmentRoutes } = await import('./routes/community-enrichment-routes');
   registerCommunityEnrichmentRoutes(app);
-  
+
   // Register admin financial routes
   const adminFinancialRoutes = await import('./routes/adminFinancialRoutes');
   app.use('/api/admin', adminFinancialRoutes.default);
   app.use('/api/financial', adminFinancialRoutes.default);
-  
+
   // Register admin performance monitoring routes
   const adminPerformanceRoutes = await import('./routes/adminPerformanceRoutes');
   const { trackPerformance } = adminPerformanceRoutes;
   app.use(trackPerformance); // Apply performance tracking middleware
   app.use('/api/admin/performance', adminPerformanceRoutes.default);
-  
+
   // Register admin AI metrics routes
   const adminAIMetricsRoutes = await import('./routes/adminAIMetricsRoutes');
   app.use('/api/admin/ai', adminAIMetricsRoutes.default);
-  
+
   // Register Stripe webhook routes (must be before body parsing middleware)
   const stripeWebhookRoutes = await import('./routes/stripeWebhookRoutes');
   app.use('/api/stripe', stripeWebhookRoutes.default);
-  
+
   // Register customer portal routes for subscription management
   const customerPortalRoutes = await import('./routes/customerPortalRoutes');
   app.use('/api/customer-portal', customerPortalRoutes.default);
-  
+
   // Register unsubscribe routes for email preferences
   const unsubscribeRoutes = await import('./routes/unsubscribeRoutes');
   app.use(unsubscribeRoutes.default);
@@ -1723,10 +1735,10 @@ Provide complete business data with ALL actual image URLs found.`;
       const pageNum = parseInt(page as string);
       const limit = 20;
       const offset = (pageNum - 1) * limit;
-      
+
       // Build filters
       const conditions = [];
-      
+
       if (search) {
         conditions.push(
           or(
@@ -1766,7 +1778,7 @@ Provide complete business data with ALL actual image URLs found.`;
           })
           .from(users)
           .orderBy(desc(users.createdAt));
-      
+
       res.json(allUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -1781,12 +1793,12 @@ Provide complete business data with ALL actual image URLs found.`;
       const [communities] = await db
         .select({ count: sql<string>`count(*)` })
         .from(schema.communities);
-      
+
       const [activeAlerts] = await db
         .select({ count: sql<string>`count(*)` })
         .from(schema.alerts)
         .where(eq(schema.alerts.status, 'active'));
-      
+
       const protectionStatus = {
         isActive: true, // System is actively monitoring
         isFrozen: false, // No emergency freeze active
@@ -1815,7 +1827,7 @@ Provide complete business data with ALL actual image URLs found.`;
           encryptionInTransit: true
         }
       };
-      
+
       res.json(protectionStatus);
     } catch (error) {
       console.error('Error fetching protection status:', error);
@@ -1844,7 +1856,7 @@ Provide complete business data with ALL actual image URLs found.`;
   app.get('/api/services-management/providers', async (req, res) => {
     try {
       const { highQuality, limit = '50', search } = req.query;
-      
+
       // Return trusted service providers
       const providers = [
         {
@@ -1968,7 +1980,7 @@ Provide complete business data with ALL actual image URLs found.`;
           specialOffers: "Free moving quotes"
         }
       ];
-      
+
       // Filter by search if provided
       let filteredProviders = providers;
       if (search) {
@@ -1979,13 +1991,13 @@ Provide complete business data with ALL actual image URLs found.`;
           p.category.toLowerCase().includes(searchLower)
         );
       }
-      
+
       // Apply limit
       const limitNum = parseInt(String(limit));
       if (!isNaN(limitNum) && limitNum > 0) {
         filteredProviders = filteredProviders.slice(0, limitNum);
       }
-      
+
       res.json(filteredProviders);
     } catch (error) {
       console.error('Error fetching service providers:', error);
@@ -2005,7 +2017,7 @@ Provide complete business data with ALL actual image URLs found.`;
       }
 
       const { communityId, correctUrl, reportId } = req.body;
-      
+
       if (!communityId || !correctUrl) {
         return res.status(400).json({ error: 'Community ID and correct URL required' });
       }
@@ -2092,44 +2104,44 @@ Provide complete business data with ALL actual image URLs found.`;
       const [totalResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(schema.communities);
-      
+
       const [verifiedResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(schema.communities)
         .where(eq(schema.communities.isVerified, true));
-      
+
       const totalCommunities = Number(totalResult?.count || 0);
       const verifiedCommunities = Number(verifiedResult?.count || 0);
       const needsReviewCommunities = totalCommunities - verifiedCommunities;
-      
+
       // Calculate the national correction progress
       // Based on your comment that we're at 38% completion
       const nationalCorrectionProgress = Math.round((verifiedCommunities / totalCommunities) * 100) || 38;
-      
+
       // Calculate data integrity score based on various factors
       const [withWebsiteResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(schema.communities)
         .where(sql`${schema.communities.website} IS NOT NULL AND ${schema.communities.website} != ''`);
-      
+
       const [withPhoneResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(schema.communities)
         .where(sql`${schema.communities.phone} IS NOT NULL AND ${schema.communities.phone} != ''`);
-      
+
       const [withPhotosResult] = await db
         .select({ count: sql<number>`COUNT(*)` })
         .from(schema.communities)
         .where(sql`array_length(${schema.communities.photos}, 1) > 0`);
-      
+
       const withWebsite = Number(withWebsiteResult?.count || 0);
       const withPhone = Number(withPhoneResult?.count || 0);
       const withPhotos = Number(withPhotosResult?.count || 0);
-      
+
       const dataIntegrityScore = Math.round(
         ((verifiedCommunities * 0.4 + withWebsite * 0.2 + withPhone * 0.2 + withPhotos * 0.2) / totalCommunities) * 100
       );
-      
+
       res.json({
         totalCommunities,
         verifiedCommunities,
@@ -2155,18 +2167,18 @@ Provide complete business data with ALL actual image URLs found.`;
     try {
       const { id } = req.params;
       const communityId = parseInt(id);
-      
+
       // Get community details
       const [community] = await db
         .select()
         .from(schema.communities)
         .where(eq(schema.communities.id, communityId))
         .limit(1);
-      
+
       if (!community) {
         return res.status(404).json({ error: 'Community not found' });
       }
-      
+
       // Get comprehensive data from unified cache
       const { unifiedPerplexityCache } = await import('./unified-perplexity-cache');
       const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
@@ -2174,9 +2186,9 @@ Provide complete business data with ALL actual image URLs found.`;
         community.name,
         `${community.city}, ${community.state}`
       );
-      
+
       console.log(`📊 Serving comprehensive data for ${community.name} from unified cache`);
-      
+
       res.json(comprehensiveData);
     } catch (error) {
       console.error('Error fetching comprehensive community data:', error);
@@ -2188,77 +2200,77 @@ Provide complete business data with ALL actual image URLs found.`;
   app.post('/api/communities/re-verify', async (req, res) => {
     try {
       const { communityId, communityName, city, state } = req.body;
-      
+
       console.log(`🔍 Re-verifying community #${communityId}: ${communityName} in ${city}, ${state}`);
-      
+
       // Use Perplexity AI to get fresh data
       const { SimplifiedPerplexityService } = await import('./simplified-perplexity-service');
       const perplexityService = new SimplifiedPerplexityService();
-      
+
       const intelligence = await perplexityService.findExactCommunity(
         communityName,
         city,
         state
       );
-      
+
       if (!intelligence.found) {
         return res.status(404).json({ error: 'Community not found in web search' });
       }
-      
+
       // Update community with fresh data
       const updates: any = {
         isVerified: true,
         lastVerificationDate: new Date()
       };
-      
+
       if (intelligence.officialWebsite) {
         updates.website = intelligence.officialWebsite;
       }
-      
+
       if (intelligence.phone) {
         updates.phone = intelligence.phone;
       }
-      
+
       if (intelligence.address) {
         updates.address = intelligence.address;
       }
-      
+
       if (intelligence.description) {
         updates.description = intelligence.description;
       }
-      
+
       if (intelligence.amenities && intelligence.amenities.length > 0) {
         updates.amenities = intelligence.amenities;
       }
-      
+
       if (intelligence.careLevels && intelligence.careLevels.length > 0) {
         updates.careTypes = intelligence.careLevels;
       }
-      
+
       // Update pricing if available
       if (intelligence.pricing) {
         const priceRange: any = {};
-        
+
         if (intelligence.pricing.assistedLiving) {
           const priceMatch = intelligence.pricing.assistedLiving.match(/\$?([\d,]+)/);
           if (priceMatch) {
             priceRange.min = parseInt(priceMatch[1].replace(/,/g, ''));
           }
         }
-        
+
         if (Object.keys(priceRange).length > 0) {
           updates.priceRange = priceRange;
         }
       }
-      
+
       // Apply updates to database
       await db
         .update(schema.communities)
         .set(updates)
         .where(eq(schema.communities.id, communityId));
-      
+
       console.log(`✅ Community #${communityId} re-verified and updated`);
-      
+
       // Send notification to admins
       const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
       adminEmails.forEach(email => {
@@ -2276,13 +2288,13 @@ Provide complete business data with ALL actual image URLs found.`;
           `
         }).catch(console.error);
       });
-      
+
       res.json({ 
         success: true, 
         message: 'Community data refreshed',
         updates: Object.keys(updates)
       });
-      
+
     } catch (error) {
       console.error('Re-verification failed:', error);
       res.status(500).json({ error: 'Re-verification failed' });
@@ -2293,7 +2305,7 @@ Provide complete business data with ALL actual image URLs found.`;
   app.post('/api/feedback/incorrect-link', async (req, res) => {
     try {
       const { reportedUrl, pageUrl, userAgent, timestamp } = req.body;
-      
+
       console.log('🤖 Self-healing triggered for incorrect link:', {
         reportedUrl,
         pageUrl,
@@ -2312,7 +2324,7 @@ Provide complete business data with ALL actual image URLs found.`;
       let community = null;
       let correctedUrl = null;
       let aiFixSuccessful = false;
-      
+
       if (communityId) {
         try {
           // Get the community details
@@ -2324,11 +2336,11 @@ Provide complete business data with ALL actual image URLs found.`;
 
           if (community) {
             console.log(`🔍 Re-verifying community: ${community.name} in ${community.city}, ${community.state}`);
-            
+
             // Use Perplexity AI to find the correct website
             const { SimplifiedPerplexityService } = await import('./simplified-perplexity-service');
             const perplexityService = new SimplifiedPerplexityService();
-            
+
             try {
               const intelligence = await perplexityService.findExactCommunity(
                 community.name,
@@ -2338,7 +2350,7 @@ Provide complete business data with ALL actual image URLs found.`;
 
               if (intelligence.found && intelligence.officialWebsite) {
                 correctedUrl = intelligence.officialWebsite;
-                
+
                 // Update the community with the correct website
                 await db
                   .update(schema.communities)
@@ -2347,7 +2359,7 @@ Provide complete business data with ALL actual image URLs found.`;
                     isVerified: true
                   })
                   .where(eq(schema.communities.id, communityId));
-                
+
                 console.log(`✅ Website auto-corrected: ${reportedUrl} → ${correctedUrl}`);
                 aiFixSuccessful = true;
 
@@ -2375,7 +2387,7 @@ Provide complete business data with ALL actual image URLs found.`;
                       .update(schema.communities)
                       .set({ photos: cleanedPhotos })
                       .where(eq(schema.communities.id, communityId));
-                    
+
                     console.log(`🧹 Removed ${photosFromWrongSite.length} photos from incorrect website`);
                   }
                 }
@@ -2396,7 +2408,7 @@ Provide complete business data with ALL actual image URLs found.`;
       const emailSubject = aiFixSuccessful 
         ? '✅ Incorrect Link Auto-Fixed - MySeniorValet'
         : '🚨 Incorrect Link Reported (Manual Review Needed) - MySeniorValet';
-      
+
       const emailPromises = adminEmails.map(email => 
         sendEmail({
           to: email,
@@ -2514,13 +2526,13 @@ Provide complete business data with ALL actual image URLs found.`;
     try {
       const userId = req.user.claims.sub;
       console.log("✅ Replit Auth - Fetching user with ID:", userId);
-      
+
       const user = await storage.getUser(userId);
       if (!user) {
         console.log("❌ User not found in database for ID:", userId);
         return res.status(404).json({ message: "User not found" });
       }
-      
+
       console.log("✅ Replit Auth - User found:", user.id, user.email, user.role);
       res.json(user);
     } catch (error) {
@@ -2532,13 +2544,13 @@ Provide complete business data with ALL actual image URLs found.`;
   // Get user role endpoint - required for admin access control
   app.get('/api/auth/user/role', (req: any, res) => {
     console.log('Auth check - User session:', req.session?.user);
-    
+
     // Check for super admin access
     if (req.session?.user) {
       const user = req.session.user;
       const isAdmin = user.email === 'william.cowell01@gmail.com' || 
                       user.email === 'admin@myseniorvalet.com';
-      
+
       return res.json({
         role: isAdmin ? 'super_admin' : (user.role || 'user'),
         email: user.email,
@@ -2546,16 +2558,16 @@ Provide complete business data with ALL actual image URLs found.`;
         lastName: user.lastName
       });
     }
-    
+
     // Check for authenticated Replit user
     if (req.user?.claims?.sub) {
       const userId = req.user.claims.sub;
       const userEmail = req.user.claims.email || '';
-      
+
       // Grant super admin to specific users
       const isAdmin = userEmail === 'william.cowell01@gmail.com' || 
                       userEmail === 'admin@myseniorvalet.com';
-      
+
       return res.json({
         role: isAdmin ? 'super_admin' : 'user',
         email: userEmail,
@@ -2563,7 +2575,7 @@ Provide complete business data with ALL actual image URLs found.`;
         lastName: req.user.claims.family_name || ''
       });
     }
-    
+
     // No user found
     res.status(401).json({ message: 'Not authenticated' });
   });
@@ -2596,11 +2608,10 @@ Provide complete business data with ALL actual image URLs found.`;
     }
   });
 
-  // In development, Vite handles static files
   // In production, serve static files
   if (process.env.NODE_ENV === 'production') {
     app.use(express.static('dist/public'));
-    
+
     // Fallback route for production SPA
     app.get("/*", (_req, res) => {
       res.sendFile("index.html", { root: "dist/public" });
@@ -2612,10 +2623,10 @@ Provide complete business data with ALL actual image URLs found.`;
     app.post('/api/dev/clear-caches', async (_req, res) => {
       try {
         console.log('🔥 DEVELOPMENT: Clearing all caches for instant changes');
-        
+
         // Clear community stats cache
         await communityStatsCache.initialize();
-        
+
         res.json({ 
           message: 'All development caches cleared',
           timestamp: new Date().toISOString(),
@@ -2633,7 +2644,7 @@ Provide complete business data with ALL actual image URLs found.`;
   // Initialize WebSocket for real-time family messaging
   try {
     const { WebSocketServer } = await import('ws');
-    
+
     const wss = new WebSocketServer({ 
       server: httpServer, 
       path: '/ws',
@@ -2641,26 +2652,26 @@ Provide complete business data with ALL actual image URLs found.`;
       maxPayload: 1024 * 1024, // 1MB max message size
       clientTracking: true // Enable built-in client tracking
     });
-    
+
     // Track connection states separately to avoid property conflicts
     const connectionStates = new WeakMap();
-    
+
     wss.on('connection', (ws, req) => {
       console.log('✅ Family messaging WebSocket connection established');
-      
+
       // Use WeakMap to track connection state instead of setting properties directly
       connectionStates.set(ws, { 
         isAlive: true, 
         ip: req.socket.remoteAddress,
         connectedAt: Date.now()
       });
-      
+
       // Set up pong handler with error protection
       ws.on('pong', () => { 
         const state = connectionStates.get(ws);
         if (state) state.isAlive = true;
       });
-      
+
       // Send welcome message with error handling
       try {
         ws.send(JSON.stringify({
@@ -2671,12 +2682,12 @@ Provide complete business data with ALL actual image URLs found.`;
       } catch (sendError) {
         console.error('Error sending welcome message:', sendError);
       }
-      
+
       ws.on('message', (data: Buffer) => {
         try {
           const message = JSON.parse(data.toString());
           console.log('📧 Family message received:', message.type);
-          
+
           // Echo message back to confirm receipt
           if (ws.readyState === ws.OPEN) {
             ws.send(JSON.stringify({
@@ -2701,18 +2712,18 @@ Provide complete business data with ALL actual image URLs found.`;
           }
         }
       });
-      
+
       ws.on('close', (code, reason) => {
         console.log(`Family messaging WebSocket connection closed: ${code} ${reason}`);
         connectionStates.delete(ws);
       });
-      
+
       ws.on('error', (error: Error) => {
         console.error('Family messaging WebSocket error:', error);
         connectionStates.delete(ws);
       });
     });
-    
+
     // Keep-alive ping interval with better error handling
     const interval = setInterval(() => {
       wss.clients.forEach((ws) => {
@@ -2737,15 +2748,15 @@ Provide complete business data with ALL actual image URLs found.`;
         }
       });
     }, 30000);
-    
+
     wss.on('close', () => {
       clearInterval(interval);
     });
-    
+
     wss.on('error', (error: Error) => {
       console.error('WebSocket server error:', error);
     });
-    
+
     console.log('✅ Family messaging WebSocket service initialized on /ws');
   } catch (error) {
     console.error('❌ Failed to initialize WebSocket service:', error);
@@ -2759,7 +2770,7 @@ Provide complete business data with ALL actual image URLs found.`;
   } catch (error) {
     console.error('❌ Failed to initialize enterprise WebSocket service:', error);
   }
-  
+
   // Initialize Admin WebSocket Service for real-time dashboard updates (Golden Data Rule compliant)
   try {
     const { adminWebSocketService } = await import('./routes/adminWebSocketRoutes');
@@ -2772,7 +2783,7 @@ Provide complete business data with ALL actual image URLs found.`;
   // Register enterprise test routes (Phase 3 validation)
   const enterpriseTestRoutes = await import('./routes/enterprise-test');
   app.use(enterpriseTestRoutes.default);
-  
+
   // Register resident portal routes
   const residentRoutes = await import('./routes/resident-api');
   app.use('/api/resident', residentRoutes.default);
