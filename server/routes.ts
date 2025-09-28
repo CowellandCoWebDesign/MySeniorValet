@@ -831,20 +831,91 @@ Provide complete business data with ALL actual image URLs found.`;
         .limit(limit);
       
       // Transform to match the card display format
-      const transformedServices = recentServices.map(service => ({
-        id: service.id,
-        businessName: service.name, // Map name to businessName for card compatibility
-        description: service.description,
-        shortDescription: service.shortDescription,
-        businessCity: '', // Services table doesn't have city/state
-        businessState: '',
-        businessType: service.serviceType,
-        website: '',
-        primaryContactPhone: '',
-        logoUrl: '',
-        createdAt: service.createdAt,
-        updatedAt: service.updatedAt
-      }));
+      const transformedServices = recentServices.map(service => {
+        const metadata = service.metadata as any || {};
+        
+        // Extract location from metadata - check various location formats
+        let city = metadata.city || '';
+        let state = metadata.state || '';
+        
+        // Check if location object exists (new format)
+        if (metadata.location) {
+          if (metadata.location.city) {
+            const rawCity = metadata.location.city;
+            // Parse city that might have state included (e.g., "redding ca")
+            const parts = rawCity.split(/\s+/);
+            if (parts.length > 1 && parts[parts.length - 1].length === 2) {
+              // Last part looks like a state abbreviation
+              city = parts.slice(0, -1).join(' ');
+              city = city.charAt(0).toUpperCase() + city.slice(1); // Capitalize first letter
+              state = parts[parts.length - 1].toUpperCase();
+            } else {
+              city = rawCity;
+              city = city.charAt(0).toUpperCase() + city.slice(1); // Capitalize first letter
+            }
+          }
+          if (metadata.location.state && !state) {
+            state = metadata.location.state.toUpperCase();
+          }
+        }
+        
+        // Check if discoveryInfo exists and parse it (old format)
+        if (!city && metadata.discoveryInfo) {
+          try {
+            const discoveryInfo = typeof metadata.discoveryInfo === 'string' 
+              ? JSON.parse(metadata.discoveryInfo) 
+              : metadata.discoveryInfo;
+            
+            if (discoveryInfo.city) {
+              city = discoveryInfo.city;
+            }
+            if (discoveryInfo.state) {
+              state = discoveryInfo.state;
+            }
+          } catch (error) {
+            console.log('Failed to parse discoveryInfo:', error);
+          }
+        }
+        
+        // If still no city, try to extract from service name
+        if (!city && service.name) {
+          const locationPatterns = [
+            /in\s+([A-Za-z\s]+),?\s*([A-Z]{2})?$/i,  // "in San Diego, CA" or "in San Diego"
+            /,\s*([A-Za-z\s]+),?\s*([A-Z]{2})?$/i,   // ", San Diego, CA" or ", San Diego"
+          ];
+          
+          for (const pattern of locationPatterns) {
+            const match = service.name.match(pattern);
+            if (match) {
+              city = match[1].trim();
+              if (match[2]) {
+                state = match[2].trim();
+              }
+              // Handle common city-state combinations
+              if (city.toLowerCase().includes('redding')) {
+                city = 'Redding';
+                state = state || 'CA';
+              }
+              break;
+            }
+          }
+        }
+        
+        return {
+          id: service.id,
+          businessName: service.name, // Map name to businessName for card compatibility
+          description: service.description,
+          shortDescription: service.shortDescription,
+          businessCity: city,
+          businessState: state,
+          businessType: service.serviceType || 'Service',
+          website: metadata.website || service.externalUrl || '',
+          primaryContactPhone: metadata.phone || '',
+          logoUrl: '',
+          createdAt: service.createdAt,
+          updatedAt: service.updatedAt
+        };
+      });
       
       res.json(transformedServices);
     } catch (error) {

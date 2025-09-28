@@ -585,7 +585,32 @@ export default function ServiceDetail() {
                       </h1>
                       <p className="text-gray-600 dark:text-gray-400 mt-1 flex items-center gap-2">
                         <MapPin className="w-4 h-4" />
-                        {service.city}, {service.state} {service.country && service.country !== 'US' && `• ${service.country}`}
+                        {(() => {
+                          // Use web intelligence location if available and database location is incomplete
+                          let displayCity = service.city;
+                          let displayState = service.state;
+                          
+                          // If database location is incomplete or extracted from name incorrectly
+                          if ((!displayCity || !displayState || displayCity.toLowerCase().includes('downtown')) && webIntelligence?.contactInfo?.address) {
+                            // Parse address from web intelligence (e.g., "301 South Market Street, San Jose, CA 95113")
+                            const address = webIntelligence.contactInfo.address.replace(/\*\*/g, '').replace(/\[\d+\]/g, '');
+                            const addressParts = address.split(',');
+                            if (addressParts.length >= 3) {
+                              // Extract city and state from address format: "Street, City, State ZIP"
+                              displayCity = addressParts[addressParts.length - 2].trim();
+                              const stateZip = addressParts[addressParts.length - 1].trim();
+                              displayState = stateZip.split(' ')[0];
+                            }
+                          }
+                          
+                          if (displayCity && displayState) {
+                            return `${displayCity}, ${displayState}${service.country && service.country !== 'US' ? ` • ${service.country}` : ''}`;
+                          } else if (displayCity) {
+                            return displayCity;
+                          } else {
+                            return 'Location information being verified...';
+                          }
+                        })()}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
