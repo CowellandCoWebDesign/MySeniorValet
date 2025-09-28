@@ -468,19 +468,17 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
           <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
           Live Intelligence Report
         </CardTitle>
-        <CardDescription className="text-base">
-          <div className="flex items-center justify-between">
-            <span className="text-gray-700 dark:text-gray-300">
-              Real-time information gathered from public sources across the web
+        <div className="flex items-center justify-between mt-2">
+          <span className="text-base text-gray-700 dark:text-gray-300">
+            Real-time information gathered from public sources across the web
+          </span>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <span className="text-sm text-gray-600 dark:text-gray-400">
+              Updated {realTimeData?.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}
             </span>
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <span className="text-sm text-gray-600 dark:text-gray-400">
-                Updated {realTimeData?.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}
-              </span>
-            </div>
           </div>
-        </CardDescription>
+        </div>
       </CardHeader>
       <CardContent className="pt-6">
         {/* Live Web Intelligence moved to avoid duplicate photo display */}
