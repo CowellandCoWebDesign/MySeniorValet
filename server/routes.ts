@@ -375,9 +375,19 @@ Provide complete business data with ALL actual image URLs found.`;
           const prefixMatches = answer.matchAll(imageUrlPrefixRegex) || [];
           const prefixedUrls = Array.from(prefixMatches).map(match => match[1]);
           
-          // Look for direct image URLs in the response content
-          const imageUrlRegex = /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)(\?[^\s\]\)"']*)?(#[^\s\]\)"']*)?/gi;
-          const foundUrls = answer.match(imageUrlRegex) || [];
+          // Look for direct image URLs in the response content - including WordPress
+          const imageUrlPatterns = [
+            // WordPress uploads with flexible year/date patterns
+            /https?:\/\/[^\s\]\)"']+\/wp-content\/uploads\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)/gi,
+            // Standard image URLs
+            /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)(\?[^\s\]\)"']*)?(#[^\s\]\)"']*)?/gi,
+          ];
+          
+          const foundUrls: string[] = [];
+          for (const pattern of imageUrlPatterns) {
+            const matches = answer.match(pattern) || [];
+            foundUrls.push(...matches);
+          }
           
           // Look for photo URLs from known image CDNs
           const cdnPatterns = [
@@ -399,14 +409,49 @@ Provide complete business data with ALL actual image URLs found.`;
           }
           
           const allPhotoUrls = [...prefixedUrls, ...foundUrls, ...cdnUrls];
-          const uniqueUrls = [...new Set(allPhotoUrls)]; // Remove duplicates
+          const processedUrls: string[] = [];
+          
+          // Process each URL and try variations for WordPress
+          for (const url of allPhotoUrls) {
+            // Clean the URL
+            const cleanUrl = url.replace(/[\]\)"']+$/, '').trim();
+            
+            // Skip only obviously corrupted URLs
+            if (cleanUrl.includes('QwQwQwQwQwQwQwQwQw') || 
+                cleanUrl.includes('kQz8kQz8kQz8kQz8')) {
+              continue;
+            }
+            
+            // For WordPress URLs, try multiple year variations
+            if (cleanUrl.includes('/wp-content/uploads/')) {
+              const yearMatch = cleanUrl.match(/\/uploads\/(\d{4})\//);
+              if (yearMatch) {
+                // Add original
+                processedUrls.push(cleanUrl);
+                
+                // Try adjacent years (in case the URL has an outdated year)
+                const currentYear = new Date().getFullYear();
+                const yearsToTry = [currentYear, currentYear - 1, currentYear - 2];
+                for (const year of yearsToTry) {
+                  if (year.toString() !== yearMatch[1]) {
+                    const altUrl = cleanUrl.replace(`/uploads/${yearMatch[1]}/`, `/uploads/${year}/`);
+                    processedUrls.push(altUrl);
+                  }
+                }
+              } else {
+                processedUrls.push(cleanUrl);
+              }
+            } else {
+              processedUrls.push(cleanUrl);
+            }
+          }
+          
+          const uniqueUrls = [...new Set(processedUrls)]; // Remove duplicates
           
           if (uniqueUrls.length > 0) {
             console.log(`✅ Found ${uniqueUrls.length} image URLs in response text`);
             extractedPhotos = uniqueUrls.slice(0, 50).map(url => {
-              // Clean the URL of any trailing brackets or special chars
-              const cleanUrl = url.replace(/[\]\)"']+$/, '').trim();
-              return `/api/image-proxy?url=${encodeURIComponent(cleanUrl)}`;
+              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
             });
           }
           

@@ -322,29 +322,36 @@ export class WebsiteScraperService {
         });
       }
       
+      console.log(`📷 Found ${imageUrls.length} total image URLs`);
+      
+      // Process and categorize images  
+      const baseUrlObj = new URL(url);
+      
       // 9. WordPress-specific: Try to find the uploads directory and scan for images
       const wpUploadsPattern = /wp-content\/uploads\/\d{4}\/\d{2}\//gi;
       const wpUploadsMatches = allHtml.match(wpUploadsPattern);
       if (wpUploadsMatches && wpUploadsMatches.length > 0) {
         console.log(`🔍 Detected WordPress site, found uploads paths: ${wpUploadsMatches.slice(0, 3).join(', ')}`);
         
-        // Try to find all image paths in WordPress uploads
-        const wpImagePattern = /wp-content\/uploads\/\d{4}\/\d{2}\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi;
-        const wpImages = allHtml.match(wpImagePattern);
-        if (wpImages) {
-          wpImages.forEach(imgPath => {
-            const fullUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}/${imgPath}`;
-            if (!imageUrls.includes(fullUrl)) {
-              imageUrls.push(fullUrl);
-            }
-          });
+        // Try to find all image paths in WordPress uploads - be more flexible with the pattern
+        const wpImagePatterns = [
+          /wp-content\/uploads\/\d{4}\/\d{2}\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi,
+          /wp-content\/uploads\/\d{4}\/\d{1,2}\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi,
+          /wp-content\/uploads\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi
+        ];
+        
+        for (const pattern of wpImagePatterns) {
+          const wpImages = allHtml.match(pattern);
+          if (wpImages) {
+            wpImages.forEach(imgPath => {
+              const fullUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}/${imgPath}`;
+              if (!imageUrls.includes(fullUrl)) {
+                imageUrls.push(fullUrl);
+              }
+            });
+          }
         }
       }
-      
-      console.log(`📷 Found ${imageUrls.length} total image URLs`);
-      
-      // Process and categorize images  
-      const baseUrlObj = new URL(url);
       const processedPhotos: string[] = [];
       const processedFloorPlans: string[] = [];
       const processedVirtual: string[] = [];
