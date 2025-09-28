@@ -179,8 +179,9 @@ export class CheerioPhotoScraper {
       // Sort by relevance score (highest first)
       scoredPhotos.sort((a, b) => b.relevanceScore - a.relevanceScore);
       
-      // Filter out low-scoring photos (likely unrelated)
-      const relevantPhotos = scoredPhotos.filter(photo => photo.relevanceScore > 0);
+      // Be more permissive - keep photos with neutral or positive scores
+      // Only filter out photos with very negative scores (< -5)
+      const relevantPhotos = scoredPhotos.filter(photo => photo.relevanceScore >= -5);
       
       console.log(`✅ Scraped ${relevantPhotos.length} relevant photos from ${websiteUrl} (filtered from ${uniquePhotos.length} total)`);
       
@@ -247,20 +248,13 @@ export class CheerioPhotoScraper {
       /button/i,
       /avatar/i,
       /emoji/i,
-      /social/i,
-      /facebook/i,
-      /twitter/i,
-      /instagram/i,
-      /linkedin/i,
-      /youtube/i,
-      /pinterest/i,
       /arrow/i,
       /chevron/i,
       /caret/i,
       /sprite/i,
       /thumbnail-[xs|sm|tiny]/i,
       /\.(svg|ico)$/i,  // Reject SVG and ICO files completely
-      // NEW: Reject people/staff photos
+      // Reject obvious people photos
       /headshot/i,
       /portrait/i,
       /staff/i,
@@ -268,15 +262,9 @@ export class CheerioPhotoScraper {
       /realtor/i,
       /agent/i,
       /broker/i,
-      /professional/i,
-      /profile/i,
+      /profile-pic/i,
       /employee/i,
-      /member/i,
-      /board/i,
-      /director/i,
-      /executive/i,
-      /manager/i,
-      /about-us/i,
+      /about-us\/team/i,
       /testimonial/i
     ];
     
@@ -285,22 +273,13 @@ export class CheerioPhotoScraper {
       return false;
     }
     
-    // Check for valid image extensions (removed SVG)
-    const imagePatterns = [
-      /\.(jpg|jpeg|png|gif|webp|bmp)$/i,  // Must end with these extensions
-      /\/image\//i,
-      /\/photo\//i,
-      /\/gallery\//i,
-      /\/property\//i,
-      /\/community\//i,
-      /\/facility\//i,
-      /\/residence\//i,
-      /cloudinary\.com/i,
-      /amazonaws\.com/i,
-      /googleusercontent\.com/i
-    ];
+    // Be more permissive - accept any common image format
+    const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|bmp|JPG|JPEG|PNG|GIF|WEBP|BMP)(\?|#|$)/i.test(url);
+    const hasImagePath = /\/(image|photo|gallery|property|community|facility|residence|assets|media|upload|files)\//i.test(url);
+    const isImageCDN = /(cloudinary|amazonaws|googleusercontent|imagekit|imgix|fastly|akamai)\.com/i.test(url);
     
-    return imagePatterns.some(pattern => pattern.test(url));
+    // Accept if it has an image extension OR is from known image paths/CDNs
+    return hasImageExtension || hasImagePath || isImageCDN;
   }
   
   private isStockPhoto(url: string): boolean {
@@ -386,15 +365,14 @@ export class CheerioPhotoScraper {
   }
   
   private scorePhotoRelevance(photo: ScrapedPhoto, communityName: string): number {
-    let score = 0;
+    let score = 1; // Start with a slightly positive score to be more inclusive
     const nameParts = communityName.toLowerCase().split(/\s+/);
     
-    // PENALIZE photos with people in them
+    // PENALIZE photos with people in them (but less severely)
     const peoplePatterns = [
-      /headshot/i, /portrait/i, /staff/i, /team/i,
-      /realtor/i, /agent/i, /broker/i, /professional/i,
-      /member/i, /testimonial/i, /smile/i, /smiling/i,
-      /person/i, /people/i, /man/i, /woman/i, /lady/i
+      /headshot/i, /portrait/i, /staff-photo/i, /team-member/i,
+      /realtor/i, /agent-photo/i, /broker/i, 
+      /testimonial/i, /smile/i, /smiling/i
     ];
     
     const urlLower = photo.url.toLowerCase();
@@ -402,20 +380,19 @@ export class CheerioPhotoScraper {
     const contextLower = (photo.context || '').toLowerCase();
     const combinedText = urlLower + ' ' + altLower + ' ' + contextLower;
     
-    // Heavy penalty for people photos
+    // Moderate penalty for people photos
     if (peoplePatterns.some(pattern => pattern.test(combinedText))) {
-      score -= 10;
+      score -= 8;
     }
     
-    // PENALIZE unrelated domains
+    // PENALIZE unrelated domains (but less severely)
     const unrelatedDomains = [
-      'chamber', 'realtor', 'remax', 'coldwell',
-      'keller', 'century21', 'zillow', 'trulia',
-      'apartments.com', 'rent.com', 'forrent.com'
+      'chamber', 'realtor.com', 'remax', 'coldwell',
+      'keller', 'century21'
     ];
     
     if (unrelatedDomains.some(domain => urlLower.includes(domain))) {
-      score -= 15;
+      score -= 10;
     }
     
     // Check URL for community name parts
