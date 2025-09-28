@@ -2959,42 +2959,6 @@ export default function MySeniorValetHome() {
       {/* Healthcare Tab */}
       <TabsContent value="healthcare" className="mt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {/* Healthcare Provider Directory Card */}
-          <Link to="/healthcare">
-            <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-red-400 relative overflow-hidden group transform hover:scale-105">
-              <CardHeader>
-                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-red-500 to-pink-500 text-white px-3 py-1">
-                  HEALTHCARE
-                </Badge>
-                <CardTitle className="text-2xl mb-2">Healthcare Provider Directory</CardTitle>
-                <CardDescription>Find doctors, specialists, and medical services</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Connect with 6,800+ healthcare providers nationwide specializing in senior care.
-                </p>
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm">Primary Care Physicians</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm">Specialists & Surgeons</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="text-sm">Home Health Services</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-4 bg-gradient-to-r from-red-500 to-pink-500 text-white">
-                  <Hospital className="mr-2 h-4 w-4" />
-                  Browse Healthcare Providers
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
           {/* Global Healthcare Discovery Platform */}
           <Link to="/senior-healthcare-directory">
             <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
