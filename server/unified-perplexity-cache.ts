@@ -765,5 +765,181 @@ Format all information clearly with section headers.
   }
 }
 
+// Service caching interface similar to community caching
+interface CachedServiceData {
+  businessInfo: {
+    name?: string;
+    website?: string;
+    phone?: string;
+    email?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    hours?: string;
+    description?: string;
+    services?: string[];
+  };
+  photos: string[];
+  sources: string[];
+  timestamp: number;
+  serviceId: string;
+  serviceName: string;
+  location?: string; // May be missing
+  rawPerplexityContent?: string;
+}
+
+class ServiceEnrichmentCache {
+  private static instance: ServiceEnrichmentCache;
+  private cache = new Map<string, { data: CachedServiceData; timestamp: number }>();
+  private CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days
+  private perplexityService: PerplexityAIService;
+
+  constructor() {
+    this.perplexityService = new PerplexityAIService();
+  }
+
+  static getInstance(): ServiceEnrichmentCache {
+    if (!ServiceEnrichmentCache.instance) {
+      ServiceEnrichmentCache.instance = new ServiceEnrichmentCache();
+    }
+    return ServiceEnrichmentCache.instance;
+  }
+
+  async getServiceEnrichment(
+    serviceId: string,
+    serviceName: string,
+    location?: string, // Make location optional
+    forceRefresh: boolean = false
+  ): Promise<CachedServiceData> {
+    const cacheKey = `service_${serviceId}`;
+    
+    if (forceRefresh) {
+      console.log(`🔄 Force refresh requested for ${serviceName} - clearing cache`);
+      this.cache.delete(cacheKey);
+    }
+    
+    const cached = this.cache.get(cacheKey);
+    
+    // Return cached data if fresh
+    if (cached && cached.timestamp > Date.now() - this.CACHE_DURATION) {
+      const isIncomplete = !cached.data.rawPerplexityContent || 
+                          cached.data.rawPerplexityContent.length < 100;
+      
+      if (!isIncomplete) {
+        console.log(`📦 Returning cached data for ${serviceName}`);
+        return cached.data;
+      }
+    }
+
+    console.log(`🔍 Fetching enrichment for service: ${serviceName}`);
+
+    // Construct location string - be flexible if missing
+    const searchLocation = location || 'United States'; // Fallback to broad location
+    
+    const query = `
+For the business/service "${serviceName}" ${location ? `located in ${location}` : ''}, provide comprehensive information including:
+
+**CONTACT INFORMATION:**
+- Phone number (direct, not referral services)
+- Official website URL
+- Email address
+- Physical address if available
+
+**PHOTOS:**
+- Links to business photos
+- Storefront images
+- Service photos
+- Team photos
+
+**BUSINESS DETAILS:**
+- Operating hours
+- Services offered
+- Pricing information if available
+- Business description
+
+Note: If location is uncertain, search broadly and include any businesses with this name.
+`;
+
+    try {
+      const response = await this.perplexityService.searchRealTime(query, serviceName);
+
+      // Extract photos from various sources
+      const photos: string[] = [];
+      
+      // Add images from Perplexity response
+      if (response.images && response.images.length > 0) {
+        photos.push(...response.images);
+      }
+
+      // Extract from response summary text
+      const imageUrlRegex = /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)/gi;
+      const foundUrls = (response.summary || '').match(imageUrlRegex) || [];
+      photos.push(...foundUrls);
+
+      // Extract business info from the summary (parse the structured response)
+      const extractInfo = (text: string, pattern: RegExp): string | undefined => {
+        const match = text.match(pattern);
+        return match ? match[1].trim() : undefined;
+      };
+
+      const summary = response.summary || '';
+      const website = extractInfo(summary, /\*\*OFFICIAL WEBSITE:\*\*\s*\n([^\n]+)/);
+      const phone = extractInfo(summary, /phone[:\s]+([0-9-().\s]+)/i);
+      const address = extractInfo(summary, /address[:\s]+([^\n]+)/i);
+      
+      // Try to scrape the website if found
+      if (website && website !== 'Not found' && website.includes('http')) {
+        try {
+          const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+            website,
+            serviceName,
+            { maxPhotos: 30, timeout: 10000 }
+          );
+          photos.push(...scrapedPhotos.map(p => p.url));
+        } catch (error) {
+          console.log(`Photo scraping failed for ${website}:`, error);
+        }
+      }
+
+      const serviceData: CachedServiceData = {
+        businessInfo: {
+          name: serviceName,
+          website: website && website !== 'Not found' ? website : undefined,
+          phone: phone || undefined,
+          address: address || undefined,
+          description: summary.substring(0, 500)
+        },
+        photos: [...new Set(photos)].slice(0, 50), // Dedupe and limit
+        sources: response.sources || [],
+        timestamp: Date.now(),
+        serviceId,
+        serviceName,
+        location: searchLocation,
+        rawPerplexityContent: response.summary
+      };
+
+      // Cache the result
+      this.cache.set(cacheKey, { data: serviceData, timestamp: Date.now() });
+      console.log(`✅ Cached enrichment data for ${serviceName} (7 days)`);
+
+      return serviceData;
+    } catch (error) {
+      console.error(`Failed to enrich service ${serviceName}:`, error);
+      
+      // Return minimal data on error
+      return {
+        businessInfo: { name: serviceName },
+        photos: [],
+        sources: [],
+        timestamp: Date.now(),
+        serviceId,
+        serviceName,
+        location: searchLocation
+      };
+    }
+  }
+}
+
 export const unifiedPerplexityCache = UnifiedPerplexityCache.getInstance();
+export const serviceEnrichmentCache = ServiceEnrichmentCache.getInstance();
 export default UnifiedPerplexityCache;

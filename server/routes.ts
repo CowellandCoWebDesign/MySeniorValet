@@ -75,17 +75,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return [];
   }
 
-  // API endpoint for service web intelligence
+  // Import the service enrichment cache
+  const { serviceEnrichmentCache } = await import('./unified-perplexity-cache');
+  
+  // API endpoint for service web intelligence  
   app.post('/api/service-intelligence', async (req, res) => {
     try {
-      const { serviceName, city, state, serviceType, website } = req.body;  // Accept website from client
+      const { serviceName, city, state, serviceType, website, serviceId } = req.body;  // Accept serviceId too
       
-      if (!serviceName || !city) {
-        return res.status(400).json({ error: 'Service name and city are required' });
+      // Only require service name, be flexible about location
+      if (!serviceName) {
+        return res.status(400).json({ error: 'Service name is required' });
       }
       
-      console.log(`🔍 Fetching web intelligence for business: ${serviceName} in ${city}, ${state}`);
+      // Construct location string flexibly
+      const locationParts = [];
+      if (city) locationParts.push(city);
+      if (state) locationParts.push(state);
+      const location = locationParts.length > 0 ? locationParts.join(', ') : undefined;
+      
+      console.log(`🔍 Fetching web intelligence for business: ${serviceName} in ${location || 'unspecified location'}`);
       console.log(`📊 Business type: ${serviceType || 'restaurant/business'}`);
+      
+      // Use the ServiceEnrichmentCache for cached data
+      const cacheKey = serviceId || serviceName; // Use ID if available
+      try {
+        const cachedData = await serviceEnrichmentCache.getServiceEnrichment(
+          cacheKey,
+          serviceName,
+          location,
+          false // Don't force refresh for now
+        );
+        
+        // Return cached/enriched data in the format the client expects
+        return res.json({
+          success: true,
+          serviceName,
+          location: location || 'United States',
+          description: cachedData.rawPerplexityContent || '',
+          website: cachedData.businessInfo.website || website || '',
+          photos: cachedData.photos.map(url => {
+            // Add proxy URL if needed
+            if (url.includes('http') && !url.includes('/api/image-proxy')) {
+              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+            }
+            return url;
+          }),
+          contactInfo: {
+            phone: cachedData.businessInfo.phone,
+            email: cachedData.businessInfo.email,
+            website: cachedData.businessInfo.website || website,
+            address: cachedData.businessInfo.address,
+            hours: cachedData.businessInfo.hours
+          },
+          services: cachedData.businessInfo.services || [],
+          citations: cachedData.sources,
+          found: true,
+          fromCache: cachedData.timestamp > 0
+        });
+      } catch (cacheError) {
+        console.error('Cache enrichment failed, falling back to direct Perplexity call:', cacheError);
+        // Continue with the existing direct Perplexity call below if cache fails
+      }
       
       // Call Perplexity API directly for business searches (not senior living)
       const perplexityApiKey = process.env.PERPLEXITY_API_KEY;

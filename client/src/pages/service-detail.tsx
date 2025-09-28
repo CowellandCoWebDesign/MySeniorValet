@@ -399,7 +399,8 @@ export default function ServiceDetail() {
   };
 
   const fetchWebIntelligence = async () => {
-    if (!service?.name || !service?.city || isLoadingIntelligence) return;
+    // Only require service name - location is optional
+    if (!service?.name || isLoadingIntelligence) return;
     
     setIsLoadingIntelligence(true);
     
@@ -410,9 +411,10 @@ export default function ServiceDetail() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          serviceId: service.id, // Pass ID for better caching
           serviceName: service.name,
-          city: service.city,
-          state: service.state,
+          city: service.city || undefined, // Pass city if available
+          state: service.state || undefined, // Pass state if available
           serviceType: service.careTypes?.[0] || 'service',
           website: service.website  // Pass the database website so we don't override it with Google Maps URLs
         }),
@@ -453,24 +455,47 @@ export default function ServiceDetail() {
     );
   }
 
-  if (error || !service) {
+  // Only show "not found" if both the service doesn't exist AND we're not loading
+  // This prevents showing error when just enrichment fails
+  if (!isLoading && !service) {
+    // Check if this might be a temporary issue
+    if (error?.toString().includes('404') || error?.toString().includes('not found')) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
+          <NavigationHeader />
+          <div className="container mx-auto px-4 py-8">
+            <Alert className="max-w-2xl mx-auto">
+              <AlertDescription>
+                Business not found. It may have been removed or the link is incorrect.
+              </AlertDescription>
+            </Alert>
+            <div className="text-center mt-6">
+              <Link href="/">
+                <Button>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Home
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // For other errors, try to continue and show what we can
+    console.log('Service load had issues but continuing with partial data:', error);
+  }
+
+  // If service is still null at this point (shouldn't happen), show a fallback
+  if (!service) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-black">
         <NavigationHeader />
         <div className="container mx-auto px-4 py-8">
-          <Alert className="max-w-2xl mx-auto">
-            <AlertDescription>
-              Business not found. It may have been removed or the link is incorrect.
-            </AlertDescription>
-          </Alert>
-          <div className="text-center mt-6">
-            <Link href="/">
-              <Button>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Home
-              </Button>
-            </Link>
-          </div>
+          <MascotLoadingDisplay 
+            message="Loading service information..." 
+            submessage="Please wait while we gather details"
+          />
         </div>
       </div>
     );
