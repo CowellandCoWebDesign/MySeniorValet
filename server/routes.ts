@@ -156,12 +156,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 9. Facebook: rating, reviews
 10. Industry-specific sites ratings
 
-**PHOTOS (include direct URLs):**
-11. Google Business photos
-12. Yelp photos (food, interior, exterior)
-13. TripAdvisor gallery
-14. Official website gallery
-15. Facebook/Instagram photos
+**PHOTOS (UNRESTRICTED - search EVERYWHERE):**
+11. Business's OFFICIAL WEBSITE gallery/photos section - look for pages like /gallery, /photos, /menu, /about
+12. ALL photos from the business's actual website - not just homepage
+13. Google Business photos - all available images
+14. Yelp photos - all customer and business photos
+15. TripAdvisor gallery - all photos
+16. Facebook/Instagram business photos
+17. OpenTable photos (for restaurants)
+18. Local news articles with photos
+19. Review sites with actual photos
+20. ANY other source with real photos of this business
 
 **COMPLETE ONLINE PRESENCE:**
 Google Maps: [exact URL]
@@ -179,7 +184,18 @@ ${serviceType === 'restaurant' ? 'OpenTable/Resy: [booking URL]' : 'Booking/Appo
 - Parking availability
 - ${serviceType === 'restaurant' ? 'Delivery/takeout options' : 'Online services'}
 
-Gather ALL this information from every available source in this SINGLE response. Include actual photo URLs and complete business data.`;
+Gather ALL this information from EVERY available source in this SINGLE response. 
+
+CRITICAL FOR PHOTOS:
+- First, find the business's ACTUAL WEBSITE (not directories)
+- Navigate to their gallery, photos, or media pages
+- Extract ALL photo URLs from their website
+- Search UNRESTRICTED across the entire internet for photos
+- Include direct image URLs from ANY source
+- Do NOT limit to specific domains
+- Find photos from local blogs, news sites, social media, anywhere
+
+Provide complete business data with ALL photo URLs found.`;
 
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -203,18 +219,9 @@ Gather ALL this information from every available source in this SINGLE response.
           max_tokens: 2000,
           return_images: true,  // Enable real image URLs
           web_search_options: {
-            search_context_size: 'low'  // Low context for 70% cost reduction
-          },
-          image_domain_filter: [
-            "yelp.com",
-            "google.com", 
-            "tripadvisor.com",
-            "opentable.com",
-            "foursquare.com",
-            "-shutterstock.com",  // Exclude stock photos
-            "-getty.com",
-            "-stock.adobe.com"
-          ]
+            search_context_size: 'low'  // Low context for cost optimization with sonar-pro
+          }
+          // NO image_domain_filter - search EVERYWHERE for photos
         })
       });
 
@@ -348,9 +355,35 @@ Gather ALL this information from every available source in this SINGLE response.
         // PRIORITY 2: If no provider photos, try scraping the website
         if (extractedPhotos.length === 0 && extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
-            console.log(`🕸️ Fallback method: Scraping website for real photos: ${extractedWebsite}`);
+            console.log(`🕸️ Fallback method: Scraping website gallery for real photos: ${extractedWebsite}`);
             const { websiteScraperService } = await import('./website-scraper-service');
-            const scrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+            
+            // Try to find and scrape gallery pages
+            const galleryPaths = ['/gallery', '/photos', '/media', '/images', '/portfolio', '/menu', '/our-food', '/our-space'];
+            let allScrapedPhotos: string[] = [];
+            
+            // First scrape the main website
+            const mainScrapedData = await websiteScraperService.scrapeWebsite(extractedWebsite, serviceName);
+            if (mainScrapedData.photos) {
+              allScrapedPhotos.push(...mainScrapedData.photos);
+            }
+            
+            // Then try gallery-specific pages
+            for (const path of galleryPaths) {
+              try {
+                const galleryUrl = extractedWebsite.replace(/\/$/, '') + path;
+                console.log(`📸 Checking gallery page: ${galleryUrl}`);
+                const galleryData = await websiteScraperService.scrapeWebsite(galleryUrl, serviceName);
+                if (galleryData.photos && galleryData.photos.length > 0) {
+                  console.log(`✅ Found ${galleryData.photos.length} photos in ${path}`);
+                  allScrapedPhotos.push(...galleryData.photos);
+                }
+              } catch (e) {
+                // Gallery page might not exist, that's ok
+              }
+            }
+            
+            const scrapedData = { ...mainScrapedData, photos: [...new Set(allScrapedPhotos)] }; // Remove duplicates
             triedWebsiteScraping = true;
             
             if (scrapedData.photos && scrapedData.photos.length > 0) {

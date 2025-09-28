@@ -51,31 +51,48 @@ export class WebsiteScraperService {
   
   private extractGalleryLinks(html: string, baseUrl: string): string[] {
     const links: string[] = [];
+    const urlObj = new URL(baseUrl);
+    
+    // Enhanced patterns for restaurants and services - UNRESTRICTED search
     const linkPatterns = [
-      /<a[^>]+href=["']([^"']*(?:gallery|photos|tour|amenities|floor-plans|virtual-tour)[^"']*)["']/gi,
-      /<a[^>]+href=["']([^"']*)["'][^>]*>(?:[^<]*(?:photos|gallery|tour|amenities|floor|virtual)[^<]*)<\/a>/gi
+      /<a[^>]+href=["']([^"']*(?:gallery|photos|tour|amenities|floor-plans|virtual-tour|menu|food|dishes|cuisine|dining|about|our-space|interior|exterior|events|catering)[^"']*)["']/gi,
+      /<a[^>]+href=["']([^"']*)["'][^>]*>(?:[^<]*(?:photos|gallery|tour|amenities|floor|virtual|menu|food|about|space|interior|exterior)[^<]*)<\/a>/gi
     ];
     
+    // Also add common gallery paths that might not be linked
+    const commonPaths = [
+      '/gallery', '/photos', '/images', '/media', '/portfolio',
+      '/menu', '/food', '/our-food', '/our-menu', '/cuisine',
+      '/about', '/about-us', '/our-space', '/our-restaurant',
+      '/interior', '/exterior', '/virtual-tour', '/tour',
+      '/events', '/private-dining', '/catering'
+    ];
+    
+    // Add common paths as potential gallery URLs
+    for (const path of commonPaths) {
+      const galleryUrl = `${urlObj.protocol}//${urlObj.host}${path}`;
+      links.push(galleryUrl);
+    }
+    
+    // Extract links from HTML
     for (const pattern of linkPatterns) {
       let match;
       while ((match = pattern.exec(html)) !== null) {
         let link = match[1];
         // Convert relative URLs to absolute
         if (link.startsWith('/')) {
-          const urlObj = new URL(baseUrl);
           link = `${urlObj.protocol}//${urlObj.host}${link}`;
         } else if (!link.startsWith('http')) {
-          const urlObj = new URL(baseUrl);
           link = `${urlObj.protocol}//${urlObj.host}/${link}`;
         }
         
-        if (!links.includes(link) && link.includes(new URL(baseUrl).host)) {
+        if (!links.includes(link)) {
           links.push(link);
         }
       }
     }
     
-    return links;
+    return [...new Set(links)]; // Remove duplicates
   }
 
   async scrapeWebsite(url: string, communityName?: string): Promise<ScrapedCommunityData> {
@@ -111,8 +128,9 @@ export class WebsiteScraperService {
       const galleryLinks = this.extractGalleryLinks(html, url);
       console.log(`📁 Found ${galleryLinks.length} potential gallery/photo pages`);
       
-      // Fetch all gallery pages in parallel
-      const pagePromises = galleryLinks.slice(0, 5).map(link => this.fetchPage(link)); // Limit to 5 pages
+      // Fetch all gallery pages in parallel - more aggressive for services
+      const maxPages = isService ? 10 : 5; // Fetch more pages for services
+      const pagePromises = galleryLinks.slice(0, maxPages).map(link => this.fetchPage(link));
       const additionalPages = await Promise.all(pagePromises);
       
       // Combine all HTML for photo extraction
@@ -143,13 +161,29 @@ export class WebsiteScraperService {
       const imageUrls: string[] = [];
       let match;
       
-      // Enhanced patterns to find images in various contexts
+      // Enhanced patterns to find images in various contexts - UNRESTRICTED
       const imgPatterns = [
+        // Standard image tags
         /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
-        /data-(?:src|lazy|original|lazy-src)=["']([^"']+)["']/gi,
+        /data-(?:src|lazy|original|lazy-src|image|thumb|full|photo|picture)=["']([^"']+)["']/gi,
         /<source[^>]+srcset=["']([^"']+)["'][^>]*>/gi,
         /background-image:\s*url\(['"]?([^'")]+)['"]?\)/gi,
-        /data-background=["']([^"']+)["']/gi
+        /data-background=["']([^"']+)["']/gi,
+        /data-bg=["']([^"']+)["']/gi,
+        // Restaurant/service specific patterns
+        /data-image-url=["']([^"']+)["']/gi,
+        /data-photo=["']([^"']+)["']/gi,
+        /href=["']([^"']+\.(?:jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP|GIF))["']/gi,
+        // JSON-LD structured data often contains image URLs
+        /"image"\s*:\s*["']([^"']+)["']/gi,
+        /"photo"\s*:\s*["']([^"']+)["']/gi,
+        /"url"\s*:\s*["']([^"']+\.(?:jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP|GIF))["']/gi,
+        // Meta tags
+        /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)["'][^>]+content=["']([^"']+)["']/gi,
+        // Instagram embeds
+        /data-instgrm-permalink=["']([^"']+)["']/gi,
+        // Facebook embeds
+        /data-href=["']([^"']+\.(?:jpg|jpeg|png|webp|gif))["']/gi
       ];
       
       console.log(`🔍 Searching for images across ${pageCount} pages...`);
@@ -189,10 +223,15 @@ export class WebsiteScraperService {
         
         const imgLower = imgUrl.toLowerCase();
         
-        // For services (restaurants, shops), accept EVERYTHING - no filtering at all
+        // For services (restaurants, shops), minimal filtering - accept almost everything
         if (isService) {
-          // For services: Don't skip ANYTHING - accept all images without exception
-          // Every image could be a product photo, menu item, interior shot, etc.
+          // Skip only technical/tracking images
+          if (imgLower.includes('.svg') || imgLower.includes('pixel.gif') ||
+              imgLower.includes('tracking') || imgLower.includes('analytics') ||
+              imgUrl.includes('data:image') || imgLower.includes('spacer.gif') ||
+              imgLower.includes('1x1.') || imgLower.includes('blank.gif')) {
+            continue;
+          }
         } else {
           // For senior communities: Skip marketing materials, logos, banners, and ads
           if (imgLower.includes('logo') || imgLower.includes('icon') || 
@@ -220,11 +259,11 @@ export class WebsiteScraperService {
         
         // Categorize images
         if (isService) {
-          // For services: Accept EVERY SINGLE IMAGE without any restrictions whatsoever
-          // No extension checks, no filtering, accept everything
+          // For services: Add ALL images as photos - no categorization needed
+          // Accept everything - food photos, interior, exterior, menu items, etc.
           if (!processedPhotos.includes(imgUrl)) {
             processedPhotos.push(imgUrl);
-            console.log(`✅ Added service image (no filtering): ${imgUrl.substring(0, 80)}`);
+            console.log(`✅ Added service image (unrestricted): ${imgUrl.substring(0, 80)}`);
           }
         } else {
           // For senior communities: Categorize floor plans vs regular photos
