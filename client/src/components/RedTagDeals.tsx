@@ -7,6 +7,7 @@ import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, 
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 
 interface RedTagDeal {
   id: number;
@@ -221,136 +222,33 @@ export function RedTagDeals() {
         </CardContent>
       </Card>
 
-      {/* Enhanced Deal Cards with Expanded Information */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {redTagDeals.map((deal) => (
-          <Card key={deal.id} className="relative overflow-hidden border hover:border-red-300 dark:hover:border-red-700 transition-all">
-            {/* Hero Image */}
-            <div className="relative h-40 overflow-hidden">
-              <img 
-                src={deal.heroImage} 
-                alt={deal.communityName}
-                className="w-full h-full object-cover"
-              />
-              {/* Excellence Badge */}
-              <div className="absolute top-2 left-2">
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
-                  <Star className="w-3 h-3 mr-1" />
-                  FEATURED
-                </Badge>
-              </div>
-              {/* Deal Type Badge */}
-              <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold">
-                {deal.dealType}
-              </div>
-              {/* Availability Badge */}
-              <div className="absolute bottom-2 right-2">
-                <Badge 
-                  className={`text-xs font-medium px-2 py-1 ${
-                    deal.availability === "Available Now" 
-                      ? "bg-green-600 text-white" 
-                      : deal.availability === "Move-in Ready"
-                      ? "bg-blue-600 text-white"
-                      : deal.availability === "Limited Spots"
-                      ? "bg-orange-600 text-white"
-                      : "bg-gray-600 text-white"
-                  }`}
-                >
-                  {deal.availability}
-                </Badge>
-              </div>
-            </div>
-
-            <CardContent className="p-3">
-              {/* Compact header with all key info */}
-              <div className="flex justify-between items-start mb-3">
-                {/* Left: Community info and contact */}
-                <div className="flex-1 pr-3">
-                  <h3 className="text-base font-bold mb-1 leading-tight">{deal.communityName}</h3>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground mb-1">
-                    <MapPin className="w-3 h-3" />
-                    <span>{deal.location}</span>
-                  </div>
-                  <div className="flex items-center gap-3 text-xs">
-                    <span className="text-blue-600 hover:underline cursor-pointer">📞 Call</span>
-                    <span className="text-blue-600 hover:underline cursor-pointer">🌐 Website</span>
-                    <span className="text-green-600 hover:underline cursor-pointer">📅 Tour</span>
-                  </div>
-                </div>
-
-                {/* Right: Rating */}
-                <div className="text-right flex-shrink-0">
-                  <div className="flex items-center gap-0.5 justify-end mb-1">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        className={`w-2.5 h-2.5 ${
-                          i < Math.floor(deal.rating)
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
-                        }`}
-                      />
-                    ))}
-                    <span className="text-xs ml-1">({deal.rating})</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Compact Features Grid */}
-              <div className="grid grid-cols-2 gap-2 mb-3">
-                {/* Amenities */}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2">
-                  <h4 className="text-xs font-semibold mb-1.5 text-gray-900 dark:text-gray-100">Amenities</h4>
-                  <div className="space-y-0.5">
-                    {deal.amenities.slice(0, 3).map((amenity, index) => (
-                      <div key={index} className="flex items-center gap-1 text-xs">
-                        {getAmenityIcon(amenity)}
-                        <span className="text-gray-700 dark:text-gray-300 truncate">{amenity}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Why Featured */}
-                <div className="bg-amber-50 dark:bg-amber-950/30 rounded-md p-2">
-                  <h4 className="text-xs font-semibold mb-1.5 text-amber-800 dark:text-amber-200">Why Featured</h4>
-                  <div className="space-y-0.5">
-                    {deal.whyFeatured.slice(0, 3).map((reason, index) => (
-                      <div key={index} className="flex items-center gap-1 text-xs">
-                        <Star className="w-2.5 h-2.5 text-amber-600 flex-shrink-0" />
-                        <span className="text-amber-700 dark:text-amber-300 font-medium truncate">{reason}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Benefits as horizontal badges */}
-              <div className="mb-3">
-                <div className="flex flex-wrap gap-1">
-                  {deal.highlights.slice(0, 4).map((highlight, index) => (
-                    <Badge key={index} variant="secondary" className="text-xs px-1.5 py-0.5">
-                      {highlight}
-                    </Badge>
-                  ))}
-                  {deal.highlights.length > 4 && (
-                    <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                      +{deal.highlights.length - 4}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              {/* Compact CTA Button */}
-              <Link href={`/community/${deal.id}`}>
-                <Button className="w-full h-8 text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white">
-                  <Star className="w-3 h-3 mr-1.5" />
-                  View Community Details
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Enhanced Deal Cards with Photo Carousels */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {redTagDeals.map((deal, index) => {
+          // Transform deal data to community format for FeaturedExcellenceCard
+          const community = {
+            id: deal.id,
+            name: deal.communityName,
+            city: deal.location.split(',')[0]?.trim() || '',
+            state: deal.location.split(',')[1]?.trim() || '',
+            rating: deal.rating,
+            amenities: deal.amenities,
+            careTypes: deal.highlights,
+            photos: apiDataMap.get(deal.id)?.community?.photos || [], // Use real photos from API
+            occupancyRate: deal.availability === "Available Now" ? 75 : 
+                          deal.availability === "Limited Spots" ? 85 : 
+                          deal.availability === "Waitlist" ? 95 : 80
+          };
+          
+          return (
+            <FeaturedExcellenceCard
+              key={deal.id}
+              community={community}
+              index={index}
+              compact={true}
+            />
+          );
+        })}
       </div>
 
       {/* Additional Savings Info */}
