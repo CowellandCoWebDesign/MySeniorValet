@@ -25,6 +25,7 @@ import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
 import { vendors, users, services } from "../shared/schema";
 import * as schema from "../shared/schema";
+import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -964,6 +965,39 @@ Important: Only provide URLs that actually exist and are for ${serviceName} in $
   //     res.status(500).json({ error: 'Failed to fetch featured communities' });
   //   }
   // });
+  
+  // Get community by ID endpoint
+  app.get('/api/communities/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ message: 'Invalid community ID' });
+      }
+      
+      const community = await storage.getCommunity(communityId);
+      
+      if (!community) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
+      
+      // Add transparency badges if available
+      try {
+        const badges = pricingTransparencyService.evaluateCommunityBadges(community);
+        const transparencyScore = pricingTransparencyService.getTransparencyScore(community);
+        return res.json({ 
+          ...community, 
+          transparencyBadges: badges,
+          transparencyScore 
+        });
+      } catch (error) {
+        // If badge calculation fails, just return the community
+        return res.json(community);
+      }
+    } catch (error) {
+      console.error('Error fetching community:', error);
+      res.status(500).json({ message: 'Failed to fetch community' });
+    }
+  });
   
   // Contact form submission endpoint
   app.post('/api/contact', async (req, res) => {
