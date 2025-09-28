@@ -295,27 +295,15 @@ Provide complete business data with ALL actual image URLs found.`;
       
       console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
       
-      // Extract photos - Use real photos from provider_metadata FIRST (Perplexity return_images feature)
+      // Extract photos - Use Cheerio-based website scraping FIRST (most reliable)
       let extractedPhotos: string[] = [];
       let triedWebsiteScraping = false;
       
       try {
-        // PRIORITY 1: Use real photos from Perplexity provider_metadata if available
-        if (realPhotosFromProvider.length > 0) {
-          console.log(`✅ Using ${realPhotosFromProvider.length} real photos from Perplexity provider_metadata`);
-          // Use proxy for external images
-          extractedPhotos = realPhotosFromProvider.slice(0, 50).map(photoUrl => {
-            if (photoUrl.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-            }
-            return photoUrl;
-          });
-        }
-        
-        // PRIORITY 2: If no provider photos, try scraping the website
-        if (extractedPhotos.length === 0 && extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
+        // PRIORITY 1: Always try scraping the website FIRST using Cheerio (most reliable)
+        if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
           try {
-            console.log(`🕸️ Fallback method: Scraping website gallery for real photos: ${extractedWebsite}`);
+            console.log(`🕸️ Primary method: Scraping website gallery using Cheerio for real photos: ${extractedWebsite}`);
             const { websiteScraperService } = await import('./website-scraper-service');
             
             // Try to find and scrape gallery pages
@@ -361,6 +349,17 @@ Provide complete business data with ALL actual image URLs found.`;
           } catch (scrapeError) {
             console.error(`Website scraping failed, will try additional fallback methods:`, scrapeError);
           }
+        }
+        
+        // PRIORITY 2: Try Perplexity provider_metadata photos (often corrupted, use as fallback)
+        if (extractedPhotos.length === 0 && realPhotosFromProvider.length > 0) {
+          console.log(`⚠️ Falling back to Perplexity provider_metadata photos (may be corrupted)`);
+          extractedPhotos = realPhotosFromProvider.slice(0, 50).map(photoUrl => {
+            if (photoUrl.includes('http')) {
+              return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
+            }
+            return photoUrl;
+          });
         }
         
         // PRIORITY 3: Try to extract photos from Perplexity response text

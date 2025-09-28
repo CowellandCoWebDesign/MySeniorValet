@@ -1,3 +1,5 @@
+import * as cheerio from 'cheerio';
+
 interface ScrapedCommunityData {
   photos: string[];
   floorPlans: string[];
@@ -157,50 +159,141 @@ export class WebsiteScraperService {
         contactInfo: {}
       };
 
-      // Extract all images from all pages
+      // Extract all images using Cheerio for better HTML parsing
       const imageUrls: string[] = [];
-      let match;
+      const $ = cheerio.load(allHtml);
       
-      // Enhanced patterns to find images in various contexts - UNRESTRICTED
-      const imgPatterns = [
-        // Standard image tags
-        /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
-        /data-(?:src|lazy|original|lazy-src|image|thumb|full|photo|picture)=["']([^"']+)["']/gi,
-        /<source[^>]+srcset=["']([^"']+)["'][^>]*>/gi,
-        /background-image:\s*url\(['"]?([^'")]+)['"]?\)/gi,
-        /data-background=["']([^"']+)["']/gi,
-        /data-bg=["']([^"']+)["']/gi,
-        // Restaurant/service specific patterns
-        /data-image-url=["']([^"']+)["']/gi,
-        /data-photo=["']([^"']+)["']/gi,
-        /href=["']([^"']+\.(?:jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP|GIF))["']/gi,
-        // JSON-LD structured data often contains image URLs
-        /"image"\s*:\s*["']([^"']+)["']/gi,
-        /"photo"\s*:\s*["']([^"']+)["']/gi,
-        /"url"\s*:\s*["']([^"']+\.(?:jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP|GIF))["']/gi,
-        // Meta tags
-        /<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image)["'][^>]+content=["']([^"']+)["']/gi,
-        // Instagram embeds
-        /data-instgrm-permalink=["']([^"']+)["']/gi,
-        // Facebook embeds
-        /data-href=["']([^"']+\.(?:jpg|jpeg|png|webp|gif))["']/gi
-      ];
+      console.log(`🔍 Searching for images across ${pageCount} pages using Cheerio...`);
       
-      console.log(`🔍 Searching for images across ${pageCount} pages...`);
-      
-      for (const pattern of imgPatterns) {
-        while ((match = pattern.exec(allHtml)) !== null) {
-          let imgUrl = match[1];
-          
-          // Handle srcset (take first image)
-          if (imgUrl.includes(',')) {
-            imgUrl = imgUrl.split(',')[0].trim().split(' ')[0];
+      // 1. Standard img tags with various lazy-loading attributes
+      $('img').each((_, elem) => {
+        const sources = [
+          $(elem).attr('src'),
+          $(elem).attr('data-src'),
+          $(elem).attr('data-lazy'),
+          $(elem).attr('data-original'),
+          $(elem).attr('data-lazy-src'),
+          $(elem).attr('data-image'),
+          $(elem).attr('data-thumb'),
+          $(elem).attr('data-full'),
+          $(elem).attr('data-photo'),
+          $(elem).attr('data-picture')
+        ];
+        
+        sources.forEach(src => {
+          if (src && !imageUrls.includes(src)) {
+            imageUrls.push(src);
           }
-          
-          if (!imageUrls.includes(imgUrl)) {
-            imageUrls.push(imgUrl);
+        });
+      });
+      
+      // 2. Picture/source elements
+      $('picture source, source').each((_, elem) => {
+        const srcset = $(elem).attr('srcset');
+        if (srcset) {
+          // Extract URLs from srcset
+          const urls = srcset.split(',').map(s => s.trim().split(' ')[0]);
+          urls.forEach(url => {
+            if (url && !imageUrls.includes(url)) {
+              imageUrls.push(url);
+            }
+          });
+        }
+        const src = $(elem).attr('src');
+        if (src && !imageUrls.includes(src)) {
+          imageUrls.push(src);
+        }
+      });
+      
+      // 3. Background images from inline styles
+      $('[style*="background-image"]').each((_, elem) => {
+        const style = $(elem).attr('style') || '';
+        const bgMatch = style.match(/background-image:\s*url\(['"]?([^'")]+)['"]?\)/i);
+        if (bgMatch && bgMatch[1] && !imageUrls.includes(bgMatch[1])) {
+          imageUrls.push(bgMatch[1]);
+        }
+      });
+      
+      // 4. Data attributes for background images
+      $('[data-background], [data-bg], [data-image-url]').each((_, elem) => {
+        const urls = [
+          $(elem).attr('data-background'),
+          $(elem).attr('data-bg'),
+          $(elem).attr('data-image-url')
+        ];
+        urls.forEach(url => {
+          if (url && !imageUrls.includes(url)) {
+            imageUrls.push(url);
+          }
+        });
+      });
+      
+      // 5. Links directly to images
+      $('a').each((_, elem) => {
+        const href = $(elem).attr('href');
+        if (href && href.match(/\.(jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP|GIF)(\?|#|$)/i)) {
+          if (!imageUrls.includes(href)) {
+            imageUrls.push(href);
           }
         }
+      });
+      
+      // 6. Meta tags (Open Graph, Twitter)
+      $('meta[property="og:image"], meta[property="og:image:url"], meta[name="twitter:image"], meta[property="twitter:image"]').each((_, elem) => {
+        const content = $(elem).attr('content');
+        if (content && !imageUrls.includes(content)) {
+          imageUrls.push(content);
+        }
+      });
+      
+      // 7. JSON-LD structured data
+      $('script[type="application/ld+json"]').each((_, elem) => {
+        try {
+          const jsonData = JSON.parse($(elem).html() || '{}');
+          const extractImagesFromJson = (obj: any): void => {
+            if (!obj) return;
+            if (typeof obj === 'string' && obj.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
+              if (!imageUrls.includes(obj)) {
+                imageUrls.push(obj);
+              }
+            } else if (Array.isArray(obj)) {
+              obj.forEach(extractImagesFromJson);
+            } else if (typeof obj === 'object') {
+              ['image', 'photo', 'photos', 'logo', 'thumbnail', 'thumbnailUrl', 'contentUrl'].forEach(key => {
+                if (obj[key]) extractImagesFromJson(obj[key]);
+              });
+              if (obj.url && typeof obj.url === 'string' && obj.url.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
+                if (!imageUrls.includes(obj.url)) {
+                  imageUrls.push(obj.url);
+                }
+              }
+            }
+          };
+          extractImagesFromJson(jsonData);
+        } catch (e) {
+          // Invalid JSON, skip
+        }
+      });
+      
+      // 8. Service-specific image extraction (restaurants, shops)
+      if (isService) {
+        // Look for common gallery and menu selectors
+        const serviceSelectors = [
+          '.menu-item img', '.food-item img', '.dish img',
+          '.gallery img', '.portfolio img', '.carousel img',
+          '.slider img', '.swiper-slide img', '.slick-slide img',
+          '[class*="gallery"] img', '[class*="photo"] img',
+          '[class*="menu"] img', '[class*="food"] img'
+        ];
+        
+        serviceSelectors.forEach(selector => {
+          $(selector).each((_, elem) => {
+            const src = $(elem).attr('src') || $(elem).attr('data-src');
+            if (src && !imageUrls.includes(src)) {
+              imageUrls.push(src);
+            }
+          });
+        });
       }
       
       console.log(`📷 Found ${imageUrls.length} total image URLs`);
@@ -290,6 +383,7 @@ export class WebsiteScraperService {
       
       // Look for virtual tour links
       const virtualTourRegex = /(matterport\.com[^"'\s]+|3d-?tour[^"'\s]*|virtual-?tour[^"'\s]*)/gi;
+      let match;
       while ((match = virtualTourRegex.exec(allHtml)) !== null) {
         if (match[1].startsWith('http')) {
           data.virtualTours.push(match[1]);
