@@ -872,13 +872,37 @@ Provide complete business data with ALL actual image URLs found.`;
         const serviceData = service[0];
         const metadata = serviceData.metadata as any || {};
         
-        // Extract location from metadata - check discoveryInfo first
+        // Extract location from metadata - check various location formats
         let city = metadata.city || '';
         let state = metadata.state || '';
         let country = metadata.country || 'US';
         
-        // Check if discoveryInfo exists and parse it
-        if (metadata.discoveryInfo) {
+        // Check if location object exists (new format)
+        if (metadata.location) {
+          if (metadata.location.city) {
+            const rawCity = metadata.location.city;
+            // Parse city that might have state included (e.g., "redding ca")
+            const parts = rawCity.split(/\s+/);
+            if (parts.length > 1 && parts[parts.length - 1].length === 2) {
+              // Last part looks like a state abbreviation
+              city = parts.slice(0, -1).join(' ');
+              city = city.charAt(0).toUpperCase() + city.slice(1); // Capitalize first letter
+              state = parts[parts.length - 1].toUpperCase();
+            } else {
+              city = rawCity;
+              city = city.charAt(0).toUpperCase() + city.slice(1); // Capitalize first letter
+            }
+          }
+          if (metadata.location.state && !state) {
+            state = metadata.location.state.toUpperCase();
+          }
+          if (metadata.location.country) {
+            country = metadata.location.country;
+          }
+        }
+        
+        // Check if discoveryInfo exists and parse it (old format)
+        if (!city && metadata.discoveryInfo) {
           try {
             // discoveryInfo is stored as a JSON string within metadata
             const discoveryInfo = typeof metadata.discoveryInfo === 'string' 
