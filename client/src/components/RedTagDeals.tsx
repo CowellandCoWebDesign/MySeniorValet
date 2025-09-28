@@ -51,7 +51,7 @@ export function RedTagDeals() {
     {
       id: 70616,
       communityName: "Willow Springs Alzheimer's Special Care Center",
-      location: "Vernon Hills, IL",
+      location: "Redding, CA",
       dealType: "Memory Care Excellence",
       highlights: ["Specialized Alzheimer's care", "Award-winning programs", "Secure environment"],
       rating: 4.5,
