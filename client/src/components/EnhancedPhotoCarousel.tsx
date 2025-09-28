@@ -58,7 +58,7 @@ export function EnhancedPhotoCarousel({
   const isControlled = currentPhotoIndex !== undefined;
   const [internalIndex, setInternalIndex] = useState(0);
   const currentIndex = isControlled ? currentPhotoIndex : internalIndex;
-  
+
   const setCurrentIndex = (index: number) => {
     if (isControlled && onPhotoIndexChange) {
       onPhotoIndexChange(index);
@@ -72,11 +72,11 @@ export function EnhancedPhotoCarousel({
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [showValidationReport, setShowValidationReport] = useState(false);
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
-  
+
   // Get all photos from database and web intelligence  
   const getAllPhotos = () => {
     const allPhotos = [];
-    
+
     // Add database photos first  
     if (community?.photos && community.photos.length > 0) {
       allPhotos.push(...community.photos.map((p: any) => ({
@@ -84,12 +84,12 @@ export function EnhancedPhotoCarousel({
         source: 'database'
       })));
     }
-    
+
     // Add passed photos prop
     if (photos && photos.length > 0) {
       allPhotos.push(...photos.map((p: any) => {
         let url = typeof p === 'string' ? p : (p.image_url || p.url || p);
-        
+
         // Skip proxy if URL is already proxied
         if (url && !url.startsWith('/api/image-proxy')) {
           // Use proxy for external images to bypass CORS
@@ -101,11 +101,11 @@ export function EnhancedPhotoCarousel({
             url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
           }
         }
-        
+
         return { url, source: 'prop' };
       }));
     }
-    
+
     // Add web intelligence photos
     let webImages = null;
     if (verificationReport?.webIntelligence?.images) {
@@ -113,24 +113,24 @@ export function EnhancedPhotoCarousel({
     } else if (verificationReport?.verificationResults?.webIntelligence?.images) {
       webImages = verificationReport.verificationResults.webIntelligence.images;
     }
-    
+
     if (webImages && webImages.length > 0) {
       const webPhotos = webImages
         .filter((img: any) => {
           const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
-          
+
           // Skip logos and icons
           if (url.includes('logo') || url.includes('icon') || 
               url.includes('placeholder') || url.includes('default')) {
             return false;
           }
-          
-          
+
+
           return true;
         })
         .map((img: any) => {
           let url = typeof img === 'string' ? img : (img.image_url || img.url || img);
-          
+
           // Skip proxy if URL is already proxied
           if (url && !url.startsWith('/api/image-proxy')) {
             // Use proxy for external images to bypass CORS
@@ -142,7 +142,7 @@ export function EnhancedPhotoCarousel({
               url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
             }
           }
-          
+
           if (typeof img === 'string') {
             return { url, source: 'web' };
           }
@@ -154,12 +154,12 @@ export function EnhancedPhotoCarousel({
         });
       allPhotos.push(...webPhotos);
     }
-    
+
     // Remove duplicates
     const uniquePhotos = Array.from(new Map(allPhotos.map(p => [p.url, p])).values());
     return uniquePhotos;
   };
-  
+
   const processedPhotos = getAllPhotos();
 
   // Get photo validation report if validation is enabled and community ID is provided
@@ -225,7 +225,7 @@ export function EnhancedPhotoCarousel({
       setPhotoUpdateKey(prev => prev + 1);
     }
   }, [verificationReport]);
-  
+
   // Validate individual photos on load for quality checking
   useEffect(() => {
     if (showValidation && processedPhotos.length > 0) {
@@ -265,11 +265,11 @@ export function EnhancedPhotoCarousel({
 
   // Filter out broken images
   const safePhotos = processedPhotos.filter(photo => !imageErrors.has(photo.url));
-  
+
   // Show loading state with web intelligence check
   const isLoadingWebPhotos = isVerifying || isLoading;
   const hasNoRealPhotos = safePhotos.length === 0;
-  
+
   // Detect if this community likely needs enrichment
   // Only check needsEnrichment if we don't have photos from props
   const needsEnrichment = hasNoRealPhotos && !photos?.length && (
@@ -277,7 +277,7 @@ export function EnhancedPhotoCarousel({
     !community?.last_enrichment_date ||
     (community?.enrichment_data && (!community.enrichment_data.photos || community.enrichment_data.photos.length === 0))
   );
-  
+
   // Show loading state when we're verifying and have no photos to display
   // This ensures the loading animation shows when searching for photos
   if (hasNoRealPhotos && isLoadingWebPhotos) {
@@ -302,7 +302,7 @@ export function EnhancedPhotoCarousel({
     const originalPhotoCount = photos?.length || 0;
     const processedPhotoCount = processedPhotos?.length || 0;
     const hadLoadingIssues = processedPhotoCount > 0 && safePhotos.length === 0;
-    
+
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
         <div className="text-center text-gray-500 p-8">
@@ -401,7 +401,7 @@ export function EnhancedPhotoCarousel({
               </div>
             </div>
           )}
-          
+
           {/* Error state for broken image */}
           {currentPhoto && imageErrors.has(currentPhoto.url) && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
@@ -412,7 +412,7 @@ export function EnhancedPhotoCarousel({
               </div>
             </div>
           )}
-          
+
           {currentPhoto && (
             <img
               src={currentPhoto.url}
@@ -425,38 +425,27 @@ export function EnhancedPhotoCarousel({
                 setLoadedImages(prev => new Set([...prev, currentPhoto.url]));
               }}
               onError={(e) => {
-                // Handle broken images gracefully
                 const target = e.target as HTMLImageElement;
-                const originalSrc = target.src;
-                
-                // Try to reload the image once before marking as failed
-                if (!target.dataset.retried) {
-                  target.dataset.retried = "true";
-                  setTimeout(() => {
-                    target.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-                  }, 1000);
-                  return;
-                }
-                
+                const imageUrl = target.src;
+
+                // Handle broken images gracefully
                 setImageErrors(prev => new Set([...prev, currentPhoto.url]));
-                console.log(`Failed to load image after retry: ${currentPhoto.url}`);
-                
+                console.log(`Failed to load image: ${imageUrl}`);
+
                 if (showValidation) {
                   setPhotoValidation(prev => ({
                     ...prev,
                     [currentPhoto.url]: {
                       url: currentPhoto.url,
                       isValid: false,
-                      error: 'Failed to load image after retry',
+                      error: 'Failed to load image',
                       lastChecked: new Date()
                     }
                   }));
                 }
-                
-                // Try to move to next photo if available
-                if (safePhotos.length > 1) {
-                  setTimeout(nextPhoto, 500);
-                }
+
+                // Don't auto-advance - let user navigate manually
+                // The user can see there's an issue and navigate themselves
               }}
             />
           )}
@@ -518,7 +507,7 @@ export function EnhancedPhotoCarousel({
               </Button>
             </>
           )}
-          
+
 
           {/* Fullscreen Button */}
           <Button
@@ -561,7 +550,7 @@ export function EnhancedPhotoCarousel({
                   <ChevronLeft className="w-4 h-4" />
                 </Button>
               )}
-              
+
               {/* Thumbnail container with horizontal scroll */}
               <div 
                 id="thumbnail-container"
@@ -607,7 +596,7 @@ export function EnhancedPhotoCarousel({
                   </button>
                 ))}
               </div>
-              
+
               {/* Right scroll button */}
               {safePhotos.length > 8 && (
                 <Button
@@ -626,7 +615,7 @@ export function EnhancedPhotoCarousel({
                 </Button>
               )}
             </div>
-            
+
             {/* Photo count and navigation hints */}
             <div className="mt-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
               <span className="font-medium">
@@ -663,7 +652,7 @@ export function EnhancedPhotoCarousel({
               </svg>
               Photo Sources & Citations
             </h4>
-            
+
             {/* Photo source platforms */}
             {photoSources && (
               <div className="flex flex-wrap gap-2 mb-2">
@@ -702,7 +691,7 @@ export function EnhancedPhotoCarousel({
                 )}
               </div>
             )}
-            
+
             {/* Citation sources */}
             {sources.length > 0 && (
               <div className="space-y-1">
@@ -717,7 +706,7 @@ export function EnhancedPhotoCarousel({
                     } catch {
                       // If not a valid URL, use as is
                     }
-                    
+
                     return (
                       <a
                         key={idx}
@@ -825,7 +814,7 @@ export function EnhancedPhotoCarousel({
           <DialogContent className="max-w-md">
             <div className="p-4">
               <h3 className="text-lg font-medium mb-4">Photo Quality Report</h3>
-              
+
               {validationLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <RefreshCw className="w-6 h-6 animate-spin mr-2" />

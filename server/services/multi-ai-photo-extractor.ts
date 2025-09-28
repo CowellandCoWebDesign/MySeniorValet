@@ -282,92 +282,61 @@ Be lenient - mark as authentic unless clearly stock photos.`
   static async extractPhotosFromDirectorySites(content: string, communityName: string): Promise<PhotoCandidate[]> {
     const photos: PhotoCandidate[] = [];
 
-    // Define directory patterns with realistic CDN photo URLs
-    const directoryPatterns = [
-      { 
-        name: 'Caring.com', 
-        pattern: /caring\.com/i,
-        photoPatterns: [
-          // Caring.com uses Cloudinary CDN with dynamic transforms
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/main-exterior.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/lobby-interior.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/dining-area.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/activity-room.jpg',
-          'https://res.cloudinary.com/caring-production/image/upload/c_fill,w_800,h_600,q_auto,f_auto/communities/resident-room.jpg'
-        ]
-      },
-      { 
-        name: 'SeniorHomes.com', 
-        pattern: /seniorhomes\.com/i,
-        photoPatterns: [
-          // SeniorHomes.com CDN patterns
-          'https://images.seniorhomes.com/photos/exterior/front-entrance.jpg',
-          'https://images.seniorhomes.com/photos/interior/lobby-area.jpg',
-          'https://images.seniorhomes.com/photos/dining/main-dining-room.jpg',
-          'https://images.seniorhomes.com/photos/amenities/activity-center.jpg'
-        ]
-      },
-      { 
-        name: 'Seniorly.com', 
-        pattern: /seniorly\.com/i,
-        photoPatterns: [
-          // Seniorly uses WebP format for performance
-          'https://images.seniorly.com/community-photos/exterior-view.webp',
-          'https://images.seniorly.com/community-photos/interior-common.webp',
-          'https://images.seniorly.com/community-photos/dining-space.webp'
-        ]
-      },
-      {
-        name: 'SeniorAdvisor.com',
-        pattern: /senioradvisor\.com/i,
-        photoPatterns: [
-          // SeniorAdvisor CDN
-          'https://cdn.senioradvisor.com/images/communities/exterior-photo.jpg',
-          'https://cdn.senioradvisor.com/images/communities/interior-photo.jpg',
-          'https://cdn.senioradvisor.com/images/communities/amenity-photo.jpg'
-        ]
-      },
-      {
-        name: 'A Place for Mom',
-        pattern: /aplaceformom\.com/i,
-        photoPatterns: [
-          // A Place for Mom CDN
-          'https://images.aplaceformom.com/communities/photos/exterior.jpg',
-          'https://images.aplaceformom.com/communities/photos/interior.jpg',
-          'https://images.aplaceformom.com/communities/photos/dining.jpg'
-        ]
-      }
-    ];
-
-    console.log(`🔍 Scanning Perplexity content for directory site mentions...`);
+    console.log(`🔍 Scanning Perplexity content for actual photo URLs...`);
     console.log(`📝 Content length: ${content.length} characters`);
 
-    // Check if any directory sites are mentioned in the content
-    let foundDirectorySites = 0;
+    // Extract actual photo URLs from content instead of generating fake ones
+    const photoUrlPatterns = [
+      // Look for actual image URLs in the content
+      /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi,
+      // CDN patterns that might not have extensions
+      /https?:\/\/[^\s<>"]*(?:images?|photos?|media|cdn|static)[^\s<>"]*\/[^\s<>"]+/gi,
+      // WordPress uploads
+      /https?:\/\/[^\s<>"]*wp-content\/uploads\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)/gi
+    ];
 
-    for (const directory of directoryPatterns) {
-      const mentioned = directory.pattern.test(content);
-      if (mentioned) {
-        foundDirectorySites++;
-        console.log(`✅ Found ${directory.name} mentioned in content`);
+    let foundUrls = 0;
 
-        // DO NOT generate fake photo URLs - these are not real photos
-        // Instead, just log that this directory was found
-        console.log(`⚠️ ${directory.name} mentioned but cannot generate real photo URLs`);
+    for (const pattern of photoUrlPatterns) {
+      const matches = content.match(pattern) || [];
+      for (const url of matches) {
+        // Clean up the URL
+        const cleanUrl = url.replace(/['")\]}>]+$/, '');
+
+        // Skip obvious non-photos
+        if (cleanUrl.includes('logo') || cleanUrl.includes('icon') || 
+            cleanUrl.includes('avatar') || cleanUrl.includes('placeholder')) {
+          continue;
+        }
+
+        // Validate it's a real URL
+        try {
+          new URL(cleanUrl);
+          photos.push({
+            url: cleanUrl,
+            source: 'Content Extraction',
+            confidence: 0.7,
+            isAuthentic: true,
+            reason: 'Extracted from Perplexity content'
+          });
+          foundUrls++;
+        } catch (e) {
+          // Invalid URL, skip
+        }
       }
     }
 
-    if (foundDirectorySites > 0) {
-      console.log(`✅ Found ${foundDirectorySites} directory sites mentioned in content`);
-      console.log(`⚠️ Note: Directory sites were mentioned but no real photos can be extracted without actual web scraping`);
-    } else {
-      console.log(`⚠️ No directory sites found in Perplexity content`);
-      // Log key phrases to help debug what content we're getting
-      const phrases = content.toLowerCase().split(/[.!?]/).slice(0, 3);
-      console.log(`📄 Content sample phrases: ${phrases.join(' | ')}`);
+    console.log(`✅ Found ${foundUrls} actual photo URLs in content`);
+
+    // Log sample URLs for debugging
+    if (photos.length > 0) {
+      console.log(`📸 Sample extracted URLs:`);
+      photos.slice(0, 3).forEach((photo, idx) => {
+        console.log(`  ${idx + 1}. ${photo.url}`);
+      });
     }
 
-    return photos;
+    return photos.slice(0, 10); // Limit to 10 photos from content
   }
 
   /**

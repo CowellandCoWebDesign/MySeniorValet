@@ -602,40 +602,26 @@ Provide complete business data with ALL actual image URLs found.`;
             return false; // Never treat service photos as synthetic
           }
           
-          // For senior communities only, check for synthetic patterns
-          const patterns = [
-            /([a-zA-Z0-9]{2,4})\1{3,}/,  // Repeating patterns like QwQwQwQw or n1n1n1n1
-            /([a-zA-Z0-9])\1{10,}/,       // Same character repeated many times
-            /^[A-Za-z0-9]+$/,               // Only alphanumeric (no special chars/path)
+          // Only check for obviously synthetic patterns
+          const syntheticPatterns = [
+            /QwQwQwQwQw/i,  // Obvious repeating test pattern
+            /kQz8kQz8kQz8/i,  // Another test pattern
+            /([a-zA-Z0-9]{2})\1{8,}/,  // Very long repeating patterns (8+ repetitions)
+            /^(test|fake|dummy|placeholder|sample)/i,  // Obviously fake prefixes
           ];
           
-          // Extract the hash/ID portion from common photo URL formats
-          let hashToCheck = url;
-          
-          // For Yelp URLs, extract the bphoto hash
-          const yelpMatch = url.match(/bphoto\/([^\/]+)/i);
-          if (yelpMatch) {
-            hashToCheck = yelpMatch[1];
-          }
-          
-          // For Google URLs, extract the photo ID
-          const googleMatch = url.match(/\/p\/([^=\/]+)/i);
-          if (googleMatch) {
-            hashToCheck = googleMatch[1];
-          }
-          
-          // Check for fake patterns
-          for (const pattern of patterns) {
-            if (pattern.test(hashToCheck)) {
+          // Check for synthetic patterns in the full URL
+          for (const pattern of syntheticPatterns) {
+            if (pattern.test(url)) {
               console.log(`🚫 Detected synthetic URL pattern in: ${url}`);
               return true;
             }
           }
           
-          // Check for obviously fake TripAdvisor patterns
-          if (url.includes('tripadvisor') && url.includes('/0e/')) {
-            // 0e prefix often indicates fake/placeholder images
-            console.log(`🚫 Detected fake TripAdvisor URL: ${url}`);
+          // Check for obviously fake Google Photos with impossible patterns
+          if (url.includes('googleusercontent.com') && 
+              (url.includes('QwQwQwQw') || url.includes('kQz8kQz8'))) {
+            console.log(`🚫 Detected fake Google Photos URL: ${url}`);
             return true;
           }
           
