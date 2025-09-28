@@ -67,59 +67,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
 
   // Function to get fallback photos for service types
+  // IMPORTANT: Return empty array instead of fake stock photos (Golden Data Rule)
   function getServiceTypeFallbackPhotos(serviceType: string): string[] {
-    const fallbackMap: Record<string, string[]> = {
-      'restaurant': [
-        'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&h=600&fit=crop&auto=format'
-      ],
-      'hotel': [
-        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&h=600&fit=crop&auto=format'
-      ],
-      'lawyer': [
-        'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop&auto=format'
-      ],
-      'shop': [
-        'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop&auto=format'
-      ],
-      'service': [
-        'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=600&fit=crop&auto=format',
-        'https://images.unsplash.com/photo-1556761175-4b46a572b786?w=800&h=600&fit=crop&auto=format'
-      ]
-    };
-
-    // Try to match service type to fallback photos
-    const lowerServiceType = (serviceType || '').toLowerCase();
-    
-    // Direct matches first
-    if (fallbackMap[lowerServiceType]) {
-      return fallbackMap[lowerServiceType];
-    }
-    
-    // Partial matches for common business types
-    if (lowerServiceType.includes('restaurant') || lowerServiceType.includes('food') || lowerServiceType.includes('dining')) {
-      return fallbackMap['restaurant'];
-    }
-    if (lowerServiceType.includes('hotel') || lowerServiceType.includes('accommodation') || lowerServiceType.includes('lodge')) {
-      return fallbackMap['hotel'];
-    }
-    if (lowerServiceType.includes('lawyer') || lowerServiceType.includes('attorney') || lowerServiceType.includes('legal')) {
-      return fallbackMap['lawyer'];
-    }
-    if (lowerServiceType.includes('shop') || lowerServiceType.includes('store') || lowerServiceType.includes('retail')) {
-      return fallbackMap['shop'];
-    }
-    
-    // Default to generic service photos
-    return fallbackMap['service'];
+    // Per Golden Data Rule: NO fake stock photos
+    // Return empty array when no real photos are available
+    console.log(`ℹ️ No real photos available for ${serviceType} - returning empty array per Golden Data Rule`);
+    return [];
   }
 
   // API endpoint for service web intelligence
@@ -156,17 +109,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 9. Facebook: rating, reviews
 10. Industry-specific sites ratings
 
-**PHOTOS (UNRESTRICTED - search EVERYWHERE):**
-11. Business's OFFICIAL WEBSITE gallery/photos section - look for pages like /gallery, /photos, /menu, /about
-12. ALL photos from the business's actual website - not just homepage
-13. Google Business photos - all available images
-14. Yelp photos - all customer and business photos
-15. TripAdvisor gallery - all photos
-16. Facebook/Instagram business photos
-17. OpenTable photos (for restaurants)
-18. Local news articles with photos
-19. Review sites with actual photos
-20. ANY other source with real photos of this business
+**PHOTOS (CRITICAL - MUST include direct image URLs):**
+11. Find and include DIRECT IMAGE URLs (ending in .jpg, .jpeg, .png, .webp)
+12. Business's OFFICIAL WEBSITE photo URLs - actual image file URLs, not page URLs
+13. Google Business photo URLs - direct links to images
+14. Yelp CDN image URLs (e.g., s3-media*.fl.yelpcdn.com)
+15. TripAdvisor image URLs (e.g., media-cdn.tripadvisor.com)
+16. Facebook/Instagram CDN URLs (e.g., scontent.*.fbcdn.net)
+17. OpenTable image URLs (e.g., resizer.otstatic.com)
+18. Include ALL found image URLs in your response
+19. Format: List each image URL on a separate line prefixed with IMAGE_URL:
+20. Example: IMAGE_URL: https://example.com/photos/restaurant-interior.jpg
 
 **COMPLETE ONLINE PRESENCE:**
 Google Maps: [exact URL]
@@ -184,18 +137,25 @@ ${serviceType === 'restaurant' ? 'OpenTable/Resy: [booking URL]' : 'Booking/Appo
 - Parking availability
 - ${serviceType === 'restaurant' ? 'Delivery/takeout options' : 'Online services'}
 
-Gather ALL this information from EVERY available source in this SINGLE response. 
+Gather ALL this information from EVERY available source in this SINGLE response.
 
-CRITICAL FOR PHOTOS:
-- First, find the business's ACTUAL WEBSITE (not directories)
-- Navigate to their gallery, photos, or media pages
-- Extract ALL photo URLs from their website
-- Search UNRESTRICTED across the entire internet for photos
-- Include direct image URLs from ANY source
-- Do NOT limit to specific domains
-- Find photos from local blogs, news sites, social media, anywhere
+CRITICAL FOR PHOTOS - YOU MUST:
+1. Find ACTUAL IMAGE FILE URLs (not web pages)
+2. Include every image URL you find in the format: IMAGE_URL: [actual_image_url]
+3. Look for patterns like:
+   - .jpg, .jpeg, .png, .webp, .gif extensions
+   - CDN URLs from yelpcdn.com, fbcdn.net, tripadvisor.com, etc.
+   - Google images URLs (lh3.googleusercontent.com, etc.)
+4. List AT LEAST 10-20 actual image URLs if available
+5. DO NOT just mention "photos available on Yelp" - give me the actual Yelp image URLs
+6. DO NOT just say "see website gallery" - give me the actual image file URLs
 
-Provide complete business data with ALL photo URLs found.`;
+EXAMPLE FORMAT FOR PHOTOS:
+IMAGE_URL: https://s3-media2.fl.yelpcdn.com/bphoto/abc123/o.jpg
+IMAGE_URL: https://lh3.googleusercontent.com/p/AF1QipM...
+IMAGE_URL: https://media-cdn.tripadvisor.com/media/photo-s/...
+
+Provide complete business data with ALL actual image URLs found.`;
 
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         method: 'POST',
@@ -407,22 +367,42 @@ Provide complete business data with ALL photo URLs found.`;
         if (extractedPhotos.length === 0) {
           console.log(`🔍 Extracting photos from Perplexity response text...`);
           
-          // Look for image URLs in the response content
-          const imageUrlRegex = /https?:\/\/[^\s\]\)]+\.(jpg|jpeg|png|webp|gif)/gi;
+          // Look for IMAGE_URL: prefixed URLs first (our new format)
+          const imageUrlPrefixRegex = /IMAGE_URL:\s*(https?:\/\/[^\s\n]+)/gi;
+          const prefixMatches = answer.matchAll(imageUrlPrefixRegex) || [];
+          const prefixedUrls = Array.from(prefixMatches).map(match => match[1]);
+          
+          // Look for direct image URLs in the response content
+          const imageUrlRegex = /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)(\?[^\s\]\)"']*)?(#[^\s\]\)"']*)?/gi;
           const foundUrls = answer.match(imageUrlRegex) || [];
           
-          // Also look for photo URLs from known image CDNs and services
-          const cdnPhotoRegex = /(https?:\/\/[^\s\]\)]+(?:yelpcdn\.com|tripadvisor\.com|googleusercontent\.com|fbcdn\.net|instagram\.com)[^\s\]\)]*)(?:\/[^\s\]\)]+)?/gi;
-          const cdnUrls = answer.match(cdnPhotoRegex) || [];
+          // Look for photo URLs from known image CDNs
+          const cdnPatterns = [
+            /https?:\/\/s3-media[\d]*\.fl\.yelpcdn\.com\/[^\s\]\)"']+/gi,
+            /https?:\/\/media-cdn\.tripadvisor\.com\/[^\s\]\)"']+/gi,
+            /https?:\/\/lh[\d]\.googleusercontent\.com\/[^\s\]\)"']+/gi,
+            /https?:\/\/scontent[^\s]*\.fbcdn\.net\/[^\s\]\)"']+/gi,
+            /https?:\/\/resizer\.otstatic\.com\/[^\s\]\)"']+/gi,
+            /https?:\/\/[^\s]*\.cloudinary\.com\/[^\s\]\)"']+/gi,
+            /https?:\/\/d[\w]+\.cloudfront\.net\/[^\s\]\)"']+/gi
+          ];
           
-          const allPhotoUrls = [...foundUrls, ...cdnUrls];
+          const cdnUrls: string[] = [];
+          for (const pattern of cdnPatterns) {
+            const matches: RegExpMatchArray | null = answer.match(pattern);
+            if (matches) {
+              cdnUrls.push(...matches);
+            }
+          }
+          
+          const allPhotoUrls = [...prefixedUrls, ...foundUrls, ...cdnUrls];
           const uniqueUrls = [...new Set(allPhotoUrls)]; // Remove duplicates
           
           if (uniqueUrls.length > 0) {
             console.log(`✅ Found ${uniqueUrls.length} image URLs in response text`);
-            extractedPhotos = uniqueUrls.slice(0, 20).map(url => {
+            extractedPhotos = uniqueUrls.slice(0, 50).map(url => {
               // Clean the URL of any trailing brackets or special chars
-              const cleanUrl = url.replace(/[\]\)]+$/, '').trim();
+              const cleanUrl = url.replace(/[\]\)"']+$/, '').trim();
               return `/api/image-proxy?url=${encodeURIComponent(cleanUrl)}`;
             });
           }
@@ -438,7 +418,7 @@ Provide complete business data with ALL photo URLs found.`;
           
           // Extract any directory URLs mentioned in the response
           const urlMatches = answer.match(/https?:\/\/[^\s]+/gi) || [];
-          const directoryListings = urlMatches.filter(url => 
+          const directoryListings = urlMatches.filter((url: string) => 
             directoryUrls.some(dir => url.includes(dir))
           );
           
@@ -624,17 +604,13 @@ Provide complete business data with ALL photo URLs found.`;
         }
         }  // Add missing closing bracket for the if (extractedPhotos.length === 0) block
           
-        // If still no photos, provide service type fallback photos
+        // If still no photos, log but DON'T provide fake fallback photos
         if (extractedPhotos.length === 0) {
-          console.log(`📷 No real photos found for ${serviceName} - providing service type fallback photos`);
+          console.log(`📷 No real photos found for ${serviceName}`);
           console.log(`📊 Debug: Had website? ${!!extractedWebsite}, Tried scraping? ${triedWebsiteScraping}`);
-          
-          // Service type fallback photos
-          const serviceTypeFallbacks = getServiceTypeFallbackPhotos(serviceType);
-          if (serviceTypeFallbacks.length > 0) {
-            extractedPhotos = serviceTypeFallbacks;
-            console.log(`✅ Using ${extractedPhotos.length} fallback photos for service type: ${serviceType}`);
-          }
+          console.log(`ℹ️ Following Golden Data Rule - returning empty photo array instead of fake stock photos`);
+          // Per Golden Data Rule: Return empty array instead of fake stock photos
+          extractedPhotos = [];
         }
       } catch (error) {
         console.error('Failed to extract photos:', error);
