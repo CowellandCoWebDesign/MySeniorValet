@@ -421,42 +421,15 @@ Format all information clearly with section headers.
   ): Promise<string[]> {
     const extractedPhotos: string[] = [];
     
-    // Filter function to reject inappropriate photos
+    // USER REQUEST: Show ALL photos without filtering
     const isValidCommunityPhoto = (url: string): boolean => {
       if (!url) return false;
+      // Accept all photos except SVG/ICO files
       const urlLower = url.toLowerCase();
-      
-      // Reject people/staff/realtor photos
-      const peoplePatterns = [
-        'headshot', 'portrait', 'staff', 'team', 'realtor',
-        'agent', 'broker', 'professional', 'profile', 'employee',
-        'member', 'board', 'director', 'executive', 'manager',
-        'about-us', 'testimonial', 'smile', 'smiling'
-      ];
-      
-      if (peoplePatterns.some(pattern => urlLower.includes(pattern))) {
-        console.log(`❌ Rejecting people photo: ${url.substring(0, 100)}...`);
+      if (urlLower.includes('.svg') || urlLower.includes('.ico')) {
         return false;
       }
-      
-      // Reject logos/icons
-      const iconPatterns = ['icon', 'logo', 'badge', 'button', 'avatar', '.svg', '.ico'];
-      if (iconPatterns.some(pattern => urlLower.includes(pattern))) {
-        console.log(`❌ Rejecting icon/logo: ${url.substring(0, 100)}...`);
-        return false;
-      }
-      
-      // Reject stock photos
-      const stockDomains = [
-        'unsplash.com', 'pexels.com', 'pixabay.com', 'shutterstock.com',
-        'gettyimages.com', 'istockphoto.com', 'depositphotos.com'
-      ];
-      
-      if (stockDomains.some(domain => urlLower.includes(domain))) {
-        console.log(`❌ Rejecting stock photo: ${url.substring(0, 100)}...`);
-        return false;
-      }
-      
+      console.log(`✅ Accepting photo: ${url.substring(0, 100)}...`);
       return true;
     };
     
@@ -593,43 +566,21 @@ Format all information clearly with section headers.
     if (response.sources && response.sources.length > 0) {
       console.log(`🕷️ Using Playwright to scrape photos from ${response.sources.length} sources...`);
       
-      // Filter sources to find potential community websites
+      // USER REQUEST: Scrape ALL sources for photos
       const websitesToScrape = response.sources.filter(source => {
         const url = source.toLowerCase();
         
-        // Skip these domains entirely - they often have staff/people photos
+        // Only skip PDFs and docs - scrape everything else
         const skipDomains = [
-          'youtube.com', '.pdf', '.doc', 'wikipedia',
-          'chamber', 'realtor', 'remax', 'coldwell',
-          'keller', 'century21', 'zillow', 'trulia'
+          '.pdf', '.doc', '.docx', 'youtube.com', 'wikipedia'
         ];
         
         if (skipDomains.some(domain => url.includes(domain))) {
           return false;
         }
         
-        // Priority sources to scrape - must have community name or be a known good source
-        return (
-          url.includes(communityName.toLowerCase().replace(/\s+/g, '-')) || // Community name in URL
-          url.includes(communityName.toLowerCase().replace(/\s+/g, '')) || // Community name without spaces
-          url.includes('seniorliving') ||
-          url.includes('assistedliving') ||
-          url.includes('nursinghome') ||
-          url.includes('seniorhousing') ||
-          url.includes('.com/community') ||
-          url.includes('/facilities/') ||
-          // Only include these aggregators if community name is in URL
-          (url.includes('caring.com') && url.includes(communityName.toLowerCase().split(' ')[0])) ||
-          (url.includes('aplaceformom') && url.includes(communityName.toLowerCase().split(' ')[0])) ||
-          (url.includes('yelp.com') && url.includes(communityName.toLowerCase().split(' ')[0])) ||
-          (url.includes('facebook.com') && url.includes(communityName.toLowerCase().split(' ')[0]))
-        );
-      }).slice(0, 3); // Limit to 3 sites to prevent timeout
-      
-      // If no specific community sites found, try the first few sources
-      if (websitesToScrape.length === 0 && response.sources.length > 0) {
-        websitesToScrape.push(...response.sources.slice(0, 2));
-      }
+        return true; // Accept ALL other sites
+      }).slice(0, 10); // Increased to 10 sites for more photo discovery
       
       // Scrape each website for photos
       for (const websiteUrl of websitesToScrape) {

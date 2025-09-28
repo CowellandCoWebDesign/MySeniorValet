@@ -60,9 +60,8 @@ export class CheerioPhotoScraper {
         const width = $img.attr('width');
         const height = $img.attr('height');
         
-        // Skip if alt text indicates it's an icon/logo
-        if (alt && this.isIconOrLogo(alt)) return;
-        if (title && this.isIconOrLogo(title)) return;
+        // Don't skip anything - show all images
+        // User requested to see everything
         
         // Skip small images (likely icons)
         if (width && height) {
@@ -170,24 +169,12 @@ export class CheerioPhotoScraper {
       // Remove duplicates
       const uniquePhotos = this.deduplicatePhotos(photos);
       
-      // Score and sort photos by relevance to community name
-      const scoredPhotos = uniquePhotos.map(photo => ({
-        ...photo,
-        relevanceScore: this.scorePhotoRelevance(photo, communityName)
-      }));
-      
-      // Sort by relevance score (highest first)
-      scoredPhotos.sort((a, b) => b.relevanceScore - a.relevanceScore);
-      
-      // Be more permissive - keep photos with neutral or positive scores
-      // Only filter out photos with very negative scores (< -5)
-      const relevantPhotos = scoredPhotos.filter(photo => photo.relevanceScore >= -5);
-      
-      console.log(`✅ Scraped ${relevantPhotos.length} relevant photos from ${websiteUrl} (filtered from ${uniquePhotos.length} total)`);
+      // USER REQUEST: Show ALL photos without filtering
+      console.log(`✅ Found ${uniquePhotos.length} photos from ${websiteUrl} (showing all without filtering)`);
       
       // Apply maxPhotos limit
       const limit = options?.maxPhotos || 30;
-      return relevantPhotos.slice(0, limit).map(({ relevanceScore, ...photo }) => photo);
+      return uniquePhotos.slice(0, limit);
       
     } catch (error) {
       console.error(`❌ Error scraping ${websiteUrl}:`, error instanceof Error ? error.message : error);
@@ -240,45 +227,17 @@ export class CheerioPhotoScraper {
   private isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
     
-    // Reject icon/logo/people patterns FIRST
-    const rejectPatterns = [
-      /icon/i,
-      /logo/i,
-      /badge/i,
-      /button/i,
-      /avatar/i,
-      /emoji/i,
-      /arrow/i,
-      /chevron/i,
-      /caret/i,
-      /sprite/i,
-      /thumbnail-[xs|sm|tiny]/i,
-      /\.(svg|ico)$/i,  // Reject SVG and ICO files completely
-      // Reject obvious people photos
-      /headshot/i,
-      /portrait/i,
-      /staff/i,
-      /team/i,
-      /realtor/i,
-      /agent/i,
-      /broker/i,
-      /profile-pic/i,
-      /employee/i,
-      /about-us\/team/i,
-      /testimonial/i
-    ];
-    
-    // If URL contains any reject pattern, reject it
-    if (rejectPatterns.some(pattern => pattern.test(url))) {
+    // Only reject SVG and ICO files - accept everything else
+    if (/\.(svg|ico)(\?|#|$)/i.test(url)) {
       return false;
     }
     
-    // Be more permissive - accept any common image format
+    // Accept ANY image that has a common image extension or looks like an image URL
     const hasImageExtension = /\.(jpg|jpeg|png|gif|webp|bmp|JPG|JPEG|PNG|GIF|WEBP|BMP)(\?|#|$)/i.test(url);
-    const hasImagePath = /\/(image|photo|gallery|property|community|facility|residence|assets|media|upload|files)\//i.test(url);
-    const isImageCDN = /(cloudinary|amazonaws|googleusercontent|imagekit|imgix|fastly|akamai)\.com/i.test(url);
+    const hasImagePath = /\/(image|img|photo|pic|gallery|media|upload|files|assets|static|content|wp-content)\//i.test(url);
+    const isImageCDN = /.+\.(com|net|org|io)/i.test(url); // Any domain could host images
     
-    // Accept if it has an image extension OR is from known image paths/CDNs
+    // Accept if it has an image extension OR contains image-related paths
     return hasImageExtension || hasImagePath || isImageCDN;
   }
   
@@ -349,19 +308,8 @@ export class CheerioPhotoScraper {
   }
   
   private isIconOrLogo(text: string): boolean {
-    if (!text) return false;
-    
-    const iconKeywords = [
-      'icon', 'logo', 'badge', 'button', 'arrow',
-      'facebook', 'twitter', 'instagram', 'linkedin', 
-      'youtube', 'pinterest', 'social', 'share',
-      'email', 'phone', 'map', 'location',
-      'search', 'menu', 'close', 'hamburger',
-      'cart', 'user', 'account', 'login'
-    ];
-    
-    const lowerText = text.toLowerCase();
-    return iconKeywords.some(keyword => lowerText.includes(keyword));
+    // Disabled - user wants to see all images
+    return false;
   }
   
   private scorePhotoRelevance(photo: ScrapedPhoto, communityName: string): number {
