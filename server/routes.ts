@@ -28,7 +28,6 @@ import * as schema from "../shared/schema";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
 import imageProxyRoutes from './routes/imageProxy';
-import imageEnrichmentRoutes from './routes/image-enrichment-routes';
 import serviceIntelligenceRoutes from './routes/service-intelligence';
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -1362,7 +1361,6 @@ Provide complete business data with ALL actual image URLs found.`;
 
   // Register image proxy for CORS handling
   app.use(imageProxyRoutes);
-  app.use(imageEnrichmentRoutes);
   app.use(serviceIntelligenceRoutes);
 
   // Register photo validation routes

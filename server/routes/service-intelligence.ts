@@ -1,7 +1,6 @@
 
-<line_number>1</line_number>
 import { Router } from 'express';
-import { multiAiPhotoExtractor } from '../services/multi-ai-photo-extractor';
+import { multiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
 
 const router = Router();
 
@@ -20,7 +19,7 @@ router.post('/api/service-intelligence', async (req, res) => {
 
     // Use the multi-AI photo extractor to find photos for this service
     const searchQuery = `${serviceName} ${city} ${state} ${serviceType} photos`;
-    const photos = await multiAiPhotoExtractor.extractPhotosFromQuery(searchQuery, {
+    const photos = await multiAIPhotoExtractor.extractPhotosFromQuery(searchQuery, {
       maxPhotos: 20,
       serviceType: serviceType,
       location: `${city}, ${state}`,
