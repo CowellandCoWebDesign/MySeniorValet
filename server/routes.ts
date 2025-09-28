@@ -872,10 +872,35 @@ Provide complete business data with ALL actual image URLs found.`;
         const serviceData = service[0];
         const metadata = serviceData.metadata as any || {};
         
-        // Extract city from service name if not in metadata
+        // Extract location from metadata - check discoveryInfo first
         let city = metadata.city || '';
         let state = metadata.state || '';
+        let country = metadata.country || 'US';
         
+        // Check if discoveryInfo exists and parse it
+        if (metadata.discoveryInfo) {
+          try {
+            // discoveryInfo is stored as a JSON string within metadata
+            const discoveryInfo = typeof metadata.discoveryInfo === 'string' 
+              ? JSON.parse(metadata.discoveryInfo) 
+              : metadata.discoveryInfo;
+            
+            // Extract location data from discoveryInfo
+            if (discoveryInfo.city) {
+              city = discoveryInfo.city;
+            }
+            if (discoveryInfo.state) {
+              state = discoveryInfo.state;
+            }
+            if (discoveryInfo.country) {
+              country = discoveryInfo.country;
+            }
+          } catch (error) {
+            console.log('Failed to parse discoveryInfo:', error);
+          }
+        }
+        
+        // If still no city, try to extract from service name
         if (!city && serviceData.name) {
           // Try to extract location from name (e.g., "ElderHelp of San Diego")
           const locationPatterns = [
@@ -933,7 +958,7 @@ Provide complete business data with ALL actual image URLs found.`;
           address: metadata.address || '',
           city: city,
           state: state,
-          country: metadata.country || 'US',
+          country: country,
           zipCode: metadata.zipCode || '',
           phone: metadata.phone || '',
           email: metadata.email || '',
