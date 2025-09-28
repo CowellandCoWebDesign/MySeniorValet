@@ -70,6 +70,30 @@ export function RedTagDeals() {
       availability: "Limited Spots",
       amenities: ["Mountain Views", "Private Healthcare", "Spa Services", "Organic Gardens"],
       whyFeatured: ["Costa Rica's premier retirement destination", "Exceptional value in paradise", "English-speaking staff & residents"]
+    },
+    {
+      id: 76138,
+      communityName: "DomusVi La Salut Josep Servat",
+      location: "Barcelona, Spain",
+      dealType: "Mediterranean Excellence",
+      highlights: ["Historic Barcelona location", "European healthcare standards", "Cultural enrichment programs"],
+      rating: 4.7,
+      heroImage: "https://images.unsplash.com/photo-1583422409516-2895a77efded?w=800&q=80",
+      availability: "Available Now",
+      amenities: ["Mediterranean Views", "Spanish Healthcare", "Cultural Activities", "Garden Terrace"],
+      whyFeatured: ["Premier European senior living", "Heart of Barcelona location", "Exceptional Mediterranean lifestyle"]
+    },
+    {
+      id: 76156,
+      communityName: "Conlon L.I.H.F.E. Towers",
+      location: "Queens, NY",
+      dealType: "NYC Public Housing Excellence",
+      highlights: ["Affordable NYC living", "Public housing program", "Community-focused care"],
+      rating: 4.2,
+      heroImage: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&q=80",
+      availability: "Waitlist",
+      amenities: ["NYC Location", "Public Transportation", "Community Services", "Social Programs"],
+      whyFeatured: ["Affordable senior housing in NYC", "Strong community support", "Public housing benefits"]
     }
   ];
     setFallbackDeals(defaultDeals);
@@ -137,7 +161,7 @@ export function RedTagDeals() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Excellence Communities</h2>
         </div>
         <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4">
-          Outstanding senior living communities showcasing excellence across three countries
+          Outstanding senior living communities showcasing excellence across five countries
         </p>
         
         {/* Launch Transparency Notice - Compact */}
@@ -152,11 +176,11 @@ export function RedTagDeals() {
                 Community partners: Be among the first 8 paying subscribers to MySeniorValet and receive FREE premium featured placement 
                 in this high-visibility home page section! As an early adopter who commits with a paid subscription, your community will be 
                 showcased to thousands of families actively searching for senior care. Contact us today to become a paid member and claim 
-                your free featured spot - only 5 positions remaining!
+                your free featured spot - only 3 positions remaining!
               </p>
               <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                The 3 communities currently showcased are hand-selected promotional listings representing excellence in senior living across 
-                specialized care types including memory care, coastal luxury, and international retirement options.
+                The 5 communities currently showcased are hand-selected promotional listings representing excellence in senior living across 
+                specialized care types including memory care, coastal luxury, international retirement, European excellence, and affordable NYC housing options.
               </p>
             </div>
           </div>
