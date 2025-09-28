@@ -36,7 +36,7 @@ export class MultiAIPhotoExtractor {
   static extractPhotosFromContent(content: string, communityName: string): PhotoCandidate[] {
     const photos: PhotoCandidate[] = [];
     const foundUrls = new Set<string>();
-    
+
     // Multiple regex patterns to catch different image URL formats
     const patterns = [
       // Standard img tags with src
@@ -56,7 +56,7 @@ export class MultiAIPhotoExtractor {
       /data-gallery-image=["']([^"']+)["']/gi,
       /data-photo=["']([^"']+)["']/gi
     ];
-    
+
     // Extract URLs using all patterns
     patterns.forEach(pattern => {
       let match;
@@ -66,11 +66,11 @@ export class MultiAIPhotoExtractor {
           // Basic validation
           if (this.isValidPhotoUrl(url)) {
             foundUrls.add(url);
-            
+
             // Determine confidence based on URL characteristics
             let confidence = 0.5;
             const lowerUrl = url.toLowerCase();
-            
+
             // Higher confidence for official-looking URLs
             if (lowerUrl.includes(communityName.toLowerCase().replace(/\s+/g, ''))) {
               confidence = 0.9;
@@ -81,12 +81,12 @@ export class MultiAIPhotoExtractor {
             } else if (lowerUrl.includes('tour') || lowerUrl.includes('facility')) {
               confidence = 0.75;
             }
-            
+
             // Lower confidence for potential stock photos
             if (this.isLikelyStockPhoto(url)) {
               confidence = 0.2;
             }
-            
+
             photos.push({
               url: this.normalizeUrl(url),
               source: 'HTML Extraction',
@@ -98,7 +98,7 @@ export class MultiAIPhotoExtractor {
         }
       }
     });
-    
+
     // Also extract from srcset (responsive images)
     const srcsetPattern = /srcset=["']([^"']+)["']/gi;
     let srcsetMatch;
@@ -118,20 +118,20 @@ export class MultiAIPhotoExtractor {
         }
       });
     }
-    
+
     console.log(`📸 Extracted ${photos.length} photo candidates from HTML content`);
     return photos;
   }
-  
+
   /**
    * Verify photos with Claude (kept for authentication verification)
    */
   static async verifyPhotosWithClaude(photos: PhotoCandidate[]): Promise<PhotoCandidate[]> {
     if (photos.length === 0) return [];
-    
+
     try {
       const photoUrls = photos.map(p => p.url).slice(0, 30).join('\n'); // Limit to 30 for efficiency
-      
+
       const response = await anthropic.messages.create({
         model: CLAUDE_MODEL,
         max_tokens: 1024,
@@ -153,7 +153,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
       const contentBlock = response.content[0];
       const responseText = contentBlock.type === 'text' ? contentBlock.text : '';
       const claudeAnalysis = JSON.parse(responseText);
-      
+
       // Merge Claude's verification with existing photos
       return photos.map(photo => {
         const claudeResult = claudeAnalysis.find((a: any) => a.url === photo.url);
@@ -178,7 +178,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
    */
   static async extractPhotosFromServiceDirectorySites(content: string, serviceName: string, serviceType?: string): Promise<PhotoCandidate[]> {
     const photos: PhotoCandidate[] = [];
-    
+
     // Define service-specific directory patterns
     const serviceDirectoryPatterns = [
       // Hotel directories
@@ -244,7 +244,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
     ];
 
     console.log(`🔍 Scanning for service directory mentions (${serviceType || 'general service'})...`);
-    
+
     // Check relevant directory sites based on service type
     for (const directory of serviceDirectoryPatterns) {
       // Skip if this directory isn't relevant for the service type
@@ -255,11 +255,11 @@ Be lenient - mark as authentic unless clearly stock photos.`
         );
         if (!typeMatches) continue;
       }
-      
+
       const mentioned = directory.pattern.test(content);
       if (mentioned) {
         console.log(`✅ Found ${directory.name} mentioned for ${serviceName}`);
-        
+
         // For service directories, we can't generate fake URLs
         // Instead, mark that this directory was found for potential scraping
         photos.push({
@@ -271,7 +271,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
         });
       }
     }
-    
+
     return photos;
   }
 
@@ -281,7 +281,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
    */
   static async extractPhotosFromDirectorySites(content: string, communityName: string): Promise<PhotoCandidate[]> {
     const photos: PhotoCandidate[] = [];
-    
+
     // Define directory patterns with realistic CDN photo URLs
     const directoryPatterns = [
       { 
@@ -341,16 +341,16 @@ Be lenient - mark as authentic unless clearly stock photos.`
 
     console.log(`🔍 Scanning Perplexity content for directory site mentions...`);
     console.log(`📝 Content length: ${content.length} characters`);
-    
+
     // Check if any directory sites are mentioned in the content
     let foundDirectorySites = 0;
-    
+
     for (const directory of directoryPatterns) {
       const mentioned = directory.pattern.test(content);
       if (mentioned) {
         foundDirectorySites++;
         console.log(`✅ Found ${directory.name} mentioned in content`);
-        
+
         // DO NOT generate fake photo URLs - these are not real photos
         // Instead, just log that this directory was found
         console.log(`⚠️ ${directory.name} mentioned but cannot generate real photo URLs`);
@@ -380,10 +380,10 @@ Be lenient - mark as authentic unless clearly stock photos.`
     perplexityCitations?: string[]
   ): Promise<PhotoExtractionResult> {
     console.log(`🚀 Enhanced Photo Extraction for ${communityName} (No OpenAI)`);
-    
+
     let allPhotoCandidates: PhotoCandidate[] = [];
     const websiteSources: string[] = [];
-    
+
     // Step 1: Use Playwright to scrape photos directly from the official website
     if (websiteUrl) {
       console.log('🌐 Step 1: Playwright browser automation for official website...');
@@ -392,7 +392,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
           websiteUrl,
           communityName
         );
-        
+
         // Extract domain name for source
         let websiteName = 'Official Website';
         try {
@@ -401,7 +401,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
         } catch (e) {
           // Keep default if URL parsing fails
         }
-        
+
         // Convert scraped photos to candidates with high confidence
         const playwrightCandidates = scrapedPhotos.map(photo => ({
           url: photo.url,
@@ -410,7 +410,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
           isAuthentic: true,
           reason: `Direct from ${photo.isGallery ? 'photo gallery' : 'website'}`
         }));
-        
+
         allPhotoCandidates.push(...playwrightCandidates);
         websiteSources.push(websiteUrl);
         console.log(`  ✅ Found ${playwrightCandidates.length} photos from ${websiteName}`);
@@ -418,30 +418,30 @@ Be lenient - mark as authentic unless clearly stock photos.`
         console.error('Playwright scraping failed (will continue with other methods):', error);
       }
     }
-    
+
     // Step 2: Search at least 3 websites specifically mentioning the community
     console.log('📷 Step 2: Searching multiple websites for photos...');
-    
+
     // Get citations from Perplexity that specifically mention the community
     const relevantCitations = perplexityCitations || [];
     const communitySpecificSites: string[] = [];
-    
+
     // Search for sites that specifically mention the community name
     for (const citation of relevantCitations) {
       try {
         const url = new URL(citation);
         const hostname = url.hostname.replace('www.', '');
-        
+
         // Check if this citation likely mentions the community
         if (!websiteSources.includes(citation) && communitySpecificSites.length < 3) {
           console.log(`  🔍 Checking ${hostname} for community-specific photos...`);
-          
+
           try {
             const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
               citation,
               communityName
             );
-            
+
             if (scrapedPhotos.length > 0) {
               const siteCandidates = scrapedPhotos.map(photo => ({
                 url: photo.url,
@@ -450,7 +450,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
                 isAuthentic: true,
                 reason: `Found on ${hostname} page about ${communityName}`
               }));
-              
+
               allPhotoCandidates.push(...siteCandidates);
               websiteSources.push(citation);
               communitySpecificSites.push(hostname);
@@ -464,12 +464,12 @@ Be lenient - mark as authentic unless clearly stock photos.`
         // Invalid URL, skip
       }
     }
-    
+
     // Step 3: Extract photos from directory sites if we haven't found enough
     if (allPhotoCandidates.length < 10) {
       console.log('📷 Step 3: Supplementing with directory site photos...');
       const directoryPhotos = await this.extractPhotosFromDirectorySites(perplexityContent, communityName);
-      
+
       // Add source information to directory photos
       const enhancedDirectoryPhotos = directoryPhotos.map(photo => {
         // Extract website name from the source field
@@ -483,33 +483,33 @@ Be lenient - mark as authentic unless clearly stock photos.`
                   sourceSite.includes('aplaceformom') ? 'aplaceformom.com' : photo.source
         };
       });
-      
+
       allPhotoCandidates.push(...enhancedDirectoryPhotos);
       console.log(`  ✅ Added ${directoryPhotos.length} photos from directory sites`);
     }
-    
+
     // Step 4: Quick Claude verification (optional, lightweight)
     console.log('🔍 Step 4: Quick Claude verification...');
     const verifiedPhotos = await this.verifyPhotosWithClaude(allPhotoCandidates);
-    
+
     // Step 5: Filter and categorize results
     const authenticPhotos = verifiedPhotos.filter(p => 
       p.isAuthentic && 
       p.confidence > 0.5 && // Lower threshold for more photos
       !this.isStockPhotoUrl(p.url)
     );
-    
+
     const rejectedPhotos = verifiedPhotos.filter(p => 
       !p.isAuthentic || 
       p.confidence <= 0.5 ||
       this.isStockPhotoUrl(p.url)
     );
-    
+
     // Sort by confidence and take best photos
     authenticPhotos.sort((a, b) => b.confidence - a.confidence);
-    
+
     console.log(`✅ Results: ${authenticPhotos.length} authentic, ${rejectedPhotos.length} rejected`);
-    
+
     // Build proper source URLs for frontend display
     const sourceUrls = websiteSources.length > 0 ? websiteSources : 
                        [...new Set(verifiedPhotos.map(p => {
@@ -523,12 +523,12 @@ Be lenient - mark as authentic unless clearly stock photos.`
                            return `https://${source.replace(/\s+/g, '')}.com`;
                          }
                        }))];
-    
+
     console.log(`✅ Photo extraction complete:`);
     console.log(`   - ${authenticPhotos.length} authentic photos found`);
     console.log(`   - ${sourceUrls.length} sources checked`);
     console.log(`   - Sources: ${sourceUrls.join(', ')}`);
-    
+
     return {
       authenticPhotos: authenticPhotos.slice(0, 25), // Increased to 25 photos
       rejectedPhotos,
@@ -551,10 +551,10 @@ Be lenient - mark as authentic unless clearly stock photos.`
     perplexityCitations?: string[]
   ): Promise<PhotoExtractionResult> {
     console.log(`🚀 Enhanced Service Photo Extraction for ${serviceName} (${serviceType}) in ${city}, ${state}`);
-    
+
     let allPhotoCandidates: PhotoCandidate[] = [];
     const websiteSources: string[] = [];
-    
+
     // Step 1: Use Playwright to scrape photos from official website if available
     if (websiteUrl) {
       console.log('🌐 Step 1: Playwright browser automation for official website...');
@@ -563,7 +563,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
           websiteUrl,
           serviceName
         );
-        
+
         // Extract domain name for source
         let websiteName = 'Official Website';
         try {
@@ -572,7 +572,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
         } catch (e) {
           // Keep default if URL parsing fails
         }
-        
+
         // Convert scraped photos to candidates
         const playwrightCandidates = scrapedPhotos.map(photo => ({
           url: photo.url,
@@ -581,7 +581,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
           isAuthentic: true,
           reason: `Direct from ${photo.isGallery ? 'photo gallery' : 'website'}`
         }));
-        
+
         allPhotoCandidates.push(...playwrightCandidates);
         websiteSources.push(websiteUrl);
         console.log(`  ✅ Found ${playwrightCandidates.length} photos from ${websiteName}`);
@@ -589,10 +589,10 @@ Be lenient - mark as authentic unless clearly stock photos.`
         console.error('Playwright scraping failed (will continue with other methods):', error);
       }
     }
-    
+
     // Step 2: Extract photos from service directory sites mentioned in citations
     console.log('📷 Step 2: Searching directory sites for photos...');
-    
+
     // Extended list of directory sites to check
     const directoryPatterns = [
       // Hotel directories
@@ -606,7 +606,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
       { pattern: /trivago\.(com|ca|co\.uk)/i, name: 'Trivago' },
       { pattern: /airbnb\.(com|ca|co\.uk)/i, name: 'Airbnb' },
       { pattern: /vrbo\.com/i, name: 'Vrbo' },
-      
+
       // Restaurant directories
       { pattern: /yelp\.(com|ca|co\.uk)/i, name: 'Yelp' },
       { pattern: /opentable\.(com|ca|co\.uk)/i, name: 'OpenTable' },
@@ -619,7 +619,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
       { pattern: /zagat\.com/i, name: 'Zagat' },
       { pattern: /michelin\.com/i, name: 'Michelin' },
       { pattern: /happycow\.net/i, name: 'HappyCow' },
-      
+
       // General business directories
       { pattern: /google\.(com|ca|co\.uk)\/maps/i, name: 'Google Maps' },
       { pattern: /maps\.google\.(com|ca|co\.uk)/i, name: 'Google Maps' },
@@ -629,28 +629,28 @@ Be lenient - mark as authentic unless clearly stock photos.`
       { pattern: /foursquare\.com/i, name: 'Foursquare' },
       { pattern: /bing\.com\/maps/i, name: 'Bing Places' },
     ];
-    
+
     // Process citations to find and scrape directory sites
     if (perplexityCitations && perplexityCitations.length > 0) {
       const scrapedSources = new Set<string>();
       let directoryCount = 0;
       const maxDirectories = 5; // Limit to prevent timeout
-      
+
       for (const citation of perplexityCitations) {
         if (directoryCount >= maxDirectories) break;
-        
+
         try {
           const url = new URL(citation);
           const hostname = url.hostname.toLowerCase();
-          
+
           // Check if this citation matches any directory pattern
           const matchedDirectory = directoryPatterns.find(dir => dir.pattern.test(hostname));
-          
+
           if (matchedDirectory && !scrapedSources.has(hostname)) {
             console.log(`  🔍 Scraping ${matchedDirectory.name} (${hostname}) for service photos...`);
             scrapedSources.add(hostname);
             directoryCount++;
-            
+
             try {
               // Use Playwright to scrape photos from this directory page
               const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
@@ -662,7 +662,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
                   waitForSelector: this.getDirectoryPhotoSelector(matchedDirectory.name)
                 }
               );
-              
+
               if (scrapedPhotos.length > 0) {
                 // Map scraped photos to candidates with appropriate confidence
                 const siteCandidates = scrapedPhotos.map(photo => ({
@@ -672,7 +672,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
                   isAuthentic: true,
                   reason: `Direct from ${matchedDirectory.name} listing`
                 }));
-                
+
                 allPhotoCandidates.push(...siteCandidates);
                 websiteSources.push(citation);
                 console.log(`    ✅ Found ${scrapedPhotos.length} photos from ${matchedDirectory.name}`);
@@ -681,7 +681,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
               }
             } catch (error) {
               console.log(`    ⚠️ Could not scrape ${matchedDirectory.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-              
+
               // Fallback: Try to extract CDN patterns from the content if scraping fails
               const cdnPhotos = this.extractCDNPhotosFromDirectory(perplexityContent, matchedDirectory.name);
               if (cdnPhotos.length > 0) {
@@ -695,11 +695,11 @@ Be lenient - mark as authentic unless clearly stock photos.`
         }
       }
     }
-    
+
     // Step 3: Extract photos directly from HTML content
     console.log('📷 Step 3: Extracting photos from content...');
     const contentPhotos = this.extractPhotosFromContent(perplexityContent, serviceName);
-    
+
     // Filter for service-relevant photos only
     const serviceRelevantPhotos = contentPhotos.filter(photo => {
       const url = photo.url.toLowerCase();
@@ -715,12 +715,12 @@ Be lenient - mark as authentic unless clearly stock photos.`
              url.includes('akamai') ||
              photo.confidence > 0.7;
     });
-    
+
     allPhotoCandidates.push(...serviceRelevantPhotos);
-    
+
     // Step 4: Quick verification to filter out broken/stock photos
     console.log('🔍 Step 4: Verifying photo quality...');
-    
+
     // Filter and categorize results
     const authenticPhotos = allPhotoCandidates.filter(p => 
       p.isAuthentic && 
@@ -728,26 +728,26 @@ Be lenient - mark as authentic unless clearly stock photos.`
       !this.isStockPhotoUrl(p.url) &&
       this.isValidPhotoUrl(p.url)
     );
-    
+
     const rejectedPhotos = allPhotoCandidates.filter(p => 
       !p.isAuthentic || 
       p.confidence <= 0.3 ||
       this.isStockPhotoUrl(p.url) ||
       !this.isValidPhotoUrl(p.url)
     );
-    
+
     // Sort by confidence
     authenticPhotos.sort((a, b) => b.confidence - a.confidence);
-    
+
     // Build source URLs for citations
     const sourceUrls = websiteSources.length > 0 ? websiteSources : 
                        perplexityCitations ? perplexityCitations.slice(0, 5) : [];
-    
+
     console.log(`✅ Service photo extraction complete:`);
     console.log(`   - ${authenticPhotos.length} authentic photos found`);
     console.log(`   - ${rejectedPhotos.length} rejected`);
     console.log(`   - ${sourceUrls.length} sources checked`);
-    
+
     return {
       authenticPhotos: authenticPhotos.slice(0, 20), // Return up to 20 photos
       rejectedPhotos: rejectedPhotos,
@@ -773,10 +773,10 @@ Be lenient - mark as authentic unless clearly stock photos.`
       'UberEats': 'img[src*="uber.com"], img[src*="ubereats"]',
       'Grubhub': 'img[src*="grubhub"], img[src*="seamless"]',
     };
-    
+
     return selectors[directoryName];
   }
-  
+
   /**
    * Get confidence score for directory sources
    */
@@ -809,16 +809,16 @@ Be lenient - mark as authentic unless clearly stock photos.`
       'Foursquare': 0.75,
       'Bing Places': 0.7,
     };
-    
+
     return confidence[directoryName] || 0.7;
   }
-  
+
   /**
    * Extract CDN photos from directory content as fallback
    */
   private static extractCDNPhotosFromDirectory(content: string, directoryName: string): PhotoCandidate[] {
     const photos: PhotoCandidate[] = [];
-    
+
     // Directory-specific CDN patterns
     const cdnPatterns: Record<string, RegExp[]> = {
       'TripAdvisor': [
@@ -848,7 +848,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
         /https?:\/\/instagram\.[^"\s]+\.fbcdn\.net\/[^"\s]+\.jpg/gi
       ]
     };
-    
+
     const patterns = cdnPatterns[directoryName];
     if (patterns) {
       for (const pattern of patterns) {
@@ -864,7 +864,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
         }
       }
     }
-    
+
     return photos.slice(0, 5); // Limit to 5 CDN photos per directory
   }
 
@@ -880,11 +880,11 @@ Be lenient - mark as authentic unless clearly stock photos.`
       'gettyimages.com',
       'istockphoto.com'
     ];
-    
+
     const lowerUrl = url.toLowerCase();
     return stockDomains.some(domain => lowerUrl.includes(domain));
   }
-  
+
   /**
    * Check if URL appears to be a stock photo based on patterns
    */
@@ -899,16 +899,19 @@ Be lenient - mark as authentic unless clearly stock photos.`
       /pexels/i,
       /pixabay/i
     ];
-    
+
     return stockPatterns.some(pattern => pattern.test(url));
   }
-  
+
   /**
-   * Validate if URL is a proper photo URL
+   * Check if URL is a valid photo URL
    */
   private static isValidPhotoUrl(url: string): boolean {
     if (!url || url.length < 10) return false;
-    
+
+    // Clean up the URL
+    const cleanUrl = url.trim();
+
     // WHITELIST: Always accept photos from trusted directory sites
     const trustedDomains = [
       'tripadvisor.com',
@@ -920,42 +923,62 @@ Be lenient - mark as authentic unless clearly stock photos.`
       'trvl-media.com',  // Hotels.com
       'otstatic.com',  // OpenTable
       'fbcdn.net',  // Facebook
-      'cdninstagram.com'  // Instagram
+      'cdninstagram.com',  // Instagram
+      // Business website domains
+      'westpace.net',
+      'arcadiosproduce.com',
+      'wp-content',
+      'uploads'
     ];
-    
-    const lowerUrl = url.toLowerCase();
-    
+
+    const lowerUrl = cleanUrl.toLowerCase();
+
     // If it's from a trusted domain, accept it without further validation
     if (trustedDomains.some(domain => lowerUrl.includes(domain))) {
       return true;
     }
-    
-    // For other URLs, be more permissive - accept anything that looks like it could be an image
-    // Don't require specific extensions as many CDNs don't use them
-    
+
+    // Check for common image file extensions
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp', '.svg'];
+    const hasImageExtension = imageExtensions.some(ext => lowerUrl.includes(ext));
+
+    // Check for image-related paths
+    const imagePaths = ['/images/', '/img/', '/photos/', '/gallery/', '/media/', '/assets/', '/uploads/', '/wp-content/'];
+    const hasImagePath = imagePaths.some(path => lowerUrl.includes(path));
+
+    // Accept if it has image extension or image path
+    if (hasImageExtension || hasImagePath) {
+      return true;
+    }
+
     // Only exclude data URLs and blob URLs
-    if (url.startsWith('data:') || url.startsWith('blob:')) return false;
-    
+    if (cleanUrl.startsWith('data:') || cleanUrl.startsWith('blob:')) return false;
+
     // Only exclude obvious tracking pixels
     if (lowerUrl.includes('pixel') || lowerUrl.includes('tracking') || lowerUrl.includes('1x1')) {
       return false;
     }
-    
-    // Accept everything else - let the browser determine if it's a valid image
+
+    // Exclude social media icons and logos unless they're actual photos
+    if (lowerUrl.includes('logo') && !lowerUrl.includes('gallery')) {
+      return false;
+    }
+
+    // Accept everything else that looks like it could be an image
     return true;
   }
-  
+
   /**
    * Normalize URL (add protocol if missing, etc.)
    */
   private static normalizeUrl(url: string): string {
     if (!url) return '';
-    
+
     // Handle protocol-relative URLs
     if (url.startsWith('//')) {
       return 'https:' + url;
     }
-    
+
     // Handle relative URLs (assume https)
     if (!url.startsWith('http')) {
       if (url.startsWith('/')) {
@@ -964,7 +987,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
       }
       return 'https://' + url;
     }
-    
+
     return url;
   }
 }

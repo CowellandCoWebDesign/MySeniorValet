@@ -298,9 +298,10 @@ export function EnhancedPhotoCarousel({
 
   // Check if we have any photos to display
   if (!safePhotos || safePhotos.length === 0) {
-    // Check if photos were found but filtered out due to CORS
+    // Check if photos were found but filtered out due to loading issues
     const originalPhotoCount = photos?.length || 0;
-    const hadCorsIssues = originalPhotoCount > 0 && processedPhotos.length === 0;
+    const processedPhotoCount = processedPhotos?.length || 0;
+    const hadLoadingIssues = processedPhotoCount > 0 && safePhotos.length === 0;
     
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
@@ -309,20 +310,28 @@ export function EnhancedPhotoCarousel({
             <ZoomIn className="w-8 h-8" />
           </div>
           <p className="text-sm font-medium">
-            {hadCorsIssues ? 'Photos cannot be displayed' : 'No photos available'}
+            {hadLoadingIssues ? 'Photos temporarily unavailable' : 'No photos available'}
           </p>
-          {hadCorsIssues && (
-            <p className="text-xs text-gray-400 mt-2 max-w-xs mx-auto">
-              {originalPhotoCount} photo{originalPhotoCount > 1 ? 's were' : ' was'} found from external sources 
-              but cannot be displayed due to security restrictions from TripAdvisor, Yelp, and other sites.
-            </p>
+          {hadLoadingIssues && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-400 mt-2 max-w-xs mx-auto">
+                {processedPhotoCount} photo{processedPhotoCount > 1 ? 's were' : ' was'} found but could not be loaded at this time.
+              </p>
+              <button 
+                onClick={() => window.location.reload()} 
+                className="mt-2 px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+              >
+                <RefreshCw className="w-3 h-3 inline mr-1" />
+                Retry Loading Photos
+              </button>
+            </div>
           )}
-          {photos.length > 0 && imageErrors.size > 0 && !hadCorsIssues && (
+          {originalPhotoCount > 0 && imageErrors.size > 0 && !hadLoadingIssues && (
             <p className="text-xs text-orange-500 mt-2">
               {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be loaded
             </p>
           )}
-          {showValidation && !hadCorsIssues && (
+          {showValidation && !hadLoadingIssues && (
             <p className="text-xs text-gray-400 mt-2">
               Consider adding authentic photos from verified sources
             </p>
@@ -417,8 +426,20 @@ export function EnhancedPhotoCarousel({
               }}
               onError={(e) => {
                 // Handle broken images gracefully
+                const target = e.target as HTMLImageElement;
+                const originalSrc = target.src;
+                
+                // Try to reload the image once before marking as failed
+                if (!target.dataset.retried) {
+                  target.dataset.retried = "true";
+                  setTimeout(() => {
+                    target.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+                  }, 1000);
+                  return;
+                }
+                
                 setImageErrors(prev => new Set([...prev, currentPhoto.url]));
-                console.log(`Failed to load image: ${currentPhoto.url}`);
+                console.log(`Failed to load image after retry: ${currentPhoto.url}`);
                 
                 if (showValidation) {
                   setPhotoValidation(prev => ({
@@ -426,7 +447,7 @@ export function EnhancedPhotoCarousel({
                     [currentPhoto.url]: {
                       url: currentPhoto.url,
                       isValid: false,
-                      error: 'Failed to load image',
+                      error: 'Failed to load image after retry',
                       lastChecked: new Date()
                     }
                   }));
