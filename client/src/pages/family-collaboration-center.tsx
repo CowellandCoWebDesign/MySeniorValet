@@ -159,8 +159,8 @@ export default function FamilyCollaborationCenter() {
   // Format messages from API data
   const familyMessages = messagesData?.messages?.map((msg) => ({
     id: msg.id,
-    sender: msg.senderName || 'Unknown',
-    avatar: msg.senderName?.substring(0, 2).toUpperCase() || 'UN',
+    sender: msg.senderName || user?.name || user?.email?.split('@')[0] || 'You',
+    avatar: msg.senderName?.substring(0, 2).toUpperCase() || user?.name?.substring(0, 2).toUpperCase() || 'ME',
     message: msg.content,
     timestamp: new Date(msg.createdAt).toLocaleString(),
     isCurrentUser: msg.senderId === messagesData?.currentUserId
@@ -303,6 +303,9 @@ export default function FamilyCollaborationCenter() {
       </div>
     );
   }
+
+  // Check if user has no data yet (first time user)
+  const isNewUser = user && (!favorites || favorites.length === 0) && (!familyMessages || familyMessages.length === 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -979,7 +982,7 @@ export default function FamilyCollaborationCenter() {
                                     <p className="text-sm">{msg.content}</p>
                                   </div>
                                   <p className="text-xs text-muted-foreground mt-1">
-                                    {msg.senderName || 'Unknown'} • {new Date(msg.createdAt).toLocaleString()}
+                                    {msg.senderName || user?.name || user?.email?.split('@')[0] || 'You'} • {new Date(msg.createdAt).toLocaleString()}
                                   </p>
                                 </>
                               )}
