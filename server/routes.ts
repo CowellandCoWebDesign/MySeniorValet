@@ -27,6 +27,9 @@ import { vendors, users, services } from "../shared/schema";
 import * as schema from "../shared/schema";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
+import imageProxyRoutes from './routes/imageProxy';
+import imageEnrichmentRoutes from './routes/image-enrichment-routes';
+import serviceIntelligenceRoutes from './routes/service-intelligence';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -468,7 +471,7 @@ Provide complete business data with ALL actual image URLs found.`;
             const cleanUrl = url.replace(/[\]\)"']+$/, '').trim();
 
             // Skip obvious corrupted URLs with enhanced detection
-            if (cleanUrl.includes('QwQwQwQw') || 
+            if (cleanUrl.includes('QwQwQw') || 
                 cleanUrl.includes('kQz8kQz8') ||
                 cleanUrl.includes('QwQwQwQwQwQwQwQw') ||
                 cleanUrl.includes('...[TRUNCATED]') ||
@@ -1358,8 +1361,9 @@ Provide complete business data with ALL actual image URLs found.`;
   app.use(analyticsIntelligenceRoutes.default);
 
   // Register image proxy for CORS handling
-  const imageProxyRoutes = await import('./routes/imageProxy');
-  app.use(imageProxyRoutes.default);
+  app.use(imageProxyRoutes);
+  app.use(imageEnrichmentRoutes);
+  app.use(serviceIntelligenceRoutes);
 
   // Register photo validation routes
   const photoValidationRoutes = await import('./routes/photoValidationRoutes');
