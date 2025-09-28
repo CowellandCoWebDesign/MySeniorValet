@@ -95,13 +95,25 @@ export function RedTagDeals() {
       availability: "Waitlist",
       amenities: ["NYC Location", "Public Transportation", "Community Services", "Social Programs"],
       whyFeatured: ["Affordable senior housing in NYC", "Strong community support", "Public housing benefits"]
+    },
+    {
+      id: 76174,
+      communityName: "Arbor Terrace of East Cobb",
+      location: "Marietta, GA",
+      dealType: "Premier Assisted Living",
+      highlights: ["Luxury assisted living", "Award-winning programs", "Beautiful East Cobb location"],
+      rating: 4.2,
+      heroImage: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800&q=80",
+      availability: "Available Now",
+      amenities: ["Elegant Dining", "Memory Care", "Wellness Programs", "Social Activities"],
+      whyFeatured: ["Part of Arbor Company network", "Exceptional care in East Cobb", "Beautiful community with comprehensive services"]
     }
   ];
     setFallbackDeals(defaultDeals);
   }, []);
   
-  // Merge API data with our curated list to ensure we show exactly these 5 communities
-  const desiredCommunityIds = [51463, 70616, 72147, 76138, 76156];
+  // Merge API data with our curated list to ensure we show exactly these 6 communities
+  const desiredCommunityIds = [51463, 70616, 72147, 76138, 76156, 76174];
   
   // Create a map of API data by ID for quick lookup
   const apiDataMap = new Map();
