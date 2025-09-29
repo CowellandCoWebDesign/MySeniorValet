@@ -338,13 +338,9 @@ export function EnhancedPhotoCarousel({
               <p className="text-xs text-gray-400 mt-2 max-w-xs mx-auto">
                 {processedPhotoCount} photo{processedPhotoCount > 1 ? 's were' : ' was'} found but could not be loaded at this time.
               </p>
-              <button 
-                onClick={() => window.location.reload()} 
-                className="mt-2 px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
-              >
-                <RefreshCw className="w-3 h-3 inline mr-1" />
-                Retry Loading Photos
-              </button>
+              <p className="text-xs text-gray-400 mt-1">
+                Photos will load automatically when available
+              </p>
             </div>
           )}
           {originalPhotoCount > 0 && imageErrors.size > 0 && !hadLoadingIssues && (
