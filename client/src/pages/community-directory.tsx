@@ -178,7 +178,9 @@ export default function CommunityDirectory() {
     queryFn: async () => {
       const response = await fetch('/api/communities/recently-discovered?limit=100');
       if (!response.ok) throw new Error('Failed to fetch recent communities');
-      return response.json();
+      const data = await response.json();
+      console.log('📊 Recently discovered communities fetched:', data.length);
+      return data;
     }
   });
   
@@ -939,15 +941,8 @@ export default function CommunityDirectory() {
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
-                      onClick={(e) => {
-                        const target = e.target as HTMLElement;
-                        // Only navigate if not clicking on internal buttons/links
-                        if (!target.closest('button') && !target.closest('a')) {
-                          setLocation(`/community/${community.id}`);
-                        }
-                      }}
                     >
-                      <div className="hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
+                      <div className="hover:scale-[1.02] transition-transform duration-300">
                         <FeaturedExcellenceCard 
                           community={community}
                           compact={true}
