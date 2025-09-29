@@ -1099,7 +1099,8 @@ export default function CommunityDirectory() {
                             ...community,
                             badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
                           }}
-                          index={index} 
+                          index={index}
+                          disableAutoPhotoLoad={true} 
                           compact 
                         />
                       </div>
@@ -1219,6 +1220,7 @@ export default function CommunityDirectory() {
                                    "🏠 Affordable"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1350,6 +1352,7 @@ export default function CommunityDirectory() {
                             badge: index === 0 ? "🥇 J.D. Power #1" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1468,6 +1471,7 @@ export default function CommunityDirectory() {
                                    "💎 Community"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1577,6 +1581,7 @@ export default function CommunityDirectory() {
                             badge: index === 0 ? "🔴 Industry Leader" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1858,6 +1863,7 @@ export default function CommunityDirectory() {
                             badge: index === 0 ? "👑 Gold Standard" : index === 1 ? "🌟 Resort Style" : "⭐ Featured"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -2096,6 +2102,7 @@ export default function CommunityDirectory() {
                             badge: "🌴 Aloha Living"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -2253,6 +2260,7 @@ export default function CommunityDirectory() {
                             badge: "🏜️ Texas Pride"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -2344,7 +2352,7 @@ export default function CommunityDirectory() {
               <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2458,7 +2466,7 @@ export default function CommunityDirectory() {
                 {/* Display first 10 HUD properties with complete information */}
                 {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
                   <Link key={`hud-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
                 
@@ -2653,6 +2661,7 @@ export default function CommunityDirectory() {
                             badge: "🏙️ Empire Living"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -2880,7 +2889,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2955,7 +2964,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
                 {((peruCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -3106,6 +3115,7 @@ export default function CommunityDirectory() {
                             badge: "🎭 Heritage Living"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -3180,7 +3190,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
                 {((costaRicaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -3248,7 +3258,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
                 {((panamaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -3343,7 +3353,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-500">
                 {((ontarioCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
                   <Link key={`on-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -3360,7 +3370,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500">
                 {((quebecCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
                   <Link key={`qc-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -3462,7 +3472,7 @@ export default function CommunityDirectory() {
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-green-500">
                 {((nswCommunities as any)?.communities || []).slice(0, 15).map((community: any, index: number) => (
                   <Link key={`nsw-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>

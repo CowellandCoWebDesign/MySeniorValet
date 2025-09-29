@@ -27,9 +27,10 @@ interface FeaturedExcellenceCardProps {
   };
   index?: number;
   compact?: boolean; // For horizontal sliders
+  disableAutoPhotoLoad?: boolean; // Prevent automatic photo loading in directory views
 }
 
-export function FeaturedExcellenceCard({ community, index = 0, compact = false }: FeaturedExcellenceCardProps) {
+export function FeaturedExcellenceCard({ community, index = 0, compact = false, disableAutoPhotoLoad = false }: FeaturedExcellenceCardProps) {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
@@ -42,6 +43,9 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
   // Fetch enriched photos for the community
   useEffect(() => {
     const fetchEnrichedPhotos = async () => {
+      // Skip if automatic photo loading is disabled (for directory views)
+      if (disableAutoPhotoLoad) return;
+      
       // Skip if we already have multiple photos
       if (enrichedPhotos.length > 1) return;
       
