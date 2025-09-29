@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useLocation, Link } from 'wouter';
 import { useResponsive } from '@/contexts/ResponsiveContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSign, MapPin, Info, 
          Mail, Globe, Users, User, Plus, ExternalLink, Navigation, CheckCircle, Award, Sparkles, 
          Shield, ClipboardList, UserCheck, MessageCircle, Calendar as CalendarIcon, X, Lock,
@@ -1281,12 +1282,28 @@ export default function CommunityDetail() {
       setIsVerifying(false);
     }
   }, [id]);
+  
+  // AUTO-VERIFY: Only when community has NO photos (to save API costs)
+  React.useEffect(() => {
+    if (!community || hasStartedVerification || isVerifying || verificationReport) {
+      return;
+    }
+    
+    // Check if community has photos
+    const hasPhotos = community.photos && community.photos.length > 0;
+    
+    // Only auto-verify if NO photos exist
+    if (!hasPhotos) {
+      console.log('🔍 Community has no photos, auto-verifying to find them...');
+      handleManualVerification();
+    }
+  }, [community, hasStartedVerification, isVerifying, verificationReport]);
 
-  // Manual verification handler - NO AUTO-TRIGGERS to prevent Perplexity costs
+  // Smart verification handler - only runs when photos are missing
   const handleManualVerification = async () => {
     if (!community?.id || hasStartedVerification || isVerifying) return;
     
-    console.log('🚀 Manual verification triggered for community:', community.name);
+    console.log('🚀 Auto-verification for community without photos:', community.name);
     setHasStartedVerification(true);
     setIsVerifying(true);
     
@@ -1302,15 +1319,43 @@ export default function CommunityDetail() {
       }
       
       const report = await response.json();
-      console.log('✅ Manual verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
+      const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
+      console.log('✅ Verification complete, photos found:', foundPhotos);
       setVerificationReport(report);
+      
+      // Photos will be displayed from the verification report
+      if (foundPhotos > 0) {
+        // Trigger a refresh to update the UI
+        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+      }
     } catch (error) {
-      console.error('❌ Manual verification error:', error);
+      console.error('❌ Verification error:', error);
       setHasStartedVerification(false); // Allow retry on error
     } finally {
       setIsVerifying(false);
     }
   };
+
+  // Combine photos from community and verification report
+  const allPhotos = React.useMemo(() => {
+    const photos = [];
+    
+    // Add verification photos first (they're usually better quality)
+    if (verificationReport?.verificationResults?.webIntelligence?.images) {
+      const verifiedPhotos = verificationReport.verificationResults.webIntelligence.images
+        .map((img: any) => typeof img === 'string' ? img : img.image_url || img.url)
+        .filter(Boolean);
+      photos.push(...verifiedPhotos);
+    }
+    
+    // Add community photos if no verification photos
+    if (photos.length === 0 && community?.photos && community.photos.length > 0) {
+      photos.push(...community.photos);
+    }
+    
+    // Remove duplicates
+    return [...new Set(photos)];
+  }, [community?.photos, verificationReport]);
 
   // Navigate away if invalid ID (after all hooks have been called)
   React.useEffect(() => {
@@ -1691,7 +1736,7 @@ export default function CommunityDetail() {
           <div className="space-y-6">
             {/* Main Community Card - Premium Featured Excellence Design */}
             <CommunityDetailsHeader 
-              community={community}
+              community={{...community, photos: allPhotos}}
               verificationReport={verificationReport}
               isVerifying={isVerifying}
               isFavorite={isFavorite}
@@ -1769,22 +1814,6 @@ export default function CommunityDetail() {
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
             
-            {/* Manual Verification Button - ALWAYS AVAILABLE for user control */}
-            {!isVerifying && (
-              <div className="flex justify-center mt-4">
-                <Button
-                  onClick={handleManualVerification}
-                  className={verificationReport 
-                    ? "bg-gray-600 text-white hover:bg-gray-700" 
-                    : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
-                  }
-                  disabled={isVerifying}
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  {verificationReport ? "Refresh Verification" : "Verify Community Data & Photos"}
-                </Button>
-              </div>
-            )}
             
             {/* Loading state for verification */}
             {isVerifying && (
