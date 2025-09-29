@@ -245,8 +245,108 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     );
   }
 
-  // The actual display is handled by LiveWebIntelligence component
-  return <div style={{ display: 'none' }} data-component="competitive-analysis-fetcher" />;
+  // Display the competitive analysis results
+  if (analysis && analysis.extractedCommunities && analysis.extractedCommunities.length > 0) {
+    return (
+      <Card className="mb-8 border-2 border-indigo-200 dark:border-indigo-800">
+        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-xl font-bold flex items-center">
+              <MapPin className="w-6 h-6 mr-2 text-indigo-600" />
+              Competitive Analysis
+            </CardTitle>
+            <Button
+              onClick={() => fetchAnalysis(true)}
+              variant="ghost"
+              size="sm"
+              disabled={isLoading}
+              className="text-xs"
+            >
+              <RefreshCw className="w-4 h-4 mr-1" />
+              {isLoading ? 'Refreshing...' : 'Refresh'}
+            </Button>
+          </div>
+          <CardDescription>
+            Nearby communities in {community.city}, {community.state}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="space-y-4">
+            <div className="grid gap-4">
+              {analysis.extractedCommunities.slice(0, 5).map((comp: any, idx: number) => (
+                <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-base text-gray-900 dark:text-gray-100">
+                        {comp.name}
+                      </h4>
+                      {comp.address && (
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {comp.address}
+                        </p>
+                      )}
+                      {comp.price && (
+                        <p className="text-sm font-medium text-green-700 dark:text-green-400 mt-2">
+                          {comp.price}
+                        </p>
+                      )}
+                      {comp.careTypes && comp.careTypes.length > 0 && (
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          {comp.careTypes.map((type: string, i: number) => (
+                            <Badge key={i} variant="secondary" className="text-xs">
+                              {type}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {comp.distance && (
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 ml-2">
+                        {comp.distance}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Sources */}
+            {analysis.sources && analysis.sources.length > 0 && (
+              <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Data from: {analysis.sources.join(', ')}
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // If there's still a loading state or no data, return the button
+  return (
+    <Card className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-semibold flex items-center">
+            <MapPin className="w-4 h-4 mr-2" />
+            Competitive Analysis
+          </h3>
+          <Button
+            onClick={() => fetchAnalysis(true)}
+            variant="ghost"
+            size="sm"
+            disabled={isLoading}
+            className="text-xs"
+          >
+            <RefreshCw className="w-3 h-3 mr-1" />
+            {isLoading ? 'Loading...' : 'Load Analysis'}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 // Intelligent Pricing Prediction Component
