@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -75,7 +75,7 @@ export function EnhancedPhotoCarousel({
   
   // Get all photos from database and web intelligence  
   const getAllPhotos = () => {
-    const allPhotos = [];
+    const allPhotos: { url: string; source: string; isAuthentic?: boolean }[] = [];
     
     // Helper function to validate and clean URLs
     const isValidPhotoUrl = (url: string): boolean => {
@@ -177,11 +177,16 @@ export function EnhancedPhotoCarousel({
     }
     
     // Remove duplicates
-    const uniquePhotos = Array.from(new Map(allPhotos.map(p => [p.url, p])).values());
+    const uniquePhotos = Array.from(new Map(allPhotos.map(p => [p.url, p])).values()) as typeof allPhotos;
     return uniquePhotos;
   };
   
-  const processedPhotos = getAllPhotos();
+  // Recalculate photos when verificationReport or photoUpdateKey changes
+  const processedPhotos = useMemo(() => {
+    const photos = getAllPhotos();
+    console.log(`📸 Recalculating photos - Found ${photos.length} total photos (key: ${photoUpdateKey})`);
+    return photos;
+  }, [photos, community?.photos, verificationReport, photoUpdateKey]);
 
   // Get photo validation report if validation is enabled and community ID is provided
   const { data: validationReport, isLoading: validationLoading } = useQuery<{
@@ -235,7 +240,7 @@ export function EnhancedPhotoCarousel({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showFullscreen, photos.length]);
+  }, [showFullscreen, processedPhotos.length, currentIndex]);
 
   // Watch for verification report changes and force re-render
   useEffect(() => {
