@@ -908,12 +908,14 @@ export function registerCommunityRoutes(app: Express) {
       // CRITICAL FIX: Use unified cache instead of separate enrichment service
       // This prevents the $0.07 cost spike
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
+      // CRITICAL: Disable API calls from verify endpoint
+      // Only allow manual refresh from photo carousel button, not from verify
       const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
         communityId.toString(),
         community.name,
         `${community.city}, ${community.state}`,
         isFeatured,
-        forceRefresh // Pass forceRefresh through to cache
+        false  // NEVER pass forceRefresh - only photo carousel should trigger API
       );
       
       // Create enrichmentResult from unified cache data

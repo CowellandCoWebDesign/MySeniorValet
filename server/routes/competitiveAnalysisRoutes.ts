@@ -33,11 +33,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
         console.log(`🔍 Using unified cache for ${community.name} to prevent cost spike...`);
         
         try {
-          // Get comprehensive data from unified cache (costs $0.015 total)
+          // CRITICAL: Never force refresh to prevent automatic API calls
+          // Only use existing cached data, return empty if no cache
           const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
             communityId.toString(),
             community.name,
-            `${community.city}, ${community.state}`
+            `${community.city}, ${community.state}`,
+            false,  // not featured
+            false   // NEVER force refresh - prevents all API calls
           );
           
           // Transform unified cache data to competitive analysis format
