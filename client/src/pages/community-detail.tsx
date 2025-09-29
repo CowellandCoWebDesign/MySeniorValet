@@ -368,74 +368,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
     }
   }, [community?.id]);
   
-  // Trigger fresh verification if needed (only if no cached data)
-  useEffect(() => {
-    // Skip if we have cached data
-    if (hasCachedData || localVerificationReport) {
-      console.log(`✅ Using cached verification report, skipping fresh fetch`);
-      return;
-    }
-    
-    // Enable auto-verification with 30-second cooloff
-    const COOLOFF_MS = 30000; // 30 seconds
-    const lastFetchKey = `realtime-verify-last-fetch-${community?.id}`;
-    const lastFetchTime = localStorage.getItem(lastFetchKey);
-    const now = Date.now();
-    
-    // Check if we're within the cooloff period
-    if (lastFetchTime && (now - parseInt(lastFetchTime)) < COOLOFF_MS) {
-      const remainingTime = Math.ceil((COOLOFF_MS - (now - parseInt(lastFetchTime))) / 1000);
-      console.log(`⏱️ RealTimeInsights cooloff active. ${remainingTime}s remaining.`);
-      return;
-    }
-    
-    if (community?.id && !hasStartedVerification && !localVerificationReport) {
-      setHasStartedVerification(true);
-      setIsVerifying(true);
-      
-      // Store the current time to enforce cooloff
-      localStorage.setItem(lastFetchKey, now.toString());
-      
-      // Use enrichment cache to prevent duplicate API calls
-      enrichmentCache.getOrFetch(
-        `verify-${community.id}`,
-        async () => {
-          const response = await fetch(`/api/communities/${community.id}/verify`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ forceRefresh: false })
-          });
-          
-          if (!response.ok) {
-            throw new Error(`Verification failed: ${response.status}`);
-          }
-          
-          return response.json();
-        },
-        false
-      )
-      .then(report => {
-        console.log('Verification report received (from cache or fresh):', report);
-        setLocalVerificationReport(report);
-        // Also update parent state if callback provided
-        if (onVerificationReport) {
-          console.log('Calling onVerificationReport callback with:', report);
-          onVerificationReport(report);
-        }
-        // Update photos if we got any
-        if (report?.verificationResults?.webIntelligence?.images && onPhotosUpdate) {
-          onPhotosUpdate(report.verificationResults.webIntelligence.images);
-        }
-      })
-      .catch(error => {
-        console.error('Verification error:', error);
-        setHasStartedVerification(false); // Allow retry on error
-      })
-      .finally(() => {
-        setIsVerifying(false);
-      });
-    }
-  }, [community?.id, hasCachedData, localVerificationReport]);
+  // REMOVED: Duplicate verification call - RealTimeInsights now uses parent verification data only
+  // The parent component handles all verification calls to prevent API duplication
 
   // Show loading or placeholder content while waiting for data
   const hasData = realTimeData || localVerificationReport;
@@ -1321,49 +1255,35 @@ export default function CommunityDetail() {
     }
   }, [id]);
 
-  // Trigger verification immediately when community loads (with 30-second cooloff)
-  React.useEffect(() => {
-    // Enable auto-verification with 30-second cooloff to prevent refresh spam
-    const COOLOFF_MS = 30000; // 30 seconds
-    const lastFetchKey = `verify-last-fetch-${community?.id}`;
-    const lastFetchTime = localStorage.getItem(lastFetchKey);
-    const now = Date.now();
+  // Manual verification handler - NO AUTO-TRIGGERS to prevent Perplexity costs
+  const handleManualVerification = async () => {
+    if (!community?.id || hasStartedVerification || isVerifying) return;
     
-    // Check if we're within the cooloff period
-    if (lastFetchTime && (now - parseInt(lastFetchTime)) < COOLOFF_MS) {
-      const remainingTime = Math.ceil((COOLOFF_MS - (now - parseInt(lastFetchTime))) / 1000);
-      console.log(`⏱️ Verification cooloff active. ${remainingTime}s remaining before next auto-fetch.`);
-      return;
-    }
+    console.log('🚀 Manual verification triggered for community:', community.name);
+    setHasStartedVerification(true);
+    setIsVerifying(true);
     
-    if (community?.id && !hasStartedVerification && !verificationReport) {
-      console.log('🚀 Starting photo and data verification for community:', community.name);
-      setHasStartedVerification(true);
-      setIsVerifying(true);
-      
-      // Store the current time to enforce cooloff
-      localStorage.setItem(lastFetchKey, now.toString());
-      
-      // Call verification endpoint
-      fetch(`/api/communities/${community.id}/verify`, {
+    try {
+      const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ forceRefresh: false })
-      })
-      .then(res => res.json())
-      .then(report => {
-        console.log('✅ Verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
-        setVerificationReport(report);
-      })
-      .catch(error => {
-        console.error('❌ Verification error:', error);
-        setHasStartedVerification(false); // Allow retry on error
-      })
-      .finally(() => {
-        setIsVerifying(false);
       });
+      
+      if (!response.ok) {
+        throw new Error(`Verification failed: ${response.status}`);
+      }
+      
+      const report = await response.json();
+      console.log('✅ Manual verification complete, photos found:', report?.verificationResults?.webIntelligence?.images?.length || 0);
+      setVerificationReport(report);
+    } catch (error) {
+      console.error('❌ Manual verification error:', error);
+      setHasStartedVerification(false); // Allow retry on error
+    } finally {
+      setIsVerifying(false);
     }
-  }, [community?.id, hasStartedVerification, verificationReport]);
+  };
 
   // Navigate away if invalid ID (after all hooks have been called)
   React.useEffect(() => {
@@ -3084,6 +3004,7 @@ export default function CommunityDetail() {
                   community={community} 
                   onAnalysisUpdate={setMarketAnalysisData}
                   onVerificationReport={setVerificationReport}
+                  autoLoad={false}
                 />
               </TabsContent>
               
