@@ -813,9 +813,43 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                               });
                               
                               if (response.ok) {
-                                // Reload the page to show updated data
-                                window.location.reload();
+                                // Parse the verification response
+                                const verificationData = await response.json();
+                                console.log('✅ Verification complete, updating UI with new data');
+                                
+                                // Update the verification report state
+                                if (verificationData) {
+                                  // Update parent component's verification report
+                                  if (typeof onVerificationReport === 'function') {
+                                    onVerificationReport(verificationData);
+                                  }
+                                  
+                                  // Force refresh the competitive analysis
+                                  // This will be handled by parent component through onVerificationReport
+                                  
+                                  // Invalidate React Query cache to refresh community data
+                                  const { queryClient } = await import('@/lib/queryClient');
+                                  await queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+                                  await queryClient.invalidateQueries({ queryKey: [`/api/community/${community.id}/comprehensive-data`] });
+                                  
+                                  // Show success message
+                                  const foundPhotos = verificationData?.verificationResults?.webIntelligence?.images?.length || 0;
+                                  if (foundPhotos > 0) {
+                                    console.log(`🎉 Found ${foundPhotos} photos from verification`);
+                                  }
+                                  
+                                  // Reset button to show success
+                                  if (button) {
+                                    button.disabled = false;
+                                    button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Updated';
+                                    // Reset to normal state after 3 seconds
+                                    setTimeout(() => {
+                                      button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Retry Search';
+                                    }, 3000);
+                                  }
+                                }
                               } else {
+                                console.error('Verification failed:', response.status);
                                 // Reset button on error
                                 if (button) {
                                   button.disabled = false;
