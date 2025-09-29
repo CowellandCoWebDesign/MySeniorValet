@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
@@ -79,13 +78,15 @@ export default function CommunityDirectory() {
   
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+      // Scroll by card width + gap (400px card + 24px gap)
+      scrollContainerRef.current.scrollBy({ left: -424, behavior: 'smooth' });
     }
   };
   
   const scrollRight = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+      // Scroll by card width + gap (400px card + 24px gap)
+      scrollContainerRef.current.scrollBy({ left: 424, behavior: 'smooth' });
     }
   };
   
@@ -897,31 +898,31 @@ export default function CommunityDirectory() {
           >
             {/* Carousel Container */}
             <div className="relative group">
-              {/* Left Scroll Button */}
+              {/* Left Scroll Button - Always visible on desktop */}
               {canScrollLeft && (
                 <button
                   onClick={scrollLeft}
-                  className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                  className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl md:opacity-100 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-6 h-6 text-indigo-600" />
                 </button>
               )}
 
-              {/* Communities Carousel */}
+              {/* Communities Carousel - Using Featured Excellence Cards */}
               <div 
                 ref={scrollContainerRef}
-                className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+                className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
                 onScroll={checkScrollPosition}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {isLoadingRecent ? (
-                  // Loading skeleton
+                  // Loading skeleton - Updated to match FeaturedExcellenceCard size
                   Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex-shrink-0 w-80">
+                    <div key={i} className="flex-shrink-0 w-[400px]">
                       <div className="bg-white/10 backdrop-blur rounded-xl p-5 animate-pulse border border-white/20">
-                        <div className="h-32 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg mb-4"></div>
-                        <div className="h-5 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-3/4 mb-3"></div>
+                        <div className="h-40 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg mb-4"></div>
+                        <div className="h-6 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-3/4 mb-3"></div>
                         <div className="h-4 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-1/2 mb-3"></div>
                         <div className="flex gap-2 mt-4">
                           <div className="h-8 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full w-24"></div>
@@ -934,20 +935,23 @@ export default function CommunityDirectory() {
                   recentCommunities.map((community: any, index: number) => (
                     <motion.div 
                       key={community.id} 
-                      className="flex-shrink-0 w-80"
+                      className="flex-shrink-0"
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
                       onClick={(e) => {
-                        e.stopPropagation();
-                        setLocation(`/community/${community.id}`);
+                        const target = e.target as HTMLElement;
+                        // Only navigate if not clicking on internal buttons/links
+                        if (!target.closest('button') && !target.closest('a')) {
+                          setLocation(`/community/${community.id}`);
+                        }
                       }}
                     >
-                      <div 
-                        className="bg-white/95 backdrop-blur rounded-xl shadow-xl hover:shadow-2xl transition-shadow duration-300 overflow-hidden cursor-pointer"
-                      >
-                        <EnhancedCommunityCard 
+                      <div className="hover:scale-[1.02] transition-transform duration-300 cursor-pointer">
+                        <FeaturedExcellenceCard 
                           community={community}
+                          compact={true}
+                          disableAutoPhotoLoad={true}
                         />
                       </div>
                     </motion.div>
@@ -959,11 +963,11 @@ export default function CommunityDirectory() {
                 )}
               </div>
 
-              {/* Right Scroll Button */}
+              {/* Right Scroll Button - Always visible on desktop */}
               {canScrollRight && (
                 <button
                   onClick={scrollRight}
-                  className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110"
+                  className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl md:opacity-100 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-6 h-6 text-indigo-600" />
@@ -1898,8 +1902,7 @@ export default function CommunityDirectory() {
                           careTypes: ["Assisted Living", "Memory Care"],
                           description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
                           amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
-                          rating: 4.8,
-                          badge: "👑 Gold Standard"
+                          rating: 4.8
                         }} 
                         index={0} 
                         compact 
@@ -1922,8 +1925,7 @@ export default function CommunityDirectory() {
                           careTypes: ["Assisted Living", "Memory Care"],
                           description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
                           amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
-                          rating: 4.7,
-                          badge: "🌟 Resort Style"
+                          rating: 4.7
                         }} 
                         index={1} 
                         compact 
@@ -1946,8 +1948,7 @@ export default function CommunityDirectory() {
                           careTypes: ["Assisted Living", "Memory Care"],
                           description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
                           amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
-                          rating: 4.6,
-                          badge: "⭐ Featured"
+                          rating: 4.6
                         }} 
                         index={2} 
                         compact 
