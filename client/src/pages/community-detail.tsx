@@ -1689,38 +1689,6 @@ export default function CommunityDetail() {
     return photos;
   };
   
-  // Automatic photo loading when missing - with smart caching
-  useEffect(() => {
-    if (!community || !community.id) return;
-    
-    // Check if community has no photos and no verification is in progress
-    const needsPhotos = (!community.photos || community.photos.length === 0) && 
-                       (!verificationReport || !verificationReport.verificationResults);
-    
-    if (needsPhotos && !isVerifying) {
-      // Check if we've recently attempted to fetch photos (cache for 1 hour)
-      const cacheKey = `photo_fetch_${community.id}`;
-      const lastFetch = sessionStorage.getItem(cacheKey);
-      const oneHour = 60 * 60 * 1000;
-      
-      if (lastFetch && Date.now() - parseInt(lastFetch) < oneHour) {
-        console.log('Skipping photo fetch - recently attempted');
-        return;
-      }
-      
-      console.log('Community lacks photos, automatically fetching...');
-      setIsVerifying(true);
-      sessionStorage.setItem(cacheKey, Date.now().toString());
-      
-      // Use the existing verification mutation to fetch photos
-      verificationMutation.mutate({ 
-        id: community.id,
-        enablePhotoExtraction: true,
-        enableWebIntelligence: true,
-        skipVerification: true // Skip expensive verification, only get photos
-      });
-    }
-  }, [community?.id, community?.photos?.length, verificationReport, isVerifying]);
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
