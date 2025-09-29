@@ -542,7 +542,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
       // Use adaptive timeout: longer for international and service searches
       const isComplexSearch = (isCountrySearch || searchType === 'services' || query.toLowerCase().includes('hotels') || query.toLowerCase().includes('transportation'));
-      const TIMEOUT_MS = isComplexSearch ? 55000 : 30000; // 55s for complex searches, 30s for simple ones
+      const TIMEOUT_MS = 60000; // 60s for all discovery searches to ensure Perplexity has time to respond
       console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for ${isComplexSearch ? 'complex' : 'simple'} search`);
       
       const controller = new AbortController();
