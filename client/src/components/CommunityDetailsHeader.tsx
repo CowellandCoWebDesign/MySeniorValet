@@ -25,6 +25,7 @@ interface CommunityDetailsHeaderProps {
   onTourClick?: () => void;
   onPhotoChange?: (index: number) => void;
   currentPhotoIndex?: number;
+  onStartVerification?: () => void;
 }
 
 export function CommunityDetailsHeader({ 
@@ -39,7 +40,8 @@ export function CommunityDetailsHeader({
   onReserveClick,
   onTourClick,
   onPhotoChange,
-  currentPhotoIndex
+  currentPhotoIndex,
+  onStartVerification
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   
@@ -310,6 +312,7 @@ export function CommunityDetailsHeader({
             currentPhotoIndex={currentPhotoIndex}
             onPhotoIndexChange={onPhotoChange}
             showSourceIndicator={true}
+            onStartVerification={onStartVerification}
           />
         </div>
         

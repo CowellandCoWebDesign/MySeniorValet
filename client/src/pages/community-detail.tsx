@@ -795,85 +795,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                             No public website or additional online information found for this specific community. Contact them directly for the most current information.
                           </p>
                         </div>
-                        <button
-                          onClick={async (event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            try {
-                              // Show loading state
-                              const button = event.currentTarget as HTMLButtonElement;
-                              if (button) {
-                                button.disabled = true;
-                                button.innerHTML = '<svg class="animate-spin h-3 w-3 mx-auto" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>';
-                              }
-                              
-                              // Call verify endpoint with forceRefresh: true
-                              const response = await fetch(`/api/communities/${community.id}/verify`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ forceRefresh: true })
-                              });
-                              
-                              if (response.ok) {
-                                // Parse the verification response
-                                const verificationData = await response.json();
-                                console.log('✅ Verification complete, updating UI with new data');
-                                
-                                // Update the verification report state
-                                if (verificationData) {
-                                  // Update parent component's verification report
-                                  if (typeof onVerificationReport === 'function') {
-                                    onVerificationReport(verificationData);
-                                  }
-                                  
-                                  // Force refresh the competitive analysis
-                                  // This will be handled by parent component through onVerificationReport
-                                  
-                                  // Invalidate React Query cache to refresh community data
-                                  const { queryClient } = await import('@/lib/queryClient');
-                                  await queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
-                                  await queryClient.invalidateQueries({ queryKey: [`/api/community/${community.id}/comprehensive-data`] });
-                                  
-                                  // Show success message
-                                  const foundPhotos = verificationData?.verificationResults?.webIntelligence?.images?.length || 0;
-                                  if (foundPhotos > 0) {
-                                    console.log(`🎉 Found ${foundPhotos} photos from verification`);
-                                  }
-                                  
-                                  // Reset button to show success
-                                  if (button) {
-                                    button.disabled = false;
-                                    button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>Updated';
-                                    // Reset to normal state after 3 seconds
-                                    setTimeout(() => {
-                                      button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Retry Search';
-                                    }, 3000);
-                                  }
-                                }
-                              } else {
-                                console.error('Verification failed:', response.status);
-                                // Reset button on error
-                                const button = event.currentTarget as HTMLButtonElement;
-                                if (button) {
-                                  button.disabled = false;
-                                  button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Retry Search';
-                                }
-                              }
-                            } catch (error) {
-                              console.error('Error refreshing data:', error);
-                              // Reset button on error  
-                              const button = (event as any)?.currentTarget as HTMLButtonElement;
-                              if (button) {
-                                button.disabled = false;
-                                button.innerHTML = '<svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>Retry Search';
-                              }
-                            }
-                          }}
-                          className="ml-4 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-md transition-colors flex items-center gap-1 min-w-[90px]"
-                        >
-                          <RefreshCw className="w-3 h-3" />
-                          Retry Search
-                        </button>
+                        {/* Retry button moved to carousel - removed from here */}
                       </div>
                     </div>
                   );
@@ -1785,6 +1707,11 @@ export default function CommunityDetail() {
               generatePhoneNumber={generatePhoneNumber}
               currentPhotoIndex={currentPhotoIndex}
               onPhotoChange={(index) => setCurrentPhotoIndex(index)}
+              onStartVerification={() => {
+                // This will trigger the parent to update verificationReport
+                // which will then update the carousel photos
+                setVerificationReport(verificationReport);
+              }}
               onReserveClick={() => {
                 // Open reservation dialog directly
                 setShowReservationDialog(true);
