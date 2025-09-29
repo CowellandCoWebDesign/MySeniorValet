@@ -23,6 +23,9 @@ export class PlaywrightPhotoScraper {
    * Initialize browser instance
    */
   private async initBrowser(): Promise<Browser> {
+    // DISABLED: Playwright dependencies not available
+    throw new Error('Playwright browser launch disabled - dependencies not available');
+    /* Original implementation disabled
     if (!this.browser) {
       console.log('🚀 Launching Playwright browser...');
       this.browser = await chromium.launch({
@@ -36,6 +39,7 @@ export class PlaywrightPhotoScraper {
       });
     }
     return this.browser;
+    */
   }
   
   /**
@@ -60,6 +64,10 @@ export class PlaywrightPhotoScraper {
       waitForSelector?: string;
     }
   ): Promise<ScrapedPhoto[]> {
+    // DISABLED: Playwright dependencies not available in production
+    console.log('    ⚠️ Playwright web scraping disabled - dependencies not available');
+    return []; // Return empty array to skip scraping
+    /* Original implementation disabled due to missing dependencies
     const browser = await this.initBrowser();
     const page = await browser.newPage();
     const photos: ScrapedPhoto[] = [];

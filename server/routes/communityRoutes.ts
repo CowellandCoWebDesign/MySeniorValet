@@ -1539,10 +1539,11 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // Trigger on-demand enrichment asynchronously (don't wait for completion)
-      onDemandEnrichmentService.onCommunityView(communityId).catch(error => {
-        console.error(`Failed to trigger enrichment for community ${communityId}:`, error);
-      });
+      // DISABLED: On-demand enrichment to prevent duplicate Perplexity API calls
+      // The community is already enriched via CommunityPhotoEnrichment.enrichCommunityIfNeeded below
+      // onDemandEnrichmentService.onCommunityView(communityId).catch(error => {
+      //   console.error(`Failed to trigger enrichment for community ${communityId}:`, error);
+      // });
 
       // Get reviews for the community
       const communityReviews = await db
@@ -1748,6 +1749,7 @@ Provide specific, factual information with current pricing and availability.`;
       }
 
       // ALWAYS filter photos through enrichment service to remove non-photo content
+      // This is the ONLY enrichment that should happen to avoid duplicate Perplexity calls
       let enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
       
       // If we have real-time photos, combine them with filtered community photos

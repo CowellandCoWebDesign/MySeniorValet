@@ -496,7 +496,8 @@ Be lenient - mark as authentic unless clearly stock photos.`
     const websiteSources: string[] = [];
 
     // Step 1: Use Playwright to scrape photos directly from the official website
-    if (websiteUrl) {
+    // DISABLED: Playwright dependencies not available in production
+    if (websiteUrl && false) { // Disabled Playwright
       console.log('🌐 Step 1: Playwright browser automation for official website...');
       try {
         const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
@@ -548,10 +549,13 @@ Be lenient - mark as authentic unless clearly stock photos.`
           console.log(`  🔍 Checking ${hostname} for community-specific photos...`);
 
           try {
+            // DISABLED: Playwright dependencies not available
+            const scrapedPhotos: any[] = []; // Skip Playwright scraping
+            /* Original Playwright code disabled:
             const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
               citation,
               communityName
-            );
+            ); */
 
             if (scrapedPhotos.length > 0) {
               const siteCandidates = scrapedPhotos.map(photo => ({
@@ -681,7 +685,8 @@ Be lenient - mark as authentic unless clearly stock photos.`
     const websiteSources: string[] = [];
 
     // Step 1: Use Playwright to scrape photos from official website if available
-    if (websiteUrl) {
+    // DISABLED: Playwright dependencies not available in production  
+    if (websiteUrl && false) { // Disabled Playwright
       console.log('🌐 Step 1: Playwright browser automation for official website...');
       try {
         const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
@@ -777,7 +782,9 @@ Be lenient - mark as authentic unless clearly stock photos.`
             directoryCount++;
 
             try {
-              // Use Playwright to scrape photos from this directory page
+              // DISABLED: Playwright dependencies not available
+              const scrapedPhotos: any[] = []; // Skip Playwright scraping
+              /* Original Playwright code disabled:
               const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
                 citation,
                 serviceName,
@@ -786,7 +793,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
                   timeout: 15000, // 15 second timeout per site
                   waitForSelector: this.getDirectoryPhotoSelector(matchedDirectory.name)
                 }
-              );
+              ); */
 
               if (scrapedPhotos.length > 0) {
                 // Map scraped photos to candidates with appropriate confidence
