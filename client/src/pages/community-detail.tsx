@@ -1263,7 +1263,7 @@ export default function CommunityDetail() {
   const handleManualVerification = async () => {
     if (!community?.id || isVerifying) return;
     
-    console.log('🔍 User clicked Search for Photos for:', community.name);
+    console.log('🔍 User clicked Search for Market Data for:', community.name);
     setHasStartedVerification(true);
     setIsVerifying(true);
     
