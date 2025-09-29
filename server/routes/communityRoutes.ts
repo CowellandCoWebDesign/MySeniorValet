@@ -1259,6 +1259,7 @@ export function registerCommunityRoutes(app: Express) {
   });
 
   // Get comprehensive data for community detail page including photos
+  // OPTIMIZED: Only return existing database data without making external API calls
   app.get("/api/community/:id/comprehensive-data", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -1278,9 +1279,9 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      console.log(`📊 Fetching comprehensive data for community ${communityId}: ${community.name}`);
+      console.log(`📊 Fetching comprehensive data from database for community ${communityId}: ${community.name}`);
 
-      // Check if this community is featured (for cache duration)
+      // Check if this community is featured (for additional metadata)
       const [featuredRecord] = await db
         .select()
         .from(featuredCommunities)
@@ -1292,81 +1293,56 @@ export function registerCommunityRoutes(app: Express) {
         )
         .limit(1);
       
-      const isFeatured = featuredRecord ? true : false;
+      // Process photos from database only - NO external API calls
+      let normalizedPhotos = [];
       
-      // Use unified Perplexity cache to get comprehensive data
-      const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      const location = `${community.city}, ${community.state}`;
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
-        communityId.toString(),
-        community.name,
-        location,
-        isFeatured
-      );
-
-      // Ensure photos are properly formatted as strings
-      let normalizedPhotos = comprehensiveData.photos?.map(photo => {
-        if (typeof photo === 'string') return photo;
-        if (typeof photo === 'object' && photo !== null) {
-          return photo.imageUrl || photo.url || photo.src || '';
-        }
-        return '';
-      }).filter(url => url && url.trim() !== '') || [];
-
-      // FALLBACK: If no photos from Perplexity, use database photos
-      if (normalizedPhotos.length === 0) {
-        console.log(`🖼️ No photos from Perplexity, checking database for community ${communityId}`);
-        
-        // Check if community has photos in database
-        if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
-          console.log(`✅ Found ${community.photos.length} photos in database`);
-          normalizedPhotos = community.photos.map(photo => {
-            // Handle various photo formats in database
-            if (typeof photo === 'string') {
-              // If it's already a full URL, use it as-is
-              if (photo.includes('http')) {
-                return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
-              }
-              return photo;
+      // Use existing database photos
+      if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
+        console.log(`✅ Found ${community.photos.length} photos in database`);
+        normalizedPhotos = community.photos.map(photo => {
+          // Handle various photo formats in database
+          if (typeof photo === 'string') {
+            // If it's already a full URL, use it with proxy
+            if (photo.includes('http')) {
+              return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
             }
-            if (typeof photo === 'object' && photo !== null) {
-              const url = photo.url || photo.imageUrl || photo.src || '';
-              if (url && url.includes('http')) {
-                return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-              }
-            }
-            return '';
-          }).filter(url => url && url.trim() !== '');
-        }
-        
-        // If still no photos, try to enrich the community
-        if (normalizedPhotos.length === 0) {
-          console.log(`🔄 No database photos, attempting photo enrichment for ${community.name}`);
-          try {
-            // Use the photo enrichment service
-            const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
-            if (enrichedCommunity.photos && Array.isArray(enrichedCommunity.photos) && enrichedCommunity.photos.length > 0) {
-              console.log(`✅ Photo enrichment found ${enrichedCommunity.photos.length} photos`);
-              normalizedPhotos = enrichedCommunity.photos.map(photo => {
-                if (typeof photo === 'string' && photo.includes('http')) {
-                  return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
-                }
-                return photo;
-              }).filter(url => url && url.trim() !== '');
-              
-              // Update the community in database with new photos
-              await db
-                .update(communities)
-                .set({ photos: enrichedCommunity.photos })
-                .where(eq(communities.id, communityId));
-            }
-          } catch (enrichError) {
-            console.error(`Failed to enrich photos for community ${communityId}:`, enrichError);
+            return photo;
           }
-        }
+          if (typeof photo === 'object' && photo !== null) {
+            const url = photo.url || photo.imageUrl || photo.src || '';
+            if (url && url.includes('http')) {
+              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+            }
+          }
+          return '';
+        }).filter(url => url && url.trim() !== '');
       }
 
-      // Return comprehensive data with normalized photos
+      // Build market data from existing database fields only
+      const marketData = {
+        pricing: community.priceRange || community.rentPerMonth || null,
+        website: community.website || null,
+        phone: community.phone || null,
+        email: community.email || null,
+        availability: community.availabilityStatus || null,
+        description: community.description || null,
+        managementCompany: community.managementCompany || null,
+        virtualTourUrl: community.virtualTourUrl || null
+      };
+
+      // Build analysis data from existing database fields
+      const analysis = {
+        rating: community.rating || null,
+        numberOfReviews: community.numberOfReviews || null,
+        careTypes: community.careTypes || [],
+        amenities: community.amenities || [],
+        features: community.features || [],
+        services: community.services || [],
+        totalUnits: community.totalUnits || null,
+        occupancy: community.occupancy || null
+      };
+
+      // Return comprehensive data using only database information
       res.json({
         communityId,
         name: community.name,
@@ -1374,10 +1350,10 @@ export function registerCommunityRoutes(app: Express) {
         city: community.city,
         state: community.state,
         photos: normalizedPhotos,
-        marketData: comprehensiveData.marketData || null,
-        analysis: comprehensiveData.analysis || null,
-        lastUpdated: comprehensiveData.lastUpdated || new Date().toISOString(),
-        dataSource: normalizedPhotos.length > 0 ? 'Combined Sources' : 'Perplexity AI - Real-time Web Data'
+        marketData,
+        analysis,
+        lastUpdated: community.lastSuccessfulEnrichment || community.lastUpdated || new Date().toISOString(),
+        dataSource: 'Database Cache - No External API Calls'
       });
 
     } catch (error) {

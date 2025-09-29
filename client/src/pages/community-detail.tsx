@@ -1283,21 +1283,22 @@ export default function CommunityDetail() {
     }
   }, [id]);
   
-  // AUTO-VERIFY: Only when community has NO photos (to save API costs)
-  React.useEffect(() => {
-    if (!community || hasStartedVerification || isVerifying || verificationReport) {
-      return;
-    }
-    
-    // Check if community has photos
-    const hasPhotos = community.photos && community.photos.length > 0;
-    
-    // Only auto-verify if NO photos exist
-    if (!hasPhotos) {
-      console.log('🔍 Community has no photos, auto-verifying to find them...');
-      handleManualVerification();
-    }
-  }, [community, hasStartedVerification, isVerifying, verificationReport]);
+  // DISABLED: Auto-verification to prevent duplicate Perplexity API calls
+  // Photos are already being fetched server-side via enrichment
+  // React.useEffect(() => {
+  //   if (!community || hasStartedVerification || isVerifying || verificationReport) {
+  //     return;
+  //   }
+  //   
+  //   // Check if community has photos
+  //   const hasPhotos = community.photos && community.photos.length > 0;
+  //   
+  //   // Only auto-verify if NO photos exist
+  //   if (!hasPhotos) {
+  //     console.log('🔍 Community has no photos, auto-verifying to find them...');
+  //     handleManualVerification();
+  //   }
+  // }, [community, hasStartedVerification, isVerifying, verificationReport]);
 
   // Smart verification handler - only runs when photos are missing
   const handleManualVerification = async () => {
