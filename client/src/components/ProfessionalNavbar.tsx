@@ -149,7 +149,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     resources: [
       { label: "Learn Mode", icon: Brain, href: "/care-guide", emoji: "🧠" },
       { label: "Healthcare", icon: Heart, href: "/hospitals", emoji: "🏥" },
-      { label: "Services", icon: Users, href: "/services", emoji: "👥" },
+      { label: "Services", icon: Users, href: "/senior-services", emoji: "👥" },
       { label: "Resources", icon: BookOpen, href: "/senior-resources", emoji: "📚" },
       { label: "Pricing Guide", icon: DollarSign, href: "/pricing", emoji: "💰" },
     ],
