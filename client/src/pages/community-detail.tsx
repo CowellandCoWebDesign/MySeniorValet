@@ -3175,14 +3175,6 @@ export default function CommunityDetail() {
                   community={community} 
                 />
 
-                {/* Community Competitive Analysis */}
-                <CommunityCompetitiveAnalysis 
-                  key={`competitive-analysis-${community.id}`}
-                  community={community} 
-                  onAnalysisUpdate={setMarketAnalysisData}
-                  onVerificationReport={setVerificationReport}
-                  autoLoad={false}
-                />
               </TabsContent>
               
               {/* Reviews Tab Content - Uses shared comprehensive data */}
