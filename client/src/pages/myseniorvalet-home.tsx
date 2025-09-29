@@ -275,7 +275,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             limit: 50,
             discoveryMode: true  // CRITICAL: This flag tells the backend to actually search the web
           }),
-          signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
+          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
         });
         
         if (response.ok) {
@@ -291,12 +291,21 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           setSearchResults({ results: [], metadata: null });
           return;
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Discovery Mode error:', error);
+        
+        // Provide specific error messages based on error type
+        let errorMessage = "Discovery Mode search failed. Please try again.";
+        if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+          errorMessage = "Discovery Mode search is taking longer than expected. We're searching for new communities across the web - please try again in a moment or try a more specific location.";
+        } else if (error.message?.includes('fetch')) {
+          errorMessage = "Unable to connect to our discovery service. Please check your internet connection and try again.";
+        }
+        
         setSearchResults({ 
           results: [],
           metadata: {
-            aiResponse: "Discovery Mode search timed out or failed. This usually means we're experiencing high demand. Please try again in a moment, or try a simpler search.",
+            aiResponse: errorMessage,
             isResearchMode: false
           }
         });
@@ -361,7 +370,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             searchType: activeTab === 'services' ? 'services' : 'location',
             limit: 50 
           }),
-          signal: AbortSignal.timeout(60000) // 60 second timeout for international searches
+          signal: AbortSignal.timeout(120000) // 120 second timeout for international searches
         });
         
         if (response.ok) {
@@ -408,7 +417,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             limit: 20,
             discoveryMode: true  // Explicitly set Discovery Mode flag
           }),
-          signal: AbortSignal.timeout(60000) // 60 second timeout for Discovery Mode
+          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
         });
 
         if (!response.ok) throw new Error('Discovery search failed');
