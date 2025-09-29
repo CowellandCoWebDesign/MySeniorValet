@@ -3027,6 +3027,35 @@ export default function CommunityDetail() {
                         Live Market Data Available
                       </Badge>
                     )}
+                    
+                    {/* Search for Market Data Button */}
+                    <div className="mt-4">
+                      <Button
+                        onClick={() => {
+                          console.log('🔍 User clicked Search for Market Data for:', community.name);
+                          handleManualVerification();
+                        }}
+                        disabled={isVerifying}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg mx-auto"
+                        variant="default"
+                        size="default"
+                      >
+                        {isVerifying ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            Searching...
+                          </>
+                        ) : (
+                          <>
+                            <Search className="w-4 h-4" />
+                            Search for Market Data & Photos
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
+                        Updates pricing, availability, and photos from official sources
+                      </p>
+                    </div>
                   </CardHeader>
                 </Card>
 
