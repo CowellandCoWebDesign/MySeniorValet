@@ -333,6 +333,7 @@ export class PlaywrightPhotoScraper {
     } finally {
       await page.close();
     }
+    */
   }
   
   /**

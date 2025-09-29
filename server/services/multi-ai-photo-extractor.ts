@@ -781,21 +781,20 @@ Be lenient - mark as authentic unless clearly stock photos.`
             scrapedSources.add(hostname);
             directoryCount++;
 
-            try {
-              // DISABLED: Playwright dependencies not available
-              const scrapedPhotos: any[] = []; // Skip Playwright scraping
-              /* Original Playwright code disabled:
-              const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
-                citation,
-                serviceName,
-                {
-                  maxPhotos: 10, // Limit photos per directory
-                  timeout: 15000, // 15 second timeout per site
-                  waitForSelector: this.getDirectoryPhotoSelector(matchedDirectory.name)
-                }
-              ); */
+            // DISABLED: Playwright dependencies not available
+            const scrapedPhotos: any[] = []; // Skip Playwright scraping
+            /* Original Playwright code disabled:
+            const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+              citation,
+              serviceName,
+              {
+                maxPhotos: 10, // Limit photos per directory
+                timeout: 15000, // 15 second timeout per site
+                waitForSelector: this.getDirectoryPhotoSelector(matchedDirectory.name)
+              }
+            ); */
 
-              if (scrapedPhotos.length > 0) {
+            if (scrapedPhotos.length > 0) {
                 // Map scraped photos to candidates with appropriate confidence
                 const siteCandidates = scrapedPhotos.map(photo => ({
                   url: photo.url,
@@ -808,12 +807,9 @@ Be lenient - mark as authentic unless clearly stock photos.`
                 allPhotoCandidates.push(...siteCandidates);
                 websiteSources.push(citation);
                 console.log(`    ✅ Found ${scrapedPhotos.length} photos from ${matchedDirectory.name}`);
-              } else {
-                console.log(`    ℹ️ No photos found on ${matchedDirectory.name} listing`);
-              }
-            } catch (error) {
-              console.log(`    ⚠️ Could not scrape ${matchedDirectory.name}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-
+            } else {
+              console.log(`    ℹ️ No photos found on ${matchedDirectory.name} listing`);
+              
               // Fallback: Try to extract CDN patterns from the content if scraping fails
               const cdnPhotos = this.extractCDNPhotosFromDirectory(perplexityContent, matchedDirectory.name);
               if (cdnPhotos.length > 0) {
