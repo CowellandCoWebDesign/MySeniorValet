@@ -207,7 +207,8 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
   
   // Don't render anything if there's no analysis and not loading
-  if (!isLoading && !analysis) {
+  // Always show refresh button if autoLoad is disabled or showRefreshButton is set
+  if (!isLoading && !analysis && !showRefreshButton) {
     return null;
   }
 
@@ -217,6 +218,32 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   }
 
   // Return loading state or empty div to ensure data fetching happens
+  // Show refresh button if no analysis data but button should be visible
+  if (!analysis && showRefreshButton) {
+    return (
+      <Card className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-semibold flex items-center">
+              <MapPin className="w-4 h-4 mr-2" />
+              Competitive Analysis
+            </h3>
+            <Button
+              onClick={() => fetchAnalysis(true)}
+              variant="ghost"
+              size="sm"
+              disabled={isLoading}
+              className="text-xs"
+            >
+              <RefreshCw className="w-3 h-3 mr-1" />
+              {isLoading ? 'Loading...' : 'Load Analysis'}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   // The actual display is handled by LiveWebIntelligence component
   return <div style={{ display: 'none' }} data-component="competitive-analysis-fetcher" />;
 };
