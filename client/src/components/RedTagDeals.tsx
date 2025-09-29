@@ -258,6 +258,7 @@ export function RedTagDeals() {
               community={community}
               index={index}
               compact={true}
+              disableAutoPhotoLoad={true}
             />
           );
         })}

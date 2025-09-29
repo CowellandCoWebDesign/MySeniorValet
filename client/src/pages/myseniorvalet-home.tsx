@@ -1306,6 +1306,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                               <FeaturedExcellenceCard
                                 community={item}
                                 index={index}
+                                disableAutoPhotoLoad={true}
                               />
                             )}
                           </motion.div>
