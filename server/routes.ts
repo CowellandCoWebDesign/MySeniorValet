@@ -2180,39 +2180,11 @@ Provide complete business data with ALL actual image URLs found.`;
     }
   });
 
-  // Get comprehensive community data (unified cache)
-  app.get('/api/community/:id/comprehensive-data', async (req, res) => {
-    try {
-      const { id } = req.params;
-      const communityId = parseInt(id);
-
-      // Get community details
-      const [community] = await db
-        .select()
-        .from(schema.communities)
-        .where(eq(schema.communities.id, communityId))
-        .limit(1);
-
-      if (!community) {
-        return res.status(404).json({ error: 'Community not found' });
-      }
-
-      // Get comprehensive data from unified cache
-      const { unifiedPerplexityCache } = await import('./unified-perplexity-cache');
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
-        communityId.toString(),
-        community.name,
-        `${community.city}, ${community.state}`
-      );
-
-      console.log(`📊 Serving comprehensive data for ${community.name} from unified cache`);
-
-      res.json(comprehensiveData);
-    } catch (error) {
-      console.error('Error fetching comprehensive community data:', error);
-      res.status(500).json({ error: 'Failed to fetch comprehensive community data' });
-    }
-  });
+  // DISABLED: Perplexity-backed comprehensive data endpoint to prevent automatic API calls
+  // This endpoint was causing automatic API calls through UnifiedPerplexityCache
+  // Use /api/community/:id/comprehensive-data in communityRoutes.ts instead (database-only)
+  // Disabled to ensure zero automatic API calls on page load
+  // app.get('/api/community/:id/comprehensive-data', async (req, res) => { ... })
 
   // Re-verify community data using AI
   app.post('/api/communities/re-verify', async (req, res) => {

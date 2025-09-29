@@ -76,23 +76,33 @@ class UnifiedPerplexityCache {
     const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
     const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
 
-    // Return cached data if fresh and not forcing refresh
-    if (cached && cached.timestamp > Date.now() - cacheDuration) {
-      // Check if cached data is incomplete (failure detection)
-      const isIncomplete = !cached.data.rawPerplexityContent || 
-                          cached.data.rawPerplexityContent.length < 100 ||
-                          cached.data.rawPerplexityContent.includes('temporarily unavailable');
-      
-      if (isIncomplete) {
-        console.log(`⚠️ Cached data for ${communityName} appears incomplete - will refresh`);
-        this.cache.delete(cacheKey);
-      } else {
-        console.log(`📦 Returning cached data for ${communityName} (saved ${new Date(cached.timestamp).toLocaleString()}, cache: ${cacheLabel})`);
+    // CRITICAL CHANGE: Never auto-refresh data to prevent automatic API calls
+    // Only fetch data when forceRefresh is true (manual user action)
+    if (!forceRefresh) {
+      // Check if we have ANY cached data (regardless of age)
+      if (cached) {
+        console.log(`📦 Returning cached data for ${communityName} (auto-refresh disabled)`);
         return cached.data;
+      } else {
+        // No cached data and not a manual refresh - return empty data
+        console.log(`⚠️ No cached data for ${communityName} - returning empty (auto-fetch disabled)`);
+        return {
+          marketData: {},
+          reviews: {},
+          inspections: {},
+          photos: [],
+          sources: [],
+          timestamp: Date.now(),
+          communityId,
+          communityName,
+          location,
+          rawPerplexityContent: 'No cached data available. Click "Search for Photos" to fetch fresh data.'
+        };
       }
     }
 
-    console.log(`🔍 Fetching comprehensive data for ${communityName} in ${location}`);
+    // Only reaches here if forceRefresh is true (manual user action)
+    console.log(`👤 User-initiated fetch for ${communityName} in ${location}`);
 
     // ONE comprehensive query that gets EVERYTHING
     const comprehensiveQuery = `
@@ -135,10 +145,10 @@ Format all information clearly with section headers.
 `;
 
     try {
-      // Make ONE comprehensive API call with structured output
+      // Make ONE comprehensive API call (only when user manually requests)
       const response = await this.perplexityService.searchRealTime(
         comprehensiveQuery,
-        `Comprehensive data for ${communityName}`
+        `User-requested data for ${communityName}`
       );
 
       // Parse and structure the comprehensive response
