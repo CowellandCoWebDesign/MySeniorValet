@@ -1742,16 +1742,19 @@ export default function CommunityDetail() {
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
             
-            {/* Manual Verification Button - ONLY if no verification report exists */}
-            {!verificationReport && !isVerifying && (
+            {/* Manual Verification Button - ALWAYS AVAILABLE for user control */}
+            {!isVerifying && (
               <div className="flex justify-center mt-4">
                 <Button
                   onClick={handleManualVerification}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                  className={verificationReport 
+                    ? "bg-gray-600 text-white hover:bg-gray-700" 
+                    : "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700"
+                  }
                   disabled={isVerifying}
                 >
                   <RefreshCw className="w-4 h-4 mr-2" />
-                  Verify Community Data & Photos
+                  {verificationReport ? "Refresh Verification" : "Verify Community Data & Photos"}
                 </Button>
               </div>
             )}
