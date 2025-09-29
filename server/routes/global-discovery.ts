@@ -173,24 +173,30 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             isDiscovered: false
           }));
           
-          // Return service results immediately
-          return res.json({
-            success: true,
-            query: query,
-            searchType: 'services',
-            results: formattedServiceResults.slice(0, limit),
-            metadata: {
-              totalFound: serviceResults.length,
-              existingCount: serviceResults.length,
-              discoveredCount: 0,
-              sources: ['Database'],
-              searchLocation: query,
-              timestamp: new Date().toISOString(),
-              aiConfidence: 100,
-              dataSource: 'Services Database'
-            },
-            message: `Found ${serviceResults.length} services in database`
-          });
+          // Check if we're in Discovery Mode
+          const isDiscoveryMode = req.body.discoveryMode === true;
+          
+          // If NOT in Discovery Mode OR we have enough results, return them
+          if (!isDiscoveryMode || serviceResults.length >= 10) {
+            return res.json({
+              success: true,
+              query: query,
+              searchType: 'services',
+              results: formattedServiceResults.slice(0, limit),
+              metadata: {
+                totalFound: serviceResults.length,
+                existingCount: serviceResults.length,
+                discoveredCount: 0,
+                sources: ['Database'],
+                searchLocation: query,
+                timestamp: new Date().toISOString(),
+                aiConfidence: 100,
+                dataSource: 'Services Database'
+              },
+              message: `Found ${serviceResults.length} services in database`
+            });
+          }
+          // Otherwise, continue to web search if in Discovery Mode with few/no results
         }
         // If we didn't find enough results with exact match, fall back to expanded search
         if (serviceResults.length === 0) {
