@@ -280,6 +280,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         if (response.ok) {
           const data = await response.json();
+          // Clear loading state first to remove loading modal
+          setIsLoading(false);
+          setSearchResults({ results: [], metadata: null });
+          // Then set results and show the modal
           setGlobalDiscoveryResults({
             query,
             results: data.results || [],
@@ -287,8 +291,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           });
           setForceClearAutocomplete(true);
           setShowGlobalDiscoveryModal(true);
-          setIsLoading(false);
-          setSearchResults({ results: [], metadata: null });
           return;
         }
       } catch (error: any) {
@@ -376,6 +378,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         if (response.ok) {
           const data = await response.json();
           if (data.results && data.results.length > 0) {
+            // Clear loading state first
+            setIsLoading(false);
+            setSearchResults({ results: [], metadata: null });
+            // Then set results and show modal
             setGlobalDiscoveryResults({
               query,
               results: data.results,
@@ -383,7 +389,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             });
             setForceClearAutocomplete(true);
             setShowGlobalDiscoveryModal(true);
-            setIsLoading(false);
             return;
           }
         }
@@ -426,6 +431,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         // Show discovered facilities in modal
         if (data.results && data.results.length > 0) {
+          // Clear loading state first
+          setIsLoading(false);
+          setSearchResults({ results: [], metadata: null });
+          // Then set results and show modal
           setGlobalDiscoveryResults({
             query,
             results: data.results,
