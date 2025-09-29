@@ -1261,9 +1261,9 @@ export default function CommunityDetail() {
 
   // Smart verification handler - only runs when photos are missing
   const handleManualVerification = async () => {
-    if (!community?.id || hasStartedVerification || isVerifying) return;
+    if (!community?.id || isVerifying) return;
     
-    console.log('🚀 Auto-verification for community without photos:', community.name);
+    console.log('🔍 User clicked Search for Photos for:', community.name);
     setHasStartedVerification(true);
     setIsVerifying(true);
     
@@ -1271,7 +1271,7 @@ export default function CommunityDetail() {
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: false })
+        body: JSON.stringify({ forceRefresh: true })  // MUST be true for manual search
       });
       
       if (!response.ok) {
@@ -1708,9 +1708,8 @@ export default function CommunityDetail() {
               currentPhotoIndex={currentPhotoIndex}
               onPhotoChange={(index) => setCurrentPhotoIndex(index)}
               onStartVerification={() => {
-                // This will trigger the parent to update verificationReport
-                // which will then update the carousel photos
-                setVerificationReport(verificationReport);
+                // Call the manual verification handler to search for photos
+                handleManualVerification();
               }}
               onReserveClick={() => {
                 // Open reservation dialog directly
