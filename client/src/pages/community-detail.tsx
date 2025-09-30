@@ -350,30 +350,11 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
 };
 
 // Intelligent Pricing Prediction Component
-const IntelligentPricingPrediction = ({ community }: { community: any }) => {
-  const [prediction, setPrediction] = React.useState<any>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
+const IntelligentPricingPrediction = ({ community, verificationReport }: { community: any, verificationReport?: any }) => {
+  // Get pricing prediction from verification report instead of making separate API call
+  const prediction = verificationReport?.pricingPrediction || null;
   
-  React.useEffect(() => {
-    // Only fetch prediction if no verified pricing exists
-    if (community && !community.livePricing && !community.rentPerMonth && 
-        !community.priceRange && !community.monthlyRentRangeStart) {
-      setIsLoading(true);
-      
-      fetch(`/api/communities/${community.id}/pricing-prediction`)
-        .then(res => res.json())
-        .then(data => {
-          setPrediction(data);
-        })
-        .catch(error => {
-          // Silently handle error in production
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, [community]);
-  
+  // Don't show if we have verified pricing or no prediction data
   if (!prediction?.prediction || community?.livePricing || community?.rentPerMonth) {
     return null;
   }
@@ -390,13 +371,7 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
-        {isLoading ? (
-          <div className="flex items-center justify-center py-4">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600" />
-            <p className="ml-3 text-purple-700">Analyzing market data...</p>
-          </div>
-        ) : (
-          <div className="space-y-4">
+        <div className="space-y-4">
             {/* Predicted Price Range */}
             <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
               <div className="flex items-center justify-between mb-2">
@@ -452,7 +427,6 @@ const IntelligentPricingPrediction = ({ community }: { community: any }) => {
               </div>
             </div>
           </div>
-        )}
       </CardContent>
     </Card>
   );
@@ -3216,10 +3190,11 @@ export default function CommunityDetail() {
                   verificationReport={verificationReport}
                 />
 
-                {/* Intelligent Pricing Prediction */}
+                {/* Intelligent Pricing Prediction - Now uses data from verification report */}
                 <IntelligentPricingPrediction 
                   key={`pricing-prediction-${community.id}`}
-                  community={community} 
+                  community={community}
+                  verificationReport={verificationReport}
                 />
 
               </TabsContent>
