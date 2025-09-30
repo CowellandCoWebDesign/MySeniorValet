@@ -1517,110 +1517,210 @@ export default function MySeniorValetHome() {
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
-  const [selectedCareType, setSelectedCareType] = useState(2); // Start with 55+ selected
+  const [selectedCareType, setSelectedCareType] = useState(7); // Start with Active Adult 55+ selected
   const [touchStartX, setTouchStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   
   const careTypes = [
     { 
       id: 'hud', 
-      name: 'HUD', 
+      name: 'HUD Section 202', 
       icon: Building2, 
       color: 'bg-green-500', 
-      description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.',
+      description: 'Government-subsidized housing for very low-income seniors (50% AMI), offering rent at 30% of income with verified pricing.',
       details: 'Income-based rent • Federal oversight • Accessibility features',
-      avgCost: '$300-900/month',
-      keyFeatures: ['Income-based rent (30% of income)', 'Government subsidized', 'Accessible units available']
+      avgCost: '30% of income',
+      keyFeatures: ['Income limit: 50% AMI', 'Residents pay only 30% of income', 'Long waiting lists']
+    },
+    {
+      id: 'section811',
+      name: 'Section 811',
+      icon: Shield,
+      color: 'bg-emerald-600',
+      description: 'HUD\'s ONLY program specifically for disabled persons under 62, providing affordable accessible housing with support services.',
+      details: 'Disability housing • Support services • Accessibility',
+      avgCost: '30% of income',
+      keyFeatures: ['For disabled under 62', 'Accessible units', 'Support services included']
+    },
+    {
+      id: 'section8',
+      name: 'Section 8',
+      icon: Home,
+      color: 'bg-lime-600',
+      description: 'Housing Choice Vouchers allow seniors to rent from private landlords with government paying 70% of rent.',
+      details: 'Rent vouchers • Private landlords • Portable benefits',
+      avgCost: '30% of income',
+      keyFeatures: ['Choose any approved housing', 'Government pays 70%', 'Portable vouchers']
     },
     { 
-      id: 'va', 
-      name: 'VA', 
-      icon: Shield, 
-      color: 'bg-purple-600', 
-      description: 'Veterans Affairs communities providing specialized care and benefits for military veterans and their spouses.',
-      details: 'Military benefits • Medical services • Honor programs',
-      avgCost: 'Varies by service connection',
-      keyFeatures: ['Veterans benefits', 'Specialized medical care', 'Service-connected priority']
+      id: 'senior-apartments',
+      name: 'Senior Apartments',
+      icon: Building,
+      color: 'bg-sky-600',
+      description: 'Age-restricted affordable apartment buildings for seniors 55+ or 62+, often with income limits.',
+      details: 'Affordable rentals • Age-restricted • Community amenities',
+      avgCost: '$800-2,000/month',
+      keyFeatures: ['Age 55+ or 62+', 'Income qualified', 'Maintenance-free living']
     },
     { 
       id: 'mobile', 
-      name: 'RV & Mobile', 
+      name: 'Mobile/RV Parks', 
       icon: Truck, 
       color: 'bg-orange-500', 
-      description: 'Senior RV and mobile parks offering flexible living for adventurous retirees who enjoy travel and community amenities.',
+      description: 'Senior mobile home and RV communities where residents own their home but lease the land.',
       details: 'Lot rent • Community amenities • Flexible lifestyle',
-      avgCost: '$400-1,200/month lot rent',
+      avgCost: '$300-1,200/month lot',
       keyFeatures: ['Own your home', 'Community lifestyle', 'Lower maintenance costs']
+    },
+    {
+      id: 'cooperative',
+      name: 'Co-op Housing',
+      icon: Users,
+      color: 'bg-violet-600',
+      description: 'Cooperative senior housing where members own shares and participate in community decisions.',
+      details: 'Member-owned • Shared costs • Democratic control',
+      avgCost: '$600-1,500/month',
+      keyFeatures: ['Own shares not unit', 'Vote on decisions', 'Shared maintenance']
+    },
+    {
+      id: 'shared-housing',
+      name: 'Shared Housing',
+      icon: HeartHandshake,
+      color: 'bg-rose-600',
+      description: 'Home-sharing programs matching seniors as roommates to reduce costs and combat isolation.',
+      details: 'Roommate matching • Cost sharing • Companionship',
+      avgCost: '$400-800/month',
+      keyFeatures: ['Split living costs', 'Background checks', 'Combat loneliness']
     },
     { 
       id: '55plus', 
-      name: '55+', 
+      name: 'Active Adult 55+', 
       icon: Flag, 
       color: 'bg-pink-600', 
-      description: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities.',
+      description: 'Resort-style ownership communities for active adults 55+, with golf courses and luxury amenities.',
       details: 'Active lifestyle • Social programs • Age-restricted',
-      avgCost: '$1,500-3,500/month',
-      keyFeatures: ['Age 55+ requirement', 'Active lifestyle focus', 'Golf, pools, activities']
+      avgCost: 'HOA $99-800/month',
+      keyFeatures: ['Home ownership', 'Resort amenities', 'Golf, pools, activities']
+    },
+    {
+      id: 'disability-centers',
+      name: 'Disability Centers',
+      icon: Heart,
+      color: 'bg-amber-600',
+      description: 'Centers for Independent Living and Action Centers helping disabled seniors find housing and services.',
+      details: 'Resource centers • Advocacy • Housing assistance',
+      avgCost: 'Free services',
+      keyFeatures: ['Run by disabled people', 'Housing navigation', 'Benefits assistance']
     },
     { 
       id: 'independent', 
-      name: 'Independent', 
+      name: 'Independent Living', 
       icon: Home, 
       color: 'bg-blue-600', 
-      description: 'Senior apartments and communities for those who can live independently with minimal assistance and optional services.',
+      description: 'Senior rental communities with meals and services for those who don\'t need daily care.',
       details: 'Self-sufficient living • Optional services • Social activities',
-      avgCost: '$2,000-4,500/month',
-      keyFeatures: ['Full kitchen & bath', 'Maintenance-free', 'Social activities included']
+      avgCost: '$3,065-3,145/month',
+      keyFeatures: ['Meals included', 'Maintenance-free', 'Social activities']
+    },
+    {
+      id: 'adult-day',
+      name: 'Adult Day Centers',
+      icon: Clock,
+      color: 'bg-yellow-600',
+      description: 'Daytime care programs providing activities, meals, and supervision while caregivers work.',
+      details: 'Daytime only • Activities • Caregiver respite',
+      avgCost: '$80-120/day',
+      keyFeatures: ['Weekday programs', 'Social activities', 'Caregiver relief']
     },
     { 
       id: 'residential', 
-      name: 'Residential Care', 
+      name: 'Personal Care Homes', 
       icon: Building, 
       color: 'bg-purple-700', 
-      description: 'Small, privately-run homes with 6-10 beds offering personalized care in a family-like residential setting.',
+      description: 'Small residential homes limited to 6-10 residents by state regulations, offering personalized care.',
       details: 'Home-like setting • Personal care • Small group living',
-      avgCost: '$3,000-5,500/month',
-      keyFeatures: ['6-10 residents only', 'Family atmosphere', 'Personalized attention']
+      avgCost: '$2,500-5,000/month',
+      keyFeatures: ['6-10 residents only', 'Family atmosphere', 'High staff ratios']
+    },
+    {
+      id: 'foster-care',
+      name: 'Adult Foster Care',
+      icon: Heart,
+      color: 'bg-indigo-700',
+      description: 'Licensed private homes providing care for 1-5 adults who need assistance with daily living.',
+      details: 'Private home care • Very small setting • Family environment',
+      avgCost: '$2,000-4,000/month',
+      keyFeatures: ['1-5 residents', 'Family home setting', 'Personalized care']
     },
     { 
       id: 'assisted', 
-      name: 'Assisted', 
+      name: 'Assisted Living', 
       icon: HeartHandshake, 
       color: 'bg-cyan-600', 
-      description: 'Communities providing help with daily activities like bathing, dressing, and medication management.',
+      description: 'Communities providing help with activities of daily living (ADLs) with 24-hour staffing.',
       details: 'ADL assistance • Medication management • 24/7 staff',
-      avgCost: '$4,500-7,000/month',
+      avgCost: '$5,190-6,129/month',
       keyFeatures: ['Help with daily tasks', 'Medication management', '24-hour staffing']
     },
     { 
       id: 'memory', 
-      name: 'Memory', 
+      name: 'Memory Care', 
       icon: Brain, 
       color: 'bg-red-600', 
-      description: 'Specialized secure environments for those with Alzheimer\'s, dementia, and other memory-related conditions.',
+      description: 'Secure specialized care for Alzheimer\'s and dementia with wandering prevention systems.',
       details: 'Secure environment • Specialized programs • Expert staff',
-      avgCost: '$5,500-9,000/month',
-      keyFeatures: ['Secure unit', 'Memory care certified', 'Specialized activities']
+      avgCost: '$6,450-7,292/month',
+      keyFeatures: ['Secure unit', 'Dementia certified', 'Specialized activities']
     },
-    { 
-      id: 'ccrc', 
-      name: 'CCRC', 
-      icon: RefreshCw, 
-      color: 'bg-indigo-600', 
-      description: 'Continuing Care Retirement Communities offering all levels of care from independent to skilled nursing in one location.',
-      details: 'Lifetime care • Multiple levels • Single campus',
-      avgCost: 'Entry: $100K-500K + Monthly',
-      keyFeatures: ['All care levels', 'Age in place', 'Healthcare guarantee']
+    {
+      id: 'respite',
+      name: 'Respite Care',
+      icon: RefreshCw,
+      color: 'bg-teal-700',
+      description: 'Short-term temporary care giving family caregivers a break from caregiving duties.',
+      details: 'Short-term stays • Caregiver relief • Trial periods',
+      avgCost: '$150-500/day',
+      keyFeatures: ['Few days to weeks', 'Caregiver vacation', 'Try before moving']
     },
     { 
       id: 'skilled', 
-      name: 'Skilled', 
+      name: 'Skilled Nursing', 
       icon: Stethoscope, 
       color: 'bg-teal-600', 
-      description: '24-hour medical care and rehabilitation services provided by licensed nurses and healthcare professionals.',
+      description: '24-hour medical care and rehabilitation. Medicare covers first 20 days, then $209.50/day copay.',
       details: '24/7 nursing • Rehab services • Medical equipment',
-      avgCost: '$8,000-12,000/month',
-      keyFeatures: ['24-hour nursing', 'Physical therapy', 'Complex medical needs']
+      avgCost: '$9,555-10,965/month',
+      keyFeatures: ['Medicare coverage', 'Physical therapy', 'Complex medical']
+    },
+    {
+      id: 'hospice',
+      name: 'Hospice Care',
+      icon: Heart,
+      color: 'bg-gray-600',
+      description: 'End-of-life comfort care focusing on quality of life, pain management, and family support.',
+      details: 'Comfort care • Pain management • Family support',
+      avgCost: 'Medicare covered',
+      keyFeatures: ['Medicare/Medicaid covered', 'Comfort focused', 'Family support']
+    },
+    { 
+      id: 'ccrc', 
+      name: 'CCRC/Life Plan', 
+      icon: RefreshCw, 
+      color: 'bg-indigo-600', 
+      description: 'Continuing Care Retirement Communities with all levels on one campus.',
+      details: 'Lifetime care • Multiple levels • Single campus',
+      avgCost: 'Entry $300K + $3,747/mo',
+      keyFeatures: ['All care levels', 'Age in place', 'Healthcare guarantee']
+    },
+    { 
+      id: 'va', 
+      name: 'VA Homes', 
+      icon: Shield, 
+      color: 'bg-purple-600', 
+      description: 'Veterans Affairs facilities providing specialized care for military veterans and spouses.',
+      details: 'Military benefits • Medical services • Honor programs',
+      avgCost: 'Service-connected',
+      keyFeatures: ['Veterans priority', 'Specialized care', 'Honor programs']
     }
   ];
   
@@ -2121,7 +2221,7 @@ export default function MySeniorValetHome() {
 
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 20+ COMPREHENSIVE HOUSING OPTIONS</p>
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
                       {careTypes.map((careType, index) => {
                         const Icon = careType.icon;
