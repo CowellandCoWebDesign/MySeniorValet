@@ -2236,8 +2236,10 @@ export default function MySeniorValetHome() {
                               key={careType.id}
                               data-testid={`care-type-${careType.id}`}
                               className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
-                              onClick={() => {
-                                // Navigate to community directory - the main search page
+                              onClick={(e) => {
+                                // Stop event from bubbling to parent card
+                                e.stopPropagation();
+                                // Navigate to community directory with search for this care type
                                 window.location.href = `/community-directory?search=${encodeURIComponent(careType.name)}`;
                               }}
                             >
