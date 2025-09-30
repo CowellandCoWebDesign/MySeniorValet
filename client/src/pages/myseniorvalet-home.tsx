@@ -2222,24 +2222,35 @@ export default function MySeniorValetHome() {
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 20+ COMPREHENSIVE HOUSING OPTIONS</p>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                      {careTypes.map((careType, index) => {
-                        const Icon = careType.icon;
-                        return (
-                          <div
-                            key={careType.id}
-                            className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
-                            onClick={() => setLocation(`/care-types/${careType.id}`)}
-                          >
-                            <div className="flex flex-col items-center">
-                              <Icon className="w-8 h-8 text-white mb-1" />
-                              <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
-                              <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                    <div className="relative">
+                      {/* Scroll indicator - left */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-blue-100 to-transparent dark:from-blue-900/20 w-8 h-full pointer-events-none" />
+                      {/* Scroll indicator - right */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-l from-indigo-100 to-transparent dark:from-indigo-900/20 w-8 h-full pointer-events-none" />
+                      
+                      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
+                        {careTypes.map((careType, index) => {
+                          const Icon = careType.icon;
+                          return (
+                            <div
+                              key={careType.id}
+                              data-testid={`care-type-${careType.id}`}
+                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
+                              onClick={() => setLocation(`/care-types/${careType.id}`)}
+                            >
+                              <div className="flex flex-col items-center">
+                                <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
+                                <p className="text-[10px] sm:text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                                <p className="text-[8px] sm:text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-2 italic">
+                      ← Swipe to explore all housing options →
+                    </p>
                   </div>
 
                   <Button 
