@@ -2124,7 +2124,7 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Discover and compare senior living communities worldwide. Our AI-powered system specializes in finding assisted living, memory care, independent living, and nursing homes globally. From retirement communities in California to senior residences in France, access transparent pricing and authentic reviews for senior care facilities anywhere.
+                    Discover and compare 20+ types of senior housing worldwide. Our AI-powered system finds HUD/Section 8/202/811 housing, senior apartments, disability centers, 55+ communities, mobile/RV parks, co-op housing, shared housing, adult day centers, foster care, personal care homes, assisted living, memory care, skilled nursing, hospice, CCRCs, and VA facilities. Access transparent pricing and authentic reviews for ALL senior housing options anywhere.
                   </p>
 
                   {/* Community count matching other cards */}
