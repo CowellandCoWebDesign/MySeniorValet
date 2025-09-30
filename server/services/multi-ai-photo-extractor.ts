@@ -1,5 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { playwrightPhotoScraper } from './playwright-photo-scraper';
+import { CheerioPhotoScraper } from './cheerio-photo-scraper';
+
+const cheerioPhotoScraper = new CheerioPhotoScraper();
 
 /**
  * Enhanced Photo Extraction Service
@@ -885,12 +888,11 @@ Be lenient - mark as authentic unless clearly stock photos.`
     let allPhotoCandidates: PhotoCandidate[] = [];
     const websiteSources: string[] = [];
 
-    // Step 1: Use Playwright to scrape photos from official website if available
-    // DISABLED: Playwright dependencies not available in production  
-    if (websiteUrl && false) { // Disabled Playwright
-      console.log('🌐 Step 1: Playwright browser automation for official website...');
+    // Step 1: Use Cheerio to scrape photos from official website if available
+    if (websiteUrl) {
+      console.log('🌐 Step 1: Cheerio web scraping for official website...');
       try {
-        const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+        const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
           websiteUrl,
           serviceName
         );
@@ -905,19 +907,19 @@ Be lenient - mark as authentic unless clearly stock photos.`
         }
 
         // Convert scraped photos to candidates
-        const playwrightCandidates = scrapedPhotos.map(photo => ({
+        const cheerioCandidates = scrapedPhotos.map(photo => ({
           url: photo.url,
           source: websiteName,
-          confidence: photo.isGallery ? 0.95 : 0.85,
+          confidence: 0.90,
           isAuthentic: true,
-          reason: `Direct from ${photo.isGallery ? 'photo gallery' : 'website'}`
+          reason: `Direct from ${websiteName}`
         }));
 
-        allPhotoCandidates.push(...playwrightCandidates);
+        allPhotoCandidates.push(...cheerioCandidates);
         websiteSources.push(websiteUrl);
-        console.log(`  ✅ Found ${playwrightCandidates.length} photos from ${websiteName}`);
+        console.log(`  ✅ Found ${cheerioCandidates.length} photos from ${websiteName}`);
       } catch (error) {
-        console.error('Playwright scraping failed (will continue with other methods):', error);
+        console.error('Cheerio scraping failed (will continue with other methods):', error);
       }
     }
 
@@ -982,18 +984,15 @@ Be lenient - mark as authentic unless clearly stock photos.`
             scrapedSources.add(hostname);
             directoryCount++;
 
-            // DISABLED: Playwright dependencies not available
-            const scrapedPhotos: any[] = []; // Skip Playwright scraping
-            /* Original Playwright code disabled:
-            const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+            // Use Cheerio to scrape photos from the directory site
+            const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
               citation,
               serviceName,
               {
                 maxPhotos: 10, // Limit photos per directory
-                timeout: 15000, // 15 second timeout per site
-                waitForSelector: this.getDirectoryPhotoSelector(matchedDirectory.name)
+                timeout: 15000 // 15 second timeout per site
               }
-            ); */
+            );
 
             if (scrapedPhotos.length > 0) {
                 // Map scraped photos to candidates with appropriate confidence

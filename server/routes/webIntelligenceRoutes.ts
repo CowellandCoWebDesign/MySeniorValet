@@ -1044,12 +1044,70 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
       }
     }
     
-    // Step 2: Search for the service on review sites and extract photos
+    // Step 2: If no photos from website, use Perplexity as fallback
+    if (photos.length < 3) {
+      try {
+        console.log(`🔍 Using Perplexity fallback to search for service photos...`);
+        
+        // Use Perplexity to search for the service and extract photo URLs
+        const perplexityQuery = `"${name}" ${city} ${state || ''} photos images gallery`;
+        const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+        
+        if (perplexityApiKey) {
+          const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${perplexityApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'sonar',
+              messages: [
+                {
+                  role: 'user',
+                  content: `Find photos and images of ${name} in ${city}, ${state || ''}. Include URLs to photos from review sites, social media, and the business website.`
+                }
+              ],
+              web_search_options: {
+                search_context_size: 'low'
+              },
+              max_tokens: 1000
+            })
+          });
+          
+          if (perplexityResponse.ok) {
+            const perplexityData = await perplexityResponse.json();
+            const content = perplexityData.choices?.[0]?.message?.content || '';
+            
+            // Extract image URLs from the Perplexity response
+            const imageUrlPattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
+            const foundUrls = content.match(imageUrlPattern) || [];
+            
+            // Also check for images in citations
+            const citations = perplexityData.citations || [];
+            
+            // Filter and add unique photos
+            const perplexityPhotos = foundUrls.filter((url: string) => !photos.includes(url));
+            photos.push(...perplexityPhotos.slice(0, 10)); // Limit to 10 photos from Perplexity
+            
+            if (perplexityPhotos.length > 0) {
+              photoSources['perplexity_search'] = perplexityPhotos.length;
+              sources.push('Perplexity Search');
+              console.log(`✅ Found ${perplexityPhotos.length} photos from Perplexity search`);
+            }
+          }
+        }
+      } catch (perplexityError) {
+        console.error(`Perplexity fallback failed:`, perplexityError);
+      }
+    }
+    
+    // Step 3: Try to scrape from review sites if we still need photos
     if (photos.length < 3) {
       try {
         // Build search query for review sites
         const searchQuery = `"${name}" ${city} ${state || ''} yelp tripadvisor opentable photos reviews`;
-        console.log(`🔍 Searching for service photos on review sites...`);
+        console.log(`🔍 Attempting MultiAIPhotoExtractor for additional photos...`);
         
         // Try to find photos from review sites using MultiAIPhotoExtractor
         const reviewSitePhotos = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
@@ -1087,7 +1145,7 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
       }
     }
     
-    // Step 3: If still no photos, try a broader search
+    // Step 4: If still no photos, try a broader search
     if (photos.length === 0) {
       try {
         console.log(`🔍 Attempting broader photo search for ${name}...`);
