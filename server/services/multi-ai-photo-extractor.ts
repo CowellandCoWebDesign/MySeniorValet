@@ -496,6 +496,49 @@ Be lenient - mark as authentic unless clearly stock photos.`
     // Extract photos from Perplexity content (fast)
     let quickPhotos = this.extractPhotosFromContent(perplexityContent, communityName);
     
+    // If no website URL provided, try to extract directory URLs from content
+    if (!websiteUrl && perplexityContent) {
+      const directoryPatterns = [
+        /https:\/\/www\.caring\.com\/senior-living[^\s<>"']*/gi,
+        /https:\/\/www\.seniorly\.com\/assisted-living[^\s<>"']*/gi,
+        /https:\/\/www\.aplaceformom\.com\/community[^\s<>"']*/gi,
+        /https:\/\/www\.seniorhousingnet\.com\/seniorliving-detail[^\s<>"']*/gi
+      ];
+      
+      for (const pattern of directoryPatterns) {
+        const matches = perplexityContent.match(pattern);
+        if (matches && matches.length > 0) {
+          websiteUrl = matches[0];
+          console.log(`🔍 Using directory URL from content: ${websiteUrl}`);
+          break;
+        }
+      }
+    }
+    
+    // If we have a website URL (either provided or extracted), try HTML fetch
+    if (websiteUrl) {
+      try {
+        // Fetch the HTML content
+        const response = await fetch(websiteUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        });
+        
+        if (response.ok) {
+          const htmlContent = await response.text();
+          // Extract photos from the HTML content
+          const htmlPhotos = this.extractPhotosFromContent(htmlContent, communityName);
+          if (htmlPhotos.length > 0) {
+            quickPhotos = [...quickPhotos, ...htmlPhotos];
+            console.log(`📸 Extracted ${htmlPhotos.length} photo candidates from HTML content`);
+          }
+        }
+      } catch (error) {
+        console.log(`⚠️ Could not fetch HTML for quick extraction: ${error.message}`);
+      }
+    }
+    
     // Return quick results immediately
     const quickResult: PhotoExtractionResult = {
       authenticPhotos: quickPhotos.filter(p => p.isAuthentic).slice(0, 10),
@@ -528,6 +571,25 @@ Be lenient - mark as authentic unless clearly stock photos.`
     }
 
     console.log(`🔍 High-quality photo extraction for ${communityName} (Stage 2)`);
+
+    // If no website URL provided, try to extract directory URLs from content
+    if (!websiteUrl && perplexityContent) {
+      const directoryPatterns = [
+        /https:\/\/www\.caring\.com\/senior-living[^\s<>"']*/gi,
+        /https:\/\/www\.seniorly\.com\/assisted-living[^\s<>"']*/gi,
+        /https:\/\/www\.aplaceformom\.com\/community[^\s<>"']*/gi,
+        /https:\/\/www\.seniorhousingnet\.com\/seniorliving-detail[^\s<>"']*/gi
+      ];
+      
+      for (const pattern of directoryPatterns) {
+        const matches = perplexityContent.match(pattern);
+        if (matches && matches.length > 0) {
+          websiteUrl = matches[0];
+          console.log(`🔍 Using directory URL for high-quality extraction: ${websiteUrl}`);
+          break;
+        }
+      }
+    }
 
     let allPhotoCandidates: PhotoCandidate[] = [];
     const websiteSources: string[] = [];
