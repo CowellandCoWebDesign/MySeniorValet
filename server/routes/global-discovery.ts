@@ -101,6 +101,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
         
         console.log(`🔍 Parsed service search - Type: "${serviceType}", Location: "${searchLocation}"`);
+        console.log(`🔍 Query breakdown: Original="${query}", ServiceType="${serviceType}", Location="${searchLocation}"`);
         
         // Handle plural/singular forms for common service searches
         let searchTerms = [];
@@ -134,13 +135,25 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           )
         );
         
-        // Build location conditions if location specified
+        // Build location conditions if location specified - improved to check JSON structure properly
         const locationConditions = [];
         if (searchLocation) {
+          // Split location to handle "miami" or "miami, florida" formats
+          const locationParts = searchLocation.split(',').map(part => part.trim().toLowerCase());
+          const citySearch = locationParts[0];
+          const stateSearch = locationParts[1] || '';
+          
+          // Check both the JSON structure and raw text for better matching
           locationConditions.push(
             or(
-              sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`,
-              sql`LOWER(CAST(${services.availability} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`
+              // Check metadata->location->city field using proper JSON operators
+              sql`LOWER(${services.metadata}->'location'->>'city') = ${citySearch}`,
+              sql`LOWER(${services.metadata}->'location'->>'city') LIKE ${'%' + citySearch + '%'}`,
+              // Check metadata->location->state field if provided
+              stateSearch ? sql`LOWER(${services.metadata}->'location'->>'state') LIKE ${'%' + stateSearch + '%'}` : sql`true`,
+              // Fallback to text search in metadata
+              sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%"city":"' + citySearch + '"%'}`,
+              sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`
             )
           );
         }
@@ -151,12 +164,25 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           : [or(...typeConditions)];
         
         // Search the SERVICES table for discovered businesses
+        console.log(`🔍 Searching services table with conditions:`, {
+          serviceType: searchTerms,
+          location: searchLocation || 'any',
+          hasLocationFilter: searchLocation ? 'yes' : 'no'
+        });
+        
         const serviceResults = await db.select()
           .from(services)
           .where(allConditions.length > 0 ? and(...allConditions) : sql`true`)
           .limit(50);
         
-        console.log(`💾 Found ${serviceResults.length} existing services in database for "${query}"`);
+        console.log(`💾 Found ${serviceResults.length} existing services in database for "${query}" (Location filter: ${searchLocation || 'none'})`);
+        
+        // Log first result for debugging
+        if (serviceResults.length > 0) {
+          const firstResult = serviceResults[0];
+          const resultLocation = firstResult.metadata?.location || {};
+          console.log(`📍 First result location: City="${resultLocation.city}", State="${resultLocation.state}"`);
+        }
         
         // If we found services, format and return them
         if (serviceResults.length > 0) {
