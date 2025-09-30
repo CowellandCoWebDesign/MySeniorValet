@@ -144,18 +144,22 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           const stateSearch = locationParts[1] || '';
           
           // Check both the JSON structure and raw text for better matching
-          locationConditions.push(
-            or(
-              // Check metadata->location->city field using proper JSON operators
-              sql`LOWER(${services.metadata}->'location'->>'city') = ${citySearch}`,
-              sql`LOWER(${services.metadata}->'location'->>'city') LIKE ${'%' + citySearch + '%'}`,
-              // Check metadata->location->state field if provided
-              stateSearch ? sql`LOWER(${services.metadata}->'location'->>'state') LIKE ${'%' + stateSearch + '%'}` : sql`true`,
-              // Fallback to text search in metadata
-              sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%"city":"' + citySearch + '"%'}`,
-              sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`
-            )
-          );
+          // Build conditions array dynamically to avoid sql`true`
+          const cityConditions = [
+            // Check metadata->location->city field using proper JSON operators
+            sql`LOWER(${services.metadata}->'location'->>'city') = ${citySearch}`,
+            sql`LOWER(${services.metadata}->'location'->>'city') LIKE ${'%' + citySearch + '%'}`,
+            // Fallback to text search in metadata
+            sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%"city":"' + citySearch + '"%'}`,
+            sql`LOWER(CAST(${services.metadata} AS TEXT)) LIKE ${'%' + searchLocation + '%'}`
+          ];
+          
+          // Only add state condition if state is provided
+          if (stateSearch) {
+            cityConditions.push(sql`LOWER(${services.metadata}->'location'->>'state') LIKE ${'%' + stateSearch + '%'}`);
+          }
+          
+          locationConditions.push(or(...cityConditions));
         }
         
         // Combine conditions
