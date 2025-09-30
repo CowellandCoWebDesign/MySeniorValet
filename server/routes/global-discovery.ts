@@ -529,12 +529,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           searchScope = `Include ONLY facilities physically located in ${query}.`;
         }
         
-        searchQuery = `Find at least 15-20 senior housing options and senior living facilities in ${query}. ${searchScope} Include ALL types of senior housing: independent living communities, senior apartments, 55+ apartments, affordable senior housing, HUD Section 202 housing, subsidized senior housing, low-income senior housing, active adult communities, continuing care retirement communities (CCRCs), assisted living facilities, memory care centers, skilled nursing facilities, nursing homes, board and care homes, adult family homes, residential care homes, and ANY other housing options for seniors. List ALL facilities you can find, not just a few examples. For each facility provide: exact facility name, complete street address with street number, city, state/region, country, phone number, website, type of housing/care level, and description of their services. Provide comprehensive results - list every senior housing option you know of in this location, regardless of care level or housing type. Minimum 15 facilities if they exist in this area.`;
+        searchQuery = `List senior housing and care facilities in ${query}. ${searchScope} Include all types: HUD/subsidized housing, VA facilities, 55+ communities, RV/mobile home parks, independent living, assisted living, memory care, skilled nursing, CCRCs, board & care homes. For each facility provide: name, address, city, state, phone, website (if available), type of care. Include both large communities and small residential care homes. Find as many as possible.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
         searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
       } else {
-        searchQuery = `Find at least 10-15 facilities about ${query} related to senior housing, senior living, senior apartments, 55+ communities, affordable senior housing, or elder care. Include ALL types of senior housing options. Include facility names, locations, and contact details. Provide comprehensive results.`;
+        searchQuery = `Find senior facilities related to ${query}. Include all types: HUD housing, VA homes, 55+ communities, RV parks, independent living, assisted living, memory care, skilled nursing, small care homes. Include names, addresses, and contact info. List as many as possible.`;
       }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
