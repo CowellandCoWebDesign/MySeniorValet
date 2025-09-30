@@ -997,4 +997,139 @@ function extractAdditionalInfo(content: string) {
   return info;
 }
 
+// Web intelligence endpoint specifically for services (businesses, not senior communities)
+router.get('/api/services/:id/web-intelligence', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, city, state, type, website } = req.query;
+    
+    if (!name || !city) {
+      return res.status(400).json({ 
+        error: 'Service name and city are required' 
+      });
+    }
+    
+    console.log(`🔍 Web intelligence for service: ${name} in ${city}, ${state || ''}`);
+    
+    // Initialize response structure
+    let photos: string[] = [];
+    let photoSources: any = {};
+    let summary = '';
+    let sources: string[] = [];
+    
+    // Step 1: If we have a website, try to extract photos from it directly
+    if (website && typeof website === 'string') {
+      try {
+        console.log(`🕸️ Extracting photos from service website: ${website}`);
+        const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+          name as string,
+          type as string || 'service',
+          city as string,
+          state as string || '',
+          `${name} ${city} ${state || ''} photos`,
+          website,
+          []
+        );
+        
+        if (photoResult?.authenticPhotos && photoResult.authenticPhotos.length > 0) {
+          photos = photoResult.authenticPhotos.map((p: any) => 
+            p.url || p
+          );
+          photoSources[website] = photos.length;
+          sources.push(website);
+          console.log(`✅ Found ${photos.length} photos from website`);
+        }
+      } catch (websiteError) {
+        console.error(`Failed to extract photos from website:`, websiteError);
+      }
+    }
+    
+    // Step 2: Search for the service on review sites and extract photos
+    if (photos.length < 3) {
+      try {
+        // Build search query for review sites
+        const searchQuery = `"${name}" ${city} ${state || ''} yelp tripadvisor opentable photos reviews`;
+        console.log(`🔍 Searching for service photos on review sites...`);
+        
+        // Try to find photos from review sites using MultiAIPhotoExtractor
+        const reviewSitePhotos = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+          name as string,
+          type as string || 'service',
+          city as string,
+          state as string || '',
+          searchQuery,
+          undefined, // No specific website
+          ['tripadvisor.com', 'yelp.com', 'opentable.com', 'google.com'] // Potential sources
+        );
+        
+        if (reviewSitePhotos?.authenticPhotos) {
+          const newPhotos = reviewSitePhotos.authenticPhotos
+            .map((p: any) => p.url || p)
+            .filter((url: string) => !photos.includes(url));
+          
+          photos.push(...newPhotos);
+          
+          // Track photo sources
+          reviewSitePhotos.sources?.forEach((source: string) => {
+            if (!photoSources[source]) {
+              photoSources[source] = 0;
+            }
+            photoSources[source]++;
+            if (!sources.includes(source)) {
+              sources.push(source);
+            }
+          });
+          
+          console.log(`✅ Found ${newPhotos.length} additional photos from review sites`);
+        }
+      } catch (searchError) {
+        console.error(`Failed to search for service photos:`, searchError);
+      }
+    }
+    
+    // Step 3: If still no photos, try a broader search
+    if (photos.length === 0) {
+      try {
+        console.log(`🔍 Attempting broader photo search for ${name}...`);
+        const broaderSearch = await MultiAIPhotoExtractor.findQuickPhotos(
+          name as string,
+          `${name} ${type || 'business'} in ${city}, ${state || ''}`,
+          undefined
+        );
+        
+        if (broaderSearch?.authenticPhotos) {
+          photos = broaderSearch.authenticPhotos.map((p: any) => 
+            p.url || p
+          );
+          photoSources['general_search'] = photos.length;
+          console.log(`✅ Found ${photos.length} photos from broader search`);
+        }
+      } catch (broaderError) {
+        console.error(`Broader search failed:`, broaderError);
+      }
+    }
+    
+    // Build response with whatever we found
+    const response = {
+      photos: photos.slice(0, 20), // Limit to 20 photos
+      photoSources,
+      sources: sources.filter((s, i, arr) => arr.indexOf(s) === i), // Remove duplicates
+      summary: summary || `${name} is a ${type || 'service provider'} located in ${city}${state ? ', ' + state : ''}.`,
+      timestamp: new Date().toISOString(),
+      cached: false
+    };
+    
+    console.log(`✅ Service web intelligence complete: ${photos.length} photos from ${sources.length} sources`);
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Service web intelligence error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch service web intelligence',
+      photos: [],
+      sources: []
+    });
+  }
+});
+
 export default router;
