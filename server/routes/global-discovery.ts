@@ -529,12 +529,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           searchScope = `Include ONLY facilities physically located in ${query}.`;
         }
         
-        searchQuery = `List senior housing and care facilities in ${query}. ${searchScope} Include all types: HUD/subsidized housing, VA facilities, 55+ communities, RV/mobile home parks, independent living, assisted living, memory care, skilled nursing, CCRCs, board & care homes. For each facility provide: name, address, city, state, phone, website (if available), type of care. Include both large communities and small residential care homes. Find as many as possible.`;
+        searchQuery = `Find all senior housing options in ${query}. ${searchScope} Include: senior apartments, HUD/Section 8/Section 202 housing, Section 811 disability housing, VA facilities, 55+ apartment complexes, RV/mobile home parks, independent living, assisted living, memory care, skilled nursing, CCRCs, adult family homes, adult foster care, board & care homes, cooperative senior housing, shared housing programs, subsidized elderly apartments, disability action centers, Centers for Independent Living, low-income senior housing, affordable senior apartments. Include large communities, small care homes, and individual apartment buildings. For each: name, address, phone, website (if available), type. List as many as possible.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
         searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
       } else {
-        searchQuery = `Find senior facilities related to ${query}. Include all types: HUD housing, VA homes, 55+ communities, RV parks, independent living, assisted living, memory care, skilled nursing, small care homes. Include names, addresses, and contact info. List as many as possible.`;
+        searchQuery = `Find senior facilities related to ${query}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. Include names, addresses, contact info. List all options.`;
       }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
