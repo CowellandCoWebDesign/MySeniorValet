@@ -2239,8 +2239,15 @@ export default function MySeniorValetHome() {
                               onClick={(e) => {
                                 // Stop event from bubbling to parent card
                                 e.stopPropagation();
-                                // Navigate to community directory with search for this care type
-                                window.location.href = `/community-directory?search=${encodeURIComponent(careType.name)}`;
+                                // Navigate to appropriate page based on care type
+                                if (careType.id === 'memory') {
+                                  window.location.href = '/care-types/memory-care';
+                                } else if (careType.id === 'assisted') {
+                                  window.location.href = '/care-types/assisted-living';
+                                } else {
+                                  // For other care types, navigate to map search with filter
+                                  window.location.href = `/map-search?careType=${encodeURIComponent(careType.name)}`;
+                                }
                               }}
                             >
                               <div className="flex flex-col items-center">

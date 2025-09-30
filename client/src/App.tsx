@@ -46,6 +46,9 @@ import CommunityDetail from "@/pages/community-detail";
 import ServiceDetail from "@/pages/service-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
+// Care Type Pages
+import MemoryCareDetailPage from "@/pages/care-types/memory-care";
+import AssistedLivingPage from "@/pages/assisted-living";
 // SEO City Landing Pages
 import SeniorLivingSanFrancisco from "@/pages/senior-living-san-francisco";
 import SeniorLivingSanDiego from "@/pages/senior-living-san-diego";
@@ -218,6 +221,10 @@ function Router() {
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
+      
+      {/* Care Type Resource Pages */}
+      <Route path="/care-types/memory-care" component={MemoryCareDetailPage} />
+      <Route path="/care-types/assisted-living" component={AssistedLivingPage} />
       
       {/* SEO Location Landing Pages */}
       <Route path="/senior-living/:state/:city?" component={LocationLanding} />
