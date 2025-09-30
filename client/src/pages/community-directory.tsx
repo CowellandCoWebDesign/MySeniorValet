@@ -173,15 +173,18 @@ export default function CommunityDirectory() {
   });
   
   // Recently discovered communities query
-  const { data: recentCommunities, isLoading: isLoadingRecent } = useQuery({
+  const { data: recentCommunities = [], isLoading: isLoadingRecent } = useQuery({
     queryKey: ['/api/communities/recently-discovered'],
     queryFn: async () => {
       const response = await fetch('/api/communities/recently-discovered?limit=100');
       if (!response.ok) throw new Error('Failed to fetch recent communities');
       const data = await response.json();
-      console.log('📊 Recently discovered communities fetched:', data.length);
-      return data;
-    }
+      console.log('📊 Recently discovered communities fetched:', data?.length || 0);
+      // Ensure we always return an array
+      return Array.isArray(data) ? data : [];
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1
   });
   
   const oakmontQuery = useQuery({
@@ -918,6 +921,15 @@ export default function CommunityDirectory() {
                 onScroll={checkScrollPosition}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
+                {(() => {
+                  console.log('Recent communities state:', { 
+                    isLoading: isLoadingRecent, 
+                    dataLength: recentCommunities?.length || 0,
+                    hasData: !!recentCommunities,
+                    firstItem: recentCommunities?.[0] 
+                  });
+                  return null;
+                })()}
                 {isLoadingRecent ? (
                   // Loading skeleton - Updated to match FeaturedExcellenceCard size
                   Array.from({ length: 4 }).map((_, i) => (
@@ -934,23 +946,26 @@ export default function CommunityDirectory() {
                     </div>
                   ))
                 ) : recentCommunities && recentCommunities.length > 0 ? (
-                  recentCommunities.map((community: any, index: number) => (
-                    <motion.div 
-                      key={community.id} 
-                      className="flex-shrink-0"
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
-                    >
-                      <div className="hover:scale-[1.02] transition-transform duration-300">
-                        <FeaturedExcellenceCard 
-                          community={community}
-                          compact={true}
-                          disableAutoPhotoLoad={true}
-                        />
-                      </div>
-                    </motion.div>
-                  ))
+                  recentCommunities.map((community: any, index: number) => {
+                    console.log('Rendering community:', community.id, community.name);
+                    return (
+                      <motion.div 
+                        key={community.id} 
+                        className="flex-shrink-0"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+                      >
+                        <div className="hover:scale-[1.02] transition-transform duration-300">
+                          <FeaturedExcellenceCard 
+                            community={community}
+                            compact={true}
+                            disableAutoPhotoLoad={true}
+                          />
+                        </div>
+                      </motion.div>
+                    );
+                  })
                 ) : (
                   <div className="text-white/80 text-center py-8 w-full">
                     No recently discovered communities yet. Search for communities to populate this section!
