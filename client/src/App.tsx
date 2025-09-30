@@ -49,6 +49,7 @@ import MapSearch from "@/pages/map-search";
 // Care Type Pages
 import MemoryCareDetailPage from "@/pages/care-types/memory-care";
 import AssistedLivingPage from "@/pages/assisted-living";
+import IndependentLivingPage from "@/pages/care-types/independent-living";
 // SEO City Landing Pages
 import SeniorLivingSanFrancisco from "@/pages/senior-living-san-francisco";
 import SeniorLivingSanDiego from "@/pages/senior-living-san-diego";
@@ -225,6 +226,7 @@ function Router() {
       {/* Care Type Resource Pages */}
       <Route path="/care-types/memory-care" component={MemoryCareDetailPage} />
       <Route path="/care-types/assisted-living" component={AssistedLivingPage} />
+      <Route path="/care-types/independent-living" component={IndependentLivingPage} />
       
       {/* SEO Location Landing Pages */}
       <Route path="/senior-living/:state/:city?" component={LocationLanding} />
