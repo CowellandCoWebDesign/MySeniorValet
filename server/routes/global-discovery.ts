@@ -88,16 +88,49 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Clean query for database search (remove parentheses which can cause injection warnings)
         const cleanedQuery = queryLower.replace(/[()]/g, ' ').trim();
         
-        // Parse location if query contains " in "
+        // Parse location from query - handle both "service in location" and "location service" patterns
         let serviceType = '';
         let searchLocation = '';
         
+        // First, try the explicit "service in location" pattern
         if (cleanedQuery.includes(' in ')) {
           const parts = cleanedQuery.split(' in ');
           serviceType = parts[0].trim();
           searchLocation = parts[1].trim();
         } else {
-          serviceType = cleanedQuery;
+          // Try to detect "location service" pattern
+          // Common city names that might appear at the beginning
+          const words = cleanedQuery.split(' ');
+          
+          // Check if the query looks like "city service" (e.g., "miami hotels", "paris restaurants")
+          // We'll check if the first word could be a city and the rest contains a service keyword
+          if (words.length >= 2) {
+            const potentialLocation = words[0];
+            const potentialService = words.slice(1).join(' ');
+            
+            // Common service keywords
+            const serviceKeywords = ['hotel', 'hotels', 'restaurant', 'restaurants', 
+                                    'pharmacy', 'pharmacies', 'store', 'stores',
+                                    'clinic', 'clinics', 'hospital', 'hospitals',
+                                    'cafe', 'cafes', 'bar', 'bars', 'shop', 'shops'];
+            
+            // Check if the latter part contains a service keyword
+            const hasServiceKeyword = serviceKeywords.some(keyword => 
+              potentialService.toLowerCase().includes(keyword)
+            );
+            
+            if (hasServiceKeyword) {
+              // This looks like "location service" pattern
+              searchLocation = potentialLocation;
+              serviceType = potentialService;
+            } else {
+              // Default: treat entire query as service type
+              serviceType = cleanedQuery;
+            }
+          } else {
+            // Single word or default case
+            serviceType = cleanedQuery;
+          }
         }
         
         console.log(`🔍 Parsed service search - Type: "${serviceType}", Location: "${searchLocation}"`);
