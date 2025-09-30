@@ -23,23 +23,21 @@ export class PlaywrightPhotoScraper {
    * Initialize browser instance
    */
   private async initBrowser(): Promise<Browser> {
-    // DISABLED: Playwright dependencies not available
-    throw new Error('Playwright browser launch disabled - dependencies not available');
-    /* Original implementation disabled
     if (!this.browser) {
-      console.log('🚀 Launching Playwright browser...');
+      console.log('🚀 Launching Playwright browser for high-quality photo extraction...');
       this.browser = await chromium.launch({
         headless: true,
         args: [
           '--no-sandbox',
           '--disable-setuid-sandbox',
           '--disable-dev-shm-usage',
-          '--disable-gpu'
+          '--disable-gpu',
+          '--disable-web-security',
+          '--disable-features=IsolateOrigins,site-per-process'
         ]
       });
     }
     return this.browser;
-    */
   }
   
   /**
@@ -53,7 +51,7 @@ export class PlaywrightPhotoScraper {
   }
   
   /**
-   * 🔥 SUPER-POWERED: Scrape photos from a website
+   * 🔥 SUPER-POWERED: Scrape high-quality photos from a website
    */
   async scrapePhotosFromWebsite(
     websiteUrl: string, 
@@ -62,18 +60,22 @@ export class PlaywrightPhotoScraper {
       maxPhotos?: number;
       timeout?: number;
       waitForSelector?: string;
+      minWidth?: number;
+      minHeight?: number;
+      prioritizeGallery?: boolean;
     }
   ): Promise<ScrapedPhoto[]> {
-    // DISABLED: Playwright dependencies not available in production
-    console.log('    ⚠️ Playwright web scraping disabled - dependencies not available');
-    return []; // Return empty array to skip scraping
-    /* Original implementation disabled due to missing dependencies
+    // Enhanced scraping with quality filters
+    const minWidth = options?.minWidth || 600;  // Minimum 600px width for quality
+    const minHeight = options?.minHeight || 400; // Minimum 400px height for quality
+    const prioritizeGallery = options?.prioritizeGallery ?? true; // Gallery photos by default
+    
     const browser = await this.initBrowser();
     const page = await browser.newPage();
     const photos: ScrapedPhoto[] = [];
     
     try {
-      console.log(`🌐 Visiting ${websiteUrl} with Playwright...`);
+      console.log(`🌐 High-quality photo extraction from ${websiteUrl}...`);
       
       // Set viewport and user agent to appear as a real browser
       await page.setViewportSize({ width: 1920, height: 1080 });
@@ -167,12 +169,22 @@ export class PlaywrightPhotoScraper {
       
       console.log(`  Found ${bgPhotos.length} background images`);
       
-      // Look for photo galleries and sliders
+      // Enhanced gallery selectors for senior living websites
       const gallerySelectors = [
-        '.gallery', '.photo-gallery', '.image-gallery',
-        '.slider', '.carousel', '.swiper',
-        '[data-gallery]', '[class*="gallery"]', '[id*="gallery"]',
-        '.photos', '.images', '.media'
+        // Primary gallery selectors
+        '.photo-gallery', '.image-gallery', '.gallery',
+        '.photos', '.media-gallery', '.community-photos',
+        // Carousel/slider selectors
+        '.slider', '.carousel', '.swiper', '.slick-slider',
+        '.photo-carousel', '.image-slider',
+        // Data attributes
+        '[data-gallery]', '[data-photos]', '[data-carousel]',
+        '[class*="gallery"]', '[id*="gallery"]', '[class*="photos"]',
+        // Senior living specific
+        '.facility-photos', '.amenity-photos', '.room-photos',
+        '.virtual-tour', '.photo-tour', '.community-images',
+        // Common framework galleries
+        '.lightbox-gallery', '.fancybox', '.photoswipe'
       ];
       
       for (const selector of gallerySelectors) {
@@ -220,27 +232,43 @@ export class PlaywrightPhotoScraper {
         }
       }
       
-      // Look for virtual tour links
+      // Look for photo gallery and tour links with priority scoring
       const tourLinks = await page.evaluate(() => {
         const links = Array.from(document.querySelectorAll('a'));
         return links
           .filter(link => {
             const text = link.textContent?.toLowerCase() || '';
             const href = link.href?.toLowerCase() || '';
-            return text.includes('tour') || text.includes('gallery') || 
-                   text.includes('photos') || href.includes('gallery') ||
-                   href.includes('tour') || href.includes('photos');
+            // Enhanced keywords for senior living galleries
+            const keywords = ['photo', 'gallery', 'images', 'pictures', 'tour', 'virtual', 
+                            'view', 'media', 'amenities', 'facilities', 'rooms'];
+            return keywords.some(keyword => text.includes(keyword) || href.includes(keyword));
           })
-          .map(link => ({
-            text: link.textContent,
-            href: link.href
-          }));
+          .map(link => {
+            const text = link.textContent?.toLowerCase() || '';
+            const href = link.href?.toLowerCase() || '';
+            // Priority scoring for best gallery links
+            let priority = 0;
+            if (text.includes('photo gallery') || href.includes('photo-gallery')) priority = 10;
+            else if (text.includes('photos') || href.includes('photos')) priority = 9;
+            else if (text.includes('gallery') || href.includes('gallery')) priority = 8;
+            else if (text.includes('images') || href.includes('images')) priority = 7;
+            else if (text.includes('virtual tour')) priority = 6;
+            else if (text.includes('amenities')) priority = 5;
+            return {
+              text: link.textContent,
+              href: link.href,
+              priority
+            };
+          })
+          .sort((a, b) => b.priority - a.priority); // Sort by priority
       });
       
       console.log(`  Found ${tourLinks.length} potential photo/tour links`);
       
-      // Navigate to photo gallery pages if found
-      for (const link of tourLinks.slice(0, 2)) { // Limit to 2 gallery pages
+      // Navigate to high-priority photo gallery pages
+      const highPriorityLinks = tourLinks.filter(link => link.priority >= 7); // Focus on photo/gallery links
+      for (const link of highPriorityLinks.slice(0, 3)) { // Check up to 3 high-priority gallery pages
         const href = link.href as string;
         if (href && !href.includes('#') && !href.includes('javascript:')) {
           try {
@@ -323,9 +351,38 @@ export class PlaywrightPhotoScraper {
         return 0;
       });
       
+      // Apply quality filters for high-resolution images
+      const qualityPhotos = cleanedPhotos.filter(photo => {
+        // If dimensions are known, filter by minimum size
+        if (photo.width && photo.height) {
+          return photo.width >= minWidth && photo.height >= minHeight;
+        }
+        // If dimensions unknown, include but deprioritize
+        return true;
+      });
+      
+      // Sort by quality and relevance
+      qualityPhotos.sort((a, b) => {
+        // Gallery photos always first
+        if (prioritizeGallery) {
+          if (a.isGallery && !b.isGallery) return -1;
+          if (!a.isGallery && b.isGallery) return 1;
+        }
+        
+        // Then sort by size (larger = better quality)
+        if (a.width && b.width) {
+          const areaA = (a.width || 0) * (a.height || 0);
+          const areaB = (b.width || 0) * (b.height || 0);
+          return areaB - areaA; // Larger images first
+        }
+        
+        return 0;
+      });
+      
       // Apply maxPhotos limit if specified
-      const limit = options?.maxPhotos || 30;
-      return cleanedPhotos.slice(0, limit);
+      const limit = options?.maxPhotos || 20;
+      console.log(`✅ Found ${qualityPhotos.length} high-quality photos, returning top ${Math.min(limit, qualityPhotos.length)}`);
+      return qualityPhotos.slice(0, limit);
       
     } catch (error) {
       console.error(`❌ Error scraping ${websiteUrl}:`, error instanceof Error ? error.message : error);
@@ -333,7 +390,6 @@ export class PlaywrightPhotoScraper {
     } finally {
       await page.close();
     }
-    */
   }
   
   /**

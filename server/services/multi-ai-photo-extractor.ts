@@ -496,13 +496,20 @@ Be lenient - mark as authentic unless clearly stock photos.`
     const websiteSources: string[] = [];
 
     // Step 1: Use Playwright to scrape photos directly from the official website
-    // DISABLED: Playwright dependencies not available in production
-    if (websiteUrl && false) { // Disabled Playwright
-      console.log('🌐 Step 1: Playwright browser automation for official website...');
+    // ENABLED: High-quality photo extraction with gallery prioritization
+    if (websiteUrl) { // Enabled Playwright
+      console.log('🌐 Step 1: High-quality photo extraction with Playwright browser automation...');
       try {
         const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
           websiteUrl,
-          communityName
+          communityName,
+          {
+            maxPhotos: 30,
+            timeout: 30000,
+            minWidth: 800,    // Higher minimum for better quality
+            minHeight: 600,   // Higher minimum for better quality
+            prioritizeGallery: true
+          }
         );
 
         // Extract domain name for source
@@ -549,13 +556,18 @@ Be lenient - mark as authentic unless clearly stock photos.`
           console.log(`  🔍 Checking ${hostname} for community-specific photos...`);
 
           try {
-            // DISABLED: Playwright dependencies not available
-            const scrapedPhotos: any[] = []; // Skip Playwright scraping
-            /* Original Playwright code disabled:
+            // ENABLED: High-quality photo extraction from citation sites
             const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
               citation,
-              communityName
-            ); */
+              communityName,
+              {
+                maxPhotos: 15,
+                timeout: 20000,
+                minWidth: 700,
+                minHeight: 500,
+                prioritizeGallery: true
+              }
+            );
 
             if (scrapedPhotos.length > 0) {
               const siteCandidates = scrapedPhotos.map(photo => ({
