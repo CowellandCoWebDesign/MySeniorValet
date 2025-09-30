@@ -107,6 +107,121 @@ function extractMediaAssets(content: string) {
   return assets;
 }
 
+// URL validation helper to prevent SSRF attacks
+const isValidWebsiteUrl = (url: string): boolean => {
+  if (!url) return true; // Optional parameter
+  
+  try {
+    const parsed = new URL(url);
+    // Only allow http/https
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return false;
+    }
+    // Block local/internal addresses
+    const hostname = parsed.hostname.toLowerCase();
+    if (hostname === 'localhost' || 
+        hostname === '127.0.0.1' || 
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.') ||
+        hostname.includes('.local') ||
+        hostname.includes('.internal')) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Quick photo extraction endpoint (Stage 1) - Returns immediately
+router.post('/api/web-intelligence/quick-photos', async (req, res) => {
+  try {
+    const { communityName, content, website } = req.body;
+    
+    if (!communityName) {
+      return res.status(400).json({ 
+        error: 'Community name is required' 
+      });
+    }
+    
+    // Validate website URL to prevent SSRF
+    if (website && !isValidWebsiteUrl(website)) {
+      return res.status(400).json({ 
+        error: 'Invalid website URL' 
+      });
+    }
+
+    console.log(`⚡ Quick photo extraction for: ${communityName}`);
+    
+    // Get quick photos (from cache or fast extraction)
+    const quickPhotos = await MultiAIPhotoExtractor.findQuickPhotos(
+      communityName,
+      content || '',
+      website
+    );
+
+    // Return immediately with whatever we have
+    res.json({
+      photos: quickPhotos.authenticPhotos.map(p => p.url),
+      stage: 'quick',
+      count: quickPhotos.authenticPhotos.length,
+      cached: quickPhotos.summary.includes('cached')
+    });
+  } catch (error) {
+    console.error('Quick photo extraction error:', error);
+    res.status(500).json({ 
+      error: 'Failed to extract quick photos',
+      photos: [],
+      stage: 'quick'
+    });
+  }
+});
+
+// High-quality photo extraction endpoint (Stage 2) - Takes longer but better quality
+router.post('/api/web-intelligence/quality-photos', async (req, res) => {
+  try {
+    const { communityName, content, website, citations } = req.body;
+    
+    if (!communityName) {
+      return res.status(400).json({ 
+        error: 'Community name is required' 
+      });
+    }
+    
+    // Validate website URL to prevent SSRF
+    if (website && !isValidWebsiteUrl(website)) {
+      return res.status(400).json({ 
+        error: 'Invalid website URL' 
+      });
+    }
+
+    console.log(`🔍 High-quality photo extraction for: ${communityName}`);
+    
+    // Get high-quality photos with browser automation
+    const qualityPhotos = await MultiAIPhotoExtractor.findHighQualityPhotos(
+      communityName,
+      content || '',
+      website,
+      citations
+    );
+
+    res.json({
+      photos: qualityPhotos.authenticPhotos.map(p => p.url),
+      stage: 'quality',
+      count: qualityPhotos.authenticPhotos.length,
+      sources: qualityPhotos.sources
+    });
+  } catch (error) {
+    console.error('High-quality photo extraction error:', error);
+    res.status(500).json({ 
+      error: 'Failed to extract quality photos',
+      photos: [],
+      stage: 'quality'
+    });
+  }
+});
+
 // Web intelligence search endpoint (what the client is calling)
 router.post('/api/web-intelligence/search', async (req, res) => {
   try {

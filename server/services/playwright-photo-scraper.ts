@@ -513,5 +513,5 @@ export class PlaywrightPhotoScraper {
   }
 }
 
-// Export singleton instance
+// Export singleton instance for use in other services
 export const playwrightPhotoScraper = new PlaywrightPhotoScraper();

@@ -473,9 +473,136 @@ Be lenient - mark as authentic unless clearly stock photos.`
   }
 
   /**
-   * Enhanced photo finding without OpenAI
+   * Quick photo extraction for immediate display (Stage 1)
+   * Returns cached photos or quick extraction from HTML
+   */
+  static async findQuickPhotos(
+    communityName: string,
+    perplexityContent: string,
+    websiteUrl?: string
+  ): Promise<PhotoExtractionResult> {
+    // Check cache first
+    const location = this.extractLocationFromContent(perplexityContent, communityName);
+    const cacheKey = this.generateCacheKey(communityName, location, 'community');
+    
+    const cachedResult = this.getCachedResult(cacheKey, 'community');
+    if (cachedResult) {
+      console.log(`⚡ Returning cached photos instantly for ${communityName}`);
+      return cachedResult;
+    }
+
+    console.log(`⚡ Quick photo extraction for ${communityName} (Stage 1)`);
+
+    // Extract photos from Perplexity content (fast)
+    let quickPhotos = this.extractPhotosFromContent(perplexityContent, communityName);
+    
+    // Return quick results immediately
+    const quickResult: PhotoExtractionResult = {
+      authenticPhotos: quickPhotos.filter(p => p.isAuthentic).slice(0, 10),
+      rejectedPhotos: quickPhotos.filter(p => !p.isAuthentic),
+      sources: websiteUrl ? [websiteUrl] : [],
+      summary: `Quick extraction: Found ${quickPhotos.length} initial photos`
+    };
+
+    return quickResult;
+  }
+
+  /**
+   * High-quality photo extraction with browser automation (Stage 2)
+   * Runs in background for better photos
+   */
+  static async findHighQualityPhotos(
+    communityName: string,
+    perplexityContent: string,
+    websiteUrl?: string,
+    perplexityCitations?: string[]
+  ): Promise<PhotoExtractionResult> {
+    // Check cache first
+    const location = this.extractLocationFromContent(perplexityContent, communityName);
+    const cacheKey = this.generateCacheKey(communityName, location, 'community');
+    
+    const cachedResult = this.getCachedResult(cacheKey, 'community');
+    if (cachedResult && cachedResult.authenticPhotos.length > 10) {
+      // If we have a good cached result with many photos, return it
+      return cachedResult;
+    }
+
+    console.log(`🔍 High-quality photo extraction for ${communityName} (Stage 2)`);
+
+    let allPhotoCandidates: PhotoCandidate[] = [];
+    const websiteSources: string[] = [];
+
+    // Use Playwright for high-quality extraction (with reduced timeout for better UX)
+    if (websiteUrl) {
+      console.log('🌐 Stage 2: High-quality browser extraction...');
+      try {
+        const scrapedPhotos = await playwrightPhotoScraper.scrapePhotosFromWebsite(
+          websiteUrl,
+          communityName,
+          {
+            maxPhotos: 20,      // Fewer photos for faster loading
+            timeout: 15000,     // 15 second timeout instead of 30
+            minWidth: 800,
+            minHeight: 600,
+            prioritizeGallery: true
+          }
+        );
+
+        let websiteName = 'Official Website';
+        try {
+          const url = new URL(websiteUrl);
+          websiteName = url.hostname.replace('www.', '');
+        } catch (e) {}
+
+        const playwrightCandidates = scrapedPhotos.map(photo => ({
+          url: photo.url,
+          source: websiteName,
+          confidence: photo.isGallery ? 0.95 : 0.85,
+          isAuthentic: true,
+          reason: `High-quality from ${photo.isGallery ? 'gallery' : 'website'}`
+        }));
+
+        allPhotoCandidates.push(...playwrightCandidates);
+        websiteSources.push(websiteUrl);
+        console.log(`  ✅ Found ${playwrightCandidates.length} high-quality photos`);
+      } catch (error) {
+        console.error('High-quality extraction failed:', error);
+      }
+    }
+
+    // Build final result
+    const finalResult: PhotoExtractionResult = {
+      authenticPhotos: allPhotoCandidates.filter(p => p.isAuthentic),
+      rejectedPhotos: allPhotoCandidates.filter(p => !p.isAuthentic),
+      sources: websiteSources,
+      summary: `High-quality extraction: ${allPhotoCandidates.length} authentic photos from ${websiteSources.length} sources`
+    };
+
+    // Cache the high-quality result
+    if (finalResult.authenticPhotos.length > 0) {
+      this.setCachedResult(cacheKey, finalResult, communityName);
+    }
+
+    return finalResult;
+  }
+
+  /**
+   * Original enhanced photo finding method (kept for compatibility)
    */
   static async findAuthenticPhotos(
+    communityName: string,
+    perplexityContent: string,
+    websiteUrl?: string,
+    perplexityCitations?: string[]
+  ): Promise<PhotoExtractionResult> {
+    // For backward compatibility, use the high-quality extraction
+    return this.findHighQualityPhotos(communityName, perplexityContent, websiteUrl, perplexityCitations);
+  }
+
+  /**
+   * DEPRECATED - Original enhanced photo finding without OpenAI
+   */
+  private static async findAuthenticPhotosOriginal(
     communityName: string,
     perplexityContent: string,
     websiteUrl?: string,
