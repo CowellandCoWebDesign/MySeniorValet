@@ -84,22 +84,56 @@ class UnifiedPerplexityCache {
       if (cached) {
         console.log(`📦 Returning cached data for ${communityName} (auto-refresh disabled)`);
         return cached.data;
-      } else {
-        // No cached data and not a manual refresh - return empty data
-        console.log(`⚠️ No cached data for ${communityName} - returning empty (auto-fetch disabled)`);
-        return {
-          marketData: {},
-          reviews: {},
-          inspections: {},
-          photos: [],
-          sources: [],
-          timestamp: Date.now(),
-          communityId,
-          communityName,
-          location,
-          rawPerplexityContent: 'No cached data available. Click "Search for Photos" to fetch fresh data.'
-        };
+      } else if (websiteUrl) {
+        // Special case: No cached data but we have a website URL from discovery
+        // Run lightweight photo extraction without expensive Perplexity calls
+        console.log(`🔍 No cached data for ${communityName} but website URL available - extracting photos only`);
+        
+        try {
+          // Extract photos using the website URL without calling Perplexity
+          const photos = await this.extractPhotosFromWebsite(websiteUrl, communityName, location);
+          
+          const lightweightData = {
+            marketData: {},
+            reviews: {},
+            inspections: {},
+            photos: photos,
+            sources: [websiteUrl],
+            timestamp: Date.now(),
+            communityId,
+            communityName,
+            location,
+            rawPerplexityContent: 'Photos extracted from community website. Click "Search for Market Data & Photos" for comprehensive information.'
+          };
+          
+          // Cache the lightweight data with photos
+          this.cache.set(cacheKey, {
+            data: lightweightData,
+            timestamp: Date.now()
+          });
+          console.log(`📸 Cached ${photos.length} photos for ${communityName} from website`);
+          
+          return lightweightData;
+        } catch (error) {
+          console.error(`Failed to extract photos from website for ${communityName}:`, error);
+          // Fall through to return empty data if photo extraction fails
+        }
       }
+      
+      // No cached data and no website URL - return empty data
+      console.log(`⚠️ No cached data for ${communityName} - returning empty (auto-fetch disabled)`);
+      return {
+        marketData: {},
+        reviews: {},
+        inspections: {},
+        photos: [],
+        sources: [],
+        timestamp: Date.now(),
+        communityId,
+        communityName,
+        location,
+        rawPerplexityContent: 'No cached data available. Click "Search for Market Data & Photos" to fetch fresh data.'
+      };
     }
 
     // Only reaches here if forceRefresh is true (manual user action)
@@ -466,6 +500,91 @@ Format all information clearly with section headers.
     return 'Unknown';
   }
 
+  // Clean and validate URL
+  private cleanUrl(url: string): string | null {
+    if (!url || url === 'Not' || url === 'None' || url === 'N/A') {
+      return null;
+    }
+    
+    // Remove citation markers like [1], [2], etc.
+    let cleanedUrl = url.replace(/\[\d+\]$/g, '').trim();
+    
+    // Ensure URL has protocol
+    if (!cleanedUrl.startsWith('http://') && !cleanedUrl.startsWith('https://')) {
+      cleanedUrl = 'https://' + cleanedUrl;
+    }
+    
+    // Basic URL validation
+    try {
+      new URL(cleanedUrl);
+      return cleanedUrl;
+    } catch {
+      return null;
+    }
+  }
+  
+  // Lightweight photo extraction from website URL only (no Perplexity calls)
+  private async extractPhotosFromWebsite(
+    websiteUrl: string,
+    communityName: string,
+    location: string
+  ): Promise<string[]> {
+    const extractedPhotos: string[] = [];
+    
+    // Clean and validate the URL first
+    const cleanedUrl = this.cleanUrl(websiteUrl);
+    if (!cleanedUrl) {
+      console.log(`⚠️ Invalid website URL for ${communityName}: ${websiteUrl}`);
+      return [];
+    }
+    
+    try {
+      console.log(`📸 Extracting photos from website: ${cleanedUrl}`);
+      
+      // Use MultiAIPhotoExtractor for efficient photo finding
+      const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+        communityName,
+        '', // No summary needed for lightweight extraction
+        cleanedUrl,
+        [cleanedUrl] // Use website as source
+      );
+      
+      if (photoExtractionResult?.authenticPhotos) {
+        photoExtractionResult.authenticPhotos.forEach((photo: any) => {
+          if (photo.url && photo.isAuthentic) {
+            extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+          }
+        });
+        console.log(`✅ Found ${photoExtractionResult.authenticPhotos.length} authentic photos via MultiAIPhotoExtractor`);
+      }
+      
+      // Also try direct scraping from the website
+      const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+        cleanedUrl,
+        communityName,
+        {
+          maxPhotos: 10,
+          timeout: 10000
+        }
+      );
+      
+      if (scrapedPhotos && scrapedPhotos.length > 0) {
+        scrapedPhotos.forEach((photo: any) => {
+          if (photo.url) {
+            extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+          }
+        });
+        console.log(`📸 Found ${scrapedPhotos.length} additional photos from direct scraping`);
+      }
+    } catch (error) {
+      console.error(`Failed to extract photos from ${websiteUrl}:`, error);
+    }
+    
+    const uniquePhotos = Array.from(new Set(extractedPhotos)).slice(0, 20);
+    console.log(`📸 Total ${uniquePhotos.length} unique photos extracted for ${communityName}`);
+    return uniquePhotos;
+  }
+  
   private async extractPhotosFromResponse(
     response: { summary: string; sources: string[]; images?: string[] },
     communityName: string,
@@ -496,8 +615,9 @@ Format all information clearly with section headers.
     
     // Use cost-effective MultiAIPhotoExtractor instead of expensive Perplexity calls
     console.log(`📸 Using MultiAIPhotoExtractor for ${communityName}...`);
-    if (websiteUrl) {
-      console.log(`📌 Using website URL for photo extraction: ${websiteUrl}`);
+    const cleanedUrlForExtractor = websiteUrl ? this.cleanUrl(websiteUrl) : null;
+    if (cleanedUrlForExtractor) {
+      console.log(`📌 Using cleaned website URL for photo extraction: ${cleanedUrlForExtractor}`);
     }
     
     try {
@@ -507,7 +627,7 @@ Format all information clearly with section headers.
       const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
         communityName,
         response.summary,
-        websiteUrl, // Pass the website URL from discovery
+        cleanedUrlForExtractor, // Pass the cleaned website URL from discovery
         response.sources
       );
       
@@ -521,11 +641,12 @@ Format all information clearly with section headers.
       }
       
       // Also scrape from the discovered website URL if available
-      if (websiteUrl && !response.sources.includes(websiteUrl)) {
-        console.log(`🌐 Scraping photos from discovered website: ${websiteUrl}`);
+      const cleanedWebsiteUrl = websiteUrl ? this.cleanUrl(websiteUrl) : null;
+      if (cleanedWebsiteUrl && !response.sources.includes(cleanedWebsiteUrl)) {
+        console.log(`🌐 Scraping photos from discovered website: ${cleanedWebsiteUrl}`);
         try {
           const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
-            websiteUrl,
+            cleanedWebsiteUrl,
             communityName,
             {
               maxPhotos: 10,
@@ -534,8 +655,10 @@ Format all information clearly with section headers.
           );
           
           if (scrapedPhotos && scrapedPhotos.length > 0) {
-            scrapedPhotos.forEach((photoUrl: string) => {
-              extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photoUrl)}`);
+            scrapedPhotos.forEach((photo: any) => {
+              if (photo.url) {
+                extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+              }
             });
             console.log(`📸 Found ${scrapedPhotos.length} photos from ${websiteUrl}`);
           }
