@@ -2236,7 +2236,7 @@ export default function MySeniorValetHome() {
                               key={careType.id}
                               data-testid={`care-type-${careType.id}`}
                               className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
-                              onClick={() => setLocation(`/care-types/${careType.id}`)}
+                              onClick={() => setLocation(`/map-search?careType=${careType.id}&careTypeName=${encodeURIComponent(careType.name)}`)}
                             >
                               <div className="flex flex-col items-center">
                                 <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
