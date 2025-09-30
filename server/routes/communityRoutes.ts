@@ -876,7 +876,7 @@ export function registerCommunityRoutes(app: Express) {
   app.post("/api/communities/:id/verify", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { forceRefresh } = req.body;
+      const { forceRefresh, websiteUrl } = req.body;
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
@@ -905,6 +905,12 @@ export function registerCommunityRoutes(app: Express) {
       
       const isFeatured = featuredRecord ? true : false;
       
+      // Use the website URL from the request (from discovery) or fall back to community's stored website
+      const communityWebsite = websiteUrl || community.website;
+      if (communityWebsite) {
+        console.log(`📌 Using website URL for photo search: ${communityWebsite}`);
+      }
+      
       // CRITICAL FIX: Use unified cache instead of separate enrichment service
       // This prevents the $0.07 cost spike
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
@@ -914,7 +920,8 @@ export function registerCommunityRoutes(app: Express) {
         community.name,
         `${community.city}, ${community.state}`,
         isFeatured,
-        forceRefresh  // Pass through to allow manual photo search from button
+        forceRefresh,  // Pass through to allow manual photo search from button
+        communityWebsite  // Pass website URL for better photo discovery
       );
       
       // Create enrichmentResult from unified cache data

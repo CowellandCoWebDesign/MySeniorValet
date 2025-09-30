@@ -60,7 +60,8 @@ class UnifiedPerplexityCache {
     communityName: string,
     location: string,
     isFeatured: boolean = false,
-    forceRefresh: boolean = false
+    forceRefresh: boolean = false,
+    websiteUrl?: string
   ): Promise<CachedCommunityData> {
     const cacheKey = `community_${communityId}`;
     
@@ -103,6 +104,9 @@ class UnifiedPerplexityCache {
 
     // Only reaches here if forceRefresh is true (manual user action)
     console.log(`👤 User-initiated fetch for ${communityName} in ${location}`);
+    if (websiteUrl) {
+      console.log(`📌 Using website URL for enhanced search: ${websiteUrl}`);
+    }
 
     // ONE comprehensive query that gets EVERYTHING
     const comprehensiveQuery = `
@@ -156,7 +160,8 @@ Format all information clearly with section headers.
         response,
         communityId,
         communityName,
-        location
+        location,
+        websiteUrl
       );
 
       // Check if response is complete before caching
@@ -209,7 +214,8 @@ Format all information clearly with section headers.
     response: { summary: string; sources: string[]; images?: string[] },
     communityId: string,
     communityName: string,
-    location: string
+    location: string,
+    websiteUrl?: string
   ): Promise<CachedCommunityData> {
     const content = response.summary;
     
@@ -247,7 +253,7 @@ Format all information clearly with section headers.
       marketData,
       reviews,
       inspections,
-      photos: await this.extractPhotosFromResponse(response, communityName, location) || [],
+      photos: await this.extractPhotosFromResponse(response, communityName, location, websiteUrl) || [],
       sources: response.sources || [],
       timestamp: Date.now(),
       communityId,
@@ -463,7 +469,8 @@ Format all information clearly with section headers.
   private async extractPhotosFromResponse(
     response: { summary: string; sources: string[]; images?: string[] },
     communityName: string,
-    location: string
+    location: string,
+    websiteUrl?: string
   ): Promise<string[]> {
     const extractedPhotos: string[] = [];
     
@@ -489,6 +496,9 @@ Format all information clearly with section headers.
     
     // Use cost-effective MultiAIPhotoExtractor instead of expensive Perplexity calls
     console.log(`📸 Using MultiAIPhotoExtractor for ${communityName}...`);
+    if (websiteUrl) {
+      console.log(`📌 Using website URL for photo extraction: ${websiteUrl}`);
+    }
     
     try {
       const [city, state] = location.split(',').map(s => s.trim());
@@ -497,7 +507,7 @@ Format all information clearly with section headers.
       const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
         communityName,
         response.summary,
-        undefined, // No specific website URL
+        websiteUrl, // Pass the website URL from discovery
         response.sources
       );
       
@@ -510,6 +520,30 @@ Format all information clearly with section headers.
         console.log(`✅ Found ${photoExtractionResult.authenticPhotos.length} authentic photos via MultiAIPhotoExtractor`);
       }
       
+      // Also scrape from the discovered website URL if available
+      if (websiteUrl && !response.sources.includes(websiteUrl)) {
+        console.log(`🌐 Scraping photos from discovered website: ${websiteUrl}`);
+        try {
+          const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+            websiteUrl,
+            communityName,
+            {
+              maxPhotos: 10,
+              timeout: 10000 // 10 second timeout
+            }
+          );
+          
+          if (scrapedPhotos && scrapedPhotos.length > 0) {
+            scrapedPhotos.forEach((photoUrl: string) => {
+              extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photoUrl)}`);
+            });
+            console.log(`📸 Found ${scrapedPhotos.length} photos from ${websiteUrl}`);
+          }
+        } catch (scrapeError) {
+          console.log(`⚠️ Failed to scrape discovered website ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+        }
+      }
+      
       // Also scrape from any sources that were provided by the original Perplexity response
       if (response.sources && response.sources.length > 0) {
         console.log(`🕷️ Scraping photos from ${Math.min(3, response.sources.length)} key sources...`);
@@ -520,10 +554,10 @@ Format all information clearly with section headers.
           return !url.includes('.pdf') && !url.includes('.doc') && !url.includes('youtube.com');
         });
         
-        for (const websiteUrl of topSources) {
+        for (const sourceUrl of topSources) {
           try {
             const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
-              websiteUrl,
+              sourceUrl,
               communityName,
               {
                 maxPhotos: 10,
@@ -532,7 +566,7 @@ Format all information clearly with section headers.
             );
             
             if (scrapedPhotos?.length > 0) {
-              console.log(`📸 Found ${scrapedPhotos.length} photos from ${websiteUrl}`);
+              console.log(`📸 Found ${scrapedPhotos.length} photos from ${sourceUrl}`);
               scrapedPhotos.forEach(photo => {
                 if (photo.url) {
                   extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
@@ -540,7 +574,7 @@ Format all information clearly with section headers.
               });
             }
           } catch (scrapeError) {
-            console.log(`⚠️ Failed to scrape ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+            console.log(`⚠️ Failed to scrape ${sourceUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
           }
         }
       }

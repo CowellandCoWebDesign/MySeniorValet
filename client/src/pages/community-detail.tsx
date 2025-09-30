@@ -1366,6 +1366,7 @@ export default function CommunityDetail() {
     if (!community?.id || isVerifying) return;
     
     console.log('🔍 Auto-fetching photos for:', community.name, '(cache-first)');
+    console.log('📌 Community website:', community.website || 'none');
     setHasStartedVerification(true);
     setIsVerifying(true);
     
@@ -1373,7 +1374,10 @@ export default function CommunityDetail() {
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: false })  // FALSE = use cache when available
+        body: JSON.stringify({ 
+          forceRefresh: false,  // FALSE = use cache when available
+          websiteUrl: community.website  // Pass the website URL from database
+        })
       });
       
       if (!response.ok) {
@@ -1403,6 +1407,7 @@ export default function CommunityDetail() {
     if (!community?.id || isVerifying) return;
     
     console.log('🔍 User clicked Search for Market Data for:', community.name);
+    console.log('📌 Community website:', community.website || 'none');
     setHasStartedVerification(true);
     setIsVerifying(true);
     
@@ -1410,7 +1415,10 @@ export default function CommunityDetail() {
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ forceRefresh: true })  // TRUE = force fresh data
+        body: JSON.stringify({ 
+          forceRefresh: true,  // TRUE = force fresh data
+          websiteUrl: community.website  // Pass the website URL from database
+        })
       });
       
       if (!response.ok) {
