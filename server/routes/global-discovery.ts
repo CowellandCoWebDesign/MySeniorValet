@@ -581,8 +581,25 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         try {
 
         if (searchType === 'services') {
-          // KISS approach - use the user's query directly with minimal wrapper
-          searchQuery = `Find at least 15-20 businesses or services matching: "${query}". For each result provide: exact business name, complete street address, city, state/region, country, phone number, website, description of their services, and suggested places to find photos (like their website gallery, Facebook page, Instagram, Yelp, TripAdvisor, or other review sites where they might have photos). Include as many relevant results as possible.`;
+          // Enhanced query that explicitly demands multiple results
+          searchQuery = `List ALL businesses and services matching: "${query}". 
+          
+IMPORTANT REQUIREMENTS:
+- You MUST find and return AT LEAST 10-20 different businesses (not just 1 or 2)
+- Include ALL relevant businesses you can find, not just the most popular ones
+- Search comprehensively across multiple sources and websites
+- Do NOT limit results - include every relevant business found
+
+For EACH business provide:
+- Exact business name
+- Complete street address
+- City, state/region, country
+- Phone number
+- Website URL
+- Description of their services
+- Suggested photo sources (website gallery, Facebook, Instagram, Yelp, TripAdvisor, Google Business)
+
+List them numerically (1, 2, 3, etc.) and include AS MANY businesses as you can find. Do not stop at just a few - be exhaustive and comprehensive.`;
         } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
         // Adjust for country-level searches
         let searchScope = '';
@@ -677,8 +694,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               }
             }
           },
-          temperature: 0.2, // Lower temperature for more accurate results
-          max_tokens: 4000, // Increased to handle full JSON responses with 15-20 facilities
+          temperature: 0.3, // Slightly higher for more diverse results
+          max_tokens: 8000, // Further increased to handle comprehensive responses with 20+ facilities
           top_p: 0.9,
           stream: false
         })
