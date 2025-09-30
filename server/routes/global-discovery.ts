@@ -939,6 +939,33 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 console.log(`⚠️ Could not geocode location: ${locationString}`);
               }
               
+              // Extract directory URLs from citations if no website provided
+              let websiteUrl = discovered.website || null;
+              if (!websiteUrl && citations && citations.length > 0) {
+                // Look for senior living directory URLs in citations
+                const directoryPatterns = [
+                  /caring\.com\/senior-living/i,
+                  /seniorly\.com/i,
+                  /aplaceformom\.com/i,
+                  /seniorhousingnet\.com/i,
+                  /senioradvisor\.com/i,
+                  /assistedliving\.org/i
+                ];
+                
+                for (const citation of citations) {
+                  if (typeof citation === 'string') {
+                    for (const pattern of directoryPatterns) {
+                      if (pattern.test(citation)) {
+                        websiteUrl = citation;
+                        console.log(`📌 Using directory URL as website: ${websiteUrl}`);
+                        break;
+                      }
+                    }
+                    if (websiteUrl) break;
+                  }
+                }
+              }
+
               const [newCommunity] = await db.insert(communities)
                 .values({
                   name: discovered.name,
@@ -951,7 +978,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   longitude: longitude,
                   phone: discovered.phone || null,
                   email: discovered.email || null,
-                  website: discovered.website || null,
+                  website: websiteUrl,
                   description: discovered.description || `Discovered via search for "${query}"`,
                   careTypes: discovered.careTypes || ['Unknown'],
                   photos: [],
