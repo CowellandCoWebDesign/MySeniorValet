@@ -8,6 +8,7 @@
 import { Router } from 'express';
 import { unifiedSearchEngine } from '../services/unified-search-engine';
 import { enhancedSearchEngine } from '../services/enhanced-search-engine';
+import { optimizedSearchEngine } from '../services/optimized-search-engine';
 import { cache } from '../cache';
 import { isAuthenticated } from '../replitAuth';
 import { vendors } from '@shared/schema';
@@ -171,12 +172,12 @@ router.post('/api/search/unified', async (req, res) => {
       }
     }
     
-    // Execute unified search for communities
-    const results = await unifiedSearchEngine.search(query, {
+    // Use optimized search engine for much faster performance
+    const results = await optimizedSearchEngine.search(query, {
       limit,
       offset,
       filters,
-      userId
+      searchType
     });
     
     res.json({

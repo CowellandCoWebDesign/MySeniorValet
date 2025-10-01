@@ -40,8 +40,15 @@ const discoveredCommunitySchema = z.object({
 // Import multi-AI orchestrator for comparisons
 // import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
 
-// Business validation function using new Search API
+// OPTIMIZATION: Disabled expensive validation that was causing 90+ second delays
+// Each validation was making an API call, multiplied by number of results = very slow!
+// Business validation function - DISABLED for performance
 async function validateBusinessExists(businessName: string, city?: string, state?: string): Promise<boolean> {
+  // Skip validation to improve performance - was causing 90+ second delays
+  return true;
+  
+  // Original expensive validation code commented out:
+  /*
   try {
     const location = [city, state].filter(Boolean).join(', ');
     console.log(`🔍 Validating business exists: ${businessName}${location ? ` in ${location}` : ''}`);
@@ -59,6 +66,7 @@ async function validateBusinessExists(businessName: string, city?: string, state
     console.error('⚠️ Business validation error:', error);
     return true; // Default to true if validation fails
   }
+  */
 }
 
 export function setupGlobalDiscoveryRoutes(app: Express) {
@@ -581,25 +589,17 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         try {
 
         if (searchType === 'services') {
-          // Enhanced query that explicitly demands multiple results
-          searchQuery = `List ALL businesses and services matching: "${query}". 
+          // OPTIMIZED: Request fewer results for faster response
+          searchQuery = `Find the top 10 businesses and services matching: "${query}". 
           
-IMPORTANT REQUIREMENTS:
-- You MUST find and return AT LEAST 10-20 different businesses (not just 1 or 2)
-- Include ALL relevant businesses you can find, not just the most popular ones
-- Search comprehensively across multiple sources and websites
-- Do NOT limit results - include every relevant business found
-
 For EACH business provide:
-- Exact business name
-- Complete street address
-- City, state/region, country
-- Phone number
-- Website URL
-- Description of their services
-- Suggested photo sources (website gallery, Facebook, Instagram, Yelp, TripAdvisor, Google Business)
+- Business name
+- Address
+- City, state, country
+- Phone (if available)
+- Website (if available)
 
-List them numerically (1, 2, 3, etc.) and include AS MANY businesses as you can find. Do not stop at just a few - be exhaustive and comprehensive.`;
+Keep responses concise and focus on the most relevant results.`;
         } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
         // Adjust for country-level searches
         let searchScope = '';
@@ -609,7 +609,7 @@ List them numerically (1, 2, 3, etc.) and include AS MANY businesses as you can 
           searchScope = `Include ONLY facilities physically located in ${query}.`;
         }
         
-        searchQuery = `Find all senior housing options in ${query}. ${searchScope} Include: senior apartments, HUD/Section 8/Section 202 housing, Section 811 disability housing, VA facilities, 55+ apartment complexes, RV/mobile home parks, independent living, assisted living, memory care, skilled nursing, CCRCs, adult family homes, adult foster care, board & care homes, cooperative senior housing, shared housing programs, subsidized elderly apartments, disability action centers, Centers for Independent Living, low-income senior housing, affordable senior apartments. Include large communities, small care homes, and individual apartment buildings. For each: name, address, phone, website (if available), type. List as many as possible.`;
+        searchQuery = `Find the top 15 senior housing facilities in ${query}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each: name, address, phone, website (if available), type. Focus on established facilities with good information.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
         searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
@@ -620,10 +620,10 @@ List them numerically (1, 2, 3, etc.) and include AS MANY businesses as you can 
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
-      // Use adaptive timeout: longer for international and service searches
+      // OPTIMIZED: Much shorter timeout for better user experience
       const isComplexSearch = (isCountrySearch || searchType === 'services' || query.toLowerCase().includes('hotels') || query.toLowerCase().includes('transportation'));
-      const TIMEOUT_MS = 120000; // 120s for all discovery searches to ensure Perplexity has time for comprehensive results
-      console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for ${isComplexSearch ? 'complex' : 'simple'} search`);
+      const TIMEOUT_MS = 15000; // 15s timeout for faster response - users can't wait 90+ seconds!
+      console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for discovery search`);
       
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
