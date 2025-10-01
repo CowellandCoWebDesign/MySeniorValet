@@ -234,34 +234,51 @@ export function RedTagDeals() {
         </CardContent>
       </Card>
 
-      {/* Enhanced Deal Cards with Photo Carousels */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {redTagDeals.map((deal, index) => {
-          // Transform deal data to community format for FeaturedExcellenceCard
-          const community = {
-            id: deal.id,
-            name: deal.communityName,
-            city: deal.location.split(',')[0]?.trim() || '',
-            state: deal.location.split(',')[1]?.trim() || '',
-            rating: deal.rating,
-            amenities: deal.amenities,
-            careTypes: deal.highlights,
-            photos: apiDataMap.get(deal.id)?.community?.photos || [], // Use real photos from API
-            occupancyRate: deal.availability === "Available Now" ? 75 : 
-                          deal.availability === "Limited Spots" ? 85 : 
-                          deal.availability === "Waitlist" ? 95 : 80
-          };
-          
-          return (
-            <FeaturedExcellenceCard
-              key={deal.id}
-              community={community}
-              index={index}
-              compact={true}
-              disableAutoPhotoLoad={true}
+      {/* Enhanced Deal Cards with Horizontal Scroll Carousel */}
+      <div className="relative">
+        {/* Horizontal Scroll Container */}
+        <div className="overflow-x-auto pb-4 -mx-4 px-4">
+          <div className="flex gap-4" style={{ width: 'max-content' }}>
+            {redTagDeals.map((deal, index) => {
+              // Transform deal data to community format for FeaturedExcellenceCard
+              const community = {
+                id: deal.id,
+                name: deal.communityName,
+                city: deal.location.split(',')[0]?.trim() || '',
+                state: deal.location.split(',')[1]?.trim() || '',
+                rating: deal.rating,
+                amenities: deal.amenities,
+                careTypes: deal.highlights,
+                photos: apiDataMap.get(deal.id)?.community?.photos || [], // Use real photos from API
+                occupancyRate: deal.availability === "Available Now" ? 75 : 
+                              deal.availability === "Limited Spots" ? 85 : 
+                              deal.availability === "Waitlist" ? 95 : 80
+              };
+              
+              return (
+                <div key={deal.id} className="w-[280px] sm:w-[320px] lg:w-[360px] flex-shrink-0">
+                  <FeaturedExcellenceCard
+                    community={community}
+                    index={index}
+                    compact={true}
+                    disableAutoPhotoLoad={true}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        
+        {/* Scroll Indicators */}
+        <div className="flex justify-center mt-4 gap-2">
+          {redTagDeals.map((_, index) => (
+            <div
+              key={index}
+              className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors"
+              aria-label={`Slide ${index + 1}`}
             />
-          );
-        })}
+          ))}
+        </div>
       </div>
 
       {/* Additional Savings Info */}
