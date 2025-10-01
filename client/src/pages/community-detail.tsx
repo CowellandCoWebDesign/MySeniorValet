@@ -1316,65 +1316,11 @@ export default function CommunityDetail() {
     }
   }, [id]);
   
-  // AUTO-FETCH PHOTOS: Smart photo fetching without expensive API calls
-  // Only fetches photos if missing, uses cached data when available
-  React.useEffect(() => {
-    if (!community || hasStartedVerification || isVerifying || verificationReport) {
-      return;
-    }
-    
-    // Check if community has photos
-    const hasPhotos = community.photos && community.photos.length > 0;
-    const hasVerificationPhotos = verificationReport?.verificationResults?.webIntelligence?.images?.length > 0;
-    
-    // Only auto-fetch if NO photos exist anywhere
-    if (!hasPhotos && !hasVerificationPhotos) {
-      console.log('🔍 Community has no photos, auto-fetching photos using cache-first approach...');
-      // Call with forceRefresh: false to use cache when available
-      handleAutoPhotoFetch();
-    }
-  }, [community, hasStartedVerification, isVerifying, verificationReport]);
+  // REMOVED: Auto-fetch photos to prevent unwanted API calls
+  // Photos are now only fetched when user clicks "Search for Market Data & Photos"
+  // This prevents automatic Perplexity API charges
 
-  // AUTO PHOTO FETCH: Cache-first approach to minimize API costs
-  const handleAutoPhotoFetch = async () => {
-    if (!community?.id || isVerifying) return;
-    
-    console.log('🔍 Auto-fetching photos for:', community.name, '(cache-first)');
-    console.log('📌 Community website:', community.website || 'none');
-    setHasStartedVerification(true);
-    setIsVerifying(true);
-    
-    try {
-      const response = await fetch(`/api/communities/${community.id}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          forceRefresh: false,  // FALSE = use cache when available
-          websiteUrl: community.website  // Pass the website URL from database
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Photo fetch failed: ${response.status}`);
-      }
-      
-      const report = await response.json();
-      const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
-      console.log('✅ Photo fetch complete, photos found:', foundPhotos);
-      setVerificationReport(report);
-      
-      // Photos will be displayed from the verification report
-      if (foundPhotos > 0) {
-        // Trigger a refresh to update the UI
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
-      }
-    } catch (error) {
-      console.error('❌ Photo fetch error:', error);
-      setHasStartedVerification(false); // Allow retry on error
-    } finally {
-      setIsVerifying(false);
-    }
-  };
+  // REMOVED: handleAutoPhotoFetch function - no longer needed since auto-fetching is disabled
 
   // MANUAL VERIFICATION: User-triggered search with force refresh
   const handleManualVerification = async () => {
