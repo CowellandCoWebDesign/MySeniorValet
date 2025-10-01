@@ -2511,25 +2511,26 @@ Provide complete business data with ALL actual image URLs found.`;
     });
   });
 
-  // Production Replit Auth endpoint
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      console.log("✅ Replit Auth - Fetching user with ID:", userId);
+  // Production Replit Auth endpoint - DISABLED: Using custom auth instead
+  // Commenting out to avoid conflict with custom auth endpoint in custom-auth.ts
+  // app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  //   try {
+  //     const userId = req.user.claims.sub;
+  //     console.log("✅ Replit Auth - Fetching user with ID:", userId);
 
-      const user = await storage.getUser(userId);
-      if (!user) {
-        console.log("❌ User not found in database for ID:", userId);
-        return res.status(404).json({ message: "User not found" });
-      }
+  //     const user = await storage.getUser(userId);
+  //     if (!user) {
+  //       console.log("❌ User not found in database for ID:", userId);
+  //       return res.status(404).json({ message: "User not found" });
+  //     }
 
-      console.log("✅ Replit Auth - User found:", user.id, user.email, user.role);
-      res.json(user);
-    } catch (error) {
-      console.error("❌ Error fetching authenticated user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  //     console.log("✅ Replit Auth - User found:", user.id, user.email, user.role);
+  //     res.json(user);
+  //   } catch (error) {
+  //     console.error("❌ Error fetching authenticated user:", error);
+  //     res.status(500).json({ message: "Failed to fetch user" });
+  //   }
+  // });
 
   // Get user role endpoint - required for admin access control
   app.get('/api/auth/user/role', (req: any, res) => {
