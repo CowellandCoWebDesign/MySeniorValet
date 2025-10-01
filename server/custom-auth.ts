@@ -38,6 +38,9 @@ export function setupCustomAuth(app: Express) {
     console.warn('⚠️  WARNING: SESSION_SECRET not set. Using default for development only.');
   }
   
+  // Enable trust proxy for Replit's proxied environment
+  app.set('trust proxy', 1);
+  
   // Use PostgreSQL for session storage
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
@@ -54,7 +57,7 @@ export function setupCustomAuth(app: Express) {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProduction,
+      secure: 'auto', // Automatically detect secure connections
       sameSite: 'lax',
       maxAge: sessionTtl,
     },
