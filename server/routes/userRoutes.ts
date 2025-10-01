@@ -10,9 +10,20 @@ import {
   searchHistory 
 } from "@shared/schema";
 import { eq, and, desc, sql } from "drizzle-orm";
-import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { storage } from "../storage";
 import { Parser } from 'json2csv';
+
+// Session-based authentication middleware
+function requireSessionAuth(req: any, res: any, next: any) {
+  if (!req.session?.user) {
+    return res.status(401).json({ message: 'Not authenticated' });
+  }
+  // Set req.user from session for compatibility
+  req.user = req.session.user;
+  next();
+}
+
+const requireAuth = requireSessionAuth;
 
 export function registerUserRoutes(app: Express) {
   // User favorites
