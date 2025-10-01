@@ -44,6 +44,7 @@ import { registerEmailRoutes } from "./emailRoutes";
 import { registerFloralRoutes } from "./floralRoutes";
 import { registerMoveInServicesRoutes } from "./moveInServicesRoutes";
 import { registerDmcaRoutes } from "./dmca-routes";
+import { registerDuplicateManagementRoutes } from "./duplicateManagementRoutes";
 import movingRoutes from "./movingRoutes";
 import transportationRoutes from "./transportationRoutes";
 import familyConnectRoutes from "./familyConnectRoutes";
@@ -140,6 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', autocompleteRoutes); // Register autocomplete routes
 
   registerAdminRoutes(app);
+  registerDuplicateManagementRoutes(app); // Register duplicate management admin routes
   registerVendorRoutes(app);
   // Tour routes are registered directly in server/routes.ts
   registerClaimRoutes(app);
