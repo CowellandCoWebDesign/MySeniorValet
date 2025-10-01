@@ -913,7 +913,7 @@ Keep responses concise and focus on the most relevant results.`;
             if (existing.length === 0 && discovered.name) {
               // Save new discovered service to database
               const [newService] = await db.insert(services)
-                .values({
+                .values([{
                   name: discovered.name,
                   description: discovered.description || `Service discovered in ${discovered.city || query}`,
                   shortDescription: discovered.description ? discovered.description.substring(0, 200) : `Service in ${discovered.city || query}`,
@@ -942,7 +942,7 @@ Keep responses concise and focus on the most relevant results.`;
                     isResource: discovered.isResource || false,
                     resourceType: discovered.resourceType || 'direct_business'
                   }
-                })
+                }])
                 .returning();
               
               savedServices.push(newService);
@@ -1114,7 +1114,7 @@ Keep responses concise and focus on the most relevant results.`;
               }
 
               const [newCommunity] = await db.insert(communities)
-                .values({
+                .values([{
                   name: discovered.name,
                   address: discovered.address || discovered.location || 'Address pending verification',
                   city: discovered.city || query.split(',')[0] || 'Unknown',
@@ -1141,7 +1141,7 @@ Keep responses concise and focus on the most relevant results.`;
                     autoApproved: false
                   }] as any[], // Cast to any[] to match JSON type
                   isVerified: false
-                })
+                }])
                 .returning();
               
               console.log(`💾 Saved new discovered community: ${discovered.name} (ID: ${newCommunity.id})`);
