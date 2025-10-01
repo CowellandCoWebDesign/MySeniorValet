@@ -153,7 +153,7 @@ router.get('/api/image-proxy', async (req, res) => {
     console.log(`✅ Successfully proxied image from ${validUrl.hostname}`);
 
   } catch (error: any) {
-    console.error(`❌ Image proxy error for ${imageUrl}:`, error.message);
+    console.error(`❌ Image proxy error for ${decodedUrl}:`, error.message);
 
     // Return transparent pixel for any error
     const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
