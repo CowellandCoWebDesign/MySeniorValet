@@ -281,6 +281,49 @@ export function setupSocialAuth(app: any) {
     });
   });
 
+  // Debug endpoint to show OAuth configuration
+  router.get('/api/auth/oauth-debug', (req, res) => {
+    const host = req.get('host');
+    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    const googleRedirectUri = `${protocol}://${host}/api/auth/google/callback`;
+    const facebookRedirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
+    
+    res.json({
+      message: 'Add these exact URLs to your OAuth providers',
+      google: {
+        configured: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+        clientId: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.substring(0, 30) + '...' : 'Not configured',
+        redirectUri: googleRedirectUri,
+        consoleUrl: 'https://console.cloud.google.com/apis/credentials',
+        instructions: [
+          '1. Go to Google Cloud Console using the link above',
+          '2. Find your OAuth 2.0 Client ID',
+          '3. Click on it to edit',
+          '4. Under "Authorized redirect URIs", add the redirect URI shown above',
+          '5. Click SAVE and wait 5-10 minutes'
+        ]
+      },
+      facebook: {
+        configured: !!(process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET),
+        appId: process.env.FACEBOOK_APP_ID || 'Not configured',
+        redirectUri: facebookRedirectUri,
+        consoleUrl: 'https://developers.facebook.com/apps/',
+        instructions: [
+          '1. Go to Facebook Developers using the link above',
+          '2. Select your app',
+          '3. Go to Facebook Login > Settings',
+          '4. Add the redirect URI shown above to "Valid OAuth Redirect URIs"',
+          '5. Save Changes'
+        ]
+      },
+      currentRequest: {
+        protocol: protocol,
+        host: host,
+        fullUrl: `${protocol}://${host}`
+      }
+    });
+  });
+
   app.use(router);
   
   console.log('✅ Social authentication initialized (Google & Facebook OAuth)');
