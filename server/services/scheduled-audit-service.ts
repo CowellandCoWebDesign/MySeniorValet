@@ -27,28 +27,41 @@ export class ScheduledAuditService {
 
   /**
    * Start the scheduled audit service
-   * Runs immediately on start, then monthly
+   * Deferred startup - waits 5 minutes before first run to avoid blocking health checks
    */
   public static startScheduledAudits(): void {
-    // Run immediately on startup
-    this.runAudit();
-
-    // Then schedule monthly (on the 1st of each month at 2 AM)
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 2, 0, 0, 0);
-    const timeUntilNextMonth = nextMonth.getTime() - now.getTime();
-
-    // Schedule first run for next month
+    // Defer the first audit by 5 minutes to allow application startup
+    const STARTUP_DELAY = 5 * 60 * 1000; // 5 minutes
+    
+    console.log('📊 Scheduled audit service will start in 5 minutes to avoid blocking startup...');
+    
     setTimeout(() => {
-      this.runAudit();
-      
-      // Then run monthly
-      this.auditInterval = setInterval(() => {
-        this.runAudit();
-      }, 30 * 24 * 60 * 60 * 1000); // 30 days
-    }, timeUntilNextMonth);
+      // Run the first audit
+      this.runAudit().catch(error => {
+        console.error('Failed to run initial audit:', error);
+      });
 
-    console.log('📊 Scheduled audit service started. Next audit:', nextMonth.toLocaleString());
+      // Then schedule monthly (on the 1st of each month at 2 AM)
+      const now = new Date();
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 2, 0, 0, 0);
+      const timeUntilNextMonth = nextMonth.getTime() - now.getTime();
+
+      // Schedule next run for next month
+      setTimeout(() => {
+        this.runAudit().catch(error => {
+          console.error('Failed to run scheduled audit:', error);
+        });
+        
+        // Then run monthly
+        this.auditInterval = setInterval(() => {
+          this.runAudit().catch(error => {
+            console.error('Failed to run monthly audit:', error);
+          });
+        }, 30 * 24 * 60 * 60 * 1000); // 30 days
+      }, timeUntilNextMonth);
+
+      console.log('📊 Scheduled audit service started. Next audit:', nextMonth.toLocaleString());
+    }, STARTUP_DELAY);
   }
 
   /**

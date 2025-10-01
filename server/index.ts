@@ -59,6 +59,24 @@ app.use(compression({
 // Trust proxy for accurate IP detection
 app.set('trust proxy', 1);
 
+// Lightweight health check endpoint (no database required)
+// MUST be registered before any middleware that might block or require DB
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    service: 'MySeniorValet API',
+    version: '1.0.0'
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Security middleware stack (order matters)
 app.use(corsPolicy);
 app.use(securityHeaders);
@@ -187,18 +205,7 @@ app.use((req, res, next) => {
     console.error('Failed to initialize cache service:', error);
   });
 
-  // DISABLED: Scheduled Audit Service - causing database connection exhaustion
-  // This service was running in an infinite loop, continuously failing with timeout errors
-  // and exhausting all available database connections, preventing the verify endpoint from working
-  // TODO: Fix the audit service implementation before re-enabling
-  /*
-  import('./services/scheduled-audit-service').then(({ ScheduledAuditService }) => {
-    ScheduledAuditService.startScheduledAudits();
-    console.log('📊 Scheduled Audit Service initialized - Monthly integrity checks activated');
-  }).catch(error => {
-    console.error('Failed to initialize scheduled audit service:', error);
-  });
-  */
+  // ScheduledAuditService completely removed - was causing deployment connection timeouts
 
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {

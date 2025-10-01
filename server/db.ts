@@ -11,14 +11,20 @@ if (!process.env.DATABASE_URL) {
   );
 }
 
+// Enhanced pool configuration for Neon serverless deployment
 export const pool = new Pool({ 
   connectionString: process.env.DATABASE_URL,
-  connectionTimeoutMillis: 30000, // 30 second connection timeout (optimized for Neon)
-  idleTimeoutMillis: 10000, // 10 second idle timeout (reduced for serverless)
-  max: 5, // Further reduced for Neon serverless (recommended: 3-5)
+  connectionTimeoutMillis: 60000, // Increased to 60 seconds for deployment environment
+  idleTimeoutMillis: 5000, // Reduced to 5 seconds for faster cleanup
+  max: 3, // Minimal connections for Neon serverless
   min: 0, // Don't keep minimum connections (serverless best practice)
-  maxUses: 1000, // Rotate connections more frequently to prevent stale connections
-  allowExitOnIdle: true // Allow exit on idle for serverless
+  maxUses: 500, // Rotate connections more frequently
+  allowExitOnIdle: true, // Allow exit on idle for serverless
+  // Retry configuration for better resilience
+  statement_timeout: 30000, // 30 second query timeout
+  query_timeout: 30000, // 30 second query timeout
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000
 });
 
 // Improved error handling with connection type detection
@@ -48,3 +54,45 @@ pool.on('connect', (client) => {
 });
 
 export const db = drizzle({ client: pool, schema });
+
+// Connection validation helper with retry logic
+export async function validateConnection(retries = 3): Promise<boolean> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      // Simple query to test connection
+      await pool.query('SELECT 1');
+      return true;
+    } catch (error: any) {
+      console.warn(`Database connection validation attempt ${i + 1}/${retries} failed:`, error.message);
+      if (i < retries - 1) {
+        // Wait before retry (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 1000));
+      }
+    }
+  }
+  return false;
+}
+
+// Helper to execute queries with connection validation
+export async function safeQuery<T>(
+  queryFn: () => Promise<T>,
+  skipValidation = false
+): Promise<T> {
+  if (!skipValidation) {
+    const isConnected = await validateConnection();
+    if (!isConnected) {
+      throw new Error('Database connection unavailable');
+    }
+  }
+  
+  try {
+    return await queryFn();
+  } catch (error: any) {
+    // Handle common Neon errors
+    if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      console.error('Database connection error:', error.message);
+      throw new Error('Database temporarily unavailable');
+    }
+    throw error;
+  }
+}
