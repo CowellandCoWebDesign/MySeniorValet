@@ -187,13 +187,18 @@ app.use((req, res, next) => {
     console.error('Failed to initialize cache service:', error);
   });
 
-  // Initialize Scheduled Audit Service for data integrity
+  // DISABLED: Scheduled Audit Service - causing database connection exhaustion
+  // This service was running in an infinite loop, continuously failing with timeout errors
+  // and exhausting all available database connections, preventing the verify endpoint from working
+  // TODO: Fix the audit service implementation before re-enabling
+  /*
   import('./services/scheduled-audit-service').then(({ ScheduledAuditService }) => {
     ScheduledAuditService.startScheduledAudits();
     console.log('📊 Scheduled Audit Service initialized - Monthly integrity checks activated');
   }).catch(error => {
     console.error('Failed to initialize scheduled audit service:', error);
   });
+  */
 
   // Enhanced error handling middleware
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
