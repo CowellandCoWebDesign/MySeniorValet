@@ -1,9 +1,46 @@
 import { Router } from 'express';
 import type { Request, Response } from 'express';
+import { z } from 'zod';
 
 const router = Router();
 
+// Input validation schemas
+const idParamSchema = z.object({
+  id: z.string().regex(/^[a-zA-Z0-9-]+$/)
+});
+
+const paginationSchema = z.object({
+  page: z.string().regex(/^\d+$/).optional(),
+  limit: z.string().regex(/^\d+$/).optional()
+});
+
+// Sanitize output to prevent XSS
+function sanitizeOutput(input: any): any {
+  if (typeof input === 'string') {
+    return input
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '')
+      .trim();
+  }
+  if (Array.isArray(input)) {
+    return input.map(sanitizeOutput);
+  }
+  if (input && typeof input === 'object') {
+    const sanitized: any = {};
+    for (const key in input) {
+      if (input.hasOwnProperty(key)) {
+        sanitized[key] = sanitizeOutput(input[key]);
+      }
+    }
+    return sanitized;
+  }
+  return input;
+}
+
 // Mock data store - will be replaced with database
+// Using clearly example/placeholder data to prevent security warnings
 const staffData = {
   members: [
     {
@@ -12,8 +49,8 @@ const staffData = {
       role: 'Director of Nursing',
       department: 'Nursing',
       photo: '/api/placeholder/100/100',
-      email: 'sarah.j@community.com',
-      phone: '(555) 123-4567',
+      email: 'example1@example.local',  // Using .local domain to indicate non-routable
+      phone: '(000) 000-0001',  // Using clearly non-functional numbers
       certifications: ['RN', 'CPR', 'Dementia Care', 'Wound Care'],
       specializations: ['Memory Care', 'Rehabilitation', 'Palliative Care'],
       shift: 'Day Shift (7AM-3PM)',
@@ -21,7 +58,7 @@ const staffData = {
       rating: 4.9,
       yearsExperience: 15,
       languages: ['English', 'Spanish'],
-      emergencyContact: '(555) 987-6543',
+      emergencyContact: '(000) 000-0002',  // Using clearly non-functional numbers
       nextTraining: 'Annual CPR Recertification',
       complianceScore: 98
     },
@@ -31,8 +68,8 @@ const staffData = {
       role: 'Charge Nurse',
       department: 'Nursing',
       photo: '/api/placeholder/100/100',
-      email: 'michael.c@community.com',
-      phone: '(555) 234-5678',
+      email: 'example2@example.local',  // Using .local domain to indicate non-routable
+      phone: '(000) 000-0003',  // Using clearly non-functional numbers
       certifications: ['LPN', 'CPR', 'Medication Administration'],
       specializations: ['Cardiac Care', 'Diabetes Management'],
       shift: 'Evening Shift (3PM-11PM)',
@@ -40,7 +77,7 @@ const staffData = {
       rating: 4.7,
       yearsExperience: 8,
       languages: ['English', 'Mandarin'],
-      emergencyContact: '(555) 876-5432',
+      emergencyContact: '(000) 000-0004',  // Using clearly non-functional numbers
       nextTraining: 'Infection Control Update',
       complianceScore: 95
     },
@@ -50,8 +87,8 @@ const staffData = {
       role: 'Certified Nursing Assistant',
       department: 'Care Team',
       photo: '/api/placeholder/100/100',
-      email: 'emily.r@community.com',
-      phone: '(555) 345-6789',
+      email: 'example3@example.local',  // Using .local domain to indicate non-routable
+      phone: '(000) 000-0005',  // Using clearly non-functional numbers
       certifications: ['CNA', 'CPR', 'First Aid'],
       specializations: ['Personal Care', 'Mobility Assistance'],
       shift: 'Day Shift (7AM-3PM)',
@@ -59,7 +96,7 @@ const staffData = {
       rating: 4.8,
       yearsExperience: 5,
       languages: ['English', 'Spanish', 'Portuguese'],
-      emergencyContact: '(555) 765-4321',
+      emergencyContact: '(000) 000-0006',  // Using clearly non-functional numbers
       nextTraining: 'Infection Control',
       complianceScore: 97
     }
@@ -262,9 +299,24 @@ router.put('/members/:id', async (req: Request, res: Response) => {
       });
     }
     
+    // Validate and sanitize input to prevent prototype pollution
+    const updates: any = {};
+    
+    // Safe property extraction without bracket notation
+    if (req.body.name !== undefined) updates.name = req.body.name;
+    if (req.body.department !== undefined) updates.department = req.body.department;
+    if (req.body.position !== undefined) updates.position = req.body.position;
+    if (req.body.email !== undefined) updates.email = req.body.email;
+    if (req.body.phone !== undefined) updates.phone = req.body.phone;
+    if (req.body.startDate !== undefined) updates.startDate = req.body.startDate;
+    if (req.body.schedule !== undefined) updates.schedule = req.body.schedule;
+    if (req.body.certifications !== undefined) updates.certifications = req.body.certifications;
+    if (req.body.emergencyContact !== undefined) updates.emergencyContact = req.body.emergencyContact;
+    if (req.body.status !== undefined) updates.status = req.body.status;
+    
     staffData.members[memberIndex] = {
       ...staffData.members[memberIndex],
-      ...req.body
+      ...updates
     };
     
     res.json({
@@ -354,9 +406,21 @@ router.put('/shifts/:id', async (req: Request, res: Response) => {
       });
     }
     
+    // Validate and sanitize input to prevent prototype pollution
+    const updates: any = {};
+    
+    // Safe property extraction without bracket notation
+    if (req.body.date !== undefined) updates.date = req.body.date;
+    if (req.body.startTime !== undefined) updates.startTime = req.body.startTime;
+    if (req.body.endTime !== undefined) updates.endTime = req.body.endTime;
+    if (req.body.assignedTo !== undefined) updates.assignedTo = req.body.assignedTo;
+    if (req.body.department !== undefined) updates.department = req.body.department;
+    if (req.body.type !== undefined) updates.type = req.body.type;
+    if (req.body.notes !== undefined) updates.notes = req.body.notes;
+    
     staffData.shifts[shiftIndex] = {
       ...staffData.shifts[shiftIndex],
-      ...req.body
+      ...updates
     };
     
     res.json({

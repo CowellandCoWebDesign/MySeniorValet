@@ -58,8 +58,8 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
 
 // Super admin notification specifically
 export async function notifySuperAdmin(title: string, message: string, data?: any) {
-  // Send to both William and admin@myseniorvalet.com
-  const recipients = ['William.cowell01@gmail.com', 'admin@myseniorvalet.com'];
+  // Send to admin@myseniorvalet.com with BCC to hello
+  const recipients = ['admin@myseniorvalet.com'];
   
   for (const recipient of recipients) {
     await sendEmail({

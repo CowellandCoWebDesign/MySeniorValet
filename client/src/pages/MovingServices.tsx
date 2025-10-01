@@ -197,7 +197,7 @@ const MovingServices = () => {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">Why Choose TWO MEN AND A TRUCK?</h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300">Trusted by millions of families nationwide</p>
+            <p className="text-xl text-gray-600 dark:text-gray-300">Researched and discovered by millions of families nationwide</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

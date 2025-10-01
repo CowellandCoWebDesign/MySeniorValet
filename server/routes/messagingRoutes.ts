@@ -24,16 +24,33 @@ router.get("/conversations", async (req, res) => {
       return res.status(400).json({ error: "User ID required" });
     }
 
-    const conversations = await messagingService.getConversations(userId);
+    // Get conversations directly from database to avoid messaging service issues
+    const userConversations = await db.select()
+      .from(conversations)
+      .where(sql`${conversations.participants}::jsonb @> ${JSON.stringify([{ userId }])}`)
+      .orderBy(desc(conversations.lastMessageAt));
     
     // Enrich conversations with participant details
     const enrichedConversations = await Promise.all(
-      conversations.map(async (conv) => {
+      userConversations.map(async (conv) => {
         const participants = (conv.participants as any[]) || [];
         
         // Get user details for participants
         const participantDetails = await Promise.all(
           participants.map(async (p) => {
+            // Skip community representatives (they have string IDs like "community_123")
+            if (typeof p.userId === 'string' && p.userId.startsWith('community_')) {
+              return {
+                ...p,
+                user: {
+                  id: p.userId,
+                  firstName: 'Community',
+                  lastName: 'Representative',
+                  profileImageUrl: null
+                }
+              };
+            }
+            
             const [user] = await db.select({
               id: users.id,
               firstName: users.firstName,
@@ -41,7 +58,7 @@ router.get("/conversations", async (req, res) => {
               profileImageUrl: users.profileImageUrl
             })
             .from(users)
-            .where(eq(users.id, p.userId));
+            .where(eq(users.id, parseInt(p.userId)));
             
             return {
               ...p,
@@ -98,7 +115,7 @@ router.get("/conversations/:conversationId/messages", async (req, res) => {
           profileImageUrl: users.profileImageUrl
         })
         .from(users)
-        .where(eq(users.id, msg.senderId));
+        .where(eq(users.id, parseInt(msg.senderId)));
 
         return {
           ...msg,
@@ -145,7 +162,7 @@ router.post("/conversations/:conversationId/messages", async (req, res) => {
         profileImageUrl: users.profileImageUrl
       })
       .from(users)
-      .where(eq(users.id, senderId));
+      .where(eq(users.id, parseInt(senderId)));
     } else if (senderType === 'community') {
       [sender] = await db.select({
         id: communities.id,

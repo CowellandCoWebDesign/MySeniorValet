@@ -10,7 +10,15 @@ export interface PerplexityResponse {
     };
   }>;
   citations?: string[];
-  images?: string[];  // URLs of relevant images found
+  images?: string[];  // URLs of relevant images found (deprecated)
+  provider_metadata?: {
+    images?: Array<{
+      imageUrl: string;
+      originUrl: string;
+      height?: number;
+      width?: number;
+    }>;
+  };
   usage: {
     prompt_tokens: number;
     completion_tokens: number;
@@ -87,7 +95,7 @@ CRITICAL INSTRUCTIONS:
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
         {
-          model: 'sonar-pro',  // Use best model for comprehensive, accurate results
+          model: 'sonar-pro',  // Enhanced model with low context for cost optimization
           messages: [
             {
               role: 'system',
@@ -105,6 +113,9 @@ CRITICAL INSTRUCTIONS:
           return_related_questions: false,
           search_domain_filter: [],  // Search all domains for maximum photo coverage
           search_recency_filter: undefined,  // No time restriction - get all available data for transparency
+          web_search_options: {
+            search_context_size: "low"  // Low context for cost reduction while keeping sonar-pro quality
+          },
           stream: false
         },
         {
@@ -117,7 +128,26 @@ CRITICAL INSTRUCTIONS:
 
       const summary = response.data.choices[0]?.message?.content || 'No results found';
       const sources = response.data.citations || [];
-      const images = response.data.images || [];
+      
+      // Extract real image URLs from provider_metadata if available (return_images feature)
+      let images: string[] = [];
+      if (response.data.provider_metadata?.images) {
+        console.log(`📸 Found ${response.data.provider_metadata.images.length} real images from provider_metadata`);
+        images = response.data.provider_metadata.images.map(img => img.imageUrl);
+      } else {
+        // Fallback to extracting from response text
+        // Normalize response.data.images to ensure they're strings
+        const normalizedImages = response.data.images ? 
+          response.data.images.map(img => {
+            // Handle various image formats from Perplexity API
+            if (typeof img === 'string') return img;
+            if (img?.imageUrl) return img.imageUrl;
+            if (img?.url) return img.url;
+            return null;
+          }).filter(Boolean) : [];
+        
+        images = this.extractImagesFromResponse(summary, normalizedImages);
+      }
       
       // Log the unfiltered Perplexity response for debugging
       console.log('\n=== UNFILTERED PERPLEXITY RESPONSE ===');
@@ -237,6 +267,75 @@ CRITICAL INSTRUCTIONS:
     const marketRegex = /(compared to|average|market|typical)[^.]*[.]/gi;
     const matches = text.match(marketRegex);
     return matches ? matches[0] : undefined;
+  }
+
+  private extractImagesFromResponse(text: string, perplexityImages?: string[]): string[] {
+    const extractedImages = new Set<string>();
+    
+    // First add any images that Perplexity API might return directly
+    if (perplexityImages && Array.isArray(perplexityImages)) {
+      perplexityImages.forEach(img => extractedImages.add(img));
+    }
+    
+    // Extract image URLs from the text content
+    // Look for markdown image syntax: ![alt](url)
+    const markdownImageRegex = /!\[[^\]]*\]\(([^)]+)\)/g;
+    let match;
+    while ((match = markdownImageRegex.exec(text)) !== null) {
+      if (match[1] && this.isValidImageUrl(match[1])) {
+        extractedImages.add(match[1]);
+      }
+    }
+    
+    // Look for direct image URLs in the text
+    const imageUrlRegex = /https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|svg|JPG|JPEG|PNG)(?:\?[^\s]*)?/gi;
+    const urlMatches = text.match(imageUrlRegex);
+    if (urlMatches) {
+      urlMatches.forEach(url => {
+        if (this.isValidImageUrl(url)) {
+          extractedImages.add(url.trim());
+        }
+      });
+    }
+    
+    // Look for URLs that might be images (common CDN patterns)
+    const cdnImageRegex = /https?:\/\/[^\s]*(?:cloudinary|imgix|fastly|cloudfront|amazonaws|googleusercontent|ggpht|fbcdn|twimg)[^\s]*\/[^\s]+/gi;
+    const cdnMatches = text.match(cdnImageRegex);
+    if (cdnMatches) {
+      cdnMatches.forEach(url => {
+        if (this.isValidImageUrl(url)) {
+          extractedImages.add(url.trim());
+        }
+      });
+    }
+    
+    const imageArray = Array.from(extractedImages);
+    if (imageArray.length > 0) {
+      console.log(`📸 Extracted ${imageArray.length} images from Perplexity response`);
+    }
+    return imageArray;
+  }
+  
+  private isValidImageUrl(url: string): boolean {
+    if (!url || url.length < 10) return false;
+    
+    // Filter out known non-image URLs
+    const excludePatterns = [
+      /\.pdf$/i,
+      /\.doc/i,
+      /\.xls/i,
+      /youtube\.com/i,
+      /vimeo\.com/i,
+      /facebook\.com(?!\/.*\/photos)/i,
+      /twitter\.com(?!\/.*\/photo)/i,
+      /linkedin\.com/i
+    ];
+    
+    for (const pattern of excludePatterns) {
+      if (pattern.test(url)) return false;
+    }
+    
+    return true;
   }
 
   // Method for enhanced search intelligence compatibility

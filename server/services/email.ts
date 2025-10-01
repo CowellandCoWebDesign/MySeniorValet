@@ -17,6 +17,7 @@ export interface EmailOptions {
   replyTo?: string;
   templateId?: string;
   dynamicTemplateData?: Record<string, any>;
+  isTransactional?: boolean; // Transactional emails don't need unsubscribe
 }
 
 // Default sender email
@@ -24,6 +25,31 @@ const DEFAULT_FROM_EMAIL = 'hello@myseniorvalet.com';
 const DEFAULT_FROM_NAME = 'MySeniorValet';
 
 export class EmailService {
+  // Helper to generate unsubscribe footer
+  private static getUnsubscribeFooter(email: string): string {
+    const unsubscribeUrl = `https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(email)}`;
+    return `
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+      <div style="text-align: center; font-size: 12px; color: #999; padding: 20px 0;">
+        <p style="margin: 5px 0;">
+          You're receiving this email because you're subscribed to MySeniorValet updates.
+        </p>
+        <p style="margin: 5px 0;">
+          <a href="${unsubscribeUrl}" style="color: #666; text-decoration: underline;">
+            Unsubscribe from all emails
+          </a>
+          |
+          <a href="https://myseniorvalet.com/email-preferences?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: underline;">
+            Update email preferences
+          </a>
+        </p>
+        <p style="margin: 5px 0;">
+          MySeniorValet | hello@myseniorvalet.com
+        </p>
+      </div>
+    `;
+  }
+
   static async sendEmail(options: EmailOptions): Promise<boolean> {
     if (!SENDGRID_API_KEY) {
       console.error('SendGrid API key not configured');
@@ -31,6 +57,9 @@ export class EmailService {
     }
 
     try {
+      // Get the recipient email (for unsubscribe links)
+      const recipientEmail = Array.isArray(options.to) ? options.to[0] : options.to;
+      
       const msg: any = {
         to: options.to,
         from: {
@@ -40,6 +69,15 @@ export class EmailService {
         subject: options.subject,
         replyTo: options.replyTo
       };
+      
+      // Add List-Unsubscribe headers for marketing emails (not transactional)
+      if (!options.isTransactional) {
+        const unsubscribeUrl = `https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
+        msg.headers = {
+          'List-Unsubscribe': `<${unsubscribeUrl}>`,
+          'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+        };
+      }
       
       // Add cc and bcc if provided
       if (options.cc) {
@@ -56,8 +94,20 @@ export class EmailService {
         msg.templateId = options.templateId;
         msg.dynamicTemplateData = options.dynamicTemplateData;
       } else {
-        if (options.text) msg.text = options.text;
-        if (options.html) msg.html = options.html;
+        if (options.text) {
+          msg.text = options.text;
+          // Add unsubscribe link to text emails if not transactional
+          if (!options.isTransactional) {
+            msg.text += `\n\n---\nTo unsubscribe from all emails: https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
+          }
+        }
+        if (options.html) {
+          // Add unsubscribe footer to HTML emails if not transactional
+          msg.html = options.html;
+          if (!options.isTransactional) {
+            msg.html += this.getUnsubscribeFooter(recipientEmail);
+          }
+        }
       }
 
       console.log(`Attempting to send email:
@@ -127,7 +177,7 @@ export class EmailService {
             <h3 style="margin-top: 0;">Quick Review</h3>
             <p>How would you rate your experience?</p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://myseniorvalet.com/communities/${communityId}/review?rating=5" style="font-size: 24px; text-decoration: none; margin: 0 5px;">⭐⭐⭐⭐⭐</a>
+              <a href="https://myseniorvalet.com/community/${communityId}#reviews?rating=5" style="font-size: 24px; text-decoration: none; margin: 0 5px;">⭐⭐⭐⭐⭐</a>
             </div>
           </div>
           
@@ -139,7 +189,7 @@ export class EmailService {
           </ul>
           
           <div style="margin: 30px 0;">
-            <a href="https://myseniorvalet.com/communities/${communityId}/review" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Write a Review</a>
+            <a href="https://myseniorvalet.com/community/${communityId}#reviews" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Write a Review</a>
           </div>
           
           <p style="color: #666; font-size: 14px;">
@@ -200,6 +250,7 @@ export class EmailService {
       to: email,
       cc: ['hello@myseniorvalet.com'], // Always CC for tour tracking
       subject: `Tour Confirmed - ${communityName} - ${formattedDate}`,
+      isTransactional: true, // Tour confirmations are transactional
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background-color: #1e40af; color: white; padding: 30px; text-align: center;">
@@ -271,7 +322,7 @@ export class EmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${process.env.FRONTEND_URL || 'https://myseniorvalet.com'}/communities/${communityName.toLowerCase().replace(/\s+/g, '-')}" 
+              <a href="https://myseniorvalet.com/search?query=${encodeURIComponent(communityName)}" 
                  style="background-color: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 View Community Profile
               </a>

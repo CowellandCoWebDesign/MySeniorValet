@@ -230,16 +230,46 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     }
 
     // Search vendors/services (if category is all or vendors)
-    if (!category || category === 'all' || category === 'vendors') {
+    if (!category || category === 'all' || category === 'vendors' || category === 'services') {
+      // Check if searching for a business type (hotels, restaurants, etc.)
+      const businessTypeKeywords = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'pharmacies', 'store', 'stores', 'shop', 'shops', 'cafe', 'cafes', 'lawyer', 'lawyers', 'attorney', 'attorneys'];
+      const searchingForBusinessType = businessTypeKeywords.some(keyword => searchTerm.includes(keyword));
+      
+      // Special handling for business type searches
+      let whereCondition;
+      if (searchingForBusinessType) {
+        // Extract the singular form of the business type
+        let businessTypeSingular = searchTerm;
+        if (searchTerm === 'hotels') businessTypeSingular = 'hotel';
+        else if (searchTerm === 'restaurants') businessTypeSingular = 'restaurant';
+        else if (searchTerm === 'pharmacies') businessTypeSingular = 'pharmacy';
+        else if (searchTerm === 'stores') businessTypeSingular = 'store';
+        else if (searchTerm === 'shops') businessTypeSingular = 'shop';
+        else if (searchTerm === 'cafes') businessTypeSingular = 'cafe';
+        else if (searchTerm === 'lawyers') businessTypeSingular = 'lawyer';
+        else if (searchTerm === 'attorneys') businessTypeSingular = 'attorney';
+        
+        // Search for the business type in the business name
+        whereCondition = or(
+          ilike(vendors.businessName, `%${businessTypeSingular}%`),
+          ilike(vendors.businessType, `%${searchTerm}%`)
+        );
+      } else {
+        // Regular name search
+        whereCondition = ilike(vendors.businessName, `%${searchTerm}%`);
+      }
+      
       const vendorResults = await db
         .select({
           id: vendors.id,
           businessName: vendors.businessName,
-          businessType: vendors.businessType
+          businessType: vendors.businessType,
+          businessCity: vendors.businessCity,
+          businessState: vendors.businessState
         })
         .from(vendors)
-        .where(ilike(vendors.businessName, `%${searchTerm}%`))
-        .limit(5); // Increased from 3 to 5
+        .where(whereCondition)
+        .limit(50); // Increased limit to show more results when searching for business types
 
       vendorResults.forEach(v => {
         suggestions.push({
@@ -247,7 +277,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           value: v.businessName,
           type: 'vendor',
           id: v.id,
-          description: v.businessType || 'Service Provider'
+          description: `${v.businessCity ? v.businessCity + ', ' : ''}${v.businessState ? v.businessState + ' - ' : ''}${v.businessType || 'Service Provider'}`
         });
       });
     }

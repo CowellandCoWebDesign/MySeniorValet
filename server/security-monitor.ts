@@ -86,10 +86,20 @@ export class SecurityMonitor {
     this.userAgents.set(userAgent, (this.userAgents.get(userAgent) || 0) + 1);
     this.endpoints.set(endpoint, (this.endpoints.get(endpoint) || 0) + 1);
 
+    // Skip injection checks for image proxy URL parameters
+    const isImageProxy = endpoint.startsWith('/api/image-proxy');
+    let requestDataToCheck = JSON.stringify({ body: req.body, query: req.query, params: req.params });
+    
+    // If it's image proxy, exclude the URL parameter from injection checks
+    if (isImageProxy && req.query && req.query.url) {
+      const queryWithoutUrl = { ...req.query };
+      delete queryWithoutUrl.url;
+      requestDataToCheck = JSON.stringify({ body: req.body, query: queryWithoutUrl, params: req.params });
+    }
+
     // Check for SQL injection patterns
-    const requestData = JSON.stringify({ body: req.body, query: req.query, params: req.params });
     for (const pattern of this.suspiciousPatterns) {
-      if (pattern.test(requestData)) {
+      if (pattern.test(requestDataToCheck)) {
         threats.push({
           id: `${timestamp.getTime()}-injection-${threats.length}`,
           type: 'injection',
@@ -99,7 +109,7 @@ export class SecurityMonitor {
           timestamp,
           details: {
             pattern: pattern.source,
-            requestData: requestData.substring(0, 500), // Limit log size
+            requestData: requestDataToCheck.substring(0, 500), // Limit log size
             method: req.method,
             headers: req.headers
           },

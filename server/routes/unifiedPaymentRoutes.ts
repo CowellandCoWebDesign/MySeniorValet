@@ -15,12 +15,28 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-07-30.basil' as any,
 });
 
-// Community Subscription Tiers
+// Stripe Price IDs from configured products
+const STRIPE_PRICE_IDS = {
+  starter: 'price_1S53IkEQ489MwJ34ktvmZFHk',
+  growth: 'price_1S53IlEQ489MwJ34c6h8MRG8',
+  professional: 'price_1S53ImEQ489MwJ34haImoDqJ',
+  premium: 'price_1S53InEQ489MwJ34Be6qsJBz',
+  enterprise: 'price_1S53InEQ489MwJ34FMoJIocA'
+};
+
+// Community Subscription Tiers - Supporting both old and new tier names
 const COMMUNITY_TIERS = {
-  verified: { name: 'Verified Listing', price: 0, interval: 'month' as const },
-  standard: { name: 'Standard', price: 14900, interval: 'month' as const }, // $149 in cents
-  featured: { name: 'Featured', price: 34900, interval: 'month' as const }, // $349 in cents
-  platinum: { name: 'Platinum', price: 44900, interval: 'month' as const }, // $449 in cents
+  // New tier names (what frontend sends)
+  starter: { name: 'Starter', price: 9900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.starter }, // $99 in cents
+  growth: { name: 'Growth', price: 29900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.growth }, // $299 in cents
+  professional: { name: 'Professional', price: 99900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.professional }, // $999 in cents
+  premium: { name: 'Premium', price: 199900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.premium }, // $1999 in cents
+  enterprise: { name: 'Enterprise', price: 399900, interval: 'month' as const, priceId: STRIPE_PRICE_IDS.enterprise }, // $3999 in cents
+  // Legacy tier names (kept for backwards compatibility)
+  verified: { name: 'Verified Listing', price: 9900, interval: 'month' as const }, // Maps to Starter
+  standard: { name: 'Standard', price: 14900, interval: 'month' as const }, // Legacy price
+  featured: { name: 'Featured', price: 24900, interval: 'month' as const }, // Legacy price
+  platinum: { name: 'Platinum', price: 34900, interval: 'month' as const }, // Legacy price
 };
 
 // Vendor Subscription Tiers with Promotional Pricing
@@ -164,6 +180,105 @@ router.post('/create-payment-intent', async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error creating payment intent:', error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Create Subscription Checkout Session - Following Stripe Best Practices
+router.post('/create-subscription-checkout', async (req: Request, res: Response) => {
+  try {
+    const { tier, communityId, communityName, userEmail, successUrl, cancelUrl } = req.body;
+
+    // Validate tier
+    const tierInfo = COMMUNITY_TIERS[tier as keyof typeof COMMUNITY_TIERS];
+    if (!tierInfo) {
+      return res.status(400).json({ error: 'Invalid subscription tier' });
+    }
+
+    // Create or get Stripe customer
+    let customerId: string | undefined;
+    if (userEmail) {
+      const customers = await stripe.customers.list({
+        email: userEmail,
+        limit: 1
+      });
+
+      if (customers.data.length > 0) {
+        customerId = customers.data[0].id;
+      } else {
+        const customer = await stripe.customers.create({
+          email: userEmail,
+          metadata: {
+            communityId: communityId?.toString() || '',
+            communityName: communityName || ''
+          }
+        });
+        customerId = customer.id;
+      }
+    }
+
+    // Create Checkout Session for subscription
+    const sessionConfig: Stripe.Checkout.SessionCreateParams = {
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [{
+        quantity: 1,
+        ...(tierInfo.priceId 
+          ? { price: tierInfo.priceId }  // Use configured Stripe Price ID
+          : { // Fallback to dynamic pricing for legacy tiers
+              price_data: {
+                currency: 'usd',
+                product_data: {
+                  name: `${tierInfo.name} Community Subscription`,
+                  description: `Monthly subscription for ${communityName || 'your community'}`,
+                  metadata: {
+                    tier,
+                    communityId: communityId?.toString() || '',
+                    communityName: communityName || ''
+                  }
+                },
+                unit_amount: tierInfo.price,
+                recurring: {
+                  interval: tierInfo.interval
+                }
+              }
+            })
+      }],
+      customer: customerId,
+      subscription_data: {
+        metadata: {
+          communityId: communityId?.toString() || '',
+          communityName: communityName || '',
+          tier
+        }
+      },
+      metadata: {
+        communityId: communityId?.toString() || '',
+        communityName: communityName || '',
+        tier,
+        type: 'community_subscription'
+      },
+      success_url: successUrl || `${req.protocol}://${req.get('host')}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: cancelUrl || `${req.protocol}://${req.get('host')}/community-portal`,
+      allow_promotion_codes: true,
+      billing_address_collection: 'required'
+    };
+    
+    const session = await stripe.checkout.sessions.create(sessionConfig);
+
+    console.log(`Created subscription checkout session: ${session.id} for ${tier} tier`);
+
+    res.json({
+      success: true,
+      url: session.url,
+      sessionId: session.id
+    });
+
+  } catch (error: any) {
+    console.error('Error creating subscription checkout session:', error);
+    res.status(500).json({ 
+      error: 'Failed to create checkout session',
+      message: error.message 
+    });
   }
 });
 
@@ -628,6 +743,44 @@ router.post('/confirm-community-payment', async (req: Request, res: Response) =>
       });
     }
 
+    // Send email notifications
+    try {
+      const { notifySuperAdmin } = await import('../sendgrid-service');
+      
+      // Map tier names to pricing (handle both new and legacy names)
+      const tierPricing: Record<string, number> = {
+        'starter': 99,
+        'growth': 299,
+        'professional': 999,
+        'premium': 1999,
+        'enterprise': 3999,
+        'verified': 99,
+        'standard': 149,
+        'featured': 249,
+        'platinum': 349
+      };
+      
+      const price = tierPricing[tier] || 0;
+      
+      // Send notification to admin
+      await notifySuperAdmin(
+        `💳 New Community Payment - ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`,
+        `Community ID ${finalCommunityId} has upgraded to ${tier} tier.\n` +
+        `Amount: $${price}/month\n` +
+        `Payment ID: ${paymentIntentId}\n` +
+        `Status: Active`
+      );
+      
+      console.log('Email notification sent for community payment:', {
+        communityId: finalCommunityId,
+        tier,
+        price
+      });
+    } catch (emailError) {
+      console.error('Failed to send email notification:', emailError);
+      // Don't fail the payment confirmation if email fails
+    }
+
     // Return success response
     res.json({ 
       success: true, 
@@ -921,7 +1074,7 @@ router.post('/test-payment', async (req: Request, res: Response) => {
     // Confirm with test card
     const confirmed = await stripe.paymentIntents.confirm(paymentIntent.id, {
       payment_method: 'pm_card_visa',
-      return_url: process.env.NODE_ENV === 'production' 
+      return_url: (process.env.NODE_ENV || 'development') === 'production' 
         ? 'https://www.myseniorvalet.com/payment-success'
         : 'http://localhost:5000/payment-success',
     });

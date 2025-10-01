@@ -171,7 +171,7 @@ class MultiAIOrchestrator {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective analysis
           messages: [
             {
               role: 'system',
@@ -182,6 +182,9 @@ class MultiAIOrchestrator {
               content: `What are the current senior living trends and important factors for the area at coordinates ${context.location}? Include recent developments, pricing trends, and quality indicators.`
             }
           ],
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           temperature: 0.2,
           top_p: 0.9,
           return_related_questions: false,
@@ -318,7 +321,10 @@ class MultiAIOrchestrator {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
             {
               role: 'user',
@@ -472,7 +478,10 @@ class MultiAIOrchestrator {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective matching
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [{
             role: 'user',
             content: `What are current best practices for matching senior living communities to these preferences: ${JSON.stringify(preferences)}?`

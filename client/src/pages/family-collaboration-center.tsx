@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -20,11 +22,6 @@ import { FamilyMedicareManager } from '@/components/family/FamilyMedicareManager
 import DualSidedCostCalculator from '@/components/billing/DualSidedCostCalculator';
 import CareCoordinationManager from '@/components/care/CareCoordinationManager';
 import DailyLifeManager from '@/components/daily/DailyLifeManager';
-import StaffManagementSystem from '@/components/staff/StaffManagementSystem';
-import MarketingOccupancyManager from '@/components/marketing/MarketingOccupancyManager';
-import MultiPropertyDashboard from '@/components/enterprise/MultiPropertyDashboard';
-import ApiIntegrationHub from '@/components/enterprise/ApiIntegrationHub';
-import CustomReportBuilder from '@/components/enterprise/CustomReportBuilder';
 import { 
   Calendar, 
   MessageCircle, 
@@ -58,19 +55,76 @@ import {
   UserPlus,
   Video,
   Receipt,
-  Calculator
+  Calculator,
+  Briefcase,
+  Zap,
+  Building2,
+  AlertCircle,
+  Phone
 } from 'lucide-react';
+
+// Type definitions
+interface Message {
+  id: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  createdAt: string;
+}
+
+interface MessagesResponse {
+  messages: Message[];
+  currentUserId: string;
+}
+
+interface Tour {
+  id: string;
+  communityName: string;
+  date: string;
+  time: string;
+  contactPerson: string;
+  phone: string;
+  status?: string;
+}
+
+interface Visit {
+  id: string;
+  community: string;
+  date: string;
+  rating: number;
+  familyMember: string;
+  impressions: string;
+  notes?: string;
+  pros: string[];
+  cons: string[];
+}
+
+interface SharedFavorite {
+  id: string | number;
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  priceRange: string;
+  careType: string;
+  rating: number;
+}
 
 export default function FamilyCollaborationCenter() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
+  const { user, isLoading: authLoading } = useAuth();
+  const queryClientHook = useQueryClient();
+  const [proText, setProText] = useState('');
+  const [conText, setConText] = useState('');
 
-  // Fetch family messages
-  const { data: messagesData, isLoading: messagesLoading } = useQuery({
+  // Only fetch data if user is authenticated
+  const { data: messagesData, isLoading: messagesLoading } = useQuery<MessagesResponse>({
     queryKey: ['/api/family/messages'],
     refetchInterval: 5000, // Poll for updates every 5 seconds
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Send message mutation
@@ -85,35 +139,173 @@ export default function FamilyCollaborationCenter() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/family/messages'] });
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/messages'] });
       setNewMessage('');
     },
   });
 
   // Fetch upcoming tours from the API
-  const { data: upcomingTours = [], isLoading: toursLoading } = useQuery({
+  const { data: upcomingTours = [], isLoading: toursLoading } = useQuery<Tour[]>({
     queryKey: ['/api/tours'],
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Fetch visit history from the API
-  const { data: visitHistory = [], isLoading: historyLoading } = useQuery({
+  const { data: visitHistory = [], isLoading: historyLoading } = useQuery<Visit[]>({
     queryKey: ['/api/family/visit-history'],
+    enabled: !!user, // Only run query if user is authenticated
   });
 
   // Format messages from API data
-  const familyMessages = messagesData?.messages?.map((msg: any) => ({
+  const familyMessages = messagesData?.messages?.map((msg) => ({
     id: msg.id,
-    sender: msg.senderName || 'Unknown',
-    avatar: msg.senderName?.substring(0, 2).toUpperCase() || 'UN',
+    sender: msg.senderName || user?.name || user?.email?.split('@')[0] || 'You',
+    avatar: msg.senderName?.substring(0, 2).toUpperCase() || user?.name?.substring(0, 2).toUpperCase() || 'ME',
     message: msg.content,
     timestamp: new Date(msg.createdAt).toLocaleString(),
     isCurrentUser: msg.senderId === messagesData?.currentUserId
   })) || [];
 
   // Fetch shared favorites from the API
-  const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery({
+  const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery<SharedFavorite[]>({
     queryKey: ['/api/family/shared-favorites'],
+    enabled: !!user, // Only run query if user is authenticated
   });
+
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        <NavigationHeader />
+        <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-lg text-gray-600">Loading...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show demo version if not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+        <NavigationHeader />
+        
+        {/* Demo Mode Banner */}
+        <div className="bg-yellow-100 dark:bg-yellow-900/20 border-b border-yellow-300 dark:border-yellow-700">
+          <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                Demo Mode: Sign in to access your real family collaboration tools
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setLocation('/login')} size="sm" className="bg-blue-600 hover:bg-blue-700">
+                Sign In
+              </Button>
+              <Button onClick={() => setLocation('/signup')} size="sm" variant="outline">
+                Create Account
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        {/* Demo Content */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold mb-4">Family Collaboration Center</h1>
+            <p className="text-lg text-muted-foreground">Experience how families work together to find the perfect senior care</p>
+          </div>
+          
+          {/* Example Family Members */}
+          <Card className="mb-6 border-2 border-blue-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Example: Family Video Calls</span>
+                <Badge variant="secondary">DEMO</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                  { name: 'Sarah Johnson', role: 'Daughter', location: 'New York' },
+                  { name: 'Michael Johnson', role: 'Son', location: 'Chicago' },
+                  { name: 'Emily Johnson', role: 'Daughter', location: 'Los Angeles' },
+                  { name: 'Robert Johnson', role: 'Son', location: 'Boston' }
+                ].map((member, i) => (
+                  <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                        {member.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div>
+                        <p className="font-medium">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.role} • {member.location}</p>
+                      </div>
+                    </div>
+                    <Button className="w-full mt-3" variant="outline" size="sm" disabled>
+                      <Phone className="w-4 h-4 mr-2" />
+                      Call
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Example Messages */}
+          <Card className="mb-6 border-2 border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>Example: Family Messages</span>
+                <Badge variant="secondary">DEMO</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
+                  <p className="text-sm font-medium">Sarah: Has anyone looked at the Sunrise Senior Living community?</p>
+                  <p className="text-xs text-muted-foreground mt-1">Today, 2:45 PM</p>
+                </div>
+                <div className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
+                  <p className="text-sm font-medium">Michael: Yes, I visited yesterday. The memory care unit was impressive!</p>
+                  <p className="text-xs text-muted-foreground mt-1">Today, 3:15 PM</p>
+                </div>
+                <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-lg">
+                  <p className="text-sm font-medium">Emily: Great! Let's schedule a family call to discuss it.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Today, 3:30 PM</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* CTA Card */}
+          <Card className="border-2 border-green-500/20 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+            <CardContent className="p-8 text-center">
+              <h3 className="text-2xl font-bold mb-4">Ready to Collaborate with Your Family?</h3>
+              <p className="text-muted-foreground mb-6">
+                Sign in to access real-time messaging, video calls, shared favorites, and more.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <Button onClick={() => setLocation('/login')} size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600">
+                  Sign In to Get Started
+                </Button>
+                <Button onClick={() => setLocation('/signup')} size="lg" variant="outline">
+                  Create Free Account
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user has no data yet (first time user)
+  const isNewUser = user && (!favorites || favorites.length === 0) && (!familyMessages || familyMessages.length === 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -150,31 +342,6 @@ export default function FamilyCollaborationCenter() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6">
-        {/* Demo Mode Notice - Only show when not signed in */}
-        <Card className="mb-6 border-amber-500/50 bg-amber-50/10 dark:bg-amber-950/10">
-          <CardContent className="py-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                <FileText className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div className="flex-1">
-                <p className="font-semibold text-amber-900 dark:text-amber-100">
-                  Preview Mode - Example Data Shown
-                </p>
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                  Sign in to access your family's real collaboration tools and saved information.
-                </p>
-              </div>
-              <Button 
-                size="sm" 
-                className="bg-amber-600 hover:bg-amber-700 text-white"
-                onClick={() => setLocation('/login')}
-              >
-                Sign In
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Value Proposition Hero */}
         <Card className="mb-8 border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
@@ -373,61 +540,6 @@ export default function FamilyCollaborationCenter() {
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="staff" 
-                  className="flex-1 min-w-[120px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-indigo-500/0 group-hover:from-blue-500/10 group-hover:to-indigo-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-indigo-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Users className="w-5 h-5 mr-2 flex-shrink-0 text-blue-600 dark:text-blue-400 group-data-[state=active]:text-blue-700 dark:group-data-[state=active]:text-blue-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Staff</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="availability" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 to-orange-500/0 group-hover:from-amber-500/10 group-hover:to-orange-500/10 data-[state=active]:from-amber-500/20 data-[state=active]:to-orange-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Home className="w-5 h-5 mr-2 flex-shrink-0 text-amber-600 dark:text-amber-400 group-data-[state=active]:text-amber-700 dark:group-data-[state=active]:text-amber-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Availability</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="corporate" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 mr-2 flex-shrink-0 text-purple-600 dark:text-purple-400 group-data-[state=active]:text-purple-700 dark:group-data-[state=active]:text-purple-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Corporate</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="integrations" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 to-red-500/0 group-hover:from-orange-500/10 group-hover:to-red-500/10 data-[state=active]:from-orange-500/20 data-[state=active]:to-red-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Zap className="w-5 h-5 mr-2 flex-shrink-0 text-orange-600 dark:text-orange-400 group-data-[state=active]:text-orange-700 dark:group-data-[state=active]:text-orange-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Integrations</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-red-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="reports" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/10 group-hover:to-purple-500/10 data-[state=active]:from-indigo-500/20 data-[state=active]:to-purple-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <FileText className="w-5 h-5 mr-2 flex-shrink-0 text-indigo-600 dark:text-indigo-400 group-data-[state=active]:text-indigo-700 dark:group-data-[state=active]:text-indigo-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Reports</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
                   value="billing" 
                   className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
@@ -555,7 +667,6 @@ export default function FamilyCollaborationCenter() {
                 <CardTitle className="flex items-center gap-2">
                   <Clock className="w-5 h-5 text-purple-500" />
                   Recent Family Activity
-                  <Badge variant="outline" className="ml-2">Example Data</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -612,11 +723,11 @@ export default function FamilyCollaborationCenter() {
                       Document your community visits with detailed reports your whole family can review
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                {visitHistory.map((visit) => (
+                {visitHistory.map((visit: Visit) => (
                   <Card key={visit.id} className="border-l-4 border-l-orange-500">
                     <CardContent className="pt-6">
                       <div className="flex flex-col lg:flex-row justify-between gap-4">
@@ -697,7 +808,7 @@ export default function FamilyCollaborationCenter() {
                       Coordinate tour schedules with your family and never miss an appointment
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -706,7 +817,7 @@ export default function FamilyCollaborationCenter() {
                     <CalendarCheck className="w-4 h-4" />
                     Upcoming Tours
                   </h3>
-                  {upcomingTours.map((tour) => (
+                  {upcomingTours.map((tour: Tour) => (
                     <Card key={tour.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="pt-4">
                         <div className="space-y-3">
@@ -871,7 +982,7 @@ export default function FamilyCollaborationCenter() {
                                     <p className="text-sm">{msg.content}</p>
                                   </div>
                                   <p className="text-xs text-muted-foreground mt-1">
-                                    {msg.senderName || 'Unknown'} • {new Date(msg.createdAt).toLocaleString()}
+                                    {msg.senderName || user?.name || user?.email?.split('@')[0] || 'You'} • {new Date(msg.createdAt).toLocaleString()}
                                   </p>
                                 </>
                               )}
@@ -925,8 +1036,8 @@ export default function FamilyCollaborationCenter() {
           {/* Video Calls Tab */}
           <TabsContent value="video-calls" className="space-y-6">
             <FamilyVideoCall 
-              familyId="demo"
-              userId="demo"
+              familyId={user?.familyId || user?.id || 'family-' + user?.id}
+              userId={user?.id}
             />
           </TabsContent>
 
@@ -942,8 +1053,8 @@ export default function FamilyCollaborationCenter() {
           {/* Medicare Tab */}
           <TabsContent value="medicare" className="space-y-6">
             <FamilyMedicareManager 
-              userId="demo-user"
-              residentName="Demo Resident"
+              userId={user?.id || ''}
+              residentName={user?.name || 'Your Loved One'}
             />
           </TabsContent>
 
@@ -961,7 +1072,7 @@ export default function FamilyCollaborationCenter() {
                       Communities your family is considering - compare and discuss together
                     </CardDescription>
                   </div>
-                  <Badge variant="outline">Example Data</Badge>
+
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -983,7 +1094,7 @@ export default function FamilyCollaborationCenter() {
                 </div>
 
                 <div className="space-y-4">
-                  {sharedFavorites.map((fav) => (
+                  {sharedFavorites.map((fav: SharedFavorite) => (
                     <Card key={fav.id} className="border-l-4 border-l-rose-500">
                       <CardContent className="pt-4">
                         <div className="flex justify-between items-start">
@@ -1090,61 +1201,7 @@ export default function FamilyCollaborationCenter() {
             </Card>
           </TabsContent>
 
-          {/* Staff Directory Tab - Family View */}
-          <TabsContent value="staff" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Users className="w-5 h-5 text-blue-500" />
-                      Care Team Directory
-                    </CardTitle>
-                    <CardDescription>
-                      Meet the dedicated professionals caring for your loved one
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-blue-100 text-blue-700">
-                    Transparent Care
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <StaffManagementSystem 
-                  communityId="family-view"
-                  viewMode="family"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          {/* Availability Tab - Family View of Available Units */}
-          <TabsContent value="availability" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Home className="w-5 h-5 text-amber-500" />
-                      Available Rooms & Tours
-                    </CardTitle>
-                    <CardDescription>
-                      Explore available accommodations and schedule a tour
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-amber-100 text-amber-700">
-                    Live Availability
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <MarketingOccupancyManager 
-                  communityId="family-view"
-                  viewMode="family"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           {/* Billing Tab - Family View of Financial Transparency */}
           <TabsContent value="billing" className="space-y-6">
@@ -1284,110 +1341,8 @@ export default function FamilyCollaborationCenter() {
             </Card>
           </TabsContent>
 
-          {/* Corporate Tab - View of Managing Organization */}
-          <TabsContent value="corporate" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Briefcase className="w-5 h-5 text-purple-500" />
-                      Corporate Management
-                    </CardTitle>
-                    <CardDescription>
-                      View the organization managing your loved one's community
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-purple-100 text-purple-700">
-                    Transparency View
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6 border-purple-200 bg-purple-50">
-                  <Building2 className="h-4 w-4 text-purple-600" />
-                  <AlertDescription>
-                    <strong>Why This Matters:</strong> Understanding the corporate structure behind your loved one's community helps you see the resources, support systems, and quality standards in place for their care.
-                  </AlertDescription>
-                </Alert>
-                
-                <MultiPropertyDashboard 
-                  corporateId="family-view"
-                  viewMode="family"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          {/* Integrations Tab - View Connected Systems */}
-          <TabsContent value="integrations" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="w-5 h-5 text-orange-500" />
-                      Connected Systems
-                    </CardTitle>
-                    <CardDescription>
-                      See the technology powering your loved one's care
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-orange-100 text-orange-700">
-                    Transparency View
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6 border-orange-200 bg-orange-50">
-                  <Zap className="h-4 w-4 text-orange-600" />
-                  <AlertDescription>
-                    <strong>Why This Matters:</strong> Understanding the integrated systems helps you see how your loved one's community uses technology to enhance care quality, safety monitoring, and family communication.
-                  </AlertDescription>
-                </Alert>
-                
-                <ApiIntegrationHub 
-                  corporateId="family-view"
-                  viewMode="readonly"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
-          {/* Reports Tab - View Community Reports */}
-          <TabsContent value="reports" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-indigo-500" />
-                      Community Reports
-                    </CardTitle>
-                    <CardDescription>
-                      View reports and analytics for your loved one's community
-                    </CardDescription>
-                  </div>
-                  <Badge className="bg-indigo-100 text-indigo-700">
-                    Transparency Reports
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Alert className="mb-6 border-indigo-200 bg-indigo-50">
-                  <BarChart3 className="h-4 w-4 text-indigo-600" />
-                  <AlertDescription>
-                    <strong>Data-Driven Care:</strong> These reports show how your loved one's community uses data analytics to continuously improve care quality, operational efficiency, and resident satisfaction.
-                  </AlertDescription>
-                </Alert>
-                
-                <CustomReportBuilder 
-                  corporateId="family-view"
-                  viewMode="viewer"
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </div>
 

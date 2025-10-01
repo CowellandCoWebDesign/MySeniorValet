@@ -63,7 +63,7 @@ export default function AffordableHousing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-6">
             <div className="flex items-center gap-4 mb-4">
-              <Link href="/">
+              <Link to="/">
                 <Button variant="ghost" size="sm">
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back to Home
@@ -220,7 +220,7 @@ export default function AffordableHousing() {
                   
                   {/* Action Button */}
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <Link href={`/community/${facility.id}`}>
+                    <Link to={`/community/${facility.id}`}>
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
                         <Eye className="h-3 w-3 mr-1" />
                         View Details

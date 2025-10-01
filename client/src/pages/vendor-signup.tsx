@@ -179,7 +179,7 @@ export default function VendorSignup() {
             Become a MySeniorValet Partner
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
-            Join thousands of trusted vendors serving senior communities across North America
+            Join thousands of researched vendors serving senior communities across North America
           </p>
           
           {/* Prominent Promotional Banner */}
@@ -261,7 +261,7 @@ export default function VendorSignup() {
               </div>
               <h3 className="font-bold text-lg">Trust & Credibility</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                Verified badge shows families you're a trusted partner
+                Verified badge shows families you're a researched and verified partner
               </p>
             </CardContent>
           </Card>

@@ -2,7 +2,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 import { CommunityEnrichmentService } from "../community-enrichment-service";
-import { WebsiteScraperService } from "../website-scraper-service";
+import { MultiAIPhotoExtractor } from "./multi-ai-photo-extractor";
 import { OpenAIIntegration } from "../openai-integration";
 
 interface EnrichmentResult {
@@ -14,16 +14,24 @@ interface EnrichmentResult {
 
 export class OnDemandEnrichmentService {
   private readonly VERIFICATION_THRESHOLD = 2; // Fields protected after 2 verifications
-  private readonly ENRICHMENT_CACHE_HOURS = 24; // Don't re-enrich for 24 hours
+  
+  // Safe cache durations per legal research (DMCA compliant)
+  private readonly PHOTO_CACHE_HOURS = 24; // 24 hours for photos (DMCA safe harbor)
+  private readonly DESCRIPTION_CACHE_DAYS = 7; // 7 days for descriptions/about text
+  private readonly PRICING_CACHE_DAYS = 7; // 7 days for pricing information
+  private readonly CONTACT_CACHE_DAYS = 30; // 30 days for contact info (factual data)
+  private readonly MIN_REFRESH_HOURS = 24; // Minimum time between any enrichments
+  
   private readonly ALWAYS_UPDATE_FIELDS = ['photos', 'availability', 'promotions', 'reviews'];
   
+  // DMCA compliance notice
+  private readonly COPYRIGHT_NOTICE = 'Photos cached temporarily for network efficiency under DMCA 512(b)';
+  
   private communityEnrichmentService: CommunityEnrichmentService;
-  private websiteScraperService: WebsiteScraperService;
   private openAIIntegration: OpenAIIntegration;
 
   constructor() {
     this.communityEnrichmentService = new CommunityEnrichmentService();
-    this.websiteScraperService = new WebsiteScraperService();
     this.openAIIntegration = new OpenAIIntegration();
   }
 
@@ -38,11 +46,11 @@ export class OnDemandEnrichmentService {
 
     if (!community) return false;
 
-    // Never enrich if recently enriched (within cache window)
+    // Never enrich if recently enriched (within minimum refresh window)
     if (community.lastSuccessfulEnrichment) {
       const hoursSinceEnrichment = 
         (Date.now() - new Date(community.lastSuccessfulEnrichment).getTime()) / (1000 * 60 * 60);
-      if (hoursSinceEnrichment < this.ENRICHMENT_CACHE_HOURS) {
+      if (hoursSinceEnrichment < this.MIN_REFRESH_HOURS) {
         return false;
       }
     }
@@ -54,13 +62,13 @@ export class OnDemandEnrichmentService {
       return true;
     }
 
-    // Check if dynamic content needs update (photos, availability, promotions)
+    // Check if content needs update based on safe cache durations
     const shouldUpdatePhotos = !community.lastPhotoUpdate || 
-      this.isOlderThanDays(community.lastPhotoUpdate, 7);
+      this.isOlderThanHours(community.lastPhotoUpdate, this.PHOTO_CACHE_HOURS); // 24 hours for photos
     const shouldUpdateAvailability = !community.lastAvailabilityCheck || 
       this.isOlderThanDays(community.lastAvailabilityCheck, 1);
     const shouldUpdatePromotions = !community.lastPromotionsUpdate || 
-      this.isOlderThanDays(community.lastPromotionsUpdate, 3);
+      this.isOlderThanDays(community.lastPromotionsUpdate, this.PRICING_CACHE_DAYS); // 7 days for pricing/promotions
 
     return shouldUpdatePhotos || shouldUpdateAvailability || shouldUpdatePromotions;
   }
@@ -129,7 +137,27 @@ export class OnDemandEnrichmentService {
       let scrapedData: any = null;
       if (community.website && !community.websiteProtected) {
         try {
-          scrapedData = await this.websiteScraperService.scrapeWebsite(community.website);
+          // Use MultiAIPhotoExtractor for consolidated photo extraction
+          const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+            community.name || 'Unknown Community',
+            community.city || 'Unknown',
+            community.state || 'Unknown',
+            `${community.name} photos`,
+            community.website,
+            []
+          );
+          
+          scrapedData = {
+            photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+            floorPlans: [], // Not currently extracted
+            virtualTours: [], // Not currently extracted 
+            videos: [], // Not currently extracted
+            amenities: [], // Not currently extracted
+            pricing: {}, // Not currently extracted
+            careLevels: [], // Not currently extracted
+            features: [], // Not currently extracted
+            contactInfo: {} // Not currently extracted
+          };
         } catch (error) {
           console.error(`Failed to scrape website for community ${communityId}:`, error);
         }
@@ -309,8 +337,27 @@ export class OnDemandEnrichmentService {
         return result;
       }
 
-      // Force scrape for dynamic content only
-      const scrapedData = await this.websiteScraperService.scrapeWebsite(community.website);
+      // Force scrape for dynamic content only  
+      const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+        community.name || 'Unknown Community',
+        community.city || 'Unknown',
+        community.state || 'Unknown',
+        `${community.name} photos`,
+        community.website,
+        []
+      );
+      
+      const scrapedData = {
+        photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+        floorPlans: [], // Not currently extracted
+        virtualTours: [], // Not currently extracted
+        videos: [], // Not currently extracted
+        amenities: [], // Not currently extracted
+        pricing: {}, // Not currently extracted
+        careLevels: [], // Not currently extracted
+        features: [], // Not currently extracted
+        contactInfo: {} // Not currently extracted
+      };
       const updates: any = {};
 
       // Update only dynamic fields
@@ -353,6 +400,13 @@ export class OnDemandEnrichmentService {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     const daysSince = (Date.now() - dateObj.getTime()) / (1000 * 60 * 60 * 24);
     return daysSince > days;
+  }
+  
+  private isOlderThanHours(date: Date | string | null, hours: number): boolean {
+    if (!date) return true;
+    const dateObj = typeof date === 'string' ? new Date(date) : date;
+    const hoursSince = (Date.now() - dateObj.getTime()) / (1000 * 60 * 60);
+    return hoursSince > hours;
   }
 }
 

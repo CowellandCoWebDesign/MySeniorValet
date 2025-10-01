@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store } from "lucide-react";
+import { Home, Facebook, Twitter, Linkedin, MapPin, Building, Shield, Settings, User, Store, Globe, Database, Zap, Brain } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import VaporwaveLogo from '@assets/generated_images/Vaporwave_synthwave_style_b2ebe5ea.png';
 
@@ -45,83 +45,123 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Top Row: Logo/Social + Communities + Families */}
-        <div className="flex flex-col md:flex-row justify-between mb-6">
-          {/* Logo & Social - Left side */}
-          <div className="mb-4 md:mb-0">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                <Home className="text-white h-4 w-4" />
-              </div>
-              <div>
-                <span className="text-lg font-bold">MySeniorValet</span>
-                <p className="text-xs text-gray-400">Your Personal Senior Living Concierge</p>
-              </div>
+        {/* Logo & Social */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+              <Home className="text-white h-4 w-4" />
             </div>
-            <p className="text-xs text-gray-400 mb-3 max-w-sm">
-              The trusted platform for authentic senior living community information.
-            </p>
-            <div className="flex space-x-2">
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
-                <Linkedin className="h-4 w-4" />
-              </a>
+            <div>
+              <span className="text-lg font-bold">MySeniorValet</span>
+              <p className="text-xs text-gray-400">Your Personal Senior Living Concierge</p>
             </div>
           </div>
-          
-          {/* For Communities + For Families - Right side */}
-          <div className="flex gap-8">
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-white">For Communities</h3>
-              <ul className="space-y-2 text-xs text-gray-300">
-                <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
-                <li><Link href="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
-                <li><Link href="/mission" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
-                <li><Link href="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
-              </ul>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-semibold mb-3 text-white">For Families</h3>
-              <ul className="space-y-2 text-xs text-gray-300">
-                <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
-                <li><Link href="/map-search" className="hover:text-blue-400 transition-colors">Explore All</Link></li>
-                <li><Link href="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
-                <li><Link href="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
-              </ul>
-            </div>
+          <p className="text-xs text-gray-400 mb-3 max-w-sm">
+            The research platform for authentic senior living community information.
+          </p>
+          <div className="flex space-x-2">
+            <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
+              <Facebook className="h-4 w-4" />
+            </a>
+            <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
+              <Twitter className="h-4 w-4" />
+            </a>
+            <a href="#" className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-blue-600 transition-all duration-300">
+              <Linkedin className="h-4 w-4" />
+            </a>
           </div>
         </div>
 
-        {/* Bottom Row: Other sections */}
-        <div className="flex gap-8 mb-6">
+        {/* Main Navigation Columns - All 4 on same horizontal line */}
+        <div className="grid grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
+          {/* For Communities */}
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Communities</h3>
+            <ul className="space-y-2 text-xs text-gray-300">
+              <li><Link to="/claim-community" className="hover:text-blue-400 transition-colors">Claim Profile</Link></li>
+              <li><Link to="/community-portal" className="hover:text-blue-400 transition-colors">Portal</Link></li>
+              <li><Link to="/community-benefits" className="hover:text-blue-400 transition-colors">Benefits</Link></li>
+              <li><Link to="/contact" className="hover:text-blue-400 transition-colors">Contact Us</Link></li>
+            </ul>
+          </div>
+          
+          {/* For Families */}
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Families</h3>
+            <ul className="space-y-2 text-xs text-gray-300">
+              <li><Link to="/map-search" className="hover:text-blue-400 transition-colors">Search Communities</Link></li>
+              <li><Link to="/family-collaboration-center" className="hover:text-blue-400 transition-colors">Family Collaboration Center</Link></li>
+              <li><Link to="/resident-portal" className="hover:text-blue-400 transition-colors">Resident Portal</Link></li>
+              <li><Link to="/tour-tracker" className="hover:text-blue-400 transition-colors">Tour Tracker</Link></li>
+              <li><Link to="/tourmate" className="hover:text-blue-400 transition-colors">TourMate</Link></li>
+              <li><Link to="/competitive-analysis" className="hover:text-blue-400 transition-colors">Market Analysis</Link></li>
+              <li><Link to="/dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
+              <li><Link to="/about" className="hover:text-blue-400 transition-colors">How it Works</Link></li>
+              <li><Link to="/care-guide" className="hover:text-blue-400 transition-colors">Care Guide</Link></li>
+            </ul>
+          </div>
           
           {/* For Vendors */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">For Vendors</h3>
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Vendors</h3>
             <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
-              <li><Link href="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
-              <li><Link href="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
-              <li><Link href="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
+              <li><Link to="/vendor-marketplace" className="hover:text-blue-400 transition-colors">Marketplace</Link></li>
+              <li><Link to="/vendor-marketplace-tiers" className="hover:text-blue-400 transition-colors">Pricing</Link></li>
+              <li><Link to="/vendor-dashboard" className="hover:text-blue-400 transition-colors">Dashboard</Link></li>
+              <li><Link to="/vendor-signup" className="hover:text-blue-400 transition-colors">Sign Up</Link></li>
             </ul>
           </div>
           
           {/* Legal */}
-          <div>
-            <h3 className="text-sm font-semibold mb-3 text-white">Legal</h3>
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">Legal</h3>
             <ul className="space-y-2 text-xs text-gray-300">
-              <li><Link href="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
-              <li><Link href="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
-              <li><Link href="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
-              <li><Link href="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
-              <li><Link href="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
+              <li><Link to="/privacy-policy" className="hover:text-blue-400 transition-colors">Privacy</Link></li>
+              <li><Link to="/terms-of-service" className="hover:text-blue-400 transition-colors">Terms</Link></li>
+              <li><Link to="/cookie-policy" className="hover:text-blue-400 transition-colors">Cookies</Link></li>
+              <li><Link to="/dmca-notice" className="hover:text-blue-400 transition-colors">DMCA</Link></li>
+              <li><Link to="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
+              <li><Link to="/legal-notice" className="hover:text-blue-400 transition-colors">Legal Notice</Link></li>
+              <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
             </ul>
+          </div>
+        </div>
+        
+        {/* Tech Improvements Section */}
+        <div className="border-t border-purple-500/30 pt-4 mb-4">
+          <h3 className="text-sm font-semibold mb-3 text-white flex items-center gap-2">
+            <Zap className="h-4 w-4 text-yellow-400" />
+            v2.2.2025 Technical Enhancements
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+            <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Globe className="h-3 w-3 text-blue-400" />
+                <span className="text-gray-300 font-medium">Perplexity Search API</span>
+              </div>
+              <p className="text-gray-500">Real-time web scraping with Sonar model integration</p>
+            </div>
+            <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Database className="h-3 w-3 text-green-400" />
+                <span className="text-gray-300 font-medium">Enhanced Photo Discovery</span>
+              </div>
+              <p className="text-gray-500">Unrestricted web-wide photo search & smart filtering</p>
+            </div>
+            <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-1">
+                <Brain className="h-3 w-3 text-purple-400" />
+                <span className="text-gray-300 font-medium">Family Collaboration</span>
+              </div>
+              <p className="text-gray-500">Real-time family tools with live user data sync</p>
+            </div>
+            <div className="bg-gray-900/50 p-3 rounded-lg border border-purple-500/20">
+              <div className="flex items-center gap-2 mb-1">
+                <MapPin className="h-3 w-3 text-red-400" />
+                <span className="text-gray-300 font-medium">3D Virtual Tours</span>
+              </div>
+              <p className="text-gray-500">Integrated Matterport & 360° community walkthroughs</p>
+            </div>
           </div>
         </div>
         
@@ -132,30 +172,30 @@ export function Footer() {
             <div className="flex flex-col md:flex-row items-center md:items-baseline gap-2 text-xs">
               <p className="text-gray-300">© 2025 MySeniorValet. All rights reserved.</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">Data from verified state agencies</p>
+              <p className="text-gray-500">Data from AI-assisted web search across all online sources</p>
               <span className="hidden md:inline text-gray-600">•</span>
-              <p className="text-gray-500">v3.2</p>
+              <p className="text-gray-500">v2.2.2025</p>
             </div>
             
             {/* Quick links and dashboard access - right side */}
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-3 text-xs">
-              <Link href="/veterans" className="text-gray-400 hover:text-blue-400 transition-colors">Veterans</Link>
+              <Link to="/veterans" className="text-gray-400 hover:text-blue-400 transition-colors">Veterans</Link>
               <span className="text-gray-600">•</span>
-              <Link href="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy</Link>
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-blue-400 transition-colors">Privacy</Link>
               <span className="text-gray-600">•</span>
-              <Link href="/terms-of-service" className="text-gray-400 hover:text-blue-400 transition-colors">Terms</Link>
+              <Link to="/terms-of-service" className="text-gray-400 hover:text-blue-400 transition-colors">Terms</Link>
               <span className="text-gray-600">•</span>
-              <Link href="/accessibility" className="text-gray-400 hover:text-blue-400 transition-colors">Accessibility</Link>
+              <Link to="/accessibility" className="text-gray-400 hover:text-blue-400 transition-colors">Accessibility</Link>
               
               {/* Dashboard Access - Compact */}
               <div className="flex items-center gap-2 ml-2 pl-3 border-l border-gray-600">
-                <Link href="/super-admin" className="text-gray-400 hover:text-blue-400 transition-colors" title="Admin Dashboard">
+                <Link to="/super-admin" className="text-gray-400 hover:text-blue-400 transition-colors" title="Admin Dashboard">
                   <Settings className="h-3.5 w-3.5" />
                 </Link>
-                <Link href="/community-portal" className="text-green-400 hover:text-green-300 transition-colors" title="Community Dashboard">
+                <Link to="/community-portal" className="text-green-400 hover:text-green-300 transition-colors" title="Community Dashboard">
                   <User className="h-3.5 w-3.5" />
                 </Link>
-                <Link href="/vendor-dashboard" className="text-purple-400 hover:text-purple-300 transition-colors" title="Vendor Dashboard">
+                <Link to="/vendor-dashboard" className="text-purple-400 hover:text-purple-300 transition-colors" title="Vendor Dashboard">
                   <Store className="h-3.5 w-3.5" />
                 </Link>
               </div>

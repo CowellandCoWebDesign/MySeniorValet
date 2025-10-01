@@ -176,6 +176,13 @@ export const users = pgTable("users", {
   emailVerificationToken: text("email_verification_token"),
   passwordResetToken: text("password_reset_token"),
   passwordResetExpires: timestamp("password_reset_expires"),
+  // Two-Factor Authentication fields
+  twoFactorEnabled: boolean("two_factor_enabled").default(false),
+  twoFactorSecret: text("two_factor_secret"),
+  twoFactorBackupCodes: json("two_factor_backup_codes").$type<string[]>(),
+  twoFactorVerifiedAt: timestamp("two_factor_verified_at"),
+  requiresPasswordChange: boolean("requires_password_change").default(false),
+  lastPasswordChangeAt: timestamp("last_password_change_at"),
   lastLoginAt: timestamp("last_login_at"),
   isActive: boolean("is_active").default(true),
   role: text("role", { enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] }).default("user"),
@@ -211,6 +218,53 @@ export const userSessions = pgTable("user_sessions", {
   index("user_sessions_user_id_idx").on(table.userId),
   index("user_sessions_expires_at_idx").on(table.expiresAt),
 ]);
+
+// Featured Communities Table - For tracking paid/featured community subscriptions
+export const featuredCommunities = pgTable("featured_communities", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull().unique(),
+  
+  // Subscription Details
+  subscriptionTier: text("subscription_tier", {
+    enum: ["basic", "premium", "excellence"]
+  }).notNull().default("premium"),
+  startDate: timestamp("start_date").defaultNow().notNull(),
+  endDate: timestamp("end_date"), // NULL means active/no expiry
+  isActive: boolean("is_active").default(true).notNull(),
+  
+  // Featured Content
+  featuredTitle: text("featured_title"), // Custom title for the feature card
+  highlights: text("highlights").array().default([]), // Key selling points
+  whyFeatured: text("why_featured").array().default([]), // Reasons for featuring
+  dealType: text("deal_type"), // e.g., "Premium Coastal Living", "Healthcare Excellence"
+  heroImage: text("hero_image"), // Custom hero image URL if different from community photos
+  availability: text("availability", {
+    enum: ["Available Now", "Move-in Ready", "Limited Spots", "Waitlist"]
+  }).default("Available Now"),
+  
+  // Billing Information
+  monthlyFee: decimal("monthly_fee", { precision: 10, scale: 2 }),
+  billingEmail: text("billing_email"),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  
+  // Display Settings
+  displayOrder: integer("display_order").default(999), // Lower numbers show first
+  showInRedTagDeals: boolean("show_in_red_tag_deals").default(true), // Whether to show in featured section
+  
+  // Tracking
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdBy: integer("created_by").references(() => users.id),
+}, (table) => [
+  index("idx_featured_communities_active").on(table.isActive),
+  index("idx_featured_communities_end_date").on(table.endDate),
+  index("idx_featured_communities_display_order").on(table.displayOrder),
+]);
+
+export const insertFeaturedCommunitySchema = createInsertSchema(featuredCommunities)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertFeaturedCommunity = z.infer<typeof insertFeaturedCommunitySchema>;
+export type SelectFeaturedCommunity = typeof featuredCommunities.$inferSelect;
 
 // TourMate™ Tours Table - For scheduling and managing community tours
 export const tours = pgTable("tours", {
@@ -447,7 +501,7 @@ export const legalDocumentVersions = pgTable("legal_document_versions", {
     lastModified?: string;
     template?: string;
   }>().default({}),
-  supersededVersionId: integer("superseded_version_id").references(() => legalDocumentVersions.id),
+  supersededVersionId: integer("superseded_version_id"),
   isActive: boolean("is_active").default(false),
   viewCount: integer("view_count").default(0),
   downloadCount: integer("download_count").default(0),
@@ -1193,6 +1247,31 @@ export const communities = pgTable("communities", {
     confidence?: number;
   }>>().default([]),
   
+  // Cached enrichment data - reduces API calls by 90%+
+  enrichmentData: jsonb("enrichment_data").$type<{
+    verificationStatus?: 'verified' | 'unverified' | 'partial';
+    confidence?: number;
+    officialWebsite?: string;
+    phoneNumber?: string;
+    pricing?: {
+      min?: number;
+      max?: number;
+      source?: string;
+    };
+    photos?: Array<{
+      url: string;
+      source: string;
+      isAuthentic: boolean;
+    }>;
+    searchResults?: {
+      summary: string;
+      sources: string[];
+    };
+    lastFetched?: string;
+    validUntil?: string; // Data expires after 7 days
+  }>().default({}),
+  enrichmentDataExpiry: timestamp("enrichment_data_expiry"), // When cached data expires
+  
   // Performance optimization fields
   trendingScore: decimal("trending_score", { precision: 10, scale: 2 }).default("0"), // Pre-calculated trending score for fast sorting
   
@@ -1717,6 +1796,7 @@ export const subscriptions = pgTable("subscriptions", {
   
   // Subscription Details
   productId: text("product_id").notNull(), // 'basic-listing', 'featured-spotlight', etc.
+  tier: text("tier"), // 'starter', 'growth', 'professional', 'premium', 'enterprise'
   status: text("status", {
     enum: ["active", "canceled", "incomplete", "incomplete_expired", "past_due", "trialing", "unpaid"]
   }).default("active"),
@@ -1742,6 +1822,32 @@ export const subscriptions = pgTable("subscriptions", {
   index("subscriptions_stripe_idx").on(table.stripeSubscriptionId),
   index("subscriptions_status_idx").on(table.status),
 ]);
+
+// Contact form submissions
+export const contactSubmissions = pgTable("contact_submissions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  subject: text("subject", {
+    enum: ["general", "support", "community", "partnership", "feedback"]
+  }).notNull(),
+  message: text("message").notNull(),
+  status: text("status", {
+    enum: ["pending", "read", "responded", "archived"]
+  }).default("pending"),
+  responseNotes: text("response_notes"),
+  respondedAt: timestamp("responded_at"),
+  respondedBy: integer("responded_by").references(() => users.id),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertContactSubmissionSchema = createInsertSchema(contactSubmissions)
+  .omit({ id: true, createdAt: true, updatedAt: true, status: true, responseNotes: true, respondedAt: true, respondedBy: true });
+export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
+export type SelectContactSubmission = typeof contactSubmissions.$inferSelect;
 
 // Community Claims - Operator verification system
 export const communityClaims = pgTable("community_claims", {
@@ -2544,7 +2650,7 @@ export const userRoleAssignments = pgTable("user_role_assignments", {
 
 export const vendors = pgTable("vendors", {
   id: serial("id").primaryKey(),
-  userId: varchar("user_id").references(() => users.id).unique(), // Link to user account
+  userId: integer("user_id").unique(), // Link to user account
   
   // Business Information
   businessName: varchar("business_name", { length: 255 }).notNull(),
@@ -2557,7 +2663,7 @@ export const vendors = pgTable("vendors", {
   primaryContactPhone: varchar("primary_contact_phone", { length: 20 }).notNull(),
   businessAddress: text("business_address"),
   businessCity: varchar("business_city", { length: 100 }),
-  businessState: varchar("business_state", { length: 2 }),
+  businessState: varchar("business_state", { length: 100 }), // Increased to support international locations
   businessZip: varchar("business_zip", { length: 10 }),
   
   // Profile Information
@@ -2576,9 +2682,6 @@ export const vendors = pgTable("vendors", {
   }>().default({}),
   
   // Geographic Coverage (State-based and International)
-  coverageType: varchar("coverage_type", { length: 50 }).default('state'), // 'state', 'multi-state', 'national', 'international'
-  coverageStates: text("coverage_states").array().default([]), // Array of state codes covered
-  coverageCountries: text("coverage_countries").array().default(['US']), // Array of country codes covered
   serviceAreas: text("service_areas").array().default([]), // Specific cities/regions served
   serviceRadius: integer("service_radius"), // Miles from business location (for local vendors)
   
@@ -2603,13 +2706,6 @@ export const vendors = pgTable("vendors", {
   subscriptionEndDate: timestamp("subscription_end_date"),
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
-  stripePriceId: varchar("stripe_price_id", { length: 255 }),
-  
-  // Vendor subscription tracking
-  monthlyLeadsCount: integer("monthly_leads_count").default(0),
-  monthlyClicksCount: integer("monthly_clicks_count").default(0),
-  totalLeadsGenerated: integer("total_leads_generated").default(0),
-  lastResetDate: timestamp("last_reset_date").default(sql`CURRENT_TIMESTAMP`),
   
   // Performance Metrics
   totalLeads: integer("total_leads").default(0),
@@ -3530,6 +3626,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
   // Only include fields that actually exist in the database
 });
 
+
+
 export const insertCommunitySchema = createInsertSchema(communities).omit({
   id: true,
   createdAt: true,
@@ -3576,25 +3674,41 @@ export const insertSearchHistorySchema = createInsertSchema(searchHistory).omit(
 
 export const insertMessageSchema = createInsertSchema(messages).omit({
   id: true,
+  createdAt: true
+});
+
+// Add missing type exports for messaging
+export const insertConversationSchema = createInsertSchema(conversations).omit({
+  id: true,
   createdAt: true,
   updatedAt: true,
-  isRead: true,
-  readAt: true,
 });
+export type InsertConversation = z.infer<typeof insertConversationSchema>;
+export type SelectConversation = typeof conversations.$inferSelect;
+export type Conversation = SelectConversation;
+
+export const insertFamilyGroupSchema = createInsertSchema(familyGroups).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertFamilyGroup = z.infer<typeof insertFamilyGroupSchema>;
+export type SelectFamilyGroup = typeof familyGroups.$inferSelect;
+export type FamilyGroup = SelectFamilyGroup;
+
+export type InsertMessage = z.infer<typeof insertMessageSchema>;
+export type SelectMessage = typeof messages.$inferSelect;
 
 export const insertMessageTemplateSchema = createInsertSchema(messageTemplates).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
-  useCount: true,
+  updatedAt: true
 });
 
 export const insertTourSchema = createInsertSchema(tours).omit({
   id: true,
   createdAt: true,
-  updatedAt: true,
-  reminderSent: true,
-  feedbackSubmitted: true,
+  updatedAt: true
 });
 
 // Enhanced tour creation schema for the comprehensive tour tracker
@@ -3757,7 +3871,7 @@ export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type Favorite = typeof favorites.$inferSelect;
 export type InsertSearchHistory = z.infer<typeof insertSearchHistorySchema>;
 export type SearchHistoryEntry = typeof searchHistory.$inferSelect;
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
+// export type InsertMessage = z.infer<typeof insertMessageSchema>; // Duplicate removed
 export type Message = typeof messages.$inferSelect;
 export type InsertMessageTemplate = z.infer<typeof insertMessageTemplateSchema>;
 export type MessageTemplate = typeof messageTemplates.$inferSelect;
@@ -4110,6 +4224,9 @@ export const communitySubscriptions = pgTable("community_subscriptions", {
   stripeSubscriptionId: text("stripe_subscription_id").notNull(),
   stripePriceId: text("stripe_price_id").notNull(),
   productId: integer("product_id").references(() => stripeProducts.id),
+  tierLevel: text("tier_level", {
+    enum: ["starter", "growth", "professional", "premium", "enterprise"]
+  }).default("starter"),
   status: text("status", {
     enum: ["active", "past_due", "canceled", "trialing", "incomplete", "incomplete_expired"]
   }).notNull(),
@@ -4122,6 +4239,71 @@ export const communitySubscriptions = pgTable("community_subscriptions", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+// Vendor Subscriptions table - tracks vendor marketplace subscriptions
+export const vendorSubscriptions = pgTable("vendor_subscriptions", {
+  id: serial("id").primaryKey(),
+  vendorId: integer("vendor_id").references(() => vendors.id).notNull(),
+  stripeCustomerId: text("stripe_customer_id").notNull(),
+  stripeSubscriptionId: text("stripe_subscription_id"),
+  tierLevel: text("tier_level", {
+    enum: ["vendor_basic", "vendor_pro", "vendor_enterprise"]
+  }).default("vendor_basic"),
+  status: text("status", {
+    enum: ["active", "past_due", "canceled", "trialing", "incomplete", "incomplete_expired"]
+  }).notNull(),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  canceledAt: timestamp("canceled_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Stripe Payment Events table - tracks all payment events from webhooks
+export const stripePaymentEvents = pgTable("stripe_payment_events", {
+  id: serial("id").primaryKey(),
+  stripeEventId: text("stripe_event_id").unique().notNull(),
+  eventType: text("event_type").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }),
+  currency: text("currency"),
+  customerId: text("customer_id"),
+  paymentIntentId: text("payment_intent_id"),
+  status: text("status"),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Stripe Invoice Events table - tracks invoice events
+export const stripeInvoiceEvents = pgTable("stripe_invoice_events", {
+  id: serial("id").primaryKey(),
+  stripeInvoiceId: text("stripe_invoice_id").unique().notNull(),
+  subscriptionId: text("subscription_id"),
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+  currency: text("currency"),
+  customerId: text("customer_id"),
+  status: text("status"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Community Enrichment History table - tracks AI enrichment and verification
+export const communityEnrichmentHistory = pgTable("community_enrichment_history", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  enrichmentType: text("enrichment_type").notNull(), // 'perplexity_web', 'ai_analysis', 'manual_verification'
+  aiProvider: text("ai_provider"), // 'perplexity', 'claude', 'chatgpt'
+  dataEnriched: jsonb("data_enriched").$type<Record<string, any>>(),
+  verificationStatus: text("verification_status"),
+  metadata: jsonb("metadata").$type<{
+    ai_provider?: string;
+    cost?: number;
+    tokens_used?: number;
+    response_time?: number;
+  }>(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_enrichment_community").on(table.communityId),
+  index("idx_enrichment_type").on(table.enrichmentType),
+]);
 
 // Tour Reviews table - comprehensive tour tracking and review system
 export const tourReviews = pgTable("tour_reviews", {
@@ -7037,3 +7219,38 @@ export const staffOptimization = pgTable("staff_optimization", {
 });
 
 // ==================== PHASE 6: AI INTELLIGENCE LAYER COMPLETE ====================
+
+// ==================== DMCA COMPLIANCE ====================
+
+// DMCA Takedown Notices - Track and handle copyright claims
+export const dmcaTakedowns = pgTable("dmca_takedowns", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id),
+  serviceId: integer("service_id").references(() => vendors.id), // For service/vendor photos
+  contentType: varchar("content_type", { length: 50 }).notNull(), // 'photo', 'description', 'logo'
+  contentUrl: text("content_url"), // URL of the disputed content
+  claimantName: varchar("claimant_name", { length: 255 }).notNull(),
+  claimantEmail: varchar("claimant_email", { length: 255 }).notNull(),
+  claimantPhone: varchar("claimant_phone", { length: 20 }),
+  claimDescription: text("claim_description").notNull(),
+  copyrightInfo: text("copyright_info"), // Copyright registration info if provided
+  signature: varchar("signature", { length: 255 }).notNull(), // Electronic signature
+  receivedAt: timestamp("received_at").defaultNow(),
+  actionTaken: varchar("action_taken", { length: 50 }).default("pending"), // 'pending', 'removed', 'counter_notice', 'restored'
+  actionDate: timestamp("action_date"),
+  notes: text("notes"),
+  counterNoticeReceived: boolean("counter_notice_received").default(false),
+  counterNoticeDate: timestamp("counter_notice_date"),
+  finalStatus: varchar("final_status", { length: 50 }), // 'content_removed', 'content_restored', 'resolved'
+  isValid: boolean("is_valid").default(true), // Mark false for invalid/abusive claims
+}, (table) => [
+  index("idx_dmca_community").on(table.communityId),
+  index("idx_dmca_service").on(table.serviceId),
+  index("idx_dmca_status").on(table.actionTaken),
+  index("idx_dmca_received").on(table.receivedAt),
+]);
+
+export const insertDmcaTakedownSchema = createInsertSchema(dmcaTakedowns)
+  .omit({ id: true, receivedAt: true });
+export type InsertDmcaTakedown = z.infer<typeof insertDmcaTakedownSchema>;
+export type SelectDmcaTakedown = typeof dmcaTakedowns.$inferSelect;

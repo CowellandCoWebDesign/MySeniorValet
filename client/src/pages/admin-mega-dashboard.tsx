@@ -97,6 +97,16 @@ const GlobalDiscoveryApprovalQueue = lazy(() => import("@/components/admin/Globa
   default: module.GlobalDiscoveryApprovalQueue
 })));
 
+// Lazy load Data Quality Dashboard
+const DataQualityDashboard = lazy(() => import("@/components/DataQualityDashboard").then(module => ({
+  default: module.DataQualityDashboard
+})));
+
+// Lazy load Verification Dashboard
+const VerificationDashboard = lazy(() => import("@/components/admin/VerificationDashboard").then(module => ({
+  default: module.VerificationDashboard
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -301,14 +311,14 @@ export default function AdminMegaDashboard() {
     enabled: false,
   });
   
-  // Check super admin access - allow development access for testing
+  // Check super admin access - production-ready security
   const userRole = (user as any)?.role || '';
   const userEmail = (user as any)?.email || '';
-  const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname.includes('replit');
+  // In production, only allow explicitly authorized users
   const isSuperAdmin = userRole === 'super_admin' || 
                        userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com' ||
-                       isDevelopment; // Allow access in development for testing
+                       userEmail === 'admin@myseniorvalet.com';
+  // Server-side API routes will enforce actual authentication
                        
   // Platform Health Verification Functions
   const runPlatformHealthVerification = async () => {
@@ -319,7 +329,7 @@ export default function AdminMegaDashboard() {
     try {
       const communitiesResponse = await fetch('/api/communities/count');
       const communitiesData = await communitiesResponse.json();
-      const communityCount = parseInt(communitiesData.count);
+      const communityCount = parseInt(communitiesData.count) || 0;
       
       results.push({
         component: 'Golden Data Rule Compliance',
@@ -515,7 +525,7 @@ export default function AdminMegaDashboard() {
   }, [activeTab]);
   
   // Block non-super admin users (except in development)
-  if (!isDevelopment && (!user || !isSuperAdmin)) {
+  if (!user || !isSuperAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
         <Card className="max-w-2xl">
@@ -557,83 +567,65 @@ export default function AdminMegaDashboard() {
     select: (data: any) => Array.isArray(data) ? data : [],
   });
 
-  // Users data
-  const { data: users } = useQuery({
-    queryKey: ['/api/admin/users'],
+  // Remove duplicate user query - we're using usersList instead
+  // const { data: users } = useQuery({
+  //   queryKey: ['/api/admin/users'],
+  // });  // REMOVED - using usersList query instead
+
+  // Fetch real subscription tiers from API
+  const { data: subscriptionTiers } = useQuery({
+    queryKey: ['/api/payments/subscription-tiers'],
+    select: (data: any) => {
+      const plans: SubscriptionPlan[] = [];
+      
+      // Map community tiers
+      if (data?.community) {
+        data.community.forEach((tier: any) => {
+          const features = {
+            'starter': ['Profile & Photos', 'Basic Listing', 'Contact Information', 'Up to 5 photos'],
+            'growth': ['Everything in Starter', 'Direct Messaging', 'Featured Listing', 'Analytics Dashboard', 'Unlimited photos'],
+            'professional': ['Everything in Growth', 'Priority Placement', 'Virtual Tours', 'Lead Tracking', 'Custom Branding'],
+            'premium': ['Everything in Professional', 'Top Search Results', 'Multi-location Support', 'API Access', 'Dedicated Support'],
+            'enterprise': ['Everything in Premium', 'White Label Options', 'Custom Integrations', 'SLA Guarantee', 'Account Manager']
+          };
+          
+          plans.push({
+            id: `comm-${tier.id}`,
+            name: `Community ${tier.name}`,
+            type: 'community',
+            price: tier.price,
+            features: features[tier.id] || ['Standard features'],
+            isActive: true,
+            maxCommunities: tier.id === 'enterprise' ? 100 : tier.id === 'premium' ? 20 : tier.id === 'professional' ? 10 : tier.id === 'growth' ? 3 : 1
+          });
+        });
+      }
+      
+      // Map vendor tiers
+      if (data?.vendor) {
+        data.vendor.forEach((tier: any) => {
+          const features = {
+            'basic': ['Vendor Profile', 'Service Listing', 'Contact Form', 'Basic Analytics'],
+            'featured': ['Everything in Basic', 'Featured Badge', 'Priority Listing', 'Lead Notifications', 'Advanced Analytics'],
+            'national': ['Everything in Featured', 'National Coverage', 'Multiple Locations', 'API Integration', 'Premium Support']
+          };
+          
+          plans.push({
+            id: `vendor-${tier.id}`,
+            name: `Vendor ${tier.name}`,
+            type: 'vendor',
+            price: tier.price,
+            features: features[tier.id] || ['Standard features'],
+            isActive: true
+          });
+        });
+      }
+      
+      return plans;
+    }
   });
-
-  // Subscription plans with actual data
-  const subscriptionPlans: SubscriptionPlan[] = [
-    // Community Plans
-    {
-      id: 'comm-free',
-      name: 'Community Free',
-      type: 'community',
-      price: 0,
-
-      features: ['Basic listing', 'Contact info', 'Photos (5 max)'],
-      isActive: true,
-      maxCommunities: 1,
-    },
-    {
-      id: 'comm-standard',
-      name: 'Community Standard',
-      type: 'community',
-      price: 299,
-
-      features: ['Featured listing', 'Unlimited photos', 'Virtual tours', 'Analytics dashboard'],
-      isActive: true,
-      maxCommunities: 1,
-    },
-    {
-      id: 'comm-featured',
-      name: 'Community Featured',
-      type: 'community',
-      price: 599,
-
-      features: ['Premium placement', 'All Standard features', 'Priority support', 'Advanced analytics'],
-      isActive: true,
-      maxCommunities: 3,
-    },
-    {
-      id: 'comm-platinum',
-      name: 'Community Platinum',
-      type: 'community',
-      price: 999,
-
-      features: ['Top placement', 'All Featured benefits', 'Custom branding', 'Lead generation tools', 'API access'],
-      isActive: true,
-      maxCommunities: 10,
-    },
-    // Vendor Plans
-    {
-      id: 'vendor-basic',
-      name: 'Vendor Basic',
-      type: 'vendor',
-      price: 99,
-
-      features: ['Vendor profile', 'Service listing', 'Contact form'],
-      isActive: true,
-    },
-    {
-      id: 'vendor-featured',
-      name: 'Vendor Featured',
-      type: 'vendor',
-      price: 299,
-
-      features: ['Featured vendor badge', 'Priority listing', 'Analytics', 'Lead notifications'],
-      isActive: true,
-    },
-    {
-      id: 'vendor-national',
-      name: 'Vendor National',
-      type: 'vendor',
-      price: 599,
-
-      features: ['National coverage', 'All Featured benefits', 'Multiple locations', 'API integration'],
-      isActive: true,
-    },
-  ];
+  
+  const subscriptionPlans = subscriptionTiers || [];
 
   // Active subscriptions
   const { data: activeSubscriptions } = useQuery({
@@ -679,6 +671,112 @@ export default function AdminMegaDashboard() {
   const { data: engagementMetrics } = useQuery({
     queryKey: ['/api/admin/engagement', timeRange],
   });
+  
+  // REAL DATA QUERIES - Fetch actual platform data
+  // Main dashboard metrics with real user data
+  const { data: dashboardMetrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ['/api/admin/metrics'],
+    refetchInterval: 30000, // Refresh every 30 seconds
+  });
+  
+  // Recent activity feed with real user registrations
+  const { data: recentActivity, isLoading: activityLoading } = useQuery({
+    queryKey: ['/api/admin/activity/recent'],
+    refetchInterval: 10000, // Refresh every 10 seconds
+  });
+  
+  // Real user list with pagination
+  const { data: usersList, isLoading: usersLoading } = useQuery({
+    queryKey: ['/api/admin/users', currentPage, searchQuery],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: itemsPerPage.toString(),
+        search: searchQuery
+      });
+      return await apiRequest('GET', `/api/admin/users?${params}`);
+    },
+  });
+  
+  // Dashboard stats from community cache
+  const { data: dashboardStats, isLoading: dashboardStatsLoading } = useQuery({
+    queryKey: ['/api/admin/dashboard/stats'],
+    refetchInterval: 60000, // Refresh every minute
+  });
+  
+  // Use real metrics if available, otherwise default to empty state
+  const metrics: DashboardMetrics = dashboardMetrics || {
+    platform: {
+      totalCommunities: 0,
+      totalUsers: 0,
+      totalVendors: 0,
+      activeSubscriptions: 0,
+      monthlyRevenue: 0,
+      yearlyRevenue: 0,
+      growthRate: 0
+    },
+    performance: {
+      responseTime: 0,
+      uptime: 99.9,
+      errorRate: 0,
+      apiCalls: 0,
+      cacheHitRate: 0,
+      dbQueries: 0
+    },
+    ai: {
+      totalRequests: 0,
+      byProvider: {
+        claude: 0,
+        chatgpt: 0,
+        perplexity: 0,
+        gemini: 0,
+        grok: 0
+      },
+      costs: {
+        total: 0,
+        claude: 0,
+        chatgpt: 0,
+        perplexity: 0,
+        gemini: 0
+      },
+      successRate: 0,
+      avgResponseTime: 0
+    },
+    financial: {
+      revenue: {
+        today: 0,
+        week: 0,
+        month: 0,
+        year: 0
+      },
+      subscriptions: {
+        community: { free: 0, standard: 0, featured: 0, platinum: 0 },
+        vendor: { basic: 0, featured: 0, national: 0 }
+      },
+      paymentSuccess: 0,
+      churnRate: 0,
+      ltv: 0,
+      arpu: 0
+    },
+    geographic: dashboardMetrics?.geographic || {
+      byState: {},
+      byCountry: { usa: 0, canada: 0 },
+      topCities: [],
+      expansionProgress: 0
+    },
+    engagement: dashboardMetrics?.engagement || {
+      dailyActiveUsers: 0,
+      weeklyActiveUsers: 0,
+      monthlyActiveUsers: 0,
+      avgSessionDuration: 0,
+      bounceRate: 0,
+      pageViews: 0,
+      searches: 0,
+      communityViews: 0,
+      favorites: 0,
+      messages: 0
+    }
+  };
 
   // Revenue analytics
   const { data: revenueAnalytics } = useQuery({
@@ -1137,24 +1235,24 @@ export default function AdminMegaDashboard() {
         cacheHitRate: 0,
         dbQueries: 0,
       },
-      ai: (aiMetrics as any) || {
-        totalRequests: 0,
+      ai: {
+        totalRequests: (aiMetrics as any)?.totalRequests || 0,
         byProvider: {
-          claude: 0,
-          chatgpt: 0,
-          perplexity: 0,
-          gemini: 0,
-          grok: 0,
+          claude: (aiMetrics as any)?.byProvider?.claude || 0,
+          chatgpt: (aiMetrics as any)?.byProvider?.chatgpt || 0,
+          perplexity: (aiMetrics as any)?.byProvider?.perplexity || 0,
+          gemini: (aiMetrics as any)?.byProvider?.gemini || 0,
+          grok: (aiMetrics as any)?.byProvider?.grok || 0,
         },
         costs: {
-          total: 0,
-          claude: 0,
-          chatgpt: 0,
-          perplexity: 0,
-          gemini: 0,
+          total: (aiMetrics as any)?.costs?.total || 0,
+          claude: (aiMetrics as any)?.costs?.claude || 0,
+          chatgpt: (aiMetrics as any)?.costs?.chatgpt || 0,
+          perplexity: (aiMetrics as any)?.costs?.perplexity || 0,
+          gemini: (aiMetrics as any)?.costs?.gemini || 0,
         },
-        successRate: 0,
-        avgResponseTime: 0,
+        successRate: (aiMetrics as any)?.successRate || 0,
+        avgResponseTime: (aiMetrics as any)?.avgResponseTime || 0,
       },
       financial: {
         revenue: (financialData as any)?.revenue || {
@@ -1193,7 +1291,8 @@ export default function AdminMegaDashboard() {
     };
   };
 
-  const metrics = calculateMetrics();
+  // Remove the old calculateMetrics and use real data from API
+  // const metrics = calculateMetrics(); // OLD - removed to use real data
 
   // ========== RENDER COMPONENTS ==========
 
@@ -1208,7 +1307,7 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.platform.totalCommunities.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics.platform.totalCommunities || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
             <span className="text-green-600">+{metrics.platform.growthRate}%</span> from last month
@@ -1224,7 +1323,7 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.platform.totalUsers.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics.platform.totalUsers || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <Activity className="h-3 w-3 mr-1" />
             {metrics.engagement.dailyActiveUsers} daily active
@@ -1240,7 +1339,7 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${metrics.platform.monthlyRevenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold">${(metrics.platform.monthlyRevenue || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <TrendingUp className="h-3 w-3 mr-1 text-green-600" />
             ARPU: ${metrics.financial.arpu}
@@ -1256,10 +1355,10 @@ export default function AdminMegaDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{metrics.ai.totalRequests.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{(metrics.ai.totalRequests || 0).toLocaleString()}</div>
           <div className="flex items-center text-xs text-muted-foreground mt-1">
             <DollarSign className="h-3 w-3 mr-1" />
-            Cost: ${metrics.ai.costs.total.toFixed(2)}
+            Cost: ${(metrics.ai.costs.total || 0).toFixed(2)}
           </div>
         </CardContent>
       </Card>
@@ -1294,15 +1393,19 @@ export default function AdminMegaDashboard() {
                 const res = await fetch(`/api/admin/users/search?query=${encodeURIComponent(searchQuery)}`);
                 const results = await res.json();
                 
-                // Update the users state with search results
+                // Show search results
                 if (results.length > 0) {
-                  setUsers(results);
-                  toast.success(`Found ${results.length} users`);
+                  // Refresh the users list query to show search results
+                  queryClient.setQueryData(['/api/admin/users', currentPage, searchQuery], {
+                    users: results,
+                    pagination: usersList?.pagination
+                  });
+                  toast({ title: "Success", description: `Found ${results.length} users` });
                 } else {
-                  toast.info('No users found');
+                  toast({ title: "Info", description: 'No users found' });
                 }
               } catch (error) {
-                toast.error('Search failed');
+                toast({ title: "Error", description: 'Search failed', variant: "destructive" });
               }
             }}
           >
@@ -1322,7 +1425,7 @@ export default function AdminMegaDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {Array.isArray(users) && users.slice(0, 10).map((user: any) => (
+              {Array.isArray(usersList?.users) && usersList.users.slice(0, 10).map((user: any) => (
                 <TableRow key={user.id}>
                   <TableCell>
                     <div>
@@ -1379,7 +1482,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                             
                             alert(detailsMessage);
                           } catch (error) {
-                            toast.error('Failed to fetch user details');
+                            toast({ title: "Error", description: 'Failed to fetch user details', variant: "destructive" });
                           }
                         }}
                       >
@@ -1441,7 +1544,20 @@ Communities Created: ${details.stats.communitiesCreated}`;
                         ))}
                       </ul>
                       <div className="pt-2 flex gap-2">
-                        <Button size="sm" variant="outline">
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => {
+                            // Show edit dialog for subscription plan
+                            const newPrice = prompt(`Enter new price for ${plan.name} (current: $${plan.price}):`, plan.price.toString());
+                            if (newPrice && !isNaN(Number(newPrice))) {
+                              updatePlanMutation.mutate({
+                                planId: plan.id,
+                                updates: { price: Number(newPrice) }
+                              });
+                            }
+                          }}
+                        >
                           <Edit className="h-3 w-3 mr-1" />
                           Edit
                         </Button>
@@ -1511,7 +1627,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">MRR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${metrics.financial.revenue.month.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${(metrics.financial.revenue.month || 0).toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1519,7 +1635,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <CardTitle className="text-sm">ARR</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold">${metrics.financial.revenue.year.toLocaleString()}</div>
+                    <div className="text-2xl font-bold">${(metrics.financial.revenue.year || 0).toLocaleString()}</div>
                   </CardContent>
                 </Card>
                 <Card>
@@ -1594,20 +1710,20 @@ Communities Created: ${details.stats.communitiesCreated}`;
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Claude</span>
-                <span className="font-medium">${metrics.ai.costs.claude.toFixed(2)}</span>
+                <span className="font-medium">${(metrics.ai.costs.claude || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">ChatGPT</span>
-                <span className="font-medium">${metrics.ai.costs.chatgpt.toFixed(2)}</span>
+                <span className="font-medium">${(metrics.ai.costs.chatgpt || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-sm">Perplexity</span>
-                <span className="font-medium">${metrics.ai.costs.perplexity.toFixed(2)}</span>
+                <span className="font-medium">${(metrics.ai.costs.perplexity || 0).toFixed(2)}</span>
               </div>
               <Separator />
               <div className="flex justify-between items-center font-bold">
                 <span>Total</span>
-                <span>${metrics.ai.costs.total.toFixed(2)}</span>
+                <span>${(metrics.ai.costs.total || 0).toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -1697,7 +1813,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">API Calls</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.apiCalls.toLocaleString()} today</span>
+              <span className="text-sm text-muted-foreground">{(metrics.performance.apiCalls || 0).toLocaleString()} today</span>
             </div>
             <Progress value={Math.min((metrics.performance.apiCalls / 100000) * 100, 100)} />
           </div>
@@ -1713,7 +1829,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Database Queries</span>
-              <span className="text-sm text-muted-foreground">{metrics.performance.dbQueries.toLocaleString()}/min</span>
+              <span className="text-sm text-muted-foreground">{(metrics.performance.dbQueries || 0).toLocaleString()}/min</span>
             </div>
             <Progress value={Math.min((metrics.performance.dbQueries / 1000) * 100, 100)} />
           </div>
@@ -2807,11 +2923,80 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <CheckCircle2 className="h-4 w-4 mr-2" />
               Validation
             </TabsTrigger>
+            <TabsTrigger value="verification">
+              <Database className="h-4 w-4 mr-2" />
+              DB Verification
+            </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
           
           <TabsContent value="overview" className="space-y-4">
+            {/* Real Platform Metrics */}
+            {renderOverviewCards()}
+            
+            {/* Recent Activity Feed with Real User Data */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-blue-500" />
+                  Recent Platform Activity
+                </CardTitle>
+                <CardDescription>
+                  Live feed of user registrations and platform events
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[400px]">
+                  {activityLoading ? (
+                    <div className="flex items-center justify-center h-32">
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                    </div>
+                  ) : recentActivity?.activities && recentActivity.activities.length > 0 ? (
+                    <div className="space-y-2">
+                      {recentActivity.activities.map((activity: any) => (
+                        <div key={`${activity.type}-${activity.id}-${activity.timestamp}`} className="flex items-start gap-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors">
+                          <div className={`h-2 w-2 rounded-full mt-1.5 ${
+                            activity.type === 'user_registration' ? 'bg-green-500 animate-pulse' :
+                            activity.type === 'community_claim' ? 'bg-blue-500' :
+                            activity.type === 'vendor_registration' ? 'bg-purple-500' :
+                            'bg-gray-500'
+                          }`} />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium">
+                                {activity.type === 'user_registration' && '👤 New User Registered'}
+                                {activity.type === 'community_claim' && '🏢 Community Claimed'}
+                                {activity.type === 'vendor_registration' && '🛍️ Vendor Joined'}
+                              </span>
+                              <Badge variant="outline" className="text-xs">
+                                {activity.details || activity.type}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground">
+                              {activity.name || activity.email}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {activity.timestamp ? format(new Date(activity.timestamp), 'MMM d, h:mm a') : 'Just now'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      No recent activity
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+            
+            {/* Data Quality Dashboard */}
+            <Suspense fallback={<div className="flex items-center justify-center h-40"><Loader2 className="w-6 h-6 animate-spin" /></div>}>
+              <DataQualityDashboard />
+            </Suspense>
+            
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {renderAIAnalytics()}
               {renderPerformanceMonitoring()}
@@ -2882,27 +3067,87 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4">
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Database Tools",
+                        description: "Accessing database management interface...",
+                      });
+                      setActiveTab('communities');
+                    }}
+                  >
                     <Database className="h-6 w-6 mb-2" />
                     Database Tools
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Security Settings",
+                        description: "Opening security configuration panel...",
+                      });
+                      setActiveTab('protection');
+                    }}
+                  >
                     <Shield className="h-6 w-6 mb-2" />
                     Security Settings
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "System Configuration",
+                        description: "Loading system settings...",
+                      });
+                      setActiveTab('system');
+                    }}
+                  >
                     <Settings className="h-6 w-6 mb-2" />
                     System Config
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Test Tools",
+                        description: "Opening testing dashboard...",
+                      });
+                      window.location.href = '/payment-test-dashboard';
+                    }}
+                  >
                     <TestTube className="h-6 w-6 mb-2" />
                     Test Tools
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Theme Settings",
+                        description: "Theme customization coming soon!",
+                        variant: "default",
+                      });
+                    }}
+                  >
                     <Palette className="h-6 w-6 mb-2" />
                     Theme Settings
                   </Button>
-                  <Button variant="outline" className="h-24 flex-col">
+                  <Button 
+                    variant="outline" 
+                    className="h-24 flex-col"
+                    onClick={() => {
+                      toast({
+                        title: "Audit Logs",
+                        description: "Loading audit history...",
+                      });
+                      setActiveTab('activity');
+                    }}
+                  >
                     <FileSearch className="h-6 w-6 mb-2" />
                     Audit Logs
                   </Button>
@@ -2929,7 +3174,14 @@ Communities Created: ${details.stats.communitiesCreated}`;
           
           <TabsContent value="discovery" className="space-y-4">
             {renderCountyDiscovery()}
-            <Suspense fallback={<LoadingCard title="Loading Global Discovery Queue..." />}>
+            <Suspense fallback={
+              <Card>
+                <CardContent className="flex items-center justify-center p-8">
+                  <Loader2 className="w-6 h-6 animate-spin mr-2" />
+                  <span>Loading Global Discovery Queue...</span>
+                </CardContent>
+              </Card>
+            }>
               <GlobalDiscoveryApprovalQueue />
             </Suspense>
           </TabsContent>
@@ -3158,6 +3410,17 @@ Communities Created: ${details.stats.communitiesCreated}`;
               </div>
             }>
               <MasterValidationSystem />
+            </Suspense>
+          </TabsContent>
+
+          <TabsContent value="verification" className="space-y-4">
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <span className="ml-2">Loading database verification dashboard...</span>
+              </div>
+            }>
+              <VerificationDashboard />
             </Suspense>
           </TabsContent>
         </Tabs>

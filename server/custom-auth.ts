@@ -13,11 +13,33 @@ import { notifySuperAdmin } from './sendgrid-service';
 import session from 'express-session';
 import connectPg from 'connect-pg-simple';
 import type { Express } from 'express';
+import { validatePassword } from './auth/password-validator';
+import { 
+  generateTOTPSecret, 
+  verifyTOTP, 
+  generateBackupCodes, 
+  enable2FA, 
+  disable2FA,
+  requires2FA,
+  useBackupCode
+} from './auth/two-factor-auth';
 
 // Session configuration for production
 export function setupCustomAuth(app: Express) {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
   const isProduction = process.env.NODE_ENV === 'production';
+  
+  // Require SESSION_SECRET in production
+  const sessionSecret = process.env.SESSION_SECRET;
+  if (!sessionSecret) {
+    if (isProduction) {
+      throw new Error('SESSION_SECRET environment variable is required in production');
+    }
+    console.warn('⚠️  WARNING: SESSION_SECRET not set. Using default for development only.');
+  }
+  
+  // Enable trust proxy for Replit's proxied environment
+  app.set('trust proxy', 1);
   
   // Use PostgreSQL for session storage
   const pgStore = connectPg(session);
@@ -29,13 +51,13 @@ export function setupCustomAuth(app: Express) {
   });
   
   app.use(session({
-    secret: process.env.SESSION_SECRET || 'mysv-secret-2025',
+    secret: sessionSecret || 'dev-only-secret-change-this',
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: isProduction,
+      secure: 'auto', // Automatically detect secure connections
       sameSite: 'lax',
       maxAge: sessionTtl,
     },
@@ -47,6 +69,16 @@ export function setupCustomAuth(app: Express) {
   router.post('/api/auth/register', async (req, res) => {
     try {
       const { email, password, firstName, lastName, accountType = 'family' } = req.body;
+      
+      // Validate password strength
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        return res.status(400).json({
+          success: false,
+          message: 'Password does not meet security requirements',
+          details: passwordValidation.feedback
+        });
+      }
       
       // Check if user exists
       const [existingUser] = await db
@@ -127,7 +159,7 @@ export function setupCustomAuth(app: Express) {
   // Login
   router.post('/api/auth/login', async (req, res) => {
     try {
-      const { email, password } = req.body;
+      const { email, password, totpCode, backupCode } = req.body;
       
       // Find user
       const [user] = await db
@@ -152,6 +184,39 @@ export function setupCustomAuth(app: Express) {
         });
       }
       
+      // Check if 2FA is required
+      if (user.twoFactorEnabled || requires2FA(user.email)) {
+        // If 2FA is enabled but no code provided, request it
+        if (!totpCode && !backupCode) {
+          return res.status(200).json({
+            success: false,
+            requires2FA: true,
+            message: 'Two-factor authentication required'
+          });
+        }
+        
+        // Verify 2FA code
+        let valid2FA = false;
+        if (totpCode && user.twoFactorSecret) {
+          valid2FA = verifyTOTP(user.twoFactorSecret, totpCode);
+        } else if (backupCode) {
+          valid2FA = await useBackupCode(user.id, backupCode);
+        }
+        
+        if (!valid2FA) {
+          return res.status(401).json({
+            success: false,
+            message: 'Invalid two-factor authentication code'
+          });
+        }
+      }
+      
+      // Update last login time
+      await db
+        .update(users)
+        .set({ lastLoginAt: new Date() })
+        .where(eq(users.id, user.id));
+      
       // Create session
       (req.session as any).userId = user.id;
       (req.session as any).user = {
@@ -170,6 +235,7 @@ export function setupCustomAuth(app: Express) {
           firstName: user.firstName,
           lastName: user.lastName,
           role: user.role,
+          twoFactorEnabled: user.twoFactorEnabled
         }
       });
     } catch (error) {
@@ -266,6 +332,231 @@ export function setupCustomAuth(app: Express) {
         success: false, 
         message: 'Password reset request failed' 
       });
+    }
+  });
+  
+  // Password validation endpoint
+  router.post('/api/auth/validate-password', async (req, res) => {
+    const { password } = req.body;
+    const validation = validatePassword(password);
+    res.json(validation);
+  });
+  
+  // Change password endpoint
+  router.post('/api/auth/change-password', async (req, res) => {
+    try {
+      const sessionData = req.session as any;
+      if (!sessionData.userId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      const { currentPassword, newPassword } = req.body;
+      
+      // Validate new password strength
+      const passwordValidation = validatePassword(newPassword);
+      if (!passwordValidation.isValid) {
+        return res.status(400).json({
+          success: false,
+          message: 'New password does not meet security requirements',
+          details: passwordValidation.feedback
+        });
+      }
+      
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, sessionData.userId))
+        .limit(1);
+        
+      if (!user || !user.password) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Verify current password
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Current password is incorrect' 
+        });
+      }
+      
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // Update password
+      await db
+        .update(users)
+        .set({
+          password: hashedPassword,
+          lastPasswordChangeAt: new Date(),
+          requiresPasswordChange: false,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, user.id));
+      
+      res.json({
+        success: true,
+        message: 'Password changed successfully'
+      });
+    } catch (error) {
+      console.error('Password change error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: 'Failed to change password' 
+      });
+    }
+  });
+  
+  // Setup 2FA - Generate TOTP secret and QR code
+  router.post('/api/auth/2fa/setup', async (req, res) => {
+    try {
+      const sessionData = req.session as any;
+      if (!sessionData.userId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, sessionData.userId))
+        .limit(1);
+        
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Generate TOTP secret and backup codes
+      const { secret, qrCode, manualEntryKey } = await generateTOTPSecret(user.email);
+      const backupCodes = generateBackupCodes(10);
+      
+      // Store the secret temporarily (not enabled yet)
+      await db
+        .update(users)
+        .set({
+          twoFactorSecret: secret,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, user.id));
+      
+      res.json({
+        success: true,
+        qrCode,
+        secret: manualEntryKey,
+        backupCodes,
+        requiresVerification: true
+      });
+    } catch (error) {
+      console.error('2FA setup error:', error);
+      res.status(500).json({ message: 'Failed to setup 2FA' });
+    }
+  });
+  
+  // Verify 2FA setup - Enable 2FA after verification
+  router.post('/api/auth/2fa/verify', async (req, res) => {
+    try {
+      const sessionData = req.session as any;
+      if (!sessionData.userId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      const { code, backupCodes } = req.body;
+      
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, sessionData.userId))
+        .limit(1);
+        
+      if (!user || !user.twoFactorSecret) {
+        return res.status(400).json({ message: '2FA not configured' });
+      }
+      
+      // Verify the TOTP code
+      const isValid = verifyTOTP(user.twoFactorSecret, code);
+      if (!isValid) {
+        return res.status(400).json({ message: 'Invalid verification code' });
+      }
+      
+      // Enable 2FA
+      await enable2FA(user.id, user.twoFactorSecret, backupCodes);
+      
+      res.json({
+        success: true,
+        message: '2FA enabled successfully'
+      });
+    } catch (error) {
+      console.error('2FA verification error:', error);
+      res.status(500).json({ message: 'Failed to verify 2FA' });
+    }
+  });
+  
+  // Disable 2FA
+  router.post('/api/auth/2fa/disable', async (req, res) => {
+    try {
+      const sessionData = req.session as any;
+      if (!sessionData.userId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      const { password } = req.body;
+      
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.id, sessionData.userId))
+        .limit(1);
+        
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Verify password before disabling 2FA
+      if (!user.password || !await bcrypt.compare(password, user.password)) {
+        return res.status(401).json({ message: 'Invalid password' });
+      }
+      
+      await disable2FA(user.id);
+      
+      res.json({
+        success: true,
+        message: '2FA disabled successfully'
+      });
+    } catch (error) {
+      console.error('2FA disable error:', error);
+      res.status(500).json({ message: 'Failed to disable 2FA' });
+    }
+  });
+  
+  // Get 2FA status
+  router.get('/api/auth/2fa/status', async (req, res) => {
+    try {
+      const sessionData = req.session as any;
+      if (!sessionData.userId) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+      
+      const [user] = await db
+        .select({
+          twoFactorEnabled: users.twoFactorEnabled,
+          email: users.email
+        })
+        .from(users)
+        .where(eq(users.id, sessionData.userId))
+        .limit(1);
+        
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      res.json({
+        enabled: user.twoFactorEnabled,
+        required: requires2FA(user.email),
+        email: user.email
+      });
+    } catch (error) {
+      console.error('2FA status error:', error);
+      res.status(500).json({ message: 'Failed to get 2FA status' });
     }
   });
   

@@ -40,11 +40,20 @@ import AffordableHousing from "@/pages/affordable-housing";
 import FamilyCollaboration from "@/pages/family-collaboration";
 import FamilyCollaborationCenter from "@/pages/family-collaboration-center";
 import FamilyDashboard from "@/pages/family-dashboard";
+import MessagingDashboard from "@/pages/MessagingDashboard";
 import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
 import ServiceDetail from "@/pages/service-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
+// Care Type Pages
+import MemoryCareDetailPage from "@/pages/care-types/memory-care";
+import AssistedLivingPage from "@/pages/assisted-living";
+import IndependentLivingPage from "@/pages/care-types/independent-living";
+// SEO City Landing Pages
+import SeniorLivingSanFrancisco from "@/pages/senior-living-san-francisco";
+import SeniorLivingSanDiego from "@/pages/senior-living-san-diego";
+import SeniorLivingWorldwide from "@/pages/senior-living-worldwide";
 
 // Rentals page removed - consolidated to use BasicSearch
 // MapboxTest removed
@@ -66,6 +75,7 @@ import AISupport from "@/pages/ai-support";
 import AIMatchingAssistant from "@/pages/ai-matching-assistant";
 import AllInOnePlanner from "@/pages/all-in-one-planner";
 import Costs from "@/pages/costs";
+import MemoryCare from "@/pages/care-types/memory-care";
 import RealDataPricing from "@/pages/real-data-pricing";
 import Services from "@/pages/services";
 import SeniorServices from "@/pages/senior-services";
@@ -121,6 +131,7 @@ import AISearchComparison from "@/pages/AISearchComparison";
 import FinancialAnalyticsDashboard from "@/pages/financial-analytics-dashboard";
 import ComplianceDashboard from "@/pages/compliance-dashboard";
 import MarketingAutomationDashboard from "@/pages/marketing-automation-dashboard";
+import AdminFeaturedCommunitiesPage from "@/pages/admin-featured-communities";
 import ResidentPortal from "@/pages/resident-portal";
 import PublicResidentPortal from "@/pages/public-resident-portal";
 import ResidentDashboard from "@/pages/resident-dashboard";
@@ -133,6 +144,7 @@ import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { initGA } from "@/lib/analytics";
 import { useAnalytics } from "@/hooks/use-analytics";
+import { initSentry } from "@/lib/sentry";
 import CanadaPage from "@/pages/canada";
 import RedTagExample from "@/pages/red-tag-example";
 import HospitalDetails from "@/pages/hospital-details";
@@ -155,7 +167,9 @@ import AdminDashboard from "@/pages/admin-dashboard";
 import TermsOfService from "@/pages/terms-of-service";
 import PrivacyPolicy from "@/pages/privacy-policy";
 import CookiePolicy from "@/pages/cookie-policy";
+import LegalNotice from "@/pages/legal-notice";
 import LegalDocumentHistory from "@/pages/legal-document-history";
+import DmcaNotice from "@/pages/dmca-notice";
 import PaymentRecovery from "@/pages/payment-recovery";
 import CommunityOnboarding from "@/pages/community-onboarding";
 import VendorOnboarding from "@/pages/vendor-onboarding";
@@ -170,8 +184,10 @@ import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 import MoveInCoordination from "@/pages/move-in-coordination";
+import SecuritySettingsPage from "@/pages/security-settings";
 import Marketplace from "@/pages/marketplace";
 import SeniorMarketplace from "@/pages/senior-marketplace";
+import VendorsMarketplace from "@/pages/vendors-marketplace";
 import SeniorHealthcareDirectory from "@/pages/senior-healthcare-directory";
 import SeniorResourcesCenter from "@/pages/senior-resources-center";
 import CommunityDirectory from "@/pages/community-directory";
@@ -182,6 +198,7 @@ import CVSPharmacyPage from "@/pages/vendors/cvs-pharmacy";
 import MedicareGuidePage from "@/pages/resources/medicare-guide";
 import LocationLanding from "@/pages/location-landing";
 import PricingPage from "@/pages/pricing";
+import CommunityClaim from "@/pages/community-claim";
 
 function Router() {
   const [location] = useLocation();
@@ -198,10 +215,18 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={MySeniorValetHome} />
+      <Route path="/senior-living-worldwide" component={SeniorLivingWorldwide} />
+      <Route path="/senior-living-san-francisco" component={SeniorLivingSanFrancisco} />
+      <Route path="/senior-living-san-diego" component={SeniorLivingSanDiego} />
       <Route path="/pricing" component={PricingPage} />
       <Route path="/canada" component={CanadaPage} />
       <Route path="/map" component={MapSearch} />
       <Route path="/map-search" component={MapSearch} />
+      
+      {/* Care Type Resource Pages */}
+      <Route path="/care-types/memory-care" component={MemoryCareDetailPage} />
+      <Route path="/care-types/assisted-living" component={AssistedLivingPage} />
+      <Route path="/care-types/independent-living" component={IndependentLivingPage} />
       
       {/* SEO Location Landing Pages */}
       <Route path="/senior-living/:state/:city?" component={LocationLanding} />
@@ -216,16 +241,17 @@ function Router() {
       </Route>
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
-      <Route path="/service/:slug" component={ServiceDetail} />
-      <Route path="/services/:slug" component={ServiceDetail} />
+      <Route path="/service/:id" component={ServiceDetail} />
+      <Route path="/services/:id" component={ServiceDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
       <Route path="/hospital/:slug" component={HospitalDetails} />
       <Route path="/hospitals" component={SeniorHealthcareDirectory} />
       <Route path="/community/:id/contribute" component={CommunityContribute} />
       <Route path="/claim/:communityId" component={Claim} />
-      <Route path="/community-claim" component={Claim} />
+      <Route path="/community-claim" component={CommunityClaim} />
       {/* ALL ADMIN ROUTES NOW REDIRECT TO UNIFIED SUPER ADMIN DASHBOARD */}
       <Route path="/admin" component={SuperAdminAnalytics} />
+      <Route path="/admin/featured-communities" component={AdminFeaturedCommunitiesPage} />
       <Route path="/admin-creative" component={SuperAdminAnalytics} />
       <Route path="/admin-unified" component={SuperAdminAnalytics} />
       <Route path="/admin-portal" component={SuperAdminAnalytics} />
@@ -268,17 +294,19 @@ function Router() {
       <Route path="/tour-tracker/:communityId" component={TourTracker} />
       <Route path="/edit-tour/:tourId" component={TourTracker} />
       <Route path="/tours" component={ToursPage} />
-      <Route path="/messaging" component={Messaging} />
-      <Route path="/messages" component={Messaging} />
+      <Route path="/messaging" component={MessagingDashboard} />
+      <Route path="/messages" component={MessagingDashboard} />
       <Route path="/notification-preferences" component={NotificationPreferencesPage} />
       <Route path="/support" component={SupportResources} />
       <Route path="/veterans" component={VeteransHousing} />
       {/* HudVashMap route removed */}
       <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaborationCenter} />
+      <Route path="/family-collaboration-center" component={FamilyCollaborationCenter} />
       <Route path="/family-dashboard" component={FamilyDashboard} />
       <Route path="/family-connect" component={FamilyConnect} />
       <Route path="/emergency-contacts" component={EmergencyContacts} />
+      <Route path="/security-settings" component={SecuritySettingsPage} />
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
       <Route path="/about" component={About} />
@@ -288,7 +316,9 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/cookie-policy" component={CookiePolicy} />
+      <Route path="/legal-notice" component={LegalNotice} />
       <Route path="/legal-document-history" component={LegalDocumentHistory} />
+      <Route path="/dmca-notice" component={DmcaNotice} />
       <Route path="/disclaimer" component={Disclaimer} />
       <Route path="/accessibility" component={Accessibility} />
       <Route path="/mission" component={Mission} />
@@ -308,6 +338,7 @@ function Router() {
       <Route path="/ai-matching-assistant" component={AIMatchingAssistant} />
       <Route path="/all-in-one-planner" component={AllInOnePlanner} />
       <Route path="/costs" component={Costs} />
+      <Route path="/memory-care" component={MemoryCare} />
       <Route path="/real-data-pricing" component={RealDataPricing} />
       <Route path="/services" component={Services} />
       <Route path="/senior-services" component={SeniorServices} />
@@ -333,6 +364,7 @@ function Router() {
       <Route path="/vendors/cvs-pharmacy" component={CVSPharmacyPage} />
       <Route path="/resources/medicare-guide" component={MedicareGuidePage} />
       <Route path="/community-directory" component={CommunityDirectory} />
+      <Route path="/vendors-marketplace" component={VendorsMarketplace} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
       <Route path="/florals" component={FloralServices} />
@@ -441,14 +473,21 @@ function AppContent() {
 }
 
 function App() {
-  // Initialize Google Analytics when app loads
+  // Initialize analytics and monitoring when app loads
   useEffect(() => {
-    // Verify required environment variable is present
+    // Initialize Google Analytics
     if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
       console.warn('Missing Google Analytics key: VITE_GA_MEASUREMENT_ID - analytics disabled');
     } else {
       initGA();
       console.log('✅ Google Analytics initialized');
+    }
+    
+    // Initialize Sentry error monitoring
+    if (!import.meta.env.VITE_SENTRY_DSN) {
+      console.warn('Sentry DSN not configured - error monitoring disabled');
+    } else {
+      initSentry();
     }
   }, []);
   

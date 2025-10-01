@@ -39,34 +39,38 @@ Icon.Default.mergeOptions({
 // Circular icons with bold borders (no pointing portion)
 const createSimpleIcon = (color: string) => {
   const size = 30; // Size of the circular marker
+  // Sanitize color input to prevent XSS
+  const safeColor = color.replace(/[^a-zA-Z0-9#]/g, '');
+  const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <!-- Drop shadow for depth -->
+      <defs>
+        <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+          <feOffset dx="0" dy="2" result="offsetblur"/>
+          <feFlood flood-color="rgba(0,0,0,0.3)"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      
+      <!-- Main circle with bold colored border -->
+      <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
+              fill="white" 
+              stroke="${safeColor}" 
+              stroke-width="4" 
+              filter="url(#shadow)"/>
+      
+      <!-- Inner dot for visual interest -->
+      <circle cx="${size/2}" cy="${size/2}" r="4" fill="${safeColor}"/>
+    </svg>
+  `;
+  
   return new Icon({
-    iconUrl: `data:image/svg+xml;base64,${btoa(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-        <!-- Drop shadow for depth -->
-        <defs>
-          <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-            <feOffset dx="0" dy="2" result="offsetblur"/>
-            <feFlood flood-color="rgba(0,0,0,0.3)"/>
-            <feComposite in2="offsetblur" operator="in"/>
-            <feMerge>
-              <feMergeNode/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        
-        <!-- Main circle with bold colored border -->
-        <circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" 
-                fill="white" 
-                stroke="${color}" 
-                stroke-width="4" 
-                filter="url(#shadow)"/>
-        
-        <!-- Inner dot for visual interest -->
-        <circle cx="${size/2}" cy="${size/2}" r="4" fill="${color}"/>
-      </svg>
-    `)}`,
+    iconUrl: `data:image/svg+xml;base64,${btoa(svgString)}`,
     iconSize: [size, size],
     iconAnchor: [size/2, size/2],
     popupAnchor: [0, -size/2],
@@ -287,6 +291,31 @@ const MapEvents: React.FC<{
                 timeout: 15000
               }
             });
+            
+            // Add error handling to prevent crashes when locating
+            locateControl.on('locationerror', function(e: any) {
+              console.error('Location error:', e.message);
+            });
+            
+            // Override the _setView method to add validation
+            if (locateControl._setView) {
+              const originalSetView = locateControl._setView.bind(locateControl);
+              locateControl._setView = function() {
+                try {
+                  const args = arguments;
+                  if (args && args[0] && typeof args[0].lat === 'number' && typeof args[0].lng === 'number') {
+                    const lat = args[0].lat;
+                    const lng = args[0].lng;
+                    if (!isNaN(lat) && !isNaN(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+                      return originalSetView.apply(this, arguments);
+                    }
+                  }
+                } catch (e) {
+                  console.error('Error in locate control setView:', e);
+                }
+              };
+            }
+            
             map.addControl(locateControl);
             (map as any)._locateControl = locateControl;
           }
@@ -822,6 +851,45 @@ export default function Map({
           }
         };
       }
+      
+      // Critical fix: Patch Map.setView to prevent crash with invalid coordinates
+      if ((window as any).L?.Map?.prototype?.setView) {
+        const originalMapSetView = (window as any).L.Map.prototype.setView;
+        (window as any).L.Map.prototype.setView = function(center: any, zoom?: any, options?: any) {
+          try {
+            // Detect and prevent priceRange object being passed as coordinates
+            if (center && typeof center === 'object' && 'min' in center && 'max' in center) {
+              console.error('CRITICAL ERROR: setView received priceRange object instead of coordinates:', center);
+              // Return without doing anything to prevent crash
+              return this;
+            }
+            
+            // Validate array format [lat, lng]
+            if (Array.isArray(center) && center.length === 2) {
+              const lat = Number(center[0]);
+              const lng = Number(center[1]);
+              if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+                console.error('Invalid coordinates for setView:', center);
+                return this;
+              }
+            } 
+            // Validate object format {lat, lng}
+            else if (center && typeof center === 'object' && 'lat' in center && 'lng' in center) {
+              const lat = Number(center.lat);
+              const lng = Number(center.lng);
+              if (isNaN(lat) || isNaN(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) {
+                console.error('Invalid coordinates for setView:', center);
+                return this;
+              }
+            }
+            
+            return originalMapSetView.call(this, center, zoom, options);
+          } catch (e) {
+            console.error('Error in Map.setView:', e);
+            return this;
+          }
+        };
+      }
     }
 
     window.addEventListener('error', handleError, true);
@@ -1180,6 +1248,87 @@ export default function Map({
     });
   }, [isLoading, error, markerData]);
 
+  // FIX: Force layers control to be scrollable on mobile
+  useEffect(() => {
+    const fixLayersControlHeight = () => {
+      // Find the layers control elements
+      const layersControl = document.querySelector('.leaflet-control-layers-expanded');
+      const layersList = document.querySelector('.leaflet-control-layers-list');
+      
+      if (layersControl && layersList) {
+        // Calculate max height (60% of viewport, max 480px)
+        const viewportHeight = window.innerHeight;
+        const maxHeight = Math.min(viewportHeight * 0.6, 480);
+        
+        // Force inline styles to override Leaflet's defaults
+        (layersList as HTMLElement).style.maxHeight = `${maxHeight}px`;
+        (layersList as HTMLElement).style.overflowY = 'auto';
+        (layersList as HTMLElement).style.overflowX = 'hidden';
+        (layersList as HTMLElement).style.webkitOverflowScrolling = 'touch'; // iOS smooth scrolling
+        (layersList as HTMLElement).style.overscrollBehavior = 'contain';
+        
+        // Ensure the control itself is properly styled
+        (layersControl as HTMLElement).style.maxHeight = 'none';
+        (layersControl as HTMLElement).style.overflow = 'visible';
+      }
+    };
+
+    // Apply fix whenever layers control is toggled
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          const target = mutation.target as HTMLElement;
+          if (target.classList.contains('leaflet-control-layers') && 
+              target.classList.contains('leaflet-control-layers-expanded')) {
+            // Small delay to ensure Leaflet has finished its DOM manipulation
+            setTimeout(fixLayersControlHeight, 10);
+          }
+        }
+      });
+    });
+
+    // Start observing for layers control changes
+    const controlElement = document.querySelector('.leaflet-control-layers');
+    if (controlElement) {
+      observer.observe(controlElement, { 
+        attributes: true, 
+        attributeFilter: ['class'] 
+      });
+    }
+
+    // Also apply on window resize
+    window.addEventListener('resize', fixLayersControlHeight);
+    window.addEventListener('orientationchange', fixLayersControlHeight);
+
+    // Initial check in case control is already expanded
+    fixLayersControlHeight();
+
+    // Poll for the element every 500ms for 5 seconds in case it's created later
+    let pollCount = 0;
+    const pollInterval = setInterval(() => {
+      pollCount++;
+      fixLayersControlHeight();
+      const control = document.querySelector('.leaflet-control-layers');
+      if (control && !observer) {
+        observer.observe(control, { 
+          attributes: true, 
+          attributeFilter: ['class'] 
+        });
+      }
+      if (pollCount >= 10) {
+        clearInterval(pollInterval);
+      }
+    }, 500);
+
+    // Cleanup
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', fixLayersControlHeight);
+      window.removeEventListener('orientationchange', fixLayersControlHeight);
+      clearInterval(pollInterval);
+    };
+  }, [mapInstance]); // Re-run when map instance changes
+
   const formatPrice = (priceRange: string) => {
     if (!priceRange) return 'Contact for pricing';
     return priceRange;
@@ -1256,10 +1405,9 @@ export default function Map({
         <MapContainer
           center={center}
           zoom={currentZoom}
-          minZoom={6}  // State-level zoom limit - prevents excessive clustering
+          minZoom={2}  // World-level zoom
           maxZoom={18} // Street-level detail
-          maxBounds={[[14.0, -170.0], [70.0, -50.0]]} // Full North America including Alaska and Mexico
-          maxBoundsViscosity={1.0} // Prevents panning outside bounds
+          // No maxBounds - allow worldwide viewing
           style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
         >
@@ -1306,17 +1454,51 @@ export default function Map({
             />
           </LayersControl.BaseLayer>
 
-          {/* Stamen Toner - High contrast (works in both modes) */}
-          <LayersControl.BaseLayer name="High Contrast">
+          {/* High Contrast - Black and White for maximum visibility */}
+          <LayersControl.BaseLayer name="High Contrast B&W">
             <TileLayer
-              url={isDark
-                ? "https://stamen-tiles-{s}.a.ssl.fastly.net/toner/{z}/{x}/{y}{r}.png"
-                : "https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png"
-              }
-              attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
+              className="grayscale contrast-150 brightness-110"
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Satellite View - Aerial photography from Esri */}
+          <LayersControl.BaseLayer name="Satellite">
+            <TileLayer
+              url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+              attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Streets with Transit - Shows public transit routes */}
+          <LayersControl.BaseLayer name="Transit Map">
+            <TileLayer
+              url={`https://{s}.tile.thunderforest.com/transport/{z}/{x}/{y}.png?apikey=${import.meta.env.VITE_THUNDERFOREST_API_KEY}`}
+              attribution='&copy; <a href="https://www.thunderforest.com/">Thunderforest</a>, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Dark Mode Map - Optimized for night viewing */}
+          <LayersControl.BaseLayer name="Dark Mode">
+            <TileLayer
+              url="https://cartodb-basemaps-{s}.global.ssl.fastly.net/dark_all/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
               subdomains="abcd"
-              maxZoom={20}
-              minZoom={0}
+              maxZoom={19}
+            />
+          </LayersControl.BaseLayer>
+
+          {/* Terrain/Topographic - Shows elevation and terrain features */}
+          <LayersControl.BaseLayer name="Terrain">
+            <TileLayer
+              url="https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+              attribution='Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+              maxZoom={17}
+              subdomains="abc"
             />
           </LayersControl.BaseLayer>
 

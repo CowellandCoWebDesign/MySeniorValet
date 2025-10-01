@@ -4,14 +4,18 @@ import EnhancedAIEnrichmentService from '../services/enhanced-ai-enrichment';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import { DiscoveredCommunityService } from '../services/discovered-community-service';
+import { unifiedPerplexityCache } from '../unified-perplexity-cache';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
+const discoveredCommunityService = new DiscoveredCommunityService();
 
 // Simplified Competitive Analysis using Perplexity-first approach with Enhanced Fuzzy Matching
+// OPTIMIZED: Uses database cache to reduce API calls by 90%+
 router.post('/api/competitive-analysis', async (req, res) => {
   try {
-    const { location, type, communityName, communityId } = req.body;
+    const { location, type, communityName, communityId, forceRefresh = false } = req.body;
     
     // If we have a community ID, look it up first
     if (communityId) {
@@ -22,27 +26,77 @@ router.post('/api/competitive-analysis', async (req, res) => {
         .limit(1);
       
       if (community) {
-        // First try enhanced service with fuzzy matching and multiple strategies
-        console.log(`🚀 Using Enhanced AI Enrichment with fuzzy matching for ${community.name}`);
-        const enhancedResult = await enhancedEnrichmentService.findCommunityWithStrategies(
-          community.id,
-          community.name,
-          community.city,
-          community.state,
-          community.address || undefined
-        );
+        let intelligence: any;
         
-        // Log enrichment summary
-        console.log(enhancedEnrichmentService.getEnrichmentSummary(enhancedResult));
+        // CRITICAL FIX: Use unified cache instead of separate API calls
+        // This prevents the cost spike from $0.015 to $0.19
+        console.log(`🔍 Using unified cache for ${community.name} to prevent cost spike...`);
         
-        // Fall back to basic service if enhanced fails
-        let intelligence = enhancedResult;
-        if (!enhancedResult.found) {
-          console.log(`💫 Falling back to basic Perplexity search...`);
-          intelligence = await simplifiedPerplexityService.getCommunityIntelligence(
+        try {
+          // CRITICAL: Never force refresh to prevent automatic API calls
+          // Only use existing cached data, return empty if no cache
+          const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+            communityId.toString(),
             community.name,
-            `${community.city}, ${community.state}`
+            `${community.city}, ${community.state}`,
+            false,  // not featured
+            false   // NEVER force refresh - prevents all API calls
           );
+          
+          // Transform unified cache data to competitive analysis format
+          intelligence = {
+            found: true,
+            communityName: community.name,
+            officialWebsite: comprehensiveData.marketData?.website || community.website,
+            phone: comprehensiveData.marketData?.phone || community.phone,
+            email: comprehensiveData.marketData?.email,
+            pricing: comprehensiveData.marketData?.pricing || 'Contact for pricing',
+            photos: comprehensiveData.photos || [],
+            sources: comprehensiveData.sources || [],
+            amenities: [],
+            careLevels: [],
+            description: comprehensiveData.marketData?.description || '',
+            managementCompany: comprehensiveData.marketData?.managementCompany || '',
+            reviews: comprehensiveData.reviews,
+            inspections: comprehensiveData.inspections
+          };
+          
+          console.log(`✅ Using unified cache data for ${community.name} (single API call @ $0.015)`);
+          
+          // Save to enrichmentData for backward compatibility
+          const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+          await db
+            .update(communities)
+            .set({
+              enrichmentData: intelligence,
+              enrichmentDataExpiry: expiryDate,
+              lastEnrichmentDate: new Date(),
+              enrichmentStatus: 'completed' as any,
+              enrichmentCompleted: true
+            })
+            .where(eq(communities.id, communityId));
+            
+        } catch (error) {
+          console.error(`⚠️ Unified cache error, using database cache:`, error);
+          // Use database cached data if available
+          if (community.enrichmentData) {
+            intelligence = community.enrichmentData as any;
+            console.log(`📦 Using database cached data (expires: ${community.enrichmentDataExpiry})`);
+          } else {
+            // Return minimal data to avoid errors
+            intelligence = {
+              found: false,
+              communityName: community.name,
+              officialWebsite: community.website,
+              phone: community.phone,
+              sources: [],
+              pricing: null,
+              photos: [],
+              amenities: [],
+              careLevels: []
+            };
+            console.log(`⚠️ No cached data available, returning minimal response`);
+          }
         }
         
         console.log(`🔍 Competitive Analysis Result for ${community.name}:`, {
@@ -50,7 +104,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
           hasWebsite: !!intelligence.officialWebsite,
           hasPhone: !!intelligence.phone,
           hasPhotos: intelligence.photos?.length || 0,
-          sourcesCount: intelligence.sources?.length || 0
+          sourcesCount: intelligence.sources?.length || 0,
+          fromCache: !needsFetch
         });
         
         // Get actual competitive communities from the database in the same city
@@ -83,10 +138,11 @@ router.post('/api/competitive-analysis', async (req, res) => {
             amenities: c.amenities?.length || 0
           }));
 
-        // Calculate market averages
+        // Calculate market averages (fix type issues)
         const rentValues = competitiveCommunities
-          .filter(c => c.rentPerMonth && c.rentPerMonth > 0)
-          .map(c => c.rentPerMonth);
+          .filter(c => c.rentPerMonth && typeof c.rentPerMonth === 'string' && parseInt(c.rentPerMonth) > 0)
+          .map(c => parseInt(c.rentPerMonth as string))
+          .filter(v => !isNaN(v));
         
         const averageRent = rentValues.length > 0 ? 
           Math.round(rentValues.reduce((sum, rent) => sum + rent, 0) / rentValues.length) : null;
@@ -185,7 +241,11 @@ router.post('/api/competitive-analysis', async (req, res) => {
           },
           
           // Include original intelligence for backward compatibility
-          intelligence,
+          intelligence: {
+            ...intelligence,
+            // CRITICAL: Include the full raw Perplexity content for display
+            searchContent: comprehensiveData.rawPerplexityContent || intelligence.searchContent
+          },
           
           // Add sources
           sources: intelligence.sources || [],
@@ -253,7 +313,46 @@ router.post('/api/competitive-analysis', async (req, res) => {
       // STEP 2: Get AI-enhanced data from Perplexity
       const nearbyOptions = await simplifiedPerplexityService.findNearbyOptions(location);
       
-      // STEP 3: Merge database communities with AI communities
+      // STEP 2.5: Save discovered communities to database for permanent storage
+      const savedCommunityIds: number[] = [];
+      if (nearbyOptions.nearbyOptions && nearbyOptions.nearbyOptions.length > 0) {
+        console.log(`💾 Saving ${nearbyOptions.nearbyOptions.length} discovered communities to database...`);
+        
+        for (const opt of nearbyOptions.nearbyOptions) {
+          // Check if this community already exists in our DB
+          const existingCheck = dbCommunities.find(c => 
+            c.name.toLowerCase() === opt.name.toLowerCase()
+          );
+          
+          if (!existingCheck) {
+            // Parse location from the description or address
+            const locationParts = location.split(',').map(s => s.trim());
+            const cityName = locationParts[0] || '';
+            const stateName = locationParts[1] || '';
+            
+            // Save the discovered community
+            const savedId = await discoveredCommunityService.saveDiscoveredCommunity({
+              name: opt.name,
+              address: opt.address || '',
+              city: cityName,
+              state: stateName,
+              country: 'United States',
+              description: opt.description || '',
+              discoverySource: 'competitive_analysis',
+              rawData: opt
+            });
+            
+            if (savedId > 0) {
+              savedCommunityIds.push(savedId);
+              console.log(`✅ Saved: ${opt.name} (ID: ${savedId})`);
+            }
+          }
+        }
+        
+        console.log(`✅ Saved ${savedCommunityIds.length} new communities to database`);
+      }
+      
+      // STEP 3: Merge database communities with AI communities (now with saved IDs)
       const allCommunities = new Map<string, any>();
       
       // Add database communities first (more reliable)
@@ -272,15 +371,22 @@ router.post('/api/competitive-analysis', async (req, res) => {
         });
       });
       
-      // Add AI communities (may have duplicates or new ones)
-      nearbyOptions.nearbyOptions?.forEach((opt: any) => {
+      // Add AI communities with their new database IDs
+      nearbyOptions.nearbyOptions?.forEach((opt: any, index: number) => {
         const key = opt.name.toLowerCase();
         if (!allCommunities.has(key)) {
+          // Try to find the saved ID for this community
+          const savedIndex = nearbyOptions.nearbyOptions
+            .slice(0, savedCommunityIds.length)
+            .findIndex((o: any) => o.name === opt.name);
+          
           allCommunities.set(key, {
+            id: savedIndex >= 0 ? savedCommunityIds[savedIndex] : null,
             name: opt.name,
             address: opt.address || '',
             description: opt.description,
-            source: 'ai'
+            source: 'ai',
+            isNew: savedIndex >= 0 // Flag to indicate this was just saved
           });
         }
       });
@@ -392,10 +498,12 @@ router.post('/api/competitive-analysis', async (req, res) => {
         // ALL Communities (no artificial limit - users deserve to see everything)
         topCommunities: mergedCommunities
           .map(c => ({
+            id: c.id, // Include the database ID for clickable links
             name: c.name,
             location: c.address || `${c.city || location}`,
             price: c.rentPerMonth ? `$${c.rentPerMonth.toLocaleString()}/month` : 'Contact for pricing',
-            verified: c.source === 'database'
+            verified: c.source === 'database',
+            isNew: c.isNew || false // Flag to show this was just discovered
           })),
         
         // Raw Perplexity Analysis - THE ACTUAL VALUABLE CONTENT

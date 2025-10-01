@@ -61,11 +61,11 @@ export default function PersonalizedDashboard() {
   const { toast } = useToast();
   const [recommendations, setRecommendations] = useState<PersonalizedRecommendation[]>([]);
   const [searchProgress, setSearchProgress] = useState<SearchProgress>({
-    totalCommunities: 31023,
-    viewed: 12,
-    saved: 3,
-    toursScheduled: 1,
-    completionPercentage: 25
+    totalCommunities: 0,
+    viewed: 0,
+    saved: 0,
+    toursScheduled: 0,
+    completionPercentage: 0
   });
   
   // Force refresh - Horizontal Dashboard Update v2
@@ -73,56 +73,64 @@ export default function PersonalizedDashboard() {
     console.log('Dashboard v2.0 - Horizontal Layout Active - Timestamp:', Date.now());
   }, []);
   const [preferences, setPreferences] = useState({
-    maxBudget: 4000,
-    careType: 'Assisted Living',
-    location: 'Sacramento, CA',
-    amenities: ['Medical Care', 'Transportation', 'Meals Included']
+    maxBudget: 0,
+    careType: '',
+    location: '',
+    amenities: []
   });
 
   useEffect(() => {
-    // Load personalized recommendations
-    setRecommendations([
-      {
-        id: 30789,
-        name: "FLORIN GARDENS APARTMENTS COOPERATIVE",
-        address: "7727 Florin Mall Dr",
-        city: "Sacramento",
-        state: "CA",
-        priceRange: "$303/month",
-        careType: "Independent Living",
-        rating: 4.2,
-        matchScore: 95,
-        reasons: ["Within budget", "Close to family", "HUD certified", "Transportation available"],
-        availability: "Available"
-      },
-      {
-        id: 800067910,
-        name: "SACRAMENTO ELDERLY APARTMENTS",
-        address: "1325 Auburn Blvd",
-        city: "Sacramento",
-        state: "CA",
-        priceRange: "$355/month",
-        careType: "Senior Housing",
-        rating: 4.0,
-        matchScore: 92,
-        reasons: ["Excellent value", "Government subsidized", "Medical services nearby"],
-        availability: "Waitlist"
-      },
-      {
-        id: 12345,
-        name: "Golden Valley Assisted Living",
-        address: "2500 Fair Oaks Blvd",
-        city: "Sacramento",
-        state: "CA",
-        priceRange: "$3,800-$4,200/month",
-        careType: "Assisted Living",
-        rating: 4.5,
-        matchScore: 88,
-        reasons: ["Memory care available", "24/7 nursing", "Family-owned", "Pet-friendly"],
-        availability: "Available"
-      }
-    ]);
+    // Load personalized recommendations and user progress from API
+    loadPersonalizedRecommendations();
+    loadUserProgress();
+    loadUserPreferences();
   }, []);
+  
+  const loadPersonalizedRecommendations = async () => {
+    try {
+      const response = await fetch('/api/users/recommendations');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.recommendations && data.recommendations.length > 0) {
+          setRecommendations(data.recommendations);
+        } else {
+          // No recommendations yet - prompt user to set preferences
+          setRecommendations([]);
+        }
+      } else {
+        setRecommendations([]);
+      }
+    } catch (error) {
+      console.error('Error loading personalized recommendations:', error);
+      setRecommendations([]);
+    }
+  };
+  
+  const loadUserProgress = async () => {
+    try {
+      const response = await fetch('/api/users/search-progress');
+      if (response.ok) {
+        const data = await response.json();
+        setSearchProgress(data);
+      }
+    } catch (error) {
+      console.error('Error loading user progress:', error);
+    }
+  };
+  
+  const loadUserPreferences = async () => {
+    try {
+      const response = await fetch('/api/users/preferences');
+      if (response.ok) {
+        const data = await response.json();
+        if (data && Object.keys(data).length > 0) {
+          setPreferences(data);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading user preferences:', error);
+    }
+  };
 
   const handleSaveRecommendation = (recommendation: PersonalizedRecommendation) => {
     toast({

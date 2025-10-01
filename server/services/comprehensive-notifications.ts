@@ -535,13 +535,14 @@ export class ComprehensiveNotificationService {
       data: emergencyData
     };
 
-    // Send to both admin emails immediately
-    const recipients = ['admin@myseniorvalet.com', 'william.cowell01@gmail.com'];
+    // Send to admin email immediately
+    const recipients = ['admin@myseniorvalet.com'];
     
     for (const recipient of recipients) {
       await sendEmail({
         to: recipient,
         from: 'hello@myseniorvalet.com',
+        bcc: 'hello@myseniorvalet.com',
         subject: `🚨 EMERGENCY CONTACT - ${emergencyData.urgency.toUpperCase()} Priority`,
         html: `
           <div style="border: 3px solid red; padding: 20px; background: #fee;">

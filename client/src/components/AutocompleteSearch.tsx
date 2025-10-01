@@ -45,6 +45,7 @@ interface AutocompleteSearchProps {
   isLoading?: boolean;
   hideSearchButton?: boolean;
   inputClassName?: string;
+  forceClearSuggestions?: boolean;
 }
 
 export function AutocompleteSearch({ 
@@ -54,7 +55,8 @@ export function AutocompleteSearch({
   placeholder = "Search cities, communities, care types...",
   isLoading = false,
   hideSearchButton = false,
-  inputClassName = ""
+  inputClassName = "",
+  forceClearSuggestions = false
 }: AutocompleteSearchProps) {
   const [suggestions, setSuggestions] = useState<AutocompleteSuggestion[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -79,6 +81,15 @@ export function AutocompleteSearch({
   const { toast } = useToast();
   
   const isAuthenticated = user?.success && user?.user;
+
+  // Clear suggestions when forceClearSuggestions is true
+  useEffect(() => {
+    if (forceClearSuggestions) {
+      setShowSuggestions(false);
+      setSuggestions([]);
+      setSelectedIndex(-1);
+    }
+  }, [forceClearSuggestions]);
 
   // Fetch suggestions
   useEffect(() => {
@@ -148,11 +159,16 @@ export function AutocompleteSearch({
       if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
         handleSelectSuggestion(suggestions[selectedIndex]);
       } else {
-        onSubmit(value.trim()); // Trim spaces when submitting
+        // Clear suggestions immediately when submitting
         setShowSuggestions(false);
+        setSuggestions([]);
+        onSubmit(value.trim());
+        // Blur the input to ensure dropdown is hidden
+        inputRef.current?.blur();
       }
     } else if (e.key === 'Escape') {
       setShowSuggestions(false);
+      setSuggestions([]);
     }
   };
 
@@ -304,7 +320,12 @@ export function AutocompleteSearch({
         />
         {!hideSearchButton && (
           <Button 
-            onClick={() => onSubmit(value)}
+            onClick={() => {
+              setShowSuggestions(false);
+              setSuggestions([]);
+              onSubmit(value);
+              inputRef.current?.blur();
+            }}
             disabled={isLoading || !value}
             className="absolute right-1 top-1/2 transform -translate-y-1/2"
             size="sm"

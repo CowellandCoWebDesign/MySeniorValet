@@ -1,18 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { 
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
-  CheckCircle, XCircle, AlertCircle, DollarSign
+  CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
+  Flag, RefreshCw, TrendingUp, Info, ExternalLink
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
+import { MessagingInterface } from "./MessagingInterface";
 
 interface CommunityDetailsHeaderProps {
   community: any;
   verificationReport?: any;
+  isVerifying?: boolean;
   isFavorite?: boolean;
   onFavoriteToggle?: () => void;
   getPricingBadgeInfo?: (community: any, verificationReport: any) => any;
@@ -20,19 +23,73 @@ interface CommunityDetailsHeaderProps {
   generatePhoneNumber?: (state: string, id: number) => string;
   onReserveClick?: () => void;
   onTourClick?: () => void;
+  onPhotoChange?: (index: number) => void;
+  currentPhotoIndex?: number;
+  onStartVerification?: () => void;
 }
 
 export function CommunityDetailsHeader({ 
   community, 
   verificationReport,
+  isVerifying = false,
   isFavorite = false,
   onFavoriteToggle,
   getPricingBadgeInfo,
   formatCareType,
   generatePhoneNumber,
   onReserveClick,
-  onTourClick
+  onTourClick,
+  onPhotoChange,
+  currentPhotoIndex,
+  onStartVerification
 }: CommunityDetailsHeaderProps) {
+  const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  
+  // Determine if community needs data quality review
+  const needsDataReview = () => {
+    // Check various data quality indicators
+    if (!community.isVerified) return true;
+    if (!community.website || community.website === '') return true;
+    if (!community.phone || community.phone === '') return true;
+    if (!community.photos || community.photos.length === 0) return true;
+    if (community.dataQualityScore && community.dataQualityScore < 70) return true;
+    
+    // Check if pricing is missing or outdated
+    const hasPricing = community.priceRange?.min > 0 || 
+                       community.rentPerMonth > 0 || 
+                       verificationReport?.pricing?.verified;
+    if (!hasPricing) return true;
+    
+    return false;
+  };
+  
+  const handleFlagCommunity = async () => {
+    try {
+      const response = await fetch('/api/admin/flag-community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          communityId: community.id,
+          communityName: community.name,
+          city: community.city,
+          state: community.state,
+          reason: 'needs_review',
+          flaggedAt: new Date().toISOString()
+        })
+      });
+      
+      if (response.ok) {
+        // Show brief confirmation without reloading
+        const flagBtn = document.querySelector('.flag-button');
+        if (flagBtn) {
+          flagBtn.classList.add('text-orange-500');
+          flagBtn.setAttribute('title', 'Community flagged for admin review');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to flag community:', error);
+    }
+  };
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
     const lowerAmenity = amenity.toLowerCase();
@@ -183,9 +240,23 @@ export function CommunityDetailsHeader({
   const pricing = getPricing();
   const enrichedContact = verificationReport?.contactInformation?.extracted || 
                          verificationReport?.verificationResults?.contactInformation?.extracted;
-  const displayPhone = enrichedContact?.phone || community.phone || 
-                       (generatePhoneNumber ? generatePhoneNumber(community.state, community.id) : "1-855-287-5093");
-  const displayWebsite = enrichedContact?.website || community.website;
+  // Only display REAL phone numbers - Golden Data Rule
+  const displayPhone = enrichedContact?.phone || community.phone || null;
+  
+  // Debug phone number sources
+  console.log('🔍 Phone Number Sources:', {
+    enrichedContactPhone: enrichedContact?.phone,
+    communityPhone: community.phone,
+    finalDisplayPhone: displayPhone,
+    communityName: community.name
+  });
+  
+  // Priority order for website: 1) Market data analysis 2) Contact extraction 3) Database
+  const marketDataWebsite = verificationReport?.extractedCommunities?.find((c: any) => 
+    c.name.toLowerCase().includes(community.name.toLowerCase()) ||
+    community.name.toLowerCase().includes(c.name.toLowerCase())
+  )?.officialWebsite;
+  const displayWebsite = marketDataWebsite || enrichedContact?.website || community.website;
   
   // Get amenities from various sources
   const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
@@ -225,7 +296,8 @@ export function CommunityDetailsHeader({
   };
 
   return (
-    <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <>
+      <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
         {/* Photo Carousel - Full Height Without Overlays */}
         <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
@@ -235,24 +307,96 @@ export function CommunityDetailsHeader({
             communityId={community.id}
             community={community}
             verificationReport={verificationReport}
+            isVerifying={isVerifying}
             className="w-full h-full"
+            currentPhotoIndex={currentPhotoIndex}
+            onPhotoIndexChange={onPhotoChange}
+            showSourceIndicator={true}
+            onStartVerification={onStartVerification}
           />
         </div>
         
-        {/* Featured Badge and Action Buttons - Moved Below Carousel */}
-        <div className="flex justify-between items-center px-6 py-3 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
-          {/* Featured Badge */}
-          <div>
-            {community.brandId && (
-              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white text-sm font-bold px-4 py-2 shadow-lg">
-                <Star className="w-4 h-4 mr-2" />
-                FEATURED EXCELLENCE
-              </Badge>
+        {/* Photo Citations - NEW TRANSPARENCY FEATURE */}
+        {(webIntel?.sources || verificationReport?.sources || verificationReport?.citations) && 
+         (webIntel?.sources?.length > 0 || verificationReport?.sources?.length > 0 || verificationReport?.citations?.length > 0) && (
+          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400">
+              <Info className="w-3 h-3" />
+              <span>Photo sources:</span>
+              <div className="flex flex-wrap gap-2">
+                {(webIntel?.sources || verificationReport?.sources || verificationReport?.citations || [])
+                  .slice(0, 3)
+                  .map((source: string, idx: number) => {
+                    // Extract domain from URL for display
+                    let displayName = `Source ${idx + 1}`;
+                    try {
+                      const url = new URL(source);
+                      displayName = url.hostname.replace('www.', '');
+                    } catch {}
+                    
+                    return (
+                      <a
+                        key={idx}
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3 inline mr-1" />
+                        {displayName}
+                      </a>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Featured Badge, Photo Thumbnails and Action Buttons - Combined Row */}
+        <div className="flex justify-between items-center px-3 sm:px-6 py-2 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
+          {/* Photo Thumbnails - Compact Strip */}
+          <div className="flex-1 flex items-center space-x-1 overflow-x-auto max-w-[60%] sm:max-w-[70%]">
+            {getCombinedPhotos().length > 1 && getCombinedPhotos().slice(0, 10).map((photo, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  // Call the photo change handler if provided
+                  if (onPhotoChange) {
+                    onPhotoChange(index);
+                  }
+                }}
+                className={`relative flex-shrink-0 w-10 h-8 sm:w-12 sm:h-10 rounded overflow-hidden border-2 transition-all hover:scale-110 ${
+                  index === 0 
+                    ? "border-blue-500 shadow-md" 
+                    : "border-gray-300 dark:border-gray-600 opacity-80 hover:opacity-100"
+                }`}
+                title={`View photo ${index + 1}`}
+              >
+                <img
+                  src={typeof photo === 'string' ? photo : photo.image_url || photo.url}
+                  alt={`Thumbnail ${index + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    img.style.filter = 'brightness(0.5)';
+                  }}
+                />
+                {index === 0 && (
+                  <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
+                    <div className="w-1 h-1 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </button>
+            ))}
+            {getCombinedPhotos().length > 10 && (
+              <div className="flex-shrink-0 px-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
+                +{getCombinedPhotos().length - 10} more
+              </div>
             )}
           </div>
           
           {/* Action Buttons */}
-          <div className="flex space-x-3">
+          <div className="flex items-center space-x-2 ml-3">
             {onFavoriteToggle && (
               <button
                 onClick={onFavoriteToggle}
@@ -281,6 +425,17 @@ export function CommunityDetailsHeader({
             >
               <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
+            
+            {/* Flag for Review Button */}
+            {needsDataReview() && (
+              <button
+                onClick={handleFlagCommunity}
+                className="flag-button p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                title="Flag this community for admin review"
+              >
+                <Flag className="w-5 h-5 text-orange-500 hover:text-orange-600" />
+              </button>
+            )}
           </div>
         </div>
         
@@ -288,36 +443,22 @@ export function CommunityDetailsHeader({
         <div className="bg-gradient-to-br from-white via-gray-50 to-white dark:from-gray-800 dark:via-gray-850 dark:to-gray-800 mt-0 relative z-0">
           {/* Header Section with Enhanced Design */}
           <div className="p-6 border-b border-gray-200 dark:border-gray-700 relative">
-            {/* Price positioned at absolute top right with proper spacing */}
-            <div className="absolute top-6 right-6 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl p-4 border border-green-200 dark:border-green-800 shadow-lg min-w-[140px] sm:min-w-[160px]">
-              <div className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Monthly Starting From</div>
-              <div className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-                {pricing.price}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-400">
-                {pricing.verified ? "Per Month" : "Market Estimate"}
-              </div>
-              {pricing.verified && (
-                <Badge className="mt-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xs font-bold px-2 py-1">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  VERIFIED
-                </Badge>
-              )}
-            </div>
             
-            {/* Community Details - Full width minus price box with better spacing */}
-            <div className="pr-0 sm:pr-48 md:pr-56 lg:pr-64">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent mb-3 break-words">
-                {community.name}
-              </h1>
+            {/* Community Details - Full width with better spacing */}
+            <div>
+              <div className="mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
+                  {community.name}
+                </h1>
+              </div>
               
-              {/* Website URL at the top with crystal ball emoji */}
+              {/* Website URL with crystal ball emoji - properly spaced */}
               {displayWebsite && (
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xl">🔮</span>
+                <div className="flex items-start gap-2 mb-3">
+                  <span className="text-xl flex-shrink-0">🔮</span>
                   <ExternalLinkWarning
                     href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600"
+                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600 break-all text-sm sm:text-base"
                   >
                     {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
                   </ExternalLinkWarning>
@@ -336,24 +477,48 @@ export function CommunityDetailsHeader({
                 {/* Phone */}
                 <div className="flex items-center gap-3">
                   <span className="text-xl flex-shrink-0">☎️</span>
-                  <a 
-                    href={`tel:${displayPhone}`}
-                    className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
-                  >
-                    {displayPhone}
-                  </a>
+                  {displayPhone ? (
+                    <a 
+                      href={`tel:${displayPhone}`}
+                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+                    >
+                      {displayPhone}
+                    </a>
+                  ) : (
+                    <span className="text-gray-500 dark:text-gray-400 italic">
+                      Contact for phone number
+                    </span>
+                  )}
                 </div>
               </div>
               
               {/* Action Buttons for Contact */}
               <div className="flex flex-wrap gap-3">
-                <a 
-                  href={`tel:${displayPhone}`}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                {displayPhone ? (
+                  <a 
+                    href={`tel:${displayPhone}`}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span className="font-medium">Call Now</span>
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => alert('Phone number not available. Please visit the website or check back later for updated contact information.')}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-200 shadow-md hover:shadow-lg"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span className="font-medium">Contact for Phone</span>
+                  </button>
+                )}
+                
+                <button
+                  onClick={() => setIsMessagingOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
-                  <Phone className="w-4 h-4" />
-                  <span className="font-medium">Call Now</span>
-                </a>
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="font-medium">Direct Message</span>
+                </button>
                 
                 {displayWebsite && (
                   <ExternalLinkWarning
@@ -478,82 +643,18 @@ export function CommunityDetailsHeader({
             </div>
           </div>
           
-          {/* Compact Info Grid - Clean and Professional */}
-          <div className="px-6 pb-6">
-            <div className="space-y-4">
-              {/* Top Amenities - Full Width */}
-              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                  <span className="text-sm">⭐</span>
-                  Top Amenities
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                  {amenities && amenities.length > 0 ? (
-                    amenities.map((amenity: string, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="text-sm">✅</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">{amenity}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="col-span-full text-sm text-gray-500 dark:text-gray-400 italic">
-                      Loading amenities...
-                    </div>
-                  )}
-                </div>
-              </div>
-              
-              {/* Why Featured and Key Services - Side by Side */}
-              <div className="grid grid-cols-2 gap-4">
-                {/* Why Featured */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <span className="text-sm">⭐</span>
-                    Why Featured
-                  </h3>
-                  <div className="space-y-2">
-                    {getWhyFeatured().slice(0, 3).map((reason: string, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <span className="text-sm">⭐</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">{reason}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Key Services */}
-                <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
-                  <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
-                    <span className="text-sm">⚡</span>
-                    Key Services
-                  </h3>
-                  <div className="space-y-2">
-                    {getKeyServices().slice(0, 3).map((service, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        {service.available ? (
-                          <span className="text-sm">✅</span>
-                        ) : (
-                          <span className="text-sm">❌</span>
-                        )}
-                        <span className={`text-xs ${
-                          service.available 
-                            ? "text-gray-600 dark:text-gray-400" 
-                            : "text-gray-400 dark:text-gray-500"
-                        }`}>
-                          {service.name}
-                        </span>
-                      </div>
-                    ))}
-                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 italic">
-                      Contact for details
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Removed non-functional sections (Top Amenities, Why Featured, Key Services) per user request */}
         </div>
       </CardContent>
     </Card>
+    
+    {/* Messaging Interface Modal */}
+    <MessagingInterface
+      isOpen={isMessagingOpen}
+      onClose={() => setIsMessagingOpen(false)}
+      communityId={community.id}
+      communityName={community.name}
+    />
+    </>
   );
 }

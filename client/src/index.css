@@ -7,6 +7,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .animate-pulse-once {
+    animation: pulseOnce 1s ease-in-out;
+  }
+}
+
 /* 3D Carousel Styles */
 .carousel-wrapper {
   perspective: 1200px;
@@ -58,12 +64,67 @@
   }
 }
 
+@keyframes pulseOnce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.6s ease-out forwards;
 }
 
 .animate-fadeInUp {
   animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+.animate-fade-in-delayed {
+  animation: fadeIn 1s ease-out forwards;
+  animation-delay: 0.4s;
+  opacity: 0;
 }
 
 .animation-delay-200 {
@@ -207,6 +268,17 @@
   /* Fix badges in dark mode */
   .dark .bg-blue-100 {
     background-color: rgba(30, 58, 138, 0.3) !important;
+  }
+
+  /* Hide scrollbar for carousel */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
   
   .dark .text-blue-800 {
@@ -550,6 +622,183 @@ body {
 /* Push Layers Control down below Legend button */
 .leaflet-control-layers {
   margin-top: 60px !important;
+}
+
+/* Fix Layers Control visibility - AGGRESSIVE contrast fix */
+.leaflet-control-layers-expanded {
+  background: white !important;
+  color: black !important;
+  border: 2px solid #333 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.leaflet-control-layers-expanded * {
+  color: black !important;
+  font-weight: 600 !important;
+}
+
+.leaflet-control-layers label {
+  color: black !important;
+  font-weight: 600 !important;
+  padding: 6px 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+}
+
+.leaflet-control-layers label span {
+  color: black !important;
+  font-weight: 600 !important;
+}
+
+.leaflet-control-layers label:hover {
+  background-color: #e0e0e0 !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers input[type="radio"],
+.leaflet-control-layers input[type="checkbox"] {
+  margin-right: 10px !important;
+  cursor: pointer !important;
+  width: 16px !important;
+  height: 16px !important;
+  accent-color: #2563eb !important;
+}
+
+.leaflet-control-layers-separator {
+  border-top: 2px solid #333 !important;
+  margin: 6px 0 !important;
+}
+
+/* Grayscale filter for high contrast mode */
+.grayscale {
+  filter: grayscale(100%) !important;
+}
+
+.contrast-150 {
+  filter: contrast(150%) !important;
+}
+
+.brightness-110 {
+  filter: brightness(110%) !important;
+}
+
+/* FORCE layers control to ALWAYS have black text on white background */
+/* This overrides dark mode to ensure readability */
+.leaflet-control-layers-expanded,
+.dark .leaflet-control-layers-expanded {
+  background: white !important;
+  color: black !important;
+  border: 2px solid #333 !important;
+  display: block !important; /* Ensure block display for proper child scrolling */
+}
+
+/* Target the INNER LIST for scrolling - this is where the actual items are */
+.leaflet-control-layers-expanded .leaflet-control-layers-list,
+.dark .leaflet-control-layers-expanded .leaflet-control-layers-list {
+  max-height: clamp(240px, 60vh, 480px) !important; /* Responsive height with min/max */
+  overflow-y: auto !important; /* Enable vertical scrolling */
+  overflow-x: hidden !important; /* No horizontal scroll */
+  -webkit-overflow-scrolling: touch !important; /* Smooth scrolling on iOS */
+  overscroll-behavior: contain !important; /* Prevent scroll chaining */
+}
+
+/* Better scrolling on larger screens */
+@media (min-width: 768px) {
+  .leaflet-control-layers-expanded .leaflet-control-layers-list,
+  .dark .leaflet-control-layers-expanded .leaflet-control-layers-list {
+    max-height: clamp(300px, 80vh, 600px) !important; /* More height on desktop */
+  }
+}
+
+/* Style the scrollbar for the INNER LIST */
+.leaflet-control-layers-list::-webkit-scrollbar {
+  width: 8px !important;
+}
+
+.leaflet-control-layers-list::-webkit-scrollbar-track {
+  background: #f1f1f1 !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers-list::-webkit-scrollbar-thumb {
+  background: #888 !important;
+  border-radius: 4px !important;
+}
+
+.leaflet-control-layers-list::-webkit-scrollbar-thumb:hover {
+  background: #555 !important;
+}
+
+.leaflet-control-layers label,
+.dark .leaflet-control-layers label {
+  color: black !important;
+}
+
+.leaflet-control-layers label span,
+.dark .leaflet-control-layers label span {
+  color: black !important;
+}
+
+.leaflet-control-layers label:hover,
+.dark .leaflet-control-layers label:hover {
+  background-color: #e0e0e0 !important;
+}
+
+.leaflet-control-layers-separator,
+.dark .leaflet-control-layers-separator {
+  border-top: 2px solid #333 !important;
+}
+
+/* Additional specificity to override any theme styles */
+.leaflet-control-layers-list label,
+.dark .leaflet-control-layers-list label {
+  color: black !important;
+}
+
+.leaflet-control-layers-list span,
+.dark .leaflet-control-layers-list span {
+  color: black !important;
+}
+
+/* Ultra-specific selectors to catch ALL text elements */
+.leaflet-control-layers *,
+.dark .leaflet-control-layers * {
+  color: black !important;
+}
+
+.leaflet-control-layers-base label,
+.dark .leaflet-control-layers-base label {
+  color: black !important;
+}
+
+.leaflet-control-layers-overlays label,
+.dark .leaflet-control-layers-overlays label {
+  color: black !important;
+}
+
+/* Target the actual text nodes inside labels */
+.leaflet-control-layers label > *,
+.dark .leaflet-control-layers label > * {
+  color: black !important;
+}
+
+/* CRITICAL FIX: Override global dark mode label color for map controls */
+/* This MUST come after the global .dark label rule */
+.dark .leaflet-control-layers label,
+.dark .leaflet-control-layers-expanded label {
+  color: black !important;
+}
+
+.dark .leaflet-control-layers-list label {
+  color: black !important;
+}
+
+/* Ensure ALL text in layers control is black */
+.dark .leaflet-control-layers,
+.dark .leaflet-control-layers * {
+  color: black !important;
 }
 
 /* Custom scrollbar utilities */

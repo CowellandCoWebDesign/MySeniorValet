@@ -81,6 +81,24 @@ export function registerVendorRoutes(app: Express) {
     }
   });
 
+  // Get recently discovered services (MUST come before :id route)
+  app.get('/api/vendors/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+      
+      // Get recent vendors ordered by creation date
+      const recentVendors = await db.select()
+        .from(vendors)
+        .orderBy(desc(vendors.id))
+        .limit(limit);
+      
+      res.json(recentVendors);
+    } catch (error) {
+      console.error('Error fetching recently discovered vendors:', error);
+      res.status(500).json({ error: 'Failed to fetch recent vendors' });
+    }
+  });
+
   // Search vendors (MUST come before :id route)
   app.get('/api/vendors/search', async (req, res) => {
     try {

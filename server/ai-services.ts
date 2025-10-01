@@ -421,8 +421,8 @@ export class PredictiveAnalyticsEngine {
     const predictions: OccupancyPrediction[] = [];
     
     // Use real occupancy data if available, otherwise calculate from capacity
-    const currentOccupancy = communityData.occupancy || 85; // Use actual occupancy or default
-    const capacity = communityData.capacity || 100;
+    const currentOccupancy = communityData.units ? 85 : 85; // Use actual occupancy or default
+    const capacity = communityData.units || 100;
     
     // Generate predictions based on real seasonal patterns and trends
     for (let i = 1; i <= daysAhead; i++) {
@@ -611,14 +611,14 @@ export class AnomalyDetectionSystem {
     try {
       const result = await db
         .select({
-          avgPrice: sql<number>`AVG(${communities.price})`
+          avgPrice: sql<number>`AVG(${communities.startingPriceMonthly})`
         })
         .from(communities)
         .where(
           and(
             eq(communities.state, state),
-            eq(communities.careType, careType),
-            sql`${communities.price} > 0`
+            sql`${communities.careTypes} @> ARRAY[${careType}]`,
+            sql`${communities.startingPriceMonthly} > 0`
           )
         );
       
@@ -800,13 +800,13 @@ export class AutomatedInsightsGenerator {
         .where(
           and(
             eq(communities.state, community.state),
-            eq(communities.careType, community.careType),
-            sql`${communities.price} > 0`
+            sql`${communities.careTypes} @> ARRAY[${community.careTypes?.[0] || 'Assisted Living'}]`,
+            sql`${communities.startingPriceMonthly} > 0`
           )
         )
         .limit(10);
 
-      const averagePrice = competitors.reduce((sum, c) => sum + (c.price || 0), 0) / competitors.length;
+      const averagePrice = competitors.reduce((sum, c) => sum + (c.startingPriceMonthly || 0), 0) / competitors.length;
 
       return {
         competitors: competitors.length,
@@ -898,10 +898,10 @@ export class NaturalLanguageReportGenerator {
           content: `Generate a comprehensive ${reportType} report for ${communityData.name} based on this data:
           
 Community: ${communityData.name} (${communityData.city}, ${communityData.state})
-Care Type: ${communityData.careType}
-Capacity: ${communityData.capacity}
-Current Occupancy: ${communityData.occupancy}
-Price: $${communityData.price}
+Care Type: ${communityData.careTypes?.join(', ') || 'Not specified'}
+Capacity: ${communityData.units || 'Not specified'}
+Current Occupancy: ${communityData.availability || 'Not specified'}
+Price: $${communityData.startingPriceMonthly || 'Contact for pricing'}
 
 Additional Data: ${JSON.stringify(reportData, null, 2)}
 
@@ -924,12 +924,12 @@ Keep the tone professional and data-driven. Focus on insights that help communit
     
     // Store report in database (will handle once DB is ready)
     try {
-      await this.storeReport(communityId, reportType, reportContent, periodStart, periodEnd);
+      await this.storeReport(communityId, reportType, reportContent || '', periodStart, periodEnd);
     } catch (error) {
       console.log('DB not ready yet, report generated but not stored');
     }
     
-    return reportContent;
+    return reportContent || '';
   }
 
   /**

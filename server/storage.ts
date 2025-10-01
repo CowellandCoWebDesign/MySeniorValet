@@ -1,7 +1,7 @@
 import { 
   users, communities, inspections, reviews, reviewHelpfulness, favorites, searchHistory, 
   messages, tours, userSessions, listingFlags, adminUsers, userActivity, leads, leadActivities,
-  removalRequests, auditLogs,
+  removalRequests, auditLogs, featuredCommunities, contactSubmissions, dmcaTakedowns,
   type User, type InsertUser, type UpsertUser, type Community, type InsertCommunity, 
   type Inspection, type InsertInspection, type Review, type InsertReview, 
   type InsertReviewHelpfulness, type SearchCommunity, type Favorite, type InsertFavorite,
@@ -17,7 +17,10 @@ import {
   marketplaceCategories, marketplaceVendors, marketplaceVendorClicks,
   type MarketplaceCategory, type InsertMarketplaceCategory,
   type MarketplaceVendor, type InsertMarketplaceVendor,
-  type MarketplaceVendorClick, type InsertMarketplaceVendorClick
+  type MarketplaceVendorClick, type InsertMarketplaceVendorClick,
+  type SelectFeaturedCommunity, type InsertFeaturedCommunity,
+  type InsertContactSubmission, type SelectContactSubmission,
+  type InsertDmcaTakedown, type SelectDmcaTakedown
 } from "@shared/schema";
 import { db } from "./db";
 
@@ -122,6 +125,13 @@ export interface IStorage {
   updateLead(id: number, updates: Partial<InsertLead>): Promise<Lead | undefined>;
   addLeadActivity(activity: InsertLeadActivity): Promise<LeadActivity>;
 
+  // Featured Communities methods
+  getFeaturedCommunities(): Promise<SelectFeaturedCommunity[]>;
+  getFeaturedCommunity(communityId: number): Promise<SelectFeaturedCommunity | undefined>;
+  createFeaturedCommunity(featured: InsertFeaturedCommunity): Promise<SelectFeaturedCommunity>;
+  updateFeaturedCommunity(id: number, updates: Partial<InsertFeaturedCommunity>): Promise<SelectFeaturedCommunity | undefined>;
+  deactivateFeaturedCommunity(id: number): Promise<boolean>;
+
   // Claim system methods
   createClaim(claim: any): Promise<any>;
   updateCommunityPricing(communityId: number, pricingData: any): Promise<void>;
@@ -183,6 +193,17 @@ export interface IStorage {
   getRemovalRequests(params?: { status?: string; requestType?: string }): Promise<RemovalRequest[]>;
   getRemovalRequestById(id: number): Promise<RemovalRequest | undefined>;
   updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined>;
+
+  // Contact submission methods
+  createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission>;
+  getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]>;
+  updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined>;
+  
+  // DMCA takedown methods
+  createDmcaTakedown(takedown: InsertDmcaTakedown): Promise<SelectDmcaTakedown>;
+  getDmcaTakedowns(params?: { status?: string; communityId?: number; serviceId?: number }): Promise<SelectDmcaTakedown[]>;
+  processDmcaTakedown(id: number, action: 'removed' | 'counter_notice' | 'restored'): Promise<SelectDmcaTakedown | undefined>;
+  removeCopyrightedContent(communityId?: number, serviceId?: number, contentType: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -637,6 +658,29 @@ export class MemStorage implements IStorage {
   }
 
   async updateRemovalRequest(id: number, updates: Partial<RemovalRequest>): Promise<RemovalRequest | undefined> {
+    return undefined;
+  }
+
+  async createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission> {
+    return { 
+      ...submission, 
+      id: Date.now(), 
+      status: 'pending',
+      responseNotes: null,
+      respondedAt: null,
+      respondedBy: null,
+      ipAddress: null,
+      userAgent: null,
+      createdAt: new Date(), 
+      updatedAt: new Date() 
+    } as SelectContactSubmission;
+  }
+
+  async getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]> {
+    return [];
+  }
+
+  async updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined> {
     return undefined;
   }
 
@@ -1948,6 +1992,62 @@ export class DatabaseStorage implements IStorage {
     return newActivity;
   }
 
+  // Featured Communities methods
+  async getFeaturedCommunities(): Promise<SelectFeaturedCommunity[]> {
+    const featured = await db
+      .select()
+      .from(featuredCommunities)
+      .where(
+        and(
+          eq(featuredCommunities.isActive, true),
+          eq(featuredCommunities.showInRedTagDeals, true),
+          or(
+            // No end date means permanent
+            sql`${featuredCommunities.endDate} IS NULL`,
+            // Or end date is in the future
+            gte(featuredCommunities.endDate, new Date())
+          )
+        )
+      )
+      .orderBy(featuredCommunities.displayOrder);
+    return featured;
+  }
+
+  async getFeaturedCommunity(communityId: number): Promise<SelectFeaturedCommunity | undefined> {
+    const [featured] = await db
+      .select()
+      .from(featuredCommunities)
+      .where(eq(featuredCommunities.communityId, communityId))
+      .limit(1);
+    return featured;
+  }
+
+  async createFeaturedCommunity(featured: InsertFeaturedCommunity): Promise<SelectFeaturedCommunity> {
+    const [newFeatured] = await db
+      .insert(featuredCommunities)
+      .values(featured)
+      .returning();
+    return newFeatured;
+  }
+
+  async updateFeaturedCommunity(id: number, updates: Partial<InsertFeaturedCommunity>): Promise<SelectFeaturedCommunity | undefined> {
+    const [updatedFeatured] = await db
+      .update(featuredCommunities)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(featuredCommunities.id, id))
+      .returning();
+    return updatedFeatured;
+  }
+
+  async deactivateFeaturedCommunity(id: number): Promise<boolean> {
+    const result = await db
+      .update(featuredCommunities)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(eq(featuredCommunities.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
   // Claim system methods
   async createClaim(claim: any): Promise<any> {
     const [newClaim] = await db
@@ -2417,6 +2517,49 @@ export class DatabaseStorage implements IStorage {
         }
       });
     }
+    
+    return updated || undefined;
+  }
+
+  async createContactSubmission(submission: InsertContactSubmission): Promise<SelectContactSubmission> {
+    const [created] = await db.insert(contactSubmissions).values({
+      ...submission,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }).returning();
+    
+    return created;
+  }
+
+  async getContactSubmissions(params?: { status?: string; limit?: number }): Promise<SelectContactSubmission[]> {
+    let query = db.select().from(contactSubmissions);
+    const conditions = [];
+    
+    if (params?.status) {
+      conditions.push(eq(contactSubmissions.status, params.status));
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+    
+    query = query.orderBy(desc(contactSubmissions.createdAt));
+    
+    if (params?.limit) {
+      query = query.limit(params.limit);
+    }
+    
+    return query;
+  }
+
+  async updateContactSubmissionStatus(id: number, status: string): Promise<SelectContactSubmission | undefined> {
+    const [updated] = await db.update(contactSubmissions)
+      .set({
+        status,
+        updatedAt: new Date()
+      })
+      .where(eq(contactSubmissions.id, id))
+      .returning();
     
     return updated || undefined;
   }

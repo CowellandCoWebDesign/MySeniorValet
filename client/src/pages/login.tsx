@@ -17,6 +17,10 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [totpCode, setTotpCode] = useState("");
+  const [backupCode, setBackupCode] = useState("");
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [show2FAInput, setShow2FAInput] = useState(false);
   
   // Handle standard login (no Replit account required)
   const handleLogin = async (e: React.FormEvent) => {
@@ -27,10 +31,27 @@ export default function LoginPage() {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ 
+          email, 
+          password,
+          totpCode: show2FAInput ? totpCode : undefined,
+          backupCode: show2FAInput ? backupCode : undefined
+        }),
       });
       
       const data = await response.json();
+      
+      // Check if 2FA is required
+      if (response.ok && data.requires2FA) {
+        setShow2FAInput(true);
+        setRequires2FA(true);
+        toast({
+          title: "Two-Factor Authentication",
+          description: "Please enter your 6-digit verification code",
+        });
+        setIsSubmitting(false);
+        return;
+      }
       
       if (response.ok && data.success) {
         toast({
@@ -45,8 +66,8 @@ export default function LoginPage() {
           window.location.href = `/community-mobile-payment/${pendingCommunityTier}`;
         } else {
           // Redirect based on user role
-          window.location.href = data.user.role === "super_admin" ? "/admin-unified" : 
-                                data.user.role === "admin" ? "/admin-unified" : "/dashboard";
+          window.location.href = data.user.role === "super_admin" ? "/admin-mega-dashboard" : 
+                                data.user.role === "admin" ? "/admin-mega-dashboard" : "/dashboard";
         }
       } else {
         toast({
@@ -69,8 +90,8 @@ export default function LoginPage() {
   // Redirect if already logged in
   useEffect(() => {
     if (user && !isLoading) {
-      if ((user as any).role === "super_admin") {
-        setLocation("/admin-unified");
+      if ((user as any).role === "super_admin" || (user as any).role === "admin") {
+        setLocation("/admin-mega-dashboard");
       } else {
         setLocation("/dashboard");
       }
@@ -180,17 +201,62 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || show2FAInput}
                   className="mt-1"
                 />
               </div>
               
+              {/* 2FA Fields (shown after initial authentication) */}
+              {show2FAInput && (
+                <>
+                  <div>
+                    <Label htmlFor="totpCode">Verification Code</Label>
+                    <Input
+                      id="totpCode"
+                      type="text"
+                      placeholder="6-digit code from your authenticator app"
+                      value={totpCode}
+                      onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+                      maxLength={6}
+                      disabled={isSubmitting}
+                      className="mt-1"
+                      autoFocus
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter the 6-digit code from your authenticator app
+                    </p>
+                  </div>
+                  
+                  <div className="text-center text-sm text-gray-500">
+                    OR
+                  </div>
+                  
+                  <div>
+                    <Label htmlFor="backupCode">Backup Code (if you lost access)</Label>
+                    <Input
+                      id="backupCode"
+                      type="text"
+                      placeholder="Enter one of your backup codes"
+                      value={backupCode}
+                      onChange={(e) => setBackupCode(e.target.value)}
+                      disabled={isSubmitting}
+                      className="mt-1"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Use a backup code if you can't access your authenticator
+                    </p>
+                  </div>
+                </>
+              )}
+              
               {/* Forgot Password Link */}
-              <div className="flex justify-end">
-                <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
-                  Forgot password?
-                </Link>
-              </div>
+              {!show2FAInput && (
+                <div className="flex justify-end">
+                  <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-700">
+                    Forgot password?
+                  </Link>
+                </div>
+              )}
               
               <Button
                 type="submit"
@@ -225,7 +291,7 @@ export default function LoginPage() {
             
             {/* Sign Up Link */}
             <div className="text-center">
-              <Link href="/signup">
+              <Link to="/signup">
                 <Button variant="outline" className="w-full h-12">
                   <Users className="h-5 w-5 mr-2" />
                   Create an Account
@@ -253,7 +319,7 @@ export default function LoginPage() {
             <div className="text-center pt-4 border-t border-gray-200 dark:border-gray-700">
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Don't have an account?{" "}
-                <Link href="/signup" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
+                <Link to="/signup" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
                   Sign up here
                 </Link>
               </p>
@@ -263,7 +329,7 @@ export default function LoginPage() {
 
         {/* Trust Indicators */}
         <div className="mt-8 text-center">
-          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Trusted by families nationwide</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Researched and discovered by families nationwide</p>
           <div className="flex justify-center items-center space-x-6 text-gray-400 dark:text-gray-500">
             <div className="flex items-center space-x-1">
               <Shield className="h-4 w-4" />

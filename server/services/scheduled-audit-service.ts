@@ -27,28 +27,41 @@ export class ScheduledAuditService {
 
   /**
    * Start the scheduled audit service
-   * Runs immediately on start, then monthly
+   * Deferred startup - waits 5 minutes before first run to avoid blocking health checks
    */
   public static startScheduledAudits(): void {
-    // Run immediately on startup
-    this.runAudit();
-
-    // Then schedule monthly (on the 1st of each month at 2 AM)
-    const now = new Date();
-    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 2, 0, 0, 0);
-    const timeUntilNextMonth = nextMonth.getTime() - now.getTime();
-
-    // Schedule first run for next month
+    // Defer the first audit by 5 minutes to allow application startup
+    const STARTUP_DELAY = 5 * 60 * 1000; // 5 minutes
+    
+    console.log('📊 Scheduled audit service will start in 5 minutes to avoid blocking startup...');
+    
     setTimeout(() => {
-      this.runAudit();
-      
-      // Then run monthly
-      this.auditInterval = setInterval(() => {
-        this.runAudit();
-      }, 30 * 24 * 60 * 60 * 1000); // 30 days
-    }, timeUntilNextMonth);
+      // Run the first audit
+      this.runAudit().catch(error => {
+        console.error('Failed to run initial audit:', error);
+      });
 
-    console.log('📊 Scheduled audit service started. Next audit:', nextMonth.toLocaleString());
+      // Then schedule monthly (on the 1st of each month at 2 AM)
+      const now = new Date();
+      const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 2, 0, 0, 0);
+      const timeUntilNextMonth = nextMonth.getTime() - now.getTime();
+
+      // Schedule next run for next month
+      setTimeout(() => {
+        this.runAudit().catch(error => {
+          console.error('Failed to run scheduled audit:', error);
+        });
+        
+        // Then run monthly
+        this.auditInterval = setInterval(() => {
+          this.runAudit().catch(error => {
+            console.error('Failed to run monthly audit:', error);
+          });
+        }, 30 * 24 * 60 * 60 * 1000); // 30 days
+      }, timeUntilNextMonth);
+
+      console.log('📊 Scheduled audit service started. Next audit:', nextMonth.toLocaleString());
+    }, STARTUP_DELAY);
   }
 
   /**
@@ -82,8 +95,7 @@ export class ScheduledAuditService {
       // 1. Count total active communities
       const totalResult = await db
         .select({ count: sql<number>`COUNT(*)` })
-        .from(communities)
-        .where(eq(communities.is_active, true));
+        .from(communities);
       
       report.totalCommunities = Number(totalResult[0]?.count || 0);
 
@@ -145,7 +157,6 @@ export class ScheduledAuditService {
           LOWER(city) as lower_city,
           COUNT(*) as duplicate_count
         FROM communities
-        WHERE is_active = true
         GROUP BY LOWER(name), LOWER(address), LOWER(city)
         HAVING COUNT(*) > 1
       )
@@ -161,7 +172,6 @@ export class ScheduledAuditService {
         AND LOWER(c.address) = d.lower_address 
         AND LOWER(c.city) = d.lower_city
       )
-      WHERE c.is_active = true
       ORDER BY d.lower_name, c.id
     `);
 
@@ -180,8 +190,7 @@ export class ScheduledAuditService {
         city,
         state
       FROM communities
-      WHERE is_active = true
-        AND (
+      WHERE (
           -- Test addresses
           address ILIKE '123 Main St%'
           OR address ILIKE '2123 Main St%'
@@ -247,8 +256,7 @@ export class ScheduledAuditService {
       const result = await db
         .update(communities)
         .set({
-          is_active: false,
-          enrichment_status: 'failed',
+          enrichmentStatus: 'failed',
           updated_at: new Date()
         })
         .where(sql`id = ANY(ARRAY[${sql.join(idsToDeactivate, sql`, `)}])`);

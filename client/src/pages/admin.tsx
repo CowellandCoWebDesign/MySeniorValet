@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { FeaturedCommunitiesManager } from "@/components/admin/FeaturedCommunitiesManager";
 import { 
   Card, 
   CardContent, 
@@ -25,6 +26,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { Link } from "wouter";
 import { 
   Select,
   SelectContent,
@@ -65,7 +67,8 @@ import {
   Upload,
   Camera,
   DollarSign,
-  Link
+  Link,
+  Star
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -349,6 +352,12 @@ export default function AdminDashboard() {
                 <CardDescription>Common administrative tasks</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
+                <Link href="/admin/featured-communities" className="block">
+                  <Button className="w-full justify-start" variant="outline">
+                    <Star className="h-4 w-4 mr-2" />
+                    Manage Featured Communities
+                  </Button>
+                </Link>
                 <Button className="w-full justify-start" variant="outline">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Refresh All Community Data
@@ -372,75 +381,122 @@ export default function AdminDashboard() {
 
         {/* Communities Management Tab */}
         <TabsContent value="communities" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5" />
-                Community Management
-              </CardTitle>
-              <CardDescription>
-                Manage community listings, data quality, and enrichment status
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Data Quality Score</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-green-600">87%</div>
-                    <div className="text-xs text-gray-500">
-                      {qualityMetricsQuery.data?.completeProfiles || 12} complete profiles
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Photo Coverage</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-blue-600">92%</div>
-                    <div className="text-xs text-gray-500">
-                      {qualityMetricsQuery.data?.hasPhotos || 25} communities with photos
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium">Verified Contacts</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold text-purple-600">78%</div>
-                    <div className="text-xs text-gray-500">
-                      {qualityMetricsQuery.data?.phoneVerified || 22} verified phone numbers
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+          <Tabs defaultValue="featured" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="featured">Featured Excellence</TabsTrigger>
+              <TabsTrigger value="data-quality">Data Quality</TabsTrigger>
+              <TabsTrigger value="enrichment">Enrichment</TabsTrigger>
+            </TabsList>
 
-              <div className="flex gap-2 mb-4">
-                <Button variant="outline" size="sm">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Bulk Refresh Data
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Activity className="h-4 w-4 mr-2" />
-                  Enrich All Communities
-                </Button>
-                <Button variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export Database
-                </Button>
-              </div>
+            {/* Featured Communities Manager */}
+            <TabsContent value="featured">
+              <FeaturedCommunitiesManager />
+            </TabsContent>
 
-              <div className="text-center py-8 text-gray-500">
-                <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p className="text-lg font-medium">Community management interface ready</p>
-                <p className="text-sm">Individual community management tools are available in the main community listings</p>
-              </div>
-            </CardContent>
-          </Card>
+            {/* Data Quality Tab */}
+            <TabsContent value="data-quality">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Building2 className="h-5 w-5" />
+                    Community Data Quality
+                  </CardTitle>
+                  <CardDescription>
+                    Monitor and improve community data completeness
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">Data Quality Score</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-green-600">87%</div>
+                        <div className="text-xs text-gray-500">
+                          {qualityMetricsQuery.data?.completeProfiles || 12} complete profiles
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">Photo Coverage</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-blue-600">92%</div>
+                        <div className="text-xs text-gray-500">
+                          {qualityMetricsQuery.data?.hasPhotos || 25} communities with photos
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">Verified Contacts</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-purple-600">78%</div>
+                        <div className="text-xs text-gray-500">
+                          {qualityMetricsQuery.data?.phoneVerified || 22} verified phone numbers
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="flex gap-2 mb-4">
+                    <Button variant="outline" size="sm">
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Bulk Refresh Data
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Activity className="h-4 w-4 mr-2" />
+                      Verify All Contacts
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Quality Report
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Enrichment Tab */}
+            <TabsContent value="enrichment">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Database className="h-5 w-5" />
+                    Community Enrichment
+                  </CardTitle>
+                  <CardDescription>
+                    Manage automated data enrichment and photo collection
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2 mb-4">
+                    <Button variant="outline" size="sm">
+                      <Activity className="h-4 w-4 mr-2" />
+                      Enrich All Communities
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Camera className="h-4 w-4 mr-2" />
+                      Collect Missing Photos
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      <Download className="h-4 w-4 mr-2" />
+                      Export Database
+                    </Button>
+                  </div>
+
+                  <div className="text-center py-8 text-gray-500">
+                    <Database className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <p className="text-lg font-medium">Enrichment management ready</p>
+                    <p className="text-sm">Use the tools above to manage community data enrichment</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* Data Protection Tab */}

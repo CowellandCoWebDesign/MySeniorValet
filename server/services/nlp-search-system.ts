@@ -111,7 +111,7 @@ export class NLPSearchSystem {
     limit?: number;
     filters?: any;
     userContext?: any;
-    category?: 'communities' | 'services' | 'healthcare' | 'resources';
+    category?: 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors';
   }): Promise<{
     results: UnifiedSearchResult[];
     intent: QueryIntent;
@@ -126,7 +126,18 @@ export class NLPSearchSystem {
     
     // Override databases based on category if provided
     if (options?.category) {
-      intent.databases = [options.category];
+      // Services category should only search services table
+      // Vendors should be searched separately in vendors tab
+      if (options.category === 'services') {
+        intent.databases = ['services'];
+      } else if (options.category === 'vendors') {
+        intent.databases = ['vendors'];
+      } else if (options.category === 'resources') {
+        // Resources doesn't have a table yet, but set it anyway
+        intent.databases = ['resources'];
+      } else {
+        intent.databases = [options.category];
+      }
     }
     
     console.log('📊 Intent Classification:', intent);
@@ -136,7 +147,8 @@ export class NLPSearchSystem {
     console.log('🔍 Enhanced Query:', enhancedQuery);
     
     // 3. Multi-Database Federation
-    const federatedResults = await this.federatedSearch(enhancedQuery, intent, options);
+    // Pass both original and enhanced query - vendors need original query (no location tags)
+    const federatedResults = await this.federatedSearch(enhancedQuery, intent, options, query);
     
     // 4. RAG Pipeline for Q&A
     let answer: string | undefined;
@@ -332,9 +344,34 @@ export class NLPSearchSystem {
       }
     });
     
-    // If no locations found and query is short (likely a city name), use the entire query
-    if (locations.length === 0 && query.split(' ').length <= 3 && !query.includes('?')) {
-      locations.push(query.trim());
+    // Extract location from "in [location]" pattern
+    // This handles international cities and cities not in our hardcoded list
+    const inLocationPattern = /\b(?:in|at|near)\s+([a-zA-Z][a-zA-Z\s]+?)(?:\s*$|,|\.|;)/gi;
+    const inLocationMatches = query.matchAll(inLocationPattern);
+    for (const match of inLocationMatches) {
+      if (match[1]) {
+        const location = match[1].trim();
+        // Don't add if it's a business type word
+        const businessTypes = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'store', 'shop', 'service', 'services'];
+        const firstWord = location.split(' ')[0].toLowerCase();
+        if (!businessTypes.includes(firstWord) && location.length > 1) {
+          locations.push(location);
+        }
+      }
+    }
+    
+    // If no locations found and query is a single word (likely a city name), use it
+    // But exclude business type keywords from being treated as locations
+    if (locations.length === 0 && query.split(' ').length === 1 && !query.includes('?')) {
+      const businessTypes = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'pharmacies', 
+                            'store', 'stores', 'shop', 'shops', 'cafe', 'cafes', 'service', 'services',
+                            'lawyer', 'lawyers', 'attorney', 'attorneys', 'doctor', 'doctors'];
+      const queryLower = query.toLowerCase().trim();
+      
+      // Only treat as location if it's NOT a business type keyword
+      if (!businessTypes.includes(queryLower)) {
+        locations.push(query.trim());
+      }
     }
     
     // Remove duplicates and assign
@@ -381,10 +418,27 @@ export class NLPSearchSystem {
       databases.push('communities');
     }
     
-    // Services database
-    if (lowerQuery.includes('service') || lowerQuery.includes('provider') ||
-        lowerQuery.includes('therapy') || lowerQuery.includes('transport')) {
-      databases.push('services');
+    // Check if this is a business-type query (hotels, restaurants, etc.)
+    const businessTypes = ['hotel', 'restaurant', 'pharmacy', 'store', 'shop', 'cafe', 'lawyer', 'attorney'];
+    const isBusinessQuery = businessTypes.some(type => lowerQuery.includes(type));
+    
+    if (isBusinessQuery) {
+      // For business queries, ONLY search vendors
+      databases.push('vendors');
+    } else {
+      // Services database - for actual senior care services
+      if (lowerQuery.includes('service') || lowerQuery.includes('provider') ||
+          lowerQuery.includes('therapy') || lowerQuery.includes('transport') ||
+          lowerQuery.includes('meal') || lowerQuery.includes('cleaning') ||
+          lowerQuery.includes('companion') || lowerQuery.includes('homecare')) {
+        databases.push('services');
+      }
+      
+      // Vendors database - for equipment and products
+      if (lowerQuery.includes('vendor') || lowerQuery.includes('supplier') ||
+          lowerQuery.includes('equipment') || lowerQuery.includes('product')) {
+        databases.push('vendors');
+      }
     }
     
     // Healthcare database
@@ -397,12 +451,6 @@ export class NLPSearchSystem {
     if (lowerQuery.includes('resource') || lowerQuery.includes('guide') ||
         lowerQuery.includes('information') || lowerQuery.includes('help')) {
       databases.push('resources');
-    }
-    
-    // Vendors database
-    if (lowerQuery.includes('vendor') || lowerQuery.includes('supplier') ||
-        lowerQuery.includes('equipment') || lowerQuery.includes('product')) {
-      databases.push('vendors');
     }
     
     // Default to communities if no specific database identified
@@ -488,8 +536,9 @@ export class NLPSearchSystem {
     // Combine expansions
     let finalQuery = Array.from(expansions).join(' ');
     
-    // Add location context
-    if (intent.entities.locations?.length) {
+    // Add location context (but not for services since the table doesn't have location fields)
+    // For services, the location is already part of the search term
+    if (intent.entities.locations?.length && !intent.databases.includes('services')) {
       finalQuery += ` location:${intent.entities.locations.join(',')}`;
     }
     
@@ -507,7 +556,8 @@ export class NLPSearchSystem {
   private async federatedSearch(
     query: string, 
     intent: QueryIntent,
-    options?: any
+    options?: any,
+    originalQuery?: string
   ): Promise<UnifiedSearchResult[]> {
     const searchPromises: Promise<UnifiedSearchResult[]>[] = [];
     
@@ -518,6 +568,8 @@ export class NLPSearchSystem {
           searchPromises.push(this.searchCommunities(query, intent, options));
           break;
         case 'services':
+          // When searching in Services tab, ONLY search the services table
+          // Don't mix in vendors or communities regardless of query type
           searchPromises.push(this.searchServices(query, intent, options));
           break;
         case 'healthcare':
@@ -527,7 +579,8 @@ export class NLPSearchSystem {
           searchPromises.push(this.searchResources(query, intent, options));
           break;
         case 'vendors':
-          searchPromises.push(this.searchVendors(query, intent, options));
+          // Use original query for vendors (they're online affiliates, not location-based)
+          searchPromises.push(this.searchVendors(originalQuery || query, intent, options));
           break;
       }
     }
@@ -595,7 +648,7 @@ export class NLPSearchSystem {
         let state = '';
         
         // First check if we have a location entity with city-state pattern
-        if (intent.entities?.locations?.length > 0) {
+        if (intent.entities?.locations && intent.entities.locations.length > 0) {
           const locationEntity = intent.entities.locations[0];
           cityStateMatch = locationEntity.match(/^([^,]+),\s*([A-Z]{2})$/i);
           if (cityStateMatch) {
@@ -824,30 +877,68 @@ export class NLPSearchSystem {
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
+      const fullQuery = query.trim();
+      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
       
-      // Service type matching
-      const serviceKeywords = ['transport', 'therapy', 'meal', 'cleaning', 'medical'];
+      // FIRST: Try exact match on the full query for better results
+      // This will find "Madison Bear Garden" when searching for "Madison Bear Garden"
+      if (fullQuery.length > 0) {
+        conditions.push(
+          or(
+            ilike(services.name, `%${fullQuery}%`),
+            ilike(services.description, `%${fullQuery}%`),
+            ilike(services.shortDescription, `%${fullQuery}%`)
+          )
+        );
+      }
+      
+      // ALSO: Search for individual terms to catch partial matches
+      // This ensures we still find relevant results even if exact match fails
+      if (searchTerms.length > 0 && searchTerms.join(' ') !== fullQuery.toLowerCase()) {
+        const searchConditions = searchTerms.map(term =>
+          or(
+            ilike(services.name, `%${term}%`),
+            ilike(services.description, `%${term}%`),
+            ilike(services.shortDescription, `%${term}%`)
+          )
+        );
+        
+        // Combine with OR so it matches if ANY term is found
+        if (searchConditions.length > 0) {
+          conditions.push(or(...searchConditions));
+        }
+      }
+      
+      // Also check for service type keywords for better relevance
+      const serviceKeywords = ['hotel', 'restaurant', 'walmart', 'transport', 'therapy', 
+                               'meal', 'cleaning', 'medical', 'moving', 'storage', 
+                               'pharmacy', 'grocery', 'food', 'delivery'];
       const matchedKeywords = serviceKeywords.filter(k => query.toLowerCase().includes(k));
       
       if (matchedKeywords.length > 0) {
-        const serviceConditions = matchedKeywords.map(keyword =>
+        const keywordConditions = matchedKeywords.map(keyword =>
           or(
             ilike(services.name, `%${keyword}%`),
-            ilike(services.description, `%${keyword}%`)
+            ilike(services.serviceType, `%${keyword}%`)
           )
         );
-        conditions.push(or(...serviceConditions));
+        conditions.push(or(...keywordConditions));
       }
       
-      // Location filters - services don't have serviceAreas field
-      // We'll match based on description or name containing location
+      // Build query - include services that are active
+      let dbQuery = db.select().from(services)
+        .where(
+          conditions.length > 0 ? 
+            and(
+              or(...conditions),
+              eq(services.isActive, true)
+            ) : 
+            eq(services.isActive, true)
+        ) as any;
       
-      let dbQuery = db.select().from(services) as any;
-      if (conditions.length > 0) {
-        dbQuery = dbQuery.where(and(...conditions));
-      }
+      const results = await dbQuery.limit(options?.limit || 50);
       
-      const results = await dbQuery.limit(options?.limit || 30);
+      console.log(`🔍 Services search for "${query}" found ${results.length} results`);
       
       return results.map((service: any) => ({
         type: 'service' as const,
@@ -929,33 +1020,52 @@ export class NLPSearchSystem {
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
-      const searchTerms = query.toLowerCase().split(' ').filter(term => term.length > 1);
+      const queryLower = query.toLowerCase();
       
-      // Search educational resources
-      const resourceConditions = searchTerms.map(term =>
-        or(
-          ilike(educationalResources.title, `%${term}%`),
-          ilike(educationalResources.description, `%${term}%`),
-          ilike(educationalResources.category, `%${term}%`),
-          ilike(educationalResources.subcategory, `%${term}%`),
-          ilike(educationalResources.content, `%${term}%`),
-          ilike(educationalResources.summary, `%${term}%`)
-        )
-      );
+      const searchTerms = queryLower.split(' ').filter(term => term.length > 1);
       
-      if (resourceConditions.length > 0) {
-        conditions.push(or(...resourceConditions));
+      // Search educational resources with general text search
+      if (searchTerms.length > 0) {
+        const resourceConditions = searchTerms.map(term =>
+          or(
+            ilike(educationalResources.title, `%${term}%`),
+            ilike(educationalResources.description, `%${term}%`),
+            ilike(educationalResources.category, `%${term}%`),
+            ilike(educationalResources.subcategory, `%${term}%`),
+            ilike(educationalResources.content, `%${term}%`),
+            ilike(educationalResources.summary, `%${term}%`)
+          )
+        );
+        
+        if (resourceConditions.length > 0) {
+          conditions.push(or(...resourceConditions));
+        }
+      } else if (query.trim().length > 0) {
+        // If no search terms but we have a query, use the full query
+        const term = query.trim();
+        conditions.push(
+          or(
+            ilike(educationalResources.title, `%${term}%`),
+            ilike(educationalResources.description, `%${term}%`),
+            ilike(educationalResources.category, `%${term}%`),
+            ilike(educationalResources.subcategory, `%${term}%`),
+            ilike(educationalResources.content, `%${term}%`),
+            ilike(educationalResources.summary, `%${term}%`)
+          )
+        );
       }
       
       // Only get active resources
-      conditions.push(eq(educationalResources.isActive, true));
+      conditions.push(eq(educationalResources.is_active, true));
       
       const results = await db
         .select()
         .from(educationalResources)
         .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(educationalResources.viewCount))
+        .orderBy(desc(educationalResources.view_count))
         .limit(options?.limit || 50);
+      
+      console.log(`📚 Resources search for "${query}" found ${results.length} results`);
       
       return results.map(resource => ({
         type: 'resource' as const,
@@ -984,27 +1094,51 @@ export class NLPSearchSystem {
     options?: any
   ): Promise<UnifiedSearchResult[]> {
     try {
-      const conditions = [];
+      // Vendors are online affiliate partners, not location-based
+      // Skip searches that are definitely city/state names
+      const queryLower = query.toLowerCase();
       
-      // Vendor/product matching
-      const vendorKeywords = query.toLowerCase().split(' ');
-      const vendorConditions = vendorKeywords.map(keyword =>
-        or(
-          ilike(vendors.businessName, `%${keyword}%`),
-          ilike(vendors.description, `%${keyword}%`)
-        )
-      );
+      // Check if this looks like a genuine location search (city or state name)
+      // Common city names and state names/abbreviations
+      const locationPatterns = /^(chicago|dallas|houston|austin|phoenix|philadelphia|san antonio|san diego|san francisco|new york|los angeles|seattle|denver|boston|miami|atlanta|chico|sacramento|fresno|oakland|san jose|CA|TX|NY|FL|IL|PA|OH|GA|NC|MI|NJ|VA|WA|AZ|MA|TN|IN|MO|MD|WI|CO|MN|OR|SC|AL|LA|KY|OK|CT|UT|IA|NV|AR|MS|KS|NM|NE|WV|ID|HI|NH|ME|MT|RI|DE|SD|ND|AK|VT|WY)$/i;
       
-      if (vendorConditions.length > 0) {
-        conditions.push(or(...vendorConditions));
+      const isDefinitelyLocation = locationPatterns.test(query.trim());
+      
+      if (isDefinitelyLocation) {
+        // Don't search vendors for pure location queries
+        console.log(`🛍️ Skipping vendors search for location query: "${query}"`);
+        return [];
       }
       
+      // Clean query for database search (remove parentheses which can cause issues)
+      const cleanedQuery = query.replace(/[()]/g, ' ').trim();
+      
+      // Search for vendor names matching the query
+      const conditions = [];
+      
+      if (cleanedQuery.length > 0) {
+        conditions.push(
+          or(
+            ilike(vendors.businessName, `%${cleanedQuery}%`),
+            ilike(vendors.businessType, `%${cleanedQuery}%`),
+            ilike(vendors.description, `%${cleanedQuery}%`)
+          )
+        );
+      }
+      
+      
       let dbQuery = db.select().from(vendors) as any;
+      
       if (conditions.length > 0) {
         dbQuery = dbQuery.where(and(...conditions));
       }
       
-      const results = await dbQuery.limit(options?.limit || 20);
+      // Debug logging
+      console.log(`🔍 Vendor search for "${query}" (cleaned: "${cleanedQuery}"), conditions:`, conditions.length);
+      
+      const results = await dbQuery.limit(options?.limit || 50);
+      
+      console.log(`✅ Vendor search found ${results.length} results for "${query}"`);
       
       return results.map((vendor: any) => ({
         type: 'vendor' as const,
@@ -1133,8 +1267,11 @@ export class NLPSearchSystem {
     
     for (const result of results) {
       // Create unique key based on name and location
-      const name = (result.data.name || '').toLowerCase().replace(/\s+/g, '');
-      const location = `${result.data.city || ''}-${result.data.state || ''}`.toLowerCase();
+      // Handle both community (name) and vendor (businessName) records
+      const name = (result.data.name || result.data.businessName || result.data.title || '').toLowerCase().replace(/\s+/g, '');
+      const city = result.data.city || result.data.businessCity || '';
+      const state = result.data.state || result.data.businessState || '';
+      const location = `${city}-${state}`.toLowerCase();
       const key = `${name}-${location}`;
       
       const existing = seen.get(key);

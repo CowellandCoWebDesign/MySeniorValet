@@ -75,5 +75,5 @@ export function isSuperAdminEmail(email: string): boolean {
 
 // Helper function to get notification sender email
 export function getNotificationSenderEmail(): string {
-  return 'Admin@myseniorvalet.com';
+  return 'admin@myseniorvalet.com';
 }

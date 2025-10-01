@@ -11,7 +11,16 @@ const router = Router();
 // Test endpoint to generate real data for WebSocket validation
 router.post('/api/enterprise/test/generate-data/:communityId', async (req, res) => {
   try {
-    const communityId = parseInt(req.params.communityId);
+    // Validate and sanitize input
+    const communityIdParam = req.params.communityId;
+    if (!communityIdParam || !/^\d+$/.test(communityIdParam)) {
+      return res.status(400).json({ error: 'Invalid community ID format' });
+    }
+    
+    const communityId = parseInt(communityIdParam, 10);
+    if (isNaN(communityId) || communityId < 1 || communityId > Number.MAX_SAFE_INTEGER) {
+      return res.status(400).json({ error: 'Invalid community ID' });
+    }
     
     // Verify community exists
     const [community] = await db.select()
@@ -132,7 +141,7 @@ router.get('/api/enterprise/test/websocket-status', (req, res) => {
     websocketEndpoint: '/enterprise-ws',
     status: 'available',
     instructions: {
-      connect: 'Create WebSocket connection to ws://[host]/enterprise-ws',
+      connect: 'Create WebSocket connection to wss://[host]/enterprise-ws',
       subscribe: 'Send: {"type":"subscribe","channel":"analytics|financial|compliance|metrics","communityId":47677}',
       authenticate: 'Send: {"type":"authenticate","userId":"1","role":"admin"}',
       ping: 'Send: {"type":"ping"} to keep connection alive'

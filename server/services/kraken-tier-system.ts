@@ -211,7 +211,8 @@ export const COMMUNITY_TIERS: KrakenTier[] = [
       
       // Tools
       tour_scheduler: false,
-      messaging_center: false,
+      messaging_center: false, // Available in Enterprise tier only
+      directCommunityMessaging: false, // Available in Enterprise tier only
       
       // Integration
       basic_api: false,
@@ -237,7 +238,8 @@ export const COMMUNITY_TIERS: KrakenTier[] = [
       
       // Advanced Tools
       tour_scheduler: true,
-      messaging_center: true,
+      messaging_center: true, // Available in Premium and above
+      directCommunityMessaging: true, // Available in Premium and above
       lead_management: true,
       
       // Analytics
@@ -277,6 +279,10 @@ export const COMMUNITY_TIERS: KrakenTier[] = [
       occupancy_forecasting: true,
       revenue_analytics: true,
       market_intelligence: true,
+      
+      // Communication Tools (Enterprise Exclusive)
+      messaging_center: true,
+      directCommunityMessaging: true,
       
       // AI Features
       ai_lead_scoring: true,
@@ -345,7 +351,7 @@ export const ENTERPRISE_TIERS: KrakenTier[] = [
       
       // Support
       dedicated_team: true,
-      24_7_support: true,
+      support_24_7: true,
       custom_training: true,
       implementation_support: true
     }

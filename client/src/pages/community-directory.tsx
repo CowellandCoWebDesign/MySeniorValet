@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,6 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
-import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
@@ -27,6 +27,7 @@ import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import { HeroMascotPanel } from "@/components/mascot/HeroMascotPanel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import resortGardenImage from '@assets/generated_images/Resort_courtyard_garden_f7db92ce.png';
+import GlobalNetwork from '@assets/generated_images/Global_network_connections_3f9d63f4.png';
 
 // State abbreviation to full name mapping
 const stateNames: Record<string, string> = {
@@ -61,6 +62,40 @@ export default function CommunityDirectory() {
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
+  
+  // Recently Discovered Communities carousel
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
+    }
+  };
+  
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      // Scroll by card width + gap (400px card + 24px gap)
+      scrollContainerRef.current.scrollBy({ left: -424, behavior: 'smooth' });
+    }
+  };
+  
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      // Scroll by card width + gap (400px card + 24px gap)
+      scrollContainerRef.current.scrollBy({ left: 424, behavior: 'smooth' });
+    }
+  };
+  
+  useEffect(() => {
+    checkScrollPosition();
+    const handleResize = () => checkScrollPosition();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   
   // Brand-specific community queries for signature sliders
   const discoveryQuery = useQuery({
@@ -99,7 +134,7 @@ export default function CommunityDirectory() {
       const response = await fetch('/api/search/comprehensive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Atria', limit: 12 }),
+        body: JSON.stringify({ query: 'Atria', limit: 250 }),
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch Atria communities');
@@ -123,13 +158,42 @@ export default function CommunityDirectory() {
     enabled: true
   });
   
+  const provincialQuery = useQuery({
+    queryKey: ['/api/provincial/provincial-all'],
+    queryFn: async () => {
+      const response = await fetch('/api/provincial/provincial-all', {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to fetch Provincial communities');
+      return await response.json();
+    },
+    enabled: true
+  });
+  
+  // Recently discovered communities query
+  const { data: recentCommunities = [], isLoading: isLoadingRecent } = useQuery({
+    queryKey: ['/api/communities/recently-discovered'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/recently-discovered?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch recent communities');
+      const data = await response.json();
+      console.log('📊 Recently discovered communities fetched:', data?.length || 0);
+      // Ensure we always return an array
+      return Array.isArray(data) ? data : [];
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    retry: 1
+  });
+  
   const oakmontQuery = useQuery({
     queryKey: ['/api/search/comprehensive', 'Oakmont Management Group'],
     queryFn: async () => {
       const response = await fetch('/api/search/comprehensive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Oakmont', limit: 12 }),
+        body: JSON.stringify({ query: 'Oakmont', limit: 100 }),
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch Oakmont communities');
@@ -389,6 +453,101 @@ export default function CommunityDirectory() {
     },
     enabled: true
   });
+
+  // Fetch Canadian Province communities
+  const { data: ontarioCommunities } = useQuery({
+    queryKey: ['ontarioCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=ON');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: quebecCommunities } = useQuery({
+    queryKey: ['quebecCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=QC');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: britishColumbiaCommunities } = useQuery({
+    queryKey: ['bcCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=BC');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: albertaCommunities } = useQuery({
+    queryKey: ['albertaCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=AB');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Australian State communities
+  const { data: nswCommunities } = useQuery({
+    queryKey: ['nswCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=NSW');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: queenslandCommunities } = useQuery({
+    queryKey: ['qldCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=QLD');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  const { data: victoriaCommunities } = useQuery({
+    queryKey: ['vicCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=VIC');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Japan communities
+  const { data: japanCommunities } = useQuery({
+    queryKey: ['japanCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=Tokyo');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Singapore communities
+  const { data: singaporeCommunities } = useQuery({
+    queryKey: ['singaporeCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=Singapore');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
+
+  // Fetch Scotland communities
+  const { data: scotlandCommunities } = useQuery({
+    queryKey: ['scotlandCommunities'],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/by-state?state=Scotland');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    }
+  });
   
   // Fetch HUD properties for showcase
   const { data: hudProperties } = useQuery({
@@ -410,15 +569,142 @@ export default function CommunityDirectory() {
   
   return (
     <div>
+      <Helmet>
+        <title>Senior Living Directory 2025 | 33,500+ Communities Worldwide | Canada, Australia, USA | MySeniorValet</title>
+        <meta name="description" content="World's most comprehensive senior living directory with 33,500+ communities across 15+ countries. Canada (5,343 - Ontario, Quebec, BC), Australia (1,458 - NSW, Queensland, Victoria), USA (all 50 states), Japan (Tokyo), Singapore, Scotland, Mexico. Compare Brookdale (700+), Atria (237), Provincial (55), HUD housing (5,936). Free transparent pricing, no referral fees." />
+        <meta name="keywords" content="senior living Canada, retirement homes Ontario, senior care Quebec, assisted living BC, Alberta senior communities, senior living Australia, NSW retirement homes, Queensland aged care, Victoria nursing homes, senior living Japan, Tokyo retirement, Singapore elderly care, Scotland care homes, Mexico retirement communities, senior living USA, Brookdale Senior Living, Atria Senior Living, Provincial Senior Living, HUD senior housing, international senior care directory, worldwide retirement homes, global elderly care, Ontario nursing homes, Quebec CHSLD, British Columbia senior care, Australian aged care facilities, Japanese senior homes" />
+        
+        {/* Open Graph tags for social sharing */}
+        <meta property="og:title" content="Senior Living Community Directory 2025 - Compare 33,500+ Communities | MySeniorValet" />
+        <meta property="og:description" content="World's most comprehensive senior living directory. 5,343 Canadian communities, 1,458 Australian facilities, plus USA, Japan, Singapore, Scotland, Mexico. Compare 240+ brands with verified pricing." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://myseniorvalet.com/community-directory" />
+        <meta property="og:image" content="https://myseniorvalet.com/images/community-directory-og.jpg" />
+        <meta property="og:site_name" content="MySeniorValet" />
+        
+        {/* Twitter Card tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Senior Living Directory 2025 - 33,500+ Communities | MySeniorValet" />
+        <meta name="twitter:description" content="33,500+ senior communities worldwide. Canada, Australia, USA, Japan, Singapore, Scotland. Free directory with verified pricing." />
+        <meta name="twitter:image" content="https://myseniorvalet.com/images/community-directory-twitter.jpg" />
+        
+        {/* Additional SEO tags */}
+        <link rel="canonical" href="https://myseniorvalet.com/community-directory" />
+        <meta name="robots" content="index, follow" />
+        <meta name="author" content="MySeniorValet" />
+        
+        {/* Comprehensive Structured Data for Global Directory */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "Worldwide Senior Living Directory 2025",
+            "description": "World's most comprehensive senior living directory with 33,500+ communities across 15+ countries. Canada (5,343), Australia (1,458), USA (25,000+), Japan, Singapore, Scotland, Mexico.",
+            "url": "https://myseniorvalet.com/community-directory",
+            "breadcrumb": {
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                {
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "Home",
+                  "item": "https://myseniorvalet.com"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
+                  "name": "Community Directory",
+                  "item": "https://myseniorvalet.com/community-directory"
+                }
+              ]
+            },
+            "mainEntity": {
+              "@type": "ItemList",
+              "numberOfItems": "33500",
+              "itemListElement": [
+                {
+                  "@type": "Place",
+                  "name": "Canadian Senior Living",
+                  "description": "5,343 communities across 13 provinces/territories",
+                  "containsPlace": [
+                    {"@type": "Place", "name": "Ontario", "description": "1,707 senior communities"},
+                    {"@type": "Place", "name": "Quebec", "description": "1,278 senior communities"},
+                    {"@type": "Place", "name": "British Columbia", "description": "987 senior communities"},
+                    {"@type": "Place", "name": "Alberta", "description": "570 senior communities"}
+                  ]
+                },
+                {
+                  "@type": "Place",
+                  "name": "Australian Senior Care",
+                  "description": "1,458 aged care facilities across 6 states",
+                  "containsPlace": [
+                    {"@type": "Place", "name": "New South Wales", "description": "430 aged care facilities"},
+                    {"@type": "Place", "name": "Queensland", "description": "330 aged care facilities"},
+                    {"@type": "Place", "name": "Victoria", "description": "324 aged care facilities"}
+                  ]
+                },
+                {
+                  "@type": "Organization",
+                  "name": "Brookdale Senior Living",
+                  "description": "America's largest provider with 700+ communities",
+                  "areaServed": "United States"
+                },
+                {
+                  "@type": "Organization",
+                  "name": "Provincial Senior Living",
+                  "description": "55 affordable communities including Solstice brand",
+                  "areaServed": "United States"
+                },
+                {
+                  "@type": "Place",
+                  "name": "Japan Senior Living",
+                  "description": "49 communities in Tokyo metropolitan area"
+                },
+                {
+                  "@type": "Place",
+                  "name": "Singapore Senior Care",
+                  "description": "27 senior care facilities"
+                },
+                {
+                  "@type": "Place",
+                  "name": "Scotland Care Homes",
+                  "description": "31 care homes across Scotland"
+                }
+              ]
+            },
+            "publisher": {
+              "@type": "Organization",
+              "name": "MySeniorValet",
+              "logo": {
+                "@type": "ImageObject",
+                "url": "https://myseniorvalet.com/logo.png"
+              }
+            },
+            "spatialCoverage": [
+              {"@type": "Country", "name": "Canada"},
+              {"@type": "Country", "name": "Australia"},
+              {"@type": "Country", "name": "United States"},
+              {"@type": "Country", "name": "Japan"},
+              {"@type": "Country", "name": "Singapore"},
+              {"@type": "Country", "name": "Scotland"},
+              {"@type": "Country", "name": "Mexico"},
+              {"@type": "Country", "name": "Peru"},
+              {"@type": "Country", "name": "Cuba"},
+              {"@type": "Country", "name": "Costa Rica"},
+              {"@type": "Country", "name": "Panama"}
+            ]
+          })}
+        </script>
+      </Helmet>
       <NavigationHeader />
       
       {/* Hero Section with Stats */}
       <section className="relative py-16 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
         <div className="absolute inset-0">
           <img 
-            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
-            alt="Cosmic background"
-            className="w-full h-full object-cover opacity-40"
+            src={GlobalNetwork}
+            alt="Global network connections"
+            className="w-full h-full object-cover opacity-60"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/20"></div>
         </div>
@@ -439,7 +725,7 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '35,264').toLocaleString()}+ senior living communities across the United States, Canada, Australia, Mexico, Japan, Peru, Cuba, Costa Rica & Panama
+              Access our complete database of {((communityCount as any)?.count || '33,500').toLocaleString()}+ senior living communities worldwide. Canada (5,343), Australia (1,458), USA (25,000+), Japan, Singapore, Scotland, Mexico, and more across 15+ countries!
             </p>
             
             {/* Key Stats */}
@@ -584,169 +870,139 @@ export default function CommunityDirectory() {
         </div>
       </section>
 
-      {/* ★ CITY-SPECIFIC SENIOR LIVING RESEARCH CENTER ★ */}
+      {/* ★ RECENTLY DISCOVERED COMMUNITIES CAROUSEL ★ */}
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-950 via-blue-950 to-purple-950">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-5xl">🏙️</span>
+          {/* Section Title */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-8"
+          >
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
+                Recently Discovered Communities
+              </h2>
+              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-sm font-bold animate-pulse">
+                🔥 NEW
+              </Badge>
+            </div>
+            <p className="text-lg text-gray-200 max-w-3xl mx-auto">
+              Fresh additions to our database - Real communities discovered through our AI-powered search
+            </p>
+          </motion.div>
+
+          {/* Communities Carousel */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="relative"
+          >
+            {/* Carousel Container */}
+            <div className="relative group">
+              {/* Left Scroll Button - Always visible on desktop */}
+              {canScrollLeft && (
+                <button
+                  onClick={scrollLeft}
+                  className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl md:opacity-100 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft className="w-6 h-6 text-indigo-600" />
+                </button>
+              )}
+
+              {/* Communities Carousel - Using Featured Excellence Cards */}
+              <div 
+                ref={scrollContainerRef}
+                className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+                onScroll={checkScrollPosition}
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {(() => {
+                  console.log('Recent communities state:', { 
+                    isLoading: isLoadingRecent, 
+                    dataLength: recentCommunities?.length || 0,
+                    hasData: !!recentCommunities,
+                    firstItem: recentCommunities?.[0] 
+                  });
+                  return null;
+                })()}
+                {isLoadingRecent ? (
+                  // Loading skeleton - Updated to match FeaturedExcellenceCard size
+                  Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex-shrink-0 w-[400px]">
+                      <div className="bg-white/10 backdrop-blur rounded-xl p-5 animate-pulse border border-white/20">
+                        <div className="h-40 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg mb-4"></div>
+                        <div className="h-6 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-3/4 mb-3"></div>
+                        <div className="h-4 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-1/2 mb-3"></div>
+                        <div className="flex gap-2 mt-4">
+                          <div className="h-8 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full w-24"></div>
+                          <div className="h-8 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full w-24"></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : recentCommunities && recentCommunities.length > 0 ? (
+                  recentCommunities.map((community: any, index: number) => {
+                    console.log('Rendering community:', community.id, community.name);
+                    return (
+                      <motion.div 
+                        key={community.id} 
+                        className="flex-shrink-0"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+                      >
+                        <div className="hover:scale-[1.02] transition-transform duration-300">
+                          <FeaturedExcellenceCard 
+                            community={community}
+                            compact={true}
+                            disableAutoPhotoLoad={true}
+                          />
+                        </div>
+                      </motion.div>
+                    );
+                  })
+                ) : (
+                  <div className="text-white/80 text-center py-8 w-full">
+                    No recently discovered communities yet. Search for communities to populate this section!
+                  </div>
+                )}
               </div>
+
+              {/* Right Scroll Button - Always visible on desktop */}
+              {canScrollRight && (
+                <button
+                  onClick={scrollRight}
+                  className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl md:opacity-100 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight className="w-6 h-6 text-indigo-600" />
+                </button>
+              )}
             </div>
             
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-300 via-cyan-300 to-purple-300 bg-clip-text text-transparent mb-4">
-              Research Senior Living in Your City
-            </h2>
-            <p className="text-lg text-gray-200 max-w-3xl mx-auto">
-              Get instant market intelligence, pricing insights, and top providers for any city in America
-            </p>
-          </div>
-
-          {/* City Selection */}
-          <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20 mb-6">
-            <div className="flex flex-col md:flex-row gap-4 items-center mb-6">
-              <div className="flex-1 w-full">
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-blue-300" />
-                  <input
-                    type="text"
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Enter your city (e.g., San Francisco, CA)"
-                    className="w-full pl-10 pr-3 py-3 text-base bg-white/20 backdrop-blur rounded-lg border border-white/30 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  />
-                </div>
-              </div>
-              <Button
-                onClick={() => {
-                  if (searchTerm) {
-                    setLocation(`/map-search?q=${encodeURIComponent(searchTerm)}`);
-                  }
-                }}
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold rounded-lg shadow-xl"
-              >
-                Research This City →
-              </Button>
-            </div>
-
-            {/* Popular Cities Grid */}
-            <div className="grid md:grid-cols-3 gap-4">
-              {/* High-Demand Markets */}
-              <div className="bg-gradient-to-br from-blue-900/50 to-indigo-900/50 rounded-xl p-4 border border-blue-500/30">
-                <h3 className="font-semibold text-blue-300 mb-3 flex items-center gap-2">
-                  <TrendingUp className="h-4 w-4" />
-                  High-Demand Markets
-                </h3>
-                <div className="space-y-2">
-                  {[
-                    { city: "Phoenix, AZ", count: "487 communities", avg: "$4,250/mo" },
-                    { city: "Las Vegas, NV", count: "312 communities", avg: "$3,950/mo" },
-                    { city: "Miami, FL", count: "428 communities", avg: "$4,750/mo" }
-                  ].map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
-                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                    >
-                      <div className="text-sm font-medium text-white">{item.city}</div>
-                      <div className="text-xs text-gray-300">
-                        {item.count} • Avg: {item.avg}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Luxury Markets */}
-              <div className="bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-xl p-4 border border-purple-500/30">
-                <h3 className="font-semibold text-purple-300 mb-3 flex items-center gap-2">
-                  <Gem className="h-4 w-4" />
-                  Luxury Markets
-                </h3>
-                <div className="space-y-2">
-                  {[
-                    { city: "San Francisco, CA", count: "235 communities", avg: "$7,850/mo" },
-                    { city: "New York, NY", count: "189 communities", avg: "$9,200/mo" },
-                    { city: "Los Angeles, CA", count: "567 communities", avg: "$6,500/mo" }
-                  ].map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
-                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                    >
-                      <div className="text-sm font-medium text-white">{item.city}</div>
-                      <div className="text-xs text-gray-300">
-                        {item.count} • Avg: {item.avg}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Value Markets */}
-              <div className="bg-gradient-to-br from-green-900/50 to-emerald-900/50 rounded-xl p-4 border border-green-500/30">
-                <h3 className="font-semibold text-green-300 mb-3 flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
-                  Value Markets
-                </h3>
-                <div className="space-y-2">
-                  {[
-                    { city: "Houston, TX", count: "412 communities", avg: "$3,200/mo" },
-                    { city: "Atlanta, GA", count: "389 communities", avg: "$3,450/mo" },
-                    { city: "Dallas, TX", count: "445 communities", avg: "$3,350/mo" }
-                  ].map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setLocation(`/map-search?q=${encodeURIComponent(item.city)}`)}
-                      className="w-full text-left p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                    >
-                      <div className="text-sm font-medium text-white">{item.city}</div>
-                      <div className="text-xs text-gray-300">
-                        {item.count} • Avg: {item.avg}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* City Research Features */}
-            <div className="mt-6 p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg border border-blue-500/30">
-              <h4 className="font-semibold text-white mb-2">What You'll Discover:</h4>
-              <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-200">
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
-                  <span>Local pricing ranges & market trends</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
-                  <span>Top-rated communities in your area</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
-                  <span>Available HUD & affordable options</span>
-                </div>
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-400 mt-0.5" />
-                  <span>Competitive analysis & comparisons</span>
-                </div>
-              </div>
-            </div>
-          </div>
+            {/* Gradient Fade Edges */}
+            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-indigo-950 to-transparent pointer-events-none z-10"></div>
+            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-purple-950 to-transparent pointer-events-none z-10"></div>
+          </motion.div>
 
           {/* Quick Stats Bar */}
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3 mt-8">
             <Badge className="bg-blue-500/20 text-blue-200 border-blue-500/30 px-4 py-2">
               <Database className="h-4 w-4 mr-2" />
-              33,236 Communities Nationwide
+              33,470+ Communities Nationwide
             </Badge>
             <Badge className="bg-purple-500/20 text-purple-200 border-purple-500/30 px-4 py-2">
               <MapPin className="h-4 w-4 mr-2" />
-              6,931 Cities Covered
+              6,900+ Cities Covered
             </Badge>
             <Badge className="bg-green-500/20 text-green-200 border-green-500/30 px-4 py-2">
-              <TrendingUp className="h-4 w-4 mr-2" />
-              Live Market Data
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin-slow" />
+              Self-Improving Database
             </Badge>
           </div>
         </div>
@@ -754,76 +1010,24 @@ export default function CommunityDirectory() {
 
       {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
       
+      {/* Red Tag Deals Promotional Section - MOVED TO TOP FOR FEATURED COMMUNITIES */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
+        <div className="max-w-7xl mx-auto">
+          <RedTagDeals />
+        </div>
+      </section>
+
+      {/* Hero Mascot Panel - Platform Differentiators */}
+      <section className="px-4 py-8">
+        <div className="max-w-7xl mx-auto">
+          <HeroMascotPanel />
+        </div>
+      </section>
+      
       {/* Find Your Perfect Care Level - Moved from Market Intelligence */}
       <section className="px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <CareSpectrumSlider />
-        </div>
-      </section>
-
-      {/* ★ UNDERSTANDING YOUR SENIOR LIVING BRAND OPTIONS ★ */}
-      <section className="px-4 py-12 bg-gradient-to-br from-gray-900 to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent mb-4">
-              Understanding Your Senior Living Brand Options
-            </h2>
-            <p className="text-lg text-gray-300 max-w-4xl mx-auto">
-              From industry giants to luxury boutiques, each brand brings unique strengths. 
-              Here's your guide to America's most trusted senior living providers.
-            </p>
-          </div>
-          
-          <div className="bg-gray-800/50 rounded-2xl p-6 border border-gray-700">
-            <div className="grid md:grid-cols-3 gap-4 mb-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-400">350+</div>
-                <div className="text-sm text-gray-400">Total Premium Brands</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400">33,000+</div>
-                <div className="text-sm text-gray-400">Communities Nationwide</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-pink-400">2.5M+</div>
-                <div className="text-sm text-gray-400">Seniors Served</div>
-              </div>
-            </div>
-            
-            <div className="space-y-3">
-              <h3 className="font-semibold text-white mb-3">🏆 The Top 5 Industry Leaders (2025)</h3>
-              <div className="grid gap-3">
-                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
-                  <span className="text-rose-400 font-bold">#1 Brookdale</span>
-                  <span className="text-gray-300 ml-2">• 50,000+ units • 675 communities • Industry titan</span>
-                </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
-                  <span className="text-cyan-400 font-bold">#2 Discovery</span>
-                  <span className="text-gray-300 ml-2">• 36,000 units • 350 communities • Innovation leader</span>
-                </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
-                  <span className="text-green-400 font-bold">#3 LCS</span>
-                  <span className="text-gray-300 ml-2">• 33,000 units • 136 communities • CCRC specialist</span>
-                </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
-                  <span className="text-indigo-400 font-bold">#4 Erickson</span>
-                  <span className="text-gray-300 ml-2">• 25,300 units • 22 communities • Large-scale CCRCs</span>
-                </div>
-                <div className="bg-gray-700/30 rounded-lg p-3 border border-gray-600/30">
-                  <span className="text-purple-400 font-bold">#5 Atria</span>
-                  <span className="text-gray-300 ml-2">• 25,000 units • 199 communities • Hospitality focus</span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-lg p-4 mt-6 border border-blue-500/30">
-              <p className="text-blue-200 text-sm text-center">
-                💡 <strong>Pro Tip:</strong> Each brand has unique strengths. Brookdale offers scale and accessibility, 
-                Discovery leads in innovation, while boutique providers like Oakmont excel in luxury resort experiences. 
-                Explore each to find your perfect match!
-              </p>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -909,7 +1113,8 @@ export default function CommunityDirectory() {
                             ...community,
                             badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
                           }}
-                          index={index} 
+                          index={index}
+                          disableAutoPhotoLoad={true} 
                           compact 
                         />
                       </div>
@@ -925,6 +1130,148 @@ export default function CommunityDirectory() {
             className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 text-lg shadow-xl"
           >
             Explore All 350+ Discovery Communities →
+          </Button>
+        </div>
+      </section>
+
+      {/* PROVINCIAL SENIOR LIVING - AFFORDABLE EXCELLENCE BY DISCOVERY */}
+      <section className="px-4 py-16 bg-gradient-to-br from-amber-950 via-orange-950 to-yellow-950">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
+                <span className="relative text-6xl">🏠</span>
+              </div>
+            </div>
+            
+            <Badge className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
+              <Home className="h-5 w-5 mr-2" />
+              AFFORDABLE INDEPENDENT LIVING BY DISCOVERY
+              <Home className="h-5 w-5 ml-2" />
+            </Badge>
+            
+            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
+              <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-yellow-300 bg-clip-text text-transparent">
+                Provincial Senior Living
+              </span>
+            </div>
+            
+            <p className="text-2xl text-amber-100 mb-4 font-semibold">
+              Maintenance-Free Independent Living Across 18+ States
+            </p>
+            
+            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
+              Part of the Discovery family, Provincial offers affordable independent living with supportive services,
+              pet-friendly communities, and a focus on active lifestyles at exceptional value
+            </p>
+          </div>
+
+          {/* Provincial Excellence Section */}
+          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <MapPin className="w-8 h-8 text-amber-300" />
+              <h3 className="text-xl font-bold text-white">The Provincial Advantage</h3>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🏡 Community Features</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>★ Studios to 2-bedroom apartments (375-975 sq ft)</li>
+                  <li>★ Three chef-prepared meals daily included</li>
+                  <li>★ Pet-friendly communities nationwide</li>
+                  <li>★ Modern kitchenettes in every apartment</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold text-amber-300 mb-3">🌟 Services & Amenities</h4>
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li>• Complimentary local transportation</li>
+                  <li>• Libraries & game rooms</li>
+                  <li>• Fitness centers & wellness programs</li>
+                  <li>• Optional support services as needed</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="bg-amber-800/30 rounded-lg p-3 border border-amber-600/30 mt-4">
+              <p className="text-amber-200 text-sm font-semibold text-center">
+                🌟 Provincial Promise: Combining Discovery's excellence with affordable pricing - 
+                average $6,595/month with all meals, maintenance, and activities included
+              </p>
+            </div>
+          </div>
+
+          {/* Provincial Communities Signature Slider */}
+          {provincialQuery.data?.communities?.length > 0 ? (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-amber-300">🏠 Affordable Provincial Communities</h3>
+                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                  {provincialQuery.data.communities.length} Communities
+                </Badge>
+              </div>
+              <div className="relative group">
+                <div 
+                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-amber-600 scrollbar-track-transparent scroll-smooth"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
+                  {provincialQuery.data.communities.map((community: any, index: number) => (
+                    <div key={community.id} className="flex-none w-80 transform transition-transform hover:scale-105">
+                      <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 backdrop-blur rounded-xl overflow-hidden border border-amber-500/30 shadow-xl">
+                        <FeaturedExcellenceCard 
+                          community={{
+                            ...community,
+                            badge: index === 0 ? "🏆 Top Rated" : 
+                                   index === 1 ? "✨ Premium" : 
+                                   index === 2 ? "⭐ Featured" :
+                                   index === 3 ? "💎 Excellence" :
+                                   index === 4 ? "🌟 Premier" :
+                                   community.name.includes("Solstice") ? "☀️ Solstice" :
+                                   index < 15 ? "🏅 Select" :
+                                   index < 30 ? "✨ Quality" : 
+                                   "🏠 Affordable"
+                          }}
+                          index={index} 
+                          disableAutoPhotoLoad={true}
+                          compact 
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Fallback to static featured locations if no dynamic data
+            <div className="grid md:grid-cols-3 gap-4 mb-8">
+              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
+                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Vista, CA</h4>
+                <p className="text-gray-300 text-sm">1080 Arcadia Ave, Vista</p>
+                <p className="text-amber-400 text-xs mt-1">Active Independent Living</p>
+                <p className="text-gray-400 text-xs mt-1">📞 442.240.0030</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
+                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Arlington, TX</h4>
+                <p className="text-gray-300 text-sm">6801 West Poly Webb Road</p>
+                <p className="text-amber-400 text-xs mt-1">Pet-Friendly Community</p>
+                <p className="text-gray-400 text-xs mt-1">📞 817.583.7171</p>
+              </div>
+              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
+                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Gainesville, FL</h4>
+                <p className="text-gray-300 text-sm">2431 NW 41st Street</p>
+                <p className="text-amber-400 text-xs mt-1">Active Lifestyle Focus</p>
+                <p className="text-gray-400 text-xs mt-1">📞 352.810.9005</p>
+              </div>
+            </div>
+          )}
+
+          <Button
+            onClick={() => window.open('/search?query=Provincial', '_self')}
+            className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-4 text-lg shadow-xl"
+          >
+            Discover Provincial Communities in Your Area →
           </Button>
         </div>
       </section>
@@ -1019,6 +1366,7 @@ export default function CommunityDirectory() {
                             badge: index === 0 ? "🥇 J.D. Power #1" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1117,7 +1465,7 @@ export default function CommunityDirectory() {
                 </Badge>
               </div>
               <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500" style={{scrollBehavior: 'smooth'}}>
-                {atriaQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                {atriaQuery.data.communities.map((community: any, index: number) => (
                   <div key={community.id} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -1125,9 +1473,19 @@ export default function CommunityDirectory() {
                         <FeaturedExcellenceCard 
                           community={{
                             ...community,
-                            badge: index === 0 ? "💎 Luxury" : index === 1 ? "🌟 Hospitality" : "⭐ Featured"
+                            badge: index === 0 ? "💎 Luxury" : 
+                                   index === 1 ? "🌟 Hospitality" : 
+                                   index === 2 ? "⭐ Featured" :
+                                   index === 3 ? "👑 Premier" :
+                                   index === 4 ? "💜 Excellence" :
+                                   index < 20 ? "✨ Premium" :
+                                   index < 50 ? "🌸 Select" :
+                                   index < 100 ? "⭐ Quality" :
+                                   index < 150 ? "🏆 Award Winner" :
+                                   "💎 Community"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1237,6 +1595,7 @@ export default function CommunityDirectory() {
                             badge: index === 0 ? "🔴 Industry Leader" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1507,7 +1866,7 @@ export default function CommunityDirectory() {
                 </Badge>
               </div>
               <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
-                {oakmontQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
+                {oakmontQuery.data.communities.map((community: any, index: number) => (
                   <div key={community.id} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -1518,6 +1877,7 @@ export default function CommunityDirectory() {
                             badge: index === 0 ? "👑 Gold Standard" : index === 1 ? "🌟 Resort Style" : "⭐ Featured"
                           }}
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                       </div>
@@ -1552,8 +1912,7 @@ export default function CommunityDirectory() {
                           careTypes: ["Assisted Living", "Memory Care"],
                           description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
                           amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
-                          rating: 4.8,
-                          badge: "👑 Gold Standard"
+                          rating: 4.8
                         }} 
                         index={0} 
                         compact 
@@ -1576,8 +1935,7 @@ export default function CommunityDirectory() {
                           careTypes: ["Assisted Living", "Memory Care"],
                           description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
                           amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
-                          rating: 4.7,
-                          badge: "🌟 Resort Style"
+                          rating: 4.7
                         }} 
                         index={1} 
                         compact 
@@ -1600,8 +1958,7 @@ export default function CommunityDirectory() {
                           careTypes: ["Assisted Living", "Memory Care"],
                           description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
                           amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
-                          rating: 4.6,
-                          badge: "⭐ Featured"
+                          rating: 4.6
                         }} 
                         index={2} 
                         compact 
@@ -1614,7 +1971,7 @@ export default function CommunityDirectory() {
           )}
             
         <div className="text-center mt-8">
-          <Link href="/search?brand=Oakmont">
+          <Link to="/search?brand=Oakmont">
             <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
               Explore All 106 Oakmont Communities
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -1745,7 +2102,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((hawaiiCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((hawaiiCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -1756,6 +2113,7 @@ export default function CommunityDirectory() {
                             badge: "🌴 Aloha Living"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -1770,7 +2128,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/map-search?state=HI">
+              <Link to="/map-search?state=HI">
                 <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Hawaii Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -1778,22 +2136,6 @@ export default function CommunityDirectory() {
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* === TOOLS & FEATURES SECTION === */}
-      
-      {/* Red Tag Deals Promotional Section */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30">
-        <div className="max-w-7xl mx-auto">
-          <RedTagDeals />
-        </div>
-      </section>
-
-      {/* Hero Mascot Panel - Platform Differentiators */}
-      <section className="px-4 py-8">
-        <div className="max-w-7xl mx-auto">
-          <HeroMascotPanel />
         </div>
       </section>
 
@@ -1918,7 +2260,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((texasCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((texasCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -1929,6 +2271,7 @@ export default function CommunityDirectory() {
                             badge: "🏜️ Texas Pride"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -1943,7 +2286,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/map-search?city=Fort Worth&state=Texas">
+              <Link to="/map-search?city=Fort Worth&state=Texas">
                 <Button size="lg" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Fort Worth Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2018,9 +2361,9 @@ export default function CommunityDirectory() {
               </Button>
               
               <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-                {((floridaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((floridaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2134,12 +2477,12 @@ export default function CommunityDirectory() {
                 {/* Display first 10 HUD properties with complete information */}
                 {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
                   <Link key={`hud-${community.id}-${index}`} href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
                 
                 {/* Action Card at the end */}
-                <Link href="/search?certified=hud">
+                <Link to="/search?certified=hud">
                   <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -2318,7 +2661,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((newYorkCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((newYorkCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -2329,6 +2672,7 @@ export default function CommunityDirectory() {
                             badge: "🏙️ Empire Living"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -2343,7 +2687,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/map-search?state=NY">
+              <Link to="/map-search?state=NY">
                 <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All New York Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2437,7 +2781,7 @@ export default function CommunityDirectory() {
             ) : ((canadianCommunities as any)?.communities || []).length === 0 ? (
               <>
                 {/* Show promotional card when no communities available */}
-                <Link href="/search?location=canada">
+                <Link to="/search?location=canada">
                   <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -2491,7 +2835,7 @@ export default function CommunityDirectory() {
                 </Link>
               </>
             ) : (
-              ((canadianCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+              ((canadianCommunities as any)?.communities || []).map((community: any, index: number) => (
                 <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <FeaturedExcellenceCard community={community} index={index} compact />
 
@@ -2511,7 +2855,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🏝️ Puerto Rico Communities
               </h2>
-              <Link href="/search?location=Puerto Rico">
+              <Link to="/search?location=Puerto Rico">
                 <Button variant="outline" className="flex items-center gap-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20">
                   View All Puerto Rico
                   <ArrowRight className="w-4 h-4" />
@@ -2554,9 +2898,9 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
-                {((puertoRicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2586,7 +2930,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇵🇪 Peru Communities
               </h2>
-              <Link href="/search?location=Peru">
+              <Link to="/search?location=Peru">
                 <Button variant="outline" className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20">
                   View All Peru
                   <ArrowRight className="w-4 h-4" />
@@ -2629,9 +2973,9 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
-                {((peruCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((peruCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2771,7 +3115,7 @@ export default function CommunityDirectory() {
                   </div>
                 ))
               ) : (
-                ((cubaCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                ((cubaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`cuba-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
@@ -2782,6 +3126,7 @@ export default function CommunityDirectory() {
                             badge: "🎭 Heritage Living"
                           }} 
                           index={index} 
+                          disableAutoPhotoLoad={true}
                           compact 
                         />
                         {/* Premium Badge Overlay */}
@@ -2796,7 +3141,7 @@ export default function CommunityDirectory() {
             </div>
             
             <div className="text-center mt-8">
-              <Link href="/search?location=Cuba">
+              <Link to="/search?location=Cuba">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Cuba Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2815,7 +3160,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇨🇷 Costa Rica Communities
               </h2>
-              <Link href="/search?location=Costa Rica">
+              <Link to="/search?location=Costa Rica">
                 <Button variant="outline" className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20">
                   View All Costa Rica
                   <ArrowRight className="w-4 h-4" />
@@ -2854,9 +3199,9 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
-                {((costaRicaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((costaRicaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2883,7 +3228,7 @@ export default function CommunityDirectory() {
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇵🇦 Panama Communities
               </h2>
-              <Link href="/search?location=Panama">
+              <Link to="/search?location=Panama">
                 <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
                   View All Panama
                   <ArrowRight className="w-4 h-4" />
@@ -2922,9 +3267,9 @@ export default function CommunityDirectory() {
           ) : (
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
-                {((panamaCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+                {((panamaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} compact />
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
               </div>
@@ -2940,6 +3285,313 @@ export default function CommunityDirectory() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      {/* 🔥 CANADA SECTION - MASSIVE 5,343 COMMUNITIES! 🇨🇦 */}
+      <section className="px-4 py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-950/30 dark:via-gray-900 dark:to-red-950/30">
+        <div className="max-w-7xl mx-auto">
+          {/* Canada Header with Maple Leaf Theme */}
+          <div className="mb-12 text-center">
+            <Badge className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 mb-6 text-lg">
+              <span className="text-2xl mr-2">🇨🇦</span>
+              5,343 COMMUNITIES ACROSS CANADA
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Canadian Senior Living & Long-Term Care
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Complete coverage of retirement homes, long-term care facilities, and assisted living across all 13 provinces and territories. 
+              From Ontario's 1,707 communities to Yukon's specialized care homes.
+            </p>
+          </div>
+
+          {/* Province Quick Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">1,707</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Ontario</p>
+                <Link to="/search?location=Ontario">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">1,278</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Quebec</p>
+                <Link to="/search?location=Quebec">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">987</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">British Columbia</p>
+                <Link to="/search?location=British Columbia">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-red-600">570</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Alberta</p>
+                <Link to="/search?location=Alberta">
+                  <Button size="sm" variant="link" className="mt-2 text-red-600">
+                    View All →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Featured Ontario Communities */}
+          {ontarioCommunities && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <MapPin className="text-red-600" />
+                Featured Ontario Communities ({((ontarioCommunities as any)?.communities?.length || 0).toLocaleString()})
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-500">
+                {((ontarioCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`on-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Featured Quebec Communities */}
+          {quebecCommunities && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <MapPin className="text-blue-600" />
+                Featured Quebec Communities ({((quebecCommunities as any)?.communities?.length || 0).toLocaleString()})
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500">
+                {((quebecCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
+                  <Link key={`qc-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All Provinces Links Grid */}
+          <div className="bg-gradient-to-r from-red-100 to-white dark:from-red-900/20 dark:to-gray-900 rounded-xl p-6">
+            <h3 className="font-bold text-xl mb-4">Explore All Provinces & Territories:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { name: 'Ontario', count: '1,707', code: 'ON' },
+                { name: 'Quebec', count: '1,278', code: 'QC' },
+                { name: 'British Columbia', count: '987', code: 'BC' },
+                { name: 'Alberta', count: '570', code: 'AB' },
+                { name: 'Nova Scotia', count: '364', code: 'NS' },
+                { name: 'Saskatchewan', count: '306', code: 'SK' },
+                { name: 'New Brunswick', count: '241', code: 'NB' },
+                { name: 'Manitoba', count: '207', code: 'MB' },
+                { name: 'Newfoundland', count: '199', code: 'NL' },
+                { name: 'NW Territories', count: '146', code: 'NT' },
+                { name: 'PEI', count: '115', code: 'PE' },
+                { name: 'Nunavut', count: '89', code: 'NU' },
+                { name: 'Yukon', count: '69', code: 'YT' }
+              ].map((province) => (
+                <Link key={province.code} to={`/search?location=${province.name}`}>
+                  <Button variant="outline" className="w-full justify-between border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20">
+                    <span>{province.name}</span>
+                    <Badge className="bg-red-600 text-white">{province.count}</Badge>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 🔥 AUSTRALIA SECTION - 1,458 AGED CARE FACILITIES! 🇦🇺 */}
+      <section className="px-4 py-16 bg-gradient-to-br from-green-50 via-yellow-50 to-green-50 dark:from-green-950/30 dark:via-yellow-950/30 dark:to-green-950/30">
+        <div className="max-w-7xl mx-auto">
+          {/* Australia Header */}
+          <div className="mb-12 text-center">
+            <Badge className="bg-gradient-to-r from-green-700 to-yellow-600 text-white px-6 py-2 mb-6 text-lg">
+              <span className="text-2xl mr-2">🇦🇺</span>
+              1,458 AGED CARE FACILITIES
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
+              Australian Aged Care & Retirement Villages
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Comprehensive directory of aged care homes, retirement villages, and residential care across all Australian states and territories.
+            </p>
+          </div>
+
+          {/* State Stats Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
+            <Card className="border-2 border-green-200 dark:border-green-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-green-600">430</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">New South Wales</p>
+                <Link to="/search?location=New South Wales">
+                  <Button size="sm" variant="link" className="mt-2 text-green-600">
+                    View NSW →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-yellow-600">330</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Queensland</p>
+                <Link to="/search?location=Queensland">
+                  <Button size="sm" variant="link" className="mt-2 text-yellow-600">
+                    View QLD →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+            <Card className="border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-900">
+              <CardContent className="p-4 text-center">
+                <h3 className="font-bold text-2xl text-blue-600">324</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Victoria</p>
+                <Link to="/search?location=Victoria">
+                  <Button size="sm" variant="link" className="mt-2 text-blue-600">
+                    View VIC →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Featured NSW Communities */}
+          {nswCommunities && (
+            <div className="mb-12">
+              <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
+                <Building className="text-green-600" />
+                New South Wales Aged Care ({((nswCommunities as any)?.communities?.length || 0)})
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-green-500">
+                {((nswCommunities as any)?.communities || []).slice(0, 15).map((community: any, index: number) => (
+                  <Link key={`nsw-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* All States Links */}
+          <div className="bg-gradient-to-r from-yellow-100 to-green-100 dark:from-yellow-900/20 dark:to-green-900/20 rounded-xl p-6">
+            <h3 className="font-bold text-xl mb-4">Browse All Australian States:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {[
+                { name: 'New South Wales', count: '430', code: 'NSW' },
+                { name: 'Queensland', count: '330', code: 'QLD' },
+                { name: 'Victoria', count: '324', code: 'VIC' },
+                { name: 'South Australia', count: '209', code: 'SA' },
+                { name: 'Tasmania', count: '90', code: 'TAS' },
+                { name: 'ACT', count: '65', code: 'ACT' },
+                { name: 'Western Australia', count: '10', code: 'WA' }
+              ].map((state) => (
+                <Link key={state.code} to={`/search?location=${state.name}`}>
+                  <Button variant="outline" className="w-full justify-between border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20">
+                    <span>{state.name}</span>
+                    <Badge className="bg-green-600 text-white">{state.count}</Badge>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* GLOBAL DESTINATIONS - Japan, Singapore, Scotland */}
+      <section className="px-4 py-16 bg-gradient-to-br from-purple-50 via-pink-50 to-purple-50 dark:from-purple-950/30 dark:via-pink-950/30 dark:to-purple-950/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-12 text-center">
+            <Badge className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 mb-6 text-lg">
+              <Globe className="h-5 w-5 mr-2" />
+              GLOBAL SENIOR LIVING
+            </Badge>
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              International Senior Care Destinations
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Japan */}
+            <Card className="border-2 border-red-200 dark:border-red-800">
+              <CardHeader className="bg-gradient-to-r from-red-500 to-white text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">🇯🇵</span>
+                  Japan - Tokyo Region
+                </CardTitle>
+                <CardDescription className="text-red-100">
+                  {japanCommunities ? ((japanCommunities as any)?.communities?.length || 49) : 49} Senior Care Facilities
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-sm mb-4">Premium elder care in Tokyo metropolitan area with traditional Japanese hospitality and modern healthcare.</p>
+                <Link to="/search?location=Japan">
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                    Explore Japan Senior Care →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Singapore */}
+            <Card className="border-2 border-red-200 dark:border-red-800">
+              <CardHeader className="bg-gradient-to-r from-red-600 to-white text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">🇸🇬</span>
+                  Singapore
+                </CardTitle>
+                <CardDescription className="text-red-100">
+                  {singaporeCommunities ? ((singaporeCommunities as any)?.communities?.length || 27) : 27} Care Facilities
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-sm mb-4">World-class healthcare and modern senior living in Asia's premier city-state.</p>
+                <Link to="/search?location=Singapore">
+                  <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
+                    View Singapore Facilities →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
+            {/* Scotland */}
+            <Card className="border-2 border-blue-200 dark:border-blue-800">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-white text-white">
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">🏴󐁧󐁢󐁳󐁣󐁴󐁿</span>
+                  Scotland
+                </CardTitle>
+                <CardDescription className="text-blue-100">
+                  {scotlandCommunities ? ((scotlandCommunities as any)?.communities?.length || 31) : 31} Care Homes
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <p className="text-sm mb-4">Traditional Scottish care homes with stunning Highland and city locations.</p>
+                <Link to="/search?location=Scotland">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    Explore Scotland Care →
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
@@ -2990,7 +3642,7 @@ export default function CommunityDirectory() {
                 </div>
               ))
             ) : (
-              ((mexicoCommunities as any)?.communities || []).slice(0, 50).map((community: any, index: number) => (
+              ((mexicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                 <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
                   <FeaturedExcellenceCard community={community} index={index} compact />
 
@@ -3104,7 +3756,7 @@ export default function CommunityDirectory() {
               DATABASE INSIGHTS
             </Badge>
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              National Coverage Statistics
+              Worldwide Coverage Statistics
             </h2>
           </div>
           
@@ -3208,7 +3860,7 @@ export default function CommunityDirectory() {
                     </h3>
                     <p className="text-3xl font-bold text-blue-600">$4,287</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      National average across all care types
+                      Global average across all care types
                     </p>
                   </div>
                   <DollarSign className="h-12 w-12 text-blue-400 opacity-50" />

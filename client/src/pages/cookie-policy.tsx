@@ -296,7 +296,7 @@ export default function CookiePolicy() {
                   <li><strong>OpenAI (ChatGPT):</strong> AI-powered search and recommendations</li>
                   <li><strong>Anthropic (Claude):</strong> Data verification and analysis</li>
                   <li><strong>Google (Gemini):</strong> Enhanced search capabilities</li>
-                  <li><strong>xAI (Grok):</strong> Advanced intelligence features</li>
+                  <li><strong>Perplexity AI:</strong> Real-time web search and data enrichment</li>
                 </ul>
               </div>
             </div>

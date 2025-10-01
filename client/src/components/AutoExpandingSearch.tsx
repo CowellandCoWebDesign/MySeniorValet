@@ -12,6 +12,7 @@ interface AutoExpandingSearchProps {
   placeholder?: string;
   className?: string;
   searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
+  viewMode?: 'list' | 'map' | 'discover';
 }
 
 export function AutoExpandingSearch({ 
@@ -21,7 +22,8 @@ export function AutoExpandingSearch({
   initialQuery = '',
   placeholder = "Search communities or ask anything...",
   className = "",
-  searchCategory = 'communities'
+  searchCategory = 'communities',
+  viewMode = 'list'
 }: AutoExpandingSearchProps) {
   const [query, setQuery] = useState(initialQuery);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -70,7 +72,7 @@ export function AutoExpandingSearch({
 
   // Fetch suggestions
   const { data: suggestions } = useQuery<string[]>({
-    queryKey: ['/api/search/suggestions', query, searchCategory],
+    queryKey: ['/api/search/suggestions', query, searchCategory, viewMode],
     queryFn: async () => {
       if (!query || query.length < 2) return [];
       const response = await fetch('/api/search/suggestions', {
@@ -78,7 +80,8 @@ export function AutoExpandingSearch({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           query, 
-          category: searchCategory 
+          category: searchCategory,
+          viewMode
         })
       });
       if (!response.ok) return [];
@@ -86,7 +89,7 @@ export function AutoExpandingSearch({
       return data.suggestions || [];
     },
     enabled: query.length >= 2 && !isResearchMode,
-    staleTime: 60000, // Cache for 1 minute
+    staleTime: 10000, // Cache for 10 seconds to show more variety
   });
 
   // Handle input changes
@@ -137,6 +140,17 @@ export function AutoExpandingSearch({
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
+    // Check if it's the special Discovery Mode suggestion
+    if (suggestion === '🌍 Try Discovery Mode for worldwide search') {
+      setShowSuggestions(false);
+      setSelectedSuggestionIndex(-1);
+      // Trigger discovery mode search with the current query
+      const searchQuery = query || 'senior living';
+      setQuery(searchQuery);
+      onSearch(searchQuery, true); // Pass true for discovery mode
+      return;
+    }
+    
     setQuery(suggestion);
     setShowSuggestions(false);
     setSelectedSuggestionIndex(-1);
@@ -216,15 +230,6 @@ export function AutoExpandingSearch({
             )}
           </AnimatePresence>
 
-          {/* Search Icon */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
-            {isResearchMode ? (
-              <span className="text-lg">🕵️</span>
-            ) : (
-              <Search className="h-5 w-5 text-gray-400" />
-            )}
-          </div>
-
           {/* Auto-expanding Textarea */}
           <textarea
             ref={textareaRef}
@@ -235,28 +240,28 @@ export function AutoExpandingSearch({
             onBlur={handleBlur}
             placeholder={placeholder}
             className={`
-              w-full pl-12 pr-20 py-4 
+              w-full pl-3 sm:pl-4 pr-16 sm:pr-20 py-2.5 sm:py-4 
               bg-transparent resize-none outline-none
               text-gray-900 dark:text-gray-100 placeholder-gray-500
-              font-medium text-lg leading-6
-              min-h-[56px] max-h-[200px]
+              font-medium text-sm sm:text-lg leading-5 sm:leading-6
+              min-h-[44px] sm:min-h-[56px] max-h-[150px] sm:max-h-[200px]
               scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent
             `}
             style={{ 
-              height: isExpanded ? 'auto' : '56px',
+              height: isExpanded ? 'auto' : window.innerWidth < 640 ? '44px' : '56px',
               transition: 'height 0.2s ease'
             }}
             disabled={isLoading}
           />
 
           {/* Search Button */}
-          <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <div className="absolute right-1 sm:right-2 top-1/2 transform -translate-y-1/2">
             <Button
               onClick={handleSearch}
               disabled={!query.trim() || isLoading}
               size="sm"
               className={`
-                px-4 py-2 rounded-xl transition-all
+                px-2.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm rounded-xl transition-all
                 ${isResearchMode 
                   ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700' 
                   : 'bg-purple-600 hover:bg-purple-700'
@@ -273,7 +278,7 @@ export function AutoExpandingSearch({
                 </>
               ) : (
                 <>
-                  <Search className="w-4 h-4 mr-1" />
+                  <span className="mr-1">🔍</span>
                   Search
                 </>
               )}

@@ -9,13 +9,14 @@ import { eq } from 'drizzle-orm';
 
 export class CommunityPhotoEnrichment {
   /**
-   * Check if a photo URL is a placeholder or stock photo
+   * Check if a photo URL is a placeholder, stock photo, or non-photo asset
    */
   private static isStockOrPlaceholderPhoto(url: string): boolean {
     if (!url) return true;
     
-    // Block ALL stock photo services and placeholders
+    // Block ALL stock photo services, placeholders, and non-photo assets
     const blockedPatterns = [
+      // Stock photo services
       'unsplash.com',
       'pexels.com',
       'pixabay.com',
@@ -29,16 +30,50 @@ export class CommunityPhotoEnrichment {
       'burst.shopify.com',
       'stocksnap.io',
       'picjumbo.com',
+      // Placeholders
       'placeholder.com',
       'via.placeholder.com',
       'placehold.it',
       'placeimg.com',
       'dummyimage.com',
       'lorempixel.com',
-      '/api/placeholder/'
+      '/api/placeholder/',
+      // Icons and logos (NOT real community photos)
+      'facebook',
+      'twitter',
+      'instagram',
+      'linkedin',
+      'youtube',
+      'pinterest',
+      '/icon',
+      '/logo',
+      '-icon.',
+      '-logo.',
+      'social-media',
+      'social_media',
+      'foot-facebook',
+      'foot-twitter',
+      'sns/', // social network service icons
+      'badge',
+      'button',
+      '.svg',
+      'tracking',
+      'analytics',
+      '1x1',
+      'spacer',
+      'blank',
+      'loading.gif',
+      'loading.png',
+      'spinner',
+      'loader',
+      'mt-association',
+      'association-top',
+      'banner-ad',
+      'advertisement'
     ];
     
-    return blockedPatterns.some(pattern => url.toLowerCase().includes(pattern));
+    const urlLower = url.toLowerCase();
+    return blockedPatterns.some(pattern => urlLower.includes(pattern));
   }
 
   /**
@@ -65,10 +100,10 @@ export class CommunityPhotoEnrichment {
     // Get only real photos (no stock photos)
     const realPhotos = this.getEnrichedPhotosForCommunity(community);
     
-    // Return community with only real photos
+    // Return community with only real photos (empty array if none found)
     return {
       ...community,
-      photos: realPhotos.length > 0 ? realPhotos : []
+      photos: realPhotos
     };
   }
   

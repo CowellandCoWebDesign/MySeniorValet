@@ -344,17 +344,17 @@ export class PerformanceMonitorService extends EventEmitter {
           communityId,
           date: new Date().toISOString().split('T')[0] as any,
           period: 'hourly',
-          uniqueVisitors: Math.floor(aggregated.api.requestCount / 10),
-          totalPageViews: aggregated.api.requestCount,
-          avgSessionDuration: aggregated.api.avgResponseTime,
-          bounceRate: aggregated.api.errorRate / 100,
+          uniqueVisitors: Math.floor(Math.max(0, aggregated.api.requestCount || 0) / 10),
+          totalPageViews: Math.max(0, aggregated.api.requestCount || 0),
+          avgSessionDuration: isNaN(aggregated.api.avgResponseTime) || !isFinite(aggregated.api.avgResponseTime) ? 0 : Math.max(0, aggregated.api.avgResponseTime || 0),
+          bounceRate: Math.min(1, Math.max(0, (aggregated.api.errorRate || 0) / 100)),
           conversionRate: Math.random() * 0.05,
           totalRevenue: '0',
           occupancyRate: 0,
           avgLengthOfStay: 0,
           customerSatisfaction: 0,
           staffTurnover: 0,
-          qualityScore: 100 - aggregated.api.errorRate
+          qualityScore: Math.max(0, Math.min(100, 100 - (aggregated.api.errorRate || 0)))
         }).onConflictDoNothing();
       }
 

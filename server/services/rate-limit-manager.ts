@@ -24,6 +24,11 @@ export class RateLimitManager {
     'api_claims': { points: 5, duration: 3600 }, // 5 per hour
     'api_emergency': { points: 10, duration: 60 }, // 10 per minute (safety critical)
     
+    // Perplexity API endpoints - STRICT limits to reduce costs
+    'api_competitive': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
+    'api_verify': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
+    'api_discovery': { points: 3, duration: 60, blockDuration: 600 }, // 3 per minute, block 10 min
+    
     // Data endpoints - relaxed limits
     'data_map': { points: 100, duration: 60 }, // 100 per minute
     'data_clusters': { points: 100, duration: 60 }, // 100 per minute
@@ -93,6 +98,9 @@ export class RateLimitManager {
     
     // API endpoints
     if (endpoint.includes('/api/search')) return 'api_search';
+    if (endpoint.includes('/api/competitive-analysis')) return 'api_competitive';
+    if (endpoint.includes('/api/communities') && endpoint.includes('/verify')) return 'api_verify';
+    if (endpoint.includes('/api/discovery')) return 'api_discovery';
     if (endpoint.includes('/api/communities')) return 'api_communities';
     if (endpoint.includes('/api/tours') || endpoint.includes('/api/tourmate')) return 'api_tours';
     if (endpoint.includes('/api/communities/claim')) return 'api_claims';

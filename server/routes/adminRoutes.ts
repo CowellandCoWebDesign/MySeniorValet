@@ -8,7 +8,8 @@ import {
   communityDashboardStats,
   vendors,
   communityClaims,
-  claimedCommunities
+  claimedCommunities,
+  featuredCommunities
 } from "@shared/schema";
 import { eq, desc, sql, and, or, gte } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
@@ -22,6 +23,7 @@ import {
 } from "../security-admin-endpoints";
 import { enhancedPlatformStats } from "../enhanced-platform-stats";
 import { communityStatsCache } from "../community-stats-cache";
+import { storage } from "../storage";
 
 export function registerAdminRoutes(app: Express) {
   // Create a separate router for admin routes
@@ -47,7 +49,7 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Admin dashboard stats
+  // Admin dashboard stats with comprehensive real data
   adminRouter.get('/dashboard/stats', async (req, res) => {
     try {
       // Get platform stats from community stats cache
@@ -56,6 +58,192 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching admin dashboard stats:', error);
       res.status(500).json({ error: 'Failed to fetch dashboard stats' });
+    }
+  });
+
+  // Comprehensive admin metrics endpoint
+  adminRouter.get('/metrics', async (req, res) => {
+    try {
+      // Get real user metrics
+      const [userCount] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(users);
+      
+      // Get users registered today
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const [todayUsers] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(users)
+        .where(gte(users.createdAt, today));
+      
+      // Get users registered this week
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const [weekUsers] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(users)
+        .where(gte(users.createdAt, weekAgo));
+      
+      // Get users registered this month
+      const monthAgo = new Date();
+      monthAgo.setMonth(monthAgo.getMonth() - 1);
+      const [monthUsers] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(users)
+        .where(gte(users.createdAt, monthAgo));
+      
+      // Get community metrics
+      const [communityCount] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(communities);
+      
+      // Get vendor metrics
+      const [vendorCount] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(vendors);
+      
+      // Get claimed communities count
+      const [claimedCount] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(claimedCommunities);
+      
+      // Get featured communities count
+      const [featuredCount] = await db
+        .select({ count: sql<number>`COUNT(*)::integer` })
+        .from(featuredCommunities);
+      
+      // Get recent users (last 10 registrations)
+      const recentUsers = await db
+        .select({
+          id: users.id,
+          email: users.email,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          role: users.role,
+          createdAt: users.createdAt
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(10);
+      
+      // Get user role distribution
+      const roleDistribution = await db
+        .select({
+          role: users.role,
+          count: sql<number>`COUNT(*)::integer`
+        })
+        .from(users)
+        .groupBy(users.role);
+      
+      // Get community stats from cache for additional details
+      const cachedStats = await communityStatsCache.getStats();
+      
+      const metrics = {
+        platform: {
+          totalCommunities: communityCount?.count || 0,
+          totalUsers: userCount?.count || 0,
+          totalVendors: vendorCount?.count || 0,
+          claimedCommunities: claimedCount?.count || 0,
+          featuredCommunities: featuredCount?.count || 0,
+          activeSubscriptions: 0, // TODO: Implement when subscription system is ready
+          monthlyRevenue: 0, // TODO: Calculate from Stripe when integrated
+          yearlyRevenue: 0,
+          growthRate: 0
+        },
+        users: {
+          total: userCount?.count || 0,
+          registeredToday: todayUsers?.count || 0,
+          registeredThisWeek: weekUsers?.count || 0,
+          registeredThisMonth: monthUsers?.count || 0,
+          roleDistribution: roleDistribution.reduce((acc, item) => {
+            acc[item.role || 'user'] = item.count;
+            return acc;
+          }, {} as Record<string, number>),
+          recentRegistrations: recentUsers
+        },
+        engagement: {
+          dailyActiveUsers: 0, // TODO: Track user sessions
+          weeklyActiveUsers: 0,
+          monthlyActiveUsers: userCount?.count || 0, // For now, use total users
+          avgSessionDuration: 0,
+          bounceRate: 0,
+          pageViews: 0,
+          searches: 0,
+          communityViews: 0,
+          favorites: 0,
+          messages: 0
+        },
+        geographic: {
+          statesCovered: cachedStats.states || 0,
+          citiesCovered: cachedStats.cities || 0,
+          topStates: cachedStats.topStates || [],
+          expansionProgress: (cachedStats.states / 190) * 100 // Progress to 190 counties
+        },
+        dataQuality: {
+          communitiesWithPricing: cachedStats.withPricing || 0,
+          communitiesWithPhotos: cachedStats.withPhotos || 0,
+          communitiesWithDescription: cachedStats.withDescription || 0,
+          hudProperties: cachedStats.hudCount || 0,
+          verifiedCount: cachedStats.verifiedCount || 0,
+          lastUpdated: new Date().toISOString()
+        }
+      };
+      
+      res.json(metrics);
+    } catch (error) {
+      console.error('Error fetching admin metrics:', error);
+      res.status(500).json({ error: 'Failed to fetch metrics' });
+    }
+  });
+
+  // Recent activity endpoint
+  adminRouter.get('/activity/recent', async (req, res) => {
+    try {
+      // Get recent user registrations
+      const recentUsers = await db
+        .select({
+          type: sql<string>`'user_registration'`,
+          id: users.id,
+          email: users.email,
+          name: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+          timestamp: users.createdAt,
+          details: users.role
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(20);
+      
+      // Get recent community claims if available
+      const recentClaims = await db
+        .select({
+          type: sql<string>`'community_claim'`,
+          id: communityClaims.id,
+          email: communityClaims.contactEmail,
+          name: communityClaims.contactName,
+          timestamp: communityClaims.createdAt,
+          details: communityClaims.status
+        })
+        .from(communityClaims)
+        .orderBy(desc(communityClaims.createdAt))
+        .limit(10);
+      
+      // Combine and sort all activities by timestamp
+      const activities = [...recentUsers, ...recentClaims]
+        .sort((a, b) => {
+          const dateA = new Date(a.timestamp || 0).getTime();
+          const dateB = new Date(b.timestamp || 0).getTime();
+          return dateB - dateA;
+        })
+        .slice(0, 50); // Return top 50 most recent activities
+      
+      res.json({
+        activities,
+        total: activities.length
+      });
+    } catch (error) {
+      console.error('Error fetching recent activity:', error);
+      res.status(500).json({ error: 'Failed to fetch recent activity' });
     }
   });
 
@@ -226,7 +414,7 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // User management
+  // User management with enhanced data
   adminRouter.get('/users', async (req, res) => {
     try {
       const { page = 1, limit = 50, role, search } = req.query;
@@ -1449,6 +1637,163 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Featured Communities Management
+  adminRouter.get('/featured-communities', async (req, res) => {
+    try {
+      // Get all featured communities with their community data
+      const featuredList = await db.execute(sql`
+        SELECT 
+          fc.*,
+          c.name as community_name,
+          c.city,
+          c.state,
+          c.photo as community_photo
+        FROM featured_communities fc
+        LEFT JOIN communities c ON fc.community_id = c.id
+        ORDER BY fc.display_order, fc.id
+      `);
+      
+      res.json(featuredList.rows || []);
+    } catch (error) {
+      console.error('Error fetching featured communities:', error);
+      res.status(500).json({ error: 'Failed to fetch featured communities' });
+    }
+  });
+  
+  // Update featured community
+  adminRouter.put('/featured-communities/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // Update the featured community
+      const updated = await storage.updateFeaturedCommunity(Number(id), updates);
+      
+      if (!updated) {
+        return res.status(404).json({ error: 'Featured community not found' });
+      }
+      
+      // Log the action
+      await db.insert(auditLogs).values({
+        userId: req.user?.id || null,
+        action: 'featured_community_updated',
+        entityType: 'featured_community',
+        entityId: String(id),
+        metadata: { updates },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+        severity: 'Low',
+        outcome: 'Success'
+      });
+      
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating featured community:', error);
+      res.status(500).json({ error: 'Failed to update featured community' });
+    }
+  });
+  
+  // Add new featured community
+  adminRouter.post('/featured-communities', async (req, res) => {
+    try {
+      const featuredData = req.body;
+      
+      // Create new featured community
+      const newFeatured = await storage.createFeaturedCommunity(featuredData);
+      
+      // Log the action
+      await db.insert(auditLogs).values({
+        userId: req.user?.id || null,
+        action: 'featured_community_created',
+        entityType: 'featured_community',
+        entityId: String(newFeatured.id),
+        metadata: { featuredData },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+        severity: 'Low',
+        outcome: 'Success'
+      });
+      
+      res.json(newFeatured);
+    } catch (error) {
+      console.error('Error creating featured community:', error);
+      res.status(500).json({ error: 'Failed to create featured community' });
+    }
+  });
+  
+  // Toggle featured community active status
+  adminRouter.patch('/featured-communities/:id/toggle', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Get current status
+      const [current] = await db
+        .select()
+        .from(featuredCommunities)
+        .where(eq(featuredCommunities.id, Number(id)))
+        .limit(1);
+        
+      if (!current) {
+        return res.status(404).json({ error: 'Featured community not found' });
+      }
+      
+      // Toggle the status
+      const updated = await storage.updateFeaturedCommunity(Number(id), {
+        isActive: !current.isActive
+      });
+      
+      // Log the action
+      await db.insert(auditLogs).values({
+        userId: req.user?.id || null,
+        action: current.isActive ? 'featured_community_deactivated' : 'featured_community_activated',
+        entityType: 'featured_community',
+        entityId: String(id),
+        metadata: { wasActive: current.isActive, nowActive: !current.isActive },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+        severity: 'Medium',
+        outcome: 'Success'
+      });
+      
+      res.json({ success: true, isActive: !current.isActive });
+    } catch (error) {
+      console.error('Error toggling featured community:', error);
+      res.status(500).json({ error: 'Failed to toggle featured community' });
+    }
+  });
+  
+  // Delete featured community
+  adminRouter.delete('/featured-communities/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // Deactivate instead of deleting for audit purposes
+      const success = await storage.deactivateFeaturedCommunity(Number(id));
+      
+      if (!success) {
+        return res.status(404).json({ error: 'Featured community not found' });
+      }
+      
+      // Log the action
+      await db.insert(auditLogs).values({
+        userId: req.user?.id || null,
+        action: 'featured_community_removed',
+        entityType: 'featured_community', 
+        entityId: String(id),
+        metadata: { deactivated: true },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+        severity: 'High',
+        outcome: 'Success'
+      });
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error removing featured community:', error);
+      res.status(500).json({ error: 'Failed to remove featured community' });
+    }
+  });
+  
   // Enrichment stats endpoint
   adminRouter.get('/enrichment/stats', async (req, res) => {
     try {

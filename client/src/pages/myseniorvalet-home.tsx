@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
@@ -39,13 +40,15 @@ import { Footer } from "@/components/footer";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { useSEO } from '@/hooks/useSEO';
 import { HeroMascotPanel } from '@/components/mascot/HeroMascotPanel';
+import { MascotLoadingDisplay } from '@/components/MascotLoadingDisplay';
 import { UnifiedSearch } from '@/components/UnifiedSearch';
-import { AutoExpandingSearch } from '@/components/AutoExpandingSearch';
+import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { AIChatResponse } from '@/components/AIChatResponse';
 import ComprehensiveSearch from '@/components/ComprehensiveSearch';
 import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
+import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -59,8 +62,10 @@ import RetroFamilyLivingRoom from '@assets/generated_images/80s_Memphis_design_l
 import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
+import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
+import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
@@ -68,8 +73,8 @@ if (typeof document !== 'undefined') {
   const heroLink = document.createElement('link');
   heroLink.rel = 'preload';
   heroLink.as = 'image';
-  heroLink.href = RetroFamilyLivingRoom;
-  heroLink.type = 'image/png';
+  heroLink.href = "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg";
+  heroLink.type = 'image/jpeg';
   heroLink.fetchPriority = 'high';
   document.head.appendChild(heroLink);
   
@@ -82,11 +87,123 @@ if (typeof document !== 'undefined') {
   document.head.appendChild(thinkerLink);
 }
 
-
-
+// Dynamic placeholder texts for search box
+const SEARCH_PLACEHOLDERS = {
+  discover: {
+    communities: [
+      "🌍 Try 'Senior Living in Paris' or 'Care Homes in Tokyo'...",
+      "🌍 Explore 'Retirement in Sydney' or 'Elder Care in London'...",
+      "🌍 Discover 'Care Facilities in Dubai' or 'Senior Homes in Rome'...",
+      "🌍 Search 'Assisted Living in Berlin' or 'Nursing Homes in Toronto'...",
+      "🌍 Find 'Senior Communities in Singapore' or 'Care Centers in Madrid'..."
+    ],
+    services: [
+      "🌍 Try 'Restaurants in Tokyo' or 'Lawyers in London'...",
+      "🌍 Search 'Hotels in Paris' or 'Pharmacies in Berlin'...",
+      "🌍 Find 'Cafes in Rome' or 'Banks in Singapore'...",
+      "🌍 Explore 'Shops in Dubai' or 'Clinics in Sydney'...",
+      "🌍 Discover 'Services in Amsterdam' or 'Stores in Barcelona'..."
+    ],
+    healthcare: [
+      "🌍 Try 'Hospitals in London' or 'Clinics in Tokyo'...",
+      "🌍 Search 'Doctors in Paris' or 'Specialists in Sydney'...",
+      "🌍 Find 'Emergency care in Dubai' or 'Medical centers in Berlin'...",
+      "🌍 Explore 'Healthcare in Singapore' or 'Pharmacies in Rome'...",
+      "🌍 Discover 'Health services in Toronto' or 'Clinics in Amsterdam'..."
+    ],
+    resources: [
+      "🌍 Try 'Senior resources in UK' or 'Care guides for Japan'...",
+      "🌍 Search 'Elder care in France' or 'Support in Australia'...",
+      "🌍 Find 'Resources in Canada' or 'Guides for Germany'...",
+      "🌍 Explore 'Senior help in Spain' or 'Care info in Italy'...",
+      "🌍 Discover 'Support in Singapore' or 'Resources in Netherlands'..."
+    ],
+    vendors: [
+      "🌍 Try 'Medical supplies' or 'Mobility aids'...",
+      "🌍 Search 'Senior products' or 'Healthcare equipment'...",
+      "🌍 Find 'Daily living aids' or 'Safety devices'...",
+      "🌍 Explore 'Comfort products' or 'Adaptive clothing'...",
+      "🌍 Discover 'Technology for seniors' or 'Emergency systems'..."
+    ]
+  },
+  map: {
+    communities: [
+      "📍 Try 'Within 10 miles' or 'Near downtown'...",
+      "📍 Search 'Along I-35' or 'Near medical district'...",
+      "📍 Find 'In my neighborhood' or 'Close to family'...",
+      "📍 Explore 'Waterfront communities' or 'Near shopping'...",
+      "📍 Discover 'Urban centers' or 'Suburban areas'..."
+    ],
+    services: [
+      "📍 Try 'Services nearby' or '24-hour services'...",
+      "📍 Search 'Within walking distance' or 'Mobile services'...",
+      "📍 Find 'Emergency services' or 'Home delivery'...",
+      "📍 Explore 'Downtown services' or 'On my route'...",
+      "📍 Discover 'Near work' or 'In shopping centers'..."
+    ],
+    healthcare: [
+      "📍 Try 'Closest hospital' or 'Emergency care nearby'...",
+      "📍 Search 'Walk-in clinics' or 'After-hours care'...",
+      "📍 Find 'Specialists near me' or 'Medical districts'...",
+      "📍 Explore 'Urgent care chains' or 'VA hospitals nearby'...",
+      "📍 Discover 'Community clinics' or 'Teaching hospitals'..."
+    ],
+    resources: [
+      "📍 Try 'Local resources' or 'Community centers'...",
+      "📍 Search 'Senior centers nearby' or 'Libraries near me'...",
+      "📍 Find 'Government offices' or 'Churches nearby'...",
+      "📍 Explore 'Recreation centers' or 'Local programs'...",
+      "📍 Discover 'Volunteer opportunities' or 'Neighborhood help'..."
+    ],
+    vendors: [
+      "📍 Try 'Medical supply stores' or 'Pharmacy nearby'...",
+      "📍 Search 'Equipment rental' or 'Home medical supplies'...",
+      "📍 Find 'Mobility stores' or 'Senior shops nearby'...",
+      "📍 Explore 'Healthcare retailers' or 'Adaptive equipment'...",
+      "📍 Discover 'Local vendors' or 'Medical device stores'..."
+    ]
+  },
+  list: {
+    communities: [
+      "🔍 Try 'Houston' or 'Under $3000/month'...",
+      "🔍 Search 'Memory care' or 'Pet-friendly'...",
+      "🔍 Find 'Assisted living' or '5-star rated'...",
+      "🔍 Explore 'Near hospitals' or 'Veterans communities'...",
+      "🔍 Discover 'Independent living' or 'Active seniors'..."
+    ],
+    services: [
+      "🔍 Try 'Home care' or 'Medical equipment'...",
+      "🔍 Search 'Meal delivery' or 'Transportation'...",
+      "🔍 Find 'Physical therapy' or 'Companion care'...",
+      "🔍 Explore 'Adult day care' or 'Respite care'...",
+      "🔍 Discover 'Emergency response' or 'Hospice services'..."
+    ],
+    healthcare: [
+      "🔍 Try 'Hospitals' or 'Emergency rooms'...",
+      "🔍 Search 'Primary care' or 'Specialists'...",
+      "🔍 Find 'Urgent care' or 'Rehabilitation'...",
+      "🔍 Explore 'Cancer centers' or 'Heart specialists'...",
+      "🔍 Discover 'Memory care' or 'Pain management'..."
+    ],
+    resources: [
+      "🔍 Try 'Medicare guides' or 'Medicaid help'...",
+      "🔍 Search 'Care planning' or 'Legal documents'...",
+      "🔍 Find 'Financial planning' or 'Insurance info'...",
+      "🔍 Explore 'Caregiver support' or 'Senior benefits'...",
+      "🔍 Discover 'Support groups' or 'Crisis hotlines'..."
+    ],
+    vendors: [
+      "🔍 Try 'Wheelchairs' or 'Walking aids'...",
+      "🔍 Search 'Hospital beds' or 'Lift chairs'...",
+      "🔍 Find 'Bathroom safety' or 'Grab bars'...",
+      "🔍 Explore 'Compression socks' or 'Pain relief'...",
+      "🔍 Discover 'Hearing aids' or 'Vision aids'..."
+    ]
+  }
+};
 
 // Simplified Hero Section with Fixed Search Bar
-function HeroSectionWithTransformingSearch() {
+function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
@@ -94,59 +211,196 @@ function HeroSectionWithTransformingSearch() {
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
+  const [forceClearAutocomplete, setForceClearAutocomplete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
-  const [searchCategory, setSearchCategory] = useState<'communities' | 'services' | 'healthcare' | 'resources'>('communities');
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
+  const [searchPlaceholder, setSearchPlaceholder] = useState('');
+  
+  // Update placeholder text when view mode or category changes
+  useEffect(() => {
+    const placeholders = SEARCH_PLACEHOLDERS[viewMode]?.[activeTab as keyof typeof SEARCH_PLACEHOLDERS.list] || SEARCH_PLACEHOLDERS.list.communities;
+    const randomPlaceholder = placeholders[Math.floor(Math.random() * placeholders.length)];
+    setSearchPlaceholder(randomPlaceholder);
+  }, [viewMode, activeTab]);
+  
+  // Fetch dynamic community and service counts
+  const { data: communityStats } = useQuery<{ count: string; communities: string; services: string; isGlobal: boolean }>({
+    queryKey: ["/api/communities/count"],
+    retry: false,
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute
+    gcTime: 5 * 60 * 1000,   // Keep in cache for 5 minutes
+  });
 
   // Handle search from AutoExpandingSearch component
   const handleAutoExpandingSearch = async (query: string, isResearchMode?: boolean) => {
     setSearchQuery(query);
     
+    // Set loading state immediately for better UX
+    if (query && query.length >= 2) {
+      setIsLoading(true);
+      setIsSearchActive(true);
+    }
+    
     if (!query || query.length < 2) {
       setIsSearchActive(false);
       setSearchResults({ results: [], metadata: null });
+      setIsLoading(false);
       return;
     }
     
-    // Check for global/international searches
-    const globalIndicators = ['tokyo', 'paris', 'london', 'berlin', 'madrid', 'rome', 'dubai', 'singapore', 'mexico', 'canada', 'australia', 'france', 'germany', 'spain', 'italy', 'japan', 'china'];
-    const isGlobalSearch = globalIndicators.some(location => query.toLowerCase().includes(location));
+    // If isResearchMode is true (from Discovery Mode suggestion), trigger discovery
+    if (isResearchMode) {
+      console.log('🌍 Discovery Mode activated for:', query);
+      // Loading already set above
+      
+      // Show loading message for Discovery Mode
+      setSearchResults({ 
+        results: [],
+        metadata: {
+          isLoading: true,
+          loadingMessage: `🌍 Discovery Mode: Searching worldwide for "${query}"... This may take 30-60 seconds as we scan global databases.`,
+          isResearchMode: false
+        }
+      })
+      
+      try {
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query, 
+            searchType: activeTab === 'services' ? 'services' : 'location',
+            limit: 50,
+            discoveryMode: true  // CRITICAL: This flag tells the backend to actually search the web
+          }),
+          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          // Clear loading state first to remove loading modal
+          setIsLoading(false);
+          setSearchResults({ results: [], metadata: null });
+          // Then set results and show the modal
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results || [],
+            metadata: {...(data.metadata || {}), discoveryType: activeTab}
+          });
+          setForceClearAutocomplete(true);
+          setShowGlobalDiscoveryModal(true);
+          return;
+        }
+      } catch (error: any) {
+        console.error('Discovery Mode error:', error);
+        
+        // Provide specific error messages based on error type
+        let errorMessage = "Discovery Mode search failed. Please try again.";
+        if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+          errorMessage = "Discovery Mode search is taking longer than expected. We're searching for new communities across the web - please try again in a moment or try a more specific location.";
+        } else if (error.message?.includes('fetch')) {
+          errorMessage = "Unable to connect to our discovery service. Please check your internet connection and try again.";
+        }
+        
+        setSearchResults({ 
+          results: [],
+          metadata: {
+            aiResponse: errorMessage,
+            isResearchMode: false
+          }
+        });
+      }
+      setIsLoading(false);
+      return;
+    }
     
-    if (isGlobalSearch) {
-      console.log('🌍 Global search detected for:', query);
+    // Check if query contains US location indicators
+    const usStates = [
+      'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado', 'connecticut', 
+      'delaware', 'florida', 'georgia', 'hawaii', 'idaho', 'illinois', 'indiana', 'iowa', 
+      'kansas', 'kentucky', 'louisiana', 'maine', 'maryland', 'massachusetts', 'michigan', 
+      'minnesota', 'mississippi', 'missouri', 'montana', 'nebraska', 'nevada', 'new hampshire', 
+      'new jersey', 'new mexico', 'new york', 'north carolina', 'north dakota', 'ohio', 
+      'oklahoma', 'oregon', 'pennsylvania', 'rhode island', 'south carolina', 'south dakota', 
+      'tennessee', 'texas', 'utah', 'vermont', 'virginia', 'washington', 'west virginia', 
+      'wisconsin', 'wyoming', 'washington dc', 'district of columbia'
+    ];
+    
+    const usStateAbbreviations = [
+      'al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il', 'in', 
+      'ia', 'ks', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 
+      'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 
+      'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy', 'dc'
+    ];
+    
+    const queryLower = query.toLowerCase();
+    
+    // Check if query contains US location indicators
+    const isUSLocation = 
+      usStates.some(state => new RegExp(`\\b${state}\\b`, 'i').test(queryLower)) ||
+      usStateAbbreviations.some(abbr => new RegExp(`\\b${abbr}\\b`, 'i').test(queryLower)) ||
+      /\busa\b|\bunited states\b|\bamerica\b/i.test(queryLower) ||
+      /\b\d{5}(-\d{4})?\b/.test(query); // ZIP code pattern
+    
+    // Check for explicitly international locations (countries only, not ambiguous city names)
+    const internationalCountries = [
+      'canada', 'mexico', 'uk', 'united kingdom', 'england', 'scotland', 'wales', 
+      'france', 'germany', 'spain', 'italy', 'japan', 'china', 'australia', 
+      'brazil', 'india', 'russia', 'south africa', 'argentina', 'chile', 'sweden',
+      'norway', 'denmark', 'finland', 'netherlands', 'belgium', 'switzerland',
+      'austria', 'portugal', 'greece', 'poland', 'ireland', 'new zealand'
+    ];
+    
+    const isInternationalSearch = 
+      !isUSLocation && 
+      internationalCountries.some(country => new RegExp(`\\b${country}\\b`, 'i').test(queryLower));
+    
+    // Only auto-trigger Discovery Mode for international searches if viewMode is 'discover'
+    // For 'list' mode (Database Search), let it search the database normally
+    if (isInternationalSearch && viewMode === 'discover') {
+      console.log('🌍 International search auto-detected for:', query);
       setIsLoading(true);
       
       try {
         const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query, limit: 50 })
+          body: JSON.stringify({ 
+            query, 
+            searchType: activeTab === 'services' ? 'services' : 'location',
+            limit: 50 
+          }),
+          signal: AbortSignal.timeout(120000) // 120 second timeout for international searches
         });
         
         if (response.ok) {
           const data = await response.json();
           if (data.results && data.results.length > 0) {
+            // Clear loading state first
+            setIsLoading(false);
+            setSearchResults({ results: [], metadata: null });
+            // Then set results and show modal
             setGlobalDiscoveryResults({
               query,
               results: data.results,
               metadata: data.metadata
             });
+            setForceClearAutocomplete(true);
             setShowGlobalDiscoveryModal(true);
-            setIsLoading(false);
             return;
           }
         }
       } catch (error) {
-        console.error('Global discovery error:', error);
+        console.error('International discovery error:', error);
       }
       setIsLoading(false);
     }
 
     // Handle map view redirect
     if (viewMode === 'map' && query) {
-      const categoryParam = searchCategory !== 'communities' ? `&category=${searchCategory}` : '';
+      const categoryParam = activeTab !== 'communities' ? `&category=${activeTab}` : '';
       setLocation(`/map-search?q=${encodeURIComponent(query)}${categoryParam}`);
       return;
     }
@@ -157,7 +411,7 @@ function HeroSectionWithTransformingSearch() {
 
     try {
       // Discovery mode for Communities - use global discovery to find facilities
-      if (viewMode === 'discover' && searchCategory === 'communities') {
+      if (viewMode === 'discover' && activeTab === 'communities') {
         // Call global discovery endpoint to find actual facilities
         const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
@@ -165,8 +419,10 @@ function HeroSectionWithTransformingSearch() {
           body: JSON.stringify({ 
             query: query,
             searchType: 'location',
-            limit: 20
-          })
+            limit: 20,
+            discoveryMode: true  // Explicitly set Discovery Mode flag
+          }),
+          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
         });
 
         if (!response.ok) throw new Error('Discovery search failed');
@@ -175,11 +431,16 @@ function HeroSectionWithTransformingSearch() {
         
         // Show discovered facilities in modal
         if (data.results && data.results.length > 0) {
+          // Clear loading state first
+          setIsLoading(false);
+          setSearchResults({ results: [], metadata: null });
+          // Then set results and show modal
           setGlobalDiscoveryResults({
             query,
             results: data.results,
             metadata: {...data.metadata, discoveryType: 'communities'}
           });
+          setForceClearAutocomplete(true);
           setShowGlobalDiscoveryModal(true);
         } else {
           // No facilities found, show message
@@ -192,42 +453,82 @@ function HeroSectionWithTransformingSearch() {
           });
         }
         
-      } else if (viewMode === 'discover' && searchCategory === 'services') {
-        // Discovery mode for Services - discover ANY type of service providers globally
-        const response = await fetch('/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            searchType: 'services',  // General services, not limited to senior care
-            limit: 20
-          })
+      } else if (viewMode === 'discover' && activeTab === 'services') {
+        // For services, use NLP search which searches both services and vendors tables
+        // This will find hotels, restaurants, and other discovered businesses
+        
+        // Show immediate loading feedback for services search
+        setSearchResults({ 
+          results: [],
+          metadata: {
+            isLoading: true,
+            loadingMessage: `Searching for service providers related to "${query}"...`,
+            isResearchMode: false
+          }
         });
-
-        if (!response.ok) throw new Error('Service discovery search failed');
         
-        const data = await response.json();
-        
-        // Show discovered services in modal
-        if (data.results && data.results.length > 0) {
-          setGlobalDiscoveryResults({
-            query,
-            results: data.results,
-            metadata: {...data.metadata, discoveryType: 'services'}
+        // Use NLP search for services (searches both services and vendors tables)
+        try {
+          const response = await fetch('/api/nlp/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query: query,
+              limit: 50,
+              category: 'services'
+            }),
+            signal: AbortSignal.timeout(30000) // 30 second timeout
           });
-          setShowGlobalDiscoveryModal(true);
-        } else {
-          // No services found, show message
+
+          if (!response.ok) {
+            throw new Error(`Service search failed: ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          // Extract the actual data from the NLP search results
+          const results = data.results?.map((r: any) => r.data || r) || [];
+          
+          // Show discovered services
+          if (results.length > 0) {
+            setSearchResults({ 
+              results: results,
+              metadata: {
+                intent: data.intent,
+                facets: data.facets,
+                suggestions: data.suggestions
+              }
+            });
+          } else {
+            // No services found, show helpful message with suggestions
+            setSearchResults({ 
+              results: [],
+              metadata: {
+                aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
+                isResearchMode: false,
+                suggestions: [
+                  'home health care',
+                  'medical supplies',
+                  'senior transportation',
+                  'meal delivery services'
+                ]
+              }
+            });
+          }
+          
+        } catch (error) {
+          console.error('Service discovery search failed:', error);
           setSearchResults({ 
             results: [],
             metadata: {
-              aiResponse: `No service providers found in ${query} yet. Try a different city or service type.`,
+              aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
+              error: true,
               isResearchMode: false
             }
           });
         }
         
-      } else if (isResearchMode || (viewMode === 'discover' && searchCategory !== 'communities' && searchCategory !== 'services')) {
+      } else if (isResearchMode || (viewMode === 'discover' && activeTab !== 'communities' && activeTab !== 'services')) {
         // Use Public AI Chat for research mode or non-implemented discovery categories
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
@@ -257,7 +558,7 @@ function HeroSectionWithTransformingSearch() {
 
       } else {
         // Regular search for list/map view - use comprehensive search for communities
-        if (searchCategory === 'communities') {
+        if (activeTab === 'communities') {
           // Use the comprehensive search endpoint for community searches
           const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
           
@@ -292,7 +593,7 @@ function HeroSectionWithTransformingSearch() {
             body: JSON.stringify({ 
               query: query,
               limit: 50,
-              category: searchCategory
+              category: activeTab
             })
           });
 
@@ -350,6 +651,7 @@ function HeroSectionWithTransformingSearch() {
           query: query,
           includeHospitals: true,
           includeServices: true,
+          searchType: activeTab, // Pass the current search category
           limit: 50
         })
       });
@@ -414,14 +716,14 @@ function HeroSectionWithTransformingSearch() {
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'h-screen'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'min-h-screen'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
         <div 
-          className={`absolute inset-0 ${isSearchActive ? 'h-screen' : 'h-full'} w-full cursor-pointer`}
+          className="absolute inset-0 h-full w-full cursor-pointer"
           onClick={(e) => {
             // Only trigger if clicking the background image directly
             const target = e.target as HTMLElement;
@@ -453,208 +755,298 @@ function HeroSectionWithTransformingSearch() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col h-full px-2 sm:px-4">
-        {/* Hero Title - Positioned at Very Top */}
-        <div className="w-full text-center pt-[1.5vh] sm:pt-[2vh] md:pt-[2.5vh] lg:pt-[2vh]">
-          <div className="inline-block bg-black/50 backdrop-blur-sm rounded-2xl px-3 sm:px-4 md:px-5 py-2 sm:py-2.5">
-            <h1 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white whitespace-nowrap leading-[1.1] drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">
-              Everything You Need. Nothing You Pay.
+        <div className="relative z-10 flex flex-col h-full min-h-screen">
+        
+        {/* Hero Title - Keep Original */}
+        <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
+          <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
+            {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4 whitespace-nowrap">
+              <span className="inline-block animate-slide-in-left bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]">One Platform.</span>
+              <span className="inline-block animate-slide-in-left text-white ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Every Step of the Journey.</span>
             </h1>
-            <p className="text-xs sm:text-sm text-white font-medium drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] mt-1">
-              AI-powered search, real pricing, instant comparisons, and expert guidance all in one free platform.
-            </p>
+            
+            {/* Updated Subtitle */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 sm:py-3 max-w-4xl mx-auto animate-fade-in-delayed">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white font-medium leading-relaxed">
+                Your comprehensive guide to senior living, services, healthcare, resources, and products
+              </p>
+            </div>
           </div>
         </div>
-
-        {/* Content Container - Flexible Spacer and Search */}
-        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-end pb-16 sm:pb-20 md:pb-32'}`}>
-        {/* Unified Search Component with File Folder Tab Design - Simplified */}
-        <div className="w-full max-w-xl mx-auto px-2 sm:px-0 relative z-40 mb-6 md:mb-8">
-          {/* Category Tabs - File Folder Style - Simplified */}
-          <div className="flex justify-start">
-            <div className="inline-flex gap-0.5">
-              <button
-                type="button"
-                onClick={() => setSearchCategory('communities')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
-                  ${searchCategory === 'communities' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white border-t-2 border-l-2 border-r-2 border-purple-400 dark:border-purple-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white border-t border-l border-r border-purple-300 dark:border-purple-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-purple-600 dark:hover:text-purple-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-purple-300 dark:hover:text-purple-300 shadow-md'
-                  }`}
+        
+        {/* Clean Tab Navigation - Below hero text, above search */}
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 mt-6 mb-4">
+          <TabsList className="bg-white/95 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/20 px-4 py-3 w-full h-auto rounded-xl shadow-2xl">
+            <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
+              <TabsTrigger
+                value="communities"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
               >
-                <span className="text-sm">🏘️</span>
-                <div className="flex flex-col items-start leading-tight">
-                  <span className="hidden sm:inline">Senior Living Communities</span>
-                  <span className="sm:hidden">Communities</span>
-                  <span className="text-[8px] opacity-75">33,200+</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('services')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
-                  ${searchCategory === 'services' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white border-t-2 border-l-2 border-r-2 border-green-400 dark:border-green-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-green-500 to-emerald-500 text-white border-t border-l border-r border-green-300 dark:border-green-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-green-600 dark:hover:text-green-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-green-300 dark:hover:text-green-300 shadow-md'
-                  }`}
+                <span className="text-2xl">🏘️</span>
+                <span className="text-sm font-semibold">Communities</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="services"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
               >
-                <span className="text-sm">🛍️</span>
-                <div className="flex flex-col items-start leading-tight">
-                  <span>Services</span>
-                  <span className="text-[8px] opacity-75">7,500+</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('healthcare')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
-                  ${searchCategory === 'healthcare' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-red-600 to-pink-600 text-white border-t-2 border-l-2 border-r-2 border-red-400 dark:border-red-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-red-500 to-pink-500 text-white border-t border-l border-r border-red-300 dark:border-red-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-red-600 dark:hover:text-red-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-red-300 dark:hover:text-red-300 shadow-md'
-                  }`}
+                <span className="text-2xl">👥</span>
+                <span className="text-sm font-semibold">Services</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="healthcare"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
               >
-                <span className="text-sm">🏥</span>
-                <div className="flex flex-col items-start leading-tight">
-                  <span>Healthcare</span>
-                  <span className="text-[8px] opacity-75">2,000+</span>
-                </div>
-              </button>
-              <button
-                type="button"
-                onClick={() => setSearchCategory('resources')}
-                className={`relative px-3 sm:px-4 py-1.5 transition-all duration-300 text-[11px] sm:text-xs font-semibold flex items-center gap-1 rounded-t-lg transform
-                  ${searchCategory === 'resources' 
-                    ? isSearchActive 
-                      ? 'bg-gradient-to-br from-amber-600 to-orange-600 text-white border-t-2 border-l-2 border-r-2 border-amber-400 dark:border-amber-600 z-20 shadow-xl scale-105'
-                      : 'bg-gradient-to-br from-amber-500 to-orange-500 text-white border-t border-l border-r border-amber-300 dark:border-amber-600 z-20 shadow-lg'
-                    : isSearchActive
-                      ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-700 dark:hover:to-gray-600 border-t border-l border-r border-gray-300/50 dark:border-gray-700/50 hover:text-amber-600 dark:hover:text-amber-400 shadow-md hover:shadow-lg'
-                      : 'bg-gradient-to-br from-black/70 to-black/60 backdrop-blur-sm text-white hover:from-black/80 hover:to-black/70 border-t border-l border-r border-white/40 dark:border-gray-700/40 hover:text-amber-300 dark:hover:text-amber-300 shadow-md'
-                  }`}
+                <span className="text-2xl">🩺</span>
+                <span className="text-sm font-semibold">Healthcare</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="resources"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
               >
-                <span className="text-sm">📚</span>
-                <div className="flex flex-col items-start leading-tight">
-                  <span>Resources</span>
-                  <span className="text-[8px] opacity-75">119</span>
-                </div>
-              </button>
+                <span className="text-2xl">📚</span>
+                <span className="text-sm font-semibold">Resources</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="vendors"
+                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
+              >
+                <span className="text-2xl">🛍️</span>
+                <span className="text-sm font-semibold">Vendors</span>
+              </TabsTrigger>
             </div>
-          </div>
-          
-          {/* Search Bar Container - Always visible with tab-specific styling */}
-          <div className={`w-full rounded-b-xl rounded-tr-xl relative z-10 transition-all duration-300 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-2 border-t-0 pb-6 pt-3 px-3 shadow-2xl ${
-            searchCategory === 'services'
-              ? 'border-green-500 dark:border-green-600' 
-              : searchCategory === 'healthcare'
-              ? 'border-red-500 dark:border-red-600' 
-              : searchCategory === 'resources'
-              ? 'border-amber-500 dark:border-amber-600' 
-              : 'border-purple-500 dark:border-purple-600'
-          }`}>
-            <div className={`rounded-lg transition-all duration-300 p-1 shadow-lg border ${
-              searchCategory === 'services'
-                ? 'bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 border-green-200/50 dark:border-green-700/50'
-                : searchCategory === 'healthcare'
-                ? 'bg-gradient-to-br from-red-100 to-pink-100 dark:from-red-900/30 dark:to-pink-900/30 border-red-200/50 dark:border-red-700/50'
-                : searchCategory === 'resources'
-                ? 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 border-amber-200/50 dark:border-amber-700/50'
-                : 'bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50'
-            }`}>
-              {/* Search component wrapper */}
-              <div>
-              <AutoExpandingSearch 
-              onSearch={(query, isResearchMode) => {
-                // Use the existing handleAutoExpandingSearch function
-                handleAutoExpandingSearch(query, isResearchMode || viewMode === 'discover');
-              }}
-              onFocusChange={(focused) => setIsSearchFocused(focused)}
-              initialQuery={searchQuery}
-              placeholder={
-                viewMode === 'discover' && searchCategory === 'communities' ? "🌍 Discover new cities: Try 'Brisbane, Australia' or 'Edinburgh, Scotland'..." : 
-                viewMode === 'discover' && searchCategory === 'services' ? "🌍 Discover ANY services: Try 'restaurants in Tokyo' or 'law firms in London'..." :
-                viewMode === 'discover' ? "🌍 Discover globally: Enter a city to explore..." :
-                viewMode === 'map' ? "Enter location to search on map..." : 
-                searchCategory === 'services' ? "Search for senior care services, vendors, or providers..." :
-                searchCategory === 'healthcare' ? "Search for hospitals, clinics, or healthcare providers..." :
-                searchCategory === 'resources' ? "Search for guides, articles, or resources..." :
-                "Search communities, cities, companies, or ask anything..."
-              }
-              searchCategory={searchCategory}
-              className="w-full"
+          </TabsList>
+        </div>
+
+        {/* Content Container - Search First, Then Value Props */}
+        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
+        
+        {/* Unified Search Component */}
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+          {/* Search Bar Container - Clean styling like vendor marketplace */}
+          <div className="w-full relative z-10 bg-black/40 backdrop-blur-xl rounded-xl p-4 shadow-2xl border border-white/20">
+            {/* Clean search input wrapper */}
+            <div className="relative">
+              <AutocompleteSearch 
+                value={searchQuery}
+                onChange={(value) => {
+                  setSearchQuery(value);
+                  // Reset the force clear flag when user types
+                  if (forceClearAutocomplete) {
+                    setForceClearAutocomplete(false);
+                  }
+                }}
+                onSubmit={(value) => {
+                  // Check if it's a simple value (non-community selection)
+                  // AutocompleteSearch handles community navigation internally
+                  if (value && !value.startsWith('/community/')) {
+                    // Respect the current view mode when searching
+                    if (viewMode === 'discover') {
+                      // For Discovery Mode, trigger the search with discovery flag
+                      handleAutoExpandingSearch(value, true); // true = isResearchMode/Discovery
+                    } else if (viewMode === 'map') {
+                      // For Map view, redirect to map-search
+                      setLocation(`/map-search?q=${encodeURIComponent(value)}`);
+                    } else if (viewMode === 'list') {
+                      // For Database Search (list mode), trigger normal search
+                      handleAutoExpandingSearch(value, false); // false = normal database search
+                    }
+                  }
+                }}
+                placeholder={searchPlaceholder}
+                isLoading={isLoading}
+                inputClassName="w-full pl-10 pr-6 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl lg:text-2xl border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                forceClearSuggestions={forceClearAutocomplete}
               />
             </div>
-            </div>
             
-            {/* View Mode Tabs - Overlapping Bottom Border */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 translate-y-1/2 z-20">
-              <div className={`inline-flex rounded-full p-1 transition-all duration-300 ${
-                isSearchActive 
-                  ? 'bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 shadow-xl border border-gray-200 dark:border-gray-600'
-                  : 'bg-gradient-to-br from-black/60 to-black/50 backdrop-blur-sm shadow-lg border border-white/30 dark:border-gray-700/30'
-              }`}>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('list')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'list' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-purple-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400'
-                        : 'bg-gradient-to-br from-purple-500 to-blue-500 text-white shadow-lg border border-purple-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
+            
+            {/* Mode Toggle Switches - Below search bar */}
+            {/* Hide map and discovery for vendors tab since vendors are online affiliates */}
+            <div className="mt-4 flex items-center justify-center gap-6">
+              {/* Database Search Toggle */}
+              <div className="flex items-center gap-2">
+                <label htmlFor="database-toggle" className="text-white text-sm font-medium">Database</label>
+                <Switch
+                  id="database-toggle"
+                  checked={viewMode === 'list'}
+                  onCheckedChange={(checked) => checked && setViewMode('list')}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-blue-500"
+                />
+              </div>
+              
+              {/* Map Toggle - Disabled for Vendors tab */}
+              <div className={`flex items-center gap-2 ${activeTab === 'vendors' ? 'opacity-50' : ''}`}>
+                <label 
+                  htmlFor="map-toggle" 
+                  className={`text-white text-sm font-medium ${activeTab === 'vendors' ? 'cursor-not-allowed' : ''}`}
+                  title={activeTab === 'vendors' ? 'Map not available for online vendors' : ''}
                 >
-                  <span className="text-xs sm:text-sm">📋</span>
-                  <span>List</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('map')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'map' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-green-600 to-emerald-600 text-white shadow-xl scale-105 border border-green-400'
-                        : 'bg-gradient-to-br from-green-500 to-emerald-500 text-white shadow-lg border border-green-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
+                  Map
+                </label>
+                <Switch
+                  id="map-toggle"
+                  checked={viewMode === 'map'}
+                  onCheckedChange={(checked) => activeTab !== 'vendors' && checked && setViewMode('map')}
+                  disabled={activeTab === 'vendors'}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-500"
+                />
+              </div>
+              
+              {/* Discovery Mode Toggle - Disabled for Vendors tab */}
+              <div className={`flex items-center gap-2 ${activeTab === 'vendors' ? 'opacity-50' : ''}`}>
+                <label 
+                  htmlFor="discovery-toggle" 
+                  className={`text-white text-sm font-medium ${activeTab === 'vendors' ? 'cursor-not-allowed' : ''}`}
+                  title={activeTab === 'vendors' ? 'Discovery not available for approved vendors' : ''}
                 >
-                  <span className="text-xs sm:text-sm">🗺️</span>
-                  <span>Map</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('discover')}
-                  className={`px-3 sm:px-4 py-1.5 rounded-full transition-all duration-300 text-[10px] sm:text-xs font-semibold flex items-center gap-1.5 transform ${
-                    viewMode === 'discover' 
-                      ? isSearchActive
-                        ? 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 text-white shadow-xl scale-105 border border-purple-400 animate-pulse'
-                        : 'bg-gradient-to-br from-purple-500 via-indigo-500 to-blue-500 text-white shadow-lg border border-purple-300'
-                      : isSearchActive
-                        ? 'bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 text-gray-600 dark:text-gray-300 hover:from-gray-200 hover:to-gray-300 dark:hover:from-gray-600 dark:hover:to-gray-500 shadow-md hover:shadow-lg'
-                        : 'bg-gradient-to-br from-black/70 to-black/60 text-white hover:from-black/80 hover:to-black/70 shadow-md hover:shadow-lg'
-                  }`}
-                >
-                  <span className="text-xs sm:text-sm">🧠</span>
-                  <span>🌍 Discovery mode</span>
-                </button>
+                  Discovery Mode
+                </label>
+                <Switch
+                  id="discovery-toggle"
+                  checked={viewMode === 'discover'}
+                  onCheckedChange={(checked) => activeTab !== 'vendors' && checked && setViewMode('discover')}
+                  disabled={activeTab === 'vendors'}
+                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
+                />
               </div>
             </div>
+            
+            {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
+            {viewMode === 'discover' && activeTab === 'services' && !searchQuery && (
+              <div className="absolute top-full mt-2 left-0 right-0 z-30">
+                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-3">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Popular service searches:</p>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      'home health care',
+                      'medical supplies', 
+                      'senior transportation',
+                      'meal delivery',
+                      'physical therapy',
+                      'cleaning services',
+                      'handyman services',
+                      'legal services',
+                      'financial planning'
+                    ].map((suggestion) => (
+                      <button
+                        key={suggestion}
+                        type="button"
+                        onClick={() => {
+                          setSearchQuery(suggestion);
+                          // Set loading immediately for instant feedback
+                          setIsLoading(true);
+                          setIsSearchActive(true);
+                          // Show loading message immediately
+                          setSearchResults({ 
+                            results: [],
+                            metadata: {
+                              isLoading: true,
+                              loadingMessage: `Searching for "${suggestion}"...`,
+                              isResearchMode: false
+                            }
+                          });
+                          // Then trigger the actual search using current viewMode
+                          handleAutoExpandingSearch(suggestion, viewMode === 'discover');
+                        }}
+                        className="px-3 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 rounded-full border border-purple-300 dark:border-purple-600 transition-colors"
+                      >
+                        {suggestion}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-500 mt-2">
+                    💡 Tip: Include a location for better results (e.g., "plumbers in Dallas")
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
+          
+        </div>
+        
+        {/* Quick Action Buttons - Moved from Community Directory Section */}
+        {!isSearchActive && (
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-4">
+          <div className="grid grid-cols-4 gap-2">
+            {/* Traditional Browse */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/map-search';
+              }}
+              className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+              <div className="flex flex-col items-center">
+                <span className="text-xl mb-1">🔍</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+              </div>
+            </Button>
+
+            {/* AI Intelligence */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/ai-search-intelligence?mode=simplified';
+              }}
+              className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <span className="text-xl mb-1">🤖</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">AI Assistant</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Ask Questions</div>
+              </div>
+            </Button>
+
+            {/* Live Heatmap */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/availability-heatmap';
+              }}
+              className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <span className="text-xl mb-1 animate-pulse">🔥</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Live Heatmap</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Availability Now</div>
+              </div>
+            </Button>
+
+            {/* Market Analysis */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/competitive-analysis';
+              }}
+              className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <span className="text-xl mb-1">📊</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Market Analysis</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Price Compare</div>
+              </div>
+            </Button>
+          </div>
+        </div>
+        )}
+        
+        {/* Key Value Props - Below action buttons */}
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">🔍</span> Transparent Pricing
+            </div>
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">📅</span> Schedule Tours
+            </div>
+            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
+              <span className="mr-0.5 text-sm sm:text-base md:text-lg">✅</span> Direct Reservations
+            </div>
+          </div>
+        </div>
+        
         </div>
           
           {/* Search Results - Premium Glass Design */}
@@ -724,16 +1116,17 @@ function HeroSectionWithTransformingSearch() {
                   )}
                   
                   {/* Regular Search Results List */}
-                  {/* Regular Results Header - Glass Morphism */}
-                  <div className="">
-                    <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
-                      <h3 className="text-lg font-semibold text-white">
+                  {/* Only show header when not loading */}
+                  {!(isLoading || searchResults?.metadata?.isLoading) && (
+                    <div className="">
+                      <div className="bg-white/10 backdrop-blur-md px-4 py-3 border border-white/20 rounded-xl shadow-2xl">
+                        <h3 className="text-lg font-semibold text-white">
                         {searchQuery ? (
                           <>
                             Found {searchResults?.results?.length || 0}
-                            {searchCategory === 'services' ? ' services' : 
-                             searchCategory === 'healthcare' ? ' healthcare providers' : 
-                             searchCategory === 'resources' ? ' resources' : ' communities'}
+                            {activeTab === 'services' ? ' services' : 
+                             activeTab === 'healthcare' ? ' healthcare providers' : 
+                             activeTab === 'resources' ? ' resources' : ' communities'}
                             {' matching "'}
                             <span className="text-green-400">{searchQuery}</span>
                             {'"'}
@@ -741,26 +1134,31 @@ function HeroSectionWithTransformingSearch() {
                         ) : (
                           <span>
                             {searchResults?.results?.length || 0}
-                            {searchCategory === 'services' ? ' Services' : 
-                             searchCategory === 'healthcare' ? ' Healthcare Providers' : 
-                             searchCategory === 'resources' ? ' Resources' : ' Communities'}
+                            {activeTab === 'services' ? ' Services' : 
+                             activeTab === 'healthcare' ? ' Healthcare Providers' : 
+                             activeTab === 'resources' ? ' Resources' : ' Communities'}
                             {' Found'}
                           </span>
                         )}
                       </h3>
                     </div>
                   </div>
+                  )}
                 </>
               )}
               
               {/* Results Content with premium glass design - Only show for non-Research mode */}
               {!searchResults?.metadata?.isResearchMode && (
                 <div className="mt-3 bg-white/5 backdrop-blur-lg rounded-xl border border-white/10 shadow-2xl shadow-purple-500/20 relative">
-                  {isLoading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin h-8 w-8 border-4 border-purple-500 border-t-transparent rounded-full" />
-                    <span className="ml-3 text-gray-300">Searching...</span>
-                  </div>
+                  {(isLoading || searchResults?.metadata?.isLoading) ? (
+                    <MascotLoadingDisplay
+                      compact={true}
+                      title={searchResults?.metadata?.loadingMessage || (activeTab === 'services' ? 'Discovery Mode Active' : 'Searching Communities')}
+                      subtitle={activeTab === 'services' ? 'Searching across multiple global sources...' : `Analyzing ${searchQuery || 'all communities'}`}
+                      showProgress={true}
+                      progressDuration={activeTab === 'services' ? 30 : 15}
+                      factRotationSpeed={5000}
+                    />
                 ) : (
                   <>
                     {/* Scroll indicator for more results - Outside scrollable area */}
@@ -799,15 +1197,16 @@ function HeroSectionWithTransformingSearch() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: index * 0.01 }}
                           >
-                            {searchCategory === 'services' ? (
+                            {activeTab === 'services' ? (
                               <VendorServiceCard
                                 vendor={item}
                                 variant="list"
                                 onSelect={() => {
-                                  window.open(item.website || '#', '_blank');
+                                  // Navigate to service details page, not external website
+                                  window.location.href = `/service/${item.id}`;
                                 }}
                               />
-                            ) : searchCategory === 'healthcare' ? (
+                            ) : activeTab === 'healthcare' ? (
                               // Enhanced Healthcare Provider Card with Hospital Data
                               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-red-200 dark:border-red-800">
                                 <div className="flex items-start gap-4">
@@ -891,7 +1290,7 @@ function HeroSectionWithTransformingSearch() {
                                   </div>
                                 </div>
                               </div>
-                            ) : searchCategory === 'resources' ? (
+                            ) : activeTab === 'resources' ? (
                               // Resource Card
                               <div className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-md hover:shadow-xl transition-shadow border border-amber-200 dark:border-amber-800">
                                 <div className="flex items-start gap-4">
@@ -925,6 +1324,7 @@ function HeroSectionWithTransformingSearch() {
                               <FeaturedExcellenceCard
                                 community={item}
                                 index={index}
+                                disableAutoPhotoLoad={true}
                               />
                             )}
                           </motion.div>
@@ -961,9 +1361,9 @@ function HeroSectionWithTransformingSearch() {
                               <p className="text-white/70">
                                 {searchQuery 
                                   ? `We couldn't find any ${
-                                      searchCategory === 'services' ? 'services' : 
-                                      searchCategory === 'healthcare' ? 'healthcare providers' :
-                                      searchCategory === 'resources' ? 'resources' :
+                                      activeTab === 'services' ? 'services' : 
+                                      activeTab === 'healthcare' ? 'healthcare providers' :
+                                      activeTab === 'resources' ? 'resources' :
                                       'communities'
                                     } matching "${searchQuery}"`
                                   : "Try adjusting your search criteria"}
@@ -978,6 +1378,36 @@ function HeroSectionWithTransformingSearch() {
                 )}
               </div>
             )}
+            
+            {/* Combined Trust & Value Badges - Moved After Search Results */}
+            <div className="w-full max-w-xl mx-auto px-2 sm:px-0 mt-4">
+              <div className="flex flex-col gap-1">
+                {/* First Line */}
+                <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                  <div className="flex items-center text-[9px] sm:text-[10px] text-emerald-300 font-semibold bg-emerald-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                    <span className="mr-0.5 text-[10px] sm:text-xs">💲</span> Online Bill Payment
+                  </div>
+                  <div className="flex items-center text-[9px] sm:text-[10px] text-cyan-300 font-semibold bg-cyan-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                    <span className="mr-0.5 text-[10px] sm:text-xs">🖥️</span> Resident Portal
+                  </div>
+                  <div className="flex items-center text-[9px] sm:text-[10px] text-pink-300 font-semibold bg-pink-900/30 backdrop-blur-sm rounded-full px-2 py-0.5">
+                    <span className="mr-0.5 text-[10px] sm:text-xs">👨‍👩‍👧‍👦</span> Family Collaboration Center
+                  </div>
+                </div>
+                {/* Third Line - Security Badges */}
+                <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
+                  <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-blue-600/80 backdrop-blur-sm rounded-full px-2 py-1">
+                    <span className="mr-0.5 text-[11px] sm:text-sm">🔒</span> SSL Secured
+                  </div>
+                  <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-green-600/80 backdrop-blur-sm rounded-full px-2 py-1">
+                    <span className="mr-0.5 text-[11px] sm:text-sm">✓</span> No Login Required
+                  </div>
+                  <div className="flex items-center text-[10px] sm:text-xs text-white font-semibold bg-purple-600/80 backdrop-blur-sm rounded-full px-2 py-1">
+                    <span className="mr-0.5 text-[11px] sm:text-sm">🎼</span> AI Orchestra (Perplexity, Grok, Claude, ChatGPT)
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
         </div>
@@ -1000,7 +1430,6 @@ function HeroSectionWithTransformingSearch() {
             </button>
           </motion.div>
         )}
-        </div>
         
         {/* Hero Mascot Panel - Temporarily disabled */}
         {/* {!isSearchActive && !searchQuery && !isSearchFocused && <HeroMascotPanel className="absolute bottom-2 sm:bottom-4 left-0 right-0 z-20" />} */}
@@ -1013,13 +1442,46 @@ function HeroSectionWithTransformingSearch() {
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
+  const [activeTab, setActiveTab] = useState('communities');
   
-  // Set SEO metadata for home page
+  // Parse URL search parameters for dynamic SEO
+  const [urlSearchParams, setUrlSearchParams] = useState<URLSearchParams | null>(null);
+  const [searchMetadata, setSearchMetadata] = useState<any>({});
+  
+  useEffect(() => {
+    // Get URL parameters
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setUrlSearchParams(params);
+      
+      // Extract search parameters for SEO
+      const location = params.get('location');
+      const query = params.get('q') || params.get('query');
+      const careType = params.get('careType');
+      const city = params.get('city');
+      const state = params.get('state');
+      
+      setSearchMetadata({ location, query, careType, city, state });
+    }
+  }, []);
+  
+  // Conditionally set SEO based on search parameters
+  const hasSearchParams = urlSearchParams && (urlSearchParams.get('location') || urlSearchParams.get('q') || urlSearchParams.get('query'));
+  
+  // Always use the hook but conditionally set the parameters
   useSEO({
-    title: 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
-    description: 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
-    keywords: 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
-    canonicalUrl: 'https://www.myseniorvalet.com/'
+    title: hasSearchParams 
+      ? 'Search Results | MySeniorValet' 
+      : 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
+    description: hasSearchParams
+      ? 'Search results for senior living communities'
+      : 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+    keywords: hasSearchParams
+      ? 'senior living search results'
+      : 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
+    canonicalUrl: hasSearchParams 
+      ? undefined // Let DynamicSearchSEO handle canonical for search pages
+      : 'https://www.myseniorvalet.com/'
   });
   
   const [searchQuery, setSearchQuery] = useState("");
@@ -1055,110 +1517,210 @@ export default function MySeniorValetHome() {
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
-  const [selectedCareType, setSelectedCareType] = useState(2); // Start with 55+ selected
+  const [selectedCareType, setSelectedCareType] = useState(7); // Start with Active Adult 55+ selected
   const [touchStartX, setTouchStartX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   
   const careTypes = [
     { 
       id: 'hud', 
-      name: 'HUD', 
+      name: 'HUD Section 202', 
       icon: Building2, 
       color: 'bg-green-500', 
-      description: 'Government-subsidized housing for low-income seniors, offering rent based on 30% of income with verified pricing.',
+      description: 'Government-subsidized housing for very low-income seniors (50% AMI), offering rent at 30% of income with verified pricing.',
       details: 'Income-based rent • Federal oversight • Accessibility features',
-      avgCost: '$300-900/month',
-      keyFeatures: ['Income-based rent (30% of income)', 'Government subsidized', 'Accessible units available']
+      avgCost: '30% of income',
+      keyFeatures: ['Income limit: 50% AMI', 'Residents pay only 30% of income', 'Long waiting lists']
+    },
+    {
+      id: 'section811',
+      name: 'Section 811',
+      icon: Shield,
+      color: 'bg-emerald-600',
+      description: 'HUD\'s ONLY program specifically for disabled persons under 62, providing affordable accessible housing with support services.',
+      details: 'Disability housing • Support services • Accessibility',
+      avgCost: '30% of income',
+      keyFeatures: ['For disabled under 62', 'Accessible units', 'Support services included']
+    },
+    {
+      id: 'section8',
+      name: 'Section 8',
+      icon: Home,
+      color: 'bg-lime-600',
+      description: 'Housing Choice Vouchers allow seniors to rent from private landlords with government paying 70% of rent.',
+      details: 'Rent vouchers • Private landlords • Portable benefits',
+      avgCost: '30% of income',
+      keyFeatures: ['Choose any approved housing', 'Government pays 70%', 'Portable vouchers']
     },
     { 
-      id: 'va', 
-      name: 'VA', 
-      icon: Shield, 
-      color: 'bg-purple-600', 
-      description: 'Veterans Affairs communities providing specialized care and benefits for military veterans and their spouses.',
-      details: 'Military benefits • Medical services • Honor programs',
-      avgCost: 'Varies by service connection',
-      keyFeatures: ['Veterans benefits', 'Specialized medical care', 'Service-connected priority']
+      id: 'senior-apartments',
+      name: 'Senior Apartments',
+      icon: Building,
+      color: 'bg-sky-600',
+      description: 'Age-restricted affordable apartment buildings for seniors 55+ or 62+, often with income limits.',
+      details: 'Affordable rentals • Age-restricted • Community amenities',
+      avgCost: '$800-2,000/month',
+      keyFeatures: ['Age 55+ or 62+', 'Income qualified', 'Maintenance-free living']
     },
     { 
       id: 'mobile', 
-      name: 'RV & Mobile', 
+      name: 'Mobile/RV Parks', 
       icon: Truck, 
       color: 'bg-orange-500', 
-      description: 'Senior RV and mobile parks offering flexible living for adventurous retirees who enjoy travel and community amenities.',
+      description: 'Senior mobile home and RV communities where residents own their home but lease the land.',
       details: 'Lot rent • Community amenities • Flexible lifestyle',
-      avgCost: '$400-1,200/month lot rent',
+      avgCost: '$300-1,200/month lot',
       keyFeatures: ['Own your home', 'Community lifestyle', 'Lower maintenance costs']
+    },
+    {
+      id: 'cooperative',
+      name: 'Co-op Housing',
+      icon: Users,
+      color: 'bg-violet-600',
+      description: 'Cooperative senior housing where members own shares and participate in community decisions.',
+      details: 'Member-owned • Shared costs • Democratic control',
+      avgCost: '$600-1,500/month',
+      keyFeatures: ['Own shares not unit', 'Vote on decisions', 'Shared maintenance']
+    },
+    {
+      id: 'shared-housing',
+      name: 'Shared Housing',
+      icon: HeartHandshake,
+      color: 'bg-rose-600',
+      description: 'Home-sharing programs matching seniors as roommates to reduce costs and combat isolation.',
+      details: 'Roommate matching • Cost sharing • Companionship',
+      avgCost: '$400-800/month',
+      keyFeatures: ['Split living costs', 'Background checks', 'Combat loneliness']
     },
     { 
       id: '55plus', 
-      name: '55+', 
+      name: 'Active Adult 55+', 
       icon: Flag, 
       color: 'bg-pink-600', 
-      description: 'Age-restricted active adult communities for those 55 and older, focusing on lifestyle and social activities.',
+      description: 'Resort-style ownership communities for active adults 55+, with golf courses and luxury amenities.',
       details: 'Active lifestyle • Social programs • Age-restricted',
-      avgCost: '$1,500-3,500/month',
-      keyFeatures: ['Age 55+ requirement', 'Active lifestyle focus', 'Golf, pools, activities']
+      avgCost: 'HOA $99-800/month',
+      keyFeatures: ['Home ownership', 'Resort amenities', 'Golf, pools, activities']
+    },
+    {
+      id: 'disability-centers',
+      name: 'Disability Centers',
+      icon: Heart,
+      color: 'bg-amber-600',
+      description: 'Centers for Independent Living and Action Centers helping disabled seniors find housing and services.',
+      details: 'Resource centers • Advocacy • Housing assistance',
+      avgCost: 'Free services',
+      keyFeatures: ['Run by disabled people', 'Housing navigation', 'Benefits assistance']
     },
     { 
       id: 'independent', 
-      name: 'Independent', 
+      name: 'Independent Living', 
       icon: Home, 
       color: 'bg-blue-600', 
-      description: 'Senior apartments and communities for those who can live independently with minimal assistance and optional services.',
+      description: 'Senior rental communities with meals and services for those who don\'t need daily care.',
       details: 'Self-sufficient living • Optional services • Social activities',
-      avgCost: '$2,000-4,500/month',
-      keyFeatures: ['Full kitchen & bath', 'Maintenance-free', 'Social activities included']
+      avgCost: '$3,065-3,145/month',
+      keyFeatures: ['Meals included', 'Maintenance-free', 'Social activities']
+    },
+    {
+      id: 'adult-day',
+      name: 'Adult Day Centers',
+      icon: Clock,
+      color: 'bg-yellow-600',
+      description: 'Daytime care programs providing activities, meals, and supervision while caregivers work.',
+      details: 'Daytime only • Activities • Caregiver respite',
+      avgCost: '$80-120/day',
+      keyFeatures: ['Weekday programs', 'Social activities', 'Caregiver relief']
     },
     { 
       id: 'residential', 
-      name: 'Residential Care', 
+      name: 'Personal Care Homes', 
       icon: Building, 
       color: 'bg-purple-700', 
-      description: 'Small, privately-run homes with 6-10 beds offering personalized care in a family-like residential setting.',
+      description: 'Small residential homes limited to 6-10 residents by state regulations, offering personalized care.',
       details: 'Home-like setting • Personal care • Small group living',
-      avgCost: '$3,000-5,500/month',
-      keyFeatures: ['6-10 residents only', 'Family atmosphere', 'Personalized attention']
+      avgCost: '$2,500-5,000/month',
+      keyFeatures: ['6-10 residents only', 'Family atmosphere', 'High staff ratios']
+    },
+    {
+      id: 'foster-care',
+      name: 'Adult Foster Care',
+      icon: Heart,
+      color: 'bg-indigo-700',
+      description: 'Licensed private homes providing care for 1-5 adults who need assistance with daily living.',
+      details: 'Private home care • Very small setting • Family environment',
+      avgCost: '$2,000-4,000/month',
+      keyFeatures: ['1-5 residents', 'Family home setting', 'Personalized care']
     },
     { 
       id: 'assisted', 
-      name: 'Assisted', 
+      name: 'Assisted Living', 
       icon: HeartHandshake, 
       color: 'bg-cyan-600', 
-      description: 'Communities providing help with daily activities like bathing, dressing, and medication management.',
+      description: 'Communities providing help with activities of daily living (ADLs) with 24-hour staffing.',
       details: 'ADL assistance • Medication management • 24/7 staff',
-      avgCost: '$4,500-7,000/month',
+      avgCost: '$5,190-6,129/month',
       keyFeatures: ['Help with daily tasks', 'Medication management', '24-hour staffing']
     },
     { 
       id: 'memory', 
-      name: 'Memory', 
+      name: 'Memory Care', 
       icon: Brain, 
       color: 'bg-red-600', 
-      description: 'Specialized secure environments for those with Alzheimer\'s, dementia, and other memory-related conditions.',
+      description: 'Secure specialized care for Alzheimer\'s and dementia with wandering prevention systems.',
       details: 'Secure environment • Specialized programs • Expert staff',
-      avgCost: '$5,500-9,000/month',
-      keyFeatures: ['Secure unit', 'Memory care certified', 'Specialized activities']
+      avgCost: '$6,450-7,292/month',
+      keyFeatures: ['Secure unit', 'Dementia certified', 'Specialized activities']
     },
-    { 
-      id: 'ccrc', 
-      name: 'CCRC', 
-      icon: RefreshCw, 
-      color: 'bg-indigo-600', 
-      description: 'Continuing Care Retirement Communities offering all levels of care from independent to skilled nursing in one location.',
-      details: 'Lifetime care • Multiple levels • Single campus',
-      avgCost: 'Entry: $100K-500K + Monthly',
-      keyFeatures: ['All care levels', 'Age in place', 'Healthcare guarantee']
+    {
+      id: 'respite',
+      name: 'Respite Care',
+      icon: RefreshCw,
+      color: 'bg-teal-700',
+      description: 'Short-term temporary care giving family caregivers a break from caregiving duties.',
+      details: 'Short-term stays • Caregiver relief • Trial periods',
+      avgCost: '$150-500/day',
+      keyFeatures: ['Few days to weeks', 'Caregiver vacation', 'Try before moving']
     },
     { 
       id: 'skilled', 
-      name: 'Skilled', 
+      name: 'Skilled Nursing', 
       icon: Stethoscope, 
       color: 'bg-teal-600', 
-      description: '24-hour medical care and rehabilitation services provided by licensed nurses and healthcare professionals.',
+      description: '24-hour medical care and rehabilitation. Medicare covers first 20 days, then $209.50/day copay.',
       details: '24/7 nursing • Rehab services • Medical equipment',
-      avgCost: '$8,000-12,000/month',
-      keyFeatures: ['24-hour nursing', 'Physical therapy', 'Complex medical needs']
+      avgCost: '$9,555-10,965/month',
+      keyFeatures: ['Medicare coverage', 'Physical therapy', 'Complex medical']
+    },
+    {
+      id: 'hospice',
+      name: 'Hospice Care',
+      icon: Heart,
+      color: 'bg-gray-600',
+      description: 'End-of-life comfort care focusing on quality of life, pain management, and family support.',
+      details: 'Comfort care • Pain management • Family support',
+      avgCost: 'Medicare covered',
+      keyFeatures: ['Medicare/Medicaid covered', 'Comfort focused', 'Family support']
+    },
+    { 
+      id: 'ccrc', 
+      name: 'CCRC/Life Plan', 
+      icon: RefreshCw, 
+      color: 'bg-indigo-600', 
+      description: 'Continuing Care Retirement Communities with all levels on one campus.',
+      details: 'Lifetime care • Multiple levels • Single campus',
+      avgCost: 'Entry $300K + $3,747/mo',
+      keyFeatures: ['All care levels', 'Age in place', 'Healthcare guarantee']
+    },
+    { 
+      id: 'va', 
+      name: 'VA Homes', 
+      icon: Shield, 
+      color: 'bg-purple-600', 
+      description: 'Veterans Affairs facilities providing specialized care for military veterans and spouses.',
+      details: 'Military benefits • Medical services • Honor programs',
+      avgCost: 'Service-connected',
+      keyFeatures: ['Veterans priority', 'Specialized care', 'Honor programs']
     }
   ];
   
@@ -1269,11 +1831,11 @@ export default function MySeniorValetHome() {
   }, []);
 
   // Mobile-optimized queries with reduced memory footprint
-  const { data: communityStats, isLoading } = useQuery<{ count: string }>({
+  const { data: communityStats, isLoading } = useQuery<{ count: string; communities: string; services: string; isGlobal: boolean }>({
     queryKey: ["/api/communities/count"],
     retry: false,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes to reduce requests
-    gcTime: 60 * 60 * 1000,   // Keep in cache for 1 hour
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute for dynamic updates
+    gcTime: 5 * 60 * 1000,   // Keep in cache for 5 minutes
     enabled: initialLoadComplete, // Defer to improve initial load time
   });
 
@@ -1474,6 +2036,18 @@ export default function MySeniorValetHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* Dynamic SEO for search pages */}
+      {hasSearchParams && (
+        <DynamicSearchSEO
+          location={searchMetadata.location}
+          query={searchMetadata.query}
+          careType={searchMetadata.careType}
+          city={searchMetadata.city}
+          state={searchMetadata.state}
+          totalResults={0} // Will be updated when search results are fetched
+        />
+      )}
+      
       {/* Toast Notification */}
       {toast && (
         <div className={`fixed top-4 right-4 z-[60] px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
@@ -1495,8 +2069,10 @@ export default function MySeniorValetHome() {
       )}
       
       {/* Old header removed - using ProfessionalNavbar */}
-      {/* Transforming Hero Section with Search - Mobile optimized */}
-      <HeroSectionWithTransformingSearch />
+      {/* Unified Tab System for Hero and Content */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        {/* Transforming Hero Section with Search - Mobile optimized */}
+        <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
 
 
 
@@ -1507,14 +2083,17 @@ export default function MySeniorValetHome() {
         </div>
       </div>
 
+      {/* 5-Tab Directory Content */}
+      <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
 
-      {/* Four Directory Cards Grid - Seamlessly Connected */}
-      <section className="px-4 py-16 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-          <div className="max-w-7xl mx-auto">
-            {/* Four Directory Cards in 2x2 Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {/* Community Directory */}
-            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105 cursor-pointer" onClick={(e) => {
+            {/* Communities Tab */}
+            <TabsContent value="communities" className="mt-6">
+              {/* Community Directory Card - Moved Above Featured Excellence */}
+              <div className="mb-12">
+                <div className="grid grid-cols-1">
+                  {/* Community Directory */}
+                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105 cursor-pointer" onClick={(e) => {
               // Only navigate if clicking on the card background, not buttons
               const target = e.target as HTMLElement;
               if (e.target === e.currentTarget || !target.closest('button')) {
@@ -1545,16 +2124,16 @@ export default function MySeniorValetHome() {
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Revolutionary AI enrichment system that automatically improves data quality in real-time. Our self-healing architecture detects and corrects errors, enriches content on-demand, and guarantees true transparency without hidden fees or paywalls.
+                    Discover and compare 20+ types of senior housing worldwide. Our AI-powered system finds HUD/Section 8/202/811 housing, senior apartments, disability centers, 55+ communities, mobile/RV parks, co-op housing, shared housing, adult day centers, foster care, personal care homes, assisted living, memory care, skilled nursing, hospice, CCRCs, and VA facilities. Access transparent pricing and authentic reviews for ALL senior housing options anywhere.
                   </p>
 
                   {/* Community count matching other cards */}
                   <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
                     <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {communityStats?.count || "32,970+"}
+                      {communityStats?.communities || '33,000+'}
                     </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">AI-Enhanced Communities</span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">Senior Living Communities</span>
                   </div>
 
                   {/* Flex container for side-by-side layout */}
@@ -1590,110 +2169,40 @@ export default function MySeniorValetHome() {
                     {/* Right side - Global Coverage Areas Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌍</span> Global Coverage
+                        <span>🌍</span> Worldwide Access
                       </p>
                       <div className="h-44 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇺🇸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">USA (28,348)</p>
+                          <span className="text-xs">🌎</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">North America</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇨🇦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Canada (6,780)</p>
+                          <span className="text-xs">🌍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Europe</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇦🇺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Australia (2,231)</p>
+                          <span className="text-xs">🌏</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Asia Pacific</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇲🇽</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Mexico (405)</p>
+                          <span className="text-xs">🌍</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Middle East & Africa</p>
                         </div>
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇯🇵</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Japan (67)</p>
+                          <span className="text-xs">🌎</span>
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">South America</p>
                         </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇨🇺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Cuba (12)</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇵🇪</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Peru (10)</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇨🇷</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Costa Rica (5)</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🇵🇦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Panama (5)</p>
+                        <div className="p-1.5 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded flex flex-col gap-1 p-2">
+                          <p className="text-[10px] text-purple-700 dark:text-purple-300 font-bold">Discovery Mode Active</p>
+                          <p className="text-[9px] text-gray-600 dark:text-gray-400">Find senior living facilities worldwide</p>
                         </div>
                       </div>
                       <p className="text-xs text-center text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                        9 Countries • 3 Continents
+                        Senior Living • All Countries • Real-Time Discovery
                       </p>
                     </div>
                   </div>
 
-                  {/* Horizontal Action Buttons Row */}
-                  <div className="mb-4 grid grid-cols-4 gap-2">
-                    {/* Traditional Search */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/map-search';
-                      }}
-                      className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-                      <div className="flex flex-col items-center">
-                        <Search className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[8px] text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
-                    </Button>
-
-                    {/* AI Intelligence */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/ai-search-intelligence?mode=simplified';
-                      }}
-                      className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <Sparkles className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">AI Assistant</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Ask Questions</div>
-                      </div>
-                    </Button>
-
-                    {/* Live Heatmap */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/availability-heatmap';
-                      }}
-                      className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <Flame className="h-5 w-5 mb-1 animate-pulse" />
-                        <div className="text-[10px] font-semibold leading-tight">Live Heatmap</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Availability Now</div>
-                      </div>
-                    </Button>
-
-                    {/* Market Analysis */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/competitive-analysis';
-                      }}
-                      className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <TrendingUp className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Market Analysis</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Price Compare</div>
-                      </div>
-                    </Button>
-                  </div>
 
                   {/* AI Intelligence Box */}
                   <div className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
@@ -1702,9 +2211,9 @@ export default function MySeniorValetHome() {
                       <div className="flex-1">
                         <h4 className="font-bold text-sm text-purple-900 dark:text-purple-100 mb-1">AI-Powered Intelligence</h4>
                         <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
-                          Our revolutionary system enriches data only when you search, saving costs while ensuring information is always fresh. 
-                          Features automatic duplicate removal, address correction, real-time photo collection, and comprehensive amenity extraction. 
-                          Every community gets smarter with each search!
+                          Our specialized senior living search enriches data on-demand, ensuring information is always current. 
+                          Features automatic verification of care levels, pricing transparency, real-time availability updates, and comprehensive amenity details. 
+                          Every senior community gets smarter with each search!
                         </p>
                       </div>
                     </div>
@@ -1712,25 +2221,50 @@ export default function MySeniorValetHome() {
 
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 10 CARE LEVELS</p>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                      {careTypes.map((careType, index) => {
-                        const Icon = careType.icon;
-                        return (
-                          <div
-                            key={careType.id}
-                            className={`flex-shrink-0 ${careType.color} rounded-lg p-3 w-32 cursor-pointer hover:scale-105 transition-transform`}
-                            onClick={() => setLocation(`/care-types/${careType.id}`)}
-                          >
-                            <div className="flex flex-col items-center">
-                              <Icon className="w-8 h-8 text-white mb-1" />
-                              <p className="text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
-                              <p className="text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 20+ COMPREHENSIVE HOUSING OPTIONS</p>
+                    <div className="relative">
+                      {/* Scroll indicator - left */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-blue-100 to-transparent dark:from-blue-900/20 w-8 h-full pointer-events-none" />
+                      {/* Scroll indicator - right */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-l from-indigo-100 to-transparent dark:from-indigo-900/20 w-8 h-full pointer-events-none" />
+                      
+                      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
+                        {careTypes.map((careType, index) => {
+                          const Icon = careType.icon;
+                          return (
+                            <div
+                              key={careType.id}
+                              data-testid={`care-type-${careType.id}`}
+                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
+                              onClick={(e) => {
+                                // Stop event from bubbling to parent card
+                                e.stopPropagation();
+                                // Navigate to appropriate page based on care type
+                                if (careType.id === 'memory') {
+                                  window.location.href = '/care-types/memory-care';
+                                } else if (careType.id === 'assisted') {
+                                  window.location.href = '/care-types/assisted-living';
+                                } else if (careType.id === 'independent') {
+                                  window.location.href = '/care-types/independent-living';
+                                } else {
+                                  // For other care types, navigate to map search with filter
+                                  window.location.href = `/map-search?careType=${encodeURIComponent(careType.name)}`;
+                                }
+                              }}
+                            >
+                              <div className="flex flex-col items-center">
+                                <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
+                                <p className="text-[10px] sm:text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                                <p className="text-[8px] sm:text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-2 italic">
+                      ← Swipe to explore all housing options →
+                    </p>
                   </div>
 
                   <Button 
@@ -1746,9 +2280,30 @@ export default function MySeniorValetHome() {
                   </Button>
                 </CardContent>
               </Card>
+                </div>
+              </div>
+              
+              {/* Featured Excellence Communities Section */}
+              <div className="mb-12">
+                <RedTagDeals />
+              </div>
+              
+              {/* Remaining Directory Cards Grid - Seamlessly Connected */}
+              <section className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+                <div className="max-w-7xl mx-auto">
+                  {/* Remaining Directory Cards in Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+                    {/* Other cards will go here */}
+                  </div>
+                </div>
+              </section>
+            </TabsContent>
 
-            {/* Senior Marketplace */}
-            <Link href="/senior-marketplace">
+      {/* Services Tab */}
+      <TabsContent value="services" className="mt-6">
+        <div className="grid grid-cols-1 gap-8">
+          {/* Senior Marketplace */}
+          <Link to="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Shopping Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -1767,47 +2322,67 @@ export default function MySeniorValetHome() {
                   </Badge>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Global Business & Services Discovery</CardTitle>
+                  <CardTitle className="text-2xl mb-2">🔬 Research Platform: Business & Services Discovery</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Find Any Service Provider Worldwide
+                    Market Transparency Through Public Data Citations
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🌍 Discover ANY business globally - moving services, law firms, restaurants, tech companies, and millions more
+                    🌍 Research global businesses & services - All information cited from public sources for transparency
                   </p>
                   
                   {/* Flex container for side-by-side layout */}
                   <div className="flex gap-3 mb-6">
-                    {/* Left side - Vendor count and Checkmarks */}
+                    {/* Left side - Premium Partners & Public Listings */}
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Vendors</span>
+                      {/* Affiliate Partners Section */}
+                      <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Star className="h-4 w-4 text-purple-500 animate-pulse" />
+                          <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
+                          <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
+                        </div>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <ShoppingCart className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Gift className="h-3 w-3 text-purple-500" />
+                            <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Public Research Data */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <Globe className="h-4 w-4 text-green-500" />
+                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                        <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Personal Services</span>
+                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
                       </div>
                     </div>
                     
                     {/* Right side - Maximum Height Scrollable Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🛒</span> Preview
+                        <span>📊</span> Research Categories (Citation-Based)
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
                         <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
@@ -1937,364 +2512,33 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
+                  {/* Additional Legal Notice */}
+                  <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                    <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
+                      <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                      <span>
+                        <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
+                        All sources are cited. Premium partnerships are transparently disclosed. We protect against false steering claims through complete transparency.
+                      </span>
+                    </p>
+                  </div>
+                  
                   <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Explore Directory</span>
+                    <Search className="mr-2 h-4 w-4" />
+                    <span className="font-semibold">Research Businesses & Services</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
             </Link>
+          </div>
+      </TabsContent>
 
-            {/* Trusted Senior Service Providers - Enhanced Promotional Section */}
-            <Link href="/senior-services">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Shopping Sign Image at top of card */}
-                <div className="relative h-64 w-full">
-                  <img 
-                    src={RetroShoppingSign} 
-                    alt="Retro shopping center neon sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white shadow-lg">
-                    <span className="text-3xl">⭐</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 animate-pulse">
-                    TRUSTED PARTNERS
-                  </Badge>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">⭐ Trusted Senior Service Providers</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Premium Partners Serving Families Nationwide
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🏆 Connect with 3,600+ verified service providers & vendors - Our comprehensive network delivering excellence in senior care
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Featured Partners */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Shield className="h-5 w-5 text-purple-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">Premium Partners</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Truck className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">United Van Lines™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Uber Health™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Package className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Life Alert™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Utensils className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Meals on Wheels™</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-purple-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Guardian™</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Service Categories Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🎯</span> Service Categories
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-purple-300 dark:scrollbar-thumb-purple-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚚</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Moving & Relocation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Transport</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pharmacy Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Home Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🍽️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Meal Delivery</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">⚖️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Legal Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">♿</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Medical Equipment</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💰</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Financial Planning</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌟</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Adult Day Care</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-purple-600 dark:text-purple-400 mt-2 font-medium">
-                        15+ Service Categories
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Trust Indicators */}
-                  <div className="mb-4 p-3 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-green-700 dark:text-green-300 mb-2">✅ Why Choose Our Partners?</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Background Verified</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Licensed & Insured</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">24/7 Support</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Senior Discounts</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Quality Guaranteed</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white group-hover:shadow-lg transition-all relative overflow-hidden">
-                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                    <Star className="mr-2 h-4 w-4 animate-pulse" />
-                    <span className="font-semibold">Explore Trusted Partners</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Senior Healthcare Services Directory */}
-            <Link href="/senior-healthcare-directory">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Medical Sign Image at top of card */}
-                <div className="relative h-64 w-full">
-                  <img 
-                    src={RetroMedicalSign} 
-                    alt="Retro medical clinic neon sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
-                    <span className="text-3xl">🏥</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
-                    HEALTHCARE
-                  </Badge>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Healthcare Services Directory</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Healthcare & Care Providers
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Connect with CMS-certified hospitals, home health agencies, therapy services, and specialized care providers
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Provider count and Checkmarks */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <TrendingUp className="h-5 w-5 text-green-500" />
-                        <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">36</span>
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Care Categories</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Home Care Services</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Therapy & Rehabilitation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Medical Equipment</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Maximum Height Scrollable Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-900/10 dark:to-blue-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-teal-700 dark:text-teal-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🏥</span> Preview
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🩺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌿</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦴</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Physical Therapy</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Memory Care Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🗣️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Speech Therapy</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎯</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Occupational Therapy</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦽</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Medical Equipment Suppliers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💉</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Infusion Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🩹</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Wound Care Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Dialysis Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏥</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Urgent Care Clinics</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦷</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Dental Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">👁️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Vision Care Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎧</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Hearing Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧘</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Pain Management</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🫀</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Cardiac Rehabilitation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🫁</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Pulmonary Rehab</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦴</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Orthopedic Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧬</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Lab Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Imaging Centers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💊</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Specialty Pharmacies</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🩺</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Geriatric Specialists</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Neurological Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🦶</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Podiatry Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌟</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Palliative Care</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-teal-600 dark:text-teal-400 mt-2 font-medium">
-                        +more providers
-                      </p>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <span className="font-semibold">Explore Directory</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
+      {/* Resources Tab */}
+      <TabsContent value="resources" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Resident Portal - Comprehensive Dashboard */}
-            <Link href="/resident-dashboard">
+            <Link to="/resident-dashboard">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Cosmic Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2484,7 +2728,7 @@ export default function MySeniorValetHome() {
             </Link>
 
             {/* Senior Resources and Support Center */}
-            <Link href="/senior-resources-center">
+            <Link to="/senior-resources-center">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Library Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2719,7 +2963,7 @@ export default function MySeniorValetHome() {
 
             {/* Family & Partner Services Section - NEW ROW */}
             {/* Family Collaboration Center Card */}
-            <Link href="/family-collaboration">
+            <Link to="/family-collaboration">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-rose-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Family Living Room Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2853,8 +3097,220 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
 
-            {/* Community Onboarding Card */}
-            <Link href="/community-portal">
+          </div>
+      </TabsContent>
+
+      {/* Healthcare Tab */}
+      <TabsContent value="healthcare" className="mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+          {/* Global Healthcare Discovery Platform */}
+          <Link to="/senior-healthcare-directory">
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
+              {/* Full-size Retro Medical Sign Image at top of card */}
+              <div className="relative h-64 w-full">
+                <img 
+                  src={RetroMedicalSign} 
+                  alt="Retro medical clinic neon sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                {/* Overlay elements on the image */}
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-teal-500 to-blue-500 text-white shadow-lg">
+                  <span className="text-3xl">🏥</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-teal-500 to-blue-500 text-white px-3 py-1">
+                  HEALTHCARE
+                </Badge>
+              </div>
+              <CardHeader className="relative z-10">
+                <CardTitle className="text-2xl mb-2">🏥 Global Healthcare Discovery Platform</CardTitle>
+                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Research Healthcare Providers Worldwide
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  🌍 Research hospitals, clinics, specialists, and healthcare services globally. From CMS-certified facilities in the US to international medical centers, therapy services, and specialized care providers anywhere in the world.
+                </p>
+                
+                {/* Flex container for side-by-side layout */}
+                <div className="flex gap-3 mb-6">
+                  {/* Left side - Provider count and Checkmarks */}
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Globe className="h-5 w-5 text-green-500" />
+                      <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">Unlimited</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">Global Access</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Hospitals Worldwide</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">International Clinics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Medical Tourism</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Specialists Globally</span>
+                    </div>
+                  </div>
+                  
+                  {/* Right side - Maximum Height Scrollable Preview */}
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-teal-50/50 to-blue-50/50 dark:from-teal-900/10 dark:to-blue-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-teal-700 dark:text-teal-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>🌍</span> Healthcare Categories Worldwide
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-teal-300 dark:scrollbar-thumb-teal-600 scrollbar-track-transparent">
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">CMS-Certified Hospitals</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏠</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Respite Care Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💊</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Personal Care Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🩺</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Home Care Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🔬</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Therapy Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🌿</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Hospice Care</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Adult Day Programs</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦴</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Physical Therapy</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧠</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Memory Care Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🗣️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Speech Therapy</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🎯</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Occupational Therapy</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦽</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Medical Equipment Suppliers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💉</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Infusion Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🩹</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Wound Care Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🔬</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Dialysis Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏥</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Urgent Care Clinics</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦷</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Senior Dental Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">👁️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Vision Care Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🎧</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Hearing Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧘</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Pain Management</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🫀</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Cardiac Rehabilitation</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🫁</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Pulmonary Rehab</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦴</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Orthopedic Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧬</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Lab Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">📸</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Imaging Centers</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💊</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Specialty Pharmacies</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🩺</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Geriatric Specialists</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🧠</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Neurological Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🦶</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Podiatry Services</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🌟</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Palliative Care</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-center text-teal-600 dark:text-teal-400 mt-2 font-medium">
+                      All Countries • Real-Time Discovery
+                    </p>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-teal-500 to-blue-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Search className="mr-2 h-4 w-4" />
+                  <span className="font-semibold">Research Healthcare Worldwide</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </TabsContent>
+
+      {/* Vendors Tab - Consumer Products */}
+      <TabsContent value="vendors" className="mt-6">
+        <div className="space-y-8">
+          {/* Portal Section - Community and Vendor Portals */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+            {/* Community Portal */}
+            <Link to="/community-portal">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Real Estate Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -2893,7 +3349,7 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$3,999/mo</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $4,999+/mo</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -2920,41 +3376,48 @@ export default function MySeniorValetHome() {
                     {/* Right side - Pricing Tiers Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>💰</span> 5 Tier Options
+                        <span>💰</span> 6 Tier Options
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
+                        <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
+                          <div className="flex justify-between items-center">
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Free Claim ✨</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">FREE</p>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Claim & verify your listing, edit contact info, 1 photo</p>
+                        </div>
                         <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
-                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$99/mo</p>
+                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Live messaging, basic profile, analytics</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic profile, lead generation, analytics</p>
                         </div>
                         <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Growth</p>
-                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$299/mo</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$399/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Reservation mgmt (CC hold), 3D tours, priority support</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Direct messaging, reservation mgmt, 3D tours, priority support</p>
                         </div>
                         <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border border-purple-300 dark:border-purple-700">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$999/mo</p>
+                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$1,299/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Multi-property (5), lead tracking, CRM integration</p>
                         </div>
                         <div className="p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
-                            <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$1,999/mo</p>
+                            <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$2,499/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Payment processing, AI insights, 10 properties</p>
                         </div>
                         <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
                             <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Enterprise</p>
-                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$3,999/mo</p>
+                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$4,999+/mo</p>
                           </div>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full resident mgmt, white-label, 25 properties</p>
                         </div>
@@ -2970,7 +3433,7 @@ export default function MySeniorValetHome() {
                   <div className="mt-4 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
                     <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 Key Features by Tier</p>
                     <div className="space-y-2">
-                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">Professional ($999):</div>
+                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">Professional ($1,299):</div>
                       <div className="grid grid-cols-2 gap-1 text-xs mb-2">
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
@@ -2989,7 +3452,7 @@ export default function MySeniorValetHome() {
                           <span className="text-gray-700 dark:text-gray-300">Real-Time Availability</span>
                         </div>
                       </div>
-                      <div className="text-xs font-medium text-orange-700 dark:text-orange-300">Premium+ ($1,999+):</div>
+                      <div className="text-xs font-medium text-orange-700 dark:text-orange-300">Premium+ ($2,499+):</div>
                       <div className="grid grid-cols-2 gap-1 text-xs">
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
@@ -3011,16 +3474,28 @@ export default function MySeniorValetHome() {
                     </div>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
-                    <span className="font-semibold">Access Portal & Dashboard</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                  <div className="space-y-2">
+                    <Button 
+                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        window.location.href = '/community-claim';
+                      }}
+                    >
+                      <Gift className="mr-2 h-4 w-4" />
+                      <span className="font-semibold">Claim Your Free Listing</span>
+                    </Button>
+                    <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                      <span className="font-semibold">Access Portal & Dashboard</span>
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </Link>
 
-            {/* Services Directory Card */}
-            <Link href="/vendor-marketplace-tiers">
+            {/* Vendor Portal */}
+            <Link to="/vendor-marketplace-tiers">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Full-size Retro Partnership Sign Image at top of card */}
                 <div className="relative h-64 w-full">
@@ -3156,10 +3631,270 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
           </div>
+          
+          {/* Vendor Categories Title */}
+          <div className="text-center">
+            <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 mb-4">
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              SENIOR LIVING MARKETPLACE
+            </Badge>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3">
+              Products & Services for Senior Living
+            </h2>
+            <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Carefully curated products and services to enhance quality of life, safety, and comfort
+            </p>
+          </div>
+          
+          {/* Vendor Category Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Medical Equipment & Supplies */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-red-400 hover:border-red-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-red-500 to-pink-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Stethoscope className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-red-600 px-3 py-1">
+                  MEDICAL
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Medical Equipment & Supplies</CardTitle>
+                <CardDescription>Hospital beds, wheelchairs, oxygen equipment</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Hospital beds & mattresses</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Wheelchairs & scooters</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Oxygen & respiratory</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Wound care supplies</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-red-500 to-pink-500 text-white hover:opacity-90">
+                  <ShoppingCart className="mr-2 h-4 w-4" />
+                  Browse Medical Supplies
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Mobility & Safety */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-400 hover:border-blue-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-blue-500 to-cyan-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Shield className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-blue-600 px-3 py-1">
+                  SAFETY
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Mobility & Safety Solutions</CardTitle>
+                <CardDescription>Walking aids, bathroom safety, fall prevention</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Walking aids & canes</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Grab bars & rails</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Shower chairs & benches</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Fall detection systems</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:opacity-90">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Shop Safety Products
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Daily Living Aids */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-green-400 hover:border-green-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-green-500 to-emerald-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Home className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-green-600 px-3 py-1">
+                  DAILY LIVING
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Daily Living Aids</CardTitle>
+                <CardDescription>Adaptive clothing, eating aids, personal care</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Adaptive clothing</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Eating & drinking aids</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Dressing aids</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Medication organizers</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90">
+                  <Home className="mr-2 h-4 w-4" />
+                  Explore Living Aids
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Technology & Communication */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-purple-400 hover:border-purple-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-purple-500 to-indigo-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Wifi className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-purple-600 px-3 py-1">
+                  TECHNOLOGY
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Technology & Communication</CardTitle>
+                <CardDescription>Emergency systems, tablets, hearing devices</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Medical alert systems</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Senior-friendly tablets</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Hearing amplifiers</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Video calling devices</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:opacity-90">
+                  <Wifi className="mr-2 h-4 w-4" />
+                  View Tech Solutions
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Comfort & Wellness */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-amber-400 hover:border-amber-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Heart className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-amber-600 px-3 py-1">
+                  COMFORT
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Comfort & Wellness</CardTitle>
+                <CardDescription>Lift chairs, massage, therapy products</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Lift chairs & recliners</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Massage equipment</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Therapy products</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Comfort bedding</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90">
+                  <Heart className="mr-2 h-4 w-4" />
+                  Browse Comfort Items
+                </Button>
+              </CardContent>
+            </Card>
+            
+            {/* Vision & Hearing */}
+            <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-teal-400 hover:border-teal-500 group cursor-pointer">
+              <div className="relative h-48 overflow-hidden bg-gradient-to-br from-teal-500 to-cyan-500">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Eye className="h-20 w-20 text-white opacity-50" />
+                </div>
+                <Badge className="absolute top-4 right-4 bg-white text-teal-600 px-3 py-1">
+                  SENSORY
+                </Badge>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-xl">Vision & Hearing Solutions</CardTitle>
+                <CardDescription>Magnifiers, large print, hearing aids</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Magnifying devices</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Large print items</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">Hearing aids</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span className="text-gray-600 dark:text-gray-400">TV audio systems</span>
+                  </div>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white hover:opacity-90">
+                  <Eye className="mr-2 h-4 w-4" />
+                  Shop Sensory Aids
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </TabsContent>
         </div>
       </section>
+    </Tabs>
 
-      {/* Senior Living Command Center Section - Moved after Resources */}
+{/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
         <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
@@ -3180,13 +3915,16 @@ export default function MySeniorValetHome() {
                   <span className="text-xs text-white/80">Powered by:</span>
                   <div className="flex flex-wrap items-center justify-center gap-2">
                     <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                      1. Perplexity AI (Primary - Web Search)
+                      1. Perplexity AI (Web Search & Discovery)
+                    </Badge>
+                    <Badge className="bg-gradient-to-r from-gray-700 to-gray-500 text-white px-2 py-0.5 text-xs">
+                      2. Grok (Reviews & Live Intelligence)
                     </Badge>
                     <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
-                      2. Claude Sonnet 4.0 (Secondary - Analysis)
+                      3. Claude Sonnet 4.0 (Analysis & Reasoning)
                     </Badge>
                     <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                      3. ChatGPT-4o (Backup - Verification)
+                      4. ChatGPT-4o (Verification & Backup)
                     </Badge>
                   </div>
                 </div>
@@ -3269,6 +4007,342 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Senior Living News & Research Section - SEO Optimized Articles */}
+      <section className="py-12 px-4 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <Card className="border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+            <CardHeader>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+                    <FileText className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-2xl mb-1">Senior Living Research & City Guides</CardTitle>
+                    <CardDescription className="font-semibold">Data-Driven Insights from 33,657 Verified Communities</CardDescription>
+                  </div>
+                </div>
+                <Badge className="bg-blue-500 text-white animate-pulse">NEW RESEARCH</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Article 1: Best Senior Living in San Francisco */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400 mb-3">
+                    Best Senior Living in San Francisco (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Comprehensive Guide to San Francisco's 287 Senior Communities
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span><strong>287 verified communities</strong> in San Francisco Bay Area</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span>Average cost: <strong>$7,800-$12,500/month</strong> for assisted living</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span><strong>42 HUD-subsidized</strong> affordable options available</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span>Top neighborhoods: <strong>Pacific Heights, Marina, Sunset</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-blue-500">•</span>
+                        <span><strong>89% occupancy rate</strong> - book early for best locations</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Based on analysis of 287 San Francisco communities
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/senior-living-san-francisco'}
+                      >
+                        Read Full Article →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Article 2: Best Senior Living in San Diego */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-green-600 dark:text-green-400 mb-3">
+                    Best Senior Living in San Diego (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Complete Directory of San Diego's 412 Senior Communities
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-500">•</span>
+                        <span><strong>412 verified communities</strong> across San Diego County</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-500">•</span>
+                        <span>Average cost: <strong>$5,200-$8,900/month</strong> for assisted living</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-500">•</span>
+                        <span><strong>67 HUD-subsidized</strong> affordable communities</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-500">•</span>
+                        <span>Top areas: <strong>La Jolla, Del Mar, Carlsbad</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-green-500">•</span>
+                        <span><strong>Memory care specialists:</strong> 124 dedicated facilities</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Based on analysis of 412 San Diego communities
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/senior-living-san-diego'}
+                      >
+                        Read Full Article →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Article 3: Platform Announcement - FEATURED */}
+                <article className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-2 border-purple-300 dark:border-purple-700">
+                  <Badge className="mb-2 bg-purple-600 text-white">FEATURED</Badge>
+                  <h3 className="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">
+                    Complete Senior Living Platform: Search to Support
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      The Google of Senior Care - ALL Levels, WORLDWIDE Coverage
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>ALL 9 Care Levels</strong> from Independent to Hospice</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>Complete Journey</strong> - Search to Move-in to Support</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>Healthcare Network</strong> - 6,800+ providers</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>Resident Portals</strong> & ongoing support tools</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-purple-500">⭐</span>
+                        <span><strong>100% Free</strong> - No referral fees ever</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet: Complete platform from search to settled
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-purple-600 hover:text-purple-800 font-bold"
+                        onClick={() => window.location.href = '/senior-living-worldwide'}
+                      >
+                        Read Complete Platform Overview →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Article 4: Best Senior Living in Los Angeles */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-orange-600 dark:text-orange-400 mb-3">
+                    Best Senior Living in Los Angeles (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      Explore 892 Verified LA Senior Communities
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-orange-500">•</span>
+                        <span><strong>892 communities</strong> from Downtown to the Valley</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-orange-500">•</span>
+                        <span>Price range: <strong>$3,500-$15,000/month</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-orange-500">•</span>
+                        <span><strong>156 HUD-subsidized</strong> affordable options</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-orange-500">•</span>
+                        <span>Top areas: <strong>Beverly Hills, Pasadena, Santa Monica</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-orange-500">•</span>
+                        <span><strong>Luxury options:</strong> 89 five-star communities</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Based on 892 verified LA communities
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/'}
+                      >
+                        View All Los Angeles Communities →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Article 5: Affordable Senior Living Guide */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-red-600 dark:text-red-400 mb-3">
+                    Complete Guide to Affordable Senior Living
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      How to Find HUD & Section 8 Senior Housing
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span><strong>4,771 HUD properties</strong> in our database</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span>Income-based rent: <strong>30% of income</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span><strong>Section 202</strong> specifically for seniors 62+</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span>Average wait: <strong>1-3 years</strong> (apply early!)</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-red-500">•</span>
+                        <span><strong>LIHTC properties:</strong> Tax credit affordable housing</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Verified HUD.gov data integration
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/'}
+                      >
+                        Find Affordable Housing Now →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+
+                {/* Article 6: Best Senior Living in New York */}
+                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                  <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400 mb-3">
+                    Best Senior Living in New York City (2025)
+                  </h3>
+                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                    <p className="font-medium text-gray-900 dark:text-gray-100">
+                      NYC's 524 Senior Communities Analyzed
+                    </p>
+                    <ul className="space-y-1.5 mt-3">
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>524 communities</strong> across five boroughs</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span>Manhattan average: <strong>$8,000-$18,000/month</strong></span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>Brooklyn & Queens:</strong> 40% more affordable</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>198 NYCHA</strong> senior developments</span>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="text-indigo-500">•</span>
+                        <span><strong>Kosher options:</strong> 47 specialized communities</span>
+                      </li>
+                    </ul>
+                    <div className="mt-4 pt-3 border-t">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
+                        MySeniorValet Research: Complete NYC senior living database
+                      </p>
+                      <Button 
+                        variant="link" 
+                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
+                        onClick={() => window.location.href = '/'}
+                      >
+                        View All NYC Communities →
+                      </Button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+
+              {/* Action Bar */}
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    <div>
+                      <p className="font-bold text-gray-900 dark:text-gray-100">The Google of Senior Care</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">33,657 Communities | 100% Free | No Referral Fees</p>
+                    </div>
+                  </div>
+                  <Button 
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90"
+                    onClick={() => window.location.href = '/'}
+                  >
+                    <Search className="mr-2 h-4 w-4" />
+                    Search All 33,657 Communities
+                  </Button>
+                </div>
+              </div>
+
+              {/* SEO Keywords Ticker for Search Engines */}
+              <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
+                <div className="flex items-center gap-2 text-xs">
+                  <Badge className="bg-blue-500 text-white">TRENDING</Badge>
+                  <div className="animate-marquee whitespace-nowrap">
+                    <span className="text-gray-700 dark:text-gray-300">
+                      🔍 Best senior living San Francisco • 🔍 Senior living San Diego • 
+                      🔍 Affordable senior housing Los Angeles • 🔍 NYC senior communities • 
+                      🔍 HUD senior housing • 🔍 Section 8 for seniors • 
+                      🔍 Memory care facilities near me • 🔍 Assisted living costs 2025
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
 
       {/* Partnership Information Section - Simplified */}
       <section className="py-12 px-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -3421,6 +4495,75 @@ export default function MySeniorValetHome() {
               </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* Quick Access Tools Section */}
+      <section className="px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-gradient-to-r from-blue-50 to-teal-50 dark:from-blue-900/20 dark:to-teal-900/20 border-2 border-blue-200 dark:border-blue-600">
+            <CardContent className="p-8">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6 text-center">
+                Quick Access Tools
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/emergency-contacts')}
+                >
+                  <AlertCircle className="h-6 w-6 text-red-500" />
+                  <span className="text-xs">Emergency</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/tours')}
+                >
+                  <Calendar className="h-6 w-6 text-blue-500" />
+                  <span className="text-xs">Schedule Tour</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/senior-healthcare-directory')}
+                >
+                  <Brain className="h-6 w-6 text-purple-500" />
+                  <span className="text-xs">Care Guide</span>
+                </Button>
+                <Button 
+                  variant="outline"
+                  className="flex flex-col items-center gap-2 h-auto py-4"
+                  onClick={() => setLocation('/ai-support')}
+                >
+                  <HeartHandshake className="h-6 w-6 text-green-500" />
+                  <span className="text-xs">AI Support</span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Legal Notice Section - Repositioned to Bottom */}
+      <section className="px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="p-4 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              IMPORTANT LEGAL NOTICE
+            </p>
+            <ul className="text-sm text-red-600 dark:text-red-400 space-y-2">
+              <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
+              <li>• We aggregate and display public information from verified sources with citations</li>
+              <li>• We facilitate connections between families and communities - NOT a placement agency</li>
+              <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
+              <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
+              <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
+              <li>• We do NOT charge families any fees or commissions</li>
+              <li>• Always verify information independently and consult professionals before making care decisions</li>
+            </ul>
+          </div>
         </div>
       </section>
 

@@ -15,7 +15,7 @@ interface PaymentNotification {
 }
 
 export class PaymentNotificationService {
-  private readonly adminEmail = 'william.cowell01@gmail.com';
+  private readonly adminEmail = 'admin@myseniorvalet.com';
   private readonly billingEmail = 'billing@myseniorvalet.com';
   private readonly supportEmail = 'hello@myseniorvalet.com';
 
@@ -29,11 +29,9 @@ export class PaymentNotificationService {
 
       // Log notification with all required fields
       await db.insert(auditLogs).values({
-        userId: null,
-        adminId: null,
         action: `payment_${notification.type}`,
         entityType: 'payment',
-        entityId: '0',
+        entityId: 0,
         metadata: {
           type: notification.type,
           recipient: notification.customerEmail,
@@ -41,11 +39,7 @@ export class PaymentNotificationService {
           amount: notification.amount
         },
         ipAddress: 'system',
-        userAgent: 'payment-notification-service',
-        sessionId: null,
-        severity: 'info',
-        outcome: 'success',
-        createdAt: new Date()
+        userAgent: 'payment-notification-service'
       });
 
     } catch (error) {
@@ -62,7 +56,7 @@ export class PaymentNotificationService {
       from: this.supportEmail,
       subject,
       html,
-      cc: [this.billingEmail]
+      cc: [this.billingEmail, this.supportEmail]
     };
 
     await sgMail.send(msg);

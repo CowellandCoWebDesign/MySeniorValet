@@ -29,17 +29,19 @@ interface SearchResult {
 interface ComprehensiveSearchProps {
   onSearch: (results: SearchResult) => void;
   onQueryChange?: (query: string) => void;
+  onModeChange?: (mode: 'list' | 'map' | 'discover') => void;
   initialQuery?: string;
   placeholder?: string;
   className?: string;
   showSuggestions?: boolean;
-  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources';
+  searchCategory?: 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors';
   isSearchActive?: boolean;
 }
 
 export function ComprehensiveSearch({ 
   onSearch,
   onQueryChange,
+  onModeChange,
   initialQuery = '',
   placeholder = "🔍 Search communities, cities, companies, or ask anything... ✨",
   className = "",
@@ -138,7 +140,7 @@ export function ComprehensiveSearch({
       
       // Use global discovery for international searches or unknown locations
       if (detectedType === 'global' || (detectedType === 'location' && !searchQuery.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/i))) {
-        console.log('🌍 Initiating Global Discovery Search for:', searchQuery);
+        console.log('🌍 Initiating Global Discovery Mode for:', searchQuery);
         
         // Call global discovery endpoint
         const globalResponse = await fetch('/api/global-discovery/search', {
@@ -191,6 +193,8 @@ export function ComprehensiveSearch({
         apiEndpoint = '/api/healthcare/search';
       } else if (searchCategory === 'resources') {
         apiEndpoint = '/api/resources/search';
+      } else if (searchCategory === 'vendors') {
+        apiEndpoint = '/api/affiliate/search';
       }
       
       const response = await fetch(apiEndpoint, {
@@ -258,6 +262,20 @@ export function ComprehensiveSearch({
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion: string) => {
+    // Check if it's the special Discovery Mode suggestion
+    if (suggestion === '🌍 Try Discovery Mode for worldwide search') {
+      // Trigger discovery mode search
+      if (onModeChange) {
+        onModeChange('discover');
+      }
+      setShowSuggestionDropdown(false);
+      // Perform a discovery search with current query or a default
+      const searchQuery = query || 'senior living';
+      setQuery(searchQuery);
+      handleSearch(searchQuery);
+      return;
+    }
+    
     setQuery(suggestion);
     setShowSuggestionDropdown(false);
     handleSearch(suggestion);

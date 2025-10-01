@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,16 @@ interface PhotoCarouselProps {
   showValidation?: boolean;
   showSourceIndicator?: boolean;
   isLoading?: boolean;
+  currentPhotoIndex?: number;
+  onPhotoIndexChange?: (index: number) => void;
+  sources?: string[];
+  photoSources?: {
+    googleMaps?: string | null;
+    yelp?: string | null;
+    tripAdvisor?: string | null;
+    searchQuery?: string;
+  };
+  onStartVerification?: () => void;
 }
 
 interface PhotoValidationResult {
@@ -39,9 +49,25 @@ export function EnhancedPhotoCarousel({
   className = "", 
   showValidation = false,
   showSourceIndicator = true,
-  isLoading = false 
+  isLoading = false,
+  currentPhotoIndex,
+  onPhotoIndexChange,
+  sources = [],
+  photoSources,
+  onStartVerification
 }: PhotoCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Use controlled or uncontrolled mode
+  const isControlled = currentPhotoIndex !== undefined;
+  const [internalIndex, setInternalIndex] = useState(0);
+  const currentIndex = isControlled ? currentPhotoIndex : internalIndex;
+  
+  const setCurrentIndex = (index: number) => {
+    if (isControlled && onPhotoIndexChange) {
+      onPhotoIndexChange(index);
+    } else {
+      setInternalIndex(index);
+    }
+  };
   const [showFullscreen, setShowFullscreen] = useState(false);
   const [photoValidation, setPhotoValidation] = useState<Record<string, PhotoValidationResult>>({});
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
@@ -49,24 +75,81 @@ export function EnhancedPhotoCarousel({
   const [showValidationReport, setShowValidationReport] = useState(false);
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
   
-  // Get all photos from database and web intelligence  
+  // Progressive loading states
+  const [progressivePhotos, setProgressivePhotos] = useState<string[]>([]);
+  const [loadingStage, setLoadingStage] = useState<'initial' | 'quick' | 'quality' | 'complete'>('initial');
+  const [progressiveLoadAttempted, setProgressiveLoadAttempted] = useState(false);
+  
+  // Get all photos from database, web intelligence, and progressive loading  
   const getAllPhotos = () => {
-    const allPhotos = [];
+    const allPhotos: { url: string; source: string; isAuthentic?: boolean }[] = [];
+    
+    // Add progressive photos first (these are highest priority)
+    if (progressivePhotos.length > 0) {
+      progressivePhotos.forEach((url: string) => {
+        if (url && url.length > 10) {
+          allPhotos.push({ 
+            url, 
+            source: loadingStage === 'complete' ? 'high-quality' : 'quick-load',
+            isAuthentic: true 
+          });
+        }
+      });
+    }
+    
+    // Helper function to validate and clean URLs
+    const isValidPhotoUrl = (url: string): boolean => {
+      if (!url || typeof url !== 'string' || url.length < 10) return false;
+      
+      // Reject corrupted URLs immediately
+      if (url.includes('QwQwQwQw') || 
+          url.includes('kQz8kQz8') ||
+          url.includes('QwQwQwQwQwQwQwQw') ||
+          url.includes('...[TRUNCATED]') ||
+          url.length > 1500) {
+        console.log(`🚫 Blocking corrupted URL: ${url.substring(0, 100)}...`);
+        return false;
+      }
+      
+      try {
+        new URL(url.startsWith('/') ? `https://example.com${url}` : url);
+        return true;
+      } catch {
+        return false;
+      }
+    };
     
     // Add database photos first  
     if (community?.photos && community.photos.length > 0) {
-      allPhotos.push(...community.photos.map((p: any) => ({
-        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
-        source: 'database'
-      })));
+      community.photos.forEach((p: any) => {
+        const url = typeof p === 'string' ? p : (p.image_url || p.url || p);
+        if (isValidPhotoUrl(url)) {
+          allPhotos.push({ url, source: 'database' });
+        }
+      });
     }
     
     // Add passed photos prop
     if (photos && photos.length > 0) {
-      allPhotos.push(...photos.map((p: any) => ({
-        url: typeof p === 'string' ? p : (p.image_url || p.url || p),
-        source: 'prop'
-      })));
+      photos.forEach((p: any) => {
+        let url = typeof p === 'string' ? p : (p.image_url || p.url || p);
+        
+        if (!isValidPhotoUrl(url)) return;
+        
+        // Skip proxy if URL is already proxied
+        if (url && !url.startsWith('/api/image-proxy')) {
+          // Use proxy for external images to bypass CORS
+          if (url.includes('tripadvisor.com') || 
+              url.includes('yelp.com') || 
+              url.includes('yelpcdn.com') ||
+              url.includes('googleusercontent.com') ||
+              url.includes('otstatic.com')) {
+            url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+          }
+        }
+        
+        allPhotos.push({ url, source: 'prop' });
+      });
     }
     
     // Add web intelligence photos
@@ -78,37 +161,52 @@ export function EnhancedPhotoCarousel({
     }
     
     if (webImages && webImages.length > 0) {
-      const webPhotos = webImages
-        .filter((img: any) => {
-          const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
-          
-          // Skip logos and icons
-          if (url.includes('logo') || url.includes('icon') || 
-              url.includes('placeholder') || url.includes('default')) {
-            return false;
+      webImages.forEach((img: any) => {
+        const url = typeof img === 'string' ? img : (img.image_url || img.url || img);
+        
+        if (!isValidPhotoUrl(url)) return;
+        
+        // Skip logos and icons
+        if (url.includes('logo') || url.includes('icon') || 
+            url.includes('placeholder') || url.includes('default')) {
+          return;
+        }
+        
+        let processedUrl = url;
+        
+        // Skip proxy if URL is already proxied
+        if (processedUrl && !processedUrl.startsWith('/api/image-proxy')) {
+          // Use proxy for external images to bypass CORS
+          if (processedUrl.includes('tripadvisor.com') || 
+              processedUrl.includes('yelp.com') || 
+              processedUrl.includes('yelpcdn.com') ||
+              processedUrl.includes('googleusercontent.com') ||
+              processedUrl.includes('otstatic.com')) {
+            processedUrl = `/api/image-proxy?url=${encodeURIComponent(processedUrl)}`;
           }
-          
-          return true;
-        })
-        .map((img: any) => {
-          if (typeof img === 'string') {
-            return { url: img, source: 'web' };
-          }
-          return {
-            url: img.image_url || img.url || img,
-            source: 'web',
-            isAuthentic: img.isAuthentic
-          };
-        });
-      allPhotos.push(...webPhotos);
+        }
+        
+        const photoData = {
+          url: processedUrl,
+          source: 'web',
+          isAuthentic: typeof img === 'string' ? true : (img.isAuthentic !== false)
+        };
+        
+        allPhotos.push(photoData);
+      });
     }
     
     // Remove duplicates
-    const uniquePhotos = Array.from(new Map(allPhotos.map(p => [p.url, p])).values());
+    const uniquePhotos = Array.from(new Map(allPhotos.map(p => [p.url, p])).values()) as typeof allPhotos;
     return uniquePhotos;
   };
   
-  const processedPhotos = getAllPhotos();
+  // Recalculate photos when verificationReport, photoUpdateKey, or progressive photos change
+  const processedPhotos = useMemo(() => {
+    const photos = getAllPhotos();
+    console.log(`📸 Recalculating photos - Found ${photos.length} total photos (stage: ${loadingStage})`);
+    return photos;
+  }, [photos, community?.photos, verificationReport, photoUpdateKey, progressivePhotos, loadingStage]);
 
   // Get photo validation report if validation is enabled and community ID is provided
   const { data: validationReport, isLoading: validationLoading } = useQuery<{
@@ -128,11 +226,10 @@ export function EnhancedPhotoCarousel({
     refetchInterval: 5 * 60 * 1000, // Refresh every 5 minutes
   });
 
-  // Keyboard navigation
+  // Keyboard navigation with smooth transitions
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (!showFullscreen) return;
-
+      // Allow navigation with arrow keys even when not in fullscreen
       switch (event.key) {
         case 'ArrowLeft':
           event.preventDefault();
@@ -144,14 +241,26 @@ export function EnhancedPhotoCarousel({
           break;
         case 'Escape':
           event.preventDefault();
-          setShowFullscreen(false);
+          if (showFullscreen) {
+            setShowFullscreen(false);
+          }
+          break;
+        case 'f':
+        case 'F':
+          // Press 'f' to toggle fullscreen
+          event.preventDefault();
+          if (!showFullscreen && safePhotos.length > 0) {
+            setShowFullscreen(true);
+          } else if (showFullscreen) {
+            setShowFullscreen(false);
+          }
           break;
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showFullscreen, photos.length]);
+  }, [showFullscreen, processedPhotos.length, currentIndex]);
 
   // Watch for verification report changes and force re-render
   useEffect(() => {
@@ -162,6 +271,85 @@ export function EnhancedPhotoCarousel({
       setPhotoUpdateKey(prev => prev + 1);
     }
   }, [verificationReport]);
+  
+  // Progressive photo loading - Stage 1: Quick photos, Stage 2: High-quality photos
+  useEffect(() => {
+    if (!communityName || progressiveLoadAttempted) return;
+    
+    // Define fetchQualityPhotos first (before fetchQuickPhotos)
+    const fetchQualityPhotos = async () => {
+      try {
+        setLoadingStage('quality');
+        console.log('🔍 Loading high-quality photos for:', communityName);
+        
+        const response = await fetch('/api/web-intelligence/quality-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            communityName: communityName,
+            content: verificationReport?.rawPerplexityContent || '',
+            website: community?.website,
+            citations: verificationReport?.citations
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.photos && data.photos.length > 0) {
+            console.log(`🔍 Loaded ${data.photos.length} high-quality photos`);
+            setProgressivePhotos(data.photos);
+            setLoadingStage('complete');
+          } else {
+            setLoadingStage('complete');
+          }
+        } else {
+          setLoadingStage('complete');
+        }
+      } catch (error) {
+        console.error('Error loading quality photos:', error);
+        setLoadingStage('complete');
+      }
+    };
+    
+    const fetchQuickPhotos = async () => {
+      try {
+        setLoadingStage('quick');
+        console.log('⚡ Loading quick photos for:', communityName);
+        
+        const response = await fetch('/api/web-intelligence/quick-photos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            communityName: communityName,
+            content: verificationReport?.rawPerplexityContent || '',
+            website: community?.website
+          })
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.photos && data.photos.length > 0) {
+            console.log(`⚡ Loaded ${data.photos.length} quick photos (cached: ${data.cached})`);
+            setProgressivePhotos(data.photos);
+            // Continue to quality photos after showing quick photos
+            setTimeout(() => fetchQualityPhotos(), 100); // Small delay to show quick photos first
+          } else {
+            // No quick photos, try quality photos anyway
+            fetchQualityPhotos();
+          }
+        } else {
+          fetchQualityPhotos(); // Try quality photos anyway
+        }
+      } catch (error) {
+        console.error('Error loading quick photos:', error);
+        fetchQualityPhotos(); // Try quality photos anyway
+      }
+    };
+    
+    // Start progressive loading - set the flag FIRST to prevent re-runs
+    setProgressiveLoadAttempted(true);
+    fetchQuickPhotos();
+  }, [communityName]);
   
   // Validate individual photos on load for quality checking
   useEffect(() => {
@@ -207,6 +395,16 @@ export function EnhancedPhotoCarousel({
   const isLoadingWebPhotos = isVerifying || isLoading;
   const hasNoRealPhotos = safePhotos.length === 0;
   
+  // Detect if this community likely needs enrichment
+  // Only check needsEnrichment if we don't have photos from props
+  const needsEnrichment = hasNoRealPhotos && !photos?.length && (
+    !community?.enrichment_data || 
+    !community?.last_enrichment_date ||
+    (community?.enrichment_data && (!community.enrichment_data.photos || community.enrichment_data.photos.length === 0))
+  );
+  
+  // Show loading state when we're verifying and have no photos to display
+  // This ensures the loading animation shows when searching for photos
   if (hasNoRealPhotos && isLoadingWebPhotos) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
@@ -225,34 +423,56 @@ export function EnhancedPhotoCarousel({
 
   // Check if we have any photos to display
   if (!safePhotos || safePhotos.length === 0) {
+    // Check if photos were found but filtered out due to loading issues
+    const originalPhotoCount = photos?.length || 0;
+    const processedPhotoCount = processedPhotos?.length || 0;
+    const hadLoadingIssues = processedPhotoCount > 0 && safePhotos.length === 0;
+    
     return (
-      <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center ${className}`}>
-        <div className="text-center text-gray-500 p-8">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-            <ZoomIn className="w-8 h-8" />
+      <div className={`bg-gray-100 dark:bg-gray-800 rounded-lg relative ${className}`}>
+        
+        <div className="text-center text-gray-500 p-8 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
+              <ZoomIn className="w-8 h-8" />
+            </div>
+            <p className="text-sm font-medium">
+              {hadLoadingIssues ? 'Photos temporarily unavailable' : 'No photos available'}
+            </p>
+            {hadLoadingIssues && (
+              <div className="mt-3">
+                <p className="text-xs text-gray-400 mt-2 max-w-xs mx-auto">
+                  {processedPhotoCount} photo{processedPhotoCount > 1 ? 's were' : ' was'} found but could not be loaded at this time.
+                </p>
+                <p className="text-xs text-gray-400 mt-1">
+                  Photos will load automatically when available
+                </p>
+              </div>
+            )}
+            {originalPhotoCount > 0 && imageErrors.size > 0 && !hadLoadingIssues && (
+              <p className="text-xs text-orange-500 mt-2">
+                {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be loaded
+              </p>
+            )}
+            {showValidation && !hadLoadingIssues && (
+              <p className="text-xs text-gray-400 mt-2">
+                Consider adding authentic photos from verified sources
+              </p>
+            )}
           </div>
-          <p className="text-sm">No photos available</p>
-          {photos.length > 0 && imageErrors.size > 0 && (
-            <p className="text-xs text-orange-500 mt-2">
-              {imageErrors.size} photo{imageErrors.size > 1 ? 's' : ''} could not be loaded
-            </p>
-          )}
-          {showValidation && (
-            <p className="text-xs text-gray-400 mt-2">
-              Consider adding authentic photos from verified sources
-            </p>
-          )}
         </div>
       </div>
     );
   }
 
   const nextPhoto = () => {
-    setCurrentIndex((prev) => (prev + 1) % safePhotos.length);
+    const newIndex = (currentIndex + 1) % safePhotos.length;
+    setCurrentIndex(newIndex);
   };
 
   const prevPhoto = () => {
-    setCurrentIndex((prev) => (prev - 1 + safePhotos.length) % safePhotos.length);
+    const newIndex = (currentIndex - 1 + safePhotos.length) % safePhotos.length;
+    setCurrentIndex(newIndex);
   };
 
   const goToPhoto = (index: number) => {
@@ -330,8 +550,38 @@ export function EnhancedPhotoCarousel({
               }}
               onError={(e) => {
                 // Handle broken images gracefully
+                const target = e.target as HTMLImageElement;
+                const originalSrc = target.src;
+                
+                // Check if this is a corrupted URL (very long or has synthetic patterns)
+                const isCorrupted = originalSrc.includes('QwQwQwQw') || 
+                                   originalSrc.includes('kQz8kQz8') ||
+                                   originalSrc.includes('QwQwQwQwQwQwQwQw') ||
+                                   originalSrc.includes('...[TRUNCATED]') ||
+                                   originalSrc.length > 1500;
+                
+                if (isCorrupted) {
+                  console.log(`🚫 Corrupted URL detected and blocked: ${originalSrc.substring(0, 100)}...`);
+                  setImageErrors(prev => new Set([...prev, currentPhoto.url]));
+                  // Immediately move to next photo for corrupted URLs
+                  if (safePhotos.length > 1) {
+                    setTimeout(nextPhoto, 100);
+                  }
+                  return;
+                }
+                
+                // Only retry for legitimate URLs that might be temporarily unavailable
+                if (!target.dataset.retried && !originalSrc.includes('/api/image-proxy')) {
+                  target.dataset.retried = "true";
+                  console.log(`🔄 Retrying failed image: ${originalSrc.substring(0, 100)}...`);
+                  setTimeout(() => {
+                    target.src = originalSrc + (originalSrc.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+                  }, 1000);
+                  return;
+                }
+                
                 setImageErrors(prev => new Set([...prev, currentPhoto.url]));
-                console.log(`Failed to load image: ${currentPhoto.url}`);
+                console.log(`❌ Failed to load image: ${originalSrc.substring(0, 100)}...`);
                 
                 if (showValidation) {
                   setPhotoValidation(prev => ({
@@ -379,42 +629,46 @@ export function EnhancedPhotoCarousel({
             </div>
           )}
 
-          {/* Enhanced Navigation Arrows */}
+          {/* Enhanced Navigation Arrows with smooth transitions */}
           {photos.length > 1 && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white border-0 w-10 h-10 shadow-lg z-20"
+                className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white border-0 w-12 h-12 shadow-xl z-20 transition-all duration-200 hover:scale-110"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   prevPhoto();
                 }}
+                aria-label="Previous photo"
               >
-                <ChevronLeft className="w-6 h-6" />
+                <ChevronLeft className="w-7 h-7" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/70 hover:bg-black/90 text-white border-0 w-10 h-10 shadow-lg z-20"
+                className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white border-0 w-12 h-12 shadow-xl z-20 transition-all duration-200 hover:scale-110"
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   nextPhoto();
                 }}
+                aria-label="Next photo"
               >
-                <ChevronRight className="w-6 h-6" />
+                <ChevronRight className="w-7 h-7" />
               </Button>
             </>
           )}
+          
 
           {/* Fullscreen Button */}
           <Button
             variant="ghost"
             size="icon"
-            className="absolute bottom-4 right-4 bg-black/50 hover:bg-black/70 text-white border-0"
+            className="absolute top-4 left-4 bg-black/50 hover:bg-black/70 text-white border-0 transition-all duration-200 hover:scale-110"
             onClick={() => setShowFullscreen(true)}
+            aria-label="View fullscreen"
           >
             <ZoomIn className="w-4 h-4" />
           </Button>
@@ -428,39 +682,102 @@ export function EnhancedPhotoCarousel({
           )}
         </div>
 
-        {/* Enhanced Thumbnail Strip with Validation Indicators */}
-        {photos.length > 1 && (
-          <div className="absolute bottom-4 left-4 right-16 flex space-x-2 overflow-x-auto">
-            {photos.map((photo, index) => {
-              const validation = photoValidation[photo];
-              return (
-                <button
-                  key={index}
-                  onClick={() => goToPhoto(index)}
-                  className={`relative flex-shrink-0 w-12 h-8 rounded overflow-hidden border-2 transition-all ${
-                    index === currentIndex 
-                      ? "border-white shadow-lg" 
-                      : "border-transparent opacity-70 hover:opacity-100"
-                  }`}
+        {/* Enhanced Thumbnail Navigation Strip */}
+        {safePhotos.length > 1 && (
+          <div className="mt-4 bg-gray-50 dark:bg-gray-900 p-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              {/* Left scroll button */}
+              {safePhotos.length > 8 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0 w-8 h-8 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => {
+                    const thumbnailContainer = document.getElementById('thumbnail-container');
+                    if (thumbnailContainer) {
+                      thumbnailContainer.scrollBy({ left: -200, behavior: 'smooth' });
+                    }
+                  }}
+                  aria-label="Scroll thumbnails left"
                 >
-                  <img
-                    src={photo}
-                    alt={`Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      img.style.filter = 'brightness(0.5)';
-                    }}
-                  />
-                  {/* Validation indicator on thumbnail */}
-                  {showValidation && validation && !validation.isValid && (
-                    <div className="absolute inset-0 bg-red-500/30 flex items-center justify-center">
-                      <AlertTriangle className="w-3 h-3 text-white" />
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+              )}
+              
+              {/* Thumbnail container with horizontal scroll */}
+              <div 
+                id="thumbnail-container"
+                className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide"
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                } as React.CSSProperties}
+              >
+                {safePhotos.map((photo, idx) => (
+                  <button
+                    key={idx}
+                    className={`relative flex-shrink-0 w-20 h-16 rounded-md overflow-hidden transition-all duration-200 ${
+                      idx === currentIndex 
+                        ? 'ring-2 ring-purple-500 scale-105 shadow-lg' 
+                        : 'hover:opacity-80 hover:scale-105'
+                    }`}
+                    onClick={() => goToPhoto(idx)}
+                    aria-label={`View photo ${idx + 1}`}
+                  >
+                    <img
+                      src={photo.url}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                          // Add placeholder for broken thumbnail
+                          const placeholder = document.createElement('div');
+                          placeholder.className = 'w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center';
+                          placeholder.innerHTML = '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
+                          parent.appendChild(placeholder);
+                        }
+                      }}
+                    />
+                    {/* Photo number badge */}
+                    <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1 rounded">
+                      {idx + 1}
                     </div>
-                  )}
-                </button>
-              );
-            })}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Right scroll button */}
+              {safePhotos.length > 8 && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="flex-shrink-0 w-8 h-8 bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  onClick={() => {
+                    const thumbnailContainer = document.getElementById('thumbnail-container');
+                    if (thumbnailContainer) {
+                      thumbnailContainer.scrollBy({ left: 200, behavior: 'smooth' });
+                    }
+                  }}
+                  aria-label="Scroll thumbnails right"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+            
+            {/* Photo count and navigation hints */}
+            <div className="mt-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+              <span className="font-medium">
+                Viewing {currentIndex + 1} of {safePhotos.length} photos
+              </span>
+              <span className="text-gray-500">
+                Use arrows or click thumbnails to navigate
+              </span>
+            </div>
           </div>
         )}
 
@@ -477,6 +794,99 @@ export function EnhancedPhotoCarousel({
           </div>
         )}
       </div>
+
+      {/* Citations and Sources Section */}
+      {(sources.length > 0 || photoSources) && (
+        <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Photo Sources & Citations
+            </h4>
+            
+            {/* Photo source platforms */}
+            {photoSources && (
+              <div className="flex flex-wrap gap-2 mb-2">
+                {photoSources.googleMaps && (
+                  <a 
+                    href={photoSources.googleMaps} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-colors"
+                  >
+                    <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                    </svg>
+                    Google Maps
+                  </a>
+                )}
+                {photoSources.yelp && (
+                  <a 
+                    href={photoSources.yelp} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-xs hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors"
+                  >
+                    Yelp
+                  </a>
+                )}
+                {photoSources.tripAdvisor && (
+                  <a 
+                    href={photoSources.tripAdvisor} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-xs hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors"
+                  >
+                    TripAdvisor
+                  </a>
+                )}
+              </div>
+            )}
+            
+            {/* Citation sources */}
+            {sources.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs text-gray-600 dark:text-gray-400">Information sources:</p>
+                <div className="flex flex-wrap gap-1">
+                  {sources.slice(0, 5).map((source, idx) => {
+                    // Extract domain name from URL
+                    let displayName = source;
+                    try {
+                      const url = new URL(source);
+                      displayName = url.hostname.replace('www.', '');
+                    } catch {
+                      // If not a valid URL, use as is
+                    }
+                    
+                    return (
+                      <a
+                        key={idx}
+                        href={source}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-2 py-1 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+                        title={source}
+                      >
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        {displayName}
+                      </a>
+                    );
+                  })}
+                  {sources.length > 5 && (
+                    <span className="inline-flex items-center px-2 py-1 text-gray-500 dark:text-gray-400 text-xs">
+                      +{sources.length - 5} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Fullscreen Modal */}
       <Dialog open={showFullscreen} onOpenChange={setShowFullscreen}>

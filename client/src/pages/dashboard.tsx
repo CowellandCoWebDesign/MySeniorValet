@@ -426,7 +426,7 @@ export default function Dashboard() {
                       <h3 className="font-semibold">Recommended for You</h3>
                     </div>
                     <p className="text-sm text-white/80 mb-4">3 new communities match your saved preferences</p>
-                    <Link href="/search?recommended=true">
+                    <Link to="/search?recommended=true">
                       <Button size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">
                         View Matches
                       </Button>
@@ -456,7 +456,7 @@ export default function Dashboard() {
                       <h3 className="font-semibold">Search Insights</h3>
                     </div>
                     <p className="text-sm text-white/80 mb-4">Your top location: {recentSearches[0]?.location || 'Not set'}</p>
-                    <Link href="/map-search">
+                    <Link to="/map-search">
                       <Button size="sm" className="w-full bg-white/20 hover:bg-white/30 text-white border-0">
                         Refine Search
                       </Button>
@@ -491,7 +491,7 @@ export default function Dashboard() {
                       </Button>
                     </div>
                   ))}
-                  <Link href="/map-search">
+                  <Link to="/map-search">
                     <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl h-12">
                       Start New Search
                       <ChevronRight className="h-4 w-4 ml-2" />
@@ -509,7 +509,7 @@ export default function Dashboard() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 space-y-4">
-                  <Link href="/personalized-dashboard">
+                  <Link to="/personalized-dashboard">
                     <Button className="w-full justify-start h-14 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 text-gray-900 rounded-2xl shadow-md border border-blue-200">
                       <TrendingUp className="h-5 w-5 mr-3 text-blue-600" />
                       <div className="text-left">
@@ -520,7 +520,7 @@ export default function Dashboard() {
                     </Button>
                   </Link>
                   
-                  <Link href="/tour-tracker">
+                  <Link to="/tour-tracker">
                     <Button className="w-full justify-start h-14 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 text-gray-900 rounded-2xl shadow-md border border-green-200">
                       <Calendar className="h-5 w-5 mr-3 text-green-600" />
                       <div className="text-left">
@@ -531,7 +531,7 @@ export default function Dashboard() {
                     </Button>
                   </Link>
                   
-                  <Link href="/family-collaboration">
+                  <Link to="/family-collaboration">
                     <Button className="w-full justify-start h-14 bg-gradient-to-r from-orange-50 to-red-50 hover:from-orange-100 hover:to-red-100 text-gray-900 rounded-2xl shadow-md border border-orange-200">
                       <Users className="h-5 w-5 mr-3 text-orange-600" />
                       <div className="text-left">
@@ -582,7 +582,7 @@ export default function Dashboard() {
               <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                 Your Saved Communities
               </h2>
-              <Link href="/map-search">
+              <Link to="/map-search">
                 <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-6 py-3">
                   <Search className="h-4 w-4 mr-2" />
                   Find More Communities
@@ -598,7 +598,7 @@ export default function Dashboard() {
                   </div>
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">No Saved Communities Yet</h3>
                   <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">Start exploring communities and save your favorites here for easy access</p>
-                  <Link href="/map-search">
+                  <Link to="/map-search">
                     <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl px-8 py-3">
                       Start Exploring
                     </Button>
@@ -688,7 +688,7 @@ export default function Dashboard() {
 
                         {/* Action Buttons */}
                         <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
-                          <Link href={`/community/${community.id}`}>
+                          <Link to={`/community/${community.id}`}>
                             <Button 
                               size="sm" 
                               className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
@@ -753,7 +753,7 @@ export default function Dashboard() {
                       {tourRequests.length} Active Tours
                     </Badge>
                   </div>
-                  <Link href="/tours">
+                  <Link to="/tours">
                     <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                       <Calendar className="h-4 w-4 mr-2 animate-bounce" />
                       Manage Tours
@@ -779,7 +779,7 @@ export default function Dashboard() {
                       GPS Location Tracking
                     </Badge>
                   </div>
-                  <Link href="/tour-tracker">
+                  <Link to="/tour-tracker">
                     <Button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                       <Camera className="h-4 w-4 mr-2 group-hover:rotate-12 transition-transform" />
                       Start Tracking
@@ -814,7 +814,7 @@ export default function Dashboard() {
                       WhatsApp
                     </Badge>
                   </div>
-                  <Link href="/family-collaboration">
+                  <Link to="/family-collaboration">
                     <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                       <Users className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
                       Explore Sharing Tools
@@ -840,7 +840,7 @@ export default function Dashboard() {
                       Secure & Private
                     </Badge>
                   </div>
-                  <Link href="/family-connect">
+                  <Link to="/family-connect">
                     <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                       <MessageSquare className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                       Start Discussion
@@ -889,7 +889,7 @@ export default function Dashboard() {
                   <Plus className="h-4 w-4 mr-2" />
                   Schedule New Tour
                 </Button>
-                <Link href="/tour-tracker">
+                <Link to="/tour-tracker">
                   <Button className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl px-6 py-3">
                     <Calendar className="h-4 w-4 mr-2" />
                     Tour Tracker

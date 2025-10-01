@@ -131,7 +131,7 @@ export default function MemoryCareDetailPage() {
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-red-600 to-red-800 text-white py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <Link href="/"><Button variant="ghost" className="text-white mb-4">← Back to Home</Button></Link>
+          <Link to="/"><Button variant="ghost" className="text-white mb-4">← Back to Home</Button></Link>
           
           <div className="flex items-center gap-4 mb-6">
             <Brain className="w-16 h-16" />
@@ -492,7 +492,7 @@ export default function MemoryCareDetailPage() {
             <p className="text-xl mb-6 opacity-90">
               Search from thousands of verified memory care facilities with transparent pricing
             </p>
-            <Link href="/map-search?careType=memory">
+            <Link to="/map-search?careType=memory">
               <Button size="lg" className="bg-white text-red-600 hover:bg-gray-100">
                 <Search className="w-5 h-5 mr-2" />
                 Search Memory Care Communities

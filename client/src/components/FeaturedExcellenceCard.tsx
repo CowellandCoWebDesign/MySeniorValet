@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book } from "lucide-react";
+import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
 
 interface FeaturedExcellenceCardProps {
@@ -27,13 +27,97 @@ interface FeaturedExcellenceCardProps {
   };
   index?: number;
   compact?: boolean; // For horizontal sliders
+  disableAutoPhotoLoad?: boolean; // Prevent automatic photo loading in directory views
 }
 
-export function FeaturedExcellenceCard({ community, index = 0, compact = false }: FeaturedExcellenceCardProps) {
+export function FeaturedExcellenceCard({ community, index = 0, compact = false, disableAutoPhotoLoad = false }: FeaturedExcellenceCardProps) {
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+  const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
+  const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
+  
   // Default amenities if none provided
   const amenities = community.amenities && community.amenities.length > 0 
     ? community.amenities.slice(0, 3)
     : ["24-Hour Care", "Dining Services", "Activities"];
+  
+  // Fetch enriched photos for the community
+  useEffect(() => {
+    const fetchEnrichedPhotos = async () => {
+      // Skip if automatic photo loading is disabled (for directory views)
+      if (disableAutoPhotoLoad) return;
+      
+      // Skip if we already have multiple photos
+      if (enrichedPhotos.length > 1) return;
+      
+      // Fetch verification data which includes photos
+      try {
+        setIsLoadingPhotos(true);
+        const response = await fetch(`/api/communities/${community.id}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceRefresh: false })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch photos: ${response.status}`);
+        }
+        
+        const verifyData = await response.json();
+        
+        // Extract photos from verification data
+        const webPhotos = verifyData?.verificationResults?.webIntelligence?.images || [];
+        if (webPhotos.length > 0) {
+          // Filter out obvious logos and icons
+          const filteredPhotos = webPhotos.filter((url: string) => {
+            const urlLower = url.toLowerCase();
+            // Skip if URL contains logo/icon indicators
+            if (urlLower.includes('logo') || urlLower.includes('icon') || 
+                urlLower.includes('badge') || urlLower.includes('button') ||
+                urlLower.includes('sprite') || urlLower.includes('.svg')) {
+              return false;
+            }
+            return true;
+          });
+          
+          if (filteredPhotos.length > 0) {
+            setEnrichedPhotos(filteredPhotos.slice(0, 10)); // Limit to 10 photos
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching enriched photos:', error);
+      } finally {
+        setIsLoadingPhotos(false);
+      }
+    };
+    
+    // Only fetch if we have a community ID and limited photos
+    if (community.id && (!enrichedPhotos || enrichedPhotos.length <= 1)) {
+      fetchEnrichedPhotos();
+    }
+  }, [community.id]);
+  
+  // Auto-advance carousel
+  useEffect(() => {
+    if (enrichedPhotos.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentPhotoIndex(prev => (prev + 1) % enrichedPhotos.length);
+    }, 5000); // Change photo every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, [enrichedPhotos.length]);
+  
+  const handlePreviousPhoto = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentPhotoIndex(prev => prev === 0 ? enrichedPhotos.length - 1 : prev - 1);
+  };
+  
+  const handleNextPhoto = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentPhotoIndex(prev => (prev + 1) % enrichedPhotos.length);
+  };
 
   // Generate "Why Featured" reasons based on community data
   const getWhyFeatured = () => {
@@ -106,14 +190,79 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
 
   return (
     <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 ${compact ? 'w-80 flex-shrink-0' : ''}`}>
-      {/* Hero Image */}
+      {/* Hero Image with Carousel */}
       <div className={`relative ${compact ? 'h-36' : 'h-40'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900`}>
-        {community.photos && community.photos.length > 0 ? (
-          <img 
-            src={community.photos[0]} 
-            alt={community.name}
-            className="w-full h-full object-cover"
-          />
+        {enrichedPhotos && enrichedPhotos.length > 0 ? (
+          <>
+            <img 
+              src={enrichedPhotos[currentPhotoIndex]} 
+              alt={`${community.name} - Photo ${currentPhotoIndex + 1}`}
+              className="w-full h-full object-cover transition-opacity duration-500"
+              onError={(e) => {
+                // If image fails to load, remove it from the array
+                const newPhotos = enrichedPhotos.filter((_, i) => i !== currentPhotoIndex);
+                if (newPhotos.length > 0) {
+                  setEnrichedPhotos(newPhotos);
+                  setCurrentPhotoIndex(0);
+                }
+              }}
+            />
+            
+            {/* Carousel Controls - Only show if multiple photos */}
+            {enrichedPhotos.length > 1 && (
+              <>
+                {/* Previous Button */}
+                <button
+                  onClick={handlePreviousPhoto}
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-all"
+                  aria-label="Previous photo"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                
+                {/* Next Button */}
+                <button
+                  onClick={handleNextPhoto}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-1 transition-all"
+                  aria-label="Next photo"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+                
+                {/* Photo Indicators */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+                  {enrichedPhotos.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setCurrentPhotoIndex(idx);
+                      }}
+                      className={`w-1.5 h-1.5 rounded-full transition-all ${
+                        idx === currentPhotoIndex 
+                          ? 'bg-white w-3' 
+                          : 'bg-white/50 hover:bg-white/70'
+                      }`}
+                      aria-label={`Go to photo ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+                
+                {/* Photo Count Badge */}
+                <div className="absolute top-2 left-2 bg-black/50 text-white px-2 py-0.5 rounded-full text-xs">
+                  {currentPhotoIndex + 1} / {enrichedPhotos.length}
+                </div>
+              </>
+            )}
+          </>
+        ) : isLoadingPhotos ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Loading photos...</p>
+            </div>
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <div className="text-center">
@@ -123,13 +272,23 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false }
           </div>
         )}
         
-        {/* Excellence Badge */}
-        <div className="absolute top-2 left-2">
-          <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
-            <Star className="w-3 h-3 mr-1" />
-            FEATURED
-          </Badge>
-        </div>
+        {/* Excellence Badge - moved below photo count when carousel is active */}
+        {(!enrichedPhotos || enrichedPhotos.length <= 1) && (
+          <div className="absolute top-2 left-2">
+            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
+              <Star className="w-3 h-3 mr-1" />
+              FEATURED
+            </Badge>
+          </div>
+        )}
+        {enrichedPhotos && enrichedPhotos.length > 1 && (
+          <div className="absolute top-9 left-2">
+            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
+              <Star className="w-3 h-3 mr-1" />
+              FEATURED
+            </Badge>
+          </div>
+        )}
         
         {/* Premium/Excellence Badge */}
         <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold">

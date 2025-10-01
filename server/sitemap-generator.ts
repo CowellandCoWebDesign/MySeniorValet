@@ -4,8 +4,12 @@ import { communities } from '../shared/schema';
 import { sql } from 'drizzle-orm';
 
 export async function generateSitemap(req: Request, res: Response) {
+  // Generate comprehensive WORLDWIDE sitemap for MySeniorValet
+  // Includes: USA (50 states), Canada (13 provinces/territories), Australia (7 states/territories),
+  // Japan, Singapore, Scotland, Mexico, Peru, Cuba, Costa Rica, Panama, and more!
   try {
-    const domain = process.env.PRODUCTION_URL || `https://${req.hostname}`;
+    // Always use production domain for sitemap generation
+    const domain = process.env.PRODUCTION_URL || 'https://www.myseniorvalet.com';
     
     // Start XML sitemap
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
@@ -17,6 +21,7 @@ export async function generateSitemap(req: Request, res: Response) {
     // Add static pages with high priority
     const staticPages = [
       { url: '/', priority: 1.0, changefreq: 'daily' },
+      { url: '/community-directory', priority: 0.95, changefreq: 'daily' }, // CRITICAL for SEO!
       { url: '/map-search', priority: 0.9, changefreq: 'daily' },
       { url: '/simplified-search', priority: 0.9, changefreq: 'daily' },
       { url: '/ai-intelligence', priority: 0.8, changefreq: 'weekly' },
@@ -41,25 +46,96 @@ export async function generateSitemap(req: Request, res: Response) {
       xml += '  </url>\n';
     }
     
-    // Add location landing pages (states)
+    // Add WORLDWIDE location landing pages (states, provinces, territories, countries!)
     const states = await db
       .selectDistinct({ state: communities.state })
       .from(communities)
       .where(sql`${communities.state} IS NOT NULL`);
     
+    // Track international locations for higher priority
+    const internationalPriorities: Record<string, number> = {
+      'ON': 0.88, 'QC': 0.88, 'BC': 0.87, 'AB': 0.86, // Canadian provinces - HIGHEST priority
+      'NS': 0.85, 'SK': 0.85, 'NB': 0.85, 'MB': 0.85, 'NL': 0.84, 'NT': 0.83, 'PE': 0.83, 'NU': 0.82, 'YT': 0.82,
+      'NSW': 0.87, 'QLD': 0.87, 'VIC': 0.86, 'SA': 0.85, 'TAS': 0.84, 'ACT': 0.84, 'WA': 0.83, // Australian states
+      'Tokyo': 0.85, 'Singapore': 0.85, 'Scotland': 0.85, // International cities
+      'PR': 0.82, // Puerto Rico
+    };
+    
+    // Add all states/provinces/territories
     for (const { state } of states) {
       if (state) {
-        const stateSlug = state.toLowerCase().replace(/ /g, '-');
-        xml += '  <url>\n';
-        xml += `    <loc>${domain}/senior-living/${stateSlug}</loc>\n`;
-        xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
-        xml += `    <changefreq>weekly</changefreq>\n`;
-        xml += `    <priority>0.8</priority>\n`;
-        xml += '  </url>\n';
+        const priority = internationalPriorities[state] || 0.8;
+        
+        // International location - use search URL for better SEO
+        if (state.length > 2 || internationalPriorities[state]) {
+          xml += '  <url>\n';
+          xml += `    <loc>${domain}/search?location=${encodeURIComponent(state)}</loc>\n`;
+          xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
+          xml += `    <changefreq>weekly</changefreq>\n`;
+          xml += `    <priority>${priority}</priority>\n`;
+          xml += '  </url>\n';
+        } else {
+          // US state - use traditional URL
+          const stateSlug = state.toLowerCase().replace(/ /g, '-');
+          xml += '  <url>\n';
+          xml += `    <loc>${domain}/senior-living/${stateSlug}</loc>\n`;
+          xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
+          xml += `    <changefreq>weekly</changefreq>\n`;
+          xml += `    <priority>0.8</priority>\n`;
+          xml += '  </url>\n';
+        }
       }
     }
     
-    // Add top 1000 city landing pages
+    // Add country-level and major region search pages for SEO dominance
+    const countrySearchPages = [
+      // Canadian provinces
+      { location: 'Canada', priority: 0.92 },
+      { location: 'Ontario', priority: 0.9 },
+      { location: 'Quebec', priority: 0.9 },
+      { location: 'British Columbia', priority: 0.89 },
+      { location: 'Alberta', priority: 0.88 },
+      { location: 'Nova Scotia', priority: 0.87 },
+      { location: 'Saskatchewan', priority: 0.87 },
+      { location: 'Manitoba', priority: 0.86 },
+      { location: 'New Brunswick', priority: 0.86 },
+      // Australian states
+      { location: 'Australia', priority: 0.92 },
+      { location: 'New South Wales', priority: 0.89 },
+      { location: 'Queensland', priority: 0.89 },
+      { location: 'Victoria Australia', priority: 0.88 },
+      { location: 'South Australia', priority: 0.87 },
+      { location: 'Tasmania', priority: 0.86 },
+      // Asia Pacific
+      { location: 'Japan', priority: 0.88 },
+      { location: 'Tokyo Japan', priority: 0.87 },
+      { location: 'Singapore', priority: 0.88 },
+      // Europe
+      { location: 'Scotland', priority: 0.87 },
+      { location: 'Italy', priority: 0.85 },
+      { location: 'France', priority: 0.85 },
+      { location: 'Spain', priority: 0.84 },
+      { location: 'Germany', priority: 0.84 },
+      { location: 'United Kingdom', priority: 0.85 },
+      // Latin America
+      { location: 'Mexico', priority: 0.86 },
+      { location: 'Peru', priority: 0.85 },
+      { location: 'Cuba', priority: 0.84 },
+      { location: 'Costa Rica', priority: 0.84 },
+      { location: 'Panama', priority: 0.84 },
+      { location: 'Puerto Rico', priority: 0.85 },
+    ];
+    
+    for (const { location, priority } of countrySearchPages) {
+      xml += '  <url>\n';
+      xml += `    <loc>${domain}/search?location=${encodeURIComponent(location)}</loc>\n`;
+      xml += `    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>\n`;
+      xml += `    <changefreq>weekly</changefreq>\n`;
+      xml += `    <priority>${priority}</priority>\n`;
+      xml += '  </url>\n';
+    }
+    
+    // Add top 1000 city landing pages (including international cities!)
     const cities = await db
       .select({ 
         city: communities.city,
@@ -132,7 +208,10 @@ export async function generateSitemap(req: Request, res: Response) {
     
     res.send(xml);
     
-    console.log(`✅ Generated sitemap with ${totalCommunities} communities and location pages`);
+    // Count international locations
+    const internationalCount = states.filter(s => s.state && (s.state.length > 2 || ['ON','QC','BC','AB','NSW','QLD','VIC','SA','Tokyo','Singapore','Scotland','PR'].includes(s.state))).length;
+    
+    console.log(`✅ Generated WORLDWIDE sitemap with ${totalCommunities} communities, ${internationalCount} international locations, and ${countrySearchPages.length} country search pages`);
   } catch (error) {
     console.error('Error generating sitemap:', error);
     res.status(500).send('Error generating sitemap');

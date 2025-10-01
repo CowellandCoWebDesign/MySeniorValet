@@ -336,7 +336,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     }
     
     // Default for no pricing data and no market intelligence
-    return 'Contact for Pricing';
+    return 'Click for Pricing';
   };
 
   const displayPrice = getStartingPrice();
@@ -523,7 +523,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {priceDisplay || marketPricing?.display || 'Contact for Pricing'}
+                    {priceDisplay || marketPricing?.display || 'Click for Pricing'}
                   </div>
                   <div className="text-xs font-medium mt-0.5">
                     {isHudProperty ? (
@@ -762,7 +762,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
             {/* Enhanced Pricing Column */}
             <div className="text-right min-w-[120px]">
-              {displayPrice === 'Contact for Pricing' ? (
+              {displayPrice === 'Click for Pricing' ? (
                 <div className="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2">
                   <Phone className="h-5 w-5 text-gray-500 dark:text-gray-400 mb-1 ml-auto" />
                   <div className="text-sm font-semibold text-gray-600 dark:text-gray-300">
@@ -789,7 +789,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                       Live Pricing
                     </span>
                   )}
-                  {!community.hudPropertyId && !(community as any).pricingDetails?.basePrice && displayPrice !== 'Contact for Pricing' && (
+                  {!community.hudPropertyId && !(community as any).pricingDetails?.basePrice && displayPrice !== 'Click for Pricing' && (
                     <span className="text-xs text-gray-500 dark:text-gray-400">
                       Est. Range
                     </span>
@@ -1244,7 +1244,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
       `$${typeof community.rentPerMonth === 'number' ? community.rentPerMonth.toFixed(0) : community.rentPerMonth}` : 
       community.priceRange ? 
         `$${community.priceRange.min} - $${community.priceRange.max}` : 
-        'Contact for Pricing');
+        'Click for Pricing');
   
   return (
     <Card className={`${cardClass} bg-gradient-to-br ${regionalTheme.gradient} border-2 ${regionalTheme.borderColor}`}>

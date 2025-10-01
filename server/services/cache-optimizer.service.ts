@@ -33,7 +33,11 @@ export class CacheOptimizerService extends EventEmitter {
     super();
     this.performanceService = PerformanceMonitorService.getInstance();
     this.initializeCaches();
-    this.startCacheWarmup();
+    // DISABLED: Cache warmup causes automatic Perplexity API calls on startup
+    // The warmup was preloading top 50 communities which triggered UnifiedPerplexityCache
+    // This was causing unnecessary API costs on page load
+    // this.startCacheWarmup();
+    console.log('⚠️ Cache warmup DISABLED to prevent automatic API calls');
   }
 
   static getInstance(): CacheOptimizerService {

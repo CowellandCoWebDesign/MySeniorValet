@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
-import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText, ExternalLink } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText, ExternalLink, Sparkles } from 'lucide-react';
 import { Link } from 'wouter';
 import { useSEO } from '@/hooks/useSEO';
 import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
@@ -58,10 +58,12 @@ interface MarketAnalysis {
   
   // Top Communities
   topCommunities?: Array<{
+    id?: number;
     name: string;
     location: string;
     price: string;
     verified: boolean;
+    isNew?: boolean;
   }>;
   
   // Data Attribution
@@ -177,66 +179,57 @@ export default function CompetitiveAnalysis() {
         }} />
       </div>
 
-      {/* Header with enhanced styling and Thinker image */}
-      <div className="relative h-96 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white overflow-hidden">
-        {/* Thinker Background Image with better visibility and proper z-index */}
+      {/* Header with Thinker image - NO TEXT OVERLAY */}
+      <div className="relative h-[400px] overflow-hidden" style={{ paddingTop: '80px' }}>
+        {/* Thinker Background Image with FULL visibility */}
         <img 
           src={heroThinkerImage}
           alt="The Thinker contemplating market analysis"
-          className="absolute inset-0 w-full h-full object-cover opacity-40 dark:opacity-50 z-0"
+          className="absolute inset-0 w-full h-full object-cover z-0"
         />
-        {/* Enhanced gradient overlay with reduced opacity for better image visibility */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/60 via-teal-600/60 to-cyan-600/60 dark:from-emerald-600/50 dark:via-teal-600/50 dark:to-cyan-600/50 z-10" />
-        
-        <div className="relative py-20 z-20">
-          <div className="max-w-7xl mx-auto px-4">
-            <Link href="/">
-              <Button 
-                variant="ghost" 
-                className="text-white hover:bg-white/20 mb-6 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
-              >
-                ← Back to Home
-              </Button>
-            </Link>
-            
-            <div className="space-y-6">
-              <h1 className="text-4xl md:text-6xl font-bold flex items-center gap-4 animate-fadeIn">
-                <div className="p-3 bg-white/10 rounded-2xl backdrop-blur-sm">
-                  <TrendingUp className="w-10 h-10 md:w-12 md:h-12" />
-                </div>
-                <span className="bg-gradient-to-r from-white to-white/90 bg-clip-text">
-                  Competitive Market Analysis
-                </span>
-              </h1>
-              
-              <p className="text-xl md:text-2xl text-white/95 max-w-3xl leading-relaxed animate-fadeIn animation-delay-200">
-                Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
-              </p>
-              
-              <div className="flex flex-wrap gap-3 animate-fadeIn animation-delay-300">
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
-                  <Brain className="w-4 h-4 mr-2" />
-                  Perplexity AI Powered
-                </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
-                  <Globe className="w-4 h-4 mr-2" />
-                  Live Web Search
-                </Badge>
-                <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm px-4 py-2 text-sm hover:bg-white/30 transition-all duration-300 hover:scale-105">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Real-Time Data
-                </Badge>
+      </div>
+      
+      {/* Content Section - BELOW the image */}
+      <div className="bg-gradient-to-br from-gray-50 via-blue-50/30 to-emerald-50/20 dark:from-gray-900 dark:via-blue-900/30 dark:to-emerald-900/20 py-8">
+        <div className="max-w-7xl mx-auto px-4">
+          <Link href="/">
+            <Button 
+              variant="outline" 
+              className="mb-4 transition-all duration-300 hover:scale-105"
+            >
+              ← Back to Home
+            </Button>
+          </Link>
+          
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold flex items-center gap-3 animate-fadeIn">
+              <div className="p-3 bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl text-white">
+                <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
+              <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Competitive Market Analysis
+              </span>
+            </h1>
+            
+            <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 max-w-3xl leading-relaxed animate-fadeIn animation-delay-200">
+              Real-time pricing analysis powered by AI. Compare senior living costs across cities, states, regions, and countries to understand market dynamics and find the best value.
+            </p>
+            
+            <div className="flex flex-wrap gap-3 animate-fadeIn animation-delay-300">
+              <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700 px-4 py-2 text-sm hover:scale-105 transition-all duration-300">
+                <Brain className="w-4 h-4 mr-2" />
+                Perplexity AI Powered
+              </Badge>
+              <Badge className="bg-gradient-to-r from-blue-100 to-cyan-100 dark:from-blue-900/30 dark:to-cyan-900/30 text-blue-700 dark:text-blue-300 border-blue-300 dark:border-blue-700 px-4 py-2 text-sm hover:scale-105 transition-all duration-300">
+                <Globe className="w-4 h-4 mr-2" />
+                Live Web Search
+              </Badge>
+              <Badge className="bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700 px-4 py-2 text-sm hover:scale-105 transition-all duration-300">
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Real-Time Data
+              </Badge>
             </div>
           </div>
-        </div>
-        
-        {/* Wave decoration at bottom */}
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg className="w-full h-12" viewBox="0 0 1440 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0 48h1440V0c-120 28-240 48-360 48S840 28 720 28 480 48 360 48 120 28 0 28v20z" 
-                  fill="currentColor" className="text-gray-50 dark:text-gray-900" />
-          </svg>
         </div>
       </div>
 
@@ -602,36 +595,53 @@ export default function CompetitiveAnalysis() {
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {analysisMutation.data.topCommunities.map((community, index) => (
-                  <Link 
-                    key={index} 
-                    href={`/search?q=${encodeURIComponent(community.name)}`}
-                    className="block"
-                  >
-                    <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border-2 border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] group">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2 group-hover:text-purple-600 dark:group-hover:text-purple-400">
-                            {community.name}
-                            {community.verified && (
-                              <span title="Verified in database">
-                                <CheckCircle className="w-4 h-4 text-green-500" />
-                              </span>
+                {analysisMutation.data.topCommunities.map((community, index) => {
+                  // If community has an ID, link to community page; otherwise search
+                  const linkHref = community.id 
+                    ? `/community/${community.id}`
+                    : `/search?q=${encodeURIComponent(community.name)}`;
+                  
+                  return (
+                    <Link 
+                      key={index} 
+                      href={linkHref}
+                      className="block"
+                    >
+                      <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border-2 border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02] group">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 flex items-center gap-2 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+                              {community.name}
+                              {community.verified && (
+                                <span title="Verified in database">
+                                  <CheckCircle className="w-4 h-4 text-green-500" />
+                                </span>
+                              )}
+                              {community.isNew && (
+                                <span title="Newly discovered and saved">
+                                  <Sparkles className="w-4 h-4 text-yellow-500" />
+                                </span>
+                              )}
+                            </h4>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
+                              <MapPin className="w-3 h-3" />
+                              {community.location}
+                            </p>
+                            <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
+                              {community.price}
+                            </p>
+                            {community.id && (
+                              <p className="text-xs text-gray-500 dark:text-gray-600 mt-1">
+                                Click to view details →
+                              </p>
                             )}
-                          </h4>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {community.location}
-                          </p>
-                          <p className="text-lg font-semibold text-purple-600 dark:text-purple-400 mt-2">
-                            {community.price}
-                          </p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600" />
                         </div>
-                        <ExternalLink className="w-4 h-4 text-gray-400 group-hover:text-purple-600" />
                       </div>
-                    </div>
-                  </Link>
-                ))}
+                    </Link>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -702,20 +712,41 @@ export default function CompetitiveAnalysis() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {analysisMutation.data.communityMentions.map((communityName: string, index: number) => {
-                  const isMatched = analysisMutation.data.matchedCommunities?.some(
+                  const matchedCommunity = analysisMutation.data.matchedCommunities?.find(
                     mc => mc.name.toLowerCase() === communityName.toLowerCase()
                   );
-                  return (
-                    <div key={index} className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 transition-colors">
+                  const isMatched = !!matchedCommunity;
+                  
+                  // If matched, link to the community page; otherwise, link to search
+                  const content = (
+                    <div className="flex items-center gap-3 p-4 bg-white/70 dark:bg-gray-900/50 rounded-lg border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900/70 hover:border-blue-400 dark:hover:border-blue-600 transition-all cursor-pointer transform hover:scale-[1.02] hover:shadow-md">
                       <Home className="w-5 h-5 text-blue-500 flex-shrink-0" />
                       <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{communityName}</span>
-                      {isMatched && (
-                        <span className="ml-auto" title="Available in our database">
+                      {isMatched ? (
+                        <span className="ml-auto" title="Available in our database - Click to view">
                           <CheckCircle className="w-4 h-4 text-emerald-500" />
+                        </span>
+                      ) : (
+                        <span className="ml-auto text-xs text-gray-500 dark:text-gray-400" title="Click to search for this community">
+                          <Search className="w-4 h-4" />
                         </span>
                       )}
                     </div>
                   );
+                  
+                  if (isMatched && matchedCommunity) {
+                    return (
+                      <Link key={index} href={`/community/${matchedCommunity.id}`}>
+                        {content}
+                      </Link>
+                    );
+                  } else {
+                    return (
+                      <Link key={index} href={`/?q=${encodeURIComponent(communityName)}`}>
+                        {content}
+                      </Link>
+                    );
+                  }
                 })}
               </div>
             </CardContent>

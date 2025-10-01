@@ -80,7 +80,7 @@ export default function ClaimCommunity() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Community Not Found</h1>
-          <Link href="/communities">
+          <Link to="/communities">
             <Button variant="outline">Browse Communities</Button>
           </Link>
         </div>
@@ -98,7 +98,7 @@ export default function ClaimCommunity() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <Link href={`/community/${id}`}>
+          <Link to={`/community/${id}`}>
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Community

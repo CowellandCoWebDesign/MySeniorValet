@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,13 +45,31 @@ export function FamilyVideoCall({ familyId = 'demo', userId = 'demo' }: FamilyVi
   const [isScheduling, setIsScheduling] = useState(false);
   const [meetingLink, setMeetingLink] = useState('');
   const [copied, setCopied] = useState(false);
+  
+  const isDemo = familyId === 'demo' || !userId || userId === 'demo';
 
-  // Demo family members
-  const familyMembers = [
+  // Fetch real family members if authenticated
+  const { data: realFamilyMembers = [] } = useQuery({
+    queryKey: ['/api/family/members', familyId],
+    enabled: !isDemo,
+    queryFn: async () => {
+      const response = await fetch(`/api/family/members?familyId=${familyId}`);
+      if (!response.ok) return [];
+      return response.json();
+    }
+  });
+
+  // Demo family members for non-authenticated users
+  const demoFamilyMembers = [
     { id: 1, name: 'Sarah Johnson', role: 'Daughter', status: 'online', avatar: 'SJ', location: 'New York' },
     { id: 2, name: 'Michael Johnson', role: 'Son', status: 'online', avatar: 'MJ', location: 'Chicago' },
     { id: 3, name: 'Emily Johnson', role: 'Daughter', status: 'offline', avatar: 'EJ', location: 'Los Angeles' },
     { id: 4, name: 'Robert Johnson', role: 'Son', status: 'busy', avatar: 'RJ', location: 'Boston' }
+  ];
+  
+  // Use real or demo data based on authentication
+  const familyMembers = isDemo ? demoFamilyMembers : realFamilyMembers.length > 0 ? realFamilyMembers : [
+    { id: userId, name: 'You', role: 'Primary Contact', status: 'online', avatar: 'ME', location: 'Current Location' }
   ];
 
   // Scheduled calls
@@ -150,6 +170,16 @@ export function FamilyVideoCall({ familyId = 'demo', userId = 'demo' }: FamilyVi
 
   return (
     <div className="space-y-6">
+      {/* Demo Mode Alert */}
+      {isDemo && (
+        <Alert className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
+          <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          <AlertDescription className="text-yellow-800 dark:text-yellow-200">
+            <strong>Demo Mode:</strong> You're viewing example family members. Sign in to see your real family collaboration tools.
+          </AlertDescription>
+        </Alert>
+      )}
+      
       {/* Header with instant meeting button */}
       <Card className="border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
         <CardContent className="p-6">
@@ -159,7 +189,7 @@ export function FamilyVideoCall({ familyId = 'demo', userId = 'demo' }: FamilyVi
                 <Video className="w-8 h-8 text-blue-600 dark:text-blue-400" />
               </div>
               <div>
-                <h3 className="text-xl font-bold">Family Video Calls</h3>
+                <h3 className="text-xl font-bold">Family Video Calls {isDemo && <Badge variant="secondary" className="ml-2">DEMO</Badge>}</h3>
                 <p className="text-sm text-muted-foreground">
                   Connect face-to-face with your family to discuss care options
                 </p>

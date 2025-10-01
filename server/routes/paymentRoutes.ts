@@ -3,7 +3,8 @@ import express from "express";
 import { db } from "../db";
 import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
-import { isAuthenticated as requireAuth, createAuthenticatedSession } from "../auth-middleware";
+import { isAuthenticated as requireAuth } from "../auth-middleware";
+import { createAuthenticatedSession } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";
@@ -166,22 +167,66 @@ export function registerPaymentRoutes(app: Express) {
   // Create payment intent for Payment Element
   app.post('/api/payments/create-payment-intent', async (req, res) => {
     try {
-      const { productId, amount, customerId, metadata } = req.body;
+      const { tier, type, productId, amount, customerId, metadata, billingCycle } = req.body;
 
-      if (!amount || amount < 50) { // Stripe minimum is 50 cents
-        return res.status(400).json({ error: 'Invalid amount' });
+      // Map new tier names to legacy system
+      const TIER_MAPPING: Record<string, string> = {
+        'starter': 'verified',
+        'growth': 'standard',
+        'professional': 'featured',
+        'premium': 'platinum',
+        'enterprise': 'platinum'
+      };
+
+      // Pricing map for each tier (monthly prices in cents)
+      const TIER_PRICING: Record<string, number> = {
+        'starter': 9900,      // $99
+        'growth': 29900,      // $299
+        'professional': 99900, // $999
+        'premium': 199900,    // $1999
+        'enterprise': 399900, // $3999
+        'verified': 9900,     // Legacy tier
+        'standard': 14900,    // Legacy tier
+        'featured': 24900,    // Legacy tier
+        'platinum': 34900,    // Legacy tier
+        'basic': 9900,        // Vendor tier
+        'national': 49900     // Vendor tier
+      };
+
+      // Calculate amount based on tier if not provided
+      let finalAmount = amount;
+      let finalTier = tier;
+      
+      if (tier && !amount) {
+        // Map new tier names to legacy names if needed
+        finalTier = TIER_MAPPING[tier] || tier;
+        finalAmount = TIER_PRICING[tier] || TIER_PRICING[finalTier] || 9900; // Default to starter price
+        
+        console.log('Calculated amount from tier:', { 
+          originalTier: tier, 
+          mappedTier: finalTier, 
+          amount: finalAmount 
+        });
+      }
+
+      if (!finalAmount || finalAmount < 50) { // Stripe minimum is 50 cents
+        return res.status(400).json({ error: 'Invalid tier or amount' });
       }
 
       // Create payment intent
       const paymentIntent = await stripePaymentService.createPaymentIntent({
-        amount,
+        amount: finalAmount,
         currency: 'usd',
         customer: customerId,
         metadata: {
           ...metadata,
-          productId,
+          tier: finalTier,
+          originalTier: tier,
+          productId: productId || tier,
+          type: type || (tier && ['verified', 'standard', 'featured', 'platinum', 'starter', 'growth', 'professional', 'premium', 'enterprise'].includes(tier) ? 'community' : 'vendor'),
           platform: 'myseniorvalet',
-          paymentType: productId?.includes('vendor') ? 'vendor_subscription' : 'community_subscription'
+          paymentType: type === 'vendor' ? 'vendor_subscription' : 'community_subscription',
+          billingCycle: billingCycle || 'monthly'
         },
         automatic_payment_methods: {
           enabled: true,
@@ -606,6 +651,7 @@ export function registerPaymentRoutes(app: Express) {
       });
     }
   });
+  */
 
   // Recovery endpoint for failed payment confirmations
   app.post('/api/payments/recover-failed-payment', async (req, res) => {
@@ -698,8 +744,8 @@ export function registerPaymentRoutes(app: Express) {
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId,
         productId,
-        successUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl || `${process.env.REPLIT_DEV_DOMAIN || 'http://localhost:5000'}/payment/cancel`
+        successUrl || `https://myseniorvalet.com/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl || `https://myseniorvalet.com/payment/cancel`
       );
 
       res.json({ 
@@ -753,7 +799,7 @@ export function registerPaymentRoutes(app: Express) {
         ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
           ? process.env.REPLIT_DEV_DOMAIN 
           : `https://${process.env.REPLIT_DEV_DOMAIN}`)
-        : 'http://localhost:5000';
+        : 'https://myseniorvalet.com';
       
       const session = await stripeSubscriptionService.createCheckoutSession(
         0, // Use 0 instead of null for vendor checkout
@@ -781,14 +827,28 @@ export function registerPaymentRoutes(app: Express) {
     try {
       let { productId, communityId, successUrl, cancelUrl, tier, email } = req.body;
 
+      // Import TIER_MAPPING for new tier names
+      const { TIER_MAPPING } = await import('../services/payment.service');
+
       // Map tier to productId if provided instead of productId
       if (!productId && tier) {
+        // First check if it's a new tier name and map it to legacy name
+        const mappedTier = TIER_MAPPING[tier as keyof typeof TIER_MAPPING] || tier;
+        
         const tierToProductMap: Record<string, string> = {
+          // New tier mappings
+          'starter': 'verified',              // $99/month
+          'growth': 'standard',                // $299/month
+          'professional': 'featured',          // $999/month
+          'premium': 'platinum',               // $1999/month
+          'enterprise': 'platinum',            // $3999/month (maps to platinum)
+          // Legacy tier mappings
+          'verified': 'verified',              // $99/month
           'standard': 'featured-spotlight',    // $149/month
           'featured': 'premium-tools',         // $249/month
           'platinum': 'platinum-partner'       // $399/month
         };
-        productId = tierToProductMap[tier];
+        productId = tierToProductMap[tier] || tierToProductMap[mappedTier];
       }
 
       if (!productId) {
@@ -800,7 +860,7 @@ export function registerPaymentRoutes(app: Express) {
         ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
           ? process.env.REPLIT_DEV_DOMAIN 
           : `https://${process.env.REPLIT_DEV_DOMAIN}`)
-        : 'http://localhost:5000';
+        : 'https://myseniorvalet.com';
       
       console.log('Creating community checkout with:', {
         productId,
@@ -1007,7 +1067,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select({ stripeCustomerId: users.stripeCustomerId })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeCustomerId) {
@@ -1039,7 +1099,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select()
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user) {
@@ -1062,7 +1122,7 @@ export function registerPaymentRoutes(app: Express) {
         await db
           .update(users)
           .set({ stripeCustomerId: customerId })
-          .where(eq(users.id, userId));
+          .where(eq(users.id, parseInt(userId)));
       }
 
       const paymentMethod = await stripePaymentService.attachPaymentMethod(
@@ -1109,7 +1169,7 @@ export function registerPaymentRoutes(app: Express) {
           stripeCustomerId: users.stripeCustomerId
         })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeSubscriptionId) {
@@ -1135,7 +1195,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select({ stripeSubscriptionId: users.stripeSubscriptionId })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeSubscriptionId) {
@@ -1151,7 +1211,7 @@ export function registerPaymentRoutes(app: Express) {
           stripeSubscriptionId: null,
           updatedAt: new Date()
         })
-        .where(eq(users.id, userId));
+        .where(eq(users.id, parseInt(userId)));
 
       res.json({ subscription });
     } catch (error) {
@@ -1246,7 +1306,7 @@ export function registerPaymentRoutes(app: Express) {
       const [user] = await db
         .select({ stripeCustomerId: users.stripeCustomerId })
         .from(users)
-        .where(eq(users.id, userId))
+        .where(eq(users.id, parseInt(userId)))
         .limit(1);
 
       if (!user?.stripeCustomerId) {
@@ -1353,7 +1413,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       stripeSubscriptionId: subscription.id,
       updatedAt: new Date()
     })
-    .where(eq(users.id, userId));
+    .where(eq(users.id, parseInt(userId)));
 }
 
 async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
@@ -1366,7 +1426,7 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
       stripeSubscriptionId: null,
       updatedAt: new Date()
     })
-    .where(eq(users.id, userId));
+    .where(eq(users.id, parseInt(userId)));
 }
 
 async function handlePaymentSucceeded(invoice: Stripe.Invoice) {

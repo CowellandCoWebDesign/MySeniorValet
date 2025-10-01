@@ -131,19 +131,38 @@ router.post("/schedule", async (req, res) => {
           <p>The community will contact you within 24-48 hours to confirm your tour.</p>
           
           <div style="background: #E0E7FF; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4F46E5;">
-            <p style="color: #312E81; margin: 0 0 10px 0;"><strong>📍 Track Your Tour Journey!</strong></p>
-            <p style="color: #312E81; margin: 0 0 10px 0;">Use our Tour Tracker™ to:</p>
-            <ul style="margin: 5px 0 10px 20px; color: #312E81;">
-              <li>View all your scheduled tours</li>
-              <li>Get reminders before your visit</li>
-              <li>Take notes and photos during your tour</li>
-              <li>Rate and review your experience</li>
-              <li>Share insights with family members</li>
+            <p style="color: #312E81; margin: 0 0 10px 0;"><strong>📍 Your Family Tools & Resources</strong></p>
+            <p style="color: #312E81; margin: 0 0 10px 0;">Everything you need for your senior living journey:</p>
+            
+            <div style="margin: 20px 0;">
+              <div style="margin-bottom: 15px;">
+                <a href="https://myseniorvalet.com/tour-tracker" 
+                   style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
+                  📍 Tour Tracker™ - Manage Your Tours
+                </a>
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                <a href="https://myseniorvalet.com/family-collaboration-center" 
+                   style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
+                  👨‍👩‍👧‍👦 Family Collaboration Center
+                </a>
+              </div>
+              
+              <div style="margin-bottom: 15px;">
+                <a href="https://myseniorvalet.com/dashboard" 
+                   style="display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
+                  🏠 Your Personal Dashboard
+                </a>
+              </div>
+            </div>
+            
+            <ul style="margin: 5px 0 10px 20px; color: #312E81; font-size: 14px;">
+              <li>Track all scheduled tours in one place</li>
+              <li>Collaborate with family members on decisions</li>
+              <li>Save and compare your favorite communities</li>
+              <li>Access resources and benefits information</li>
             </ul>
-            <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
-               style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
-              Access Tour Tracker™
-            </a>
           </div>
           
           <div style="background: #FEF3C7; padding: 15px; border-radius: 8px; margin: 20px 0;">
@@ -159,6 +178,7 @@ router.post("/schedule", async (req, res) => {
       await sgMail.send({
         to: tourData.contactEmail,
         from: "hello@myseniorvalet.com",
+        bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
         subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
         html: userEmailHtml,
       });
@@ -166,57 +186,198 @@ router.post("/schedule", async (req, res) => {
       // Send notification to community (if they have email configured)
       if (community?.email) {
         const communityEmailHtml = `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #059669;">New Tour Request!</h2>
-            
-            <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #1F2937; margin-top: 0;">Contact Information:</h3>
-              <p><strong>Name:</strong> ${tourData.contactName}</p>
-              <p><strong>Email:</strong> ${tourData.contactEmail}</p>
-              <p><strong>Phone:</strong> ${tourData.contactPhone}</p>
-              <p><strong>Confirmation Code:</strong> ${confirmationCode}</p>
-            </div>
-            
-            <div style="background: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h3 style="color: #1F2937; margin-top: 0;">Tour Preferences:</h3>
-              <p><strong>Preferred Date:</strong> ${format(parseISO(tourData.preferredDate), 'MMMM d, yyyy')}</p>
-              <p><strong>Preferred Time:</strong> ${tourData.preferredTime}</p>
-              ${tourData.alternativeDate ? `<p><strong>Alternative Date:</strong> ${format(parseISO(tourData.alternativeDate), 'MMMM d, yyyy')}</p>` : ''}
-              ${tourData.alternativeTime ? `<p><strong>Alternative Time:</strong> ${tourData.alternativeTime}</p>` : ''}
-              <p><strong>Tour Type:</strong> ${tourData.tourType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</p>
-              <p><strong>Party Size:</strong> ${tourData.partySize} ${tourData.partySize === 1 ? 'person' : 'people'}</p>
-              ${tourData.interestedInCareLevel?.length ? `<p><strong>Interested in:</strong> ${tourData.interestedInCareLevel.join(', ')}</p>` : ''}
-              ${tourData.specialRequests ? `<p><strong>Special Requests:</strong> ${tourData.specialRequests}</p>` : ''}
-            </div>
-            
-            <div style="background: #DBEAFE; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p style="color: #1E40AF; margin: 0;"><strong>Action Required:</strong> Please contact this family within 24-48 hours to confirm their tour.</p>
-            </div>
-            
-            <div style="background: #F0FDF4; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10B981;">
-              <p style="color: #064E3B; margin: 0 0 10px 0;"><strong>💼 Community Dashboard Available</strong></p>
-              <p style="color: #064E3B; margin: 0 0 10px 0;">Track and manage all your tours in one place:</p>
-              <ul style="margin: 5px 0 10px 20px; color: #064E3B;">
-                <li>View upcoming scheduled tours</li>
-                <li>Update tour status and add notes</li>
-                <li>Track visitor engagement metrics</li>
-                <li>Export tour data for reporting</li>
-              </ul>
-              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/admin-mega-dashboard" 
-                 style="display: inline-block; background: #10B981; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
-                Access Community Dashboard
-              </a>
-            </div>
-            
-            <p style="color: #6B7280; font-size: 14px; margin-top: 30px;">
-              This tour request was submitted through MySeniorValet's TourMate™ system.
-            </p>
-          </div>
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          </head>
+          <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f9ff;">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f0f9ff; padding: 20px 0;">
+              <tr>
+                <td align="center">
+                  <table width="600" cellpadding="0" cellspacing="0" style="background-color: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                    <!-- Header -->
+                    <tr>
+                      <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center; border-radius: 12px 12px 0 0;">
+                        <h1 style="color: white; margin: 0 0 10px 0; font-size: 28px; font-weight: bold;">🎊 New Tour Request!</h1>
+                        <p style="color: #d1fae5; margin: 0; font-size: 16px;">A family is interested in visiting ${community?.name}</p>
+                      </td>
+                    </tr>
+                    
+                    <!-- Content -->
+                    <tr>
+                      <td style="padding: 40px 30px;">
+                        <!-- Confirmation Badge -->
+                        <div style="text-align: center; margin-bottom: 30px;">
+                          <div style="display: inline-block; background: linear-gradient(135deg, #fef3c7 0%, #fbbf24 100%); padding: 10px 20px; border-radius: 50px;">
+                            <span style="color: #92400e; font-weight: bold; font-size: 14px;">CONFIRMATION CODE: ${confirmationCode}</span>
+                          </div>
+                        </div>
+                        
+                        <!-- Visitor Information Card -->
+                        <div style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 10px; padding: 25px; margin-bottom: 25px;">
+                          <h3 style="color: #1e40af; margin: 0 0 15px 0; display: flex; align-items: center;">
+                            👤 Visitor Information
+                          </h3>
+                          <table width="100%" style="font-size: 15px;">
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Name:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.contactName}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Email:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.contactEmail}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Phone:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.contactPhone}</td>
+                            </tr>
+                          </table>
+                        </div>
+                        
+                        <!-- Tour Details Card -->
+                        <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 10px; padding: 25px; margin-bottom: 25px;">
+                          <h3 style="color: #166534; margin: 0 0 15px 0;">
+                            📅 Tour Preferences
+                          </h3>
+                          <table width="100%" style="font-size: 15px;">
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Preferred Date:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${format(parseISO(tourData.preferredDate), 'MMMM d, yyyy')}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Preferred Time:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.preferredTime}</td>
+                            </tr>
+                            ${tourData.alternativeDate ? `
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Alternative Date:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${format(parseISO(tourData.alternativeDate), 'MMMM d, yyyy')}</td>
+                            </tr>` : ''}
+                            ${tourData.alternativeTime ? `
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Alternative Time:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.alternativeTime}</td>
+                            </tr>` : ''}
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Tour Type:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.tourType.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Party Size:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.partySize} ${tourData.partySize === 1 ? 'person' : 'people'}</td>
+                            </tr>
+                            ${tourData.interestedInCareLevel?.length ? `
+                            <tr>
+                              <td style="padding: 5px 0; color: #64748b;">Care Level:</td>
+                              <td style="padding: 5px 0; color: #1e293b; font-weight: 600;">${tourData.interestedInCareLevel.join(', ')}</td>
+                            </tr>` : ''}
+                          </table>
+                          ${tourData.specialRequests ? `
+                          <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #bbf7d0;">
+                            <p style="color: #64748b; margin: 0 0 5px 0; font-size: 14px;">Special Requests:</p>
+                            <p style="color: #1e293b; margin: 0; font-style: italic;">"${tourData.specialRequests}"</p>
+                          </div>` : ''}
+                        </div>
+                        
+                        <!-- Action Required Alert -->
+                        <div style="background: #fef2f2; border: 2px solid #fecaca; border-radius: 10px; padding: 20px; margin-bottom: 25px; text-align: center;">
+                          <p style="color: #dc2626; margin: 0; font-size: 16px; font-weight: bold;">
+                            ⏰ ACTION REQUIRED
+                          </p>
+                          <p style="color: #7f1d1d; margin: 10px 0 0 0; font-size: 14px;">
+                            Please contact this family within 24-48 hours to confirm their tour
+                          </p>
+                        </div>
+                        
+                        <!-- CTA Buttons -->
+                        <div style="text-align: center; margin: 35px 0;">
+                          <a href="https://myseniorvalet.com/claim-community/${community?.id}" 
+                             style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);">
+                            👑 Claim Your Listing
+                          </a>
+                          <a href="https://myseniorvalet.com/community-portal" 
+                             style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
+                            📊 View Dashboard
+                          </a>
+                        </div>
+                        
+                        <!-- Benefits Section -->
+                        <div style="background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%); border-radius: 10px; padding: 25px; margin-bottom: 25px;">
+                          <h3 style="color: #6b21a8; margin: 0 0 15px 0;">✨ Why Claim Your Community Profile?</h3>
+                          <div style="display: table; width: 100%;">
+                            <div style="display: table-row;">
+                              <div style="display: table-cell; padding: 8px 0;">
+                                <span style="color: #10b981; font-size: 18px;">✓</span>
+                              </div>
+                              <div style="display: table-cell; padding: 8px 0 8px 10px; color: #4b5563;">
+                                Get 3x more qualified inquiries
+                              </div>
+                            </div>
+                            <div style="display: table-row;">
+                              <div style="display: table-cell; padding: 8px 0;">
+                                <span style="color: #10b981; font-size: 18px;">✓</span>
+                              </div>
+                              <div style="display: table-cell; padding: 8px 0 8px 10px; color: #4b5563;">
+                                Update pricing & availability in real-time
+                              </div>
+                            </div>
+                            <div style="display: table-row;">
+                              <div style="display: table-cell; padding: 8px 0;">
+                                <span style="color: #10b981; font-size: 18px;">✓</span>
+                              </div>
+                              <div style="display: table-cell; padding: 8px 0 8px 10px; color: #4b5563;">
+                                Upload unlimited photos & virtual tours
+                              </div>
+                            </div>
+                            <div style="display: table-row;">
+                              <div style="display: table-cell; padding: 8px 0;">
+                                <span style="color: #10b981; font-size: 18px;">✓</span>
+                              </div>
+                              <div style="display: table-cell; padding: 8px 0 8px 10px; color: #4b5563;">
+                                Track visitor engagement & analytics
+                              </div>
+                            </div>
+                            <div style="display: table-row;">
+                              <div style="display: table-cell; padding: 8px 0;">
+                                <span style="color: #10b981; font-size: 18px;">✓</span>
+                              </div>
+                              <div style="display: table-cell; padding: 8px 0 8px 10px; color: #4b5563;">
+                                Priority placement in search results
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    
+                    <!-- Footer -->
+                    <tr>
+                      <td style="background-color: #f8fafc; padding: 30px; text-align: center; border-top: 1px solid #e2e8f0; border-radius: 0 0 12px 12px;">
+                        <p style="color: #64748b; font-size: 14px; margin: 0 0 10px 0;">
+                          This tour request was submitted through MySeniorValet's TourMate™ system
+                        </p>
+                        <p style="color: #94a3b8; font-size: 12px; margin: 0;">
+                          Questions? Contact us at <a href="mailto:hello@myseniorvalet.com" style="color: #4f46e5;">hello@myseniorvalet.com</a>
+                        </p>
+                        <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">
+                          © 2025 MySeniorValet. All rights reserved.
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
         `;
         
         await sgMail.send({
           to: community.email,
           from: "hello@myseniorvalet.com",
+          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
           subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
           html: communityEmailHtml,
         });
@@ -270,8 +431,9 @@ router.post("/schedule", async (req, res) => {
       `;
       
       await sgMail.send({
-        to: ["admin@myseniorvalet.com", "William.cowell01@gmail.com"],
+        to: "admin@myseniorvalet.com",
         from: "hello@myseniorvalet.com",
+        cc: "hello@myseniorvalet.com",
         subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
         html: adminEmailHtml,
       });
@@ -394,7 +556,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
                 <li>Share your experience with family members</li>
                 <li>Create a decision journal for your search</li>
               </ul>
-              <a href="${process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS.split(',')[0]}` : 'http://localhost:5000'}/tour-tracker" 
+              <a href="https://myseniorvalet.com/tour-tracker" 
                  style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
                 Open Tour Tracker™
               </a>
@@ -407,6 +569,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
         await sgMail.send({
           to: updatedTour.contactEmail,
           from: "hello@myseniorvalet.com",
+          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
           subject: `Tour Confirmed - ${community?.name}`,
           html: emailHtml,
         });

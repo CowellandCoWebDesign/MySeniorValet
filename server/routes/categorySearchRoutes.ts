@@ -10,13 +10,32 @@ import { sql, like, or, and, eq, desc } from 'drizzle-orm';
 
 const router = Router();
 
-// Vendor/Services search endpoint - Using service_providers table (3,584 providers)
+// Services search endpoint - ALL businesses and services (not just care-related)
 router.post('/api/vendors/search', async (req, res) => {
   try {
-    const { query = '', limit = 100, offset = 0 } = req.body;
+    const { query = '', limit = 100, offset = 0, category = 'services' } = req.body;
     const searchTerm = query.toLowerCase().trim();
     
+    // Services tab should return ALL businesses, not filtered by care services
+    // This includes restaurants, stores, salons, any business type
+    const isServicesSearch = category === 'services';
+    
     const startTime = Date.now();
+    
+    // Build WHERE clause - Services tab searches ALL businesses
+    let vendorWhereClause;
+    if (searchTerm) {
+      // Broad matching for ALL business types
+      vendorWhereClause = sql`(
+        LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(business_city) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(business_state) LIKE ${'%' + searchTerm + '%'}
+      )`;
+    } else {
+      vendorWhereClause = sql`true`;
+    }
     
     // First try vendors table for featured/verified vendors
     const vendorResults = await db.execute(sql`
@@ -29,22 +48,37 @@ router.post('/api/vendors/search', async (req, res) => {
         average_rating, total_reviews, featured, status
       FROM vendors
       WHERE status = 'active'
-        AND (
-          ${searchTerm ? sql`(
-            LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(business_type) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(business_city) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(business_state) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`}
-        )
+        AND ${vendorWhereClause}
+      ORDER BY
+        featured DESC,
+        average_rating DESC NULLS LAST
+      LIMIT ${limit}
     `);
+    
+    // Build service provider WHERE clause - search ALL businesses  
+    let serviceProviderWhereClause;
+    if (searchTerm) {
+      serviceProviderWhereClause = sql`(
+        LOWER(name) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+      )`;
+    } else {
+      serviceProviderWhereClause = sql`true`;
+    }
     
     // Then search service_providers table for comprehensive results
     const serviceProviderResults = await db.execute(sql`
       SELECT 
         'provider' as source_type,
-        id, name, 'Service Provider' as business_type, description, 
+        id, name, 
+        CASE 
+          WHEN LOWER(name) LIKE '%home care%' OR LOWER(description) LIKE '%home care%' THEN 'Home Care'
+          WHEN LOWER(name) LIKE '%hospice%' OR LOWER(description) LIKE '%hospice%' THEN 'Hospice Care'
+          WHEN LOWER(name) LIKE '%therapy%' OR LOWER(description) LIKE '%therapy%' THEN 'Therapy Services'
+          WHEN LOWER(name) LIKE '%medical%' OR LOWER(description) LIKE '%medical%' THEN 'Medical Services'
+          ELSE 'Service Provider'
+        END as business_type,
+        description, 
         description as short_description,
         contact_email as email, contact_phone as phone, 
         '' as city, '' as state,
@@ -54,16 +88,11 @@ router.post('/api/vendors/search', async (req, res) => {
         is_partner as featured, 'active' as status
       FROM service_providers
       WHERE is_active = true
-        AND (
-          ${searchTerm ? sql`(
-            LOWER(name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`}
-        )
+        AND ${serviceProviderWhereClause}
       ORDER BY 
         is_partner DESC, 
         rating DESC NULLS LAST
-      LIMIT ${limit - vendorResults.rows.length}
+      LIMIT ${Math.max(0, limit - vendorResults.rows.length)}
       OFFSET ${Math.max(0, offset - vendorResults.rows.length)}
     `);
     
@@ -73,15 +102,9 @@ router.post('/api/vendors/search', async (req, res) => {
     const totalCount = await db.execute(sql`
       SELECT 
         (SELECT COUNT(*) FROM vendors WHERE status = 'active' 
-          AND (${searchTerm ? sql`(
-            LOWER(business_name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`})) +
+          AND ${vendorWhereClause}) +
         (SELECT COUNT(*) FROM service_providers WHERE is_active = true
-          AND (${searchTerm ? sql`(
-            LOWER(name) LIKE ${'%' + searchTerm + '%'}
-            OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
-          )` : sql`true`})) as count
+          AND ${serviceProviderWhereClause}) as count
     `);
     
     res.json({
@@ -417,6 +440,89 @@ router.post('/api/resources/search', async (req, res) => {
         searchType: 'error',
         processingTime: 0,
         searchCategory: 'resources'
+      },
+      facets: {
+        states: [],
+        careTypes: [],
+        priceRanges: []
+      }
+    });
+  }
+});
+
+// Vendors/Affiliate Products search endpoint - For purchasable products only
+router.post('/api/affiliate/search', async (req, res) => {
+  try {
+    const { query = '', limit = 100, offset = 0 } = req.body;
+    const searchTerm = query.toLowerCase().trim();
+    
+    const startTime = Date.now();
+    
+    // Search for affiliate products from marketplace_vendors table
+    // These are purchasable products from Amazon, Walmart, etc.
+    let affiliateWhereClause;
+    if (searchTerm) {
+      affiliateWhereClause = sql`(
+        LOWER(name) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(description) LIKE ${'%' + searchTerm + '%'}
+        OR LOWER(short_description) LIKE ${'%' + searchTerm + '%'}
+      )`;
+    } else {
+      affiliateWhereClause = sql`true`;
+    }
+    
+    const affiliateResults = await db.execute(sql`
+      SELECT 
+        id, 
+        name, 
+        description, 
+        short_description,
+        logo_url, 
+        external_url,
+        is_featured as featured,
+        display_order,
+        category_id
+      FROM marketplace_vendors
+      WHERE ${affiliateWhereClause}
+      ORDER BY 
+        is_featured DESC,
+        display_order ASC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `);
+    
+    const totalCount = await db.execute(sql`
+      SELECT COUNT(*) as count 
+      FROM marketplace_vendors
+      WHERE ${affiliateWhereClause}
+    `);
+    
+    res.json({
+      communities: affiliateResults.rows || [],
+      totalResults: parseInt((totalCount.rows[0] as any)?.count || '0'),
+      searchMetadata: {
+        query,
+        searchType: 'affiliate',
+        processingTime: Date.now() - startTime,
+        searchCategory: 'vendors'
+      },
+      facets: {
+        states: [],
+        careTypes: [],
+        priceRanges: []
+      }
+    });
+  } catch (error) {
+    console.error('Affiliate products search error:', error);
+    res.status(500).json({ 
+      error: 'Failed to search affiliate products',
+      communities: [],
+      totalResults: 0,
+      searchMetadata: {
+        query: req.body.query,
+        searchType: 'error',
+        processingTime: 0,
+        searchCategory: 'vendors'
       },
       facets: {
         states: [],

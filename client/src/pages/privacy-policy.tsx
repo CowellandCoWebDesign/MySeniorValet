@@ -114,7 +114,7 @@ export default function PrivacyPolicy() {
               </p>
               <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed">
                 MySeniorValet uses multi-AI intelligence orchestration (Claude, Gemini, 
-                ChatGPT, Grok) for data verification and search enhancement. Your search 
+                ChatGPT, Perplexity) for data verification and search enhancement. Your search 
                 queries may be processed by AI services to provide better matching results.
               </p>
             </div>

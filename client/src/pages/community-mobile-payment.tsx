@@ -3,62 +3,41 @@ import { useParams, useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy, UserPlus, LogIn } from 'lucide-react';
+import { Loader2, Shield, CheckCircle2, Star, Crown, Trophy, UserPlus, LogIn, TrendingUp, Sparkles } from 'lucide-react';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { MobilePaymentForm } from '@/components/MobilePaymentForm';
+// Removed MobilePaymentForm - using direct Stripe Checkout for subscriptions
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
 import { useAuth } from '@/hooks/useAuth';
+import { getCommunityTier, COMMUNITY_TIERS, LEGACY_TIER_MAPPING } from '@shared/tiers';
 
-const TIER_DETAILS = {
-  standard: {
-    name: 'Standard',
-    price: 149,
-    icon: Star,
-    color: 'bg-blue-100 text-blue-800',
-    features: [
-      'Upload up to 10 photos',
-      'Upload 1 brochure PDF',
-      'Add external calendar link',
-      'Access basic analytics',
-      'Can respond to reviews',
-      '"Standard Verified" badge'
-    ]
+// Map tier IDs to icons and colors for visual representation
+const TIER_VISUALS = {
+  free: {
+    icon: CheckCircle2,
+    color: 'bg-gray-100 text-gray-800',
   },
-  featured: {
-    name: 'Featured',
-    price: 249,
+  starter: {
+    icon: Star,
+    color: 'bg-green-100 text-green-800',
+  },
+  growth: {
+    icon: Trophy,
+    color: 'bg-blue-100 text-blue-800',
+  },
+  professional: {
     icon: Shield,
     color: 'bg-purple-100 text-purple-800',
-    features: [
-      'All Standard features, plus:',
-      'Upload up to 25 photos',
-      '1 video (max 2 mins)',
-      'Upload up to 3 PDFs',
-      'Featured placement in search & maps',
-      'In-app messaging + AI assist',
-      'Promo badge support',
-      'Concierge "Preferred" tag'
-    ]
   },
-  platinum: {
-    name: 'Platinum',
-    price: 349,
+  premium: {
+    icon: Sparkles,
+    color: 'bg-indigo-100 text-indigo-800',
+  },
+  enterprise: {
     icon: Crown,
     color: 'bg-yellow-100 text-yellow-800',
-    features: [
-      'All Featured features, plus:',
-      'Upload up to 50 photos',
-      'Up to 3 videos (5 mins each)',
-      'Unlimited PDFs',
-      'Staff bios, care philosophy, menus',
-      'Availability sync',
-      'Admin dashboard',
-      'Top Concierge Priority',
-      'Monthly performance review call'
-    ]
-  }
+  },
 };
 
 export default function CommunityMobilePayment() {
@@ -71,12 +50,16 @@ export default function CommunityMobilePayment() {
   const [paymentSteps, setPaymentSteps] = useState<PaymentStep[]>(COMMUNITY_PAYMENT_STEPS);
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
 
-  const tierDetails = TIER_DETAILS[tier as keyof typeof TIER_DETAILS];
+  // Handle legacy tier names for backward compatibility
+  const actualTierId = LEGACY_TIER_MAPPING[tier as string] || tier;
+  const tierInfo = getCommunityTier(actualTierId as string);
+  const tierVisual = TIER_VISUALS[actualTierId as keyof typeof TIER_VISUALS] || TIER_VISUALS.starter;
+  const Icon = tierVisual.icon;
 
   useEffect(() => {
     if (authLoading) return;
 
-    if (!tierDetails) {
+    if (!tierInfo || tierInfo.price === 0) {
       setError('Invalid tier selected. Please choose a valid subscription plan.');
       setIsLoading(false);
       return;
@@ -193,6 +176,56 @@ export default function CommunityMobilePayment() {
     setLocation(`/community/${communityData?.communityId || ''}`);
   };
 
+  const handleCreateCheckout = async () => {
+    try {
+      setIsLoading(true);
+      setError('');
+
+      // Create Stripe Checkout Session for subscription
+      const response = await apiRequest(
+        'POST',
+        '/api/payments/create-subscription-checkout',
+        {
+          tier: tier,
+          communityId: communityData?.communityId || null,
+          communityName: communityData?.communityName || 'New Community',
+          userEmail: user?.email || null,
+          successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/community-mobile-payment/${tier}`
+        }
+      );
+
+      if (response.url) {
+        // Update payment steps to show we're going to Stripe
+        const checkoutSteps = paymentSteps.map(step => {
+          if (step.id === 'payment-details') {
+            return { ...step, status: 'active' as const };
+          }
+          if (step.id === 'account-setup' || step.id === 'tier-selection') {
+            return { ...step, status: 'completed' as const };
+          }
+          return step;
+        });
+        setPaymentSteps(checkoutSteps);
+        
+        // Redirect to Stripe Checkout
+        window.location.href = response.url;
+      } else {
+        throw new Error('Failed to create checkout session');
+      }
+    } catch (error: any) {
+      console.error('Checkout error:', error);
+      setError(error.message || 'Unable to process payment. Please try again.');
+      toast({
+        title: "Payment Error",
+        description: error.message || "Unable to process payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -204,7 +237,7 @@ export default function CommunityMobilePayment() {
     );
   }
 
-  if (error || !tierDetails) {
+  if (error || !tierInfo) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         <NavigationHeader />
@@ -222,7 +255,7 @@ export default function CommunityMobilePayment() {
     );
   }
 
-  const TierIcon = tierDetails.icon;
+  // Icon already set above
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -250,31 +283,31 @@ export default function CommunityMobilePayment() {
                     {communityData?.communityName || 'Community'}
                   </CardDescription>
                 </div>
-                <Badge className={tierDetails.color}>
-                  <TierIcon className="mr-1 h-4 w-4" />
-                  {tierDetails.name}
+                <Badge className={tierVisual.color}>
+                  <Icon className="mr-1 h-4 w-4" />
+                  {tierInfo.displayName}
                 </Badge>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b">
-                  <span className="font-semibold">{tierDetails.name} Subscription</span>
-                  <span className="text-2xl font-bold">${tierDetails.price}/mo</span>
+                  <span className="font-semibold">{tierInfo.displayName} Subscription</span>
+                  <span className="text-2xl font-bold">{tierInfo.priceDisplay}</span>
                 </div>
                 
                 <div>
                   <h4 className="font-semibold mb-2">Included Features:</h4>
                   <ul className="space-y-1">
-                    {tierDetails.features.slice(0, 4).map((feature, index) => (
+                    {tierInfo.highlights.slice(0, 4).map((feature, index) => (
                       <li key={index} className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <CheckCircle2 className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                         <span>{feature}</span>
                       </li>
                     ))}
-                    {tierDetails.features.length > 4 && (
+                    {tierInfo.highlights.length > 4 && (
                       <li className="text-sm text-gray-500 dark:text-gray-500 pl-6">
-                        ...and {tierDetails.features.length - 4} more features
+                        ...and {tierInfo.highlights.length - 4} more features
                       </li>
                     )}
                   </ul>
@@ -295,7 +328,7 @@ export default function CommunityMobilePayment() {
               <CardContent className="space-y-4">
                 <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Your {tierDetails.name} subscription will be linked to your account for easy management and renewal.
+                    Your {tierInfo.displayName} subscription will be linked to your account for easy management and renewal.
                   </p>
                 </div>
                 
@@ -345,20 +378,60 @@ export default function CommunityMobilePayment() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <MobilePaymentForm
-                  productId={tier || ''}
-                  productName={`${tierDetails.name} Community Subscription`}
-                  price={tierDetails.price * 100}
-                  metadata={{
-                    communityId: communityData?.communityId || 'new',
-                    communityName: communityData?.communityName || 'New Community',
-                    tier: tier || '',
-                    type: 'community_subscription',
-                    userId: user?.id || null // Ensure payment is tied to user account
-                  }}
-                  onSuccess={handlePaymentSuccess}
-                  onCancel={handleCancel}
-                />
+                <div className="space-y-4">
+                  {/* Price display */}
+                  <div className="text-center py-4">
+                    <div className="text-3xl font-bold">
+                      ${tierDetails.price}
+                      <span className="text-lg font-normal text-gray-500">/month</span>
+                    </div>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                      Cancel anytime • No hidden fees
+                    </p>
+                  </div>
+
+                  {/* Error message */}
+                  {error && (
+                    <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 text-sm">
+                      {error}
+                    </div>
+                  )}
+
+                  {/* Checkout button */}
+                  <Button
+                    onClick={handleCreateCheckout}
+                    disabled={isLoading}
+                    className="w-full h-12 text-lg"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                        Creating secure checkout...
+                      </>
+                    ) : (
+                      <>
+                        <Shield className="h-5 w-5 mr-2" />
+                        Subscribe Now
+                      </>
+                    )}
+                  </Button>
+
+                  {/* Security badge */}
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <Shield className="h-4 w-4" />
+                    <span>Secure payment powered by Stripe</span>
+                  </div>
+
+                  {/* Cancel button */}
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentStep('tier-selection')}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    Back to tier selection
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           )}

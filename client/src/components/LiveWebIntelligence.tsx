@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
+import { enrichmentCache } from '@/lib/enrichment-cache';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +46,7 @@ interface LiveWebIntelligenceProps {
   state: string;
   autoLoad?: boolean;  // Add autoLoad prop
   verificationReport?: any;
+  comprehensiveData?: any;
 }
 
 export function LiveWebIntelligence({ 
@@ -53,31 +55,39 @@ export function LiveWebIntelligence({
   city, 
   state,
   autoLoad = true,  // Default to auto-loading
-  verificationReport
+  verificationReport,
+  comprehensiveData
 }: LiveWebIntelligenceProps) {
   const [intelligence, setIntelligence] = useState<CommunityIntelligence | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [hasTriedLoading, setHasTriedLoading] = useState(false);
 
-  // Use mutation for fetching
+  // Use mutation for fetching WITH CACHE to prevent duplicate API calls
   const fetchIntelligence = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/competitive-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          communityId,
-          communityName,
-          location: `${city}, ${state}`,
-          type: 'city'
-        })
-      });
+      // Use enrichment cache to prevent duplicate API calls
+      return enrichmentCache.getOrFetch(
+        communityId || `${communityName}-${city}-${state}`,
+        async () => {
+          const response = await fetch('/api/competitive-analysis', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              communityId,
+              communityName,
+              location: `${city}, ${state}`,
+              type: 'city'
+            })
+          });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch intelligence');
-      }
+          if (!response.ok) {
+            throw new Error('Failed to fetch intelligence');
+          }
 
-      return response.json();
+          return response.json();
+        },
+        false
+      );
     },
     onSuccess: (data) => {
       if (data.intelligence) {
@@ -92,6 +102,29 @@ export function LiveWebIntelligence({
 
   // Auto-load intelligence when component mounts (if autoLoad is true)
   useEffect(() => {
+    // First check if we have comprehensive data
+    if (comprehensiveData?.marketData && !intelligence) {
+      console.log('📦 Using cached comprehensive market data');
+      
+      const mockIntelligence: CommunityIntelligence = {
+        found: true,
+        name: communityName,
+        officialWebsite: comprehensiveData.marketData.website,
+        phone: comprehensiveData.marketData.phone,
+        description: comprehensiveData.marketData.description,
+        pricing: comprehensiveData.marketData.pricing ? {
+          details: comprehensiveData.marketData.pricing
+        } : undefined,
+        sources: comprehensiveData.sources || [],
+        photos: comprehensiveData.photos || [],
+        notes: 'Data from unified cache'
+      };
+      
+      setIntelligence(mockIntelligence);
+      setIsExpanded(true);
+      return; // Exit early, no need to fetch
+    }
+    
     // If we have verification report data, use it directly
     if (verificationReport && !intelligence) {
       console.log('Using verification report data directly:', verificationReport);

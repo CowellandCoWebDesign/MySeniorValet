@@ -1,3 +1,5 @@
+import * as cheerio from 'cheerio';
+
 interface ScrapedCommunityData {
   photos: string[];
   floorPlans: string[];
@@ -51,35 +53,91 @@ export class WebsiteScraperService {
   
   private extractGalleryLinks(html: string, baseUrl: string): string[] {
     const links: string[] = [];
+    const urlObj = new URL(baseUrl);
+    
+    // Enhanced patterns for restaurants and services - UNRESTRICTED search
     const linkPatterns = [
-      /<a[^>]+href=["']([^"']*(?:gallery|photos|tour|amenities|floor-plans|virtual-tour)[^"']*)["']/gi,
-      /<a[^>]+href=["']([^"']*)["'][^>]*>(?:[^<]*(?:photos|gallery|tour|amenities|floor|virtual)[^<]*)<\/a>/gi
+      /<a[^>]+href=["']([^"']*(?:gallery|photos|tour|amenities|floor-plans|virtual-tour|menu|food|dishes|cuisine|dining|about|our-space|interior|exterior|events|catering)[^"']*)["']/gi,
+      /<a[^>]+href=["']([^"']*)["'][^>]*>(?:[^<]*(?:photos|gallery|tour|amenities|floor|virtual|menu|food|about|space|interior|exterior)[^<]*)<\/a>/gi
     ];
     
+    // Also add common gallery paths that might not be linked
+    const commonPaths = [
+      '/gallery', '/photos', '/images', '/media', '/portfolio',
+      '/menu', '/food', '/our-food', '/our-menu', '/cuisine',
+      '/about', '/about-us', '/our-space', '/our-restaurant',
+      '/interior', '/exterior', '/virtual-tour', '/tour',
+      '/events', '/private-dining', '/catering'
+    ];
+    
+    // Add common paths as potential gallery URLs
+    for (const path of commonPaths) {
+      const galleryUrl = `${urlObj.protocol}//${urlObj.host}${path}`;
+      links.push(galleryUrl);
+    }
+    
+    // Extract links from HTML
     for (const pattern of linkPatterns) {
       let match;
       while ((match = pattern.exec(html)) !== null) {
         let link = match[1];
         // Convert relative URLs to absolute
         if (link.startsWith('/')) {
-          const urlObj = new URL(baseUrl);
           link = `${urlObj.protocol}//${urlObj.host}${link}`;
         } else if (!link.startsWith('http')) {
-          const urlObj = new URL(baseUrl);
           link = `${urlObj.protocol}//${urlObj.host}/${link}`;
         }
         
-        if (!links.includes(link) && link.includes(new URL(baseUrl).host)) {
+        if (!links.includes(link)) {
           links.push(link);
         }
       }
     }
     
-    return links;
+    return [...new Set(links)]; // Remove duplicates
+  }
+
+  private async validateImageUrl(url: string): Promise<boolean> {
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`❌ Image URL returned ${response.status}: ${url.substring(0, 80)}`);
+        return false;
+      }
+      
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.startsWith('image/')) {
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.log(`❌ Failed to validate image URL: ${url.substring(0, 80)}`);
+      return false;
+    }
   }
 
   async scrapeWebsite(url: string, communityName?: string): Promise<ScrapedCommunityData> {
     console.log(`🕸️ Scraping website: ${url}`);
+    
+    // Determine if this is a service (restaurant, shop, etc.) vs a senior community
+    const isService = communityName && 
+                     !communityName.toLowerCase().includes('senior') && 
+                     !communityName.toLowerCase().includes('assisted') && 
+                     !communityName.toLowerCase().includes('memory') &&
+                     !communityName.toLowerCase().includes('retirement') &&
+                     !communityName.toLowerCase().includes('nursing') &&
+                     !communityName.toLowerCase().includes('hospice');
+    
+    if (isService) {
+      console.log(`🍴 Detected service business: ${communityName}`);
+    }
     
     // Check if this is a seniorlivingnearme listing (official community listing service)
     const isSeniorLivingNearMe = url.includes('seniorlivingnearme.com');
@@ -98,8 +156,9 @@ export class WebsiteScraperService {
       const galleryLinks = this.extractGalleryLinks(html, url);
       console.log(`📁 Found ${galleryLinks.length} potential gallery/photo pages`);
       
-      // Fetch all gallery pages in parallel
-      const pagePromises = galleryLinks.slice(0, 5).map(link => this.fetchPage(link)); // Limit to 5 pages
+      // Fetch all gallery pages in parallel - more aggressive for services
+      const maxPages = isService ? 10 : 5; // Fetch more pages for services
+      const pagePromises = galleryLinks.slice(0, maxPages).map(link => this.fetchPage(link));
       const additionalPages = await Promise.all(pagePromises);
       
       // Combine all HTML for photo extraction
@@ -126,40 +185,173 @@ export class WebsiteScraperService {
         contactInfo: {}
       };
 
-      // Extract all images from all pages
+      // Extract all images using Cheerio for better HTML parsing
       const imageUrls: string[] = [];
-      let match;
+      const $ = cheerio.load(allHtml);
       
-      // Enhanced patterns to find images in various contexts
-      const imgPatterns = [
-        /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
-        /data-(?:src|lazy|original|lazy-src)=["']([^"']+)["']/gi,
-        /<source[^>]+srcset=["']([^"']+)["'][^>]*>/gi,
-        /background-image:\s*url\(['"]?([^'")]+)['"]?\)/gi,
-        /data-background=["']([^"']+)["']/gi
-      ];
+      console.log(`🔍 Searching for images across ${pageCount} pages using Cheerio...`);
       
-      console.log(`🔍 Searching for images across ${pageCount} pages...`);
-      
-      for (const pattern of imgPatterns) {
-        while ((match = pattern.exec(allHtml)) !== null) {
-          let imgUrl = match[1];
-          
-          // Handle srcset (take first image)
-          if (imgUrl.includes(',')) {
-            imgUrl = imgUrl.split(',')[0].trim().split(' ')[0];
+      // 1. Standard img tags with various lazy-loading attributes
+      $('img').each((_, elem) => {
+        const sources = [
+          $(elem).attr('src'),
+          $(elem).attr('data-src'),
+          $(elem).attr('data-lazy'),
+          $(elem).attr('data-original'),
+          $(elem).attr('data-lazy-src'),
+          $(elem).attr('data-image'),
+          $(elem).attr('data-thumb'),
+          $(elem).attr('data-full'),
+          $(elem).attr('data-photo'),
+          $(elem).attr('data-picture')
+        ];
+        
+        sources.forEach(src => {
+          if (src && !imageUrls.includes(src)) {
+            imageUrls.push(src);
           }
-          
-          if (!imageUrls.includes(imgUrl)) {
-            imageUrls.push(imgUrl);
+        });
+      });
+      
+      // 2. Picture/source elements
+      $('picture source, source').each((_, elem) => {
+        const srcset = $(elem).attr('srcset');
+        if (srcset) {
+          // Extract URLs from srcset
+          const urls = srcset.split(',').map(s => s.trim().split(' ')[0]);
+          urls.forEach(url => {
+            if (url && !imageUrls.includes(url)) {
+              imageUrls.push(url);
+            }
+          });
+        }
+        const src = $(elem).attr('src');
+        if (src && !imageUrls.includes(src)) {
+          imageUrls.push(src);
+        }
+      });
+      
+      // 3. Background images from inline styles
+      $('[style*="background-image"]').each((_, elem) => {
+        const style = $(elem).attr('style') || '';
+        const bgMatch = style.match(/background-image:\s*url\(['"]?([^'")]+)['"]?\)/i);
+        if (bgMatch && bgMatch[1] && !imageUrls.includes(bgMatch[1])) {
+          imageUrls.push(bgMatch[1]);
+        }
+      });
+      
+      // 4. Data attributes for background images
+      $('[data-background], [data-bg], [data-image-url]').each((_, elem) => {
+        const urls = [
+          $(elem).attr('data-background'),
+          $(elem).attr('data-bg'),
+          $(elem).attr('data-image-url')
+        ];
+        urls.forEach(url => {
+          if (url && !imageUrls.includes(url)) {
+            imageUrls.push(url);
+          }
+        });
+      });
+      
+      // 5. Links directly to images
+      $('a').each((_, elem) => {
+        const href = $(elem).attr('href');
+        if (href && href.match(/\.(jpg|jpeg|png|webp|gif|JPG|JPEG|PNG|WEBP|GIF)(\?|#|$)/i)) {
+          if (!imageUrls.includes(href)) {
+            imageUrls.push(href);
           }
         }
+      });
+      
+      // 6. Meta tags (Open Graph, Twitter)
+      $('meta[property="og:image"], meta[property="og:image:url"], meta[name="twitter:image"], meta[property="twitter:image"]').each((_, elem) => {
+        const content = $(elem).attr('content');
+        if (content && !imageUrls.includes(content)) {
+          imageUrls.push(content);
+        }
+      });
+      
+      // 7. JSON-LD structured data
+      $('script[type="application/ld+json"]').each((_, elem) => {
+        try {
+          const jsonData = JSON.parse($(elem).html() || '{}');
+          const extractImagesFromJson = (obj: any): void => {
+            if (!obj) return;
+            if (typeof obj === 'string' && obj.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
+              if (!imageUrls.includes(obj)) {
+                imageUrls.push(obj);
+              }
+            } else if (Array.isArray(obj)) {
+              obj.forEach(extractImagesFromJson);
+            } else if (typeof obj === 'object') {
+              ['image', 'photo', 'photos', 'logo', 'thumbnail', 'thumbnailUrl', 'contentUrl'].forEach(key => {
+                if (obj[key]) extractImagesFromJson(obj[key]);
+              });
+              if (obj.url && typeof obj.url === 'string' && obj.url.match(/\.(jpg|jpeg|png|webp|gif)/i)) {
+                if (!imageUrls.includes(obj.url)) {
+                  imageUrls.push(obj.url);
+                }
+              }
+            }
+          };
+          extractImagesFromJson(jsonData);
+        } catch (e) {
+          // Invalid JSON, skip
+        }
+      });
+      
+      // 8. Service-specific image extraction (restaurants, shops)
+      if (isService) {
+        // Look for common gallery and menu selectors
+        const serviceSelectors = [
+          '.menu-item img', '.food-item img', '.dish img',
+          '.gallery img', '.portfolio img', '.carousel img',
+          '.slider img', '.swiper-slide img', '.slick-slide img',
+          '[class*="gallery"] img', '[class*="photo"] img',
+          '[class*="menu"] img', '[class*="food"] img'
+        ];
+        
+        serviceSelectors.forEach(selector => {
+          $(selector).each((_, elem) => {
+            const src = $(elem).attr('src') || $(elem).attr('data-src');
+            if (src && !imageUrls.includes(src)) {
+              imageUrls.push(src);
+            }
+          });
+        });
       }
       
       console.log(`📷 Found ${imageUrls.length} total image URLs`);
       
       // Process and categorize images  
       const baseUrlObj = new URL(url);
+      
+      // 9. WordPress-specific: Try to find the uploads directory and scan for images
+      const wpUploadsPattern = /wp-content\/uploads\/\d{4}\/\d{2}\//gi;
+      const wpUploadsMatches = allHtml.match(wpUploadsPattern);
+      if (wpUploadsMatches && wpUploadsMatches.length > 0) {
+        console.log(`🔍 Detected WordPress site, found uploads paths: ${wpUploadsMatches.slice(0, 3).join(', ')}`);
+        
+        // Try to find all image paths in WordPress uploads - be more flexible with the pattern
+        const wpImagePatterns = [
+          /wp-content\/uploads\/\d{4}\/\d{2}\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi,
+          /wp-content\/uploads\/\d{4}\/\d{1,2}\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi,
+          /wp-content\/uploads\/[^"'\s]+\.(?:jpg|jpeg|png|webp|gif)/gi
+        ];
+        
+        for (const pattern of wpImagePatterns) {
+          const wpImages = allHtml.match(pattern);
+          if (wpImages) {
+            wpImages.forEach(imgPath => {
+              const fullUrl = `${baseUrlObj.protocol}//${baseUrlObj.host}/${imgPath}`;
+              if (!imageUrls.includes(fullUrl)) {
+                imageUrls.push(fullUrl);
+              }
+            });
+          }
+        }
+      }
       const processedPhotos: string[] = [];
       const processedFloorPlans: string[] = [];
       const processedVirtual: string[] = [];
@@ -176,49 +368,83 @@ export class WebsiteScraperService {
         
         const imgLower = imgUrl.toLowerCase();
         
-        // Skip marketing materials, logos, banners, and ads
-        if (imgLower.includes('logo') || imgLower.includes('icon') || 
-            imgLower.includes('favicon') || imgLower.includes('sprite') ||
-            imgLower.includes('.svg') || imgLower.includes('banner') ||
-            imgLower.includes('slider') || imgLower.includes('campaign') ||
-            imgLower.includes('ad_') || imgLower.includes('_ad') ||
-            imgLower.includes('promo') || imgLower.includes('podcast') ||
-            imgLower.includes('newsletter') || imgLower.includes('header') ||
-            imgLower.includes('footer') || imgLower.includes('background') ||
-            imgLower.includes('button') || imgLower.includes('arrow')) {
-          continue;
+        // For services (restaurants, shops), minimal filtering - accept almost everything
+        if (isService) {
+          // Skip only technical/tracking images
+          if (imgLower.includes('.svg') || imgLower.includes('pixel.gif') ||
+              imgLower.includes('tracking') || imgLower.includes('analytics') ||
+              imgUrl.includes('data:image') || imgLower.includes('spacer.gif') ||
+              imgLower.includes('1x1.') || imgLower.includes('blank.gif')) {
+            continue;
+          }
+        } else {
+          // For senior communities: Skip marketing materials, logos, banners, and ads
+          if (imgLower.includes('logo') || imgLower.includes('icon') || 
+              imgLower.includes('favicon') || imgLower.includes('sprite') ||
+              imgLower.includes('.svg') || imgLower.includes('banner') ||
+              imgLower.includes('slider') || imgLower.includes('campaign') ||
+              imgLower.includes('ad_') || imgLower.includes('_ad') ||
+              imgLower.includes('promo') || imgLower.includes('podcast') ||
+              imgLower.includes('newsletter') || imgLower.includes('header') ||
+              imgLower.includes('footer') || imgLower.includes('background') ||
+              imgLower.includes('button') || imgLower.includes('arrow')) {
+            continue;
+          }
         }
         
-        // Skip images with marketing dimensions (likely ads)
-        if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
-            imgLower.includes('width=250') || imgLower.includes('width=540') ||
-            imgLower.includes('height=73') || imgLower.includes('height=450')) {
-          continue;
+        // For services, don't skip any image dimensions (food photos can be any size)
+        // For senior communities, skip images with marketing dimensions (likely ads)
+        if (!isService) {
+          if (imgLower.includes('1200_x_1000') || imgLower.includes('1200x1000') ||
+              imgLower.includes('width=250') || imgLower.includes('width=540') ||
+              imgLower.includes('height=73') || imgLower.includes('height=450')) {
+            continue;
+          }
         }
         
         // Categorize images
-        if (imgLower.includes('floor') || imgLower.includes('plan') || imgLower.includes('layout')) {
-          if (!processedFloorPlans.includes(imgUrl)) {
-            processedFloorPlans.push(imgUrl);
-          }
-        } else if (imgUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i)) {
-          // Since we're on the official community website, be inclusive with photos
-          // Only exclude obvious non-community images (which we already filtered above)
+        if (isService) {
+          // For services: Add ALL images as photos - no categorization needed
+          // Accept everything - food photos, interior, exterior, menu items, etc.
           if (!processedPhotos.includes(imgUrl)) {
             processedPhotos.push(imgUrl);
+            console.log(`✅ Added service image (unrestricted): ${imgUrl.substring(0, 80)}`);
+          }
+        } else {
+          // For senior communities: Categorize floor plans vs regular photos
+          if (imgLower.includes('floor') || imgLower.includes('plan') || imgLower.includes('layout')) {
+            if (!processedFloorPlans.includes(imgUrl)) {
+              processedFloorPlans.push(imgUrl);
+            }
+          } else if (imgUrl.match(/\.(jpg|jpeg|png|webp|gif)(\?|$)/i)) {
+            // Since we're on the official community website, be inclusive with photos
+            // Only exclude obvious non-community images (which we already filtered above)
+            if (!processedPhotos.includes(imgUrl)) {
+              processedPhotos.push(imgUrl);
+            }
           }
         }
       }
       
-      // Transfer processed photos to data structure
-      data.photos = processedPhotos.slice(0, 30); // Allow up to 30 photos from official site
+      // Transfer processed photos to data structure - optionally validate URLs
+      // For services, skip validation to speed up response (validation happens during proxy)
+      if (isService && processedPhotos.length > 0) {
+        // For services, don't validate each URL to avoid delays
+        // The image-proxy endpoint will handle validation
+        data.photos = processedPhotos.slice(0, 50);
+      } else {
+        // For communities, optionally validate photos (currently disabled for speed)
+        data.photos = processedPhotos.slice(0, 50);
+      }
+      
       data.floorPlans = processedFloorPlans.slice(0, 10);
       
-      console.log(`✅ Extracted ${data.photos.length} community photos from ${pageCount} pages`);
+      console.log(`✅ Extracted ${data.photos.length} ${isService ? 'business' : 'community'} photos from ${pageCount} pages`);
       console.log(`📐 Found ${data.floorPlans.length} floor plans`);
       
       // Look for virtual tour links
       const virtualTourRegex = /(matterport\.com[^"'\s]+|3d-?tour[^"'\s]*|virtual-?tour[^"'\s]*)/gi;
+      let match;
       while ((match = virtualTourRegex.exec(allHtml)) !== null) {
         if (match[1].startsWith('http')) {
           data.virtualTours.push(match[1]);

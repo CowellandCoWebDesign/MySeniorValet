@@ -67,7 +67,7 @@ export class DiscoveredCommunityService {
           city: community.city || '',
           state: community.state || '',
           zipCode: community.zip || '',
-          country: community.country || 'United States',
+          country: community.country || null, // Don't default to United States for international communities
           website: community.website,
           phone: community.phone,
           email: community.email,
@@ -78,14 +78,9 @@ export class DiscoveredCommunityService {
           longitude: community.longitude,
           county: community.county,
           data_source: `ai_discovered_${community.discoverySource}`,
-          // Store raw discovery data and social media in json fields
-          metadata: {
-            contactPerson: community.contactPerson,
-            hoursOfOperation: community.hoursOfOperation,
-            socialMedia: community.socialMedia,
-            rawDiscoveryData: community.rawData,
-            discoveredAt: new Date().toISOString()
-          },
+          is_active: true, // CRITICAL: Mark discovered communities as active so they appear in searches
+          is_verified: false, // Mark as not verified until manual verification
+          operatingHours: community.hoursOfOperation,
           created_at: new Date(),
           updated_at: new Date()
         })
@@ -143,18 +138,9 @@ export class DiscoveredCommunityService {
       if (enrichedData.state) updateData.state = enrichedData.state;
       if (enrichedData.zip) updateData.zipCode = enrichedData.zip;
 
-      // Merge metadata
-      if (enrichedData.contactPerson || enrichedData.hoursOfOperation || enrichedData.socialMedia) {
-        const existing = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
-        if (existing[0]) {
-          updateData.metadata = {
-            ...(existing[0].metadata || {}),
-            contactPerson: enrichedData.contactPerson || existing[0].metadata?.contactPerson,
-            hoursOfOperation: enrichedData.hoursOfOperation || existing[0].metadata?.hoursOfOperation,
-            socialMedia: enrichedData.socialMedia || existing[0].metadata?.socialMedia,
-            enrichedAt: new Date().toISOString()
-          };
-        }
+      // Update operating hours if provided
+      if (enrichedData.hoursOfOperation) {
+        updateData.operatingHours = enrichedData.hoursOfOperation;
       }
 
       await db

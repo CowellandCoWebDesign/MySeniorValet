@@ -71,35 +71,41 @@ class CommunityStatsCache {
     try {
       console.log('Refreshing community stats cache...');
       
-      // Get total count
-      const totalResult = await db.select({ count: sql<number>`count(*)` }).from(communities);
-      const totalCommunities = totalResult[0]?.count || 0;
+      // Get total count - optimized with direct SQL for speed
+      const totalResult = await db.execute(sql`
+        SELECT COUNT(*)::integer as count FROM communities
+      `);
+      const totalCommunities = totalResult.rows[0]?.count || 0;
 
-      // Get counts by state
-      const stateResults = await db
-        .select({ 
-          state: communities.state, 
-          count: sql<number>`count(*)` 
-        })
-        .from(communities)
-        .where(sql`${communities.state} IS NOT NULL`)
-        .groupBy(communities.state);
+      // Get counts by state - using raw SQL for better performance
+      // Limit to top 10 states to prevent timeout
+      const stateResults = await db.execute(sql`
+        SELECT state, COUNT(*)::integer as count 
+        FROM communities 
+        WHERE state IS NOT NULL 
+        GROUP BY state 
+        ORDER BY count DESC 
+        LIMIT 10
+      `);
 
       const byState: Record<string, number> = {};
-      stateResults.forEach(row => {
+      stateResults.rows.forEach((row: any) => {
         if (row.state) {
           byState[row.state] = row.count;
         }
       });
 
-      // Get counts by care type (simplified - just count communities with care types)
-      const careTypeResults = await db
-        .select({ count: sql<number>`count(*)` })
-        .from(communities)
-        .where(sql`${communities.careTypes} IS NOT NULL AND array_length(${communities.careTypes}, 1) > 0`);
+      // Simplified care type count - just check if populated
+      const careTypeResult = await db.execute(sql`
+        SELECT COUNT(*)::integer as count 
+        FROM communities 
+        WHERE care_types IS NOT NULL 
+        AND array_length(care_types, 1) > 0
+        LIMIT 1
+      `);
 
       const byCareType = {
-        'with_care_types': careTypeResults[0]?.count || 0,
+        'with_care_types': careTypeResult.rows[0]?.count || 0,
         'total': totalCommunities
       };
 

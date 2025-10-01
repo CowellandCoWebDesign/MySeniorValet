@@ -79,14 +79,14 @@ export default function VendorMarketplace() {
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4">
-          <Link href="/">
+          <Link to="/">
             <Button variant="ghost" className="text-white hover:text-gray-200 mb-4">
               ← Back to Home
             </Button>
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Senior Services & Vendor Marketplace</h1>
           <p className="text-xl opacity-90 mb-8">
-            Trusted services and products to support your senior living journey
+            Researched and discovered services and products to support your senior living journey
           </p>
           
           {/* Statistics Row */}
@@ -115,8 +115,8 @@ export default function VendorMarketplace() {
       <div className="bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800">
         <div className="container mx-auto px-4 py-3">
           <p className="text-sm text-gray-600 dark:text-gray-400 text-center">
-            Vendors shown are for your convenience and do not imply partnership. 
-            MySeniorValet does not currently receive compensation from these listings.
+            Vendors shown are for your convenience. MySeniorValet may receive affiliate commissions from select partners 
+            (currently Amazon and 1-800-Flowers). All affiliate relationships are clearly disclosed.
           </p>
         </div>
       </div>
@@ -228,7 +228,7 @@ export default function VendorMarketplace() {
                               <Badge className="ml-2 bg-blue-600 text-white">Featured</Badge>
                             </CardTitle>
                             <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                              {vendor.description || 'Trusted senior service provider'}
+                              {vendor.description || 'Researched senior service provider'}
                             </p>
                           </div>
                           {vendor.logoUrl && (
@@ -356,11 +356,11 @@ export default function VendorMarketplace() {
         <div className="mt-12 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg p-8 text-center">
           <h3 className="text-2xl font-bold mb-4">Ready to Grow Your Senior Service Business?</h3>
           <p className="text-gray-700 dark:text-gray-300 mb-6 max-w-2xl mx-auto">
-            Join thousands of trusted vendors already connecting with families through MySeniorValet. 
+            Join thousands of researched vendors already connecting with families through MySeniorValet. 
             Get started today and claim your 50% discount before it expires!
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link href="/vendor-signup">
+            <Link to="/vendor-signup">
               <Button size="lg" className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl">
                 <Sparkles className="w-5 h-5 mr-2" />
                 Become a Verified Partner

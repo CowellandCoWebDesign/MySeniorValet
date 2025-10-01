@@ -46,7 +46,20 @@ export function LanguageSwitcher({
   showLabel = true,
   className = "" 
 }: LanguageSwitcherProps) {
-  const { language, setLanguage, t } = useLanguage();
+  let language: 'en' | 'fr' | 'es' = 'en';
+  let setLanguage = (lang: 'en' | 'fr' | 'es') => {};
+  let t = (key: string) => 'Language';
+  
+  try {
+    const context = useLanguage();
+    if (context) {
+      language = context.language;
+      setLanguage = context.setLanguage;
+      t = context.t;
+    }
+  } catch (error) {
+    console.warn('Language context not available, using defaults');
+  }
   
   const currentLang = languages.find(l => l.code === language) || languages[0];
   const getNextLang = () => {
@@ -91,7 +104,7 @@ export function LanguageSwitcher({
         <DropdownMenuContent align="end" className="w-64">
           <DropdownMenuLabel className="flex items-center gap-2">
             <Languages className="h-4 w-4" />
-            {t('nav.language')}
+            {typeof t === 'function' ? t('nav.language') : 'Language'}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           {languages.map((lang) => (

@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { NavigationHeader } from '@/components/NavigationHeader';
+import { COMMUNITY_TIERS, VENDOR_TIERS } from '@shared/tiers';
 
 interface PaymentTest {
   id: string;
@@ -37,15 +38,22 @@ interface PaymentTest {
 export default function PaymentMonitoring() {
   const { user } = useAuth();
   const [tests, setTests] = useState<PaymentTest[]>([
-    // Community Tiers
-    { id: '1', type: 'community', tier: 'Verified (Free)', price: 0, status: 'success' },
-    { id: '2', type: 'community', tier: 'Standard', price: 149, status: 'pending' },
-    { id: '3', type: 'community', tier: 'Featured', price: 249, status: 'pending' },
-    { id: '4', type: 'community', tier: 'Platinum', price: 349, status: 'pending' },
-    // Vendor Tiers
-    { id: '5', type: 'vendor', tier: 'Basic Listing', price: 99, status: 'pending' },
-    { id: '6', type: 'vendor', tier: 'Featured Vendor', price: 249, status: 'pending' },
-    { id: '7', type: 'vendor', tier: 'National Partner', price: 499, status: 'pending' }
+    // Community Tiers from single source of truth
+    ...Object.values(COMMUNITY_TIERS).map((tier, index) => ({
+      id: `c${index + 1}`,
+      type: 'community' as const,
+      tier: tier.displayName,
+      price: tier.price,
+      status: tier.price === 0 ? 'success' as const : 'pending' as const
+    })),
+    // Vendor Tiers from single source of truth
+    ...Object.values(VENDOR_TIERS).map((tier, index) => ({
+      id: `v${index + 1}`,
+      type: 'vendor' as const,
+      tier: tier.displayName,
+      price: tier.price,
+      status: 'pending' as const
+    }))
   ]);
   
   const [isTestRunning, setIsTestRunning] = useState(false);

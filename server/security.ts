@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import { auditService } from './audit';
 
 // Rate limiting store (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
@@ -91,8 +92,26 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
     res.setHeader('Strict-Transport-Security', SECURITY_CONFIG.headers.hsts);
   }
   
-  // Content Security Policy
-  res.setHeader('Content-Security-Policy', SECURITY_CONFIG.headers.contentSecurityPolicy);
+  // Enhanced Content Security Policy with better coverage
+  const csp = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://maps.googleapis.com",
+    "style-src 'self' 'unsafe-inline' https://api.mapbox.com https://fonts.googleapis.com https://unpkg.com",
+    "img-src 'self' data: https: blob: https://cdn.pixabay.com https://images.unsplash.com https://lh3.googleusercontent.com https://*.stripe.com",
+    "connect-src 'self' https: wss: ws: https://api.perplexity.ai https://api.anthropic.com https://api.openai.com https://www.google-analytics.com https://maps.googleapis.com https://api.stripe.com https://checkout.stripe.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "frame-src 'self' https://js.stripe.com https://checkout.stripe.com https://hooks.stripe.com https://www.youtube.com https://www.google.com",
+    "object-src 'none'",
+    "media-src 'self' https:",
+    "child-src 'self' blob:",
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
+    "form-action 'self'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'"
+  ].join('; ');
+  
+  res.setHeader('Content-Security-Policy', csp);
   
   // Remove server identification
   res.removeHeader('X-Powered-By');
@@ -100,16 +119,47 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
   next();
 }
 
-// Input sanitization middleware
+// Enhanced input sanitization middleware with XSS and SQL injection protection
 export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
   const sanitize = (obj: any): any => {
     if (typeof obj === 'string') {
-      // Remove potential XSS patterns
-      return obj
+      // Enhanced XSS protection patterns
+      let cleaned = obj
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+        .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+        .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+        .replace(/<embed\b[^<]*(?:(?!<\/embed>)<[^<]*)*<\/embed>/gi, '')
+        .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
         .replace(/javascript:/gi, '')
+        .replace(/vbscript:/gi, '')
+        .replace(/data:text\/html/gi, '')
         .replace(/on\w+\s*=/gi, '')
+        .replace(/eval\(/gi, '')
+        .replace(/setTimeout\(/gi, '')
+        .replace(/setInterval\(/gi, '')
+        .replace(/alert\(/gi, '')
+        .replace(/confirm\(/gi, '')
+        .replace(/prompt\(/gi, '')
         .trim();
+      
+      // SQL injection protection patterns
+      const sqlPatterns = [
+        /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|UNION|EXEC|EXECUTE)\b)/gi,
+        /(';|";|--|\*\/|xp_|sp_)/gi,
+        /(\bOR\b\s*\d+\s*=\s*\d+)/gi,
+        /(\bAND\b\s*\d+\s*=\s*\d+)/gi,
+        /(\bOR\b\s*'[^']*'\s*=\s*'[^']*')/gi,
+        /(\bAND\b\s*'[^']*'\s*=\s*'[^']*')/gi
+      ];
+      
+      for (const pattern of sqlPatterns) {
+        if (pattern.test(cleaned)) {
+          console.warn(`[SECURITY] Potential SQL injection blocked: ${req.method} ${req.path} - Pattern: ${cleaned.substring(0, 100)}`);
+          cleaned = cleaned.replace(pattern, '');
+        }
+      }
+      
+      return cleaned;
     }
     
     if (obj && typeof obj === 'object') {
@@ -118,7 +168,9 @@ export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
       } else {
         const sanitized: any = {};
         for (const [key, value] of Object.entries(obj)) {
-          sanitized[key] = sanitize(value);
+          // Sanitize keys to prevent prototype pollution
+          const sanitizedKey = typeof key === 'string' ? key.replace(/[^\w\s-_.]/gi, '') : key;
+          sanitized[sanitizedKey] = sanitize(value);
         }
         return sanitized;
       }
@@ -192,6 +244,18 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     return next();
   }
 
+  // Skip service intelligence endpoint - business names with special characters are legitimate
+  if (req.path === '/api/service-intelligence') {
+    console.log('Skipping SQL injection protection for service intelligence - business names with special characters');
+    return next();
+  }
+  
+  // Skip global discovery endpoint - business names often have parentheses like "Hotel Name (Adult Only)"
+  if (req.path === '/api/global-discovery/search' || req.path === '/api/nlp/search' || req.path === '/api/search/unified') {
+    console.log('Skipping SQL injection protection for discovery/search - business names can have parentheses');
+    return next();
+  }
+
   const suspiciousPatterns = [
     // Enhanced SQL injection patterns
     /(';)|(\';)|(;)|(--)|(\s(OR|AND)\s.*(=|LIKE))/i,
@@ -200,8 +264,8 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     /(\bSP_\w+)/i,
     // XSS patterns
     /(<script|<\/script>|javascript:|vbscript:|onload=|onerror=|eval\(|alert\()/i,
-    // Command injection patterns
-    /(\||;|&|`|\$\(|exec|system|shell_exec|passthru)/i,
+    // Command injection patterns (exclude standalone & for business names)
+    /(\||;|&&|`|\$\(|exec|system|shell_exec|passthru)/i,
     // LDAP injection patterns
     /(\*\)|&\(|\|\(|\)|\(cn=|\(uid=|\(mail=)/i,
     // NoSQL injection patterns
@@ -210,6 +274,16 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
   
   const checkForSQLInjection = (value: any): boolean => {
     if (typeof value === 'string') {
+      // Allow HTML entities for legitimate business names (e.g., "Hinshaw & Culbertson LLP" becomes "Hinshaw &amp; Culbertson LLP")
+      // Skip checks if it's just a business name with HTML entities
+      const decodedValue = value.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#039;/g, "'");
+      
+      // Check if this is likely a business name (contains letters and common business characters)
+      const isLikelyBusinessName = /^[A-Za-z0-9\s&',\.\-]+$/.test(decodedValue);
+      if (isLikelyBusinessName && value.length < 200) {
+        return false; // Allow legitimate business names
+      }
+      
       return suspiciousPatterns.some(pattern => pattern.test(value));
     }
     
@@ -237,7 +311,6 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     
     // Log to security audit
     try {
-      const { auditService } = require('./audit');
       auditService.logSuspiciousActivity(req, 'Injection attack detected', {
         patterns: suspiciousPatterns.map(p => p.source),
         requestData: { body: req.body, query: req.query },

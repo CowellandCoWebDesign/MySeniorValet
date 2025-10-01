@@ -4,7 +4,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, AlertCircle, Sparkles, Search } from 'lucide-react';
+import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, AlertCircle, Sparkles, Search, Code, ChevronDown, ChevronUp } from 'lucide-react';
+import { ScrollArea } from './ui/scroll-area';
+import { Separator } from './ui/separator';
 import { useLocation } from 'wouter';
 
 interface GlobalDiscoveryResult {
@@ -39,6 +41,12 @@ interface GlobalDiscoveryModalProps {
     searchLocation: string;
     aiConfidence?: number;
     discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources';
+    rawPerplexityResponse?: string;
+    perplexityQuery?: string;
+    timeout?: boolean;
+    status?: 'timeout' | 'partial' | string;
+    note?: string;
+    retryAfterMs?: number;
   };
 }
 
@@ -52,6 +60,7 @@ export function GlobalDiscoveryModal({
   const [, setLocation] = useLocation();
   const [selectedCommunity, setSelectedCommunity] = useState<GlobalDiscoveryResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showRawResponse, setShowRawResponse] = useState(false);
   
   const handleSelectCommunity = (community: GlobalDiscoveryResult) => {
     setSelectedCommunity(community);
@@ -80,16 +89,63 @@ export function GlobalDiscoveryModal({
             Global Discovery Results
           </DialogTitle>
           <DialogDescription className="text-base">
-            Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
-            {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
-              <span className="ml-2 text-green-600 dark:text-green-400">
-                ({metadata.discoveredCount} newly discovered!)
+            {/* Check if it's a timeout before showing results count */}
+            {metadata?.timeout && metadata?.status === 'timeout' ? (
+              <span className="text-amber-600 dark:text-amber-400">
+                Search timed out for "{searchQuery}" - This search is taking longer than expected
               </span>
+            ) : (
+              <>
+                Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
+                {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
+                  <span className="ml-2 text-green-600 dark:text-green-400">
+                    ({metadata.discoveredCount} newly discovered!)
+                  </span>
+                )}
+              </>
             )}
           </DialogDescription>
         </DialogHeader>
         
         <div className="flex-1 overflow-y-auto">
+          {/* Raw AI Response Section */}
+          {metadata?.rawPerplexityResponse && (
+            <div className="mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRawResponse(!showRawResponse)}
+                className="flex items-center gap-2 mb-2"
+              >
+                <Code className="w-4 h-4" />
+                {showRawResponse ? 'Hide' : 'Show'} AI Response
+                {showRawResponse ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+              
+              {showRawResponse && (
+                <Card className="bg-gray-50 dark:bg-gray-900/50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Perplexity AI Response</CardTitle>
+                    {metadata.perplexityQuery && (
+                      <CardDescription className="text-xs">
+                        Query: "{metadata.perplexityQuery}"
+                      </CardDescription>
+                    )}
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-48 w-full rounded-md border p-3">
+                      <pre className="text-xs font-mono whitespace-pre-wrap">
+                        {metadata.rawPerplexityResponse}
+                      </pre>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              )}
+              
+              <Separator className="my-3" />
+            </div>
+          )}
+          
           {/* Metadata Banner */}
           {metadata && (
             <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
@@ -111,9 +167,37 @@ export function GlobalDiscoveryModal({
                 </div>
                 {metadata.sources && metadata.sources.length > 0 && (
                   <div className="text-xs text-gray-600 dark:text-gray-400">
-                    Sources: {metadata.sources.length} websites
+                    Sources: {
+                      metadata.sources.includes('Database') && metadata.sources.length > 1
+                        ? `${metadata.sources.filter(s => s !== 'Database').length} websites + Database comparison`
+                        : metadata.sources.includes('Database')
+                        ? 'MySeniorValet Database'
+                        : `${metadata.sources.length} ${metadata.sources.length === 1 ? 'website' : 'websites'}`
+                    }
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+          
+          {/* Timeout Message */}
+          {metadata?.timeout && metadata?.status === 'timeout' && results.length === 0 && (
+            <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Search className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5" />
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+                    Search is taking longer than expected
+                  </p>
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    International searches can take 30-60 seconds. Please try:
+                  </p>
+                  <ul className="text-sm text-amber-700 dark:text-amber-300 list-disc list-inside space-y-1">
+                    <li>Searching for a specific city instead of a country (e.g., "Hotels in Rome" instead of "Hotels in Italy")</li>
+                    <li>Waiting a moment and trying again</li>
+                    <li>Using more specific search terms</li>
+                  </ul>
+                </div>
               </div>
             </div>
           )}

@@ -179,19 +179,56 @@ export function CommunityCard({ community }: CommunityCardProps) {
   const topAmenities = getTopAmenities();
   // Remove the problematic priceTransparency call for now
 
-  // Get all photos from various sources
+  // Get all photos from various sources with filtering
   const getAllPhotos = () => {
     const allPhotos: string[] = [];
     
-    // Add photos from different sources
+    // Blacklist patterns for stock photo URLs
+    const stockPhotoPatterns = [
+      /seniorliving\.org/i,
+      /stock/i,
+      /placeholder/i,
+      /generic/i,
+      /template/i,
+      /sample/i,
+      /demo/i,
+      /default/i,
+      /\bcdn\..*stock/i,
+      /shutterstock/i,
+      /gettyimages/i,
+      /istockphoto/i,
+      /depositphotos/i,
+      /123rf/i,
+      /fotolia/i,
+      /dreamstime/i
+    ];
+    
+    // Function to check if a photo URL is likely a stock photo
+    const isStockPhoto = (url: string): boolean => {
+      return stockPhotoPatterns.some(pattern => pattern.test(url));
+    };
+    
+    // Priority 1: Add photos from Google/community.photos (most reliable)
     if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
-      allPhotos.push(...community.photos);
+      const realPhotos = community.photos.filter(photo => !isStockPhoto(photo));
+      allPhotos.push(...realPhotos);
     }
-    if (community.yelpPhotos && Array.isArray(community.yelpPhotos) && community.yelpPhotos.length > 0) {
-      allPhotos.push(...community.yelpPhotos);
+    
+    // Priority 2: Add Yelp photos if we don't have enough real photos
+    if (allPhotos.length < 3 && community.yelpPhotos && Array.isArray(community.yelpPhotos) && community.yelpPhotos.length > 0) {
+      const realYelpPhotos = community.yelpPhotos.filter(photo => !isStockPhoto(photo));
+      allPhotos.push(...realYelpPhotos);
     }
-    if (community.imageGallery && Array.isArray(community.imageGallery) && community.imageGallery.length > 0) {
-      allPhotos.push(...community.imageGallery);
+    
+    // Priority 3: Only use imageGallery if we have no other photos (last resort)
+    if (allPhotos.length === 0 && community.imageGallery && Array.isArray(community.imageGallery) && community.imageGallery.length > 0) {
+      const realGalleryPhotos = community.imageGallery.filter(photo => !isStockPhoto(photo));
+      if (realGalleryPhotos.length > 0) {
+        allPhotos.push(...realGalleryPhotos);
+      } else {
+        // If all gallery photos are stock photos, use them as last resort but only take first 2
+        allPhotos.push(...community.imageGallery.slice(0, 2));
+      }
     }
     
     // Remove duplicates and process URLs through proxy

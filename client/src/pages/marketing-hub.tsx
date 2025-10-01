@@ -51,7 +51,7 @@ Platform Features 34,180+ Communities Across North America with HUD-Verified Pri
 Key Platform Features:
 • Complete Care Spectrum Coverage: From HUD-sponsored housing to skilled nursing facilities
 • Verified Pricing: Authentic HUD pricing data for 5,241 communities with transparent pricing
-• Multi-AI Intelligence: Claude, Gemini, ChatGPT, and Grok working together for accuracy
+• Multi-AI Intelligence: Claude, Gemini, ChatGPT, and Perplexity working together for accuracy
 • 34,180 Communities: Comprehensive coverage across all 50 states and Canadian provinces
 • Family Collaboration Tools: Secure messaging, tour tracking, and decision support
 • Healthcare Integration: 6,806 hospitals with CMS ratings and service information
@@ -197,7 +197,7 @@ The Challenge:
 Our Solution:
 • 34,180+ verified communities
 • HUD-verified transparent pricing
-• Multi-AI intelligence (Claude, Gemini, ChatGPT, Grok)
+• Multi-AI intelligence (Claude, Gemini, ChatGPT, Perplexity)
 • Complete care spectrum coverage
 • Family collaboration tools
 • Healthcare provider integration

@@ -3,6 +3,7 @@ import { communities, enrichments } from '@shared/schema';
 import { eq, isNull, sql, and, or } from 'drizzle-orm';
 import { MultiAIOrchestrator } from './multi-ai-intelligence';
 import { AnthropicAIService } from './ai-services';
+import Anthropic from '@anthropic-ai/sdk';
 import { OpenAI } from 'openai';
 
 interface EnrichmentResult {
@@ -17,12 +18,12 @@ interface EnrichmentResult {
 
 export class CommunityEnrichmentService {
   private multiAI: MultiAIOrchestrator;
-  private anthropic: AnthropicAIService;
+  private anthropic: Anthropic;
   private openai: OpenAI;
 
   constructor() {
     this.multiAI = new MultiAIOrchestrator();
-    this.anthropic = new AnthropicAIService();
+    this.anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     this.openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
 
@@ -52,7 +53,7 @@ export class CommunityEnrichmentService {
           await db
             .update(communities)
             .set({ 
-              communitySubtype: suggestedSubtype,
+              communitySubtype: suggestedSubtype as any,
               updatedAt: new Date()
             })
             .where(eq(communities.id, community.id));
@@ -127,7 +128,7 @@ export class CommunityEnrichmentService {
         'unlicensed_senior_housing'
       ];
       
-      return validSubtypes.includes(subtype || '') ? subtype : null;
+      return validSubtypes.includes(subtype || '') ? (subtype as string) : null;
     } catch (error) {
       console.error('AI classification error:', error);
       return null;
@@ -153,7 +154,7 @@ export class CommunityEnrichmentService {
         state: community.state,
         city: community.city,
         hudProperty: !!community.hudPropertyId,
-        medicareProvider: !!community.cmsProviderId,
+        medicareProvider: !!(community as any).cmsProviderId,
         licenseStatus: community.licenseStatus
       };
 
@@ -177,7 +178,7 @@ export class CommunityEnrichmentService {
         enrichmentType: 'ai_summary',
         data: enrichmentData,
         source: 'public_metadata_ai',
-        confidence: 0.85,
+        confidence: '0.85',
         createdAt: new Date(),
         updatedAt: new Date()
       });
@@ -200,8 +201,18 @@ export class CommunityEnrichmentService {
     
     Write 2-3 sentences that are factual and based only on the provided information. Do not make assumptions.`;
 
-    const response = await this.anthropic.generateContent(prompt);
-    return response || 'Community information pending verification.';
+    try {
+      const response = await this.anthropic.messages.create({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 500,
+        messages: [{ role: 'user', content: prompt }]
+      });
+      const firstContent = response.content[0];
+      return firstContent.type === 'text' ? firstContent.text : 'Community information pending verification.';
+    } catch (error) {
+      console.error('Error generating description:', error);
+      return 'Community information pending verification.';
+    }
   }
 
   // Generate care type explanation

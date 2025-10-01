@@ -284,41 +284,24 @@ export default function AISupport() {
 
   const renderContactSupport = () => (
     <div className="space-y-6">
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Mail className="w-5 h-5 text-blue-600" />
-              <span>Email Support</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">Get detailed help via email</p>
-            <div className="space-y-2">
-              <p className="text-sm">📧 General: hello@myseniorvalet.com</p>
-              <p className="text-sm">🏢 Communities: hello@myseniorvalet.com</p>
-              <p className="text-sm">🔧 Technical: hello@myseniorvalet.com</p>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">Response time: 24-48 hours</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Phone className="w-5 h-5 text-green-600" />
-              <span>Phone Support</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">Speak with a real person</p>
-            <p className="text-lg font-semibold">1-800-SENIOR-1</p>
-            <p className="text-sm text-gray-600">Monday-Friday: 8AM-6PM PST</p>
-            <p className="text-sm text-gray-600">Saturday: 9AM-3PM PST</p>
-            <p className="text-xs text-gray-500 mt-4">Average wait time: 3-5 minutes</p>
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Mail className="w-5 h-5 text-blue-600" />
+            <span>Email Support</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-600 mb-4">Get detailed help via email</p>
+          <div className="space-y-2">
+            <p className="text-sm">📧 General Inquiries: hello@myseniorvalet.com</p>
+            <p className="text-sm">🏢 Community Support: hello@myseniorvalet.com</p>
+            <p className="text-sm">🔧 Technical Support: hello@myseniorvalet.com</p>
+            <p className="text-sm">🚨 Urgent Matters: admin@myseniorvalet.com</p>
+          </div>
+          <p className="text-xs text-gray-500 mt-4">Response time: 24-48 hours (urgent matters prioritized)</p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -478,12 +461,12 @@ export default function AISupport() {
             Still need help? Our team is here to support you
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/map-search">
+            <Link to="/map-search">
               <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 Start Searching Communities
               </Button>
             </Link>
-            <Link href="/community-portal">
+            <Link to="/community-portal">
               <Button variant="outline">
                 Community Portal
               </Button>

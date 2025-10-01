@@ -148,6 +148,12 @@ VERIFICATION CHECK:
 - Community name must be: "${communityName}" (exact match)
 - Location must be: ${location}
 
+PLEASE STRUCTURE YOUR RESPONSE AS FOLLOWS:
+
+=== REQUESTED COMMUNITY ===
+Community Name: [exact name found or "NOT FOUND"]
+Match Status: ["EXACT MATCH" or "NOT FOUND" or "SIMILAR BUT DIFFERENT"]
+
 IF FOUND, provide:
 1. CONTACT:
    - Official website URL (full URL including https://)
@@ -180,13 +186,24 @@ IF FOUND, provide:
    - Accreditations or certifications
    - Parent company or management group
 
-ALSO INCLUDE:
-- Market analysis for ${location} area
-- List of 5-10 comparable communities in the area with their pricing
-- Average market rates for different care levels
+=== OTHER COMMUNITIES FOUND IN ${location} ===
+[List each community with clear separation]
+1. Community Name: [exact name]
+   - Phone: [XXX-XXX-XXXX format]
+   - Website: [full URL]
+   - Address: [full address]
+
+2. Community Name: [exact name]
+   - Phone: [XXX-XXX-XXXX format]
+   - Website: [full URL]
+   - Address: [full address]
+
+=== MARKET ANALYSIS ===
+- Average pricing for Assisted Living in ${location}
+- Average pricing for Memory Care in ${location}
 - Market trends and insights
 
-If "${communityName}" is not found exactly, still provide all the market data and comparable communities.`;
+IMPORTANT: Each community must be clearly labeled with its EXACT name. Never mix data between communities.`;
 
     try {
       const response = await fetch('https://api.perplexity.ai/chat/completions', {
@@ -196,7 +213,10 @@ If "${communityName}" is not found exactly, still provide all the market data an
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective community search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
             {
               role: 'system',
@@ -404,7 +424,10 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro',
+          model: 'sonar', // Standard model for cost-effective nearby search
+          web_search_options: {
+            search_context_size: 'low' // Low context for 70% cost reduction
+          },
           messages: [
             {
               role: 'user',
@@ -771,9 +794,39 @@ DO NOT provide general descriptions. ONLY list actual community names.`;
 
   // Helper extraction functions
   private extractUrl(content: string): string | undefined {
-    const match = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i) ||
-                  content.match(/(https?:\/\/[^\s]+)/);
-    return match ? match[1] : undefined;
+    // First, look for explicitly marked official websites
+    const officialMatch = content.match(/(?:official\s+website|main\s+website|website):\s*\*?\*?(https?:\/\/[^\s\*]+)/i);
+    if (officialMatch) {
+      return officialMatch[2];
+    }
+    
+    // Look for labeled website/site/url patterns
+    const labeledMatch = content.match(/(?:website|site|url):\s*(https?:\/\/[^\s]+)/i);
+    if (labeledMatch) {
+      return labeledMatch[1];
+    }
+    
+    // Extract all URLs and prioritize official-looking domains over directory sites
+    const allUrls = content.match(/(https?:\/\/[^\s]+)/g);
+    if (allUrls && allUrls.length > 0) {
+      // Directory/listing sites to deprioritize
+      const directoryDomains = [
+        'caring.com', 'seniorliving.org', 'aplaceformom.com', 'senioradvisor.com',
+        'senioradvice.com', 'seniorly.com', 'npaonline.org', 'mapquest.com',
+        'yelp.com', 'google.com', 'networkofcare.org'
+      ];
+      
+      // Find official-looking URLs (not directory sites)
+      const officialUrls = allUrls.filter(url => {
+        const domain = url.toLowerCase();
+        return !directoryDomains.some(dirDomain => domain.includes(dirDomain));
+      });
+      
+      // Return first official URL if found, otherwise return first URL
+      return officialUrls.length > 0 ? officialUrls[0] : allUrls[0];
+    }
+    
+    return undefined;
   }
 
   private extractPhone(content: string): string | undefined {

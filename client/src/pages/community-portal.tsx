@@ -92,13 +92,12 @@ export default function CommunityPortal() {
     {
       id: 'starter',
       name: 'Starter',
-      price: '$99',
-      priceValue: 99,
+      price: '$149',
+      priceValue: 149,
       tier: 'starter',
       tagline: 'Essential online presence',
       description: 'Perfect for single communities',
       features: [
-        { text: '💬 Live messaging with families', included: true, highlight: true },
         { text: 'Basic profile with 5 photos', included: true },
         { text: 'Pricing & availability display', included: true },
         { text: 'Contact information', included: true },
@@ -114,13 +113,14 @@ export default function CommunityPortal() {
     {
       id: 'growth',
       name: 'Growth',
-      price: '$299',
-      priceValue: 299,
+      price: '$399',
+      priceValue: 399,
       tier: 'growth',
       tagline: 'Enhanced visibility & features',
       description: 'Includes 3D tour technology',
       features: [
         { text: 'Everything in Starter, plus:', header: true },
+        { text: '💬 Live messaging with families', included: true, highlight: true },
         { text: '📅 Reservation Management (credit card hold, no deposit)', included: true, highlight: true },
         { text: '🏠 3D tour embed capability', included: true, highlight: true },
         { text: 'Enhanced listing with 20 photos', included: true },
@@ -136,8 +136,8 @@ export default function CommunityPortal() {
     {
       id: 'professional',
       name: 'Professional',
-      price: '$999',
-      priceValue: 999,
+      price: '$1,299',
+      priceValue: 1299,
       tier: 'professional',
       tagline: 'Multi-property management',
       description: 'Most popular for portfolios',
@@ -161,8 +161,8 @@ export default function CommunityPortal() {
     {
       id: 'premium',
       name: 'Premium',
-      price: '$1,999',
-      priceValue: 1999,
+      price: '$2,499',
+      priceValue: 2499,
       tier: 'premium',
       tagline: 'Enterprise-grade features',
       description: 'For large portfolios',
@@ -186,8 +186,8 @@ export default function CommunityPortal() {
     {
       id: 'enterprise',
       name: 'Enterprise',
-      price: '$3,999',
-      priceValue: 3999,
+      price: '$4,999',
+      priceValue: 4999,
       tier: 'enterprise',
       tagline: 'White-label & unlimited scale',
       description: 'Fortune 500 infrastructure',
@@ -212,6 +212,12 @@ export default function CommunityPortal() {
     try {
       // Map plan names to product IDs
       const productIdMap: Record<string, string> = {
+        'Starter': 'starter',
+        'Growth': 'growth',
+        'Professional': 'professional',
+        'Premium': 'premium',
+        'Enterprise': 'enterprise',
+        // Keep legacy names for backward compatibility
         'Verified Listing': 'verified',
         'Standard': 'standard', 
         'Featured': 'featured',
@@ -223,14 +229,24 @@ export default function CommunityPortal() {
         throw new Error('Invalid plan selected');
       }
 
+      // For enterprise tier, redirect to contact
+      if (productId === 'enterprise') {
+        window.open('mailto:hello@myseniorvalet.com?subject=Enterprise Plan Inquiry', '_blank');
+        return;
+      }
+
       // For free tier, handle differently
       if (productId === 'verified') {
         // If it's an existing community claiming free tier
         if (existingCommunityData) {
           try {
-            await apiRequest('POST', '/api/payments/claim-free-tier', {
-              communityId: existingCommunityData.communityId
-            });
+            await apiRequest(
+              'POST',
+              '/api/payments/claim-free-tier',
+              {
+                communityId: existingCommunityData.communityId
+              }
+            );
             
             toast({
               title: "Success!",
@@ -261,21 +277,19 @@ export default function CommunityPortal() {
         return;
       }
 
-      // Store the selected plan info for the payment page
-      sessionStorage.setItem('communityUpgradeData', JSON.stringify({
-        productId,
-        planName,
-        isNewCommunity: !existingCommunityData,
-        communityId: existingCommunityData?.communityId || null,
-        communityName: existingCommunityData?.communityName || 'New Community'
-      }));
+      // Store community data if upgrading existing community
+      if (existingCommunityData) {
+        sessionStorage.setItem('communityUpgradeData', JSON.stringify(existingCommunityData));
+      }
 
-      // Redirect to the mobile-optimized payment page
+      // Redirect to the mobile payment flow with multi-step onboarding
+      // This provides the amazing onboarding experience with progress tracking
       toast({
-        title: "Redirecting to payment...",
-        description: "Setting up your secure payment session.",
+        title: "Starting your journey...",
+        description: "Let's set up your community subscription",
       });
 
+      // Redirect to the mobile payment page with the selected tier
       setTimeout(() => {
         setLocation(`/community-mobile-payment/${productId}`);
       }, 500);
@@ -283,8 +297,8 @@ export default function CommunityPortal() {
     } catch (error: any) {
       console.error('Payment error:', error);
       toast({
-        title: "Payment Error",
-        description: error.message || "Unable to process payment. Please try again or contact support.",
+        title: "Error",
+        description: error.message || "Unable to start payment process. Please try again.",
         variant: "destructive",
       });
     }
@@ -350,7 +364,7 @@ export default function CommunityPortal() {
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Trusted by Families</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Researched by Families</span>
             </div>
           </div>
         </div>
@@ -424,7 +438,7 @@ export default function CommunityPortal() {
                     Choose your tier below
                   </li>
                 </ol>
-                <Link href="/">
+                <Link to="/">
                   <Button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white">
                     <Crown className="w-4 h-4 mr-2" />
                     Search & Claim Now

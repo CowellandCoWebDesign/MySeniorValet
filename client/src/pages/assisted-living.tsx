@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { NavigationHeader } from '@/components/NavigationHeader';
-import { Footer } from '@/components/Footer';
 import { useSEO } from '@/hooks/useSEO';
 import { useQuery } from '@tanstack/react-query';
 
@@ -491,8 +490,6 @@ export default function AssistedLivingPage() {
           </div>
         </div>
       </section>
-
-      <Footer />
     </div>
   );
 }

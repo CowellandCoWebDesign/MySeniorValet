@@ -6,7 +6,7 @@ declare global {
   }
 }
 
-// Initialize Google Analytics
+// Initialize Google Analytics following Google's manual installation recommendations
 export const initGA = () => {
   const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
@@ -15,21 +15,33 @@ export const initGA = () => {
     return;
   }
 
-  // Add Google Analytics script to the head
-  const script1 = document.createElement('script');
-  script1.async = true;
-  script1.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-  document.head.appendChild(script1);
+  // Initialize dataLayer and gtag function immediately (as per Google's recommendations)
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function() {
+    window.dataLayer.push(arguments);
+  };
+  
+  // Set initial timestamp
+  window.gtag('js', new Date());
 
-  // Initialize gtag
-  const script2 = document.createElement('script');
-  script2.textContent = `
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', '${measurementId}');
-  `;
-  document.head.appendChild(script2);
+  // Add Google Analytics script to the head
+  const script = document.createElement('script');
+  script.async = true;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+  
+  // Configure GA after script loads
+  script.onload = () => {
+    window.gtag('config', measurementId);
+    console.log('✅ Google Analytics initialized with manual installation method');
+  };
+  
+  // Insert as first script in head for faster loading
+  const firstScript = document.head.querySelector('script');
+  if (firstScript) {
+    document.head.insertBefore(script, firstScript);
+  } else {
+    document.head.appendChild(script);
+  }
 };
 
 // Track page views - useful for single-page applications

@@ -1,8 +1,10 @@
 import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
-import { websiteScraperService } from '../website-scraper-service';
+import { MultiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
+// websiteScraperService replaced by MultiAIPhotoExtractor for consolidated photo extraction
 import { discoveredCommunityService } from '../services/discovered-community-service';
+import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
 
 const router = Router();
 
@@ -105,6 +107,121 @@ function extractMediaAssets(content: string) {
   return assets;
 }
 
+// URL validation helper to prevent SSRF attacks
+const isValidWebsiteUrl = (url: string): boolean => {
+  if (!url) return true; // Optional parameter
+  
+  try {
+    const parsed = new URL(url);
+    // Only allow http/https
+    if (!['http:', 'https:'].includes(parsed.protocol)) {
+      return false;
+    }
+    // Block local/internal addresses
+    const hostname = parsed.hostname.toLowerCase();
+    if (hostname === 'localhost' || 
+        hostname === '127.0.0.1' || 
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.') ||
+        hostname.includes('.local') ||
+        hostname.includes('.internal')) {
+      return false;
+    }
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// Quick photo extraction endpoint (Stage 1) - Returns immediately
+router.post('/api/web-intelligence/quick-photos', async (req, res) => {
+  try {
+    const { communityName, content, website } = req.body;
+    
+    if (!communityName) {
+      return res.status(400).json({ 
+        error: 'Community name is required' 
+      });
+    }
+    
+    // Validate website URL to prevent SSRF
+    if (website && !isValidWebsiteUrl(website)) {
+      return res.status(400).json({ 
+        error: 'Invalid website URL' 
+      });
+    }
+
+    console.log(`⚡ Quick photo extraction for: ${communityName}`);
+    
+    // Get quick photos (from cache or fast extraction)
+    const quickPhotos = await MultiAIPhotoExtractor.findQuickPhotos(
+      communityName,
+      content || '',
+      website
+    );
+
+    // Return immediately with whatever we have
+    res.json({
+      photos: quickPhotos.authenticPhotos.map(p => p.url),
+      stage: 'quick',
+      count: quickPhotos.authenticPhotos.length,
+      cached: quickPhotos.summary.includes('cached')
+    });
+  } catch (error) {
+    console.error('Quick photo extraction error:', error);
+    res.status(500).json({ 
+      error: 'Failed to extract quick photos',
+      photos: [],
+      stage: 'quick'
+    });
+  }
+});
+
+// High-quality photo extraction endpoint (Stage 2) - Takes longer but better quality
+router.post('/api/web-intelligence/quality-photos', async (req, res) => {
+  try {
+    const { communityName, content, website, citations } = req.body;
+    
+    if (!communityName) {
+      return res.status(400).json({ 
+        error: 'Community name is required' 
+      });
+    }
+    
+    // Validate website URL to prevent SSRF
+    if (website && !isValidWebsiteUrl(website)) {
+      return res.status(400).json({ 
+        error: 'Invalid website URL' 
+      });
+    }
+
+    console.log(`🔍 High-quality photo extraction for: ${communityName}`);
+    
+    // Get high-quality photos with browser automation
+    const qualityPhotos = await MultiAIPhotoExtractor.findHighQualityPhotos(
+      communityName,
+      content || '',
+      website,
+      citations
+    );
+
+    res.json({
+      photos: qualityPhotos.authenticPhotos.map(p => p.url),
+      stage: 'quality',
+      count: qualityPhotos.authenticPhotos.length,
+      sources: qualityPhotos.sources
+    });
+  } catch (error) {
+    console.error('High-quality photo extraction error:', error);
+    res.status(500).json({ 
+      error: 'Failed to extract quality photos',
+      photos: [],
+      stage: 'quality'
+    });
+  }
+});
+
 // Web intelligence search endpoint (what the client is calling)
 router.post('/api/web-intelligence/search', async (req, res) => {
   try {
@@ -120,12 +237,33 @@ router.post('/api/web-intelligence/search', async (req, res) => {
     
     let scrapedData = null;
     let officialWebsite = website;
+    let perplexityResponse: any = null;
     
     // If we have a website URL, scrape it directly for rich data
     if (website && website.includes('http')) {
       try {
         console.log(`🕸️ Directly scraping provided website: ${website}`);
-        scrapedData = await websiteScraperService.scrapeWebsite(website);
+        // Use MultiAIPhotoExtractor for consolidated photo extraction
+        const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+          communityName,
+          city,
+          state,
+          `${communityName} ${city} ${state} photos`,
+          website,
+          []
+        );
+        
+        scrapedData = {
+          photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+          floorPlans: [], // Not currently extracted
+          virtualTours: [], // Not currently extracted
+          videos: [], // Not currently extracted
+          amenities: [], // Not currently extracted
+          pricing: {}, // Not currently extracted
+          careLevels: [], // Not currently extracted
+          features: [], // Not currently extracted
+          contactInfo: {} // Not currently extracted
+        };
       } catch (scrapeError) {
         console.error(`Failed to scrape website ${website}:`, scrapeError);
       }
@@ -143,13 +281,13 @@ ${website ? `Known Website: ${website}` : ''}
 
 Search for this EXACT community at this SPECIFIC location.`;
       
-      const response = await perplexityService.searchRealTime(
+      perplexityResponse = await perplexityService.searchRealTime(
         searchQuery,
         communityContext
       );
       
       // Try to extract website from response
-      const websiteMatches = (response.summary || '').match(/https?:\/\/[^\s<>"']+/gi) || [];
+      const websiteMatches = (perplexityResponse.summary || '').match(/https?:\/\/[^\s<>"']+/gi) || [];
       const directorySites = [
         'aplaceformom', 'caring.com', 'seniorly', 'assistedliving.org',
         'senioradvisor', 'seniorhousing.net', 'medicare.gov', 'google.com',
@@ -164,14 +302,72 @@ Search for this EXACT community at this SPECIFIC location.`;
         officialWebsite = potentialWebsite;
         try {
           console.log(`🕸️ Found and scraping official website: ${potentialWebsite}`);
-          scrapedData = await websiteScraperService.scrapeWebsite(potentialWebsite);
+          // Use MultiAIPhotoExtractor for consolidated photo extraction
+          const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+            communityName,
+            city,
+            state,
+            `${communityName} ${city} ${state} photos`,
+            potentialWebsite,
+            []
+          );
+          
+          scrapedData = {
+            photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+            floorPlans: [], // Not currently extracted
+            virtualTours: [], // Not currently extracted
+            videos: [], // Not currently extracted
+            amenities: [], // Not currently extracted
+            pricing: {}, // Not currently extracted
+            careLevels: [], // Not currently extracted
+            features: [], // Not currently extracted
+            contactInfo: {} // Not currently extracted
+          };
         } catch (scrapeError) {
           console.error(`Failed to scrape found website ${potentialWebsite}:`, scrapeError);
         }
       }
     }
     
-    // Build response with scraped data if available
+    // Build photo collection with priority order: scraped > perplexity > MultiAI (if needed)  
+    let allPhotos = [...(scrapedData?.photos || [])];
+    
+    // Add Perplexity images as reliable fallback (from the existing response above)
+    if (perplexityResponse?.images) {
+      const perplexityPhotos = perplexityResponse.images.map((url: string) => 
+        `/api/image-proxy?url=${encodeURIComponent(url)}`
+      );
+      allPhotos.push(...perplexityPhotos);
+      console.log(`📷 Added ${perplexityPhotos.length} photos from Perplexity response`);
+    }
+    
+    // Only use expensive MultiAIPhotoExtractor if we still have very few photos
+    if (allPhotos.length < 2) {
+      try {
+        console.log(`📸 Using MultiAIPhotoExtractor as last resort (only ${allPhotos.length} photos found)...`);
+        const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
+          communityName,
+          scrapedData?.description || perplexityResponse?.summary || `${communityName} in ${city}, ${state}`,
+          officialWebsite || undefined,
+          officialWebsite ? [officialWebsite] : []
+        );
+        
+        if (photoExtractionResult?.authenticPhotos) {
+          const enhancedPhotos = photoExtractionResult.authenticPhotos
+            .filter((photo: any) => photo.url && photo.isAuthentic)
+            .map((photo: any) => `/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+          allPhotos.push(...enhancedPhotos);
+          console.log(`✅ Added ${enhancedPhotos.length} photos via MultiAIPhotoExtractor`);
+        }
+      } catch (photoError) {
+        console.log(`⚠️ MultiAIPhotoExtractor failed for ${communityName}:`, photoError instanceof Error ? photoError.message : 'Unknown error');
+      }
+    }
+    
+    // Remove duplicates and limit to reasonable number
+    const uniquePhotos = Array.from(new Set(allPhotos)).slice(0, 50);
+    
+    // Build response with enhanced photo data
     const responseData = {
       communityName,
       location: `${city}, ${state}`,
@@ -180,9 +376,9 @@ Search for this EXACT community at this SPECIFIC location.`;
       summary: scrapedData?.description || 'No information found',
       sources: officialWebsite ? [officialWebsite] : [],
       mediaAssets: {
-        hasPhotos: (scrapedData?.photos?.length || 0) > 0,
-        photoCount: scrapedData?.photos?.length || 0,
-        photos: scrapedData?.photos || [],
+        hasPhotos: uniquePhotos.length > 0,
+        photoCount: uniquePhotos.length,
+        photos: uniquePhotos,
         hasFloorPlans: (scrapedData?.floorPlans?.length || 0) > 0,
         floorPlans: scrapedData?.floorPlans || [],
         has3DTour: (scrapedData?.virtualTours?.length || 0) > 0,
@@ -201,7 +397,7 @@ Search for this EXACT community at this SPECIFIC location.`;
       lastUpdated: new Date().toISOString()
     };
     
-    console.log(`✅ Web intelligence complete. Found ${responseData.mediaAssets.photoCount} photos, ${responseData.mediaAssets.floorPlans.length} floor plans`);
+    console.log(`✅ Web intelligence complete. Found ${uniquePhotos.length} photos (${scrapedData?.photos?.length || 0} scraped${uniquePhotos.length > (scrapedData?.photos?.length || 0) ? ` + ${uniquePhotos.length - (scrapedData?.photos?.length || 0)} AI-enhanced` : ''}), ${responseData.mediaAssets.floorPlans.length} floor plans`);
     
     // AUTO-SAVE: Save every discovered community with full contact info
     try {
@@ -214,12 +410,8 @@ Search for this EXACT community at this SPECIFIC location.`;
         website: officialWebsite || '',
         phone: scrapedData?.contactInfo?.phone || '',
         email: scrapedData?.contactInfo?.email || '',
-        fax: scrapedData?.contactInfo?.fax || '',
         description: scrapedData?.description || '',
         careTypes: scrapedData?.careLevels || [],
-        socialMedia: scrapedData?.contactInfo?.socialMedia,
-        hoursOfOperation: scrapedData?.contactInfo?.hours,
-        contactPerson: scrapedData?.contactInfo?.contactPerson,
         discoverySource: 'quick_web_search',
         rawData: responseData
       });
@@ -252,33 +444,37 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     console.log(`🔍 Fetching web intelligence for: ${communityName} at ${address || 'unspecified address'} in ${city}, ${state}`);
     console.log(`📊 Market analysis data provided: ${marketAnalysisData ? 'Yes' : 'No'}`);
     
-    let officialWebsite = website; // Use provided website if available
-    let websiteSearchResponse = null;
+    // CONSOLIDATED: Make ONE comprehensive API call to get everything we need
+    const comprehensiveQuery = `"${communityName}" ${address ? `"${address}"` : ''} ${city} ${state} senior living`;
+    console.log(`🎯 Making ONE consolidated API call for all community information`);
     
-    // If we don't already have the website, do ONE comprehensive search
-    if (!officialWebsite) {
-      // Single comprehensive search that includes address for accuracy
-      const comprehensiveQuery = `"${communityName}" "${address}" ${city} ${state} senior living official website`;
-      console.log(`🔍 Comprehensive search with address matching: ${comprehensiveQuery}`);
+    const consolidatedResponse = await perplexityService.searchRealTime(
+      comprehensiveQuery,
+      `Find ALL of the following information about ${communityName} at ${address || 'this location'} in ${city}, ${state} in a SINGLE comprehensive search:
       
-      websiteSearchResponse = await perplexityService.searchRealTime(
-        comprehensiveQuery,
-        `Find the official website and comprehensive information for this specific senior living community at ${address}`
-      );
-    } else {
-      console.log(`✅ Using existing official website: ${officialWebsite}`);
-      // Enhanced search for media assets from the official website
-      const siteSpecificQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing photos floor plans virtual tour 3D tour video tour gallery availability amenities`;
-      websiteSearchResponse = await perplexityService.searchRealTime(
-        siteSpecificQuery,
-        `Extract comprehensive information from this official community website including:
-        1. Photo galleries and image counts
-        2. Floor plans and apartment layouts
-        3. Virtual tours, 3D tours, or Matterport tours
-        4. Video tours or walkthrough videos
-        5. Current pricing and availability`
-      );
-    }
+      1. **OFFICIAL WEBSITE**: Find the official website URL for this specific community
+      2. **PRICING**: Current monthly rates for all care levels (Independent, Assisted Living, Memory Care)
+      3. **PHOTOS**: Direct URLs to actual photos of the facility (exterior, interior, rooms, amenities)
+      4. **AMENITIES**: Complete list of amenities and services offered
+      5. **AVAILABILITY**: Current availability status and any waitlist information
+      6. **REVIEWS**: Ratings and reviews from Google, Yelp, A Place for Mom, and other platforms
+      7. **CONTACT**: Phone number, email, contact person
+      8. **VIRTUAL TOURS**: Any virtual tour, video tour, or 3D tour links
+      9. **FLOOR PLANS**: Available room types and floor plan options
+      10. **CERTIFICATIONS**: Medicare/Medicaid acceptance, licenses, accreditations
+      
+      Include information from:
+      - The official community website
+      - Google Business listing
+      - Senior living directories (A Place for Mom, Caring.com, SeniorAdvisor)
+      - Review platforms (Yelp, Google Reviews)
+      - Social media pages
+      
+      Provide comprehensive data from ALL available sources in this single response.`
+    );
+    
+    let officialWebsite = website;
+    const websiteSearchResponse = consolidatedResponse;
     
     // Extract official website from search response if we didn't already have it
     const foundWebsites: string[] = [];
@@ -323,31 +519,15 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       }
     }
     
-    // NOW: If we have an official website, fetch directly from it for the most accurate data
-    let officialWebsiteData = null;
+    // CONSOLIDATED: No need for additional API calls - we got everything in one call
+    let officialWebsiteData = consolidatedResponse;
     let thirdPartySources = [];
+    let thirdPartyResponse = { summary: '', sources: [], images: [] };
     
-    if (officialWebsite) {
-      console.log(`🌐 Fetching comprehensive data from official website: ${officialWebsite}`);
-      const officialSiteQuery = `site:${officialWebsite.replace(/https?:\/\//, '')} pricing rates availability photos virtual tour amenities services contact`;
-      try {
-        officialWebsiteData = await perplexityService.searchRealTime(
-          officialSiteQuery,
-          `Extract ALL information from this official community website including pricing, photos, amenities, and availability`
-        );
-      } catch (error) {
-        console.error('Error fetching from official website:', error);
-      }
+    // Extract third-party sources from the consolidated response
+    if (consolidatedResponse.sources) {
+      thirdPartySources = consolidatedResponse.sources;
     }
-    
-    // Also get third-party information for comprehensive coverage
-    const thirdPartyQuery = `"${communityName}" "${address}" ${city} ${state} reviews ratings pricing`;
-    console.log(`📚 Gathering third-party references and reviews`);
-    
-    const thirdPartyResponse = await perplexityService.searchRealTime(
-      thirdPartyQuery,
-      `Find reviews, ratings, and third-party information about this specific community at ${address}`
-    );
     
     // Separate official sources from third-party references
     let thirdPartySourcesList: string[] = [];
@@ -363,18 +543,8 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     }
     thirdPartySources = thirdPartySourcesList;
     
-    // Combine data with clear source attribution
-    let finalContent = '';
-    
-    if (officialWebsite && officialWebsiteData) {
-      finalContent = `**OFFICIAL COMMUNITY INFORMATION**\n`;
-      finalContent += `Source: ${officialWebsite}\n\n`;
-      finalContent += officialWebsiteData.summary || '';
-      finalContent += `\n\n**THIRD-PARTY REFERENCES & REVIEWS**\n\n`;
-      finalContent += thirdPartyResponse.summary || '';
-    } else {
-      finalContent = websiteSearchResponse?.summary || thirdPartyResponse.summary || '';
-    }
+    // CONSOLIDATED: Use the single response we got from our one API call
+    let finalContent = consolidatedResponse.summary || '';
     
     const response = {
       summary: finalContent,
@@ -826,5 +996,198 @@ function extractAdditionalInfo(content: string) {
   
   return info;
 }
+
+// Web intelligence endpoint specifically for services (businesses, not senior communities)
+router.get('/api/services/:id/web-intelligence', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, city, state, type, website } = req.query;
+    
+    if (!name || !city) {
+      return res.status(400).json({ 
+        error: 'Service name and city are required' 
+      });
+    }
+    
+    console.log(`🔍 Web intelligence for service: ${name} in ${city}, ${state || ''}`);
+    
+    // Initialize response structure
+    let photos: string[] = [];
+    let photoSources: any = {};
+    let summary = '';
+    let sources: string[] = [];
+    
+    // Step 1: If we have a website, try to extract photos from it directly
+    if (website && typeof website === 'string') {
+      try {
+        console.log(`🕸️ Extracting photos from service website: ${website}`);
+        const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+          name as string,
+          type as string || 'service',
+          city as string,
+          state as string || '',
+          `${name} ${city} ${state || ''} photos`,
+          website,
+          []
+        );
+        
+        if (photoResult?.authenticPhotos && photoResult.authenticPhotos.length > 0) {
+          photos = photoResult.authenticPhotos.map((p: any) => 
+            p.url || p
+          );
+          photoSources[website] = photos.length;
+          sources.push(website);
+          console.log(`✅ Found ${photos.length} photos from website`);
+        }
+      } catch (websiteError) {
+        console.error(`Failed to extract photos from website:`, websiteError);
+      }
+    }
+    
+    // Step 2: If no photos from website, use Perplexity as fallback
+    if (photos.length < 3) {
+      try {
+        console.log(`🔍 Using Perplexity fallback to search for service photos...`);
+        
+        // Use Perplexity to search for the service and extract photo URLs
+        const perplexityQuery = `"${name}" ${city} ${state || ''} photos images gallery`;
+        const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+        
+        if (perplexityApiKey) {
+          const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${perplexityApiKey}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              model: 'sonar',
+              messages: [
+                {
+                  role: 'user',
+                  content: `Find photos and images of ${name} in ${city}, ${state || ''}. Include URLs to photos from review sites, social media, and the business website.`
+                }
+              ],
+              web_search_options: {
+                search_context_size: 'low'
+              },
+              max_tokens: 1000
+            })
+          });
+          
+          if (perplexityResponse.ok) {
+            const perplexityData = await perplexityResponse.json();
+            const content = perplexityData.choices?.[0]?.message?.content || '';
+            
+            // Extract image URLs from the Perplexity response
+            const imageUrlPattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
+            const foundUrls = content.match(imageUrlPattern) || [];
+            
+            // Also check for images in citations
+            const citations = perplexityData.citations || [];
+            
+            // Filter and add unique photos
+            const perplexityPhotos = foundUrls.filter((url: string) => !photos.includes(url));
+            photos.push(...perplexityPhotos.slice(0, 10)); // Limit to 10 photos from Perplexity
+            
+            if (perplexityPhotos.length > 0) {
+              photoSources['perplexity_search'] = perplexityPhotos.length;
+              sources.push('Perplexity Search');
+              console.log(`✅ Found ${perplexityPhotos.length} photos from Perplexity search`);
+            }
+          }
+        }
+      } catch (perplexityError) {
+        console.error(`Perplexity fallback failed:`, perplexityError);
+      }
+    }
+    
+    // Step 3: Try to scrape from review sites if we still need photos
+    if (photos.length < 3) {
+      try {
+        // Build search query for review sites
+        const searchQuery = `"${name}" ${city} ${state || ''} yelp tripadvisor opentable photos reviews`;
+        console.log(`🔍 Attempting MultiAIPhotoExtractor for additional photos...`);
+        
+        // Try to find photos from review sites using MultiAIPhotoExtractor
+        const reviewSitePhotos = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
+          name as string,
+          type as string || 'service',
+          city as string,
+          state as string || '',
+          searchQuery,
+          undefined, // No specific website
+          ['tripadvisor.com', 'yelp.com', 'opentable.com', 'google.com'] // Potential sources
+        );
+        
+        if (reviewSitePhotos?.authenticPhotos) {
+          const newPhotos = reviewSitePhotos.authenticPhotos
+            .map((p: any) => p.url || p)
+            .filter((url: string) => !photos.includes(url));
+          
+          photos.push(...newPhotos);
+          
+          // Track photo sources
+          reviewSitePhotos.sources?.forEach((source: string) => {
+            if (!photoSources[source]) {
+              photoSources[source] = 0;
+            }
+            photoSources[source]++;
+            if (!sources.includes(source)) {
+              sources.push(source);
+            }
+          });
+          
+          console.log(`✅ Found ${newPhotos.length} additional photos from review sites`);
+        }
+      } catch (searchError) {
+        console.error(`Failed to search for service photos:`, searchError);
+      }
+    }
+    
+    // Step 4: If still no photos, try a broader search
+    if (photos.length === 0) {
+      try {
+        console.log(`🔍 Attempting broader photo search for ${name}...`);
+        const broaderSearch = await MultiAIPhotoExtractor.findQuickPhotos(
+          name as string,
+          `${name} ${type || 'business'} in ${city}, ${state || ''}`,
+          undefined
+        );
+        
+        if (broaderSearch?.authenticPhotos) {
+          photos = broaderSearch.authenticPhotos.map((p: any) => 
+            p.url || p
+          );
+          photoSources['general_search'] = photos.length;
+          console.log(`✅ Found ${photos.length} photos from broader search`);
+        }
+      } catch (broaderError) {
+        console.error(`Broader search failed:`, broaderError);
+      }
+    }
+    
+    // Build response with whatever we found
+    const response = {
+      photos: photos.slice(0, 20), // Limit to 20 photos
+      photoSources,
+      sources: sources.filter((s, i, arr) => arr.indexOf(s) === i), // Remove duplicates
+      summary: summary || `${name} is a ${type || 'service provider'} located in ${city}${state ? ', ' + state : ''}.`,
+      timestamp: new Date().toISOString(),
+      cached: false
+    };
+    
+    console.log(`✅ Service web intelligence complete: ${photos.length} photos from ${sources.length} sources`);
+    
+    res.json(response);
+  } catch (error) {
+    console.error('Service web intelligence error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch service web intelligence',
+      photos: [],
+      sources: []
+    });
+  }
+});
 
 export default router;

@@ -278,7 +278,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Home Care Services').length,
       verified: true,
       icon: Home,
-      link: "/home-care",
+      link: "/map-search?serviceType=home-care",
       color: "from-green-500 to-emerald-500",
       badge: "24/7"
     },
@@ -290,7 +290,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Therapy Services').length,
       verified: true,
       icon: Activity,
-      link: "/therapy-services",
+      link: "/map-search?serviceType=therapy",
       color: "from-purple-500 to-indigo-500",
       badge: "PT/OT/SPEECH"
     },
@@ -302,7 +302,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Companion Care').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Companion Care').length > 0,
       icon: Users,
-      link: "/companion-care",
+      link: "/map-search?serviceType=companion-care",
       color: "from-pink-500 to-rose-500"
     },
     {
@@ -313,7 +313,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Personal Care Services').length,
       verified: true,
       icon: Heart,
-      link: "/personal-care",
+      link: "/map-search?serviceType=personal-care",
       color: "from-red-500 to-orange-500"
     },
     {
@@ -324,7 +324,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Hospice Care').length,
       verified: true,
       icon: HeartHandshake,
-      link: "/hospice-care",
+      link: "/map-search?serviceType=hospice",
       color: "from-teal-500 to-cyan-500"
     },
     {
@@ -335,7 +335,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Medical Equipment').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Medical Equipment').length > 0,
       icon: Monitor,
-      link: "/medical-equipment",
+      link: "/map-search?serviceType=medical-equipment",
       color: "from-gray-500 to-slate-500"
     },
     {
@@ -346,7 +346,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Nursing').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Nursing').length > 0,
       icon: UserCheck,
-      link: "/nursing-services",
+      link: "/map-search?serviceType=nursing",
       color: "from-blue-600 to-indigo-600",
       badge: "RN/LPN"
     },
@@ -358,7 +358,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Adult Day Programs').length,
       verified: true,
       icon: Zap,
-      link: "/adult-day-programs",
+      link: "/map-search?serviceType=adult-day",
       color: "from-yellow-500 to-orange-500",
       badge: "DAY PROGRAMS"
     },
@@ -370,7 +370,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Respite Care').length,
       verified: true,
       icon: BedDouble,
-      link: "/respite-care",
+      link: "/map-search?serviceType=respite",
       color: "from-indigo-500 to-purple-500"
     },
     {
@@ -381,7 +381,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Palliative Care').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Palliative Care').length > 0,
       icon: Palette,
-      link: "/palliative-care",
+      link: "/map-search?serviceType=palliative-care",
       color: "from-purple-600 to-pink-600"
     },
     {
@@ -392,7 +392,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Skilled Nursing').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Skilled Nursing').length > 0,
       icon: Shield,
-      link: "/skilled-nursing",
+      link: "/map-search?serviceType=skilled-nursing",
       color: "from-blue-700 to-teal-600",
       badge: "24/7 CARE"
     },
@@ -404,7 +404,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Transport').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Transport').length > 0,
       icon: Car,
-      link: "/transport-services",
+      link: "/map-search?serviceType=transport",
       color: "from-green-600 to-teal-600"
     },
     {
@@ -415,7 +415,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Nutrition Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Nutrition Services').length > 0,
       icon: Apple,
-      link: "/nutrition-services",
+      link: "/map-search?serviceType=nutrition",
       color: "from-orange-500 to-red-500"
     },
     {
@@ -426,7 +426,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Dental Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Dental Services').length > 0,
       icon: Smile,
-      link: "/dental-services",
+      link: "/map-search?serviceType=dental",
       color: "from-cyan-500 to-blue-500"
     },
     {
@@ -437,7 +437,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Vision Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Vision Services').length > 0,
       icon: Eye,
-      link: "/vision-services",
+      link: "/map-search?serviceType=vision",
       color: "from-violet-500 to-purple-500"
     },
     {
@@ -448,7 +448,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Hearing Services').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Hearing Services').length > 0,
       icon: Ear,
-      link: "/hearing-services",
+      link: "/map-search?serviceType=hearing",
       color: "from-pink-600 to-red-600"
     },
     {
@@ -459,7 +459,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Podiatry').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Podiatry').length > 0,
       icon: Footprints,
-      link: "/podiatry",
+      link: "/map-search?serviceType=podiatry",
       color: "from-emerald-500 to-green-600"
     },
     {
@@ -470,7 +470,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Pharmacy').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Pharmacy').length > 0,
       icon: Pill,
-      link: "/pharmacy-services",
+      link: "/map-search?serviceType=pharmacy",
       color: "from-red-600 to-pink-600"
     },
     {
@@ -481,7 +481,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Home Health').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Home Health').length > 0,
       icon: Home,
-      link: "/home-health",
+      link: "/map-search?serviceType=home-health",
       color: "from-teal-600 to-cyan-600",
       badge: "MEDICARE"
     },
@@ -493,7 +493,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Diagnostic').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Diagnostic').length > 0,
       icon: TestTube,
-      link: "/diagnostic-services",
+      link: "/map-search?serviceType=diagnostic",
       color: "from-gray-600 to-blue-600"
     },
     {
@@ -504,7 +504,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Telemedicine').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Telemedicine').length > 0,
       icon: Video,
-      link: "/telemedicine",
+      link: "/map-search?serviceType=telemedicine",
       color: "from-violet-600 to-indigo-600",
       badge: "VIRTUAL"
     },
@@ -516,7 +516,7 @@ export default function SeniorHealthcareDirectory() {
       providerCount: services.filter((s: any) => s.serviceCategory === 'Mental Health').length,
       verified: services.filter((s: any) => s.serviceCategory === 'Mental Health').length > 0,
       icon: BrainCircuit,
-      link: "/mental-health",
+      link: "/map-search?serviceType=mental-health",
       color: "from-emerald-600 to-teal-600"
     }
   ];
@@ -603,7 +603,7 @@ export default function SeniorHealthcareDirectory() {
             <Button 
               size="lg"
               className="bg-white text-blue-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => setLocation('/care-guide')}
+              onClick={() => setLocation('/community-directory')}
             >
               <Zap className="mr-2 h-5 w-5" />
               Browse Care Guide
@@ -712,138 +712,6 @@ export default function SeniorHealthcareDirectory() {
         </div>
       </section>
 
-      {/* Comprehensive Healthcare Services Grid - All 36 Categories */}
-      <section className="px-4 py-12 bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Comprehensive Healthcare Services Directory
-            </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto mb-2">
-              Browse all {statsData?.overall?.total_categories || 36} healthcare service categories
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">
-              {totalProviders?.toLocaleString() || '4,029'}+ verified providers nationwide
-            </p>
-          </div>
-
-          {/* Healthcare Categories Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {healthcareServices.length > 0 ? (
-              healthcareServices.map((service) => {
-                const Icon = service.icon;
-                return (
-                  <motion.div
-                    key={service.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: service.id * 0.02 }}
-                    className="group cursor-pointer"
-                    onClick={() => setLocation(service.link)}
-                  >
-                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600">
-                      <CardContent className="p-5">
-                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${service.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
-                          {service.name}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {service.description}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                              {service.providerCount.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-500">
-                              providers
-                            </span>
-                          </div>
-                          {service.badge && (
-                            <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
-                              {service.badge}
-                            </Badge>
-                          )}
-                        </div>
-                        {service.verified && (
-                          <div className="flex items-center gap-1 mt-3 text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-4 w-4" />
-                            <span className="text-xs">Verified Providers</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })
-            ) : (
-              // Show all healthcare types from API if available
-              healthcareTypesAll.map((type: any, index: number) => {
-                const Icon = iconMap[type.icon] || Activity;
-                const color = colorMap[type.service_type] || 'from-gray-500 to-slate-500';
-                return (
-                  <motion.div
-                    key={type.categoryId}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.02 }}
-                    className="group cursor-pointer"
-                  >
-                    <Card className="h-full hover:shadow-xl transition-all duration-300 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600">
-                      <CardContent className="p-5">
-                        <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                          <Icon className="h-6 w-6 text-white" />
-                        </div>
-                        <h3 className="font-semibold text-lg text-gray-900 dark:text-gray-100 mb-1">
-                          {type.name}
-                        </h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                          {type.description || type.displayName}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-lg font-bold ${type.count > 0 ? 'text-blue-600 dark:text-blue-400' : 'text-gray-400 dark:text-gray-600'}`}>
-                              {type.count.toLocaleString()}
-                            </span>
-                            <span className="text-xs text-gray-500 dark:text-gray-500">
-                              providers
-                            </span>
-                          </div>
-                          {type.metadata?.coveredByMedicare && (
-                            <Badge className="bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300">
-                              MEDICARE
-                            </Badge>
-                          )}
-                        </div>
-                        {type.count > 0 && (
-                          <div className="flex items-center gap-1 mt-3 text-green-600 dark:text-green-400">
-                            <CheckCircle className="h-4 w-4" />
-                            <span className="text-xs">Active Providers</span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })
-            )}
-          </div>
-
-          {/* View More Button */}
-          <div className="text-center mt-8">
-            <Button 
-              size="lg"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg"
-              onClick={() => setLocation('/healthcare-search')}
-            >
-              <Search className="mr-2 h-5 w-5" />
-              Search All Healthcare Providers
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* 3D Care Services Carousel - Showcasing 23 Government-Verified Care Levels */}
       <CareServices3DCarousel />
@@ -2946,7 +2814,7 @@ export default function SeniorHealthcareDirectory() {
                 <Button 
                   variant="outline"
                   className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/care-guide')}
+                  onClick={() => setLocation('/community-directory')}
                 >
                   <Brain className="h-6 w-6 text-purple-500" />
                   <span className="text-xs">Care Guide</span>

@@ -76,26 +76,30 @@ export const ExecutiveDashboard: React.FC = () => {
     queryKey: ['/api/executive/strategic-metrics']
   });
 
-  // Fetch Revenue Metrics
-  const { data: revenueMetrics } = useQuery({
+  // Fetch Revenue Metrics with proper typing and defaults
+  const { data: revenueData } = useQuery({
     queryKey: ['/api/executive/revenue']
   });
+  const revenueMetrics = (revenueData as any)?.success === false ? null : revenueData;
 
-  // Fetch Board Report
-  const { data: boardReport } = useQuery({
+  // Fetch Board Report with proper typing and defaults
+  const { data: boardData } = useQuery({
     queryKey: ['/api/executive/board-report'],
     refetchInterval: 3600000 // Refresh every hour
   });
+  const boardReport = (boardData as any)?.success === false ? null : boardData;
 
-  // Fetch Competitive Analysis
-  const { data: competitiveAnalysis } = useQuery({
+  // Fetch Competitive Analysis with proper typing and defaults
+  const { data: competitiveData } = useQuery({
     queryKey: ['/api/executive/competitive-analysis']
   });
+  const competitiveAnalysis = (competitiveData as any)?.success === false ? null : competitiveData;
 
-  // Fetch Risk Metrics
-  const { data: riskMetrics } = useQuery({
+  // Fetch Risk Metrics with proper typing and defaults
+  const { data: riskData } = useQuery({
     queryKey: ['/api/executive/risk-metrics']
   });
+  const riskMetrics = (riskData as any)?.success === false ? null : riskData;
 
   const getTrendIcon = (status: string) => {
     switch (status) {
@@ -310,13 +314,14 @@ export const ExecutiveDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
-                  {formatCurrency(revenueMetrics?.monthly?.current || 0)}
+                  {formatCurrency((revenueMetrics as any)?.monthly?.current || 0)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Target: {formatCurrency(revenueMetrics?.monthly?.target || 0)}
+                  Target: {formatCurrency((revenueMetrics as any)?.monthly?.target || 0)}
                 </p>
                 <Progress 
-                  value={(revenueMetrics?.monthly?.current / revenueMetrics?.monthly?.target) * 100 || 0}
+                  value={(revenueMetrics as any)?.monthly?.current && (revenueMetrics as any)?.monthly?.target ? 
+                    ((revenueMetrics as any).monthly.current / (revenueMetrics as any).monthly.target) * 100 : 0}
                   className="mt-2"
                 />
               </CardContent>
@@ -331,13 +336,14 @@ export const ExecutiveDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
-                  {formatCurrency(revenueMetrics?.quarterly?.current || 0)}
+                  {formatCurrency((revenueMetrics as any)?.quarterly?.current || 0)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Target: {formatCurrency(revenueMetrics?.quarterly?.target || 0)}
+                  Target: {formatCurrency((revenueMetrics as any)?.quarterly?.target || 0)}
                 </p>
                 <Progress 
-                  value={(revenueMetrics?.quarterly?.current / revenueMetrics?.quarterly?.target) * 100 || 0}
+                  value={(revenueMetrics as any)?.quarterly?.current && (revenueMetrics as any)?.quarterly?.target ? 
+                    ((revenueMetrics as any).quarterly.current / (revenueMetrics as any).quarterly.target) * 100 : 0}
                   className="mt-2"
                 />
               </CardContent>
@@ -352,13 +358,14 @@ export const ExecutiveDashboard: React.FC = () => {
               </CardHeader>
               <CardContent>
                 <p className="text-3xl font-bold">
-                  {formatCurrency(revenueMetrics?.annual?.projection || 0)}
+                  {formatCurrency((revenueMetrics as any)?.annual?.projection || 0)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  Target: {formatCurrency(revenueMetrics?.annual?.target || 0)}
+                  Target: {formatCurrency((revenueMetrics as any)?.annual?.target || 0)}
                 </p>
                 <Progress 
-                  value={(revenueMetrics?.annual?.projection / revenueMetrics?.annual?.target) * 100 || 0}
+                  value={(revenueMetrics as any)?.annual?.projection && (revenueMetrics as any)?.annual?.target ? 
+                    ((revenueMetrics as any).annual.projection / (revenueMetrics as any).annual.target) * 100 : 0}
                   className="mt-2"
                 />
               </CardContent>
@@ -369,7 +376,7 @@ export const ExecutiveDashboard: React.FC = () => {
         {/* Strategic Metrics Tab */}
         <TabsContent value="strategic" className="space-y-4 mt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {strategicMetrics?.map((category: any, index: number) => (
+            {Array.isArray(strategicMetrics) && strategicMetrics?.map((category: any, index: number) => (
               <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
                 <CardHeader className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20">
                   <CardTitle className="flex items-center gap-2">
@@ -419,11 +426,11 @@ export const ExecutiveDashboard: React.FC = () => {
                   <div>
                     <p className="font-semibold">Market Leadership Position</p>
                     <p className="text-sm text-muted-foreground">
-                      Rank #{competitiveAnalysis?.market_position?.rank} of {competitiveAnalysis?.market_position?.total_competitors} competitors
+                      Rank #{competitiveAnalysis?.market_position?.rank || 'N/A'} of {competitiveAnalysis?.market_position?.total_competitors || 'N/A'} competitors
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold">{competitiveAnalysis?.market_position?.market_share}%</p>
+                    <p className="text-2xl font-bold">{competitiveAnalysis?.market_position?.market_share || 0}%</p>
                     <p className="text-sm text-muted-foreground">Market Share</p>
                   </div>
                 </div>
@@ -431,7 +438,7 @@ export const ExecutiveDashboard: React.FC = () => {
                 <div>
                   <h4 className="font-semibold mb-2">Competitive Advantages</h4>
                   <div className="space-y-2">
-                    {competitiveAnalysis?.competitive_advantages?.map((advantage: string, idx: number) => (
+                    {Array.isArray(competitiveAnalysis?.competitive_advantages) && competitiveAnalysis?.competitive_advantages?.map((advantage: string, idx: number) => (
                       <div key={idx} className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-green-600" />
                         <span className="text-sm">{advantage}</span>
@@ -453,9 +460,9 @@ export const ExecutiveDashboard: React.FC = () => {
                 Enterprise Risk Dashboard
               </CardTitle>
               <CardDescription className="flex items-center gap-2">
-                <span>Overall Risk Score: {riskMetrics?.overall_risk_score}/10</span>
+                <span>Overall Risk Score: {riskMetrics?.overall_risk_score || 0}/10</span>
                 <Badge variant={riskMetrics?.trend === 'Decreasing' ? 'default' : 'destructive'}>
-                  {riskMetrics?.trend}
+                  {riskMetrics?.trend || 'Unknown'}
                 </Badge>
               </CardDescription>
             </CardHeader>
@@ -467,7 +474,7 @@ export const ExecutiveDashboard: React.FC = () => {
                       {riskType.replace('_', ' ')}
                     </h4>
                     <div className="space-y-2">
-                      {riskMetrics?.[riskType]?.map((risk: any, idx: number) => (
+                      {Array.isArray((riskMetrics as any)?.[riskType]) && (riskMetrics as any)?.[riskType]?.map((risk: any, idx: number) => (
                         <div key={idx} className="flex items-center justify-between p-3 bg-muted/30 hover:bg-muted/50 rounded-lg transition-colors">
                           <div className="flex items-center gap-2">
                             <Shield className={cn(
@@ -518,10 +525,10 @@ export const ExecutiveDashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="prose dark:prose-invert max-w-none">
-              <p className="text-sm">{boardReport.executive_summary}</p>
+              <p className="text-sm">{boardReport?.executive_summary || 'No executive summary available'}</p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                {boardReport.strategic_initiatives?.map((initiative: any, idx: number) => (
+                {Array.isArray(boardReport?.strategic_initiatives) && boardReport?.strategic_initiatives?.map((initiative: any, idx: number) => (
                   <div key={idx} className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-semibold text-sm">{initiative.name}</span>
@@ -540,7 +547,7 @@ export const ExecutiveDashboard: React.FC = () => {
               <div className="mt-4">
                 <h4 className="font-semibold mb-2">Key Recommendations</h4>
                 <ul className="space-y-1">
-                  {boardReport.recommendations?.slice(0, 3).map((rec: string, idx: number) => (
+                  {Array.isArray(boardReport?.recommendations) && boardReport?.recommendations?.slice(0, 3).map((rec: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2 text-sm">
                       <Zap className="h-4 w-4 text-yellow-600 mt-0.5" />
                       <span>{rec}</span>

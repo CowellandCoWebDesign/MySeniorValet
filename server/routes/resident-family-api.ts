@@ -257,7 +257,7 @@ router.get('/messages/unread-count', async (req: Request, res: Response) => {
       .from(familyMessages)
       .where(
         and(
-          eq(familyMessages.recipientId, userId as string),
+          eq(familyMessages.recipientId, parseInt(userId as string)),
           eq(familyMessages.status, 'sent')
         )
       );

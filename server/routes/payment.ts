@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { paymentService, TIER_PRICING, ADDON_PRICING } from '../services/payment.service';
 import { z } from 'zod';
+import Stripe from 'stripe';
 
 const router = Router();
 
@@ -319,10 +320,28 @@ router.post('/webhooks/stripe', async (req, res) => {
       return res.status(400).json({ error: 'No signature provided' });
     }
     
-    // Note: Webhook processing is handled in webhookRoutes.ts
-    // This is just for payment-specific webhook events
+    // Verify webhook signature for security
+    const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+    if (!webhookSecret) {
+      console.error('⚠️ STRIPE_WEBHOOK_SECRET not configured');
+      return res.status(500).json({ error: 'Webhook secret not configured' });
+    }
     
-    const event = req.body;
+    let event;
+    try {
+      // Verify the webhook signature using the raw body
+      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+        apiVersion: '2025-07-30.basil'
+      });
+      event = stripe.webhooks.constructEvent(
+        req.body, // This should be the raw body
+        sig,
+        webhookSecret
+      );
+    } catch (err: any) {
+      console.error(`⚠️ Webhook signature verification failed: ${err.message}`);
+      return res.status(400).json({ error: `Webhook Error: ${err.message}` });
+    }
     
     console.log(`💳 Payment webhook received: ${event.type}`);
     

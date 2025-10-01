@@ -83,7 +83,7 @@ export function NavigationHeader({
   }, [preferences]);
 
   return (
-    <div className="sticky top-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b-2 border-gray-200 dark:border-gray-700 shadow-lg z-50">
+    <div className="fixed top-0 left-0 right-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b-2 border-gray-200 dark:border-gray-700 shadow-lg z-50">
       <div className="px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -349,8 +349,8 @@ export function NavigationHeader({
                     size="icon"
                     className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
                   >
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-white font-semibold text-sm">
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 dark:from-blue-500 dark:to-purple-600 flex items-center justify-center shadow-md">
+                      <span className="text-white font-semibold text-sm drop-shadow-md">
                         {user?.firstName?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || 'U'}
                       </span>
                     </div>
