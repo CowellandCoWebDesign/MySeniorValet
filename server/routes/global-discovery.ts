@@ -979,21 +979,88 @@ List them numerically (1, 2, 3, etc.) and include AS MANY businesses as you can 
         // Save communities (existing logic)
         for (const discovered of discoveredCommunities) {
         try {
-          // Check if we already have this community - use more flexible matching
-          const nameParts = discovered.name.toLowerCase().split(/\s+/);
-          const mainNamePart = nameParts.filter((p: string) => p.length > 3)[0] || nameParts[0];
+          // IMPROVED DUPLICATE PREVENTION - Check multiple fields to avoid creating duplicates
+          // 1. First try exact match on name + city + state
+          // 2. Then try fuzzy match on name with same city
+          // 3. Check for common name variations (e.g., "Sun Dial" vs "Sundial")
           
-          const existing = await db.select()
-            .from(communities)
-            .where(
+          const cleanName = discovered.name.toLowerCase()
+            .replace(/[^\w\s]/g, '') // Remove special characters
+            .replace(/\s+/g, ' ')     // Normalize spaces
+            .trim();
+          
+          // Create variations of the name (e.g., "Sun Dial" -> "Sundial")
+          const nameVariations = [
+            cleanName,
+            cleanName.replace(/\s+/g, ''), // Remove all spaces
+            cleanName.replace(/\s+/g, '-')  // Replace spaces with hyphens
+          ];
+          
+          // Build WHERE conditions for duplicate check
+          const whereConditions = [];
+          
+          // Check exact match first (name + city + state)
+          if (discovered.city && discovered.state) {
+            whereConditions.push(
               and(
-                sql`LOWER(${communities.name}) LIKE ${'%' + mainNamePart + '%'}`,
-                discovered.city ? 
-                  sql`LOWER(${communities.city}) = ${discovered.city.toLowerCase()}` : 
-                  sql`true`
+                sql`LOWER(REPLACE(${communities.name}, ' ', '')) = ${cleanName.replace(/\s+/g, '')}`,
+                sql`LOWER(${communities.city}) = ${discovered.city.toLowerCase()}`,
+                sql`LOWER(${communities.state}) = ${discovered.state.toLowerCase()}`
               )
-            )
-            .limit(1);
+            );
+          }
+          
+          // Check name variations in same city
+          if (discovered.city) {
+            for (const nameVar of nameVariations) {
+              whereConditions.push(
+                and(
+                  sql`LOWER(REPLACE(REPLACE(${communities.name}, ' ', ''), '-', '')) = ${nameVar.replace(/[-\s]/g, '')}`,
+                  sql`LOWER(${communities.city}) = ${discovered.city.toLowerCase()}`
+                )
+              );
+            }
+          }
+          
+          // Check if any of these conditions match
+          let existing: any[] = [];
+          for (const condition of whereConditions) {
+            const result = await db.select()
+              .from(communities)
+              .where(condition)
+              .limit(1);
+            
+            if (result.length > 0) {
+              existing = result;
+              console.log(`🔍 Found potential duplicate: ${result[0].name} in ${result[0].city}, ${result[0].state}`);
+              break;
+            }
+          }
+          
+          // If still no match, check for partial name match as fallback
+          if (existing.length === 0 && discovered.city) {
+            const nameParts = cleanName.split(/\s+/);
+            const significantPart = nameParts.filter((p: string) => p.length > 4)[0] || nameParts[0];
+            
+            if (significantPart) {
+              existing = await db.select()
+                .from(communities)
+                .where(
+                  and(
+                    sql`LOWER(${communities.name}) LIKE ${'%' + significantPart + '%'}`,
+                    sql`LOWER(${communities.city}) = ${discovered.city.toLowerCase()}`,
+                    discovered.state ? 
+                      sql`LOWER(${communities.state}) = ${discovered.state.toLowerCase()}` : 
+                      sql`true`
+                  )
+                )
+                .limit(1);
+              
+              if (existing.length > 0) {
+                console.log(`🔍 Found similar community (partial match): ${existing[0].name} in ${existing[0].city}, ${existing[0].state}`);
+              }
+            }
+          }
           
           if (existing.length === 0 && discovered.name) {
             // Save new discovered community to database
@@ -1102,9 +1169,98 @@ List them numerically (1, 2, 3, etc.) and include AS MANY businesses as you can 
               savedCommunities.push(fallbackCommunity);
             }
           } else if (existing.length > 0) {
-            // Add existing community to saved list
-            savedCommunities.push(existing[0]);
-            console.log(`✅ Found existing community: ${existing[0].name} (ID: ${existing[0].id})`);
+            // ENHANCED: Update existing community with any new information discovered
+            const existingCommunity = existing[0];
+            const updates: any = {};
+            let hasUpdates = false;
+            
+            // Update missing fields with discovered data
+            if (!existingCommunity.website && discovered.website) {
+              updates.website = discovered.website;
+              hasUpdates = true;
+              console.log(`  📝 Adding website: ${discovered.website}`);
+            }
+            
+            if (!existingCommunity.phone && discovered.phone) {
+              updates.phone = discovered.phone;
+              hasUpdates = true;
+              console.log(`  📝 Adding phone: ${discovered.phone}`);
+            }
+            
+            if (!existingCommunity.email && discovered.email) {
+              updates.email = discovered.email;
+              hasUpdates = true;
+              console.log(`  📝 Adding email: ${discovered.email}`);
+            }
+            
+            // Update description if the existing one is generic or missing
+            if (discovered.description && 
+                (!existingCommunity.description || 
+                 existingCommunity.description.includes('Discovered via search') ||
+                 existingCommunity.description.length < 50)) {
+              updates.description = discovered.description;
+              hasUpdates = true;
+              console.log(`  📝 Updating description`);
+            }
+            
+            // Merge care types (unique values only)
+            if (discovered.careTypes && discovered.careTypes.length > 0) {
+              const existingTypes = existingCommunity.careTypes || [];
+              const newTypes = discovered.careTypes.filter((type: string) => 
+                !existingTypes.includes(type) && type !== 'Unknown'
+              );
+              if (newTypes.length > 0) {
+                updates.careTypes = [...existingTypes, ...newTypes];
+                hasUpdates = true;
+                console.log(`  📝 Adding care types: ${newTypes.join(', ')}`);
+              }
+            }
+            
+            // Update address if better one is found
+            if (discovered.address && 
+                (!existingCommunity.address || 
+                 existingCommunity.address === 'Address pending verification' ||
+                 existingCommunity.address.length < discovered.address.length)) {
+              updates.address = discovered.address;
+              hasUpdates = true;
+              console.log(`  📝 Updating address: ${discovered.address}`);
+            }
+            
+            // Apply updates if any
+            if (hasUpdates) {
+              try {
+                await db.update(communities)
+                  .set({
+                    ...updates,
+                    updatedAt: new Date(),
+                    enrichmentHistory: sql`
+                      COALESCE(enrichment_history, '[]'::jsonb) || 
+                      ${JSON.stringify([{
+                        timestamp: new Date().toISOString(),
+                        source: 'Global Discovery Update',
+                        fieldsUpdated: Object.keys(updates),
+                        autoApproved: false
+                      }])}::jsonb
+                    `
+                  })
+                  .where(eq(communities.id, existingCommunity.id));
+                
+                console.log(`✅ Updated existing community: ${existingCommunity.name} (ID: ${existingCommunity.id})`);
+                
+                // Get updated record
+                const [updatedCommunity] = await db.select()
+                  .from(communities)
+                  .where(eq(communities.id, existingCommunity.id));
+                savedCommunities.push(updatedCommunity);
+              } catch (updateError) {
+                console.error(`⚠️ Error updating community ${existingCommunity.id}:`, updateError);
+                savedCommunities.push(existingCommunity); // Use original if update fails
+              }
+            } else {
+              // No updates needed, add existing community to saved list
+              savedCommunities.push(existingCommunity);
+              console.log(`✅ Found existing community (no updates needed): ${existingCommunity.name} (ID: ${existingCommunity.id})`);
+            }
           }
         } catch (saveError) {
           console.error(`⚠️ Error processing discovered community ${discovered.name}:`, saveError);
