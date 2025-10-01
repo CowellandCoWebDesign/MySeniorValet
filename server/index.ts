@@ -60,20 +60,13 @@ app.use(compression({
 app.set('trust proxy', 1);
 
 // Lightweight health check endpoint (no database required)
-// MUST be registered before any middleware that might block or require DB
-app.get('/', (req, res) => {
+// Note: Root '/' serves the frontend, so health check is on /health only
+app.get('/health', (req, res) => {
   res.status(200).json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     service: 'MySeniorValet API',
     version: '1.0.0'
-  });
-});
-
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'healthy',
-    timestamp: new Date().toISOString()
   });
 });
 
