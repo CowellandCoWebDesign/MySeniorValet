@@ -63,7 +63,9 @@ export function UnifiedSearch({
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [justSearched, setJustSearched] = useState(false); // Add flag to prevent dropdown after search
   const searchRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null); // Add ref for input to blur it
   const debouncedQuery = useDebounce(query, 300);
   const [, setLocation] = useLocation();
   
@@ -117,6 +119,12 @@ export function UnifiedSearch({
     setIsLoading(true);
     setError(null);
     setShowSuggestions(false);
+    setJustSearched(true);
+    
+    // Blur the input to remove focus and prevent dropdown from re-appearing
+    if (inputRef.current) {
+      inputRef.current.blur();
+    }
     
     try {
       // Try natural language search first for complex queries
@@ -230,10 +238,12 @@ export function UnifiedSearch({
           <Search className="h-5 w-5 text-gray-400" />
         </div>
         <Input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
+            setJustSearched(false); // Reset flag when user types
             // Clear results if input is cleared
             if (e.target.value === '') {
               setResults([]);
@@ -245,7 +255,12 @@ export function UnifiedSearch({
             }
           }}
           onKeyPress={handleKeyPress}
-          onFocus={() => setShowSuggestions(true)}
+          onFocus={() => {
+            // Only show suggestions if we didn't just perform a search
+            if (!justSearched && query.length > 0) {
+              setShowSuggestions(true);
+            }
+          }}
           placeholder={placeholder}
           className={`pl-10 pr-32 py-6 text-lg bg-white/95 backdrop-blur-sm border-2 border-purple-200 focus:border-purple-500 rounded-xl ${className}`}
           autoFocus={autoFocus}
