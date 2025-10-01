@@ -40,8 +40,9 @@ process.on('unhandledRejection', (reason, promise) => {
   // Don't exit, just log the error
 });
 
-// Production mode - caches enabled for performance
-console.log('⚡ PRODUCTION MODE: Optimized caching enabled for maximum performance');
+// Log current environment mode
+const envMode = process.env.NODE_ENV || 'development';
+console.log(`⚡ Running in ${envMode.toUpperCase()} mode`);
 
 // Enable compression for all responses (production optimization)
 app.use(compression({
