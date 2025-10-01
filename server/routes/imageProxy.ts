@@ -77,8 +77,7 @@ router.get('/api/image-proxy', async (req, res) => {
             'Sec-Fetch-Site': 'cross-site'
           },
           signal: controller.signal,
-          redirect: 'follow',
-          mode: 'cors'
+          redirect: 'follow'
         });
 
         clearTimeout(timeoutId);
@@ -153,7 +152,8 @@ router.get('/api/image-proxy', async (req, res) => {
     console.log(`✅ Successfully proxied image from ${validUrl.hostname}`);
 
   } catch (error: any) {
-    console.error(`❌ Image proxy error for ${decodedUrl}:`, error.message);
+    const url = (req.query.url as string) || 'unknown';
+    console.error(`❌ Image proxy error for ${url}:`, error.message);
 
     // Return transparent pixel for any error
     const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
