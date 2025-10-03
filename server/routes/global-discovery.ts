@@ -6,6 +6,32 @@ import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
 import { perplexitySearchAPI } from '../services/perplexity-search-api';
 
+// US State name to abbreviation mapping for search normalization
+const US_STATE_MAP: Record<string, string> = {
+  'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR', 'california': 'CA',
+  'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE', 'florida': 'FL', 'georgia': 'GA',
+  'hawaii': 'HI', 'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA',
+  'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+  'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS', 'missouri': 'MO',
+  'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ',
+  'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH',
+  'oklahoma': 'OK', 'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+  'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT', 'vermont': 'VT',
+  'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV', 'wisconsin': 'WI', 'wyoming': 'WY',
+  'district of columbia': 'DC', 'dc': 'DC'
+};
+
+// Helper function to normalize state input to abbreviation
+function normalizeState(stateInput: string): string {
+  const normalized = stateInput.trim().toLowerCase();
+  // If it's already an abbreviation, return uppercase
+  if (normalized.length === 2) {
+    return normalized.toUpperCase();
+  }
+  // Otherwise, look up the full name
+  return US_STATE_MAP[normalized] || stateInput;
+}
+
 // Schema for global discovery search
 const globalSearchSchema = z.object({
   query: z.string(),
@@ -364,10 +390,55 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           }
         }
       } else if (searchType !== 'services') {
-        // Parse location from query (e.g., "Dallas, Texas" or just "France")
-        const queryParts = query.split(',').map(p => p.trim());
-        const citySearch = queryParts[0] || query;
-        const stateSearch = queryParts[1] || '';
+        // Parse location from query (e.g., "Dallas, Texas", "Eureka California", or just "France")
+        let citySearch = '';
+        let stateSearch = '';
+        
+        if (query.includes(',')) {
+          // Handle "City, State" format
+          const queryParts = query.split(',').map(p => p.trim());
+          citySearch = queryParts[0] || query;
+          stateSearch = queryParts[1] || '';
+        } else {
+          // Handle "City State" format (no comma) - e.g., "Eureka California"
+          const words = query.trim().split(/\s+/);
+          
+          if (words.length >= 2) {
+            // Check if last word(s) could be a state name
+            const lastWord = words[words.length - 1];
+            const lastTwoWords = words.length >= 2 ? words.slice(-2).join(' ') : '';
+            
+            // Check if the last word or last two words match a state
+            const stateFromLastWord = normalizeState(lastWord);
+            const stateFromLastTwoWords = lastTwoWords ? normalizeState(lastTwoWords) : '';
+            
+            if (stateFromLastTwoWords !== lastTwoWords) {
+              // Last two words form a valid state (e.g., "New York")
+              stateSearch = stateFromLastTwoWords;
+              citySearch = words.slice(0, -2).join(' ');
+            } else if (stateFromLastWord !== lastWord && stateFromLastWord.length === 2) {
+              // Last word is a valid state
+              stateSearch = stateFromLastWord;
+              citySearch = words.slice(0, -1).join(' ');
+            } else {
+              // No recognizable state, treat entire query as city
+              citySearch = query;
+            }
+          } else {
+            // Single word query
+            citySearch = query;
+          }
+        }
+        
+        // Normalize state name to abbreviation (e.g., "California" -> "CA")
+        if (stateSearch) {
+          const originalState = stateSearch;
+          stateSearch = normalizeState(stateSearch);
+          console.log(`🗺️ State normalized: "${originalState}" -> "${stateSearch}"`);
+        }
+        
+        console.log(`🔍 Parsed location: City="${citySearch}", State="${stateSearch}"`);
+
         
         // Check if it's a country search
         const countryNames = [
@@ -393,13 +464,13 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             )
             .limit(50);
         } else {
-          // City/state search (existing logic)
+          // City/state search with normalized state abbreviation
           existingCommunities = await db.select()
             .from(communities)
             .where(
               and(
                 sql`LOWER(${communities.city}) = ${citySearch.toLowerCase()}`,
-                stateSearch ? sql`LOWER(${communities.state}) LIKE ${stateSearch.toLowerCase() + '%'}` : sql`true`,
+                stateSearch ? eq(communities.state, stateSearch) : sql`true`,
                 eq(communities.isVerified, true) // Only return verified communities
               )
             )
