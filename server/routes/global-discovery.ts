@@ -959,7 +959,11 @@ Keep responses concise and focus on the most relevant results.`;
       
       } catch (sonarError) {
         console.error('⚠️ Sonar API error:', sonarError);
-        // Continue with empty results if Sonar fails
+        console.log(`🔄 Perplexity failed, but we have ${existingCommunities.length} database results. Returning database results only.`);
+        
+        // When Perplexity fails, set empty discovered communities
+        // The database results will be returned below
+        discoveredCommunities = [];
       }
       } // End of Sonar API fallback block
       
@@ -1462,6 +1466,21 @@ Keep responses concise and focus on the most relevant results.`;
           });
         }
       });
+      
+      // CRITICAL FIX: If Perplexity failed or returned no results, add ALL database communities
+      // This ensures users ALWAYS see database results even when web search fails
+      if (discoveredWithRealIds.length === 0 && existingCommunities.length > 0) {
+        console.log(`📋 Perplexity returned no results. Adding ${existingCommunities.length} database communities to results.`);
+        
+        // Add all database communities as "existing" results
+        existingCommunities.forEach(dbCommunity => {
+          allWebResults.push({
+            ...dbCommunity,
+            isExisting: true,
+            isDiscovered: false
+          });
+        });
+      }
       
       const allResults = allWebResults;
       
