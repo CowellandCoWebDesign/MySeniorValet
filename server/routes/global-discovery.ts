@@ -691,9 +691,9 @@ Keep responses concise and focus on the most relevant results.`;
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
       // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
-      // OPTIMIZED: Much shorter timeout for better user experience
+      // BALANCED: 30s timeout - enough for Perplexity to respond, not too long for users
       const isComplexSearch = (isCountrySearch || searchType === 'services' || query.toLowerCase().includes('hotels') || query.toLowerCase().includes('transportation'));
-      const TIMEOUT_MS = 15000; // 15s timeout for faster response - users can't wait 90+ seconds!
+      const TIMEOUT_MS = 30000; // 30s timeout - Perplexity needs time to search comprehensively
       console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for discovery search`);
       
       const controller = new AbortController();
@@ -970,6 +970,7 @@ Keep responses concise and focus on the most relevant results.`;
       // Step 4: Save discovered communities or services to database
       const savedCommunities = [];
       const savedServices = [];
+      const newlyInsertedIds = new Set(); // Track which IDs are truly NEW insertions
       
       if (searchType === 'services') {
         // Save discovered services to services table
@@ -1220,6 +1221,7 @@ Keep responses concise and focus on the most relevant results.`;
                 .returning();
               
               console.log(`💾 Saved new discovered community: ${discovered.name} (ID: ${newCommunity.id})`);
+              newlyInsertedIds.add(newCommunity.id); // Track as TRULY NEW
               savedCommunities.push(newCommunity);
             } catch (insertError) {
               console.error(`⚠️ Error inserting community ${discovered.name}:`, insertError);
@@ -1382,6 +1384,10 @@ Keep responses concise and focus on the most relevant results.`;
           (d.name && saved.name && d.name.toLowerCase().includes(saved.name.toLowerCase()))
         );
         
+        // CRITICAL: Only mark as "isDiscovered" if it was NEWLY INSERTED
+        // Updated existing communities should not be marked as discovered
+        const isTrulyNew = newlyInsertedIds.has(saved.id);
+        
         return {
           id: saved.id, // Use the REAL database ID
           slug: `${saved.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${saved.id}`,
@@ -1395,10 +1401,11 @@ Keep responses concise and focus on the most relevant results.`;
           website: saved.website || originalData?.website || '',
           description: saved.description || originalData?.description || '',
           careTypes: saved.careTypes || originalData?.careTypes || [],
-          data_source: 'AI Discovery',
-          isDiscovered: true,
+          data_source: isTrulyNew ? 'AI Discovery' : saved.data_source || 'Database',
+          isDiscovered: isTrulyNew, // Only mark as discovered if NEWLY inserted
+          isExisting: !isTrulyNew, // Mark as existing if it was an update
           confidence: originalData?.confidence || 90,
-          verificationStatus: 'pending', // Requires verification
+          verificationStatus: isTrulyNew ? 'pending' : 'verified',
           citations: citations, // Include Perplexity citations
           // Add fields needed for community details view
           photos: saved.photos || [],
@@ -1431,6 +1438,7 @@ Keep responses concise and focus on the most relevant results.`;
       });
       
       // Process all web-discovered communities
+      // SIMPLIFIED: Just add all discovered communities - they already have correct flags
       discoveredWithRealIds.forEach(webCommunity => {
         // Skip if no name exists
         if (!webCommunity.name) {
@@ -1438,33 +1446,8 @@ Keep responses concise and focus on the most relevant results.`;
           return;
         }
         
-        // Normalize the web result name for matching
-        const normalizedName = webCommunity.name
-          .toLowerCase()
-          .replace(/\s*(senior living|assisted living|memory care|llc|inc|corp).*$/i, '')
-          .replace(/[^\w\s]/g, '')
-          .trim();
-        const key = `${normalizedName}_${(webCommunity.city || '').toLowerCase().trim()}`;
-        
-        // Check if this web result matches a database entry
-        const dbMatch = dbIndex.get(key);
-        
-        if (dbMatch) {
-          // This web result IS in our database - mark as existing/verified
-          allWebResults.push({
-            ...dbMatch,
-            isExisting: true,
-            isDiscovered: false,
-            webData: webCommunity // Keep web data for reference
-          });
-        } else {
-          // This web result is NOT in our database - mark as newly discovered
-          allWebResults.push({
-            ...webCommunity,
-            isExisting: false,
-            isDiscovered: true
-          });
-        }
+        // Add to results - flags are already set correctly in discoveredWithRealIds
+        allWebResults.push(webCommunity);
       });
       
       // CRITICAL FIX: If Perplexity failed or returned no results, add ALL database communities
