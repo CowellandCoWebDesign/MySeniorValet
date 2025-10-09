@@ -175,15 +175,23 @@ export function MySeniorValetChatKit({
       const errorMessage: Message = {
         id: (Date.now() + 2).toString(),
         role: 'assistant',
-        content: "I'm having trouble connecting right now. Please try again in a moment.",
+        content: "I encountered an issue. If this persists, try clicking 'New Chat' to start fresh.",
         timestamp: new Date()
       };
       
       setMessages(prev => [...prev, errorMessage]);
       
+      // If the error is about active runs, clear the session
+      if (error instanceof Error && error.message.includes('active')) {
+        console.log('🔄 Clearing stuck session');
+        localStorage.removeItem('chatkit_thread_id');
+        setThreadId(null);
+        setTimeout(() => initializeSession(), 1000);
+      }
+      
       toast({
         title: "Connection Error",
-        description: "Please try again",
+        description: "Please try again or start a new chat",
         variant: "destructive"
       });
     } finally {

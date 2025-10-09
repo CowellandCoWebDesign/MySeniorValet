@@ -180,6 +180,23 @@ router.post('/stream', async (req: Request, res: Response) => {
     // Get assistant
     const assistant = await getOrCreateAssistant();
 
+    // Cancel any stuck runs on this thread first
+    try {
+      const activeRuns = await openai.beta.threads.runs.list(thread_id, { limit: 10 });
+      for (const run of activeRuns.data) {
+        if (run.status === 'in_progress' || run.status === 'requires_action') {
+          console.log(`🔄 Cancelling stuck run: ${run.id}`);
+          try {
+            await openai.beta.threads.runs.cancel(run.id, { thread_id: thread_id });
+          } catch (cancelError) {
+            console.log('⚠️ Could not cancel run:', cancelError);
+          }
+        }
+      }
+    } catch (listError) {
+      console.log('⚠️ Could not list runs:', listError);
+    }
+
     // Add user message to thread
     await openai.beta.threads.messages.create(thread_id, {
       role: 'user',
@@ -243,8 +260,7 @@ router.post('/stream', async (req: Request, res: Response) => {
         );
 
         // Submit tool outputs and continue streaming
-        const submitStream = openai.beta.threads.runs.submitToolOutputsStream(
-          thread_id,
+        const submitStream = await openai.beta.threads.runs.submitToolOutputsStream(
           currentRunId,
           { 
             tool_outputs: toolOutputs
