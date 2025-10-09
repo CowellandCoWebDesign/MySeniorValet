@@ -2,40 +2,38 @@ import { Router, Request, Response } from 'express';
 import OpenAI from 'openai';
 import { db } from '../db';
 import { communities } from '@shared/schema';
-import { eq, and, or, ilike, sql, gte, lte, isNull, notInArray } from 'drizzle-orm';
+import { eq, and, or, ilike, sql } from 'drizzle-orm';
 
 const router = Router();
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Define tool functions for ChatKit to use
+// Store assistant ID (in production, store in env or database)
+let ASSISTANT_ID: string | null = null;
+
+// Define function tools for the assistant
 const tools = [
   {
     type: "function" as const,
     function: {
       name: "search_communities",
-      description: "Search for senior living communities based on location, care type, and price range. Returns matching communities with basic details.",
+      description: "Search for senior living communities in our database. Use this when users ask for specific locations or care types. DO NOT use for general questions about senior care.",
       parameters: {
         type: "object",
         properties: {
           location: {
             type: "string",
-            description: "City, state, or region to search (e.g., 'Dallas, TX', 'California')"
+            description: "City, state, or region to search (e.g., 'Dallas', 'Texas', 'California')"
           },
           careType: {
             type: "string",
-            description: "Type of care needed: 'Assisted Living', 'Memory Care', 'Independent Living', 'Skilled Nursing', or 'All Types'",
-            enum: ["Assisted Living", "Memory Care", "Independent Living", "Skilled Nursing", "All Types"]
+            description: "Type of care: 'Assisted Living', 'Memory Care', 'Independent Living', 'Skilled Nursing', or leave empty for all",
+            enum: ["Assisted Living", "Memory Care", "Independent Living", "Skilled Nursing", ""]
           },
           maxPrice: {
             type: "number",
-            description: "Maximum monthly price in USD"
-          },
-          limit: {
-            type: "number",
-            description: "Maximum number of results to return (default 5)",
-            default: 5
+            description: "Maximum monthly price in USD, if specified"
           }
         },
         required: ["location"]
@@ -45,583 +43,336 @@ const tools = [
   {
     type: "function" as const,
     function: {
-      name: "get_community_details",
-      description: "Get detailed information about a specific senior living community including pricing, amenities, and availability.",
+      name: "enable_discovery_mode",
+      description: "ONLY call this when the user EXPLICITLY asks to expand search, find more options, or enable Discovery Mode. DO NOT call for zero results - suggest it instead.",
       parameters: {
         type: "object",
         properties: {
-          communityId: {
-            type: "number",
-            description: "The ID of the community to get details for"
-          }
-        },
-        required: ["communityId"]
-      }
-    }
-  },
-  {
-    type: "function" as const,
-    function: {
-      name: "compare_communities",
-      description: "Compare multiple senior living communities side-by-side based on price, amenities, care types, and ratings.",
-      parameters: {
-        type: "object",
-        properties: {
-          communityIds: {
-            type: "array",
-            items: { type: "number" },
-            description: "Array of community IDs to compare (2-4 communities)"
-          }
-        },
-        required: ["communityIds"]
-      }
-    }
-  },
-  {
-    type: "function" as const,
-    function: {
-      name: "check_availability",
-      description: "Check real-time room availability for a specific community.",
-      parameters: {
-        type: "object",
-        properties: {
-          communityId: {
-            type: "number",
-            description: "The ID of the community to check availability for"
-          }
-        },
-        required: ["communityId"]
-      }
-    }
-  },
-  {
-    type: "function" as const,
-    function: {
-      name: "schedule_tour",
-      description: "Schedule a tour for a senior living community using the TourMate system.",
-      parameters: {
-        type: "object",
-        properties: {
-          communityId: {
-            type: "number",
-            description: "The ID of the community to schedule a tour for"
-          },
-          preferredDate: {
+          query: {
             type: "string",
-            description: "Preferred date for the tour (YYYY-MM-DD format)"
-          },
-          preferredTime: {
-            type: "string",
-            description: "Preferred time for the tour (e.g., '10:00 AM', '2:00 PM')"
+            description: "The original search query to expand"
           }
         },
-        required: ["communityId"]
+        required: ["query"]
       }
     }
   }
 ];
 
-// Create ChatKit session endpoint
+// Initialize or retrieve assistant
+async function getOrCreateAssistant() {
+  if (ASSISTANT_ID) {
+    try {
+      const assistant = await openai.beta.assistants.retrieve(ASSISTANT_ID);
+      return assistant;
+    } catch (error) {
+      console.log('❌ Failed to retrieve assistant, creating new one');
+    }
+  }
+
+  // Create new assistant
+  const assistant = await openai.beta.assistants.create({
+    name: "MySeniorValet Conversational Assistant",
+    instructions: `You are MySeniorValet's AI assistant - a warm, conversational guide helping families navigate senior care.
+
+YOUR PERSONALITY:
+• Conversational and empathetic - talk like a knowledgeable friend, not a search engine
+• Patient and supportive - families are often stressed and overwhelmed
+• Informative - provide context and education, not just search results
+• Proactive - suggest helpful features when relevant
+
+HOW TO HANDLE DIFFERENT REQUESTS:
+
+1. QUESTIONS (e.g., "What's the difference between assisted living and memory care?")
+   → Answer directly and thoroughly. Be educational and helpful.
+   → DO NOT search for communities
+   → Provide context about costs, care levels, and when each is appropriate
+
+2. GREETINGS (e.g., "Hi", "Hello", "How are you?")
+   → Respond warmly and ask how you can help
+   → DO NOT trigger any functions
+   → Introduce your capabilities naturally
+
+3. SEARCH REQUESTS (e.g., "Find memory care in Dallas", "Communities near Austin under $5,000")
+   → Use search_communities function
+   → After showing results, offer to show on map or compare
+
+4. DISCOVERY MODE (ONLY when explicitly requested):
+   → User says: "Find more options", "Expand search", "Enable Discovery Mode"
+   → Then and only then, use enable_discovery_mode function
+   → If search returns 0 results, SUGGEST Discovery Mode, don't enable it automatically
+
+IMPORTANT RULES:
+• NEVER call functions for greetings or general questions
+• NEVER enable Discovery Mode automatically - only when user explicitly requests it
+• When search returns 0 results, say: "I didn't find communities in our database. Would you like me to enable Discovery Mode to search the web?"
+• Remember conversation context - reference previous messages when appropriate
+• Mention platform features naturally (maps, comparisons, tours) when relevant
+
+TONE: Helpful, warm, professional, conversational - like talking to a knowledgeable care consultant.`,
+    model: "gpt-4o-mini",
+    tools: tools,
+    temperature: 0.7,
+  });
+
+  ASSISTANT_ID = assistant.id;
+  console.log(`✅ Created new assistant: ${ASSISTANT_ID}`);
+  
+  return assistant;
+}
+
+// Create or retrieve thread
 router.post('/session', async (req: Request, res: Response) => {
   try {
-    const { category = 'communities' } = req.body;
+    const { thread_id } = req.body;
+
+    let thread;
     
-    // System prompt tailored to category
-    const systemPrompts: Record<string, string> = {
-      communities: `You are MySeniorValet's AI assistant - a knowledgeable, conversational guide helping families navigate senior care decisions.
-
-CAPABILITIES:
-• Access to 33,830+ verified senior living communities in our database
-• Discovery Mode: When users want more options, you can search the entire web for communities beyond our database
-• Answer questions about senior care, costs, care types, Medicare/Medicaid, and the transition process
-• Search by location, care type, price range, and specific needs
-• Show community details, compare options, check availability, and help schedule tours
-• Provide guidance on choosing care, understanding different care levels, and what to look for
-
-IMPORTANT FEATURES TO MENTION WHEN RELEVANT:
-• Discovery Mode - Say "I can enable Discovery Mode to search more broadly across the web" when database results are limited
-• Interactive maps - "I can show these on a map" when displaying community results
-• Comparison tools - "Would you like me to compare these side-by-side?" when showing multiple options
-• Virtual tours and photos available on community detail pages
-• Family collaboration tools for sharing and discussing options
-
-CONVERSATION STYLE:
-• Be conversational and natural - have a real discussion, not just Q&A
-• Answer questions thoroughly about senior care topics, even if not directly about search
-• Show empathy - families are often stressed and overwhelmed
-• Provide context and education about care options when helpful
-• Proactively suggest useful features and next steps
-• Remember previous messages in the conversation for context
-
-EXAMPLE RESPONSES:
-User: "What's the difference between assisted living and memory care?"
-You: Provide a thorough explanation of both care types, typical costs, and when each is appropriate.
-
-User: "I need help finding care for my mom in Dallas"
-You: Ask follow-up questions about her needs, budget, and preferences before searching.
-
-User: "These results are limited, are there more options?"
-You: "I found [X] communities in our database. I can enable Discovery Mode to search across the entire web for additional options. Would you like me to do that?"
-
-Always be helpful, informative, and guide families through this challenging journey.`,
-      
-      services: `You are MySeniorValet's AI assistant, helping families find senior care services.
-You can help locate home health agencies, adult day programs, hospice care, therapy services, and more.
-Be informative and supportive, understanding that families may be dealing with difficult situations.`,
-      
-      healthcare: `You are MySeniorValet's AI assistant, helping find healthcare resources for seniors.
-You can locate hospitals, specialists, urgent care, VA facilities, and other medical services.
-Provide clear, helpful information while being sensitive to health concerns.`,
-      
-      resources: `You are MySeniorValet's AI assistant, providing information about senior resources.
-You can help with Medicare/Medicaid information, financial planning, legal resources, and support groups.
-Be thorough and patient, as these topics can be complex and overwhelming.`,
-      
-      vendors: `You are MySeniorValet's AI assistant for the senior care marketplace.
-You can help find medical equipment, supplies, adaptive clothing, and other products for seniors.
-Focus on quality, value, and meeting specific needs.`
-    };
-
-    // Create assistant configuration
-    const assistantConfig = {
-      model: "gpt-4o-mini", // Cost-effective model to start
-      name: "MySeniorValet Assistant",
-      instructions: systemPrompts[category] || systemPrompts.communities,
-      tools: category === 'communities' ? tools : [],
-      temperature: 0.7,
-      top_p: 0.9,
-    };
-
-    // Create a new thread for this conversation
-    const thread = await openai.beta.threads.create();
-    
-    // Create or retrieve assistant
-    // In production, you'd create the assistant once and reuse its ID
-    const assistant = await openai.beta.assistants.create(assistantConfig);
-
-    // Generate a session token (in production, use proper JWT)
-    const sessionToken = `chatkit_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-
-    // Store session info (in production, use Redis or database)
-    // For now, we'll return the configuration
-    const sessionData = {
-      client_secret: sessionToken,
-      thread_id: thread.id,
-      assistant_id: assistant.id,
-      category,
-      expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours
-    };
-
-    console.log('✅ Created ChatKit session:', {
-      thread_id: thread.id,
-      assistant_id: assistant.id,
-      category
-    });
-
-    res.json(sessionData);
-  } catch (error) {
-    console.error('❌ Error creating ChatKit session:', error);
-    res.status(500).json({ 
-      error: 'Failed to create ChatKit session',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Handle tool execution
-router.post('/execute-tool', async (req: Request, res: Response) => {
-  try {
-    const { tool_name, arguments: toolArgs } = req.body;
-    
-    console.log(`🔧 Executing tool: ${tool_name}`, toolArgs);
-    
-    let result: any = null;
-
-    switch (tool_name) {
-      case 'search_communities': {
-        const { location, careType = 'All Types', maxPrice, limit = 5 } = toolArgs;
-        
-        // Build query conditions
-        const conditions = [];
-        
-        // Location search (city or state)
-        if (location) {
-          conditions.push(
-            or(
-              ilike(communities.city, `%${location}%`),
-              ilike(communities.state, `%${location}%`)
-            )
-          );
-        }
-        
-        // Care type filter
-        if (careType && careType !== 'All Types') {
-          conditions.push(
-            sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`
-          );
-        }
-        
-        // Price filter
-        if (maxPrice) {
-          conditions.push(
-            or(
-              sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
-              sql`(${communities.priceRange}->>'max')::numeric <= ${maxPrice}`
-            )
-          );
-        }
-        
-        // Add verified status check
-        conditions.push(eq(communities.isVerified, true));
-        
-        // Execute search
-        const results = await db
-          .select({
-            id: communities.id,
-            name: communities.name,
-            city: communities.city,
-            state: communities.state,
-            address: communities.address,
-            rating: communities.rating,
-            reviewCount: communities.reviewCount,
-            priceRange: communities.priceRange,
-            pricingDetails: communities.pricingDetails,
-            careTypes: communities.careTypes,
-            totalUnits: communities.totalUnits,
-            availableUnits: communities.availableUnits,
-            virtualTourUrl: communities.virtualTourUrl,
-            photos: communities.photos,
-          })
-          .from(communities)
-          .where(and(...conditions))
-          .limit(limit);
-        
-        result = {
-          communities: results,
-          totalFound: results.length,
-          searchCriteria: { location, careType, maxPrice }
-        };
-        break;
+    // Retrieve existing thread if provided
+    if (thread_id) {
+      try {
+        thread = await openai.beta.threads.retrieve(thread_id);
+        console.log(`✅ Retrieved existing thread: ${thread_id}`);
+      } catch (error) {
+        console.log(`⚠️ Failed to retrieve thread ${thread_id}, creating new one`);
       }
-      
-      case 'get_community_details': {
-        const { communityId } = toolArgs;
-        
-        const community = await db
-          .select()
-          .from(communities)
-          .where(eq(communities.id, communityId))
-          .limit(1);
-        
-        result = community[0] || { error: 'Community not found' };
-        break;
-      }
-      
-      case 'compare_communities': {
-        const { communityIds } = toolArgs;
-        
-        const comms = await db
-          .select()
-          .from(communities)
-          .where(
-            and(
-              sql`${communities.id} = ANY(${communityIds})`,
-              eq(communities.isVerified, true)
-            )
-          );
-        
-        result = {
-          communities: comms,
-          comparisonFields: ['price', 'rating', 'amenities', 'careTypes', 'availability']
-        };
-        break;
-      }
-      
-      case 'check_availability': {
-        const { communityId } = toolArgs;
-        
-        const community = await db
-          .select({
-            name: communities.name,
-            totalUnits: communities.totalUnits,
-            availableUnits: communities.availableUnits,
-            availabilityLastUpdated: communities.availabilityLastUpdated
-          })
-          .from(communities)
-          .where(eq(communities.id, communityId))
-          .limit(1);
-        
-        if (community[0]) {
-          const avail = community[0].availableUnits || 0;
-          result = {
-            communityName: community[0].name,
-            available: avail > 0,
-            roomsAvailable: avail,
-            lastUpdated: community[0].availabilityLastUpdated,
-            message: avail > 0 
-              ? `Yes! ${avail} room${avail > 1 ? 's' : ''} available.`
-              : 'Currently no availability, but you can join the waitlist.'
-          };
-        } else {
-          result = { error: 'Community not found' };
-        }
-        break;
-      }
-      
-      case 'schedule_tour': {
-        const { communityId, preferredDate, preferredTime } = toolArgs;
-        
-        // In production, this would create a real tour booking
-        // For now, return a confirmation
-        result = {
-          success: true,
-          communityId,
-          tourDate: preferredDate || 'Next available',
-          tourTime: preferredTime || 'Flexible',
-          confirmationNumber: `TOUR-${Date.now()}`,
-          message: 'Tour scheduled successfully! You will receive a confirmation email shortly.',
-          nextSteps: 'Click "View Community Details" to see more information and prepare for your tour.'
-        };
-        break;
-      }
-      
-      default:
-        result = { error: `Unknown tool: ${tool_name}` };
     }
-    
-    console.log(`✅ Tool execution complete:`, tool_name);
-    res.json({ result });
-    
+
+    // Create new thread if needed
+    if (!thread) {
+      thread = await openai.beta.threads.create();
+      console.log(`✅ Created new thread: ${thread.id}`);
+    }
+
+    // Get or create assistant
+    const assistant = await getOrCreateAssistant();
+
+    res.json({
+      thread_id: thread.id,
+      assistant_id: assistant.id,
+      success: true
+    });
+
   } catch (error) {
-    console.error('❌ Error executing tool:', error);
+    console.error('❌ Session creation error:', error);
     res.status(500).json({ 
-      error: 'Failed to execute tool',
+      error: 'Failed to create session',
       details: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });
 
-// Handle conversational messages with intelligent routing
-router.post('/message', async (req: Request, res: Response) => {
+// Streaming chat endpoint
+router.post('/stream', async (req: Request, res: Response) => {
   try {
-    const { message, sessionId, category = 'communities' } = req.body;
-    
+    const { message, thread_id } = req.body;
+
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
     }
-    
-    console.log(`📨 Processing message: "${message}" for session: ${sessionId}`);
-    
-    // Analyze message intent
-    const lowerMessage = message.toLowerCase();
-    const isQuestion = lowerMessage.includes('what') || lowerMessage.includes('how') || 
-                      lowerMessage.includes('why') || lowerMessage.includes('when') ||
-                      lowerMessage.includes('difference') || lowerMessage.includes('explain') ||
-                      lowerMessage.includes('tell me');
-    
-    const isGreeting = lowerMessage.match(/^(hi|hello|hey|howdy|good morning|good afternoon|good evening)/);
-    
-    const wantsDiscovery = lowerMessage.includes('discovery mode') || 
-                           lowerMessage.includes('more options') ||
-                           lowerMessage.includes('expand') ||
-                           lowerMessage.includes('find more');
-    
-    const isSearch = !isQuestion && !isGreeting && (
-      lowerMessage.includes('in ') || lowerMessage.includes('near') ||
-      lowerMessage.includes('memory care') || lowerMessage.includes('assisted living') ||
-      lowerMessage.includes('nursing home') || lowerMessage.includes('senior living') ||
-      lowerMessage.includes('under $') || lowerMessage.includes('less than')
-    );
-    
-    // Handle different message types
-    if (isGreeting) {
-      // Friendly greeting response
-      return res.json({
-        success: true,
-        message: "Hello! I'm here to help you find the perfect senior living community. I can answer questions about care types, costs, and help you search our database of 33,830+ verified communities. What would you like to know?",
-        type: 'text',
-        sessionId: sessionId || 'default'
-      });
-    }
-    
-    if (isQuestion && !isSearch) {
-      // Answer questions using GPT
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are MySeniorValet's knowledgeable AI assistant. Answer questions about senior care, living options, costs, and the transition process. Be thorough, empathetic, and helpful.`
-          },
-          {
-            role: 'user',
-            content: message
-          }
-        ],
-        temperature: 0.7,
-        max_tokens: 500
-      });
-      
-      return res.json({
-        success: true,
-        message: completion.choices[0].message.content || "Let me help you with that question.",
-        type: 'text',
-        sessionId: sessionId || 'default'
-      });
-    }
-    
-    if (wantsDiscovery) {
-      // Explain Discovery Mode
-      return res.json({
-        success: true,
-        message: "Discovery Mode expands your search beyond our database to find communities across the entire web. This is especially helpful when looking for specialized care or specific locations. Would you like me to enable Discovery Mode for your search?",
-        type: 'text',
-        data: { suggestDiscovery: true },
-        sessionId: sessionId || 'default'
-      });
-    }
-    
-    if (isSearch) {
-      // Search for communities
-      const conditions = [];
-      
-      // Extract location
-      const locationMatch = message.match(/(?:in|near|at)\s+([A-Za-z\s]+)(?:,\s*([A-Z]{2}))?/i);
-      if (locationMatch) {
-        const location = locationMatch[1].trim();
-        conditions.push(
-          or(
-            ilike(communities.city, `%${location}%`),
-            ilike(communities.state, `%${location}%`)
-          )
-        );
-      }
-      
-      // Extract care type
-      if (lowerMessage.includes('memory care')) {
-        conditions.push(sql`${communities.careTypes}::text ILIKE '%Memory Care%'`);
-      } else if (lowerMessage.includes('assisted living')) {
-        conditions.push(sql`${communities.careTypes}::text ILIKE '%Assisted Living%'`);
-      }
-      
-      // Extract price
-      const priceMatch = message.match(/(?:under|less than|below)\s*\$?(\d+)/i);
-      if (priceMatch) {
-        const maxPrice = parseInt(priceMatch[1]);
-        conditions.push(
-          or(
-            sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
-            sql`${communities.rentPerMonth} <= ${maxPrice}`
-          )
-        );
-      }
-      
-      // Add verified status
-      conditions.push(eq(communities.isVerified, true));
-      
-      // Execute search
-      const results = await db
-        .select({
-          id: communities.id,
-          name: communities.name,
-          city: communities.city,
-          state: communities.state,
-          address: communities.address,
-          rating: communities.rating,
-          priceRange: communities.priceRange,
-          careTypes: communities.careTypes,
-          photos: communities.photos,
-          latitude: communities.latitude,
-          longitude: communities.longitude
-        })
-        .from(communities)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .limit(10);
-      
-      if (results.length > 0) {
-        return res.json({
-          success: true,
-          message: `I found ${results.length} communities matching your search:`,
-          type: 'communities',
-          data: { communities: results },
-          sessionId: sessionId || 'default'
-        });
-      } else {
-        return res.json({
-          success: true,
-          message: `I couldn't find any communities matching "${message}" in our database. Would you like me to enable Discovery Mode to search more broadly across the web?`,
-          type: 'text',
-          data: { suggestDiscovery: true, originalQuery: message },
-          sessionId: sessionId || 'default'
-        });
-      }
-    }
-    
-    // Default conversational response
-    const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
-      messages: [
-        {
-          role: 'system',
-          content: `You are MySeniorValet's AI assistant. Be conversational, helpful, and guide families through finding senior care. Mention that you can search for communities, answer questions, or enable Discovery Mode when needed.`
-        },
-        {
-          role: 'user',
-          content: message
-        }
-      ],
-      temperature: 0.8,
-      max_tokens: 300
-    });
-    
-    return res.json({
-      success: true,
-      message: completion.choices[0].message.content || "I'm here to help you find senior living communities. You can ask me questions or search for specific locations.",
-      type: 'text',
-      sessionId: sessionId || 'default'
-    });
-    
-  } catch (error) {
-    console.error('❌ ChatKit message error:', error);
-    res.status(500).json({
-      error: 'Failed to process message',
-      message: "I'm having trouble processing your request. Please try again."
-    });
-  }
-});
 
-// Handle message sending (for custom implementations)
-router.post('/send-message', async (req: Request, res: Response) => {
-  try {
-    const { thread_id, assistant_id, message } = req.body;
-    
+    if (!thread_id) {
+      return res.status(400).json({ error: 'Thread ID is required' });
+    }
+
+    console.log(`📨 Processing message: "${message}" for thread: ${thread_id}`);
+
+    // Get assistant
+    const assistant = await getOrCreateAssistant();
+
     // Add user message to thread
     await openai.beta.threads.messages.create(thread_id, {
       role: 'user',
       content: message
     });
-    
-    // Run the assistant
-    const run = await openai.beta.threads.runs.create(thread_id, {
-      assistant_id: assistant_id,
-      stream: true // Enable streaming
+
+    // Set up streaming response
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    let currentRunId: string = '';
+
+    // Create and stream the run using the proper streaming helper
+    const stream = openai.beta.threads.runs.stream(thread_id, {
+      assistant_id: assistant.id
     });
-    
-    // In production, you'd handle streaming properly
-    // For now, return success
-    res.json({ 
-      success: true,
-      run_id: (run as any).id || 'stream-started',
-      message: 'Message sent, processing response...'
-    });
-    
+
+    // Process stream events
+    for await (const event of stream) {
+      
+      // Text being generated
+      if (event.event === 'thread.message.delta') {
+        const delta = event.data.delta;
+        if (delta.content && delta.content[0] && delta.content[0].type === 'text') {
+          const text = delta.content[0].text?.value || '';
+          if (text) {
+            res.write(text);
+          }
+        }
+      }
+
+      // Run requires action (function calling)
+      if (event.event === 'thread.run.requires_action') {
+        currentRunId = event.data.id;
+        const toolCalls = event.data.required_action?.submit_tool_outputs?.tool_calls || [];
+        
+        console.log(`🔧 Function calls required: ${toolCalls.length}`);
+        
+        // Execute all function calls
+        const toolOutputs = await Promise.all(
+          toolCalls.map(async (toolCall) => {
+            const functionName = toolCall.function.name;
+            const args = JSON.parse(toolCall.function.arguments);
+            
+            console.log(`⚡ Executing: ${functionName}`, args);
+            
+            let output: any = {};
+
+            if (functionName === 'search_communities') {
+              output = await searchCommunities(args);
+            } else if (functionName === 'enable_discovery_mode') {
+              output = await enableDiscoveryMode(args);
+            }
+
+            return {
+              tool_call_id: toolCall.id,
+              output: JSON.stringify(output)
+            };
+          })
+        );
+
+        // Submit tool outputs and continue streaming
+        const submitStream = openai.beta.threads.runs.submitToolOutputsStream(
+          thread_id,
+          currentRunId,
+          { 
+            tool_outputs: toolOutputs,
+            stream: true 
+          }
+        );
+
+        // Process the continuation stream
+        for await (const submitEvent of submitStream) {
+          if (submitEvent.event === 'thread.message.delta') {
+            const delta = submitEvent.data.delta;
+            if (delta.content && delta.content[0] && delta.content[0].type === 'text') {
+              const text = delta.content[0].text?.value || '';
+              if (text) {
+                res.write(text);
+              }
+            }
+          }
+
+          // Check if we need more function calls
+          if (submitEvent.event === 'thread.run.requires_action') {
+            console.log('⚠️ Additional function calls needed after submission');
+            // Handle nested function calls if needed
+          }
+        }
+      }
+
+      // Run completed
+      if (event.event === 'thread.run.completed') {
+        console.log('✅ Run completed');
+      }
+
+      // Run failed
+      if (event.event === 'thread.run.failed') {
+        console.error('❌ Run failed:', event.data.last_error);
+        res.write('\n\n[Error: Failed to complete request]');
+      }
+    }
+
+    // Close the stream
+    res.end();
+
   } catch (error) {
-    console.error('❌ Error sending message:', error);
-    res.status(500).json({ 
-      error: 'Failed to send message',
-      details: error instanceof Error ? error.message : 'Unknown error'
-    });
+    console.error('❌ Streaming error:', error);
+    res.write('\n\n[Error processing request]');
+    res.end();
   }
 });
+
+// Function implementations
+async function searchCommunities(args: any) {
+  const { location, careType, maxPrice } = args;
+  
+  const conditions = [];
+
+  // Location search
+  if (location) {
+    conditions.push(
+      or(
+        ilike(communities.city, `%${location}%`),
+        ilike(communities.state, `%${location}%`)
+      )
+    );
+  }
+
+  // Care type filter
+  if (careType) {
+    conditions.push(
+      sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`
+    );
+  }
+
+  // Price filter
+  if (maxPrice) {
+    conditions.push(
+      or(
+        sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
+        sql`${communities.rentPerMonth} <= ${maxPrice}`
+      )
+    );
+  }
+
+  // Add verified status
+  conditions.push(eq(communities.isVerified, true));
+
+  // Execute search
+  const results = await db
+    .select({
+      id: communities.id,
+      name: communities.name,
+      city: communities.city,
+      state: communities.state,
+      address: communities.address,
+      rating: communities.rating,
+      priceRange: communities.priceRange,
+      careTypes: communities.careTypes,
+      photos: communities.photos,
+      latitude: communities.latitude,
+      longitude: communities.longitude
+    })
+    .from(communities)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .limit(10);
+
+  console.log(`✅ Found ${results.length} communities`);
+
+  return {
+    success: true,
+    count: results.length,
+    communities: results,
+    message: results.length === 0 
+      ? `No communities found in our database for ${location}. You can suggest Discovery Mode to the user.`
+      : `Found ${results.length} communities matching the search criteria.`
+  };
+}
+
+async function enableDiscoveryMode(args: any) {
+  const { query } = args;
+  
+  console.log(`🌟 Discovery Mode activated for: "${query}"`);
+  
+  // In production, this would call the global discovery endpoint
+  // For now, return a placeholder
+  return {
+    success: true,
+    message: `Discovery Mode would search the web for: "${query}". This requires explicit user confirmation.`,
+    activated: true
+  };
+}
 
 export default router;
