@@ -244,11 +244,9 @@ router.post('/stream', async (req: Request, res: Response) => {
 
         // Submit tool outputs and continue streaming
         const submitStream = openai.beta.threads.runs.submitToolOutputsStream(
-          thread_id,
           currentRunId,
           { 
-            tool_outputs: toolOutputs,
-            stream: true 
+            tool_outputs: toolOutputs
           }
         );
 
