@@ -1,0 +1,104 @@
+Short version: do the quick fix now (unblock your Assistants API errors), then run a 1–2 day spike to try ChatKit alongside your app. Only plan a full migration if the spike proves it meaningfully improves UX/velocity.
+
+Here’s why + exactly how:
+
+What’s actually going on
+
+Your errors are from the Assistants API calls (bad parameter order + stuck runs). That’s independent of ChatKit.
+• The Node SDK’s cancel/run + submit tool outputs have specific shapes; pass the thread_id and run_id in the correct places (or use named args) and only submit tool outputs when the run is in requires_action. Community examples show openai.beta.threads.runs.cancel(thread_id, run_id) and submitting all tool outputs in a single request. 
+OpenAI Community
++1
+
+ChatKit is new and real: it’s an official OpenAI framework with a JS UI library (@openai/chatkit / @openai/chatkit-react) and a Python SDK for custom backends. It uses a client token your server mints for the browser—not a “domain key in the frontend.” 
+OpenAI GitHub
+
+You don’t have to rewrite everything in Python to try ChatKit. OpenAI’s Starter App (Next.js) shows a minimal session endpoint in Node that issues the token and connects to an Agent Builder workflow. Python is needed only if you want a custom ChatKit server with the Python SDK and bespoke tools. 
+GitHub
++2
+OpenAI GitHub
++2
+
+Recommended plan
+1) Quick fix (today)
+
+Cancel order & guardrails
+
+Use named params or the proven order: runs.cancel(thread_id, run_id). Add retries on cancelling states and a “force new thread if active run > N seconds” fallback. 
+OpenAI Community
++1
+
+Tool outputs
+
+Only call submitToolOutputs when run.status === 'requires_action' and include all tool outputs in one call, each with its tool_call_id. 
+Microsoft Learn
+
+Hardening
+
+Add idempotency keys, exponential backoff, and structured logging of thread_id, run_id, status transitions.
+
+This gets your existing Assistants-based flow working again without changing stacks.
+
+2) Spike ChatKit (1–2 days, parallel)
+
+Frontend: drop in ChatKit (React or Web Component) and pass a clientToken from your server. Start with the official Starter App to verify streaming, theming, and widgets. 
+OpenAI GitHub
++1
+
+Backend (minimal):
+
+Add a POST /api/create-session in your Node server that exchanges your OpenAI API key + target workflow for a client token. The starter shows this pattern. 
+GitHub
+
+Evaluate:
+
+UX: built-in streaming, rich widgets, attachment handling, thread management. 
+OpenAI GitHub
+
+DevEx: theming/customization & imperative helpers (useChatKit, methods for switching threads, sending composed messages). 
+OpenAI GitHub
++1
+
+3) If the spike wins → phased adoption
+
+Phase A (UI): Replace your custom chat UI with ChatKit. Keep your Node/Express backend and DB as-is.
+
+Phase B (tools/widgets): Where you need richer agent tools or widgets, either:
+
+Keep using Agent Builder workflows (no rewrite), or
+
+Introduce a small FastAPI service using the ChatKit Python SDK just for agent tools that benefit from Python libraries—run it alongside Node and call it via your existing API. 
+OpenAI GitHub
+
+Phase C: Only consider a full backend migration to Python if you decide to standardize on the ChatKit Python/Agents stack for most server logic.
+
+Corrections to the message you received
+
+“Domain key auth in frontend”: the official docs show client tokens provided by your server to the ChatKit client. You shouldn’t expose API keys in the browser. 
+OpenAI GitHub
+
+“Must switch to Python backend”: not required to adopt ChatKit UI or Agent-Builder-hosted workflows. Python SDK is for custom ChatKit servers/tools; you can mix it in later. 
+GitHub
++1
+
+Copy-paste checklists
+Assistants API: cancel & tool outputs (Node)
+
+Before starting a new run, check if there’s an active run for the thread; if yes, try runs.cancel(thread_id, run_id) and poll until cancelled/failed/expired. 
+OpenAI Community
+
+When streaming detects requires_action:
+
+Resolve each tool call, gather outputs as { tool_call_id, output }[]
+
+Call once: submitToolOutputs(...) (or the streaming variant) and await the resumed events. 
+Microsoft Learn
+
+ChatKit spike
+
+Install @openai/chatkit (or @openai/chatkit-react) and render <ChatKit /> with api: { clientToken }. 
+OpenAI GitHub
+
+Stand up /api/create-session (see Starter App) that returns the token tied to your Agent Builder workflow. 
+GitHub
+
+Try a sample widget (e.g., ListView + Buttons) and confirm events via ChatKit Methods/Events.
