@@ -35,9 +35,10 @@ export function MySeniorValetChatKit({
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Initialize with welcome message
+  // Initialize with welcome message - only on first mount
   useEffect(() => {
     setMessages([{
       id: '1',
@@ -46,8 +47,24 @@ export function MySeniorValetChatKit({
       timestamp: new Date()
     }]);
     
-    // Initialize session when component mounts
-    initializeSession();
+    // Initialize session only once when component mounts
+    if (!sessionId) {
+      initializeSession();
+    }
+  }, []); // Remove category dependency to maintain session
+  
+  // Update greeting when category changes but keep conversation
+  useEffect(() => {
+    if (sessionId && messages.length > 1) {
+      // Add a system message about category change but keep history
+      const categoryChangeMessage: Message = {
+        id: Date.now().toString(),
+        role: 'system',
+        content: `Switching to ${category} search...`,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, categoryChangeMessage]);
+    }
   }, [category]);
 
   // Initialize ChatKit session
@@ -60,6 +77,11 @@ export function MySeniorValetChatKit({
       });
       
       if (response.ok) {
+        const data = await response.json();
+        // Store session ID if returned
+        if (data.sessionId || data.thread_id) {
+          setSessionId(data.sessionId || data.thread_id);
+        }
         setSessionReady(true);
       }
     } catch (error) {
@@ -83,6 +105,33 @@ export function MySeniorValetChatKit({
     setIsLoading(true);
 
     try {
+      // Check if user is asking for a map view
+      const isAskingForMap = inputValue.toLowerCase().includes('map') || 
+                             inputValue.toLowerCase().includes('show') ||
+                             inputValue.toLowerCase().includes('where');
+      
+      // If asking for map and we have previous results, show them on map
+      if (isAskingForMap && messages.length > 0) {
+        // Look for the last message with communities data
+        const lastMessageWithCommunities = messages.filter(m => 
+          m.data?.communities && m.data.communities.length > 0
+        ).pop();
+        
+        if (lastMessageWithCommunities) {
+          const mapMessage: Message = {
+            id: (Date.now() + 1).toString(),
+            role: 'assistant',
+            content: `Here's the map view of the communities:`,
+            type: 'map',
+            data: { communities: lastMessageWithCommunities.data.communities },
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, mapMessage]);
+          return; // Exit early since we're just showing map view
+        }
+      }
+      
       // Use comprehensive search for communities
       if (category === 'communities') {
         const searchResponse = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(inputValue)}&limit=10`);
@@ -209,6 +258,11 @@ export function MySeniorValetChatKit({
     switch (message.type) {
       case 'communities':
         if (message.data?.communities && message.data.communities.length > 0) {
+          // Check if we have communities with valid coordinates for map
+          const communitiesWithCoords = message.data.communities.filter((c: any) => 
+            c.latitude && c.longitude
+          );
+          
           return (
             <div className="space-y-4">
               <p className="text-sm font-medium">{message.content}</p>
@@ -221,6 +275,13 @@ export function MySeniorValetChatKit({
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Showing 5 of {message.data.communities.length} results
                 </p>
+              )}
+              {/* Show map if we have communities with coordinates */}
+              {communitiesWithCoords.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium mb-2">📍 View on Map:</p>
+                  <CommunityMap communities={communitiesWithCoords} />
+                </div>
               )}
             </div>
           );
