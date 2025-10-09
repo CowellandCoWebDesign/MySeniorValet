@@ -2,7 +2,7 @@ import { Router, Request, Response } from 'express';
 import OpenAI from 'openai';
 import { db } from '../db';
 import { communities } from '@shared/schema';
-import { eq, and, or, ilike, sql } from 'drizzle-orm';
+import { eq, and, or, ilike, sql, desc } from 'drizzle-orm';
 import axios from 'axios';
 
 const router = Router();
@@ -515,7 +515,7 @@ async function searchCommunities(args: any) {
     console.log(`🔍 Searching for: "${location}" (normalized: "${normalizedLocation}")`);
     
     // Broader search to capture more communities
-    const searchTerms = location.toLowerCase().split(/[\s,]+/).filter(t => t.length > 0);
+    const searchTerms = location.toLowerCase().split(/[\s,]+/).filter((t: string) => t.length > 0);
     const locationConditions = [];
     
     // Search for each term in city or state

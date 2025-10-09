@@ -58,9 +58,12 @@ export function MySeniorValetChatKit({
     initializeSession();
   }, []);
 
-  // Auto-scroll to bottom when messages change
+  // Auto-scroll to bottom when messages change (only if near bottom)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Don't auto-scroll on initial load or if user has scrolled up
+    if (messages.length > 1) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }, [messages]);
 
   // Initialize ChatKit session with thread
