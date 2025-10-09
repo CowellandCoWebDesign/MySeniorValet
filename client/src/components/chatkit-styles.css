@@ -1,0 +1,167 @@
+/* MySeniorValet ChatKit Custom Styles */
+
+.mysenirvalet-chatkit {
+  position: relative;
+  width: 100%;
+}
+
+/* Override ChatKit default styles to match MySeniorValet theme */
+.chatkit-container {
+  --chatkit-primary: #9333ea;
+  --chatkit-primary-hover: #7e22ce;
+  --chatkit-secondary: #3b82f6;
+  --chatkit-text: #1f2937;
+  --chatkit-text-light: #6b7280;
+  --chatkit-background: #ffffff;
+  --chatkit-surface: #f9fafb;
+  --chatkit-border: #e5e7eb;
+}
+
+/* Dark mode overrides */
+.dark .chatkit-container {
+  --chatkit-text: #f9fafb;
+  --chatkit-text-light: #9ca3af;
+  --chatkit-background: #111827;
+  --chatkit-surface: #1f2937;
+  --chatkit-border: #374151;
+}
+
+/* ChatKit message bubbles */
+.chatkit-message-user {
+  background: linear-gradient(135deg, #9333ea 0%, #3b82f6 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  max-width: 80%;
+  align-self: flex-end;
+}
+
+.chatkit-message-assistant {
+  background: var(--chatkit-surface);
+  color: var(--chatkit-text);
+  border: 1px solid var(--chatkit-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin: 8px 0;
+  max-width: 90%;
+}
+
+/* Loading animation */
+.chatkit-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+}
+
+.chatkit-loading-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--chatkit-primary);
+  border-radius: 50%;
+  animation: chatkit-pulse 1.4s infinite ease-in-out;
+}
+
+.chatkit-loading-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chatkit-loading-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes chatkit-pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Input area styling */
+.chatkit-input-container {
+  border-top: 1px solid var(--chatkit-border);
+  padding: 16px;
+  background: var(--chatkit-background);
+}
+
+.chatkit-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--chatkit-surface);
+  border: 2px solid var(--chatkit-border);
+  border-radius: 8px;
+  color: var(--chatkit-text);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.chatkit-input:focus {
+  outline: none;
+  border-color: var(--chatkit-primary);
+  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+}
+
+/* Custom scrollbar */
+.chatkit-messages-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chatkit-messages-container::-webkit-scrollbar-track {
+  background: var(--chatkit-surface);
+}
+
+.chatkit-messages-container::-webkit-scrollbar-thumb {
+  background: var(--chatkit-primary);
+  border-radius: 4px;
+}
+
+.chatkit-messages-container::-webkit-scrollbar-thumb:hover {
+  background: var(--chatkit-primary-hover);
+}
+
+/* Community card animations */
+.community-card-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.community-card-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.3s ease;
+}
+
+/* Map container styling */
+.chatkit-map-container {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Comparison table styling */
+.chatkit-comparison-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Tool response cards */
+.chatkit-tool-response {
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

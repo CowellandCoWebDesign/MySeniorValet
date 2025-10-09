@@ -47,6 +47,7 @@ import { registerDmcaRoutes } from "./dmca-routes";
 import { registerDuplicateManagementRoutes } from "./duplicateManagementRoutes";
 import movingRoutes from "./movingRoutes";
 import transportationRoutes from "./transportationRoutes";
+import chatkitRoutes from "./chatkit-routes";
 import familyConnectRoutes from "./familyConnectRoutes";
 import amazonProductRoutes from "./amazonProductRoutes";
 import servicesManagementRoutes from "./servicesManagementRoutes";
@@ -211,6 +212,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register NLP Search System routes (Full Implementation)
   app.use('/api/nlp', nlpSearchRoutes);
+  
+  // Register ChatKit routes for conversational AI interface
+  app.use('/api/chatkit', chatkitRoutes);
   
   // Register NLP Analytics Routes - THE KRAKEN'S NEURAL NETWORK
   const nlpAnalyticsRoutes = await import('./nlpAnalyticsRoutes');

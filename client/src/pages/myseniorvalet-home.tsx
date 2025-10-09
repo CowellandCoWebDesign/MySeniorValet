@@ -49,6 +49,7 @@ import LearnModeInterface from '@/components/LearnModeInterface';
 import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
+import { MySeniorValetChatKit } from '@/components/MySeniorValetChatKit';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -825,146 +826,14 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
         
-        {/* Unified Search Component */}
+        {/* ChatKit AI Assistant - Replaces Search Bar */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
-          {/* Search Bar Container - Clean styling like vendor marketplace */}
-          <div className="w-full relative z-10 bg-black/40 backdrop-blur-xl rounded-xl p-4 shadow-2xl border border-white/20">
-            {/* Clean search input wrapper */}
-            <div className="relative">
-              <AutocompleteSearch 
-                value={searchQuery}
-                onChange={(value) => {
-                  setSearchQuery(value);
-                  // Reset the force clear flag when user types
-                  if (forceClearAutocomplete) {
-                    setForceClearAutocomplete(false);
-                  }
-                }}
-                onSubmit={(value) => {
-                  // Check if it's a simple value (non-community selection)
-                  // AutocompleteSearch handles community navigation internally
-                  if (value && !value.startsWith('/community/')) {
-                    // Respect the current view mode when searching
-                    if (viewMode === 'discover') {
-                      // For Discovery Mode, trigger the search with discovery flag
-                      handleAutoExpandingSearch(value, true); // true = isResearchMode/Discovery
-                    } else if (viewMode === 'map') {
-                      // For Map view, redirect to map-search
-                      setLocation(`/map-search?q=${encodeURIComponent(value)}`);
-                    } else if (viewMode === 'list') {
-                      // For Database Search (list mode), trigger normal search
-                      handleAutoExpandingSearch(value, false); // false = normal database search
-                    }
-                  }
-                }}
-                placeholder={searchPlaceholder}
-                isLoading={isLoading}
-                inputClassName="w-full pl-10 pr-6 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl lg:text-2xl border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                forceClearSuggestions={forceClearAutocomplete}
-              />
-            </div>
-            
-            
-            {/* Mode Toggle Switches - Below search bar */}
-            {/* Hide map and discovery for vendors tab since vendors are online affiliates */}
-            <div className="mt-4 flex items-center justify-center gap-6">
-              {/* Database Search Toggle */}
-              <div className="flex items-center gap-2">
-                <label htmlFor="database-toggle" className="text-white text-sm font-medium">Database</label>
-                <Switch
-                  id="database-toggle"
-                  checked={viewMode === 'list'}
-                  onCheckedChange={(checked) => checked && setViewMode('list')}
-                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-blue-500"
-                />
-              </div>
-              
-              {/* Map Toggle - Disabled for Vendors tab */}
-              <div className={`flex items-center gap-2 ${activeTab === 'vendors' ? 'opacity-50' : ''}`}>
-                <label 
-                  htmlFor="map-toggle" 
-                  className={`text-white text-sm font-medium ${activeTab === 'vendors' ? 'cursor-not-allowed' : ''}`}
-                  title={activeTab === 'vendors' ? 'Map not available for online vendors' : ''}
-                >
-                  Map
-                </label>
-                <Switch
-                  id="map-toggle"
-                  checked={viewMode === 'map'}
-                  onCheckedChange={(checked) => activeTab !== 'vendors' && checked && setViewMode('map')}
-                  disabled={activeTab === 'vendors'}
-                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-green-500 data-[state=checked]:to-emerald-500"
-                />
-              </div>
-              
-              {/* Discovery Mode Toggle - Disabled for Vendors tab */}
-              <div className={`flex items-center gap-2 ${activeTab === 'vendors' ? 'opacity-50' : ''}`}>
-                <label 
-                  htmlFor="discovery-toggle" 
-                  className={`text-white text-sm font-medium ${activeTab === 'vendors' ? 'cursor-not-allowed' : ''}`}
-                  title={activeTab === 'vendors' ? 'Discovery not available for approved vendors' : ''}
-                >
-                  Discovery Mode
-                </label>
-                <Switch
-                  id="discovery-toggle"
-                  checked={viewMode === 'discover'}
-                  onCheckedChange={(checked) => activeTab !== 'vendors' && checked && setViewMode('discover')}
-                  disabled={activeTab === 'vendors'}
-                  className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
-                />
-              </div>
-            </div>
-            
-            {/* Service Search Suggestions - Show when services category is selected and Discovery Mode is active */}
-            {viewMode === 'discover' && activeTab === 'services' && !searchQuery && (
-              <div className="absolute top-full mt-2 left-0 right-0 z-30">
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-lg border border-purple-200/50 dark:border-purple-700/50 p-3">
-                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-2">Popular service searches:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {[
-                      'home health care',
-                      'medical supplies', 
-                      'senior transportation',
-                      'meal delivery',
-                      'physical therapy',
-                      'cleaning services',
-                      'handyman services',
-                      'legal services',
-                      'financial planning'
-                    ].map((suggestion) => (
-                      <button
-                        key={suggestion}
-                        type="button"
-                        onClick={() => {
-                          setSearchQuery(suggestion);
-                          // Set loading immediately for instant feedback
-                          setIsLoading(true);
-                          setIsSearchActive(true);
-                          // Show loading message immediately
-                          setSearchResults({ 
-                            results: [],
-                            metadata: {
-                              isLoading: true,
-                              loadingMessage: `Searching for "${suggestion}"...`,
-                              isResearchMode: false
-                            }
-                          });
-                          // Then trigger the actual search using current viewMode
-                          handleAutoExpandingSearch(suggestion, viewMode === 'discover');
-                        }}
-                        className="px-3 py-1 text-xs bg-purple-100 dark:bg-purple-900/30 hover:bg-purple-200 dark:hover:bg-purple-800/40 rounded-full border border-purple-300 dark:border-purple-600 transition-colors"
-                      >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-500 mt-2">
-                    💡 Tip: Include a location for better results (e.g., "plumbers in Dallas")
-                  </p>
-                </div>
-              </div>
-            )}
+          {/* ChatKit Container - Conversational AI Interface */}
+          <div className="w-full relative z-10">
+            <MySeniorValetChatKit 
+              category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
+              onCategoryChange={(cat) => onTabChange(cat)}
+            />
           </div>
           
         </div>
