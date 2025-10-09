@@ -514,15 +514,29 @@ async function searchCommunities(args: any) {
     const normalizedLocation = normalizeState(location);
     console.log(`🔍 Searching for: "${location}" (normalized: "${normalizedLocation}")`);
     
-    // Search in city, state, or normalized state
-    conditions.push(
-      or(
-        ilike(communities.city, `%${location}%`),
-        ilike(communities.state, `%${location}%`),
-        eq(communities.state, normalizedLocation),
-        ilike(communities.state, `%${normalizedLocation}%`)
-      )
-    );
+    // Broader search to capture more communities
+    const searchTerms = location.toLowerCase().split(/[\s,]+/).filter(t => t.length > 0);
+    const locationConditions = [];
+    
+    // Search for each term in city or state
+    for (const term of searchTerms) {
+      locationConditions.push(
+        or(
+          ilike(communities.city, `%${term}%`),
+          ilike(communities.state, `%${term}%`)
+        )
+      );
+    }
+    
+    // Also search for the normalized state
+    if (normalizedLocation !== location) {
+      locationConditions.push(eq(communities.state, normalizedLocation));
+    }
+    
+    // Combine all location conditions
+    if (locationConditions.length > 0) {
+      conditions.push(or(...locationConditions));
+    }
   }
 
   // Care type filter
@@ -542,16 +556,14 @@ async function searchCommunities(args: any) {
     );
   }
 
-  // Add verified status
-  conditions.push(eq(communities.isVerified, true));
-
-  // Execute search with simplified approach
+  // Execute search - show ALL communities, not just verified
   try {
     const results = await db
       .select()
       .from(communities)
       .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .limit(10);
+      .orderBy(desc(communities.id))
+      .limit(25);
     
     console.log(`✅ Found ${results.length} communities`);
     
