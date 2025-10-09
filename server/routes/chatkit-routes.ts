@@ -401,6 +401,195 @@ router.post('/execute-tool', async (req: Request, res: Response) => {
   }
 });
 
+// Handle conversational messages with intelligent routing
+router.post('/message', async (req: Request, res: Response) => {
+  try {
+    const { message, sessionId, category = 'communities' } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+    
+    console.log(`📨 Processing message: "${message}" for session: ${sessionId}`);
+    
+    // Analyze message intent
+    const lowerMessage = message.toLowerCase();
+    const isQuestion = lowerMessage.includes('what') || lowerMessage.includes('how') || 
+                      lowerMessage.includes('why') || lowerMessage.includes('when') ||
+                      lowerMessage.includes('difference') || lowerMessage.includes('explain') ||
+                      lowerMessage.includes('tell me');
+    
+    const isGreeting = lowerMessage.match(/^(hi|hello|hey|howdy|good morning|good afternoon|good evening)/);
+    
+    const wantsDiscovery = lowerMessage.includes('discovery mode') || 
+                           lowerMessage.includes('more options') ||
+                           lowerMessage.includes('expand') ||
+                           lowerMessage.includes('find more');
+    
+    const isSearch = !isQuestion && !isGreeting && (
+      lowerMessage.includes('in ') || lowerMessage.includes('near') ||
+      lowerMessage.includes('memory care') || lowerMessage.includes('assisted living') ||
+      lowerMessage.includes('nursing home') || lowerMessage.includes('senior living') ||
+      lowerMessage.includes('under $') || lowerMessage.includes('less than')
+    );
+    
+    // Handle different message types
+    if (isGreeting) {
+      // Friendly greeting response
+      return res.json({
+        success: true,
+        message: "Hello! I'm here to help you find the perfect senior living community. I can answer questions about care types, costs, and help you search our database of 33,830+ verified communities. What would you like to know?",
+        type: 'text',
+        sessionId: sessionId || 'default'
+      });
+    }
+    
+    if (isQuestion && !isSearch) {
+      // Answer questions using GPT
+      const completion = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: `You are MySeniorValet's knowledgeable AI assistant. Answer questions about senior care, living options, costs, and the transition process. Be thorough, empathetic, and helpful.`
+          },
+          {
+            role: 'user',
+            content: message
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      });
+      
+      return res.json({
+        success: true,
+        message: completion.choices[0].message.content || "Let me help you with that question.",
+        type: 'text',
+        sessionId: sessionId || 'default'
+      });
+    }
+    
+    if (wantsDiscovery) {
+      // Explain Discovery Mode
+      return res.json({
+        success: true,
+        message: "Discovery Mode expands your search beyond our database to find communities across the entire web. This is especially helpful when looking for specialized care or specific locations. Would you like me to enable Discovery Mode for your search?",
+        type: 'text',
+        data: { suggestDiscovery: true },
+        sessionId: sessionId || 'default'
+      });
+    }
+    
+    if (isSearch) {
+      // Search for communities
+      const conditions = [];
+      
+      // Extract location
+      const locationMatch = message.match(/(?:in|near|at)\s+([A-Za-z\s]+)(?:,\s*([A-Z]{2}))?/i);
+      if (locationMatch) {
+        const location = locationMatch[1].trim();
+        conditions.push(
+          or(
+            ilike(communities.city, `%${location}%`),
+            ilike(communities.state, `%${location}%`)
+          )
+        );
+      }
+      
+      // Extract care type
+      if (lowerMessage.includes('memory care')) {
+        conditions.push(sql`${communities.careTypes}::text ILIKE '%Memory Care%'`);
+      } else if (lowerMessage.includes('assisted living')) {
+        conditions.push(sql`${communities.careTypes}::text ILIKE '%Assisted Living%'`);
+      }
+      
+      // Extract price
+      const priceMatch = message.match(/(?:under|less than|below)\s*\$?(\d+)/i);
+      if (priceMatch) {
+        const maxPrice = parseInt(priceMatch[1]);
+        conditions.push(
+          or(
+            sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
+            sql`${communities.rentPerMonth} <= ${maxPrice}`
+          )
+        );
+      }
+      
+      // Add verified status
+      conditions.push(eq(communities.isVerified, true));
+      
+      // Execute search
+      const results = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          address: communities.address,
+          rating: communities.rating,
+          priceRange: communities.priceRange,
+          careTypes: communities.careTypes,
+          photos: communities.photos,
+          latitude: communities.latitude,
+          longitude: communities.longitude
+        })
+        .from(communities)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .limit(10);
+      
+      if (results.length > 0) {
+        return res.json({
+          success: true,
+          message: `I found ${results.length} communities matching your search:`,
+          type: 'communities',
+          data: { communities: results },
+          sessionId: sessionId || 'default'
+        });
+      } else {
+        return res.json({
+          success: true,
+          message: `I couldn't find any communities matching "${message}" in our database. Would you like me to enable Discovery Mode to search more broadly across the web?`,
+          type: 'text',
+          data: { suggestDiscovery: true, originalQuery: message },
+          sessionId: sessionId || 'default'
+        });
+      }
+    }
+    
+    // Default conversational response
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `You are MySeniorValet's AI assistant. Be conversational, helpful, and guide families through finding senior care. Mention that you can search for communities, answer questions, or enable Discovery Mode when needed.`
+        },
+        {
+          role: 'user',
+          content: message
+        }
+      ],
+      temperature: 0.8,
+      max_tokens: 300
+    });
+    
+    return res.json({
+      success: true,
+      message: completion.choices[0].message.content || "I'm here to help you find senior living communities. You can ask me questions or search for specific locations.",
+      type: 'text',
+      sessionId: sessionId || 'default'
+    });
+    
+  } catch (error) {
+    console.error('❌ ChatKit message error:', error);
+    res.status(500).json({
+      error: 'Failed to process message',
+      message: "I'm having trouble processing your request. Please try again."
+    });
+  }
+});
+
 // Handle message sending (for custom implementations)
 router.post('/send-message', async (req: Request, res: Response) => {
   try {

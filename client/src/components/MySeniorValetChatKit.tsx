@@ -132,80 +132,53 @@ export function MySeniorValetChatKit({
         }
       }
       
-      // Use comprehensive search for communities
-      if (category === 'communities') {
-        const searchResponse = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(inputValue)}&limit=10`);
+      // Send message to ChatKit assistant for conversational handling
+      const response = await fetch('/api/chatkit/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: inputValue,
+          sessionId: sessionId,
+          category: category,
+          conversationHistory: messages.slice(-5).map(m => ({
+            role: m.role,
+            content: m.content
+          }))
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
         
-        if (searchResponse.ok) {
-          const searchData = await searchResponse.json();
-          
-          // Check if we found communities
-          if (searchData.communities && searchData.communities.length > 0) {
-            const resultMessage: Message = {
-              id: (Date.now() + 1).toString(),
-              role: 'assistant',
-              content: `I found ${searchData.totalFound || searchData.communities.length} communities matching "${inputValue}":`,
-              type: 'communities',
-              data: { 
-                communities: searchData.communities,
-                metadata: searchData.searchMetadata
-              },
-              timestamp: new Date()
-            };
-            
-            setMessages(prev => [...prev, resultMessage]);
-            
-            // If discovery mode was triggered, show that info
-            if (searchData.searchMetadata?.discoveryMode) {
-              const discoveryMessage: Message = {
-                id: (Date.now() + 2).toString(),
-                role: 'system',
-                content: searchData.searchMetadata.discoveryMessage || 'Discovery Mode activated to find new communities.',
-                timestamp: new Date()
-              };
-              setMessages(prev => [...prev, discoveryMessage]);
-            }
-          } else {
-            // No results found
-            const noResultsMessage: Message = {
-              id: (Date.now() + 1).toString(),
-              role: 'assistant',
-              content: `I couldn't find any communities matching "${inputValue}". Try adjusting your search or using different keywords.`,
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, noResultsMessage]);
-          }
-        } else {
-          throw new Error('Search failed');
+        // Create message based on response type
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.message || data.content || "I can help you with that.",
+          type: data.type || 'text',
+          data: data.data,
+          timestamp: new Date()
+        };
+        
+        setMessages(prev => [...prev, assistantMessage]);
+        
+        // Update session ID if returned
+        if (data.sessionId) {
+          setSessionId(data.sessionId);
         }
-      } else {
-        // For other categories, use NLP search
-        const response = await fetch('/api/nlp/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: inputValue,
-            category,
-            limit: 10
-          })
-        });
         
-        if (response.ok) {
-          const data = await response.json();
-          
-          const assistantMessage: Message = {
-            id: (Date.now() + 1).toString(),
-            role: 'assistant',
-            content: data.message || `Found ${data.results?.length || 0} results for "${inputValue}"`,
-            type: 'text',
-            data: data.results,
+        // If Discovery Mode was suggested or activated
+        if (data.data?.suggestDiscovery) {
+          const discoveryMessage: Message = {
+            id: (Date.now() + 2).toString(),
+            role: 'system',
+            content: `💡 Tip: I can enable Discovery Mode to search more broadly across the web for additional options.`,
             timestamp: new Date()
           };
-          
-          setMessages(prev => [...prev, assistantMessage]);
-        } else {
-          throw new Error('Search failed');
+          setMessages(prev => [...prev, discoveryMessage]);
         }
+      } else {
+        throw new Error('Failed to get response from assistant');
       }
     } catch (error) {
       console.error('Chat error:', error);
