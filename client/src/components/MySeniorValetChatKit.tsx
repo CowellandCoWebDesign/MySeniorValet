@@ -339,7 +339,7 @@ export function MySeniorValetChatKit({
                 )}
                 
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 ${
+                  className={`max-w-[80%] rounded-lg p-3 overflow-hidden ${
                     message.role === 'user'
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
                       : message.role === 'system'
@@ -347,7 +347,7 @@ export function MySeniorValetChatKit({
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">
+                  <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
                     {message.content}
                     {message.isStreaming && (
                       <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
