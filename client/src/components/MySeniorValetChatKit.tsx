@@ -25,7 +25,12 @@ export function MySeniorValetChatKit({
   onCategoryChange,
   className = ''
 }: MySeniorValetChatKitProps) {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([{
+    id: 'welcome',
+    role: 'assistant',
+    content: "👋 Hi! I'm your MySeniorValet assistant. I can answer questions about senior care and help you find communities from our database of 33,000+ verified options. What would you like to know?",
+    timestamp: new Date()
+  }]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sessionReady, setSessionReady] = useState(false);
@@ -65,16 +70,6 @@ export function MySeniorValetChatKit({
         localStorage.setItem('chatkit_thread_id', data.thread_id);
         
         setSessionReady(true);
-        
-        // Add welcome message if it's a new conversation
-        if (!storedThreadId && messages.length === 0) {
-          setMessages([{
-            id: '1',
-            role: 'system',
-            content: "👋 Hi! I'm your MySeniorValet assistant. I can answer questions about senior care and help you find communities from our database of 33,830+ verified options. What would you like to know?",
-            timestamp: new Date()
-          }]);
-        }
         
         console.log('✅ ChatKit session initialized:', data.thread_id);
       }
