@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Loader2, Send, Sparkles, Bot, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -224,7 +223,7 @@ export function MySeniorValetChatKit({
       </CardHeader>
 
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4">
+        <div className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -274,7 +273,7 @@ export function MySeniorValetChatKit({
             
             <div ref={messagesEndRef} />
           </div>
-        </ScrollArea>
+        </div>
 
         <div className="border-t p-4">
           <div className="flex gap-2">
