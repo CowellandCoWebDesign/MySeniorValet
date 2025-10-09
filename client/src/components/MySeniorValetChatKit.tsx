@@ -2,8 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Send, Sparkles, Bot, User } from 'lucide-react';
+import { Loader2, Send, Sparkles, Bot, User, MapPin, Building, BarChart3, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useLocation } from 'wouter';
 
 interface Message {
   id: string;
@@ -37,6 +38,7 @@ export function MySeniorValetChatKit({
   const [assistantId, setAssistantId] = useState<string | null>(null);
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [, setLocation] = useLocation();
 
   // Initialize session once on mount
   useEffect(() => {
@@ -79,6 +81,60 @@ export function MySeniorValetChatKit({
         description: "Failed to start chat session",
         variant: "destructive"
       });
+    }
+  };
+
+  // Handle tool events from the assistant
+  const handleToolEvent = (toolType: string, data: any) => {
+    console.log(`🔧 Tool event: ${toolType}`, data);
+    
+    switch (toolType) {
+      case 'SEARCH':
+        // Handle search results - display community cards
+        if (data.communities && data.communities.length > 0) {
+          console.log(`Found ${data.communities.length} communities`);
+        }
+        break;
+      
+      case 'MAP':
+        // Navigate to map with selected communities
+        if (data.url) {
+          toast({
+            title: "Opening Map View",
+            description: data.message || "Showing communities on map",
+          });
+          setTimeout(() => setLocation(data.url), 1000);
+        }
+        break;
+      
+      case 'DETAILS':
+        // Navigate to community details page
+        if (data.url) {
+          toast({
+            title: "Opening Community Details",
+            description: data.message || "Loading community information",
+          });
+          setTimeout(() => setLocation(data.url), 1000);
+        }
+        break;
+      
+      case 'COMPARE':
+        // Navigate to comparison tool
+        if (data.url) {
+          toast({
+            title: "Opening Comparison Tool",
+            description: data.message || "Comparing selected communities",
+          });
+          setTimeout(() => setLocation(data.url), 1000);
+        }
+        break;
+      
+      case 'DISCOVERY':
+        // Handle Discovery Mode results
+        if (data.communities && data.communities.length > 0) {
+          console.log(`Discovery Mode found ${data.communities.length} communities`);
+        }
+        break;
     }
   };
 
@@ -133,6 +189,7 @@ export function MySeniorValetChatKit({
       }
 
       let accumulatedText = '';
+      let buffer = '';  // Buffer for handling partial chunks
 
       while (true) {
         const { done, value } = await reader.read();
@@ -143,7 +200,41 @@ export function MySeniorValetChatKit({
 
         // Decode the chunk
         const chunk = decoder.decode(value, { stream: true });
-        accumulatedText += chunk;
+        buffer += chunk;
+        
+        // Check for complete tool events
+        const toolEventRegex = /\[TOOL:(\w+)\](.*?)\[\/TOOL:\1\]/;
+        let hasMoreTools = true;
+        
+        while (hasMoreTools) {
+          const match = toolEventRegex.exec(buffer);
+          
+          if (match) {
+            const toolType = match[1];
+            const toolDataStr = match[2];
+            
+            try {
+              const toolData = JSON.parse(toolDataStr);
+              handleToolEvent(toolType, toolData);
+            } catch (e) {
+              console.error('Failed to parse tool event:', e);
+            }
+            
+            // Remove the processed tool event from buffer
+            buffer = buffer.replace(match[0], '');
+          } else {
+            hasMoreTools = false;
+          }
+        }
+        
+        // Check if buffer contains partial tool event start
+        const partialToolStart = /\[TOOL:\w+\]/.test(buffer);
+        
+        if (!partialToolStart) {
+          // No partial tool events, add buffer to accumulated text
+          accumulatedText += buffer;
+          buffer = '';
+        }
 
         // Update the assistant message with accumulated text
         setMessages(prev =>

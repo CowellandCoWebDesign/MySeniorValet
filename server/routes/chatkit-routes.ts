@@ -385,14 +385,24 @@ router.post('/stream', async (req: Request, res: Response) => {
 
             if (functionName === 'search_communities') {
               output = await searchCommunities(args);
+              // Send structured event for search results
+              res.write(`[TOOL:SEARCH]${JSON.stringify(output)}[/TOOL:SEARCH]\n`);
             } else if (functionName === 'enable_discovery_mode') {
               output = await enableDiscoveryMode(args);
+              // Send structured event for discovery mode
+              res.write(`[TOOL:DISCOVERY]${JSON.stringify(output)}[/TOOL:DISCOVERY]\n`);
             } else if (functionName === 'show_on_map') {
               output = await showOnMap(args);
+              // Send structured event for map navigation
+              res.write(`[TOOL:MAP]${JSON.stringify(output)}[/TOOL:MAP]\n`);
             } else if (functionName === 'show_community_details') {
               output = await showCommunityDetails(args);
+              // Send structured event for details navigation
+              res.write(`[TOOL:DETAILS]${JSON.stringify(output)}[/TOOL:DETAILS]\n`);
             } else if (functionName === 'compare_communities') {
               output = await compareCommunities(args);
+              // Send structured event for comparison
+              res.write(`[TOOL:COMPARE]${JSON.stringify(output)}[/TOOL:COMPARE]\n`);
             }
 
             return {
@@ -531,38 +541,34 @@ async function searchCommunities(args: any) {
   // Add verified status
   conditions.push(eq(communities.isVerified, true));
 
-  // Execute search
-  const results = await db
-    .select({
-      id: communities.id,
-      name: communities.name,
-      city: communities.city,
-      state: communities.state,
-      address: communities.address,
-      rating: communities.rating,
-      priceRange: communities.priceRange,
-      careTypes: communities.careTypes,
-      photos: communities.photos,
-      latitude: communities.latitude,
-      longitude: communities.longitude,
-      phoneNumber: communities.phoneNumber,
-      website: communities.website,
-      description: communities.description
-    })
-    .from(communities)
-    .where(conditions.length > 0 ? and(...conditions) : undefined)
-    .limit(10);
-
-  console.log(`✅ Found ${results.length} communities`);
-
-  return {
-    success: true,
-    count: results.length,
-    communities: results,
-    message: results.length === 0 
-      ? `No communities found in our database for ${location}. You can suggest Discovery Mode to the user.`
-      : `Found ${results.length} communities matching the search criteria.`
-  };
+  // Execute search with simplified approach
+  try {
+    const results = await db
+      .select()
+      .from(communities)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .limit(10);
+    
+    console.log(`✅ Found ${results.length} communities`);
+    
+    return {
+      success: true,
+      count: results.length,
+      communities: results,
+      message: results.length === 0 
+        ? `No communities found in our database for ${location}. You can suggest Discovery Mode to the user.`
+        : `Found ${results.length} communities matching the search criteria.`
+    };
+  } catch (dbError) {
+    console.error('❌ Database error:', dbError);
+    return {
+      success: false,
+      count: 0,
+      communities: [],
+      message: `Error searching database. Please try again.`,
+      error: dbError instanceof Error ? dbError.message : 'Unknown database error'
+    };
+  }
 }
 
 async function enableDiscoveryMode(args: any) {
