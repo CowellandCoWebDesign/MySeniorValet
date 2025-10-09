@@ -3,6 +3,7 @@ import OpenAI from 'openai';
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, and, or, ilike, sql } from 'drizzle-orm';
+import axios from 'axios';
 
 const router = Router();
 const openai = new OpenAI({
@@ -18,7 +19,7 @@ const tools = [
     type: "function" as const,
     function: {
       name: "search_communities",
-      description: "Search for senior living communities in our database. Use this when users ask for specific locations or care types. DO NOT use for general questions about senior care.",
+      description: "Search for senior living communities in our database of 33,834 verified communities. Use this when users ask for specific locations or care types.",
       parameters: {
         type: "object",
         properties: {
@@ -37,6 +38,67 @@ const tools = [
           }
         },
         required: ["location"]
+      }
+    }
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "show_on_map",
+      description: "Display communities on the interactive map with clustering. Use after showing search results or when user wants to see locations visually.",
+      parameters: {
+        type: "object",
+        properties: {
+          communityIds: {
+            type: "array",
+            items: { type: "string" },
+            description: "Array of community IDs to show on map"
+          },
+          centerLocation: {
+            type: "string",
+            description: "Center location for the map (e.g., 'Dallas, TX')"
+          }
+        },
+        required: ["communityIds"]
+      }
+    }
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "show_community_details",
+      description: "Navigate to the detailed community page to show photos, pricing, amenities, and tour options.",
+      parameters: {
+        type: "object",
+        properties: {
+          communityId: {
+            type: "string",
+            description: "The ID of the community to show details for"
+          },
+          communityName: {
+            type: "string",
+            description: "The name of the community"
+          }
+        },
+        required: ["communityId"]
+      }
+    }
+  },
+  {
+    type: "function" as const,
+    function: {
+      name: "compare_communities",
+      description: "Open the comparison tool to compare multiple communities side-by-side. Useful for helping families decide between options.",
+      parameters: {
+        type: "object",
+        properties: {
+          communityIds: {
+            type: "array",
+            items: { type: "string" },
+            description: "Array of community IDs to compare (2-4 communities)"
+          }
+        },
+        required: ["communityIds"]
       }
     }
   },
@@ -75,6 +137,13 @@ async function getOrCreateAssistant() {
     name: "MySeniorValet Conversational Assistant",
     instructions: `You are MySeniorValet's AI assistant - a warm, conversational guide helping families navigate senior care.
 
+PLATFORM KNOWLEDGE:
+• You have access to a database of 33,834 verified senior living communities across 6,987 cities in the United States
+• The platform includes detailed information on pricing, care types, amenities, and availability
+• We have 4,771 HUD-verified properties with government pricing
+• Interactive features available: Map view, Community comparison tool, Virtual tours, Photo galleries
+• Available pages: Home (/), Community details (/community/[id]), Map view (/map), Comparisons, Admin dashboard
+
 YOUR PERSONALITY:
 • Conversational and empathetic - talk like a knowledgeable friend, not a search engine
 • Patient and supportive - families are often stressed and overwhelmed
@@ -85,31 +154,45 @@ HOW TO HANDLE DIFFERENT REQUESTS:
 
 1. QUESTIONS (e.g., "What's the difference between assisted living and memory care?")
    → Answer directly and thoroughly. Be educational and helpful.
-   → DO NOT search for communities
+   → Mention that we have 33,834 communities in our database when relevant
    → Provide context about costs, care levels, and when each is appropriate
 
 2. GREETINGS (e.g., "Hi", "Hello", "How are you?")
    → Respond warmly and ask how you can help
-   → DO NOT trigger any functions
+   → Mention that you can help search our database of 33,834 communities
    → Introduce your capabilities naturally
 
 3. SEARCH REQUESTS (e.g., "Find memory care in Dallas", "Communities near Austin under $5,000")
-   → Use search_communities function
-   → After showing results, offer to show on map or compare
+   → Use search_communities function to search our database
+   → After showing results, offer to show on map (show_on_map) or compare (compare_communities)
+   → If results found, mention you can show details (show_community_details)
 
-4. DISCOVERY MODE (ONLY when explicitly requested):
+4. MAP REQUESTS (e.g., "Show on map", "Where are these located?")
+   → Use show_on_map function to display communities on the interactive map
+   → Mention clustering feature for better visualization
+
+5. COMPARISON REQUESTS (e.g., "Compare these", "What's the difference between them?")
+   → Use compare_communities function to open the comparison tool
+   → Explain key differences in pricing, care types, and amenities
+
+6. DETAILS REQUESTS (e.g., "Tell me more about [community]", "Show details")
+   → Use show_community_details function to navigate to the full community page
+   → Mention available features: photos, tours, pricing details
+
+7. DISCOVERY MODE (ONLY when explicitly requested):
    → User says: "Find more options", "Expand search", "Enable Discovery Mode"
    → Then and only then, use enable_discovery_mode function
-   → If search returns 0 results, SUGGEST Discovery Mode, don't enable it automatically
+   → If search returns 0 results, SUGGEST Discovery Mode: "I didn't find communities in our database. Would you like me to enable Discovery Mode to search the web for more options?"
 
 IMPORTANT RULES:
-• NEVER call functions for greetings or general questions
+• Always mention our database size (33,834 communities) when introducing capabilities
+• Offer map view after showing search results
+• Suggest comparisons when multiple communities are discussed
 • NEVER enable Discovery Mode automatically - only when user explicitly requests it
-• When search returns 0 results, say: "I didn't find communities in our database. Would you like me to enable Discovery Mode to search the web?"
 • Remember conversation context - reference previous messages when appropriate
-• Mention platform features naturally (maps, comparisons, tours) when relevant
+• Mention specific features: virtual tours, photo galleries, pricing transparency
 
-TONE: Helpful, warm, professional, conversational - like talking to a knowledgeable care consultant.`,
+TONE: Helpful, warm, professional, conversational - like talking to a knowledgeable care consultant with access to extensive data.`,
     model: "gpt-4o-mini",
     tools: tools,
     temperature: 0.7,
@@ -280,7 +363,6 @@ router.post('/stream', async (req: Request, res: Response) => {
       // Run requires action (function calling)
       if (event.event === 'thread.run.requires_action') {
         currentRunId = event.data.id;
-        const threadId = event.data.thread_id;
         const toolCalls = event.data.required_action?.submit_tool_outputs?.tool_calls || [];
         
         console.log(`🔧 Function calls required: ${toolCalls.length}`);
@@ -305,6 +387,12 @@ router.post('/stream', async (req: Request, res: Response) => {
               output = await searchCommunities(args);
             } else if (functionName === 'enable_discovery_mode') {
               output = await enableDiscoveryMode(args);
+            } else if (functionName === 'show_on_map') {
+              output = await showOnMap(args);
+            } else if (functionName === 'show_community_details') {
+              output = await showCommunityDetails(args);
+            } else if (functionName === 'compare_communities') {
+              output = await compareCommunities(args);
             }
 
             return {
@@ -314,8 +402,12 @@ router.post('/stream', async (req: Request, res: Response) => {
           })
         );
 
-        // Submit tool outputs using the stream helper - it handles the thread_id internally
-        const submitStream = stream.submitToolOutputs(toolOutputs);
+        // Submit tool outputs and continue streaming
+        const submitStream = openai.beta.threads.runs.submitToolOutputsStream(
+          thread_id,
+          currentRunId,
+          toolOutputs
+        );
 
         // Process the continuation stream
         for await (const submitEvent of submitStream) {
@@ -359,31 +451,75 @@ router.post('/stream', async (req: Request, res: Response) => {
   }
 });
 
+// State name to abbreviation mapping
+const STATE_ABBREVIATIONS: Record<string, string> = {
+  'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR', 'california': 'CA',
+  'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE', 'florida': 'FL', 'georgia': 'GA',
+  'hawaii': 'HI', 'idaho': 'ID', 'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA',
+  'kansas': 'KS', 'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+  'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS', 'missouri': 'MO',
+  'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV', 'new hampshire': 'NH', 'new jersey': 'NJ',
+  'new mexico': 'NM', 'new york': 'NY', 'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH',
+  'oklahoma': 'OK', 'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+  'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT', 'vermont': 'VT',
+  'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV', 'wisconsin': 'WI', 'wyoming': 'WY'
+};
+
+// Function to normalize state names to abbreviations
+function normalizeState(location: string): string {
+  const locationLower = location.toLowerCase().trim();
+  
+  // Check if it's already an abbreviation
+  if (locationLower.length === 2) {
+    return locationLower.toUpperCase();
+  }
+  
+  // Check if it's a full state name
+  if (STATE_ABBREVIATIONS[locationLower]) {
+    return STATE_ABBREVIATIONS[locationLower];
+  }
+  
+  // Check if the location contains a state name
+  for (const [stateName, abbr] of Object.entries(STATE_ABBREVIATIONS)) {
+    if (locationLower.includes(stateName)) {
+      return abbr;
+    }
+  }
+  
+  return location;
+}
+
 // Function implementations
 async function searchCommunities(args: any) {
   const { location, careType, maxPrice } = args;
   
   const conditions = [];
 
-  // Location search
+  // Location search with state normalization
   if (location) {
+    const normalizedLocation = normalizeState(location);
+    console.log(`🔍 Searching for: "${location}" (normalized: "${normalizedLocation}")`);
+    
+    // Search in city, state, or normalized state
     conditions.push(
       or(
         ilike(communities.city, `%${location}%`),
-        ilike(communities.state, `%${location}%`)
+        ilike(communities.state, `%${location}%`),
+        eq(communities.state, normalizedLocation),
+        ilike(communities.state, `%${normalizedLocation}%`)
       )
     );
   }
 
   // Care type filter
-  if (careType) {
+  if (careType && careType !== '') {
     conditions.push(
       sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`
     );
   }
 
   // Price filter
-  if (maxPrice) {
+  if (maxPrice && maxPrice > 0) {
     conditions.push(
       or(
         sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
@@ -408,7 +544,10 @@ async function searchCommunities(args: any) {
       careTypes: communities.careTypes,
       photos: communities.photos,
       latitude: communities.latitude,
-      longitude: communities.longitude
+      longitude: communities.longitude,
+      phoneNumber: communities.phoneNumber,
+      website: communities.website,
+      description: communities.description
     })
     .from(communities)
     .where(conditions.length > 0 ? and(...conditions) : undefined)
@@ -431,12 +570,99 @@ async function enableDiscoveryMode(args: any) {
   
   console.log(`🌟 Discovery Mode activated for: "${query}"`);
   
-  // In production, this would call the global discovery endpoint
-  // For now, return a placeholder
+  try {
+    // Call the global discovery endpoint
+    const response = await axios.post('http://localhost:5000/api/global-discovery/search', {
+      query: query,
+      limit: 10
+    });
+    
+    const { results, totalFound, newlyInserted } = response.data;
+    
+    if (results && results.length > 0) {
+      console.log(`✅ Discovery Mode found ${results.length} communities (${newlyInserted} new)`);
+      
+      return {
+        success: true,
+        count: results.length,
+        newlyInserted: newlyInserted,
+        communities: results,
+        message: `Discovery Mode found ${results.length} communities through web search. ${newlyInserted > 0 ? `${newlyInserted} new communities were added to our database.` : 'All communities were already in our database.'}`,
+        activated: true
+      };
+    } else {
+      return {
+        success: true,
+        count: 0,
+        communities: [],
+        message: `Discovery Mode searched the web but didn't find any communities matching "${query}". Try a broader search or different location.`,
+        activated: true
+      };
+    }
+  } catch (error) {
+    console.error('❌ Discovery Mode error:', error);
+    return {
+      success: false,
+      message: `Discovery Mode encountered an error. Please try again.`,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+async function showOnMap(args: any) {
+  const { communityIds, centerLocation } = args;
+  
+  console.log(`🗺️ Showing ${communityIds.length} communities on map`);
+  
   return {
     success: true,
-    message: `Discovery Mode would search the web for: "${query}". This requires explicit user confirmation.`,
-    activated: true
+    action: 'navigate_to_map',
+    communityIds: communityIds,
+    centerLocation: centerLocation,
+    message: `I'll display these ${communityIds.length} communities on the interactive map. The map shows clustering for better visualization and you can click on any community marker for quick details.`,
+    url: `/map?communities=${communityIds.join(',')}`
+  };
+}
+
+async function showCommunityDetails(args: any) {
+  const { communityId, communityName } = args;
+  
+  console.log(`📋 Showing details for community: ${communityName || communityId}`);
+  
+  return {
+    success: true,
+    action: 'navigate_to_details',
+    communityId: communityId,
+    message: `I'll show you the detailed page for ${communityName || 'this community'}. You'll see photos, pricing, amenities, and can schedule a virtual or in-person tour.`,
+    url: `/community/${communityId}`
+  };
+}
+
+async function compareCommunities(args: any) {
+  const { communityIds } = args;
+  
+  console.log(`📊 Comparing ${communityIds.length} communities`);
+  
+  if (communityIds.length < 2) {
+    return {
+      success: false,
+      message: 'Please select at least 2 communities to compare.'
+    };
+  }
+  
+  if (communityIds.length > 4) {
+    return {
+      success: false,
+      message: 'You can compare up to 4 communities at once. Please select fewer communities.'
+    };
+  }
+  
+  return {
+    success: true,
+    action: 'open_comparison',
+    communityIds: communityIds,
+    message: `I'll open the comparison tool with these ${communityIds.length} communities. You can compare pricing, care types, amenities, and ratings side-by-side.`,
+    url: `/compare?communities=${communityIds.join(',')}`
   };
 }
 
