@@ -514,29 +514,37 @@ async function searchCommunities(args: any) {
     const normalizedLocation = normalizeState(location);
     console.log(`🔍 Searching for: "${location}" (normalized: "${normalizedLocation}")`);
     
-    // Broader search to capture more communities
-    const searchTerms = location.toLowerCase().split(/[\s,]+/).filter((t: string) => t.length > 0);
-    const locationConditions = [];
-    
-    // Search for each term in city or state
-    for (const term of searchTerms) {
-      locationConditions.push(
-        or(
-          ilike(communities.city, `%${term}%`),
-          ilike(communities.state, `%${term}%`)
-        )
-      );
-    }
-    
-    // Also search for the normalized state
-    if (normalizedLocation !== location) {
-      locationConditions.push(eq(communities.state, normalizedLocation));
-    }
-    
-    // Combine all location conditions
-    if (locationConditions.length > 0) {
-      conditions.push(or(...locationConditions));
-    }
+    // Search for exact location string first, then fallback to broader search
+    conditions.push(
+      or(
+        // Exact city match
+        ilike(communities.city, `%${location}%`),
+        // Exact state match
+        ilike(communities.state, `%${location}%`),
+        // Normalized state match (for abbreviations)
+        eq(communities.state, normalizedLocation),
+        // If it looks like "City, State" format, search both parts
+        ...(location.includes(',') ? [
+          and(
+            ilike(communities.city, `%${location.split(',')[0].trim()}%`),
+            or(
+              ilike(communities.state, `%${location.split(',')[1].trim()}%`),
+              eq(communities.state, normalizeState(location.split(',')[1].trim()))
+            )
+          )
+        ] : []),
+        // If it's two words that might be city + state, try that pattern
+        ...(location.split(/\s+/).length === 2 ? [
+          and(
+            ilike(communities.city, `%${location.split(/\s+/)[0]}%`),
+            or(
+              ilike(communities.state, `%${location.split(/\s+/)[1]}%`),
+              eq(communities.state, normalizeState(location.split(/\s+/)[1]))
+            )
+          )
+        ] : [])
+      )
+    );
   }
 
   // Care type filter
