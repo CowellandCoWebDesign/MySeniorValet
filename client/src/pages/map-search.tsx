@@ -120,6 +120,7 @@ export default function MapSearch() {
   const zoomParam = urlParams.get('zoom');
   const viewParam = urlParams.get('view');
   const communityParam = urlParams.get('community');
+  const communitiesParam = urlParams.get('communities');
   
   // Map budget values from onboarding to filter values
   const getBudgetFilter = (budget: string) => {
@@ -156,6 +157,9 @@ export default function MapSearch() {
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
+  
+  // Track last processed communities to avoid re-processing
+  const lastProcessedCommunitiesRef = useRef<string | null>(null);
   
   // Heatmap layer state
   const [showHeatmapLayer, setShowHeatmapLayer] = useState(false);
@@ -195,6 +199,85 @@ export default function MapSearch() {
       if (viewParam === 'map') {
         setShowBottomPanel(false);
       }
+      return;
+    }
+    
+    // Handle communities parameter from ChatKit navigation
+    if (communitiesParam && communitiesParam !== lastProcessedCommunitiesRef.current) {
+      const communityIds = communitiesParam.split(',').map(id => id.trim());
+      console.log('📍 Communities parameter provided:', communityIds);
+      
+      // Mark as processed
+      lastProcessedCommunitiesRef.current = communitiesParam;
+      
+      // Fetch the communities to get their coordinates
+      fetch(`/api/communities?ids=${communityIds.join(',')}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.communities && data.communities.length > 0) {
+            // Calculate center point and bounds from all communities
+            let minLat = 90, maxLat = -90;
+            let minLng = 180, maxLng = -180;
+            let totalLat = 0;
+            let totalLng = 0;
+            let validCount = 0;
+            
+            data.communities.forEach((comm: Community) => {
+              if (comm.latitude && comm.longitude) {
+                totalLat += comm.latitude;
+                totalLng += comm.longitude;
+                validCount++;
+                
+                // Track bounds
+                minLat = Math.min(minLat, comm.latitude);
+                maxLat = Math.max(maxLat, comm.latitude);
+                minLng = Math.min(minLng, comm.longitude);
+                maxLng = Math.max(maxLng, comm.longitude);
+              }
+            });
+            
+            if (validCount > 0) {
+              const centerLat = totalLat / validCount;
+              const centerLng = totalLng / validCount;
+              
+              // Calculate appropriate zoom based on bounds
+              const latRange = maxLat - minLat;
+              const lngRange = maxLng - minLng;
+              const maxRange = Math.max(latRange, lngRange);
+              let zoom = 11;
+              if (maxRange > 0.5) zoom = 10;
+              if (maxRange > 1) zoom = 9;
+              if (maxRange < 0.1) zoom = 12;
+              
+              console.log('✅ Centering map on communities:', { 
+                lat: centerLat, 
+                lng: centerLng, 
+                zoom,
+                communities: validCount 
+              });
+              
+              setMapCenter([centerLat, centerLng]);
+              setMapZoom(zoom);
+              setHasSearched(true);
+              
+              // Show the bottom panel with these communities
+              setTimeout(() => {
+                setShowBottomPanel(true);
+                setPanelHeight(90);
+              }, 500);
+            } else {
+              console.error('❌ No valid coordinates found in communities');
+              // Don't set hasSearched so other handlers can run
+            }
+          } else {
+            console.error('❌ No communities returned from API');
+            // Don't set hasSearched so other handlers can run
+          }
+        })
+        .catch(err => {
+          console.error('Failed to fetch communities:', err);
+          // Don't set hasSearched so other handlers can run
+        });
       return;
     }
     
@@ -277,7 +360,7 @@ export default function MapSearch() {
           console.log('⚠️ All location detection failed, using default location');
         });
     }
-  }, [initialQuery, hasSearched]);
+  }, [initialQuery, hasSearched, communitiesParam, latParam, lngParam, viewParam, zoomParam]);
 
   // Debug mapBounds changes
   useEffect(() => {
