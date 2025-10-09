@@ -281,14 +281,14 @@ router.post('/stream', async (req: Request, res: Response) => {
           // Try to cancel the run
           if (run.status !== 'cancelling') {
             try {
-              await openai.beta.threads.runs.cancel(thread_id, run.id);
+              await openai.beta.threads.runs.cancel(run.id, { thread_id });
               console.log(`✅ Cancelled run: ${run.id}`);
               
               // Wait for cancellation to complete
               let cancelAttempts = 0;
               while (cancelAttempts < 10) {
                 await new Promise(resolve => setTimeout(resolve, 500));
-                const updatedRun = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+                const updatedRun = await openai.beta.threads.runs.retrieve(run.id, { thread_id });
                 if (updatedRun.status === 'cancelled' || updatedRun.status === 'failed' || 
                     updatedRun.status === 'expired' || updatedRun.status === 'completed') {
                   console.log(`✅ Run ${run.id} now has status: ${updatedRun.status}`);
@@ -414,9 +414,11 @@ router.post('/stream', async (req: Request, res: Response) => {
 
         // Submit tool outputs and continue streaming
         const submitStream = openai.beta.threads.runs.submitToolOutputsStream(
-          thread_id,
           currentRunId,
-          toolOutputs
+          {
+            thread_id,
+            tool_outputs: toolOutputs
+          }
         );
 
         // Process the continuation stream
