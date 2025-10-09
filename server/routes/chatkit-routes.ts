@@ -183,15 +183,63 @@ router.post('/stream', async (req: Request, res: Response) => {
     // Cancel any stuck runs on this thread first
     try {
       const activeRuns = await openai.beta.threads.runs.list(thread_id, { limit: 10 });
+      let hasStuckRun = false;
+      const thirtySecondsAgo = Date.now() - 30000;
+      
       for (const run of activeRuns.data) {
-        if (run.status === 'in_progress' || run.status === 'requires_action') {
-          console.log(`🔄 Cancelling stuck run: ${run.id}`);
-          try {
-            await openai.beta.threads.runs.cancel(run.id, { thread_id: thread_id });
-          } catch (cancelError) {
-            console.log('⚠️ Could not cancel run:', cancelError);
+        if (run.status === 'in_progress' || run.status === 'requires_action' || 
+            run.status === 'queued' || run.status === 'cancelling') {
+          
+          // Check if run is older than 30 seconds
+          const runAge = Date.now() - new Date(run.created_at * 1000).getTime();
+          
+          console.log(`🔄 Found active run: ${run.id} (status: ${run.status}, age: ${Math.round(runAge/1000)}s)`);
+          
+          // Try to cancel the run
+          if (run.status !== 'cancelling') {
+            try {
+              await openai.beta.threads.runs.cancel(thread_id, run.id);
+              console.log(`✅ Cancelled run: ${run.id}`);
+              
+              // Wait for cancellation to complete
+              let cancelAttempts = 0;
+              while (cancelAttempts < 10) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                const updatedRun = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+                if (updatedRun.status === 'cancelled' || updatedRun.status === 'failed' || 
+                    updatedRun.status === 'expired' || updatedRun.status === 'completed') {
+                  console.log(`✅ Run ${run.id} now has status: ${updatedRun.status}`);
+                  break;
+                }
+                cancelAttempts++;
+              }
+            } catch (cancelError) {
+              console.log('⚠️ Could not cancel run:', cancelError);
+              hasStuckRun = true;
+            }
+          }
+          
+          // If run is very old or can't be cancelled, flag for new thread
+          if (runAge > 30000) {
+            console.log(`⚠️ Run ${run.id} is stuck for over 30 seconds`);
+            hasStuckRun = true;
           }
         }
+      }
+      
+      // If there's a stuck run that won't cancel, create a new thread
+      if (hasStuckRun) {
+        console.log('🆕 Creating new thread due to stuck run');
+        const newThread = await openai.beta.threads.create();
+        
+        // Return early with a message about the new thread
+        res.setHeader('Content-Type', 'text/event-stream');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+        
+        res.write(`I had to start a fresh conversation due to a technical issue. Please repeat your question.\n\nNew thread ID: ${newThread.id}`);
+        res.end();
+        return;
       }
     } catch (listError) {
       console.log('⚠️ Could not list runs:', listError);
@@ -232,9 +280,16 @@ router.post('/stream', async (req: Request, res: Response) => {
       // Run requires action (function calling)
       if (event.event === 'thread.run.requires_action') {
         currentRunId = event.data.id;
+        const threadId = event.data.thread_id;
         const toolCalls = event.data.required_action?.submit_tool_outputs?.tool_calls || [];
         
         console.log(`🔧 Function calls required: ${toolCalls.length}`);
+        
+        // Only process if we have required_action status
+        if (event.data.status !== 'requires_action') {
+          console.log(`⚠️ Run status is ${event.data.status}, not requires_action. Skipping tool outputs.`);
+          continue;
+        }
         
         // Execute all function calls
         const toolOutputs = await Promise.all(
@@ -259,13 +314,8 @@ router.post('/stream', async (req: Request, res: Response) => {
           })
         );
 
-        // Submit tool outputs and continue streaming
-        const submitStream = await openai.beta.threads.runs.submitToolOutputsStream(
-          currentRunId,
-          { 
-            tool_outputs: toolOutputs
-          }
-        );
+        // Submit tool outputs using the stream helper - it handles the thread_id internally
+        const submitStream = stream.submitToolOutputs(toolOutputs);
 
         // Process the continuation stream
         for await (const submitEvent of submitStream) {
