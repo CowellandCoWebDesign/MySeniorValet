@@ -6,12 +6,25 @@ import { Loader2, Send, Sparkles, Bot, User, MapPin, Building, BarChart3, Globe 
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 
+interface CommunityResult {
+  id: number;
+  name: string;
+  city: string;
+  state: string;
+  careTypes: string[];
+  priceRange?: { min: number; max: number };
+  availability?: string;
+  photos?: string[];
+}
+
 interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+  communities?: CommunityResult[]; // For inline community cards
+  toolType?: string; // Track what tool was used
 }
 
 interface MySeniorValetChatKitProps {
@@ -85,14 +98,23 @@ export function MySeniorValetChatKit({
   };
 
   // Handle tool events from the assistant
-  const handleToolEvent = (toolType: string, data: any) => {
+  const handleToolEvent = (toolType: string, data: any, messageId: string) => {
     console.log(`🔧 Tool event: ${toolType}`, data);
     
     switch (toolType) {
       case 'SEARCH':
         // Handle search results - display community cards
         if (data.communities && data.communities.length > 0) {
-          console.log(`Found ${data.communities.length} communities`);
+          console.log(`Found ${data.communities.length} communities - adding to message`);
+          
+          // Add communities to the current message
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === messageId
+                ? { ...msg, communities: data.communities, toolType: 'SEARCH' }
+                : msg
+            )
+          );
         }
         break;
       
@@ -215,7 +237,7 @@ export function MySeniorValetChatKit({
             
             try {
               const toolData = JSON.parse(toolDataStr);
-              handleToolEvent(toolType, toolData);
+              handleToolEvent(toolType, toolData, assistantMessageId);
             } catch (e) {
               console.error('Failed to parse tool event:', e);
             }
@@ -321,8 +343,8 @@ export function MySeniorValetChatKit({
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1 flex flex-col p-0">
-        <div className="flex-1 overflow-y-auto p-4">
+      <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+        <div className="flex-1 overflow-y-auto p-4 max-h-full">
           <div className="space-y-4">
             {messages.map((message) => (
               <div
@@ -339,7 +361,7 @@ export function MySeniorValetChatKit({
                 )}
                 
                 <div
-                  className={`max-w-[80%] rounded-lg p-3 overflow-hidden ${
+                  className={`max-w-[85%] rounded-lg p-3 ${
                     message.role === 'user'
                       ? 'bg-gradient-to-br from-purple-500 to-pink-500 text-white'
                       : message.role === 'system'
@@ -347,12 +369,52 @@ export function MySeniorValetChatKit({
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere">
+                  <p className="text-sm whitespace-pre-wrap break-words">
                     {message.content}
                     {message.isStreaming && (
                       <span className="inline-block w-2 h-4 ml-1 bg-current animate-pulse" />
                     )}
                   </p>
+                  
+                  {/* Inline community cards */}
+                  {message.communities && message.communities.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {message.communities.slice(0, 3).map((community) => (
+                        <button
+                          key={community.id}
+                          onClick={() => setLocation(`/community/${community.id}`)}
+                          className="w-full text-left bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-colors"
+                          data-testid={`community-card-${community.id}`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <Building className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                {community.name}
+                              </h4>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                {community.city}, {community.state}
+                              </p>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {community.careTypes?.slice(0, 2).map((type, idx) => (
+                                  <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
+                                    {type}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                      {message.communities.length > 3 && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
+                          + {message.communities.length - 3} more communities
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 {message.role === 'user' && (
