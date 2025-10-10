@@ -154,6 +154,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
       { label: "Pricing Guide", icon: DollarSign, href: "/pricing", emoji: "💰" },
     ],
     tools: [
+      { label: "Live Heatmap", icon: BarChart3, href: "/heatmap-analysis", emoji: "🔥" },
+      { label: "Market Analysis", icon: BarChart3, href: "/competitive-analysis", emoji: "📊" },
       { label: "Tour Scheduler", icon: Calendar, href: "/tours", emoji: "📅" },
       { label: "Cost Calculator", icon: BarChart3, href: "/costs", emoji: "🧮" },
       { label: "AI Assistant", icon: Brain, href: "/ai-support", emoji: "🤖" },
