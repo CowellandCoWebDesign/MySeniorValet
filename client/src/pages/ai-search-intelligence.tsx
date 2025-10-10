@@ -2166,13 +2166,11 @@ export default function AISearchIntelligence() {
             </div>
 
             {/* Map and List Layout - Responsive */}
-            <div className={`px-4 ${
-              layoutMode === 'horizontal' 
-                ? 'grid grid-cols-1 lg:grid-cols-2 gap-4' 
-                : 'space-y-4'
-            }`}>
-              {/* List Section - Shows first in horizontal mode on large screens */}
+            <div className="px-4">
+              {/* Horizontal Layout - Side by Side */}
               {layoutMode === 'horizontal' && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* List Section - Left Side */}
                 <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col lg:max-h-[600px]">
                   {/* Header with result count */}
                   <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
@@ -2301,11 +2299,10 @@ export default function AISearchIntelligence() {
                   )}
                   </div>
                 </div>
-              )}
-
-              {/* Map Section */}
-              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
-                <Map
+                
+                {/* Map Section - Right Side */}
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                  <Map
                   center={mapCenter}
                   zoom={mapZoom}
                   searchFilters={{
@@ -2353,12 +2350,70 @@ export default function AISearchIntelligence() {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  height={layoutMode === 'horizontal' ? '600px' : '400px'}
-                />
+                  height='600px'
+                  />
+                </div>
               </div>
+              )}
 
-              {/* List Section - Shows in vertical mode OR on mobile in horizontal mode */}
+              {/* Vertical Layout - Map Above, List Below */}
               {layoutMode === 'vertical' && (
+              <div className="space-y-4">
+                {/* Map Section */}
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                  <Map
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  searchFilters={{
+                    careType: simplifiedFilters.typeOfLiving.join(','),
+                    budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`,
+                    availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
+                  }}
+                  onBoundsChange={(bounds) => {
+                    // Load communities when map bounds change
+                    if (bounds && !simplifiedSearchMutation.data?.results) {
+                      const west = bounds.getWest ? bounds.getWest() : bounds.west;
+                      const east = bounds.getEast ? bounds.getEast() : bounds.east;
+                      const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
+                      const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
+                      
+                      console.log('📍 Fetching communities for bounds:', { west, east, south, north });
+                      // Use the clusters endpoint which is working correctly
+                      fetch(`/api/communities/clusters?zoom=${mapZoom}&west=${west}&south=${south}&east=${east}&north=${north}`)
+                        .then(res => {
+                          if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                          return res.json();
+                        })
+                        .then(data => {
+                          console.log('📍 Clusters response for list:', data);
+                          if (data.clusters && Array.isArray(data.clusters)) {
+                            // Extract non-cluster communities from the features
+                            const communities = data.clusters
+                              .filter((feature: any) => !feature.properties.cluster)
+                              .map((feature: any) => feature.properties)
+                              .filter((c: any) => c.id && c.name);
+                            
+                            console.log(`📍 Setting ${communities.length} communities to list from clusters`);
+                            setMapCommunities(communities);
+                          }
+                        })
+                        .catch(err => {
+                          console.error('Error fetching map communities:', err.message || err);
+                        });
+                    }
+                  }}
+                  onCommunityClick={(community: any) => {
+                    // Scroll to community in list
+                    const element = document.getElementById(`community-${community.id}`);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                  height='400px'
+                  />
+                </div>
+                
+                {/* List Section - Below Map */}
               <div className="w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col">
                 {/* Header with result count */}
                 <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
@@ -2519,6 +2574,7 @@ export default function AISearchIntelligence() {
                   </div>
                 )}
                 </div>
+              </div>
               </div>
               )}
             </div>
