@@ -57,7 +57,9 @@ import {
   Shirt,
   Moon,
   Droplets,
-  SlidersHorizontal
+  SlidersHorizontal,
+  LayoutGrid,
+  LayoutList
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -206,6 +208,9 @@ export default function AISearchIntelligence() {
 
   // Entire filter panel collapse state - open by default
   const [filtersExpanded, setFiltersExpanded] = useState(true);
+
+  // Layout toggle state - 'vertical' (map above list) or 'horizontal' (map right, list left)
+  const [layoutMode, setLayoutMode] = useState<'vertical' | 'horizontal'>('vertical');
 
   // Check URL parameters to auto-switch to simplified search
   useEffect(() => {
@@ -2130,10 +2135,178 @@ export default function AISearchIntelligence() {
               )}
             </div>
 
-            {/* Map and List Layout - Vertical Stack, Full Width */}
-            <div className="space-y-4 px-4">
-              {/* Map Section - Full Width on Top */}
-              <div className="w-full bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+            {/* Layout Toggle Button */}
+            <div className="px-4 mb-3 flex justify-end">
+              <div className="inline-flex bg-white dark:bg-gray-900 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-1">
+                <button
+                  onClick={() => setLayoutMode('vertical')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                    layoutMode === 'vertical'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                  title="Vertical layout (map above list)"
+                >
+                  <LayoutList className="w-4 h-4" />
+                  <span className="hidden sm:inline">Vertical</span>
+                </button>
+                <button
+                  onClick={() => setLayoutMode('horizontal')}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
+                    layoutMode === 'horizontal'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                  }`}
+                  title="Horizontal layout (list left, map right)"
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden sm:inline">Horizontal</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Map and List Layout - Responsive */}
+            <div className={`px-4 ${
+              layoutMode === 'horizontal' 
+                ? 'flex flex-col lg:flex-row gap-4' 
+                : 'space-y-4'
+            }`}>
+              {/* List Section - Shows first in horizontal mode on large screens */}
+              {layoutMode === 'horizontal' && (
+                <div className="w-full lg:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col lg:max-h-[600px]">
+                  {/* Header with result count */}
+                  <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        {simplifiedSearchMutation.data?.results?.length > 0 
+                          ? `${simplifiedSearchMutation.data.results.length} Communities Found`
+                          : mapCommunities.length > 0
+                          ? `${mapCommunities.length} Communities in View`
+                          : 'Search Results'}
+                      </h3>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                        Live Data
+                      </Badge>
+                    </div>
+                    
+                    {/* Regional Theme Legend */}
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-green-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">HUD/Gov</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-red-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Canada</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Hawaii</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Florida</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-3 h-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">Texas</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto">
+                    {simplifiedSearchMutation.isPending ? (
+                      <div className="flex items-center justify-center h-full">
+                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                      </div>
+                    ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
+                      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any, index: number) => {
+                          // Determine special styling based on community type
+                          const isHUD = community.hudPropertyId || community.communitySubtype === 'hud_senior_housing';
+                          const isCanadian = community.state === 'AB' || community.state === 'BC' || community.state === 'ON' || community.state === 'QC';
+                          const isHawaiian = community.state === 'HI';
+                          const isMexican = community.country === 'MX';
+                          const isFlorida = community.state === 'FL';
+                          const isTexas = community.state === 'TX';
+                          const isNewYork = community.state === 'NY';
+                          const isArizona = community.state === 'AZ';
+                          const hasOccupancy = community.occupancyRate || community.occupancyRateHud;
+                          const isFeatured = community.priceTier === 'featured' || community.priceTier === 'platinum';
+                          const hasSpecialOffer = community.specialOffer || community.monthlyDiscount;
+                          
+                          return (
+                            <div 
+                              key={community.id}
+                              id={`community-${community.id}`}
+                              className={`relative ${
+                                isHUD ? 'border-l-4 border-green-500 bg-green-50 dark:bg-green-950/20' :
+                                isCanadian ? 'border-l-4 border-red-500 bg-red-50 dark:bg-red-950/20' :
+                                isHawaiian ? 'border-l-4 border-gradient-to-r from-blue-500 to-cyan-500 bg-blue-50 dark:bg-blue-950/20' :
+                                isFlorida ? 'border-l-4 border-gradient-to-r from-orange-500 to-yellow-500 bg-orange-50 dark:bg-orange-950/20' :
+                                isTexas ? 'border-l-4 border-gradient-to-r from-amber-500 to-orange-500 bg-amber-50 dark:bg-amber-950/20' : ''
+                              }`}
+                            >
+                              {isFeatured && (
+                                <div className="absolute top-2 right-2 z-10">
+                                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-1 text-xs font-bold shadow-lg">
+                                    <Star className="w-3 h-3 mr-1" />
+                                    FEATURED
+                                  </Badge>
+                                </div>
+                              )}
+                              {hasSpecialOffer && (
+                                <div className="absolute top-8 right-2 z-10">
+                                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 text-xs font-bold shadow-lg animate-pulse">
+                                    <Zap className="w-3 h-3 mr-1" />
+                                    SPECIAL OFFER
+                                  </Badge>
+                                </div>
+                              )}
+                              
+                              {/* Enhanced card with occupancy display */}
+                              <div className={`${isHUD || isCanadian || isHawaiian ? 'pl-2' : ''} p-2`}>
+                                <PrioritizedCommunityCard 
+                                  community={{
+                                    ...community,
+                                    occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+                                    totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                                    availableUnits: community.availableUnits,
+                                    waitListLength: community.waitListLength,
+                                    specialPromotions: hasSpecialOffer ? [{
+                                      title: community.specialOffer || 'Special Offer',
+                                      description: community.monthlyDiscount || 'Limited time offer',
+                                      monthsWaived: community.monthsWaived || 1,
+                                      percentageOff: community.percentageOff || 10
+                                    }] : community.specialPromotions
+                                  }}
+                                  variant="list"
+                                  onSelect={() => window.location.href = `/community/${community.id}`}
+                                  onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
+                                  isFavorite={false}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                      <MapPin className="w-12 h-12 text-gray-400 mb-4" />
+                      <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
+                      <p className="text-sm text-gray-500">
+                        Try adjusting your filters, search in a different location, or navigate the map to see available communities
+                      </p>
+                    </div>
+                  )}
+                  </div>
+                </div>
+              )}
+
+              {/* Map Section */}
+              <div className={`bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden ${
+                layoutMode === 'horizontal' ? 'w-full lg:w-1/2' : 'w-full'
+              }`}>
                 <Map
                   center={mapCenter}
                   zoom={mapZoom}
@@ -2182,11 +2355,12 @@ export default function AISearchIntelligence() {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  height="400px"
+                  height={layoutMode === 'horizontal' ? '600px' : '400px'}
                 />
               </div>
 
-              {/* List Section - Full Width Below Map */}
+              {/* List Section - Shows in vertical mode OR on mobile in horizontal mode */}
+              {layoutMode === 'vertical' && (
               <div className="w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col">
                 {/* Header with result count */}
                 <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
@@ -2348,6 +2522,7 @@ export default function AISearchIntelligence() {
                 )}
                 </div>
               </div>
+              )}
             </div>
           </TabsContent>
 
