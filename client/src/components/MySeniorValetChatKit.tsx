@@ -390,41 +390,59 @@ export function MySeniorValetChatKit({
                   
                   {/* Inline community cards */}
                   {message.communities && message.communities.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {message.communities.slice(0, 3).map((community) => (
-                        <button
-                          key={community.id}
-                          onClick={() => setLocation(`/community/${community.id}`)}
-                          className="w-full text-left bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-colors"
-                          data-testid={`community-card-${community.id}`}
+                    <div className="mt-3">
+                      {/* Results header with count and map button */}
+                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-gray-200 dark:border-gray-700">
+                        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Found {message.communities.length} {message.communities.length === 1 ? 'community' : 'communities'}
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Navigate to map with communities data
+                            const communityIds = message.communities?.map(c => c.id).join(',') || '';
+                            setLocation(`/map-search?communities=${communityIds}`);
+                          }}
+                          className="flex items-center gap-1 text-xs"
                         >
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <Building className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
-                                {community.name}
-                              </h4>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                {community.city}, {community.state}
-                              </p>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {community.careTypes?.slice(0, 2).map((type, idx) => (
-                                  <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
-                                    {type}
-                                  </span>
-                                ))}
+                          <MapPin className="w-3 h-3" />
+                          Show on Map
+                        </Button>
+                      </div>
+                      
+                      {/* Scrollable community list */}
+                      <div className="max-h-96 overflow-y-auto space-y-2 pr-1">
+                        {message.communities.map((community) => (
+                          <button
+                            key={community.id}
+                            onClick={() => setLocation(`/community/${community.id}`)}
+                            className="w-full text-left bg-white dark:bg-gray-900 rounded-lg p-3 border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-colors"
+                            data-testid={`community-card-${community.id}`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <Building className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-sm text-gray-900 dark:text-gray-100 truncate">
+                                  {community.name}
+                                </h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                  {community.city}, {community.state}
+                                </p>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {community.careTypes?.slice(0, 2).map((type, idx) => (
+                                    <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
+                                      {type}
+                                    </span>
+                                  ))}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        </button>
-                      ))}
-                      {message.communities.length > 3 && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-2">
-                          + {message.communities.length - 3} more communities
-                        </p>
-                      )}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>
