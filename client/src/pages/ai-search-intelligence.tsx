@@ -56,7 +56,8 @@ import {
   Car,
   Shirt,
   Moon,
-  Droplets
+  Droplets,
+  SlidersHorizontal
 } from 'lucide-react';
 
 interface AISearchResult {
@@ -200,10 +201,11 @@ export default function AISearchIntelligence() {
     typeOfLiving: false,
     unitType: false,
     amenities: false,
-    careServices: false,
-    distance: false,
-    cost: false
+    careServices: false
   });
+
+  // Entire filter panel collapse state - open by default
+  const [filtersExpanded, setFiltersExpanded] = useState(true);
 
   // Check URL parameters to auto-switch to simplified search
   useEffect(() => {
@@ -1164,7 +1166,24 @@ export default function AISearchIntelligence() {
             </div>
 
             {/* Filter Bar with Type of Living First */}
-            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mx-4 space-y-6">
+            <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mx-4">
+              {/* Filters Header with Collapse Toggle */}
+              <button
+                onClick={() => setFiltersExpanded(!filtersExpanded)}
+                className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              >
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  <SlidersHorizontal className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  Filters
+                </h2>
+                <ChevronDown className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                  filtersExpanded ? 'transform rotate-180' : ''
+                }`} />
+              </button>
+              
+              {/* Collapsible Filter Content */}
+              {filtersExpanded && (
+                <div className="p-6 pt-0 space-y-6 border-t border-gray-200 dark:border-gray-700">
               {/* First Row - Complete Care Spectrum */}
               <Collapsible 
                 open={collapsibleSections.typeOfLiving} 
@@ -2013,18 +2032,7 @@ export default function AISearchIntelligence() {
 
 
               {/* Fifth Row - Sliders and Controls - Mobile Responsive with Stacked Layout */}
-              <Collapsible
-                open={collapsibleSections.distance}
-                onOpenChange={(isOpen) => setCollapsibleSections({ ...collapsibleSections, distance: isOpen })}
-                className="w-full py-4 border-t border-b border-gray-200 dark:border-gray-700"
-              >
-                <CollapsibleTrigger className="flex items-center justify-between w-full group mb-3">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">Distance & Cost</label>
-                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
-                    collapsibleSections.distance ? 'transform rotate-180' : ''
-                  }`} />
-                </CollapsibleTrigger>
-                <CollapsibleContent>
+              <div className="w-full py-4 border-t border-b border-gray-200 dark:border-gray-700">
                 {/* Sliders Container - Stack on Mobile */}
                 <div className="flex flex-col gap-3">
                   {/* Distance Slider - Full Width */}
@@ -2117,8 +2125,9 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
                 </div>
-                </CollapsibleContent>
-              </Collapsible>
+              </div>
+              </div>
+              )}
             </div>
 
             {/* Map and List Layout - Vertical Stack, Full Width */}
