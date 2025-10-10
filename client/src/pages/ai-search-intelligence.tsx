@@ -2169,45 +2169,45 @@ export default function AISearchIntelligence() {
             <div className="px-4">
               {/* Horizontal Layout - Side by Side */}
               {layoutMode === 'horizontal' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 {/* List Section - Left Side */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col lg:max-h-[600px]">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col max-h-[400px] sm:max-h-[500px] md:max-h-[600px]">
                   {/* Header with result count */}
-                  <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2">
+                      <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
                         {simplifiedSearchMutation.data?.results?.length > 0 
                           ? `${simplifiedSearchMutation.data.results.length} Communities Found`
                           : mapCommunities.length > 0
                           ? `${mapCommunities.length} Communities in View`
                           : 'Search Results'}
                       </h3>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs">
                         Live Data
                       </Badge>
                     </div>
                     
-                    {/* Regional Theme Legend */}
-                    <div className="flex flex-wrap gap-2 text-xs">
+                    {/* Regional Theme Legend - Hidden on mobile in horizontal mode for space */}
+                    <div className="hidden sm:flex flex-wrap gap-2 text-xs">
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-green-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">HUD/Gov</span>
+                        <div className="w-2 h-2 bg-green-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">HUD</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-red-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">Canada</span>
+                        <div className="w-2 h-2 bg-red-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">CAN</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">Hawaii</span>
+                        <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">HI</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">Florida</span>
+                        <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">FL</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <div className="w-3 h-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">Texas</span>
+                        <div className="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">TX</span>
                       </div>
                     </div>
                   </div>
@@ -2301,7 +2301,7 @@ export default function AISearchIntelligence() {
                 </div>
                 
                 {/* Map Section - Right Side */}
-                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden h-[400px] sm:h-[500px] md:h-[600px]">
                   <Map
                   center={mapCenter}
                   zoom={mapZoom}
@@ -2350,7 +2350,7 @@ export default function AISearchIntelligence() {
                       element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                   }}
-                  height='600px'
+                  height='100%'
                   />
                 </div>
               </div>
