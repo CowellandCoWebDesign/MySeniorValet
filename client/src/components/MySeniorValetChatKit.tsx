@@ -367,7 +367,7 @@ export function MySeniorValetChatKit({
   };
 
   return (
-    <Card className={`flex flex-col h-[600px] shadow-lg ${className}`} data-testid="chatkit-container">
+    <Card className={`flex flex-col max-h-[450px] min-h-[250px] shadow-lg ${className}`} data-testid="chatkit-container">
       <CardHeader className="border-b bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
