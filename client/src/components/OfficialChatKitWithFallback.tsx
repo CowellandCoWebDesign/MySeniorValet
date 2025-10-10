@@ -74,18 +74,25 @@ export function OfficialChatKitWithFallback({
         onThreadChange?.(session.thread_id);
       }
       
-      // For now, always use the fallback UI since the ChatKit SDK component isn't rendering properly
-      // We'll still use real ChatKit tokens for API calls but with our custom UI
-      setUseFallback(true);
-      
-      if (!session.client_secret ||
-          session.client_secret.startsWith('ck_demo_') || 
-          session.client_secret.startsWith('ck_') ||
+      // Use real ChatKit component when we have a valid client_secret (starts with "ek_")
+      // Use fallback for demo/test tokens, fallback tokens (ck_fallback_), or when metadata indicates fallback
+      const hasRealChatKitToken = session.client_secret && session.client_secret.startsWith('ek_');
+      const shouldUseFallback = !hasRealChatKitToken ||
           session.metadata?.session_type === 'assistant_fallback' ||
-          session.metadata?.session_type === 'assistant') {
-        console.log('⚠️ Using fallback streaming (ChatKit real tokens not yet available)');
+          session.metadata?.session_type === 'assistant';
+      
+      setUseFallback(shouldUseFallback);
+      
+      if (shouldUseFallback) {
+        console.log('⚠️ Using MySeniorValet Assistant (fallback mode - no widgets)', {
+          tokenType: session.client_secret?.substring(0, 15) + '...',
+          sessionType: session.metadata?.session_type
+        });
       } else {
-        console.log('✅ Using real ChatKit session with custom UI:', session.thread_id);
+        console.log('✅ Using ChatKit Beta with OpenAI widgets:', {
+          threadId: session.thread_id,
+          tokenType: 'ek_...'
+        });
       }
       
       // Add welcome message
@@ -459,7 +466,7 @@ export function OfficialChatKitWithFallback({
         {/* Footer */}
         <div className="p-3 border-t bg-muted/50">
           <p className="text-xs text-muted-foreground text-center">
-            Search 33,834+ communities • Real-time pricing • Tour scheduling
+            MySeniorValet Assistant • Search 33,834+ communities • Real-time pricing
           </p>
         </div>
       </Card>
@@ -470,9 +477,12 @@ export function OfficialChatKitWithFallback({
   return (
     <Card className={`relative overflow-hidden ${className} ${isExpanded ? 'fixed inset-4 z-50' : ''}`}>
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20">
+      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-lg">MySeniorValet AI Assistant</h3>
+          <h3 className="font-semibold text-lg">ChatKit Beta</h3>
+          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
+            with Widgets
+          </span>
           {currentThreadId && (
             <span className="text-xs text-muted-foreground">
               Thread: {currentThreadId.slice(-8)}
@@ -518,7 +528,7 @@ export function OfficialChatKitWithFallback({
       {/* Footer */}
       <div className="p-3 border-t bg-muted/50">
         <p className="text-xs text-muted-foreground text-center">
-          Powered by OpenAI ChatKit • Search 33,834+ communities • Real-time pricing
+          OpenAI ChatKit with Widgets • Search 33,834+ communities • Interactive Cards & Forms
         </p>
       </div>
     </Card>
