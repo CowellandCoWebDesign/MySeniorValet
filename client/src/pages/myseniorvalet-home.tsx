@@ -50,7 +50,6 @@ import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
 import { MySeniorValetChatKit } from '@/components/MySeniorValetChatKit';
-import { StandaloneOpenAIChatKit } from '@/components/StandaloneOpenAIChatKit';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -827,20 +826,13 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
         
-        {/* MySeniorValet AI Assistant - Custom Implementation */}
+        {/* MySeniorValet AI Assistant */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
           <MySeniorValetChatKit 
             category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
             onCategoryChange={(cat) => onTabChange(cat)}
           />
         </div>
-
-        {/* OpenAI Hosted ChatKit - Standalone Drop-in Widget */}
-        {!isSearchActive && (
-          <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-30 mb-6">
-            <StandaloneOpenAIChatKit className="shadow-lg" />
-          </div>
-        )}
         
         {/* Quick Action Buttons - Moved from Community Directory Section */}
         {!isSearchActive && (
