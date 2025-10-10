@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
@@ -25,6 +26,7 @@ import {
   Heart,
   Sparkles,
   ChevronRight,
+  ChevronDown,
   Loader2,
   Bot,
   Home,
@@ -191,6 +193,16 @@ export default function AISearchIntelligence() {
     distance: 50,
     priceRange: [500, 8000] as [number, number],
     immediateAvailability: false
+  });
+
+  // Collapsible sections state - collapsed by default to save space
+  const [collapsibleSections, setCollapsibleSections] = useState({
+    typeOfLiving: false,
+    unitType: false,
+    amenities: false,
+    careServices: false,
+    distance: false,
+    cost: false
   });
 
   // Check URL parameters to auto-switch to simplified search
@@ -1154,14 +1166,22 @@ export default function AISearchIntelligence() {
             {/* Filter Bar with Type of Living First */}
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mx-4 space-y-6">
               {/* First Row - Complete Care Spectrum */}
-              <div className="w-full">
+              <Collapsible 
+                open={collapsibleSections.typeOfLiving} 
+                onOpenChange={(open) => setCollapsibleSections({...collapsibleSections, typeOfLiving: open})}
+                className="w-full"
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span className="text-purple-600 dark:text-purple-400">🏠</span>
-                    Type of Living - Complete Care Spectrum
-                  </h3>
+                  <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${collapsibleSections.typeOfLiving ? 'rotate-180' : ''}`} />
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <span className="text-purple-600 dark:text-purple-400">🏠</span>
+                      Type of Living - Complete Care Spectrum
+                    </h3>
+                  </CollapsibleTrigger>
                   <span className="text-xs text-gray-500 dark:text-gray-400">Select multiple options</span>
                 </div>
+                <CollapsibleContent>
                 <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
                   {/* HUD - Government Subsidized */}
                   <Button
@@ -1483,17 +1503,26 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
                 </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Second Row - Unit/Room Type - Full Width */}
-              <div className="w-full pt-4 border-t border-gray-200 dark:border-gray-700">
+              <Collapsible 
+                open={collapsibleSections.unitType} 
+                onOpenChange={(open) => setCollapsibleSections({...collapsibleSections, unitType: open})}
+                className="w-full pt-4 border-t border-gray-200 dark:border-gray-700"
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <span className="text-blue-600 dark:text-blue-400">🏠</span>
-                    Unit/Room Type
-                  </h3>
+                  <CollapsibleTrigger className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                    <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${collapsibleSections.unitType ? 'rotate-180' : ''}`} />
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <span className="text-blue-600 dark:text-blue-400">🏠</span>
+                      Unit/Room Type
+                    </h3>
+                  </CollapsibleTrigger>
                   <span className="text-xs text-gray-500 dark:text-gray-400">Select your preference</span>
                 </div>
+                <CollapsibleContent>
                 <div className="flex gap-3 overflow-x-auto pb-2">
                   <Button
                     variant={simplifiedFilters.unitType.includes('studio') ? 'default' : 'outline'}
@@ -1615,7 +1644,8 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
                 </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Third Row - Amenities - Full Width with Horizontal Scroll */}
               <div className="w-full mb-4">
