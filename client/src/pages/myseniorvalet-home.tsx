@@ -825,7 +825,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         {/* Category Tabs - Improved without scroll */}
         <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-6 mb-4">
-          <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 flex-wrap">
+          <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 flex-wrap bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
               className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 text-white shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:border-blue-400 data-[state=active]:shadow-blue-500/50 hover:bg-white/20 dark:hover:bg-white/20 hover:border-white/30 transition-all duration-300"
@@ -865,7 +865,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               <span className="text-xl sm:text-2xl">🛍️</span>
               <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Vendors</span>
             </TabsTrigger>
-          </div>
+          </TabsList>
         </div>
         
         </div>
