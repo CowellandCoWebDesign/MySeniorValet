@@ -81,10 +81,10 @@ async function searchCommunities(args: any) {
             city: c.city,
             state: c.state,
             address: c.address,
-            phone: c.phoneNumber,
+            phone: c.phone,
             website: c.website,
             careTypes: c.careTypes,
-            pricing: c.hudBaseRent || c.averageMonthlyRent || null
+            pricing: c.lotRent || c.hoaFee || null
           }))
         };
       }
@@ -97,10 +97,10 @@ async function searchCommunities(args: any) {
         city: c.city,
         state: c.state,
         address: c.address,
-        phone: c.phoneNumber,
+        phone: c.phone,
         website: c.website,
         careTypes: c.careTypes,
-        pricing: c.hudBaseRent || c.averageMonthlyRent || null
+        pricing: c.lotRent || c.hoaFee || null
       }))
     };
   } catch (error) {
@@ -207,7 +207,7 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
     if (res.flush) res.flush();
     
     // Poll for run completion
-    let runStatus = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+    let runStatus = run;
     
     while (runStatus.status === 'queued' || runStatus.status === 'in_progress' || runStatus.status === 'requires_action') {
       // Handle tool calls  
@@ -290,9 +290,11 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
           
           // Submit tool outputs
           await openai.beta.threads.runs.submitToolOutputs(
-            thread_id,
             run.id,
-            { tool_outputs: toolOutputs }
+            { 
+              thread_id,
+              tool_outputs: toolOutputs 
+            }
           );
           
           console.log('📤 Tool outputs submitted, continuing to poll...');
@@ -303,7 +305,7 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Get updated status
-      runStatus = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+      runStatus = await openai.beta.threads.runs.retrieve(run.id, { thread_id });
       console.log(`📊 Run status: ${runStatus.status}`);
     }
     
@@ -311,18 +313,23 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
     if (runStatus.status === 'completed') {
       console.log('✅ Run completed successfully');
       
-      // Get the final messages
+      // Get the assistant's response messages
       const messages = await openai.beta.threads.messages.list(thread_id, {
-        limit: 1,
+        limit: 10,
         order: 'desc'
       });
       
-      if (messages.data.length > 0) {
-        const lastMessage = messages.data[0];
-        if (lastMessage.content && lastMessage.content[0] && lastMessage.content[0].type === 'text') {
-          const finalText = (lastMessage.content[0] as any).text.value;
+      // Find the most recent assistant message
+      const assistantMessage = messages.data.find(msg => msg.role === 'assistant');
+      
+      if (assistantMessage && assistantMessage.content && assistantMessage.content[0]) {
+        const content = assistantMessage.content[0];
+        if (content.type === 'text') {
+          const finalText = (content as any).text.value;
           
-          // Send the complete message
+          console.log('📤 Sending assistant response:', finalText.substring(0, 100) + '...');
+          
+          // Send the complete message as a delta
           res.write(`event: message\n`);
           res.write(`data: ${JSON.stringify({ 
             type: 'delta',
@@ -330,6 +337,8 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
           })}\n\n`);
           if (res.flush) res.flush();
         }
+      } else {
+        console.log('⚠️ No assistant message found in thread');
       }
       
       // Send completion event
