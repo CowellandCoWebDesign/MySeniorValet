@@ -33,7 +33,7 @@ export function OfficialChatKitWithFallback({
   const [isExpanded, setIsExpanded] = useState(false);
   const [currentThreadId, setCurrentThreadId] = useState(initialThreadId);
   const [sessionData, setSessionData] = useState<any>(null);
-  const [useFallback, setUseFallback] = useState(false);
+  const [useFallback, setUseFallback] = useState<boolean | null>(null); // null = not yet determined
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -117,9 +117,21 @@ export function OfficialChatKitWithFallback({
   const { control } = useChatKit({
     api: {
       async getClientSecret(existing) {
+        // If we haven't determined fallback status yet, wait
+        if (useFallback === null) {
+          // Return empty and let initialization complete first
+          return '';
+        }
+        
         if (useFallback) return '';
         
         try {
+          // If we already have session data with a client_secret, use it
+          if (sessionData?.client_secret && !existing) {
+            console.log('[ChatKit] Using existing client_secret from session data');
+            return sessionData.client_secret;
+          }
+          
           if (existing && sessionData?.expires_at) {
             const expiryTime = new Date(sessionData.expires_at).getTime();
             const now = Date.now();
@@ -145,31 +157,8 @@ export function OfficialChatKitWithFallback({
             }
           }
           
-          const response = await fetch('/api/chatkit/create-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              threadId: currentThreadId, 
-              user: userId 
-            }),
-          });
-          
-          if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            console.error('[ChatKit] Session creation failed:', errorData);
-            throw new Error(errorData.error || 'Failed to create session');
-          }
-          
-          const session = await response.json();
-          setSessionData(session);
-          
-          console.log('[ChatKit] Session created successfully:', {
-            hasSecret: !!session.client_secret,
-            threadId: session.thread_id,
-            expiresAfter: session.expires_after
-          });
-          
-          return session.client_secret;
+          console.log('[ChatKit] getClientSecret called but no existing session, returning empty');
+          return '';
           
         } catch (error) {
           console.error('Failed to get ChatKit client secret:', error);
@@ -340,6 +329,16 @@ export function OfficialChatKitWithFallback({
       });
     }
   };
+
+  // Show loading state while determining which UI to use
+  if (useFallback === null) {
+    return (
+      <Card className={`relative overflow-hidden flex flex-col items-center justify-center ${className} ${isExpanded ? 'fixed inset-4 z-50' : 'h-[600px]'}`}>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-4 text-sm text-muted-foreground">Initializing chat...</p>
+      </Card>
+    );
+  }
 
   // Render fallback UI when ChatKit tokens aren't available
   if (useFallback) {
