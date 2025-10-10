@@ -391,7 +391,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <Bell className="h-5 w-5" />
                 {unreadCount && Number(unreadCount) > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-                    <span>{String(Number(unreadCount))}</span>
+                    {String(Number(unreadCount))}
                   </Badge>
                 )}
               </Button>
