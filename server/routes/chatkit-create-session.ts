@@ -49,31 +49,55 @@ router.post('/create-session', async (req: Request, res: Response) => {
     const workflowId = body.workflow?.id || process.env.CHATKIT_WORKFLOW_ID;
     
     if (!workflowId) {
-      console.log('[ChatKit] No workflow ID configured, returning fallback session');
+      console.log('[ChatKit] No workflow ID configured, creating fallback session with real OpenAI thread');
       
-      // Generate a fallback token and thread ID
-      const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
-      const threadId = body.threadId || `thread_${Math.random().toString(36).slice(2)}`;
-      
-      // Store the fallback session
-      activeSessions.set(fallbackToken, {
-        userId: resolvedUserId,
-        threadId,
-        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-        workflowId: undefined
-      });
-      
-      // Return a fallback session with a token
-      return res.json({
-        client_secret: fallbackToken,
-        thread_id: threadId,
-        user_id: resolvedUserId,
-        expires_at: Date.now() + 3600000, // 1 hour in ms
-        metadata: { 
-          session_type: 'assistant_fallback',
-          message: 'ChatKit workflow not configured - using Assistant API streaming'
+      try {
+        // Create a real OpenAI thread for the fallback session
+        const OpenAI = (await import('openai')).default;
+        const openai = new OpenAI({
+          apiKey: openaiApiKey,
+        });
+        
+        let threadId = body.threadId;
+        
+        // Only create a new thread if one wasn't provided
+        if (!threadId) {
+          const thread = await openai.beta.threads.create();
+          threadId = thread.id;
+          console.log('[ChatKit] Created real OpenAI thread for fallback:', threadId);
         }
-      });
+        
+        // Generate a fallback token
+        const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
+        
+        // Store the fallback session with assistant ID
+        activeSessions.set(fallbackToken, {
+          userId: resolvedUserId,
+          threadId,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+          workflowId: undefined,
+          assistantId: process.env.OPENAI_ASSISTANT_ID || 'asst_WKYShD9dPx7wYOmkC0OFiBJl'
+        } as any);
+        
+        // Return a fallback session with a token
+        return res.json({
+          client_secret: fallbackToken,
+          thread_id: threadId,
+          user_id: resolvedUserId,
+          expires_at: Date.now() + 3600000, // 1 hour in ms
+          metadata: { 
+            session_type: 'assistant_fallback',
+            message: 'ChatKit workflow not configured - using Assistant API streaming'
+          }
+        });
+      } catch (error) {
+        console.error('[ChatKit] Failed to create OpenAI thread for fallback:', error);
+        // If thread creation fails, return error
+        return res.status(500).json({
+          error: 'Failed to create fallback session',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        });
+      }
     }
     
     console.log('[ChatKit] Creating session for user:', resolvedUserId, 'workflow:', workflowId);
@@ -109,30 +133,53 @@ router.post('/create-session', async (req: Request, res: Response) => {
       // If workflow not found or other API error, return fallback session
       const errorMessage = extractUpstreamError(upstreamJson);
       if (errorMessage?.includes('Workflow') || errorMessage?.includes('not found')) {
-        console.log('[ChatKit] Workflow not found, using fallback mode');
+        console.log('[ChatKit] Workflow not found, creating fallback mode with real thread');
         
-        // Generate a fallback token and thread ID
-        const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
-        const threadId = body.threadId || `thread_${Math.random().toString(36).slice(2)}`;
-        
-        // Store the fallback session
-        activeSessions.set(fallbackToken, {
-          userId: resolvedUserId,
-          threadId,
-          expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
-          workflowId: undefined
-        });
-        
-        return res.json({
-          client_secret: fallbackToken,
-          thread_id: threadId,
-          user_id: resolvedUserId,
-          expires_at: Date.now() + 3600000, // 1 hour in ms
-          metadata: { 
-            session_type: 'assistant_fallback',
-            message: 'ChatKit workflow not available - using Assistant API streaming'
+        try {
+          // Create a real OpenAI thread for the fallback session
+          const OpenAI = (await import('openai')).default;
+          const openai = new OpenAI({
+            apiKey: openaiApiKey,
+          });
+          
+          let threadId = body.threadId;
+          
+          // Only create a new thread if one wasn't provided
+          if (!threadId) {
+            const thread = await openai.beta.threads.create();
+            threadId = thread.id;
+            console.log('[ChatKit] Created real OpenAI thread for fallback:', threadId);
           }
-        });
+          
+          // Generate a fallback token
+          const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
+          
+          // Store the fallback session with assistant ID
+          activeSessions.set(fallbackToken, {
+            userId: resolvedUserId,
+            threadId,
+            expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+            workflowId: undefined,
+            assistantId: process.env.OPENAI_ASSISTANT_ID || 'asst_WKYShD9dPx7wYOmkC0OFiBJl'
+          } as any);
+          
+          return res.json({
+            client_secret: fallbackToken,
+            thread_id: threadId,
+            user_id: resolvedUserId,
+            expires_at: Date.now() + 3600000, // 1 hour in ms
+            metadata: { 
+              session_type: 'assistant_fallback',
+              message: 'ChatKit workflow not available - using Assistant API streaming'
+            }
+          });
+        } catch (error) {
+          console.error('[ChatKit] Failed to create OpenAI thread for fallback:', error);
+          return res.status(500).json({
+            error: 'Failed to create fallback session',
+            details: error instanceof Error ? error.message : 'Unknown error'
+          });
+        }
       }
       
       return res.status(upstreamResponse.status).json({

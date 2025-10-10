@@ -13,6 +13,7 @@ const activeSessions = new Map<string, {
   threadId: string;
   expiresAt: Date;
   workflowId?: string;
+  assistantId?: string;
 }>();
 
 // Export for use in other modules
