@@ -206,7 +206,9 @@ TONE: Helpful, warm, professional, conversational - like talking to a knowledgea
   return assistant;
 }
 
-// Create or retrieve thread
+// DEPRECATED: Session creation moved to chatkit-session.ts for proper ChatKit integration
+// Commenting out to prevent route conflicts
+/*
 router.post('/session', async (req: Request, res: Response) => {
   try {
     const { thread_id } = req.body;
@@ -246,6 +248,7 @@ router.post('/session', async (req: Request, res: Response) => {
     });
   }
 });
+*/
 
 // Streaming chat endpoint
 router.post('/stream', async (req: Request, res: Response) => {
