@@ -183,6 +183,7 @@ export default function AISearchIntelligence() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(10);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
+  const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const [activeTab, setActiveTab] = useState('search');
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   const [useSemanticSearch, setUseSemanticSearch] = useState(true); // Enable semantic search by default
@@ -212,6 +213,24 @@ export default function AISearchIntelligence() {
 
   // Layout toggle state - 'vertical' (map above list) or 'horizontal' (map right, list left)
   const [layoutMode, setLayoutMode] = useState<'vertical' | 'horizontal'>('vertical');
+
+  // Helper function to filter communities within map bounds
+  const filterCommunitiesInBounds = (communities: any[], bounds: { north: number; south: number; east: number; west: number } | null) => {
+    if (!bounds || !communities) return communities;
+    
+    return communities.filter(community => {
+      const lat = parseFloat(community.latitude);
+      const lng = parseFloat(community.longitude);
+      
+      if (isNaN(lat) || isNaN(lng)) return false;
+      
+      // Check if the community is within the bounds
+      return lat >= bounds.south && 
+             lat <= bounds.north && 
+             lng >= bounds.west && 
+             lng <= bounds.east;
+    });
+  };
 
   // Check URL parameters to auto-switch to simplified search
   useEffect(() => {
@@ -2177,11 +2196,20 @@ export default function AISearchIntelligence() {
                   <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
                       <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
-                        {simplifiedSearchMutation.data?.results?.length > 0 
-                          ? `${simplifiedSearchMutation.data.results.length} Communities Found`
-                          : mapCommunities.length > 0
-                          ? `${mapCommunities.length} Communities in View`
-                          : 'Search Results'}
+                        {(() => {
+                          let count = 0;
+                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                            count = filterCommunitiesInBounds(simplifiedSearchMutation.data.results, mapBounds).length;
+                          } else if (simplifiedSearchMutation.data?.results?.length > 0) {
+                            count = simplifiedSearchMutation.data.results.length;
+                          } else {
+                            count = mapCommunities.length;
+                          }
+                          
+                          return count > 0 
+                            ? `${count} Communities in View`
+                            : 'Search Results';
+                        })()}
                       </h3>
                       <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs">
                         Live Data
@@ -2220,7 +2248,18 @@ export default function AISearchIntelligence() {
                       </div>
                     ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                       <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any, index: number) => {
+                        {(() => {
+                          // Get the base list of communities to display
+                          let communitiesToShow = simplifiedSearchMutation.data?.results?.length > 0 
+                            ? simplifiedSearchMutation.data.results 
+                            : mapCommunities;
+                          
+                          // Filter by map bounds if we have search results
+                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                            communitiesToShow = filterCommunitiesInBounds(communitiesToShow, mapBounds);
+                          }
+                          
+                          return communitiesToShow.map((community: any, index: number) => {
                           // Determine special styling based on community type
                           const isHUD = community.hudPropertyId || community.communitySubtype === 'hud_senior_housing';
                           const isCanadian = community.state === 'AB' || community.state === 'BC' || community.state === 'ON' || community.state === 'QC';
@@ -2262,7 +2301,8 @@ export default function AISearchIntelligence() {
                               />
                             </div>
                           );
-                        })}
+                        });
+                        })()}
                     </div>
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full p-8 text-center">
@@ -2294,21 +2334,24 @@ export default function AISearchIntelligence() {
                       const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
                       const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
                       
+                      // Store bounds for filtering
+                      setMapBounds({ north, south, east, west });
+                      
                       console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      // Use the bounds endpoint to get actual communities, not clusters
-                      fetch(`/api/communities/bounds?swLat=${south}&swLng=${west}&neLat=${north}&neLng=${east}&limit=50`)
+                      // Use the map-data endpoint to get communities within bounds
+                      fetch(`/api/communities/map-data?bounds=${west},${south},${east},${north}`)
                         .then(res => {
                           if (!res.ok) throw new Error(`Failed: ${res.status}`);
                           return res.json();
                         })
                         .then(data => {
                           console.log('📍 Bounds response for list:', data);
-                          if (data.communities && Array.isArray(data.communities)) {
-                            console.log(`📍 Setting ${data.communities.length} communities to list from bounds`);
-                            setMapCommunities(data.communities);
-                          } else if (Array.isArray(data)) {
-                            console.log(`📍 Setting ${data.length} communities to list`);
+                          if (Array.isArray(data)) {
+                            console.log(`📍 Setting ${data.length} communities to list from map bounds`);
                             setMapCommunities(data);
+                          } else {
+                            console.log('📍 Unexpected response format from map-data endpoint');
+                            setMapCommunities([]);
                           }
                         })
                         .catch(err => {
@@ -2350,21 +2393,24 @@ export default function AISearchIntelligence() {
                       const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
                       const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
                       
+                      // Store bounds for filtering
+                      setMapBounds({ north, south, east, west });
+                      
                       console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      // Use the bounds endpoint to get actual communities, not clusters
-                      fetch(`/api/communities/bounds?swLat=${south}&swLng=${west}&neLat=${north}&neLng=${east}&limit=50`)
+                      // Use the map-data endpoint to get communities within bounds
+                      fetch(`/api/communities/map-data?bounds=${west},${south},${east},${north}`)
                         .then(res => {
                           if (!res.ok) throw new Error(`Failed: ${res.status}`);
                           return res.json();
                         })
                         .then(data => {
                           console.log('📍 Bounds response for list:', data);
-                          if (data.communities && Array.isArray(data.communities)) {
-                            console.log(`📍 Setting ${data.communities.length} communities to list from bounds`);
-                            setMapCommunities(data.communities);
-                          } else if (Array.isArray(data)) {
-                            console.log(`📍 Setting ${data.length} communities to list`);
+                          if (Array.isArray(data)) {
+                            console.log(`📍 Setting ${data.length} communities to list from map bounds`);
                             setMapCommunities(data);
+                          } else {
+                            console.log('📍 Unexpected response format from map-data endpoint');
+                            setMapCommunities([]);
                           }
                         })
                         .catch(err => {
@@ -2389,11 +2435,20 @@ export default function AISearchIntelligence() {
                 <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                      {simplifiedSearchMutation.data?.results?.length > 0 
-                        ? `${simplifiedSearchMutation.data.results.length} Communities Found`
-                        : mapCommunities.length > 0
-                        ? `${mapCommunities.length} Communities in View`
-                        : 'Search Results'}
+                      {(() => {
+                        let count = 0;
+                        if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                          count = filterCommunitiesInBounds(simplifiedSearchMutation.data.results, mapBounds).length;
+                        } else if (simplifiedSearchMutation.data?.results?.length > 0) {
+                          count = simplifiedSearchMutation.data.results.length;
+                        } else {
+                          count = mapCommunities.length;
+                        }
+                        
+                        return count > 0 
+                          ? `${count} Communities in View`
+                          : 'Search Results';
+                      })()}
                     </h3>
                     <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                       Live Data
@@ -2432,7 +2487,18 @@ export default function AISearchIntelligence() {
                     </div>
                   ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {(simplifiedSearchMutation.data?.results?.length > 0 ? simplifiedSearchMutation.data.results : mapCommunities).map((community: any, index: number) => {
+                      {(() => {
+                        // Get the base list of communities to display
+                        let communitiesToShow = simplifiedSearchMutation.data?.results?.length > 0 
+                          ? simplifiedSearchMutation.data.results 
+                          : mapCommunities;
+                        
+                        // Filter by map bounds if we have search results
+                        if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                          communitiesToShow = filterCommunitiesInBounds(communitiesToShow, mapBounds);
+                        }
+                        
+                        return communitiesToShow.map((community: any, index: number) => {
                         // Determine special styling based on community type
                         const isHUD = community.hudPropertyId || community.communitySubtype === 'hud_senior_housing';
                         const isCanadian = community.state === 'AB' || community.state === 'BC' || community.state === 'ON' || community.state === 'QC';
@@ -2531,7 +2597,8 @@ export default function AISearchIntelligence() {
                             </div>
                           </div>
                         );
-                      })}
+                      });
+                      })()}
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full p-8 text-center">
