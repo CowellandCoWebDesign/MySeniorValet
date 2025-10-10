@@ -50,7 +50,7 @@ import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
 import { MySeniorValetChatKit } from '@/components/MySeniorValetChatKit';
-import { OfficialChatKitWithFallback } from '@/components/OfficialChatKitWithFallback';
+import { StandaloneOpenAIChatKit } from '@/components/StandaloneOpenAIChatKit';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -219,7 +219,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
   const [searchPlaceholder, setSearchPlaceholder] = useState('');
-  const [useOfficialChatKit, setUseOfficialChatKit] = useState(false); // Default to MySeniorValet Assistant (working implementation with community cards)
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {
@@ -828,36 +827,20 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
         
-        {/* ChatKit AI Assistant - Replaces Search Bar */}
+        {/* MySeniorValet AI Assistant - Custom Implementation */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
-          {/* ChatKit Implementation Toggle - Small and subtle */}
-          <div className="flex justify-end mb-2 opacity-60 hover:opacity-100 transition-opacity">
-            <label className="flex items-center gap-2 text-xs cursor-pointer">
-              <span className="text-gray-600 dark:text-gray-400">ChatKit Beta</span>
-              <input 
-                type="checkbox" 
-                checked={useOfficialChatKit}
-                onChange={(e) => setUseOfficialChatKit(e.target.checked)}
-                className="w-4 h-4 rounded"
-              />
-            </label>
-          </div>
-          
-          {/* ChatKit Container - Conversational AI Interface */}
-          <div className="w-full relative z-10">
-            {useOfficialChatKit ? (
-              <OfficialChatKitWithFallback 
-                className="shadow-lg"
-              />
-            ) : (
-              <MySeniorValetChatKit 
-                category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
-                onCategoryChange={(cat) => onTabChange(cat)}
-              />
-            )}
-          </div>
-          
+          <MySeniorValetChatKit 
+            category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
+            onCategoryChange={(cat) => onTabChange(cat)}
+          />
         </div>
+
+        {/* OpenAI Hosted ChatKit - Standalone Drop-in Widget */}
+        {!isSearchActive && (
+          <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-30 mb-6">
+            <StandaloneOpenAIChatKit className="shadow-lg" />
+          </div>
+        )}
         
         {/* Quick Action Buttons - Moved from Community Directory Section */}
         {!isSearchActive && (

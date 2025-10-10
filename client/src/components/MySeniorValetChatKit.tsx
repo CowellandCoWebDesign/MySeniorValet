@@ -71,11 +71,15 @@ export function MySeniorValetChatKit({
     try {
       // Check if we have a stored thread ID
       const storedThreadId = localStorage.getItem('chatkit_thread_id');
+      const workflowId = import.meta.env.VITE_CHATKIT_WORKFLOW_ID || 'wf_68e81346207081908dd22b5dbe9efd52011fd36150caa759';
       
       const response = await fetch('/api/chatkit/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ thread_id: storedThreadId })
+        body: JSON.stringify({ 
+          thread_id: storedThreadId,
+          workflow: { id: workflowId }
+        })
       });
       
       if (response.ok) {
