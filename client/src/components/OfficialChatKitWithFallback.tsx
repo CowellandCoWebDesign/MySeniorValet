@@ -170,7 +170,7 @@ export function OfficialChatKitWithFallback({
         body: JSON.stringify({
           client_secret: sessionData?.client_secret || 'fallback',
           message: userMessage.content,
-          threadId: currentThreadId
+          thread_id: currentThreadId  // Changed from threadId to thread_id
         })
       });
       
