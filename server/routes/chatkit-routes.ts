@@ -602,12 +602,81 @@ async function searchCommunities(args: any) {
 
   // Execute search - show ALL communities, not just verified
   try {
-    const results = await db
-      .select()
-      .from(communities)
-      .where(conditions.length > 0 ? and(...conditions) : undefined)
-      .orderBy(desc(communities.id))
-      .limit(25);
+    // First, try to get exact city+state matches if we have both
+    let results: any[] = [];
+    
+    if (location) {
+      // Parse location to get city and state
+      let searchCity = '';
+      let searchState = '';
+      
+      if (location.includes(',')) {
+        const parts = location.split(',');
+        searchCity = parts[0].trim();
+        searchState = normalizeState(parts[1].trim());
+      } else {
+        const words = location.trim().split(/\s+/);
+        const lastWord = words[words.length - 1];
+        const possibleState = normalizeState(lastWord);
+        const isStateAbbr = lastWord.length === 2 && possibleState === lastWord.toUpperCase();
+        const isStateName = STATE_ABBREVIATIONS[lastWord.toLowerCase()] !== undefined;
+        
+        if (words.length >= 2 && (isStateAbbr || isStateName || possibleState !== lastWord)) {
+          searchState = possibleState;
+          searchCity = words.slice(0, -1).join(' ');
+        }
+      }
+      
+      // If we have both city and state, prioritize exact matches
+      if (searchCity && searchState) {
+        console.log(`🎯 Prioritizing exact matches for: ${searchCity}, ${searchState}`);
+        
+        // Build conditions for exact match including care type and price filters
+        const exactConditions = [
+          eq(communities.city, searchCity),
+          eq(communities.state, searchState)
+        ];
+        
+        // Add care type filter if present
+        if (careType && careType !== '') {
+          exactConditions.push(
+            sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`
+          );
+        }
+        
+        // Add price filter if present
+        if (maxPrice && maxPrice > 0) {
+          const priceCondition = or(
+            sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
+            sql`${communities.rentPerMonth} <= ${maxPrice}`
+          );
+          if (priceCondition) {
+            exactConditions.push(priceCondition);
+          }
+        }
+        
+        const exactMatches = await db
+          .select()
+          .from(communities)
+          .where(and(...exactConditions))
+          .limit(25);
+        
+        if (exactMatches.length > 0) {
+          results = exactMatches;
+          console.log(`✅ Found ${exactMatches.length} exact matches`);
+        }
+      }
+    }
+    
+    // If no exact matches or no city/state combo, fall back to broader search
+    if (results.length === 0) {
+      results = await db
+        .select()
+        .from(communities)
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .orderBy(desc(communities.isVerified), desc(communities.id))
+        .limit(25);
+    }
     
     console.log(`✅ Found ${results.length} communities`);
     
