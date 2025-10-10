@@ -76,6 +76,8 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
       assistant_id: session.assistantId,
     });
     
+    console.log(`📨 Processing message: "${message}" for thread: ${thread_id}`);
+    
     // Process stream events
     for await (const event of stream) {
       // Send status events
@@ -88,6 +90,8 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
           status: event.data.status,
           message: 'Processing your request...'
         })}\n\n`);
+        // Force flush the response
+        if (res.flush) res.flush();
       }
       
       // Stream message deltas
@@ -101,6 +105,8 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
               type: 'delta',
               content: text 
             })}\n\n`);
+            // Force flush the response
+            if (res.flush) res.flush();
           }
         }
       }
@@ -202,11 +208,14 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
       
       // Run completed
       if (event.event === 'thread.run.completed') {
+        console.log('✅ Run completed');
         res.write(`event: done\n`);
         res.write(`data: ${JSON.stringify({ 
           type: 'done',
           message: 'Response complete'
         })}\n\n`);
+        // Force flush the response
+        if (res.flush) res.flush();
       }
       
       // Run failed
@@ -216,6 +225,8 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
           type: 'error',
           message: event.data.last_error?.message || 'Request failed'
         })}\n\n`);
+        // Force flush the response
+        if (res.flush) res.flush();
       }
     }
     

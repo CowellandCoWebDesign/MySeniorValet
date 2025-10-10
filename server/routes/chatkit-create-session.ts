@@ -1,13 +1,20 @@
 import express, { Request, Response } from 'express';
 import crypto from 'crypto';
 import { activeSessions } from './chatkit-secure-stream';
+import OpenAI from 'openai';
 
 const router = express.Router();
+
+// Initialize OpenAI client
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
 
 // Constants from OpenAI's official implementation
 const DEFAULT_CHATKIT_BASE = "https://api.openai.com";
 const SESSION_COOKIE_NAME = "chatkit_session_id";
 const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+const WORKFLOW_ID = process.env.CHATKIT_WORKFLOW_ID;
 
 interface CreateSessionRequestBody {
   workflow?: { id?: string | null } | null;
@@ -203,11 +210,34 @@ router.post('/create-session', async (req: Request, res: Response) => {
     // Calculate expires_at timestamp for frontend compatibility
     const expiresAt = expiresAfter ? Date.now() + (expiresAfter * 1000) : null;
     
+    // For real ChatKit sessions (starting with ek_), add to active sessions map
+    // This allows the streaming endpoint to validate the session
+    if (clientSecret && clientSecret.startsWith('ek_')) {
+      // Create or get thread ID for Assistant API fallback
+      let assistantThreadId = threadId;
+      if (!assistantThreadId) {
+        // Create a thread for the Assistant API to use as fallback
+        const thread = await openai.beta.threads.create();
+        assistantThreadId = thread.id;
+      }
+      
+      // Store session for validation
+      activeSessions.set(clientSecret, {
+        userId: resolvedUserId,
+        threadId: assistantThreadId,
+        expiresAt: new Date(expiresAt || Date.now() + 24 * 60 * 60 * 1000), // Default 24 hours
+        workflowId: WORKFLOW_ID,
+        assistantId: process.env.OPENAI_ASSISTANT_ID || 'asst_Yn6yajSm1GDD4C7PJSlSvwCL' // Fallback assistant
+      });
+      
+      console.log('[ChatKit] Session stored in activeSessions for streaming validation');
+    }
+    
     // Return the session data with expires_at for frontend
     return res.json({
       client_secret: clientSecret,
       expires_at: expiresAt,  // Frontend expects timestamp, not seconds
-      thread_id: threadId, // Can be null for new conversations
+      thread_id: threadId || activeSessions.get(clientSecret!)?.threadId, // Return the created thread ID
       user_id: resolvedUserId
     });
     
