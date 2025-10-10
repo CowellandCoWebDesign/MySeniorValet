@@ -15,6 +15,7 @@ import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
+import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { 
   Brain, 
@@ -2237,53 +2238,28 @@ export default function AISearchIntelligence() {
                             <div 
                               key={community.id}
                               id={`community-${community.id}`}
-                              className={`relative ${
-                                isHUD ? 'border-l-4 border-green-500 bg-green-50 dark:bg-green-950/20' :
-                                isCanadian ? 'border-l-4 border-red-500 bg-red-50 dark:bg-red-950/20' :
-                                isHawaiian ? 'border-l-4 border-gradient-to-r from-blue-500 to-cyan-500 bg-blue-50 dark:bg-blue-950/20' :
-                                isFlorida ? 'border-l-4 border-gradient-to-r from-orange-500 to-yellow-500 bg-orange-50 dark:bg-orange-950/20' :
-                                isTexas ? 'border-l-4 border-gradient-to-r from-amber-500 to-orange-500 bg-amber-50 dark:bg-amber-950/20' : ''
-                              }`}
+                              className="mb-3"
                             >
-                              {isFeatured && (
-                                <div className="absolute top-2 right-2 z-10">
-                                  <Badge className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-2 py-1 text-xs font-bold shadow-lg">
-                                    <Star className="w-3 h-3 mr-1" />
-                                    FEATURED
-                                  </Badge>
-                                </div>
-                              )}
-                              {hasSpecialOffer && (
-                                <div className="absolute top-8 right-2 z-10">
-                                  <Badge className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 text-xs font-bold shadow-lg animate-pulse">
-                                    <Zap className="w-3 h-3 mr-1" />
-                                    SPECIAL OFFER
-                                  </Badge>
-                                </div>
-                              )}
-                              
-                              {/* Enhanced card with occupancy display */}
-                              <div className={`${isHUD || isCanadian || isHawaiian ? 'pl-2' : ''} p-2`}>
-                                <PrioritizedCommunityCard 
-                                  community={{
-                                    ...community,
-                                    occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                                    totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                                    availableUnits: community.availableUnits,
-                                    waitListLength: community.waitListLength,
-                                    specialPromotions: hasSpecialOffer ? [{
-                                      title: community.specialOffer || 'Special Offer',
-                                      description: community.monthlyDiscount || 'Limited time offer',
-                                      monthsWaived: community.monthsWaived || 1,
-                                      percentageOff: community.percentageOff || 10
-                                    }] : community.specialPromotions
-                                  }}
-                                  variant="list"
-                                  onSelect={() => window.location.href = `/community/${community.id}`}
-                                  onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
-                                  isFavorite={false}
-                                />
-                              </div>
+                              <FeaturedExcellenceCard 
+                                community={{
+                                  ...community,
+                                  name: community.name || 'Community',
+                                  city: community.city || 'City',
+                                  state: community.state || 'State',
+                                  rating: community.rating || 4.5,
+                                  photos: community.photos || [],
+                                  careTypes: community.careTypes || [],
+                                  amenities: community.amenities || [],
+                                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+                                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                                  priceRange: community.priceRange,
+                                  phone: community.phone,
+                                  website: community.website
+                                }}
+                                index={index}
+                                compact={true}
+                                disableAutoPhotoLoad={false}
+                              />
                             </div>
                           );
                         })}
