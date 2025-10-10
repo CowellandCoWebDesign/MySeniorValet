@@ -340,50 +340,41 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           </div>
         </div>
 
-        {/* Compact Features Grid */}
-        <div className={`grid grid-cols-2 ${compact ? 'gap-1.5 mb-2' : 'gap-2 mb-3'}`}>
-          {/* Amenities */}
-          <div className={`bg-gray-50 dark:bg-gray-700 rounded-md ${compact ? 'p-1.5' : 'p-2'}`}>
-            <h4 className="text-xs font-semibold mb-1.5 text-gray-900 dark:text-gray-100">Amenities</h4>
-            <div className="space-y-0.5">
-              {amenities.map((amenity, idx) => (
-                <div key={idx} className="flex items-center gap-1 text-xs">
-                  {getAmenityIcon(amenity)}
-                  <span className="text-gray-700 dark:text-gray-300 truncate">{amenity}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Why Featured */}
-          <div className={`bg-amber-50 dark:bg-amber-950/30 rounded-md ${compact ? 'p-1.5' : 'p-2'}`}>
-            <h4 className="text-xs font-semibold mb-1.5 text-amber-800 dark:text-amber-200">Why Featured</h4>
-            <div className="space-y-0.5">
-              {getWhyFeatured().map((reason, idx) => (
-                <div key={idx} className="flex items-center gap-1 text-xs">
-                  <Star className="w-2.5 h-2.5 text-amber-600 flex-shrink-0" />
-                  <span className="text-amber-700 dark:text-amber-300 font-medium truncate">{reason}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Care Types as badges */}
-        <div className="mb-3">
-          <div className="flex flex-wrap gap-1">
-            {community.careTypes?.slice(0, 3).map((careType, idx) => (
-              <Badge key={idx} variant="secondary" className="text-xs px-1.5 py-0.5">
-                {careType}
-              </Badge>
-            ))}
-            {community.careTypes && community.careTypes.length > 3 && (
-              <Badge variant="outline" className="text-xs px-1.5 py-0.5">
-                +{community.careTypes.length - 3}
-              </Badge>
+        {/* Contact Information */}
+        {compact && (
+          <div className="mb-2 space-y-1">
+            {community.address && (
+              <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-400">
+                <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                <span className="line-clamp-1">{community.address}</span>
+              </div>
+            )}
+            {community.phone && (
+              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
+                <span>📞</span>
+                <span>{community.phone}</span>
+              </div>
             )}
           </div>
-        </div>
+        )}
+
+        {/* Care Types as badges */}
+        {!compact && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-1">
+              {community.careTypes?.slice(0, 3).map((careType, idx) => (
+                <Badge key={idx} variant="secondary" className="text-xs px-1.5 py-0.5">
+                  {careType}
+                </Badge>
+              ))}
+              {community.careTypes && community.careTypes.length > 3 && (
+                <Badge variant="outline" className="text-xs px-1.5 py-0.5">
+                  +{community.careTypes.length - 3}
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* CTA Button */}
         <Link href={`/community/${community.id}`}>
