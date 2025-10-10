@@ -823,51 +823,49 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         )}
         
-        {/* Category Tabs - Moved from above */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 mt-6 mb-4">
-          <TabsList className="bg-white/95 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/20 px-4 py-3 w-full h-auto rounded-xl shadow-2xl">
-            <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
-              <TabsTrigger
-                value="communities"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
-              >
-                <span className="text-2xl">🏘️</span>
-                <span className="text-sm font-semibold">Communities</span>
-              </TabsTrigger>
-              
-              <TabsTrigger
-                value="services"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
-              >
-                <span className="text-2xl">👥</span>
-                <span className="text-sm font-semibold">Services</span>
-              </TabsTrigger>
-              
-              <TabsTrigger
-                value="healthcare"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
-              >
-                <span className="text-2xl">🩺</span>
-                <span className="text-sm font-semibold">Healthcare</span>
-              </TabsTrigger>
-              
-              <TabsTrigger
-                value="resources"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
-              >
-                <span className="text-2xl">📚</span>
-                <span className="text-sm font-semibold">Resources</span>
-              </TabsTrigger>
-              
-              <TabsTrigger
-                value="vendors"
-                className="flex flex-col items-center gap-1 px-4 md:px-6 py-3 rounded-lg min-w-[100px] bg-transparent text-gray-600 dark:text-white/80 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-all duration-300"
-              >
-                <span className="text-2xl">🛍️</span>
-                <span className="text-sm font-semibold">Vendors</span>
-              </TabsTrigger>
-            </div>
-          </TabsList>
+        {/* Category Tabs - Improved without scroll */}
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 mt-6 mb-4">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 flex-wrap">
+            <TabsTrigger
+              value="communities"
+              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 text-white shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:border-blue-400 data-[state=active]:shadow-blue-500/50 hover:bg-white/20 dark:hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+            >
+              <span className="text-xl sm:text-2xl">🏘️</span>
+              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Communities</span>
+            </TabsTrigger>
+            
+            <TabsTrigger
+              value="services"
+              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 text-white shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:border-purple-400 data-[state=active]:shadow-purple-500/50 hover:bg-white/20 dark:hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+            >
+              <span className="text-xl sm:text-2xl">👥</span>
+              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Services</span>
+            </TabsTrigger>
+            
+            <TabsTrigger
+              value="healthcare"
+              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 text-white shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:border-green-400 data-[state=active]:shadow-green-500/50 hover:bg-white/20 dark:hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+            >
+              <span className="text-xl sm:text-2xl">🩺</span>
+              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Healthcare</span>
+            </TabsTrigger>
+            
+            <TabsTrigger
+              value="resources"
+              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 text-white shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:border-orange-400 data-[state=active]:shadow-orange-500/50 hover:bg-white/20 dark:hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+            >
+              <span className="text-xl sm:text-2xl">📚</span>
+              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Resources</span>
+            </TabsTrigger>
+            
+            <TabsTrigger
+              value="vendors"
+              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/10 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 text-white shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-indigo-600 data-[state=active]:border-indigo-400 data-[state=active]:shadow-indigo-500/50 hover:bg-white/20 dark:hover:bg-white/20 hover:border-white/30 transition-all duration-300"
+            >
+              <span className="text-xl sm:text-2xl">🛍️</span>
+              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Vendors</span>
+            </TabsTrigger>
+          </div>
         </div>
         
         </div>
