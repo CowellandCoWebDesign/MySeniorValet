@@ -72,7 +72,7 @@ export function MySeniorValetChatKit({
       // Check if we have a stored thread ID
       const storedThreadId = localStorage.getItem('chatkit_thread_id');
       
-      const response = await fetch('/api/chatkit/session', {
+      const response = await fetch('/api/chatkit/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ thread_id: storedThreadId })
@@ -81,10 +81,16 @@ export function MySeniorValetChatKit({
       if (response.ok) {
         const data = await response.json();
         setThreadId(data.thread_id);
-        setAssistantId(data.assistant_id);
+        // Assistant ID is managed server-side now
+        setAssistantId('managed-by-server');
         
         // Store thread ID for conversation persistence
         localStorage.setItem('chatkit_thread_id', data.thread_id);
+        
+        // Store the client secret for authentication
+        if (data.client_secret) {
+          sessionStorage.setItem('chatkit_client_secret', data.client_secret);
+        }
         
         setSessionReady(true);
         
@@ -217,10 +223,16 @@ export function MySeniorValetChatKit({
     setMessages(prev => [...prev, assistantMessage]);
 
     try {
+      // Get the client secret for authentication
+      const clientSecret = sessionStorage.getItem('chatkit_client_secret');
+      
       // Call streaming endpoint
       const response = await fetch('/api/chatkit/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(clientSecret && { 'Authorization': `Bearer ${clientSecret}` })
+        },
         body: JSON.stringify({
           message: inputValue,
           thread_id: threadId
