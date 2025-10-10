@@ -337,8 +337,9 @@ const MapEvents: React.FC<{
           if ((window as any).L?.Control?.Geocoder && !(map as any)._geocoderControl) {
             const geocoder = new (window as any).L.Control.Geocoder.nominatim({
               geocodingQueryParams: {
-                countrycodes: 'us,ca,mx,pr', // North American focus
-                bounded: 1,
+                // Support all countries with international communities
+                countrycodes: 'us,ca,mx,pr,au,jp,sg,gb,ru,in,de,ng,cu,es,cn,pe,uk', 
+                bounded: 0, // Don't restrict to bounds for international search
                 addressdetails: 1,
                 limit: 5
               }
@@ -678,9 +679,9 @@ export default function Map({
   const { theme } = useTheme();
   const isDark = theme === 'dark';
   
-  // Start with city-level zoom (no clusters), default to major city
-  const [center, setCenter] = useState<[number, number]>(propCenter || [37.7749, -122.4194]); // Default: San Francisco
-  const [zoom, setZoom] = useState(propZoom || 12); // City-level zoom (12-14 is city level)
+  // Start with a global view to show all international locations
+  const [center, setCenter] = useState<[number, number]>(propCenter || [20.0, 0.0]); // Default: Global center
+  const [zoom, setZoom] = useState(propZoom || 3); // World view zoom level
   
   // Update center and zoom when props change
   useEffect(() => {
@@ -909,15 +910,15 @@ export default function Map({
 
         // Update map center and zoom
         setCenter([latitude, longitude]);
-        setZoom(13); // City-level zoom when we have user location
-        setCurrentZoom(13);
+        setZoom(10); // Regional zoom to show more communities around user
+        setCurrentZoom(10);
         setLocationPermissionStatus('granted');
         setHasRequestedLocation(true);
 
         // Force map update with new location
         setTimeout(() => {
           if (window.leafletMap) {
-            window.leafletMap.setView([latitude, longitude], 13, { animate: true });
+            window.leafletMap.setView([latitude, longitude], 10, { animate: true });
           }
         }, 100);
       },
@@ -955,15 +956,15 @@ export default function Map({
     lastUpdate: Date.now()
   });
 
-  // Strict viewport optimization: Only render what's visible with minimal buffer
+  // Viewport optimization with global coverage
   const getOptimizedBounds = useCallback((bounds: LatLngBounds | null) => {
     if (!bounds) {
-      // Even smaller initial load area focused on major metropolitan areas
+      // Global initial bounds to show all international communities
       return {
-        west: -120.0, // Reduced from -125.0
-        south: 30.0,  // Increased from 25.0
-        east: -70.0,  // Reduced from -65.0
-        north: 45.0   // Reduced from 50.0
+        west: -180.0,  // Full western hemisphere
+        south: -60.0,   // Include southern locations
+        east: 180.0,    // Full eastern hemisphere
+        north: 70.0     // Include northern locations
       };
     }
 
