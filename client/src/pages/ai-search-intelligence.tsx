@@ -2512,28 +2512,27 @@ export default function AISearchIntelligence() {
                               </div>
                             )}
                             
-                            {/* Enhanced card with occupancy display */}
-                            <div className={`${isHUD || isCanadian || isHawaiian ? 'pl-2' : ''} p-2`}>
-                              <PrioritizedCommunityCard 
+                            {/* Enhanced card with featured styling */}
+                            <div className="p-2">
+                              <FeaturedExcellenceCard 
                                 community={{
                                   ...community,
-                                  // Ensure occupancy data is properly set
+                                  name: community.name || 'Community',
+                                  city: community.city || 'City', 
+                                  state: community.state || 'State',
+                                  rating: community.rating || 4.5,
+                                  photos: community.photos || [],
+                                  careTypes: community.careTypes || [],
+                                  amenities: community.amenities || [],
                                   occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
                                   totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                                  availableUnits: community.availableUnits,
-                                  waitListLength: community.waitListLength,
-                                  // Add special promotions if available
-                                  specialPromotions: hasSpecialOffer ? [{
-                                    title: community.specialOffer || 'Special Offer',
-                                    description: community.monthlyDiscount || 'Limited time offer',
-                                    monthsWaived: community.monthsWaived || 1,
-                                    percentageOff: community.percentageOff || 10
-                                  }] : community.specialPromotions
+                                  priceRange: community.priceRange,
+                                  phone: community.phone,
+                                  website: community.website
                                 }}
-                                variant="list"
-                                onSelect={() => window.location.href = `/community/${community.id}`}
-                                onToggleFavorite={() => console.log(`Toggle favorite: ${community.name}`)}
-                                isFavorite={false}
+                                index={index}
+                                compact={true}
+                                disableAutoPhotoLoad={false}
                               />
                             </div>
                           </div>
