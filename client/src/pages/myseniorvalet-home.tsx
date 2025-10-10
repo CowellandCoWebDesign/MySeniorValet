@@ -776,7 +776,54 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </div>
         </div>
         
-        {/* Clean Tab Navigation - Below hero text, above search */}
+        {/* Content Container - Search First, Then Value Props */}
+        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
+        
+        {/* MySeniorValet AI Assistant */}
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+          <MySeniorValetChatKit 
+            category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
+            onCategoryChange={(cat) => onTabChange(cat)}
+          />
+        </div>
+        
+        {/* Quick Action Buttons - Moved from Community Directory Section */}
+        {!isSearchActive && (
+        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-4">
+          <div className="grid grid-cols-2 gap-2">
+            {/* Traditional Browse */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/map-search';
+              }}
+              className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+              <div className="flex flex-col items-center">
+                <span className="text-xl mb-1">🔍</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+              </div>
+            </Button>
+
+            {/* AI Intelligence */}
+            <Button 
+              onClick={(e) => {
+                e.stopPropagation();
+                window.location.href = '/ai-search-intelligence?mode=simplified';
+              }}
+              className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+              <div className="flex flex-col items-center">
+                <span className="text-xl mb-1">🤖</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">AI Assistant</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Ask Questions</div>
+              </div>
+            </Button>
+
+          </div>
+        </div>
+        )}
+        
+        {/* Category Tabs - Moved from above */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 mt-6 mb-4">
           <TabsList className="bg-white/95 dark:bg-black/40 backdrop-blur-xl border border-gray-200 dark:border-white/20 px-4 py-3 w-full h-auto rounded-xl shadow-2xl">
             <div className="flex justify-center gap-2 md:gap-4 overflow-x-auto">
@@ -821,95 +868,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               </TabsTrigger>
             </div>
           </TabsList>
-        </div>
-
-        {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
-        
-        {/* MySeniorValet AI Assistant */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
-          <MySeniorValetChatKit 
-            category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
-            onCategoryChange={(cat) => onTabChange(cat)}
-          />
-        </div>
-        
-        {/* Quick Action Buttons - Moved from Community Directory Section */}
-        {!isSearchActive && (
-        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-4">
-          <div className="grid grid-cols-4 gap-2">
-            {/* Traditional Browse */}
-            <Button 
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = '/map-search';
-              }}
-              className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-              <div className="flex flex-col items-center">
-                <span className="text-xl mb-1">🔍</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
-                <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
-              </div>
-            </Button>
-
-            {/* AI Intelligence */}
-            <Button 
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = '/ai-search-intelligence?mode=simplified';
-              }}
-              className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-              <div className="flex flex-col items-center">
-                <span className="text-xl mb-1">🤖</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">AI Assistant</div>
-                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Ask Questions</div>
-              </div>
-            </Button>
-
-            {/* Live Heatmap */}
-            <Button 
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = '/availability-heatmap';
-              }}
-              className="h-auto bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 hover:from-red-600 hover:via-orange-600 hover:to-yellow-600 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-              <div className="flex flex-col items-center">
-                <span className="text-xl mb-1 animate-pulse">🔥</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">Live Heatmap</div>
-                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Availability Now</div>
-              </div>
-            </Button>
-
-            {/* Market Analysis */}
-            <Button 
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = '/competitive-analysis';
-              }}
-              className="h-auto bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-700 hover:via-teal-700 hover:to-cyan-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-              <div className="flex flex-col items-center">
-                <span className="text-xl mb-1">📊</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">Market Analysis</div>
-                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Price Compare</div>
-              </div>
-            </Button>
-          </div>
-        </div>
-        )}
-        
-        {/* Key Value Props - Below action buttons */}
-        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-6 mb-4">
-          <div className="flex justify-center items-center gap-2 sm:gap-3 flex-wrap">
-            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
-              <span className="mr-0.5 text-sm sm:text-base md:text-lg">🔍</span> Transparent Pricing
-            </div>
-            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
-              <span className="mr-0.5 text-sm sm:text-base md:text-lg">📅</span> Schedule Tours
-            </div>
-            <div className="flex items-center text-xs sm:text-sm md:text-base lg:text-lg text-green-100 font-semibold bg-green-900/30 backdrop-blur-sm rounded-full px-3 sm:px-4 py-1 sm:py-2">
-              <span className="mr-0.5 text-sm sm:text-base md:text-lg">✅</span> Direct Reservations
-            </div>
-          </div>
         </div>
         
         </div>
