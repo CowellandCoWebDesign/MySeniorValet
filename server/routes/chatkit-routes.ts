@@ -537,50 +537,33 @@ async function searchCommunities(args: any) {
         searchState = possibleState;
         searchCity = words.slice(0, -1).join(' ');
       } else {
-        // Treat the whole thing as a city name or state name
+        // Treat the whole thing as a city name
         searchCity = location;
-        searchState = normalizeState(location);
       }
     }
     
     console.log(`📍 Parsed location - City: "${searchCity}", State: "${searchState}"`);
     
-    // Build search conditions
-    const locationConditions = [];
-    
-    // If we have both city and state, search for that combination
+    // Build search conditions with PRIORITY for exact city+state matches
     if (searchCity && searchState) {
-      locationConditions.push(
+      // For city + state, only search for that specific combination
+      conditions.push(
         and(
           ilike(communities.city, `%${searchCity}%`),
           eq(communities.state, searchState)
         )
       );
-    }
-    
-    // If we only have city, search for it
-    if (searchCity) {
-      locationConditions.push(
+    } else if (searchCity) {
+      // For city only, search in city field
+      conditions.push(
         ilike(communities.city, `%${searchCity}%`)
       );
-    }
-    
-    // If we only have state or the location might be a state
-    if (searchState && searchState !== location) {
-      locationConditions.push(
+    } else if (searchState) {
+      // For state only, search by state
+      conditions.push(
         eq(communities.state, searchState)
       );
     }
-    
-    // Fallback: search in both city and state fields for the original query
-    locationConditions.push(
-      ilike(communities.city, `%${location}%`)
-    );
-    locationConditions.push(
-      ilike(communities.state, `%${location}%`)
-    );
-    
-    conditions.push(or(...locationConditions));
   }
 
   // Care type filter
@@ -633,7 +616,7 @@ async function searchCommunities(args: any) {
         
         // Build conditions for exact match including care type and price filters
         const exactConditions = [
-          eq(communities.city, searchCity),
+          ilike(communities.city, searchCity),  // Use exact city name (case-insensitive)
           eq(communities.state, searchState)
         ];
         
