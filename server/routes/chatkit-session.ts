@@ -25,6 +25,42 @@ router.post('/api/chatkit/session', async (req, res) => {
   try {
     const { threadId, userId } = req.body;
     
+    // Call Python microservice for real ChatKit session
+    const pythonServiceUrl = process.env.CHATKIT_SERVICE_URL || 'http://localhost:8001';
+    
+    try {
+      // Try to use the Python service for real ChatKit sessions
+      const response = await fetch(`${pythonServiceUrl}/api/chatkit/session`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          thread_id: threadId,
+          user_id: userId,
+          assistant_id: process.env.ASSISTANT_ID || 'asst_FnXClWdC8GsX5jzOLrYAh5UE'
+        })
+      });
+      
+      if (response.ok) {
+        const sessionData = await response.json();
+        
+        // Store session info locally for validation
+        activeSessions.set(sessionData.client_secret, {
+          threadId: sessionData.thread_id,
+          assistantId: sessionData.assistant_id,
+          expiresAt: new Date(sessionData.expires_at),
+          userId,
+        });
+        
+        res.json(sessionData);
+        return;
+      }
+      
+      console.warn('Python ChatKit service not available, falling back to local implementation');
+    } catch (error) {
+      console.warn('Failed to connect to Python ChatKit service:', error);
+    }
+    
+    // Fallback: Local implementation if Python service is not available
     // Create or retrieve thread
     let thread;
     if (threadId) {
@@ -61,7 +97,7 @@ router.post('/api/chatkit/session', async (req, res) => {
       expires_at: sessionInfo.expiresAt.toISOString(),
       // Additional metadata for our use
       metadata: {
-        session_type: 'assistant',
+        session_type: 'assistant_fallback',
         capabilities: ['search_communities', 'enable_discovery_mode', 'show_on_map', 'show_community_details', 'compare_communities'],
       }
     });
@@ -120,6 +156,38 @@ router.post('/api/chatkit/refresh', async (req, res) => {
       return res.status(400).json({ error: 'Missing client_secret' });
     }
     
+    // Try to use Python service for refresh
+    const pythonServiceUrl = process.env.CHATKIT_SERVICE_URL || 'http://localhost:8001';
+    
+    try {
+      const response = await fetch(`${pythonServiceUrl}/api/chatkit/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_secret })
+      });
+      
+      if (response.ok) {
+        const sessionData = await response.json();
+        
+        // Update local session info
+        activeSessions.set(sessionData.client_secret, {
+          threadId: sessionData.thread_id,
+          assistantId: sessionData.assistant_id,
+          expiresAt: new Date(sessionData.expires_at),
+          userId: activeSessions.get(client_secret)?.userId,
+        });
+        
+        // Remove old session
+        activeSessions.delete(client_secret);
+        
+        res.json(sessionData);
+        return;
+      }
+    } catch (error) {
+      console.warn('Failed to refresh via Python service:', error);
+    }
+    
+    // Fallback: Local implementation
     const session = activeSessions.get(client_secret);
     
     if (!session) {
