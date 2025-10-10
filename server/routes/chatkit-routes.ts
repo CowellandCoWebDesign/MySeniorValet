@@ -511,40 +511,76 @@ async function searchCommunities(args: any) {
 
   // Location search with state normalization
   if (location) {
-    const normalizedLocation = normalizeState(location);
-    console.log(`🔍 Searching for: "${location}" (normalized: "${normalizedLocation}")`);
+    console.log(`🔍 Searching for: "${location}"`);
     
-    // Search for exact location string first, then fallback to broader search
-    conditions.push(
-      or(
-        // Exact city match
-        ilike(communities.city, `%${location}%`),
-        // Exact state match
-        ilike(communities.state, `%${location}%`),
-        // Normalized state match (for abbreviations)
-        eq(communities.state, normalizedLocation),
-        // If it looks like "City, State" format, search both parts
-        ...(location.includes(',') ? [
-          and(
-            ilike(communities.city, `%${location.split(',')[0].trim()}%`),
-            or(
-              ilike(communities.state, `%${location.split(',')[1].trim()}%`),
-              eq(communities.state, normalizeState(location.split(',')[1].trim()))
-            )
-          )
-        ] : []),
-        // If it's two words that might be city + state, try that pattern
-        ...(location.split(/\s+/).length === 2 ? [
-          and(
-            ilike(communities.city, `%${location.split(/\s+/)[0]}%`),
-            or(
-              ilike(communities.state, `%${location.split(/\s+/)[1]}%`),
-              eq(communities.state, normalizeState(location.split(/\s+/)[1]))
-            )
-          )
-        ] : [])
-      )
+    // Parse location more intelligently
+    let searchCity = '';
+    let searchState = '';
+    
+    // Check if it's in "City, State" format
+    if (location.includes(',')) {
+      const parts = location.split(',');
+      searchCity = parts[0].trim();
+      searchState = normalizeState(parts[1].trim());
+    } else {
+      // Check if the last word might be a state
+      const words = location.trim().split(/\s+/);
+      const lastWord = words[words.length - 1];
+      const possibleState = normalizeState(lastWord);
+      
+      // Check if the last word is actually a state abbreviation or name
+      const isStateAbbr = lastWord.length === 2 && possibleState === lastWord.toUpperCase();
+      const isStateName = STATE_ABBREVIATIONS[lastWord.toLowerCase()] !== undefined;
+      
+      if (words.length >= 2 && (isStateAbbr || isStateName || possibleState !== lastWord)) {
+        // Last word is likely a state
+        searchState = possibleState;
+        searchCity = words.slice(0, -1).join(' ');
+      } else {
+        // Treat the whole thing as a city name or state name
+        searchCity = location;
+        searchState = normalizeState(location);
+      }
+    }
+    
+    console.log(`📍 Parsed location - City: "${searchCity}", State: "${searchState}"`);
+    
+    // Build search conditions
+    const locationConditions = [];
+    
+    // If we have both city and state, search for that combination
+    if (searchCity && searchState) {
+      locationConditions.push(
+        and(
+          ilike(communities.city, `%${searchCity}%`),
+          eq(communities.state, searchState)
+        )
+      );
+    }
+    
+    // If we only have city, search for it
+    if (searchCity) {
+      locationConditions.push(
+        ilike(communities.city, `%${searchCity}%`)
+      );
+    }
+    
+    // If we only have state or the location might be a state
+    if (searchState && searchState !== location) {
+      locationConditions.push(
+        eq(communities.state, searchState)
+      );
+    }
+    
+    // Fallback: search in both city and state fields for the original query
+    locationConditions.push(
+      ilike(communities.city, `%${location}%`)
     );
+    locationConditions.push(
+      ilike(communities.state, `%${location}%`)
+    );
+    
+    conditions.push(or(...locationConditions));
   }
 
   // Care type filter
