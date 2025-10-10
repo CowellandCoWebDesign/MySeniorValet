@@ -311,6 +311,18 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
             <h3 className={`${compact ? 'text-sm' : 'text-base'} font-bold mb-1 leading-tight text-gray-900 dark:text-white`}>
               {community.name}
             </h3>
+            {compact && community.address && (
+              <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5">
+                <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                <span className="line-clamp-1">{community.address}</span>
+              </div>
+            )}
+            {compact && community.phone && (
+              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5">
+                <span>📞</span>
+                <span>{community.phone}</span>
+              </div>
+            )}
             <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-1">
               <MapPin className="w-3 h-3" />
               <span>{community.city}, {community.state}</span>
@@ -339,24 +351,6 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
             </div>
           </div>
         </div>
-
-        {/* Contact Information */}
-        {compact && (
-          <div className="mb-2 space-y-1">
-            {community.address && (
-              <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-400">
-                <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                <span className="line-clamp-1">{community.address}</span>
-              </div>
-            )}
-            {community.phone && (
-              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400">
-                <span>📞</span>
-                <span>{community.phone}</span>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Care Types as badges */}
         {!compact && (
