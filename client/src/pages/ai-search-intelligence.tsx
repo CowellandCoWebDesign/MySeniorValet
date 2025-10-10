@@ -2287,31 +2287,28 @@ export default function AISearchIntelligence() {
                     availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
                   }}
                   onBoundsChange={(bounds) => {
-                    // Load communities when map bounds change
-                    if (bounds && !simplifiedSearchMutation.data?.results) {
+                    // Always load communities when map bounds change
+                    if (bounds) {
                       const west = bounds.getWest ? bounds.getWest() : bounds.west;
                       const east = bounds.getEast ? bounds.getEast() : bounds.east;
                       const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
                       const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
                       
                       console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      // Use the clusters endpoint which is working correctly
-                      fetch(`/api/communities/clusters?zoom=${mapZoom}&west=${west}&south=${south}&east=${east}&north=${north}`)
+                      // Use the bounds endpoint to get actual communities, not clusters
+                      fetch(`/api/communities/bounds?swLat=${south}&swLng=${west}&neLat=${north}&neLng=${east}&limit=50`)
                         .then(res => {
                           if (!res.ok) throw new Error(`Failed: ${res.status}`);
                           return res.json();
                         })
                         .then(data => {
-                          console.log('📍 Clusters response for list:', data);
-                          if (data.clusters && Array.isArray(data.clusters)) {
-                            // Extract non-cluster communities from the features
-                            const communities = data.clusters
-                              .filter((feature: any) => !feature.properties.cluster)
-                              .map((feature: any) => feature.properties)
-                              .filter((c: any) => c.id && c.name);
-                            
-                            console.log(`📍 Setting ${communities.length} communities to list from clusters`);
-                            setMapCommunities(communities);
+                          console.log('📍 Bounds response for list:', data);
+                          if (data.communities && Array.isArray(data.communities)) {
+                            console.log(`📍 Setting ${data.communities.length} communities to list from bounds`);
+                            setMapCommunities(data.communities);
+                          } else if (Array.isArray(data)) {
+                            console.log(`📍 Setting ${data.length} communities to list`);
+                            setMapCommunities(data);
                           }
                         })
                         .catch(err => {
@@ -2346,31 +2343,28 @@ export default function AISearchIntelligence() {
                     availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
                   }}
                   onBoundsChange={(bounds) => {
-                    // Load communities when map bounds change
-                    if (bounds && !simplifiedSearchMutation.data?.results) {
+                    // Always load communities when map bounds change
+                    if (bounds) {
                       const west = bounds.getWest ? bounds.getWest() : bounds.west;
                       const east = bounds.getEast ? bounds.getEast() : bounds.east;
                       const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
                       const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
                       
                       console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      // Use the clusters endpoint which is working correctly
-                      fetch(`/api/communities/clusters?zoom=${mapZoom}&west=${west}&south=${south}&east=${east}&north=${north}`)
+                      // Use the bounds endpoint to get actual communities, not clusters
+                      fetch(`/api/communities/bounds?swLat=${south}&swLng=${west}&neLat=${north}&neLng=${east}&limit=50`)
                         .then(res => {
                           if (!res.ok) throw new Error(`Failed: ${res.status}`);
                           return res.json();
                         })
                         .then(data => {
-                          console.log('📍 Clusters response for list:', data);
-                          if (data.clusters && Array.isArray(data.clusters)) {
-                            // Extract non-cluster communities from the features
-                            const communities = data.clusters
-                              .filter((feature: any) => !feature.properties.cluster)
-                              .map((feature: any) => feature.properties)
-                              .filter((c: any) => c.id && c.name);
-                            
-                            console.log(`📍 Setting ${communities.length} communities to list from clusters`);
-                            setMapCommunities(communities);
+                          console.log('📍 Bounds response for list:', data);
+                          if (data.communities && Array.isArray(data.communities)) {
+                            console.log(`📍 Setting ${data.communities.length} communities to list from bounds`);
+                            setMapCommunities(data.communities);
+                          } else if (Array.isArray(data)) {
+                            console.log(`📍 Setting ${data.length} communities to list`);
+                            setMapCommunities(data);
                           }
                         })
                         .catch(err => {
@@ -2513,7 +2507,7 @@ export default function AISearchIntelligence() {
                             )}
                             
                             {/* Enhanced card with featured styling */}
-                            <div className="p-2">
+                            <div className="p-3">
                               <FeaturedExcellenceCard 
                                 community={{
                                   ...community,
@@ -2532,7 +2526,7 @@ export default function AISearchIntelligence() {
                                 }}
                                 index={index}
                                 compact={true}
-                                disableAutoPhotoLoad={false}
+                                disableAutoPhotoLoad={true}
                               />
                             </div>
                           </div>
