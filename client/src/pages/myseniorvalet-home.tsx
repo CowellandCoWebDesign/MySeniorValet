@@ -219,7 +219,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
   const [searchPlaceholder, setSearchPlaceholder] = useState('');
-  const [useOfficialChatKit, setUseOfficialChatKit] = useState(true); // Default to ChatKit with fallback
+  const [useOfficialChatKit, setUseOfficialChatKit] = useState(false); // Default to MySeniorValet Assistant (working implementation with community cards)
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {

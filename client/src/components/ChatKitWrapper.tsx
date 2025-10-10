@@ -2,7 +2,7 @@ import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, Maximize2, Minimize2, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface ChatKitWrapperProps {
   clientSecret: string;
@@ -20,6 +20,12 @@ export function ChatKitWrapper({
   onNewConversation 
 }: ChatKitWrapperProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+
+  console.log('[ChatKitWrapper] Component rendering with:', {
+    hasClientSecret: !!clientSecret,
+    clientSecretPrefix: clientSecret?.substring(0, 10),
+    threadId
+  });
 
   // Initialize ChatKit with the client_secret
   const { control } = useChatKit({
@@ -41,6 +47,10 @@ export function ChatKitWrapper({
       },
     },
   });
+
+  useEffect(() => {
+    console.log('[ChatKitWrapper] Component mounted, control:', control);
+  }, [control]);
 
   return (
     <Card className={`relative overflow-hidden ${className} ${isExpanded ? 'fixed inset-4 z-50' : ''}`}>
