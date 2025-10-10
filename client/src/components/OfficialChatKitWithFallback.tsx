@@ -74,25 +74,27 @@ export function OfficialChatKitWithFallback({
         onThreadChange?.(session.thread_id);
       }
       
-      // Check if we need to use fallback
+      // For now, always use the fallback UI since the ChatKit SDK component isn't rendering properly
+      // We'll still use real ChatKit tokens for API calls but with our custom UI
+      setUseFallback(true);
+      
       if (!session.client_secret ||
           session.client_secret.startsWith('ck_demo_') || 
           session.client_secret.startsWith('ck_') ||
           session.metadata?.session_type === 'assistant_fallback' ||
           session.metadata?.session_type === 'assistant') {
-        setUseFallback(true);
         console.log('⚠️ Using fallback streaming (ChatKit real tokens not yet available)');
-        
-        // Add welcome message for fallback mode
-        setMessages([{
-          id: '1',
-          role: 'assistant',
-          content: "👋 Welcome to MySeniorValet! I can help you search for senior living communities, get pricing information, and schedule tours.\n\nWhat location would you like to explore?",
-          timestamp: new Date()
-        }]);
       } else {
-        console.log('✅ Using real ChatKit session:', session.thread_id);
+        console.log('✅ Using real ChatKit session with custom UI:', session.thread_id);
       }
+      
+      // Add welcome message
+      setMessages([{
+        id: '1',
+        role: 'assistant',
+        content: "👋 Welcome to MySeniorValet! I can help you search for senior living communities, get pricing information, and schedule tours.\n\nWhat location would you like to explore?",
+        timestamp: new Date()
+      }]);
       
     } catch (error) {
       console.error('Failed to initialize session:', error);
