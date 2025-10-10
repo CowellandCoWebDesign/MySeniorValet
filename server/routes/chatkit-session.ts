@@ -8,7 +8,7 @@ const openai = new OpenAI({
 });
 
 // Store active sessions (in production, use Redis or database)
-const activeSessions = new Map<string, {
+export const activeSessions = new Map<string, {
   threadId: string;
   assistantId: string;
   expiresAt: Date;
