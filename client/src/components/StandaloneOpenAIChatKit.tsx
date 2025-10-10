@@ -1,7 +1,7 @@
 import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface StandaloneOpenAIChatKitProps {
   className?: string;
@@ -20,6 +20,8 @@ export function StandaloneOpenAIChatKit({
   const { toast } = useToast();
   const [sessionData, setSessionData] = useState<any>(null);
   const workflowId = import.meta.env.VITE_CHATKIT_WORKFLOW_ID || 'wf_68e81346207081908dd22b5dbe9efd52011fd36150caa759';
+
+  console.log('[Standalone ChatKit] Component mounting with workflow:', workflowId);
 
   // Initialize ChatKit with secure client token
   const { control } = useChatKit({
@@ -67,8 +69,6 @@ export function StandaloneOpenAIChatKit({
         }
       },
     },
-    placeholder: "Ask me about senior living...",
-    greeting: "👋 Hello! I'm powered by OpenAI ChatKit. Ask me anything about senior living communities!",
     onError: (error) => {
       console.error('[Standalone ChatKit] Error:', error);
       toast({
@@ -79,8 +79,25 @@ export function StandaloneOpenAIChatKit({
     },
   });
 
+  // Log when control is ready
+  useEffect(() => {
+    if (control) {
+      console.log('[Standalone ChatKit] Control ready:', control);
+    }
+  }, [control]);
+
+  // Log when session data changes
+  useEffect(() => {
+    if (sessionData) {
+      console.log('[Standalone ChatKit] Session data updated:', {
+        hasClientSecret: !!sessionData.client_secret,
+        threadId: sessionData.thread_id
+      });
+    }
+  }, [sessionData]);
+
   return (
-    <Card className={`relative overflow-hidden ${className}`}>
+    <Card className={`relative ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20">
         <div className="flex items-center gap-2">
