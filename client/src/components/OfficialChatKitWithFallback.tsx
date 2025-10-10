@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { RefreshCw, Maximize2, Minimize2, X, Send, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useRef } from 'react';
-import { ChatKit, useChatKit } from '@openai/chatkit-react';
 import ReactMarkdown from 'react-markdown';
+import { ChatKitWrapper } from './ChatKitWrapper';
 
 interface OfficialChatKitProps {
   className?: string;
@@ -112,62 +112,6 @@ export function OfficialChatKitWithFallback({
       });
     }
   }
-
-  // ChatKit hook (only used when not in fallback mode)
-  const { control } = useChatKit({
-    api: {
-      async getClientSecret(existing) {
-        // If we haven't determined fallback status yet, wait
-        if (useFallback === null) {
-          // Return empty and let initialization complete first
-          return '';
-        }
-        
-        if (useFallback) return '';
-        
-        try {
-          // If we already have session data with a client_secret, use it
-          if (sessionData?.client_secret && !existing) {
-            console.log('[ChatKit] Using existing client_secret from session data');
-            return sessionData.client_secret;
-          }
-          
-          if (existing && sessionData?.expires_at) {
-            const expiryTime = new Date(sessionData.expires_at).getTime();
-            const now = Date.now();
-            const timeUntilExpiry = expiryTime - now;
-            
-            if (timeUntilExpiry > 5 * 60 * 1000) {
-              return existing;
-            }
-            
-            const refreshResponse = await fetch('/api/chatkit/refresh-session', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                thread_id: currentThreadId,
-                user_id: userId 
-              }),
-            });
-            
-            if (refreshResponse.ok) {
-              const refreshedSession = await refreshResponse.json();
-              setSessionData(refreshedSession);
-              return refreshedSession.client_secret;
-            }
-          }
-          
-          console.log('[ChatKit] getClientSecret called but no existing session, returning empty');
-          return '';
-          
-        } catch (error) {
-          console.error('Failed to get ChatKit client secret:', error);
-          setUseFallback(true);
-          throw error;
-        }
-      },
-    },
-  });
 
   // Fallback message handler
   async function handleSendMessage() {
@@ -472,64 +416,27 @@ export function OfficialChatKitWithFallback({
     );
   }
 
-  // Use real ChatKit when tokens are available
+  // Use real ChatKit when tokens are available  
+  // Only render ChatKit component if we have a valid client_secret
+  const hasValidClientSecret = sessionData?.client_secret && sessionData.client_secret.startsWith('ek_');
+  
+  if (!hasValidClientSecret) {
+    return (
+      <Card className={`relative overflow-hidden flex flex-col items-center justify-center ${className} ${isExpanded ? 'fixed inset-4 z-50' : 'h-[600px]'}`}>
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-4 text-sm text-muted-foreground">Connecting to ChatKit...</p>
+      </Card>
+    );
+  }
+  
+  // Render the ChatKit wrapper with the client_secret
   return (
-    <Card className={`relative overflow-hidden ${className} ${isExpanded ? 'fixed inset-4 z-50' : ''}`}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-lg">ChatKit Beta</h3>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300">
-            with Widgets
-          </span>
-          {currentThreadId && (
-            <span className="text-xs text-muted-foreground">
-              Thread: {currentThreadId.slice(-8)}
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleNewConversation}
-            title="Start new conversation"
-          >
-            <RefreshCw className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsExpanded(!isExpanded)}
-            title={isExpanded ? "Collapse" : "Expand"}
-          >
-            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          </Button>
-          {onClose && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onClose}
-              title="Close chat"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-      </div>
-
-      {/* Real ChatKit Component */}
-      <ChatKit 
-        control={control} 
-        className={`${isExpanded ? 'h-[calc(100vh-8rem)]' : 'h-[600px]'} w-full`}
-      />
-
-      {/* Footer */}
-      <div className="p-3 border-t bg-muted/50">
-        <p className="text-xs text-muted-foreground text-center">
-          OpenAI ChatKit with Widgets • Search 33,834+ communities • Interactive Cards & Forms
-        </p>
-      </div>
-    </Card>
+    <ChatKitWrapper 
+      clientSecret={sessionData.client_secret}
+      threadId={currentThreadId}
+      className={className}
+      onClose={onClose}
+      onNewConversation={handleNewConversation}
+    />
   );
 }
