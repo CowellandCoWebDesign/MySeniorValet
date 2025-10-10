@@ -197,11 +197,13 @@ export function OfficialChatKitWithFallback({
         const lines = chunk.split('\n');
         
         for (const line of lines) {
+          // Handle both 'data:' and 'event:' SSE format
           if (line.trim().startsWith('data: ')) {
             const data = line.trim().slice(6);
             
             try {
               const parsed = JSON.parse(data);
+              console.log('SSE Event:', parsed);
               
               // Handle different event types
               if (parsed.type === 'delta' && parsed.content) {
@@ -220,18 +222,22 @@ export function OfficialChatKitWithFallback({
                     ? { ...msg, content: assistantMessage }
                     : msg
                 ));
-              } else if (parsed.type === 'tool_result' && parsed.result?.communities) {
-                // Format community results
-                const communities = parsed.result.communities;
-                assistantMessage += `\nFound ${communities.length} communities:\n\n`;
-                communities.slice(0, 5).forEach((comm: any, idx: number) => {
-                  assistantMessage += `${idx + 1}. **${comm.name}**\n`;
-                  assistantMessage += `   📍 ${comm.city}, ${comm.state}\n`;
-                  if (comm.pricing) {
-                    assistantMessage += `   💰 Starting at $${comm.pricing}/month\n`;
-                  }
-                  assistantMessage += '\n';
-                });
+              } else if (parsed.type === 'tool_result') {
+                // Handle search results
+                if (parsed.result?.communities) {
+                  const communities = parsed.result.communities;
+                  assistantMessage += `\n${parsed.message || `Found ${communities.length} communities`}\n\n`;
+                  communities.slice(0, 5).forEach((comm: any, idx: number) => {
+                    assistantMessage += `${idx + 1}. **${comm.name}**\n`;
+                    assistantMessage += `   📍 ${comm.city}, ${comm.state}\n`;
+                    if (comm.pricing) {
+                      assistantMessage += `   💰 Starting at $${comm.pricing}/month\n`;
+                    }
+                    assistantMessage += '\n';
+                  });
+                } else {
+                  assistantMessage += `\n${parsed.message}\n`;
+                }
                 setMessages(prev => prev.map(msg => 
                   msg.id === messageId 
                     ? { ...msg, content: assistantMessage }
