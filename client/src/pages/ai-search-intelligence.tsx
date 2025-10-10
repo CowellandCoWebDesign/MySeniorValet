@@ -1648,8 +1648,18 @@ export default function AISearchIntelligence() {
               </Collapsible>
 
               {/* Third Row - Amenities - Full Width with Horizontal Scroll */}
-              <div className="w-full mb-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Amenities</label>
+              <Collapsible
+                open={collapsibleSections.amenities}
+                onOpenChange={(isOpen) => setCollapsibleSections({ ...collapsibleSections, amenities: isOpen })}
+                className="w-full mb-4"
+              >
+                <CollapsibleTrigger className="flex items-center justify-between w-full group mb-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">Amenities</label>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                    collapsibleSections.amenities ? 'transform rotate-180' : ''
+                  }`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
                 <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                   <Button
                     variant={simplifiedFilters.amenities.includes('meals') ? 'default' : 'outline'}
@@ -1771,11 +1781,22 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
                 </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Fourth Row - Care Services - Full Width with Horizontal Scroll */}
-              <div className="w-full mb-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 block">Care Services</label>
+              <Collapsible
+                open={collapsibleSections.careServices}
+                onOpenChange={(isOpen) => setCollapsibleSections({ ...collapsibleSections, careServices: isOpen })}
+                className="w-full mb-4"
+              >
+                <CollapsibleTrigger className="flex items-center justify-between w-full group mb-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">Care Services</label>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                    collapsibleSections.careServices ? 'transform rotate-180' : ''
+                  }`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
                 <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600">
                   {/* All Inclusive Button */}
                   <Button
@@ -1986,12 +2007,24 @@ export default function AISearchIntelligence() {
                     </div>
                   </Button>
                 </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
 
 
 
               {/* Fifth Row - Sliders and Controls - Mobile Responsive with Stacked Layout */}
-              <div className="w-full py-4 border-t border-b border-gray-200 dark:border-gray-700">
+              <Collapsible
+                open={collapsibleSections.distance}
+                onOpenChange={(isOpen) => setCollapsibleSections({ ...collapsibleSections, distance: isOpen })}
+                className="w-full py-4 border-t border-b border-gray-200 dark:border-gray-700"
+              >
+                <CollapsibleTrigger className="flex items-center justify-between w-full group mb-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer">Distance & Cost</label>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                    collapsibleSections.distance ? 'transform rotate-180' : ''
+                  }`} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
                 {/* Sliders Container - Stack on Mobile */}
                 <div className="flex flex-col gap-3">
                   {/* Distance Slider - Full Width */}
@@ -2070,6 +2103,7 @@ export default function AISearchIntelligence() {
                             typeOfLiving: [],
                             amenities: [],
                             unitType: [],
+                            careTypes: [],
                             priceRange: [500, 8000],
                             distance: 25,
                             immediateAvailability: false
@@ -2083,7 +2117,8 @@ export default function AISearchIntelligence() {
                     </div>
                   </div>
                 </div>
-              </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
             {/* Map and List Layout - Vertical Stack, Full Width */}
