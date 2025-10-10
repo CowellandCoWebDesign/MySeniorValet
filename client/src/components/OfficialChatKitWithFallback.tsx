@@ -197,13 +197,14 @@ export function OfficialChatKitWithFallback({
         const lines = chunk.split('\n');
         
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') continue;
+          if (line.trim().startsWith('data: ')) {
+            const data = line.trim().slice(6);
             
             try {
               const parsed = JSON.parse(data);
-              if (parsed.content) {
+              
+              // Handle different event types
+              if (parsed.type === 'delta' && parsed.content) {
                 assistantMessage += parsed.content;
                 // Update the assistant message
                 setMessages(prev => prev.map(msg => 
@@ -211,9 +212,39 @@ export function OfficialChatKitWithFallback({
                     ? { ...msg, content: assistantMessage }
                     : msg
                 ));
+              } else if (parsed.type === 'tool_start') {
+                // Show tool status
+                assistantMessage += `\n${parsed.message}\n`;
+                setMessages(prev => prev.map(msg => 
+                  msg.id === messageId 
+                    ? { ...msg, content: assistantMessage }
+                    : msg
+                ));
+              } else if (parsed.type === 'tool_result' && parsed.result?.communities) {
+                // Format community results
+                const communities = parsed.result.communities;
+                assistantMessage += `\nFound ${communities.length} communities:\n\n`;
+                communities.slice(0, 5).forEach((comm: any, idx: number) => {
+                  assistantMessage += `${idx + 1}. **${comm.name}**\n`;
+                  assistantMessage += `   📍 ${comm.city}, ${comm.state}\n`;
+                  if (comm.pricing) {
+                    assistantMessage += `   💰 Starting at $${comm.pricing}/month\n`;
+                  }
+                  assistantMessage += '\n';
+                });
+                setMessages(prev => prev.map(msg => 
+                  msg.id === messageId 
+                    ? { ...msg, content: assistantMessage }
+                    : msg
+                ));
+              } else if (parsed.type === 'done') {
+                // Stream completed
+                break;
+              } else if (parsed.type === 'error') {
+                throw new Error(parsed.message);
               }
             } catch (e) {
-              // Ignore parse errors
+              console.error('Error parsing SSE data:', e);
             }
           }
         }
