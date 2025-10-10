@@ -805,7 +805,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               </div>
             </Button>
 
-            {/* AI Intelligence */}
+            {/* Side-by-Side Search */}
             <Button 
               onClick={(e) => {
                 e.stopPropagation();
@@ -813,9 +813,9 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               }}
               className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
               <div className="flex flex-col items-center">
-                <span className="text-xl mb-1">🤖</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">AI Assistant</div>
-                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Ask Questions</div>
+                <span className="text-xl mb-1">⚖️</span>
+                <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
+                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
               </div>
             </Button>
 
