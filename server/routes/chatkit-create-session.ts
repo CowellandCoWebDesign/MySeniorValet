@@ -191,12 +191,13 @@ router.post('/create-session', async (req: Request, res: Response) => {
     // Extract session details from response
     const clientSecret = upstreamJson?.client_secret as string || null;
     const expiresAfter = upstreamJson?.expires_after as number || null;
-    const threadId = (upstreamJson?.thread as any)?.id || body.threadId;
+    // ChatKit doesn't return a thread ID on session creation - threads are created when first message is sent
+    const threadId = body.threadId || null; // Use provided thread ID or null for new conversations
     
     console.log('[ChatKit] Session created successfully:', {
       hasSecret: !!clientSecret,
       expiresAfter,
-      threadId
+      threadId: threadId || 'will be created on first message'
     });
     
     // Calculate expires_at timestamp for frontend compatibility
@@ -206,7 +207,7 @@ router.post('/create-session', async (req: Request, res: Response) => {
     return res.json({
       client_secret: clientSecret,
       expires_at: expiresAt,  // Frontend expects timestamp, not seconds
-      thread_id: threadId,
+      thread_id: threadId, // Can be null for new conversations
       user_id: resolvedUserId
     });
     

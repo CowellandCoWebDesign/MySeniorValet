@@ -296,10 +296,10 @@ export function OfficialChatKitWithFallback({
   // Handle new conversation
   const handleNewConversation = async () => {
     try {
-      const response = await fetch('/api/chatkit/session', {
+      const response = await fetch('/api/chatkit/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify({ user: userId }),
       });
       
       if (!response.ok) throw new Error('Failed to create new session');
