@@ -507,158 +507,158 @@ function normalizeState(location: string): string {
 async function searchCommunities(args: any) {
   const { location, careType, maxPrice } = args;
   
-  const conditions = [];
-
   // Location search with state normalization
-  if (location) {
-    console.log(`🔍 Searching for: "${location}"`);
+  if (!location) {
+    console.log('❌ No location provided for search');
+    return {
+      success: false,
+      count: 0,
+      communities: [],
+      message: 'Please provide a location to search for communities.'
+    };
+  }
+
+  console.log(`🔍 Searching for: "${location}"`);
+  
+  // Parse location more intelligently
+  let searchCity = '';
+  let searchState = '';
+  
+  // Check if it's in "City, State" format
+  if (location.includes(',')) {
+    const parts = location.split(',');
+    searchCity = parts[0].trim();
+    searchState = normalizeState(parts[1].trim());
+  } else {
+    // Check if the last word might be a state
+    const words = location.trim().split(/\s+/);
+    const lastWord = words[words.length - 1];
+    const possibleState = normalizeState(lastWord);
     
-    // Parse location more intelligently
-    let searchCity = '';
-    let searchState = '';
+    // Check if the last word is actually a state abbreviation or name
+    const isStateAbbr = lastWord.length === 2 && possibleState === lastWord.toUpperCase();
+    const isStateName = STATE_ABBREVIATIONS[lastWord.toLowerCase()] !== undefined;
     
-    // Check if it's in "City, State" format
-    if (location.includes(',')) {
-      const parts = location.split(',');
-      searchCity = parts[0].trim();
-      searchState = normalizeState(parts[1].trim());
+    if (words.length >= 2 && (isStateAbbr || isStateName || possibleState !== lastWord)) {
+      // Last word is likely a state
+      searchState = possibleState;
+      searchCity = words.slice(0, -1).join(' ');
     } else {
-      // Check if the last word might be a state
-      const words = location.trim().split(/\s+/);
-      const lastWord = words[words.length - 1];
-      const possibleState = normalizeState(lastWord);
-      
-      // Check if the last word is actually a state abbreviation or name
-      const isStateAbbr = lastWord.length === 2 && possibleState === lastWord.toUpperCase();
-      const isStateName = STATE_ABBREVIATIONS[lastWord.toLowerCase()] !== undefined;
-      
-      if (words.length >= 2 && (isStateAbbr || isStateName || possibleState !== lastWord)) {
-        // Last word is likely a state
-        searchState = possibleState;
-        searchCity = words.slice(0, -1).join(' ');
-      } else {
-        // Treat the whole thing as a city name
-        searchCity = location;
-      }
-    }
-    
-    console.log(`📍 Parsed location - City: "${searchCity}", State: "${searchState}"`);
-    
-    // Build search conditions with PRIORITY for exact city+state matches
-    if (searchCity && searchState) {
-      // For city + state, only search for that specific combination
-      conditions.push(
-        and(
-          ilike(communities.city, `%${searchCity}%`),
-          eq(communities.state, searchState)
-        )
-      );
-    } else if (searchCity) {
-      // For city only, search in city field
-      conditions.push(
-        ilike(communities.city, `%${searchCity}%`)
-      );
-    } else if (searchState) {
-      // For state only, search by state
-      conditions.push(
-        eq(communities.state, searchState)
-      );
+      // Treat the whole thing as a city name
+      searchCity = location;
     }
   }
-
-  // Care type filter
-  if (careType && careType !== '') {
-    conditions.push(
-      sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`
-    );
-  }
-
-  // Price filter
-  if (maxPrice && maxPrice > 0) {
-    conditions.push(
-      or(
-        sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
-        sql`${communities.rentPerMonth} <= ${maxPrice}`
-      )
-    );
-  }
-
+  
+  console.log(`📍 Parsed location - City: "${searchCity}", State: "${searchState}"`);
+  
   // Execute search - show ALL communities, not just verified
   try {
-    // First, try to get exact city+state matches if we have both
     let results: any[] = [];
     
-    if (location) {
-      // Parse location to get city and state
-      let searchCity = '';
-      let searchState = '';
+    // Strategy 1: Try exact city + state match if we have both
+    if (searchCity && searchState) {
+      console.log(`🎯 Strategy 1: Exact match for: ${searchCity}, ${searchState}`);
       
-      if (location.includes(',')) {
-        const parts = location.split(',');
-        searchCity = parts[0].trim();
-        searchState = normalizeState(parts[1].trim());
-      } else {
-        const words = location.trim().split(/\s+/);
-        const lastWord = words[words.length - 1];
-        const possibleState = normalizeState(lastWord);
-        const isStateAbbr = lastWord.length === 2 && possibleState === lastWord.toUpperCase();
-        const isStateName = STATE_ABBREVIATIONS[lastWord.toLowerCase()] !== undefined;
-        
-        if (words.length >= 2 && (isStateAbbr || isStateName || possibleState !== lastWord)) {
-          searchState = possibleState;
-          searchCity = words.slice(0, -1).join(' ');
-        }
+      const exactConditions = [
+        ilike(communities.city, searchCity),
+        eq(communities.state, searchState)
+      ];
+      
+      // Add filters
+      if (careType && careType !== '') {
+        exactConditions.push(sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`);
       }
-      
-      // If we have both city and state, prioritize exact matches
-      if (searchCity && searchState) {
-        console.log(`🎯 Prioritizing exact matches for: ${searchCity}, ${searchState}`);
-        
-        // Build conditions for exact match including care type and price filters
-        const exactConditions = [
-          ilike(communities.city, searchCity),  // Use exact city name (case-insensitive)
-          eq(communities.state, searchState)
-        ];
-        
-        // Add care type filter if present
-        if (careType && careType !== '') {
-          exactConditions.push(
-            sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`
-          );
-        }
-        
-        // Add price filter if present
-        if (maxPrice && maxPrice > 0) {
-          const priceCondition = or(
+      if (maxPrice && maxPrice > 0) {
+        exactConditions.push(
+          or(
             sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
             sql`${communities.rentPerMonth} <= ${maxPrice}`
-          );
-          if (priceCondition) {
-            exactConditions.push(priceCondition);
-          }
-        }
-        
-        const exactMatches = await db
-          .select()
-          .from(communities)
-          .where(and(...exactConditions))
-          .limit(25);
-        
-        if (exactMatches.length > 0) {
-          results = exactMatches;
-          console.log(`✅ Found ${exactMatches.length} exact matches`);
-        }
+          )
+        );
       }
-    }
-    
-    // If no exact matches or no city/state combo, fall back to broader search
-    if (results.length === 0) {
+      
       results = await db
         .select()
         .from(communities)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(communities.isVerified), desc(communities.id))
+        .where(and(...exactConditions))
         .limit(25);
+      
+      if (results.length > 0) {
+        console.log(`✅ Found ${results.length} exact matches`);
+      }
+    }
+    
+    // Strategy 2: If no exact matches, try broader city search
+    if (results.length === 0 && searchCity) {
+      console.log(`🔄 Strategy 2: Broader search for city: ${searchCity}`);
+      
+      const cityConditions = [
+        ilike(communities.city, `%${searchCity}%`)
+      ];
+      
+      // Add state if available to narrow down
+      if (searchState) {
+        cityConditions.push(eq(communities.state, searchState));
+      }
+      
+      // Add filters
+      if (careType && careType !== '') {
+        cityConditions.push(sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`);
+      }
+      if (maxPrice && maxPrice > 0) {
+        cityConditions.push(
+          or(
+            sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
+            sql`${communities.rentPerMonth} <= ${maxPrice}`
+          )
+        );
+      }
+      
+      results = await db
+        .select()
+        .from(communities)
+        .where(and(...cityConditions))
+        .limit(25);
+      
+      if (results.length > 0) {
+        console.log(`✅ Found ${results.length} communities with broader city search`);
+      }
+    }
+    
+    // Strategy 3: If still no results, search the entire location string
+    if (results.length === 0) {
+      console.log(`🔍 Strategy 3: Full text search for: ${location}`);
+      
+      const fullTextConditions = [
+        or(
+          ilike(communities.city, `%${location}%`),
+          ilike(communities.state, `%${location}%`),
+          ilike(communities.name, `%${location}%`)
+        )
+      ];
+      
+      // Add filters
+      if (careType && careType !== '') {
+        fullTextConditions.push(sql`${communities.careTypes}::text ILIKE ${'%' + careType + '%'}`);
+      }
+      if (maxPrice && maxPrice > 0) {
+        fullTextConditions.push(
+          or(
+            sql`(${communities.priceRange}->>'min')::numeric <= ${maxPrice}`,
+            sql`${communities.rentPerMonth} <= ${maxPrice}`
+          )
+        );
+      }
+      
+      results = await db
+        .select()
+        .from(communities)
+        .where(and(...fullTextConditions))
+        .limit(25);
+      
+      if (results.length > 0) {
+        console.log(`✅ Found ${results.length} communities with full text search`);
+      }
     }
     
     console.log(`✅ Found ${results.length} communities`);

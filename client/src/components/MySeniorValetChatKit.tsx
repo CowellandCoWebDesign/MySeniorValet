@@ -155,9 +155,18 @@ export function MySeniorValetChatKit({
         break;
       
       case 'DISCOVERY':
-        // Handle Discovery Mode results
+        // Handle Discovery Mode results - display community cards
         if (data.communities && data.communities.length > 0) {
-          console.log(`Discovery Mode found ${data.communities.length} communities`);
+          console.log(`Discovery Mode found ${data.communities.length} communities - adding to message`);
+          
+          // Add communities to the current message
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === messageId
+                ? { ...msg, communities: data.communities, toolType: 'DISCOVERY' }
+                : msg
+            )
+          );
         }
         break;
     }
