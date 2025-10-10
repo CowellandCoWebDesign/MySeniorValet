@@ -169,6 +169,23 @@ export function MySeniorValetChatKit({
           );
         }
         break;
+      
+      case 'STATUS':
+        // Handle real-time status updates during search/discovery
+        if (data.message) {
+          console.log(`📊 Status update: ${data.message}`);
+          
+          // Add a system message showing the current status
+          const statusMessage: Message = {
+            id: `status-${Date.now()}`,
+            role: 'system',
+            content: data.message,
+            timestamp: new Date()
+          };
+          
+          setMessages(prev => [...prev, statusMessage]);
+        }
+        break;
     }
   };
 

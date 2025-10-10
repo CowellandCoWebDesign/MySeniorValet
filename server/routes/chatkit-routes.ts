@@ -386,11 +386,34 @@ router.post('/stream', async (req: Request, res: Response) => {
             let output: any = {};
 
             if (functionName === 'search_communities') {
+              // Emit status update
+              res.write(`[TOOL:STATUS]${JSON.stringify({ message: `🔍 Searching database for communities in ${args.location}...` })}[/TOOL:STATUS]\n`);
+              
               output = await searchCommunities(args);
+              
+              // Emit completion status
+              if (output.communities && output.communities.length > 0) {
+                res.write(`[TOOL:STATUS]${JSON.stringify({ message: `✅ Found ${output.communities.length} communities in database` })}[/TOOL:STATUS]\n`);
+              } else {
+                res.write(`[TOOL:STATUS]${JSON.stringify({ message: `No results in database. Try asking to expand the search or enable Discovery Mode.` })}[/TOOL:STATUS]\n`);
+              }
+              
               // Send structured event for search results
               res.write(`[TOOL:SEARCH]${JSON.stringify(output)}[/TOOL:SEARCH]\n`);
             } else if (functionName === 'enable_discovery_mode') {
+              // Emit status updates for discovery mode
+              res.write(`[TOOL:STATUS]${JSON.stringify({ message: `🌟 Activating Discovery Mode for "${args.query}"...` })}[/TOOL:STATUS]\n`);
+              res.write(`[TOOL:STATUS]${JSON.stringify({ message: `🌐 Searching the web for senior living communities...` })}[/TOOL:STATUS]\n`);
+              
               output = await enableDiscoveryMode(args);
+              
+              // Emit completion status
+              if (output.communities && output.communities.length > 0) {
+                res.write(`[TOOL:STATUS]${JSON.stringify({ message: `✅ Discovery complete! Found ${output.communities.length} communities${output.newlyInserted > 0 ? ` (${output.newlyInserted} newly added to database)` : ''}` })}[/TOOL:STATUS]\n`);
+              } else {
+                res.write(`[TOOL:STATUS]${JSON.stringify({ message: `Discovery search completed but found no new communities` })}[/TOOL:STATUS]\n`);
+              }
+              
               // Send structured event for discovery mode
               res.write(`[TOOL:DISCOVERY]${JSON.stringify(output)}[/TOOL:DISCOVERY]\n`);
             } else if (functionName === 'show_on_map') {
