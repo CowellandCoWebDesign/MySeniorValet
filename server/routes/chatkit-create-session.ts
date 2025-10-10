@@ -1,0 +1,323 @@
+import express, { Request, Response } from 'express';
+import crypto from 'crypto';
+import { activeSessions } from './chatkit-secure-stream';
+
+const router = express.Router();
+
+// Constants from OpenAI's official implementation
+const DEFAULT_CHATKIT_BASE = "https://api.openai.com";
+const SESSION_COOKIE_NAME = "chatkit_session_id";
+const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
+interface CreateSessionRequestBody {
+  workflow?: { id?: string | null } | null;
+  user?: string | null;
+  threadId?: string | null;
+}
+
+// Create ChatKit session using direct HTTP API calls (official workaround)
+router.post('/create-session', async (req: Request, res: Response) => {
+  try {
+    const openaiApiKey = process.env.OPENAI_API_KEY;
+    
+    if (!openaiApiKey) {
+      return res.status(500).json({ 
+        error: "Missing OPENAI_API_KEY environment variable" 
+      });
+    }
+
+    const body = req.body as CreateSessionRequestBody;
+    
+    // Generate or retrieve user ID from session
+    let userId: string;
+    const sessionData = (req.session as any) || {};
+    
+    if (sessionData.userId) {
+      userId = sessionData.userId;
+    } else {
+      userId = crypto.randomUUID();
+      if (req.session) {
+        (req.session as any).userId = userId;
+      }
+    }
+    
+    // Use provided user ID or session user ID
+    const resolvedUserId = body.user || userId;
+    
+    // Check if we have a ChatKit workflow ID configured
+    // Note: Workflows must be created in OpenAI's Agent Builder platform
+    const workflowId = body.workflow?.id || process.env.CHATKIT_WORKFLOW_ID;
+    
+    if (!workflowId) {
+      console.log('[ChatKit] No workflow ID configured, returning fallback session');
+      
+      // Generate a fallback token and thread ID
+      const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
+      const threadId = body.threadId || `thread_${Math.random().toString(36).slice(2)}`;
+      
+      // Store the fallback session
+      activeSessions.set(fallbackToken, {
+        userId: resolvedUserId,
+        threadId,
+        expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+        workflowId: undefined
+      });
+      
+      // Return a fallback session with a token
+      return res.json({
+        client_secret: fallbackToken,
+        thread_id: threadId,
+        user_id: resolvedUserId,
+        expires_at: Date.now() + 3600000, // 1 hour in ms
+        metadata: { 
+          session_type: 'assistant_fallback',
+          message: 'ChatKit workflow not configured - using Assistant API streaming'
+        }
+      });
+    }
+    
+    console.log('[ChatKit] Creating session for user:', resolvedUserId, 'workflow:', workflowId);
+    
+    // Make direct API call to OpenAI ChatKit endpoint
+    const apiBase = process.env.CHATKIT_API_BASE || DEFAULT_CHATKIT_BASE;
+    const url = `${apiBase}/v1/chatkit/sessions`;
+    
+    const upstreamResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${openaiApiKey}`,
+        "OpenAI-Beta": "chatkit_beta=v1",
+      },
+      body: JSON.stringify({
+        workflow: { id: workflowId },
+        user: resolvedUserId,
+        // Include thread ID if provided for conversation continuity
+        ...(body.threadId && { thread: { id: body.threadId } })
+      }),
+    });
+
+    const upstreamJson = await upstreamResponse.json().catch(() => ({})) as Record<string, unknown>;
+
+    if (!upstreamResponse.ok) {
+      console.error("OpenAI ChatKit session creation failed", {
+        status: upstreamResponse.status,
+        statusText: upstreamResponse.statusText,
+        body: upstreamJson,
+      });
+      
+      // If workflow not found or other API error, return fallback session
+      const errorMessage = extractUpstreamError(upstreamJson);
+      if (errorMessage?.includes('Workflow') || errorMessage?.includes('not found')) {
+        console.log('[ChatKit] Workflow not found, using fallback mode');
+        
+        // Generate a fallback token and thread ID
+        const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
+        const threadId = body.threadId || `thread_${Math.random().toString(36).slice(2)}`;
+        
+        // Store the fallback session
+        activeSessions.set(fallbackToken, {
+          userId: resolvedUserId,
+          threadId,
+          expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+          workflowId: undefined
+        });
+        
+        return res.json({
+          client_secret: fallbackToken,
+          thread_id: threadId,
+          user_id: resolvedUserId,
+          expires_at: Date.now() + 3600000, // 1 hour in ms
+          metadata: { 
+            session_type: 'assistant_fallback',
+            message: 'ChatKit workflow not available - using Assistant API streaming'
+          }
+        });
+      }
+      
+      return res.status(upstreamResponse.status).json({
+        error: errorMessage || `Failed to create session: ${upstreamResponse.statusText}`,
+        details: upstreamJson,
+      });
+    }
+
+    // Extract session details from response
+    const clientSecret = upstreamJson?.client_secret as string || null;
+    const expiresAfter = upstreamJson?.expires_after as number || null;
+    const threadId = (upstreamJson?.thread as any)?.id || body.threadId;
+    
+    console.log('[ChatKit] Session created successfully:', {
+      hasSecret: !!clientSecret,
+      expiresAfter,
+      threadId
+    });
+    
+    // Calculate expires_at timestamp for frontend compatibility
+    const expiresAt = expiresAfter ? Date.now() + (expiresAfter * 1000) : null;
+    
+    // Return the session data with expires_at for frontend
+    return res.json({
+      client_secret: clientSecret,
+      expires_at: expiresAt,  // Frontend expects timestamp, not seconds
+      thread_id: threadId,
+      user_id: resolvedUserId
+    });
+    
+  } catch (error) {
+    console.error('[ChatKit] Create session error:', error);
+    
+    // Check if it's a network error
+    if (error instanceof Error && error.message.includes('fetch')) {
+      return res.status(503).json({ 
+        error: "Unable to connect to OpenAI API. Please check your API key and network connection.",
+        details: error.message
+      });
+    }
+    
+    return res.status(500).json({ 
+      error: "Unexpected error creating ChatKit session",
+      details: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+// Refresh session endpoint
+router.post('/refresh-session', async (req: Request, res: Response) => {
+  try {
+    const openaiApiKey = process.env.OPENAI_API_KEY;
+    
+    if (!openaiApiKey) {
+      return res.status(500).json({ 
+        error: "Missing OPENAI_API_KEY environment variable" 
+      });
+    }
+    
+    const { thread_id, user_id } = req.body;
+    
+    if (!thread_id) {
+      return res.status(400).json({ 
+        error: "Missing thread_id for session refresh" 
+      });
+    }
+    
+    console.log('[ChatKit] Refreshing session for thread:', thread_id);
+    
+    // Check if we have a ChatKit workflow ID configured
+    const workflowId = process.env.CHATKIT_WORKFLOW_ID;
+    
+    if (!workflowId) {
+      console.log('[ChatKit] No workflow ID configured for refresh, returning fallback session');
+      // Return a fallback session for refresh
+      return res.json({
+        client_secret: null,
+        thread_id,
+        user_id: user_id || (req.session as any)?.userId,
+        metadata: { 
+          session_type: 'assistant_fallback',
+          message: 'ChatKit workflow not configured - using Assistant API streaming'
+        }
+      });
+    }
+    
+    // Make direct API call to refresh the session
+    const apiBase = process.env.CHATKIT_API_BASE || DEFAULT_CHATKIT_BASE;
+    const url = `${apiBase}/v1/chatkit/sessions`;
+    
+    const upstreamResponse = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${openaiApiKey}`,
+        "OpenAI-Beta": "chatkit_beta=v1",
+      },
+      body: JSON.stringify({
+        workflow: { id: workflowId },
+        user: user_id || (req.session as any)?.userId,
+        thread: { id: thread_id }
+      }),
+    });
+
+    const upstreamJson = await upstreamResponse.json().catch(() => ({})) as Record<string, unknown>;
+
+    if (!upstreamResponse.ok) {
+      console.error("ChatKit session refresh failed", upstreamJson);
+      return res.status(upstreamResponse.status).json({
+        error: "Failed to refresh session",
+        details: upstreamJson,
+      });
+    }
+
+    const clientSecret = upstreamJson?.client_secret as string || null;
+    const expiresAfter = upstreamJson?.expires_after as number || null;
+    
+    // Calculate expires_at timestamp for frontend compatibility
+    const expiresAt = expiresAfter ? Date.now() + (expiresAfter * 1000) : null;
+    
+    return res.json({
+      client_secret: clientSecret,
+      expires_at: expiresAt,  // Frontend expects timestamp, not seconds
+      thread_id,
+      user_id: user_id || (req.session as any)?.userId
+    });
+    
+  } catch (error) {
+    console.error('[ChatKit] Refresh session error:', error);
+    return res.status(500).json({ 
+      error: "Failed to refresh ChatKit session" 
+    });
+  }
+});
+
+// Helper function to extract error messages from upstream response
+function extractUpstreamError(
+  payload: Record<string, unknown> | undefined
+): string | null {
+  if (!payload) return null;
+
+  // Check for direct error string
+  const error = payload.error;
+  if (typeof error === "string") {
+    return error;
+  }
+
+  // Check for error object with message
+  if (
+    error &&
+    typeof error === "object" &&
+    "message" in error &&
+    typeof (error as { message?: unknown }).message === "string"
+  ) {
+    return (error as { message: string }).message;
+  }
+
+  // Check details field
+  const details = payload.details;
+  if (typeof details === "string") {
+    return details;
+  }
+
+  // Check nested error in details
+  if (details && typeof details === "object" && "error" in details) {
+    const nestedError = (details as { error?: unknown }).error;
+    if (typeof nestedError === "string") {
+      return nestedError;
+    }
+    if (
+      nestedError &&
+      typeof nestedError === "object" &&
+      "message" in nestedError &&
+      typeof (nestedError as { message?: unknown }).message === "string"
+    ) {
+      return (nestedError as { message: string }).message;
+    }
+  }
+
+  // Check for top-level message
+  if (typeof payload.message === "string") {
+    return payload.message;
+  }
+
+  return null;
+}
+
+export default router;

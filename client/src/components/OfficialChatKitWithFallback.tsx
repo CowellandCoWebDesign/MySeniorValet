@@ -51,26 +51,32 @@ export function OfficialChatKitWithFallback({
 
   async function initializeSession() {
     try {
-      const response = await fetch('/api/chatkit/session', {
+      const response = await fetch('/api/chatkit/create-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           threadId: currentThreadId,
-          userId 
+          user: userId 
         }),
       });
       
       if (!response.ok) {
-        throw new Error('Failed to create session');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('[ChatKit] Session initialization failed:', errorData);
+        throw new Error(errorData.error || 'Failed to create session');
       }
       
       const session = await response.json();
       setSessionData(session);
-      setCurrentThreadId(session.thread_id);
-      onThreadChange?.(session.thread_id);
+      
+      if (session.thread_id) {
+        setCurrentThreadId(session.thread_id);
+        onThreadChange?.(session.thread_id);
+      }
       
       // Check if we need to use fallback
-      if (session.client_secret.startsWith('ck_demo_') || 
+      if (!session.client_secret ||
+          session.client_secret.startsWith('ck_demo_') || 
           session.client_secret.startsWith('ck_') ||
           session.metadata?.session_type === 'assistant_fallback' ||
           session.metadata?.session_type === 'assistant') {
@@ -114,10 +120,13 @@ export function OfficialChatKitWithFallback({
               return existing;
             }
             
-            const refreshResponse = await fetch('/api/chatkit/refresh', {
+            const refreshResponse = await fetch('/api/chatkit/refresh-session', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ client_secret: existing }),
+              body: JSON.stringify({ 
+                thread_id: currentThreadId,
+                user_id: userId 
+              }),
             });
             
             if (refreshResponse.ok) {
@@ -127,16 +136,30 @@ export function OfficialChatKitWithFallback({
             }
           }
           
-          const response = await fetch('/api/chatkit/session', {
+          const response = await fetch('/api/chatkit/create-session', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ threadId: currentThreadId, userId }),
+            body: JSON.stringify({ 
+              threadId: currentThreadId, 
+              user: userId 
+            }),
           });
           
-          if (!response.ok) throw new Error('Failed to create session');
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('[ChatKit] Session creation failed:', errorData);
+            throw new Error(errorData.error || 'Failed to create session');
+          }
           
           const session = await response.json();
           setSessionData(session);
+          
+          console.log('[ChatKit] Session created successfully:', {
+            hasSecret: !!session.client_secret,
+            threadId: session.thread_id,
+            expiresAfter: session.expires_after
+          });
+          
           return session.client_secret;
           
         } catch (error) {
@@ -166,9 +189,11 @@ export function OfficialChatKitWithFallback({
     try {
       const response = await fetch('/api/chatkit/stream', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': sessionData?.client_secret ? `Bearer ${sessionData.client_secret}` : ''
+        },
         body: JSON.stringify({
-          client_secret: sessionData?.client_secret || 'fallback',
           message: userMessage.content,
           thread_id: currentThreadId  // Changed from threadId to thread_id
         })

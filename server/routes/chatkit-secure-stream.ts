@@ -7,10 +7,15 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
 });
 
-// Import session management from chatkit-session
-import { activeSessions } from './chatkit-session';
+// Create local session store for validation
+const activeSessions = new Map<string, {
+  userId: string;
+  threadId: string;
+  expiresAt: Date;
+  workflowId?: string;
+}>();
 
-// Export for use in chatkit-session
+// Export for use in other modules
 export { activeSessions };
 
 // Validate session token middleware

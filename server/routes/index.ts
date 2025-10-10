@@ -52,8 +52,8 @@ import familyConnectRoutes from "./familyConnectRoutes";
 import amazonProductRoutes from "./amazonProductRoutes";
 import servicesManagementRoutes from "./servicesManagementRoutes";
 import { setupSimpleResourcesRoutes } from "./simpleResourcesRoutes";
-import chatkitSessionRoutes from "./chatkit-session";
 import chatkitSecureStreamRoutes from "./chatkit-secure-stream";
+import chatkitCreateSessionRoutes from "./chatkit-create-session";
 import { featureAccessRouter } from "./featureAccessRoutes";
 import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
@@ -218,11 +218,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register ChatKit routes for conversational AI interface
   app.use('/api/chatkit', chatkitRoutes);
   
-  // Register ChatKit session management routes
-  app.use(chatkitSessionRoutes);
-  
   // Register ChatKit secure streaming routes (with proper SSE format)
   app.use(chatkitSecureStreamRoutes);
+  
+  // Register ChatKit official HTTP API session creation (OpenAI's workaround)
+  app.use('/api/chatkit', chatkitCreateSessionRoutes);
   
   // Register NLP Analytics Routes - THE KRAKEN'S NEURAL NETWORK
   const nlpAnalyticsRoutes = await import('./nlpAnalyticsRoutes');
