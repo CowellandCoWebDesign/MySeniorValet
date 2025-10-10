@@ -2168,12 +2168,12 @@ export default function AISearchIntelligence() {
             {/* Map and List Layout - Responsive */}
             <div className={`px-4 ${
               layoutMode === 'horizontal' 
-                ? 'flex flex-col lg:flex-row gap-4' 
+                ? 'grid grid-cols-1 lg:grid-cols-2 gap-4' 
                 : 'space-y-4'
             }`}>
               {/* List Section - Shows first in horizontal mode on large screens */}
               {layoutMode === 'horizontal' && (
-                <div className="w-full lg:w-1/2 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col lg:max-h-[600px]">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col lg:max-h-[600px]">
                   {/* Header with result count */}
                   <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
                     <div className="flex items-center justify-between mb-2">
@@ -2304,9 +2304,7 @@ export default function AISearchIntelligence() {
               )}
 
               {/* Map Section */}
-              <div className={`bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden ${
-                layoutMode === 'horizontal' ? 'w-full lg:w-1/2' : 'w-full'
-              }`}>
+              <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
                 <Map
                   center={mapCenter}
                   zoom={mapZoom}
