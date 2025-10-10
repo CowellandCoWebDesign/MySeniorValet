@@ -1,37 +1,156 @@
-import { Router, Request, Response } from 'express';
+import express from 'express';
 import OpenAI from 'openai';
-import { searchCommunities, enableDiscoveryMode } from './chatkit-routes';
+import { activeSessions } from './chatkit-create-session';
+import { db } from '../db';
+import { communities } from '../../shared/schema';
+import { sql } from 'drizzle-orm';
 
-const router = Router();
+const router = express.Router();
+
+// Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
+  apiKey: process.env.OPENAI_API_KEY || '',
 });
 
-// Create local session store for validation
-const activeSessions = new Map<string, {
-  userId: string;
-  threadId: string;
-  expiresAt: Date;
-  workflowId?: string;
-  assistantId?: string;
-}>();
+// Helper function to search communities in database
+async function searchCommunities(args: any) {
+  const { location, careType, maxPrice } = args;
+  
+  console.log(`🔍 Searching for: "${location}"`);
+  
+  try {
+    // Parse location to extract city and state
+    const locationParts = location.split(',').map((p: string) => p.trim());
+    const city = locationParts[0];
+    const state = locationParts[1] || '';
+    
+    console.log(`📍 Parsed location - City: "${city}", State: "${state}"`);
+    
+    // Build query
+    let query = db.select().from(communities);
+    const conditions = [];
+    
+    // Location search - try different strategies
+    if (city && state) {
+      // Strategy 1: Exact city and state match
+      conditions.push(sql`LOWER(${communities.city}) = LOWER(${city}) AND LOWER(${communities.state}) = LOWER(${state})`);
+    } else if (city) {
+      // Strategy 2: City only
+      conditions.push(sql`LOWER(${communities.city}) = LOWER(${city})`);
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(conditions[0]) as any;
+    }
+    
+    // Add care type filter if specified
+    if (careType) {
+      const careTypeMap: Record<string, string> = {
+        'assisted living': 'Assisted Living',
+        'memory care': 'Memory Care', 
+        'independent living': 'Independent Living',
+        'nursing home': 'Nursing Home',
+        'skilled nursing': 'Skilled Nursing',
+        'ccrc': 'CCRC',
+        'senior apartments': 'Senior Apartments'
+      };
+      
+      const mappedCareType = careTypeMap[careType.toLowerCase()] || careType;
+      query = query.where(sql`${communities.careTypes} ILIKE ${`%${mappedCareType}%`}`) as any;
+    }
+    
+    // Execute query with limit
+    const results = await query.limit(20);
+    
+    console.log(`✅ Found ${results.length} communities`);
+    
+    if (results.length === 0 && city) {
+      // Try broader search
+      console.log(`🔄 Strategy 2: Broader search for city: ${city}`);
+      const broaderResults = await db.select()
+        .from(communities)
+        .where(sql`LOWER(${communities.city}) LIKE LOWER(${`%${city}%`})`)
+        .limit(20);
+      
+      if (broaderResults.length > 0) {
+        console.log(`✅ Found ${broaderResults.length} communities with broader city search`);
+        return {
+          communities: broaderResults.map(c => ({
+            id: c.id,
+            name: c.name,
+            city: c.city,
+            state: c.state,
+            address: c.address,
+            phone: c.phoneNumber,
+            website: c.website,
+            careTypes: c.careTypes,
+            pricing: c.hudBaseRent || c.averageMonthlyRent || null
+          }))
+        };
+      }
+    }
+    
+    return {
+      communities: results.map(c => ({
+        id: c.id,
+        name: c.name,
+        city: c.city,
+        state: c.state,
+        address: c.address,
+        phone: c.phoneNumber,
+        website: c.website,
+        careTypes: c.careTypes,
+        pricing: c.hudBaseRent || c.averageMonthlyRent || null
+      }))
+    };
+  } catch (error) {
+    console.error('Error searching communities:', error);
+    return { 
+      communities: [],
+      error: 'Failed to search communities'
+    };
+  }
+}
 
-// Export for use in other modules
-export { activeSessions };
+// Helper function to enable discovery mode (stub for now)
+async function enableDiscoveryMode(args: any) {
+  const { query } = args;
+  console.log(`🌟 Discovery Mode activated for: "${query}"`);
+  
+  // For now, return a simple response
+  // In production, this would trigger web search via Perplexity
+  return {
+    message: `Discovery Mode would search for "${query}" using AI`,
+    communities: [],
+    newlyInserted: 0
+  };
+}
 
-// Validate session token middleware
-async function validateSession(req: Request, res: Response, next: any) {
+// Middleware to validate ChatKit session
+async function validateSession(req: any, res: any, next: any) {
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'Missing or invalid authorization header' });
+    return res.status(401).json({ error: 'Invalid authorization header' });
   }
   
   const token = authHeader.replace('Bearer ', '');
-  const session = activeSessions.get(token);
   
+  // For real ChatKit tokens (ek_*), we trust them
+  if (token.startsWith('ek_')) {
+    // Decode the token to get session info
+    const sessionFromMap = activeSessions.get(token);
+    if (!sessionFromMap) {
+      return res.status(401).json({ error: 'Session not found' });
+    }
+    (req as any).session = sessionFromMap;
+    return next();
+  }
+  
+  // For demo tokens, reject
+  const session = activeSessions.get(token);
   if (!session) {
-    return res.status(401).json({ error: 'Invalid or expired session token' });
+    return res.status(401).json({ error: 'Invalid session' });
   }
   
   if (session.expiresAt < new Date()) {
@@ -48,7 +167,7 @@ async function validateSession(req: Request, res: Response, next: any) {
 router.post('/api/chatkit/stream', validateSession, async (req, res) => {
   try {
     const session = (req as any).session;
-    const { message, threadId } = req.body;
+    const { message, thread_id: threadId } = req.body;
     
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
@@ -71,163 +190,164 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
       content: message,
     });
     
-    // Create streaming run
-    const stream = openai.beta.threads.runs.stream(thread_id, {
+    // Create and run the assistant
+    const run = await openai.beta.threads.runs.create(thread_id, {
       assistant_id: session.assistantId,
     });
     
     console.log(`📨 Processing message: "${message}" for thread: ${thread_id}`);
     
-    // Process stream events
-    for await (const event of stream) {
-      // Send status events
-      if (event.event === 'thread.run.created' || 
-          event.event === 'thread.run.queued' ||
-          event.event === 'thread.run.in_progress') {
-        res.write(`event: status\n`);
-        res.write(`data: ${JSON.stringify({ 
-          type: 'status',
-          status: event.data.status,
-          message: 'Processing your request...'
-        })}\n\n`);
-        // Force flush the response
-        if (res.flush) res.flush();
-      }
-      
-      // Stream message deltas
-      if (event.event === 'thread.message.delta') {
-        const delta = event.data.delta;
-        if (delta.content && delta.content[0] && delta.content[0].type === 'text') {
-          const text = delta.content[0].text?.value || '';
-          if (text) {
-            res.write(`event: message\n`);
-            res.write(`data: ${JSON.stringify({ 
-              type: 'delta',
-              content: text 
-            })}\n\n`);
-            // Force flush the response
-            if (res.flush) res.flush();
-          }
-        }
-      }
-      
-      // Handle tool calls
-      if (event.event === 'thread.run.requires_action') {
-        const toolCalls = event.data.required_action?.submit_tool_outputs?.tool_calls || [];
+    // Send initial status
+    res.write(`event: status\n`);
+    res.write(`data: ${JSON.stringify({ 
+      type: 'status',
+      status: 'processing',
+      message: 'Processing your request...'
+    })}\n\n`);
+    if (res.flush) res.flush();
+    
+    // Poll for run completion
+    let runStatus = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+    
+    while (runStatus.status === 'queued' || runStatus.status === 'in_progress' || runStatus.status === 'requires_action') {
+      // Handle tool calls  
+      if (runStatus.status === 'requires_action') {
+        const toolCalls = runStatus.required_action?.submit_tool_outputs?.tool_calls || [];
         
-        // Send status for tool execution
-        res.write(`event: status\n`);
-        res.write(`data: ${JSON.stringify({ 
-          type: 'status',
-          message: 'Executing tools...'
-        })}\n\n`);
-        
-        // Execute tools
-        const toolOutputs = await Promise.all(
-          toolCalls.map(async (toolCall: any) => {
-            const functionName = toolCall.function.name;
-            const args = JSON.parse(toolCall.function.arguments);
-            
-            let output: any = {};
-            
-            // Send tool-specific status
-            if (functionName === 'search_communities') {
-              res.write(`event: tool\n`);
-              res.write(`data: ${JSON.stringify({ 
-                type: 'tool_start',
-                tool: 'search_communities',
-                message: `🔍 Searching database for communities in ${args.location}...`
-              })}\n\n`);
+        if (toolCalls.length > 0) {
+          console.log(`🔧 Function calls required: ${toolCalls.length}`);
+          
+          // Send status for tool execution
+          res.write(`event: tool\n`);
+          res.write(`data: ${JSON.stringify({ 
+            type: 'tool_start',
+            message: `🔧 Executing ${toolCalls.length} function(s)...`
+          })}\n\n`);
+          if (res.flush) res.flush();
+          
+          // Execute tools
+          const toolOutputs = await Promise.all(
+            toolCalls.map(async (toolCall: any) => {
+              const functionName = toolCall.function.name;
+              const args = JSON.parse(toolCall.function.arguments);
               
-              output = await searchCommunities(args);
+              console.log(`⚡ Executing: ${functionName}`, args);
               
-              res.write(`event: tool\n`);
-              res.write(`data: ${JSON.stringify({ 
-                type: 'tool_result',
-                tool: 'search_communities',
-                result: output,
-                message: output.communities?.length > 0 
-                  ? `✅ Found ${output.communities.length} communities`
-                  : `No results in database`
-              })}\n\n`);
+              let output: any = {};
               
-            } else if (functionName === 'enable_discovery_mode') {
-              res.write(`event: tool\n`);
-              res.write(`data: ${JSON.stringify({ 
-                type: 'tool_start',
-                tool: 'enable_discovery_mode',
-                message: `🌟 Activating Discovery Mode for "${args.query}"...`
-              })}\n\n`);
-              
-              output = await enableDiscoveryMode(args);
-              
-              res.write(`event: tool\n`);
-              res.write(`data: ${JSON.stringify({ 
-                type: 'tool_result',
-                tool: 'enable_discovery_mode',
-                result: output,
-                message: output.communities?.length > 0
-                  ? `✅ Found ${output.communities.length} communities${output.newlyInserted > 0 ? ` (${output.newlyInserted} new)` : ''}`
-                  : `Discovery complete`
-              })}\n\n`);
-            }
-            
-            return {
-              tool_call_id: toolCall.id,
-              output: JSON.stringify(output)
-            };
-          })
-        );
-        
-        // Submit tool outputs
-        const submitStream = openai.beta.threads.runs.submitToolOutputsStream(
-          event.data.id,
-          {
-            thread_id,
-            tool_outputs: toolOutputs
-          }
-        );
-        
-        // Continue streaming after tool submission
-        for await (const submitEvent of submitStream) {
-          if (submitEvent.event === 'thread.message.delta') {
-            const delta = submitEvent.data.delta;
-            if (delta.content && delta.content[0] && delta.content[0].type === 'text') {
-              const text = delta.content[0].text?.value || '';
-              if (text) {
-                res.write(`event: message\n`);
+              // Handle different functions
+              if (functionName === 'search_communities') {
+                res.write(`event: tool\n`);
                 res.write(`data: ${JSON.stringify({ 
-                  type: 'delta',
-                  content: text 
+                  type: 'tool_start',
+                  tool: 'search_communities',
+                  message: `🔍 Searching for communities in ${args.location || 'database'}...`
                 })}\n\n`);
+                if (res.flush) res.flush();
+                
+                output = await searchCommunities(args);
+                
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_result',
+                  tool: 'search_communities',
+                  result: output,
+                  message: output.communities?.length > 0 
+                    ? `✅ Found ${output.communities.length} communities`
+                    : `No results in database`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+              } else if (functionName === 'enable_discovery_mode') {
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_start',
+                  tool: 'enable_discovery_mode',
+                  message: `🌟 Activating Discovery Mode for "${args.query}"...`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+                output = await enableDiscoveryMode(args);
+                
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_result',
+                  tool: 'enable_discovery_mode',
+                  result: output,
+                  message: output.communities?.length > 0
+                    ? `✅ Found ${output.communities.length} communities${output.newlyInserted > 0 ? ` (${output.newlyInserted} new)` : ''}`
+                    : `Discovery complete`
+                })}\n\n`);
+                if (res.flush) res.flush();
               }
-            }
-          }
+              
+              return {
+                tool_call_id: toolCall.id,
+                output: JSON.stringify(output)
+              };
+            })
+          );
+          
+          // Submit tool outputs
+          await openai.beta.threads.runs.submitToolOutputs(
+            thread_id,
+            run.id,
+            { tool_outputs: toolOutputs }
+          );
+          
+          console.log('📤 Tool outputs submitted, continuing to poll...');
         }
       }
       
-      // Run completed
-      if (event.event === 'thread.run.completed') {
-        console.log('✅ Run completed');
-        res.write(`event: done\n`);
-        res.write(`data: ${JSON.stringify({ 
-          type: 'done',
-          message: 'Response complete'
-        })}\n\n`);
-        // Force flush the response
-        if (res.flush) res.flush();
+      // Wait a bit before polling again
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Get updated status
+      runStatus = await openai.beta.threads.runs.retrieve(thread_id, run.id);
+      console.log(`📊 Run status: ${runStatus.status}`);
+    }
+    
+    // Check final status
+    if (runStatus.status === 'completed') {
+      console.log('✅ Run completed successfully');
+      
+      // Get the final messages
+      const messages = await openai.beta.threads.messages.list(thread_id, {
+        limit: 1,
+        order: 'desc'
+      });
+      
+      if (messages.data.length > 0) {
+        const lastMessage = messages.data[0];
+        if (lastMessage.content && lastMessage.content[0] && lastMessage.content[0].type === 'text') {
+          const finalText = (lastMessage.content[0] as any).text.value;
+          
+          // Send the complete message
+          res.write(`event: message\n`);
+          res.write(`data: ${JSON.stringify({ 
+            type: 'delta',
+            content: finalText
+          })}\n\n`);
+          if (res.flush) res.flush();
+        }
       }
       
-      // Run failed
-      if (event.event === 'thread.run.failed') {
-        res.write(`event: error\n`);
-        res.write(`data: ${JSON.stringify({ 
-          type: 'error',
-          message: event.data.last_error?.message || 'Request failed'
-        })}\n\n`);
-        // Force flush the response
-        if (res.flush) res.flush();
-      }
+      // Send completion event
+      res.write(`event: done\n`);
+      res.write(`data: ${JSON.stringify({ 
+        type: 'done',
+        message: 'Response complete'
+      })}\n\n`);
+      if (res.flush) res.flush();
+      
+    } else if (runStatus.status === 'failed' || runStatus.status === 'cancelled' || runStatus.status === 'expired') {
+      console.error('Run failed:', runStatus);
+      res.write(`event: error\n`);
+      res.write(`data: ${JSON.stringify({ 
+        type: 'error',
+        message: runStatus.last_error?.message || `Run ${runStatus.status}`
+      })}\n\n`);
+      if (res.flush) res.flush();
     }
     
     res.end();

@@ -1,9 +1,11 @@
 import express, { Request, Response } from 'express';
 import crypto from 'crypto';
-import { activeSessions } from './chatkit-secure-stream';
 import OpenAI from 'openai';
 
 const router = express.Router();
+
+// Store active sessions
+export const activeSessions = new Map();
 
 // Initialize OpenAI client
 const openai = new OpenAI({
