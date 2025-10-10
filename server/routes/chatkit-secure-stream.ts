@@ -236,30 +236,4 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
   }
 });
 
-// WebSocket-compatible endpoint for future use
-router.ws('/api/chatkit/ws', validateSession, (ws: any, req: Request) => {
-  const session = (req as any).session;
-  
-  ws.on('message', async (msg: string) => {
-    try {
-      const data = JSON.parse(msg);
-      
-      if (data.type === 'message') {
-        // Handle message similar to streaming endpoint
-        // Implementation for WebSocket support
-      }
-      
-    } catch (error) {
-      ws.send(JSON.stringify({
-        type: 'error',
-        message: 'Invalid message format'
-      }));
-    }
-  });
-  
-  ws.on('close', () => {
-    console.log('ChatKit WebSocket closed');
-  });
-});
-
 export default router;

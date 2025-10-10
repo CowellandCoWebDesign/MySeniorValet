@@ -810,4 +810,5 @@ async function compareCommunities(args: any) {
   };
 }
 
+export { searchCommunities, enableDiscoveryMode };
 export default router;
