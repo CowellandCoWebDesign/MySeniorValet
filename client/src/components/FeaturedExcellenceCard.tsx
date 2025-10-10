@@ -189,7 +189,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
     : community.rating || 4.5;
 
   return (
-    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 ${compact ? 'w-80 flex-shrink-0' : ''}`}>
+    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 ${compact ? '' : ''}`}>
       {/* Hero Image with Carousel */}
       <div className={`relative ${compact ? 'h-36' : 'h-40'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900`}>
         {enrichedPhotos && enrichedPhotos.length > 0 ? (
