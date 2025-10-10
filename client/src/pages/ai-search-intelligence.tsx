@@ -2172,7 +2172,7 @@ export default function AISearchIntelligence() {
               {layoutMode === 'horizontal' && (
               <div className="grid grid-cols-2 gap-2 sm:gap-4">
                 {/* List Section - Left Side */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col max-h-[400px] sm:max-h-[500px] md:max-h-[600px]">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col h-[400px] sm:h-[500px] md:h-[600px]">
                   {/* Header with result count */}
                   <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
@@ -2238,7 +2238,7 @@ export default function AISearchIntelligence() {
                             <div 
                               key={community.id}
                               id={`community-${community.id}`}
-                              className="mb-3"
+                              className="p-2"
                             >
                               <FeaturedExcellenceCard 
                                 community={{
@@ -2258,7 +2258,7 @@ export default function AISearchIntelligence() {
                                 }}
                                 index={index}
                                 compact={true}
-                                disableAutoPhotoLoad={false}
+                                disableAutoPhotoLoad={true}
                               />
                             </div>
                           );
