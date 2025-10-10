@@ -50,7 +50,7 @@ import GracefulFallbackMessage from '@/components/GracefulFallbackMessage';
 import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
 import { MySeniorValetChatKit } from '@/components/MySeniorValetChatKit';
-import { OfficialChatKit } from '@/components/OfficialChatKit';
+import { OfficialChatKitWithFallback } from '@/components/OfficialChatKitWithFallback';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -219,7 +219,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
   const [searchPlaceholder, setSearchPlaceholder] = useState('');
-  const [useOfficialChatKit, setUseOfficialChatKit] = useState(false); // Toggle for ChatKit implementation
+  const [useOfficialChatKit, setUseOfficialChatKit] = useState(true); // Default to ChatKit with fallback
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {
@@ -846,7 +846,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           {/* ChatKit Container - Conversational AI Interface */}
           <div className="w-full relative z-10">
             {useOfficialChatKit ? (
-              <OfficialChatKit 
+              <OfficialChatKitWithFallback 
                 className="shadow-lg"
               />
             ) : (
