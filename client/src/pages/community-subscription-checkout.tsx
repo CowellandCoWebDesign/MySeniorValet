@@ -10,103 +10,120 @@ import { apiRequest } from '@/lib/queryClient';
 import { NavigationHeader } from '@/components/NavigationHeader';
 
 const SUBSCRIPTION_TIERS = {
-  starter: {
-    key: 'starter',
-    displayName: 'Community Starter',
-    price: 99,
-    color: 'bg-gray-100 text-gray-800',
+  free: {
+    key: 'free',
+    displayName: '✅ Free',
+    price: 0,
+    color: 'bg-green-100 text-green-800',
     icon: CheckCircle2,
     features: [
-      'Basic listing with verified badge',
-      '5 photos + description',
-      '10 leads/month with contact info',
-      'Basic analytics dashboard',
-      'Standard search ranking',
-      'Basic messaging with families'
+      'Basic unverified listing',
+      'Visible in public search',
+      'AI-suggested photos (up to 10)',
+      'Editable contact info and hours',
+      'Access to TourTracker™ family requests',
+      'Basic family tools',
+      'Community invitation to claim listing',
+      'Knowledge base support'
     ],
     limitations: [
-      'No 3D tour embed',
-      'No reservation system',
-      'Limited CRM integration'
+      'No verified badge',
+      'Limited editing access',
+      'No payment processing'
     ],
-    note: 'Perfect for testing the platform'
+    note: 'Get started at no cost'
   },
-  growth: {
-    key: 'growth',
-    displayName: 'Community Growth',
-    price: 299,
+  starter: {
+    key: 'starter',
+    displayName: '🚀 Starter',
+    price: 149,
     color: 'bg-blue-100 text-blue-800',
     icon: Star,
     features: [
-      'All Starter features, plus:',
-      '3D tour embed capability',
-      '25 photos + videos',
-      '50 leads/month with scoring',
-      'Unit reservation system',
-      'Enhanced search (3x visibility)',
-      'CRM integration (Yardi, Aline)',
-      'Tour scheduler integration'
+      'Everything in Free, plus:',
+      'Verified & claimed listing badge',
+      'Full editing control',
+      'Payment processing (Stripe)',
+      'Reservation management system',
+      'Partner & deposit tracking',
+      'Custom brochures (upload 1)',
+      'Up to 20 AI-enhanced photos',
+      'Background checks & insurance tracking',
+      'Email support'
     ],
-    limitations: [],
-    note: 'Most popular choice for active communities'
+    limitations: [
+      'No tour scheduling',
+      'No AI document generation',
+      'Limited messaging'
+    ],
+    note: 'Perfect for small communities'
   },
-  professional: {
-    key: 'professional',
-    displayName: 'Community Professional',
-    price: 999,
-    color: 'bg-purple-100 text-purple-800',
+  growth: {
+    key: 'growth',
+    displayName: '📈 Growth',
+    price: 249,
+    color: 'bg-emerald-100 text-emerald-800',
     icon: Shield,
     features: [
-      'All Growth features, plus:',
-      'AI lease management system',
-      'Multiple 3D tour embeds',
-      'Unlimited leads with AI scoring',
-      'Featured search (5x visibility)',
-      'Insurance tracking & compliance',
-      'Advanced reservation management',
-      'DocuSign integration for leases'
+      'Everything in Starter, plus:',
+      'Tour scheduling + auto-reminders',
+      'Full messaging (in-app + SMS)',
+      '📄 2 AI documents/month (+$45 each after)',
+      'Document upload center (up to 10)',
+      'Electronic signing tools',
+      'Custom welcome packet builder',
+      'Tour analytics + occupancy stats',
+      'Integrations (Zapier, CRM sync)',
+      'Priority support'
     ],
-    limitations: [],
-    note: 'Includes AI-powered lease automation'
+    limitations: [
+      'Limited to 2 AI documents/month'
+    ],
+    note: 'Most popular for growing communities'
   },
   premium: {
     key: 'premium',
-    displayName: 'Community Premium',
-    price: 1999,
-    color: 'bg-yellow-100 text-yellow-800',
+    displayName: '💼 Premium',
+    price: 399,
+    color: 'bg-purple-100 text-purple-800',
     icon: Crown,
     features: [
-      'All Professional features, plus:',
-      'Payment processing (2.9% + $0.30)',
-      'Move-in cost calculator',
-      'Accept deposits & monthly rent',
-      'Unlimited 3D embeds',
-      'Platinum search (10x visibility)',
-      'Multi-property dashboard',
-      'Revenue optimization AI',
-      'Priority support'
+      'Everything in Growth, plus:',
+      '📄 4 AI documents/month (+$45 each after)',
+      'Advanced analytics dashboard',
+      'Real-time pricing & occupancy tools',
+      'Custom branding + white-labeled',
+      'Multi-property admin dashboard',
+      'Unlimited document uploads',
+      'Bulk lead imports & outreach',
+      'Internal notes, tags & logs',
+      'Phone + email support'
     ],
-    limitations: [],
-    note: 'Complete payment processing included'
+    limitations: [
+      'Limited to 4 AI documents/month'
+    ],
+    note: 'Full-stack tools for multi-site operators'
   },
   enterprise: {
     key: 'enterprise',
-    displayName: 'Community Enterprise',
-    price: 3999,
+    displayName: '🏢 Enterprise',
+    price: 0,
     color: 'bg-gradient-to-r from-purple-100 to-blue-100 text-purple-800',
     icon: Sparkles,
     features: [
       'Everything in Premium, plus:',
-      'White-label platform',
-      'API access (100k calls/month)',
-      'Custom integrations',
-      'Dedicated success manager',
-      'Quarterly business reviews',
-      'On-site training',
-      'Custom reporting'
+      'Unlimited AI documents',
+      'Fully customized toolset',
+      'API access & bulk data sync',
+      'Dedicated onboarding',
+      'SLA-backed support',
+      'Real-time business intelligence',
+      'Exclusive analytics & dashboards',
+      'Custom partnerships',
+      'Early feature access'
     ],
     limitations: [],
-    note: 'Fortune 500-level infrastructure'
+    note: 'Contact sales for custom pricing'
   }
 };
 

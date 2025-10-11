@@ -3170,7 +3170,7 @@ export default function MySeniorValetHome() {
                     <div className="space-y-2 flex-shrink-0 min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
                         <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $4,999+/mo</span>
+                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $399+/mo</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
@@ -3197,100 +3197,145 @@ export default function MySeniorValetHome() {
                     {/* Right side - Pricing Tiers Preview */}
                     <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>💰</span> 6 Tier Options
+                        <span>💰</span> 5 Tier Options
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
                         <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Free Claim ✨</p>
-                            <p className="text-xs font-bold text-green-600 dark:text-green-400">FREE</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">✅ Free</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$0/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Claim & verify your listing, edit contact info, 1 photo</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic unverified listing, AI photos (10), contact info, TourTracker™ access</p>
                         </div>
                         <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Starter</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🚀 Starter</p>
                             <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic profile, lead generation, analytics</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Verified badge, payment processing, reservations, 20 photos, email support</p>
                         </div>
-                        <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded">
+                        <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded border border-green-300 dark:border-green-700">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Growth</p>
-                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$399/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">📈 Growth</p>
+                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$249/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Direct messaging, reservation mgmt, 3D tours, priority support</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour scheduling, messaging, 2 AI docs/mo (+$45 ea), analytics, priority support</p>
                         </div>
-                        <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border border-purple-300 dark:border-purple-700">
+                        <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border-2 border-purple-400 dark:border-purple-600">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Professional ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$1,299/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">💼 Premium ⭐</p>
+                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$399/mo</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Multi-property (5), lead tracking, CRM integration</p>
-                        </div>
-                        <div className="p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Premium</p>
-                            <p className="text-xs font-bold text-yellow-700 dark:text-yellow-400">$2,499/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Payment processing, AI insights, 10 properties</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Advanced analytics, 4 AI docs/mo (+$45 ea), custom branding, multi-property</p>
                         </div>
                         <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
                           <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Enterprise</p>
-                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$4,999+/mo</p>
+                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🏢 Enterprise</p>
+                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Coming Soon</p>
                           </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Full resident mgmt, white-label, 25 properties</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Custom toolset, API access, dedicated support, unlimited AI docs</p>
                         </div>
-                        <div className="mt-3 p-2 bg-gradient-to-r from-green-500/20 to-emerald-600/20 dark:from-green-500/10 dark:to-emerald-600/10 rounded border border-green-300 dark:border-green-700">
-                          <p className="text-xs font-semibold text-green-700 dark:text-green-300 text-center">🚀 PHASE 5A COMPLETE</p>
-                          <p className="text-xs text-green-600 dark:text-green-400 text-center mt-1">All features operational!</p>
+                        <div className="mt-3 p-2 bg-gradient-to-r from-yellow-500/20 to-orange-600/20 dark:from-yellow-500/10 dark:to-orange-600/10 rounded border border-yellow-300 dark:border-yellow-700">
+                          <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 text-center">💡 SAVE 20% WITH ANNUAL BILLING</p>
+                          <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center mt-1">All plans include annual discount!</p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Roadmap Features Section */}
+                  {/* Comprehensive Features Section */}
                   <div className="mt-4 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 Key Features by Tier</p>
+                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">📊 Complete Feature Breakdown</p>
                     <div className="space-y-2">
-                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">Professional ($1,299):</div>
+                      
+                      {/* Free Tier */}
+                      <div className="text-xs font-medium text-green-700 dark:text-green-300">✅ Free ($0/mo):</div>
                       <div className="grid grid-cols-2 gap-1 text-xs mb-2">
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">AI Lease Generation</span>
+                          <span className="text-gray-700 dark:text-gray-300">Basic listing</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Move-in Calculator</span>
+                          <span className="text-gray-700 dark:text-gray-300">10 AI photos</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Insurance Tracking</span>
+                          <span className="text-gray-700 dark:text-gray-300">Contact info</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Real-Time Availability</span>
+                          <span className="text-gray-700 dark:text-gray-300">TourTracker™ access</span>
                         </div>
                       </div>
-                      <div className="text-xs font-medium text-orange-700 dark:text-orange-300">Premium+ ($2,499+):</div>
+                      
+                      {/* Starter Tier */}
+                      <div className="text-xs font-medium text-blue-700 dark:text-blue-300">🚀 Starter ($149/mo):</div>
+                      <div className="grid grid-cols-2 gap-1 text-xs mb-2">
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Verified badge</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Payment processing</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Reservation system</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">20 AI photos</span>
+                        </div>
+                      </div>
+                      
+                      {/* Growth Tier */}
+                      <div className="text-xs font-medium text-emerald-700 dark:text-emerald-300">📈 Growth ($249/mo):</div>
+                      <div className="grid grid-cols-2 gap-1 text-xs mb-2">
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Tour scheduling</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Family messaging</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">2 AI docs/mo</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <CheckSquare className="h-3 w-3 text-green-500" />
+                          <span className="text-gray-700 dark:text-gray-300">Analytics dashboard</span>
+                        </div>
+                      </div>
+                      
+                      {/* Premium Tier */}
+                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">💼 Premium ($399/mo):</div>
                       <div className="grid grid-cols-2 gap-1 text-xs">
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Healthcare Integration</span>
+                          <span className="text-gray-700 dark:text-gray-300">4 AI docs/mo</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Payment Processing</span>
+                          <span className="text-gray-700 dark:text-gray-300">Custom branding</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Multi-Site Management</span>
+                          <span className="text-gray-700 dark:text-gray-300">Multi-property</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">White-Label Options</span>
+                          <span className="text-gray-700 dark:text-gray-300">Phone support</span>
                         </div>
+                      </div>
+                      
+                      <div className="mt-2 p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
+                        <p className="text-xs text-center text-yellow-700 dark:text-yellow-400">
+                          📄 Additional AI documents: $45 each after monthly limit
+                        </p>
                       </div>
                     </div>
                   </div>

@@ -90,21 +90,45 @@ export default function CommunityPortal() {
 
   const plans = [
     {
+      id: 'free',
+      name: '✅ Free',
+      price: '$0',
+      priceValue: 0,
+      tier: 'free',
+      tagline: 'Get started at no cost',
+      description: 'Basic visibility for your community',
+      features: [
+        { text: 'Basic unverified listing', included: true },
+        { text: 'Visible in public search', included: true },
+        { text: 'AI-suggested photos (up to 10)', included: true },
+        { text: 'Editable contact info and hours', included: true },
+        { text: 'Access to TourTracker™ family requests', included: true },
+        { text: 'Basic family tools (save, compare, share)', included: true },
+        { text: 'Community invitation to claim listing', included: true },
+        { text: 'Limited editing access', included: true },
+        { text: 'Knowledge base support', included: true }
+      ],
+      buttonText: 'Claim Free Listing',
+      popular: false
+    },
+    {
       id: 'starter',
-      name: 'Starter',
+      name: '🚀 Starter',
       price: '$149',
       priceValue: 149,
       tier: 'starter',
-      tagline: 'Essential online presence',
-      description: 'Perfect for single communities',
+      tagline: 'Convert leads efficiently',
+      description: 'For small or independent communities',
       features: [
-        { text: 'Basic profile with 5 photos', included: true },
-        { text: 'Pricing & availability display', included: true },
-        { text: 'Contact information', included: true },
-        { text: 'Analytics dashboard', included: true },
-        { text: 'Tour scheduling', included: true },
-        { text: 'Standard search placement', included: true },
-        { text: 'Monthly performance report', included: true },
+        { text: 'Everything in Free, plus:', header: true },
+        { text: 'Verified & claimed listing badge', included: true },
+        { text: 'Full editing control of listing', included: true },
+        { text: 'Payment processing (Stripe integration)', included: true },
+        { text: 'Reservation management system', included: true },
+        { text: 'Partner & deposit tracking tools', included: true },
+        { text: 'Custom brochures (upload 1)', included: true },
+        { text: 'Up to 20 AI-enhanced photos', included: true },
+        { text: 'Background checks & insurance tracking', included: true },
         { text: 'Email support', included: true }
       ],
       buttonText: 'Start with Starter',
@@ -112,98 +136,70 @@ export default function CommunityPortal() {
     },
     {
       id: 'growth',
-      name: 'Growth',
-      price: '$399',
-      priceValue: 399,
+      name: '📈 Growth',
+      price: '$249',
+      priceValue: 249,
       tier: 'growth',
-      tagline: 'Enhanced visibility & features',
-      description: 'Includes 3D tour technology',
+      tagline: 'Automate & scale',
+      description: 'For growing communities',
       features: [
         { text: 'Everything in Starter, plus:', header: true },
-        { text: '💬 Live messaging with families', included: true, highlight: true },
-        { text: '📅 Reservation Management (credit card hold, no deposit)', included: true, highlight: true },
-        { text: '🏠 3D tour embed capability', included: true, highlight: true },
-        { text: 'Enhanced listing with 20 photos', included: true },
-        { text: 'Featured search ranking', included: true },
-        { text: 'TourMate™ advanced scheduling', included: true },
-        { text: 'Lead tracking & CRM exports', included: true },
-        { text: 'Priority phone support', included: true },
-        { text: 'Weekly analytics reports', included: true }
+        { text: 'Tour scheduling + auto-reminders', included: true, highlight: true },
+        { text: 'Full messaging (in-app + SMS)', included: true, highlight: true },
+        { text: '📄 2 AI documents/month (+$45 each after)', included: true, highlight: true },
+        { text: 'Document upload center (up to 10)', included: true },
+        { text: 'Electronic signing tools', included: true },
+        { text: 'Custom welcome packet builder', included: true },
+        { text: 'Tour analytics + occupancy stats', included: true },
+        { text: 'Integrations (Zapier, CRM sync)', included: true },
+        { text: 'Priority support', included: true }
       ],
       buttonText: 'Upgrade to Growth',
-      popular: false
-    },
-    {
-      id: 'professional',
-      name: 'Professional',
-      price: '$1,299',
-      priceValue: 1299,
-      tier: 'professional',
-      tagline: 'Multi-property management',
-      description: 'Most popular for portfolios',
-      features: [
-        { text: 'Everything in Growth, plus:', header: true },
-        { text: '⭐ Manage up to 5 properties', included: true, highlight: true },
-        { text: '🤖 AI lease generation & move-in paperwork', included: true, highlight: true },
-        { text: '🛡️ Rental insurance tracking', included: true },
-        { text: 'Advanced lead tracking & CRM exports', included: true },
-        { text: 'RMS integration (Yardi, Aline, etc.)', included: true },
-        { text: 'Move-in cost calculator', included: true },
-        { text: 'Unlimited photos & videos', included: true },
-        { text: 'Custom performance analytics', included: true },
-        { text: 'Revenue optimization tools', included: true },
-        { text: 'API access (limited)', included: true },
-        { text: 'Dedicated success manager', included: true }
-      ],
-      buttonText: 'Go Professional',
       popular: true
     },
     {
       id: 'premium',
-      name: 'Premium',
-      price: '$2,499',
-      priceValue: 2499,
+      name: '💼 Premium',
+      price: '$399',
+      priceValue: 399,
       tier: 'premium',
-      tagline: 'Enterprise-grade features',
-      description: 'For large portfolios',
+      tagline: 'Full-stack tools',
+      description: 'For large or multi-site operators',
       features: [
-        { text: 'Everything in Professional, plus:', header: true },
-        { text: '💎 Manage up to 10 properties', included: true, highlight: true },
-        { text: '💳 Payment & deposit processing', included: true, highlight: true },
-        { text: '🏥 Healthcare integrations (Epic, Cerner)', included: true },
-        { text: 'AI-powered insights & forecasting', included: true },
-        { text: 'Medicare eligibility verification', included: true },
-        { text: 'Pharmacy network integration', included: true },
-        { text: 'Financial reporting suite', included: true },
-        { text: 'Compliance monitoring', included: true },
-        { text: 'Custom integrations', included: true },
-        { text: 'Priority API access', included: true },
-        { text: 'Quarterly business reviews', included: true }
+        { text: 'Everything in Growth, plus:', header: true },
+        { text: '📄 4 AI documents/month (+$45 each after)', included: true, highlight: true },
+        { text: 'Advanced analytics dashboard', included: true, highlight: true },
+        { text: 'Real-time pricing & occupancy tools', included: true, highlight: true },
+        { text: 'Custom branding + white-labeled experience', included: true },
+        { text: 'Multi-property admin dashboard', included: true },
+        { text: 'Unlimited document uploads & storage', included: true },
+        { text: 'Bulk lead imports & outreach tools', included: true },
+        { text: 'Internal notes, tags & activity logs', included: true },
+        { text: 'Phone + email support', included: true }
       ],
-      buttonText: 'Upgrade to Premium',
+      buttonText: 'Go Premium',
       popular: false
     },
     {
       id: 'enterprise',
-      name: 'Enterprise',
-      price: '$4,999',
-      priceValue: 4999,
+      name: '🏢 Enterprise',
+      price: 'Contact Sales',
+      priceValue: 0,
       tier: 'enterprise',
-      tagline: 'White-label & unlimited scale',
-      description: 'Fortune 500 infrastructure',
+      tagline: 'Fully customized',
+      description: 'For enterprise groups, REITs, or large portfolios',
       features: [
         { text: 'Everything in Premium, plus:', header: true },
-        { text: '🚀 Manage up to 25 properties', included: true, highlight: true },
-        { text: '👥 Full Resident Management System', included: true, highlight: true },
-        { text: 'White-label platform options', included: true },
-        { text: 'Full API access & webhooks', included: true },
-        { text: 'Custom domain & branding', included: true },
-        { text: 'Dedicated infrastructure', included: true },
-        { text: 'SLA guarantees', included: true },
-        { text: 'Custom contract terms', included: true },
-        { text: 'Executive partnership team', included: true }
+        { text: 'Unlimited AI documents', included: true, highlight: true },
+        { text: 'Fully customized toolset', included: true, highlight: true },
+        { text: 'API access & bulk data sync', included: true },
+        { text: 'Dedicated onboarding', included: true },
+        { text: 'SLA-backed support', included: true },
+        { text: 'Real-time business intelligence suite', included: true },
+        { text: 'Exclusive analytics & dashboards', included: true },
+        { text: 'Custom partnerships & early feature access', included: true }
       ],
-      buttonText: 'Contact Enterprise Sales',
+      buttonText: 'Contact Sales',
       popular: false
     }
   ];
@@ -212,16 +208,17 @@ export default function CommunityPortal() {
     try {
       // Map plan names to product IDs
       const productIdMap: Record<string, string> = {
+        '✅ Free': 'free',
+        '🚀 Starter': 'starter',
+        '📈 Growth': 'growth',
+        '💼 Premium': 'premium',
+        '🏢 Enterprise': 'enterprise',
+        // Keep legacy names for backward compatibility
+        'Free': 'free',
         'Starter': 'starter',
         'Growth': 'growth',
-        'Professional': 'professional',
         'Premium': 'premium',
-        'Enterprise': 'enterprise',
-        // Keep legacy names for backward compatibility
-        'Verified Listing': 'verified',
-        'Standard': 'standard', 
-        'Featured': 'featured',
-        'Platinum': 'platinum'
+        'Enterprise': 'enterprise'
       };
 
       const productId = productIdMap[planName];
@@ -236,7 +233,7 @@ export default function CommunityPortal() {
       }
 
       // For free tier, handle differently
-      if (productId === 'verified') {
+      if (productId === 'free') {
         // If it's an existing community claiming free tier
         if (existingCommunityData) {
           try {
