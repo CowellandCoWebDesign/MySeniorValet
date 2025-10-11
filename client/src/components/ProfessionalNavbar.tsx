@@ -353,11 +353,11 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
           {/* Right Section: Language, Notifications, User, Theme, Accessibility */}
           <div className="flex items-center space-x-1 lg:space-x-2">
-            {/* Language Selector */}
+            {/* Language Selector - Hidden on small screens to save space */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className="text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
+                  className="hidden sm:block text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
                   aria-label="Select language"
                 >
                   {currentLanguage.flag}
@@ -386,9 +386,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             {isAuthenticated && (
               <Button variant="ghost" size="icon" className="relative text-gray-700 dark:text-gray-300">
                 <Bell className="h-5 w-5" />
-                {unreadCount && Number(unreadCount) > 0 && (
+                {typeof unreadCount === 'number' && unreadCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-                    <span>{Number(unreadCount)}</span>
+                    <span>{unreadCount}</span>
                   </Badge>
                 )}
               </Button>
@@ -450,7 +450,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               <Link href="/signup">
                 <Button 
                   size="default" 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-5 py-2.5 rounded-xl transition-all duration-200"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl transition-all duration-200 text-sm sm:text-base"
                 >
                   Get Started
                 </Button>
