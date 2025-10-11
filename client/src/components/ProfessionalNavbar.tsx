@@ -33,9 +33,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-// Theme Toggle Light Designs - As per user specifications
-import projectorBeamON from '@assets/generated_images/Projector_beam_ON_8052678e.png'; // Dark mode toggle (Cinema Projector)
-import victorianCrystalChandelier from '@assets/generated_images/Victorian_crystal_chandelier_56b1af95.png'; // Light mode toggle (Victorian Crystal)
 
 interface NavbarProps {
   transparent?: boolean;
@@ -460,18 +457,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </Link>
             )}
 
-            {/* Theme Toggle - Victorian Crystal Chandelier (Light) / Cinema Projector (Dark) */}
+            {/* Theme Toggle - Sun/Moon Emoji */}
             <button
               onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-              className="hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1 ml-2"
+              className="text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1 ml-2"
               aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
               title={theme === 'dark' ? 'Light mode' : 'Dark mode'}
             >
-              <img 
-                src={theme === 'dark' ? projectorBeamON : victorianCrystalChandelier} 
-                alt={theme === 'dark' ? 'Cinema Projector' : 'Victorian Crystal Chandelier'}
-                className="w-8 h-8 object-contain rounded"
-              />
+              {theme === 'dark' ? '☀️' : '🌙'}
             </button>
 
             {/* Accessibility Button - Furthest Right */}
