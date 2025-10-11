@@ -7254,3 +7254,196 @@ export const insertDmcaTakedownSchema = createInsertSchema(dmcaTakedowns)
   .omit({ id: true, receivedAt: true });
 export type InsertDmcaTakedown = z.infer<typeof insertDmcaTakedownSchema>;
 export type SelectDmcaTakedown = typeof dmcaTakedowns.$inferSelect;
+
+// ==================== RESIDENT PAYMENT SYSTEM ====================
+
+// Resident Profiles - Tracks residents living in communities
+export const residents = pgTable("residents", {
+  id: serial("id").primaryKey(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  userId: integer("user_id").references(() => users.id), // Optional - link to user account
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  unitNumber: varchar("unit_number", { length: 50 }),
+  moveInDate: date("move_in_date"),
+  moveOutDate: date("move_out_date"),
+  status: varchar("status", { length: 50 }).default("active"), // 'active', 'notice_given', 'moved_out'
+  monthlyRent: decimal("monthly_rent", { precision: 10, scale: 2 }).notNull(),
+  leaseStartDate: date("lease_start_date"),
+  leaseEndDate: date("lease_end_date"),
+  emergencyContact: jsonb("emergency_contact").$type<{
+    name: string;
+    relationship: string;
+    phone: string;
+    email?: string;
+  }>(),
+  paymentDueDay: integer("payment_due_day").default(1), // Day of month rent is due
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_residents_community").on(table.communityId),
+  index("idx_residents_email").on(table.email),
+  index("idx_residents_status").on(table.status),
+]);
+
+// Payment Methods - Stores resident payment methods (cards and ACH)
+export const paymentMethods = pgTable("payment_methods", {
+  id: serial("id").primaryKey(),
+  residentId: integer("resident_id").references(() => residents.id, { onDelete: "cascade" }).notNull(),
+  stripePaymentMethodId: text("stripe_payment_method_id").notNull(),
+  type: varchar("type", { length: 20 }).notNull(), // 'card', 'us_bank_account'
+  isDefault: boolean("is_default").default(false),
+  // Card details
+  cardBrand: varchar("card_brand", { length: 50 }), // 'visa', 'mastercard', 'amex', etc.
+  cardLast4: varchar("card_last4", { length: 4 }),
+  cardExpMonth: integer("card_exp_month"),
+  cardExpYear: integer("card_exp_year"),
+  // Bank account details
+  bankName: varchar("bank_name", { length: 100 }),
+  accountLast4: varchar("account_last4", { length: 4 }),
+  accountType: varchar("account_type", { length: 20 }), // 'checking', 'savings'
+  // ACH verification status
+  achVerificationStatus: varchar("ach_verification_status", { length: 50 }).default("pending"), // 'pending', 'verified', 'failed'
+  achVerifiedAt: timestamp("ach_verified_at"),
+  status: varchar("status", { length: 20 }).default("active"), // 'active', 'expired', 'failed', 'removed'
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_payment_methods_resident").on(table.residentId),
+  index("idx_payment_methods_type").on(table.type),
+  index("idx_payment_methods_status").on(table.status),
+]);
+
+// Resident Payments - Tracks all resident rent and fee payments
+export const residentPayments = pgTable("resident_payments", {
+  id: serial("id").primaryKey(),
+  residentId: integer("resident_id").references(() => residents.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  paymentMethodId: integer("payment_method_id").references(() => paymentMethods.id),
+  stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+  stripeChargeId: text("stripe_charge_id"),
+  
+  // Payment details
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(), // Base rent amount
+  convenienceFee: decimal("convenience_fee", { precision: 10, scale: 2 }).default("1.99"), // $1.99 processing fee
+  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(), // amount + convenience_fee
+  
+  paymentType: varchar("payment_type", { length: 50 }).notNull(), // 'rent', 'deposit', 'late_fee', 'pet_fee', 'utility', 'other'
+  paymentMethod: varchar("payment_method", { length: 20 }).notNull(), // 'card', 'ach'
+  
+  // Status tracking
+  status: varchar("status", { length: 50 }).default("pending"), // 'pending', 'processing', 'succeeded', 'failed', 'refunded'
+  failureReason: text("failure_reason"),
+  
+  // Period tracking
+  periodStart: date("period_start"), // For rent: month being paid for
+  periodEnd: date("period_end"),
+  dueDate: date("due_date"),
+  paidDate: timestamp("paid_date"),
+  
+  // Receipt and notes
+  receiptUrl: text("receipt_url"),
+  receiptNumber: varchar("receipt_number", { length: 50 }).unique(),
+  notes: text("notes"),
+  
+  // Metadata
+  metadata: jsonb("metadata").$type<{
+    unitNumber?: string;
+    description?: string;
+    invoiceNumber?: string;
+    autoPayment?: boolean;
+  }>(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_resident_payments_resident").on(table.residentId),
+  index("idx_resident_payments_community").on(table.communityId),
+  index("idx_resident_payments_status").on(table.status),
+  index("idx_resident_payments_due_date").on(table.dueDate),
+  index("idx_resident_payments_period").on(table.periodStart, table.periodEnd),
+]);
+
+// ACH Verification Events - Tracks ACH microdeposit verification
+export const achVerificationEvents = pgTable("ach_verification_events", {
+  id: serial("id").primaryKey(),
+  paymentMethodId: integer("payment_method_id").references(() => paymentMethods.id, { onDelete: "cascade" }).notNull(),
+  residentId: integer("resident_id").references(() => residents.id).notNull(),
+  stripeVerificationId: text("stripe_verification_id"),
+  
+  eventType: varchar("event_type", { length: 50 }).notNull(), // 'initiated', 'microdeposits_sent', 'verified', 'failed'
+  status: varchar("status", { length: 50 }).notNull(), // 'pending', 'verified', 'failed'
+  
+  // Microdeposit details
+  microdepositsAmount1: integer("microdeposits_amount_1"), // Amount in cents
+  microdepositsAmount2: integer("microdeposits_amount_2"), // Amount in cents
+  verificationAttempts: integer("verification_attempts").default(0),
+  maxAttempts: integer("max_attempts").default(3),
+  
+  verifiedAt: timestamp("verified_at"),
+  failureReason: text("failure_reason"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_ach_verification_payment_method").on(table.paymentMethodId),
+  index("idx_ach_verification_resident").on(table.residentId),
+  index("idx_ach_verification_status").on(table.status),
+]);
+
+// Payment Receipts - Generated receipts for resident payments
+export const paymentReceipts = pgTable("payment_receipts", {
+  id: serial("id").primaryKey(),
+  paymentId: integer("payment_id").references(() => residentPayments.id, { onDelete: "cascade" }).notNull(),
+  residentId: integer("resident_id").references(() => residents.id).notNull(),
+  communityId: integer("community_id").references(() => communities.id).notNull(),
+  
+  receiptNumber: varchar("receipt_number", { length: 50 }).unique().notNull(),
+  receiptUrl: text("receipt_url"), // PDF URL in storage
+  receiptHtml: text("receipt_html"), // HTML template for receipt
+  
+  emailedTo: varchar("emailed_to", { length: 255 }),
+  emailedAt: timestamp("emailed_at"),
+  downloadedAt: timestamp("downloaded_at"),
+  downloadCount: integer("download_count").default(0),
+  
+  metadata: jsonb("metadata").$type<{
+    paymentMethod?: string;
+    confirmationCode?: string;
+    taxId?: string;
+  }>(),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_payment_receipts_payment").on(table.paymentId),
+  index("idx_payment_receipts_resident").on(table.residentId),
+  index("idx_payment_receipts_community").on(table.communityId),
+  index("idx_payment_receipts_number").on(table.receiptNumber),
+]);
+
+// Export schemas and types
+export const insertResidentSchema = createInsertSchema(residents)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertResident = z.infer<typeof insertResidentSchema>;
+export type SelectResident = typeof residents.$inferSelect;
+
+export const insertPaymentMethodSchema = createInsertSchema(paymentMethods)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaymentMethod = z.infer<typeof insertPaymentMethodSchema>;
+export type SelectPaymentMethod = typeof paymentMethods.$inferSelect;
+
+export const insertResidentPaymentSchema = createInsertSchema(residentPayments)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertResidentPayment = z.infer<typeof insertResidentPaymentSchema>;
+export type SelectResidentPayment = typeof residentPayments.$inferSelect;
+
+export const insertAchVerificationEventSchema = createInsertSchema(achVerificationEvents)
+  .omit({ id: true, createdAt: true });
+export type InsertAchVerificationEvent = z.infer<typeof insertAchVerificationEventSchema>;
+export type SelectAchVerificationEvent = typeof achVerificationEvents.$inferSelect;
+
+export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts)
+  .omit({ id: true, createdAt: true });
+export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
+export type SelectPaymentReceipt = typeof paymentReceipts.$inferSelect;
