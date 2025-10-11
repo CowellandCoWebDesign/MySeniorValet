@@ -1789,11 +1789,29 @@ export default function CommunityDashboard() {
                         <CardDescription>Recent transactions and payment activity</CardDescription>
                       </div>
                       <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => {
+                            toast({
+                              title: "Export Transactions",
+                              description: "Exporting payment history...",
+                            });
+                          }}
+                        >
                           <Download className="h-4 w-4 mr-2" />
                           Export
                         </Button>
-                        <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                        <Button 
+                          size="sm" 
+                          className="bg-green-600 hover:bg-green-700"
+                          onClick={() => {
+                            toast({
+                              title: "Process Payment",
+                              description: "Opening payment processing modal...",
+                            });
+                          }}
+                        >
                           <CreditCard className="h-4 w-4 mr-2" />
                           Process Payment
                         </Button>
@@ -1875,7 +1893,16 @@ export default function CommunityDashboard() {
                               </Badge>
                               <p className="font-semibold">${deposit.amount}</p>
                               {deposit.status === 'held' && (
-                                <Button variant="outline" size="sm">
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => {
+                                    toast({
+                                      title: "Refund Deposit",
+                                      description: `Processing refund for ${deposit.name}...`,
+                                    });
+                                  }}
+                                >
                                   <RefreshCw className="h-3 w-3 mr-1" />
                                   Refund
                                 </Button>
@@ -1909,10 +1936,29 @@ export default function CommunityDashboard() {
                             <p className="text-xs text-gray-600 dark:text-gray-400">Requested 2 hours ago</p>
                           </div>
                           <div className="flex gap-2">
-                            <Button variant="outline" size="sm">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => {
+                                toast({
+                                  title: "Refund Denied",
+                                  description: "Refund request has been denied",
+                                  variant: "destructive",
+                                });
+                              }}
+                            >
                               Deny
                             </Button>
-                            <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                            <Button 
+                              size="sm" 
+                              className="bg-green-600 hover:bg-green-700"
+                              onClick={() => {
+                                toast({
+                                  title: "Refund Approved",
+                                  description: "Processing refund to Sarah Martinez...",
+                                });
+                              }}
+                            >
                               Approve
                             </Button>
                           </div>
