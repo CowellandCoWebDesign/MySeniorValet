@@ -325,7 +325,7 @@ export default function CommunityDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Revenue</p>
-                      <p className="text-2xl font-bold">${community?.monthlyRevenue.toLocaleString()}</p>
+                      <p className="text-2xl font-bold">${(community?.monthlyRevenue || 0).toLocaleString()}</p>
                       <p className="text-xs text-green-600">+{analytics?.monthlyGrowth}% growth</p>
                     </div>
                     <DollarSign className="h-8 w-8 text-green-500" />
@@ -447,9 +447,9 @@ export default function CommunityDashboard() {
                 <CardContent>
                   <div className="text-3xl font-bold">{Math.floor((community?.occupancy || 0) * (community?.totalUnits || 0) / 100)}</div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    of {community?.totalUnits} units occupied
+                    of {community?.totalUnits || 0} units occupied
                   </p>
-                  <Progress value={community?.occupancy} className="mt-2" />
+                  <Progress value={community?.occupancy || 0} className="mt-2" />
                 </CardContent>
               </Card>
 
