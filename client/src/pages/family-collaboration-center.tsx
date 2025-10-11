@@ -121,10 +121,11 @@ export default function FamilyCollaborationCenter() {
   const [conText, setConText] = useState('');
 
   // Only fetch data if user is authenticated
-  const { data: messagesData, isLoading: messagesLoading } = useQuery<MessagesResponse>({
+  const { data: messagesData, isLoading: messagesLoading, error: messagesError } = useQuery<MessagesResponse>({
     queryKey: ['/api/family/messages'],
     refetchInterval: 5000, // Poll for updates every 5 seconds
     enabled: !!user, // Only run query if user is authenticated
+    retry: 2, // Reduce retries to fail faster
   });
 
   // Send message mutation
@@ -145,15 +146,17 @@ export default function FamilyCollaborationCenter() {
   });
 
   // Fetch upcoming tours from the API
-  const { data: upcomingTours = [], isLoading: toursLoading } = useQuery<Tour[]>({
+  const { data: upcomingTours = [], isLoading: toursLoading, error: toursError } = useQuery<Tour[]>({
     queryKey: ['/api/tours'],
     enabled: !!user, // Only run query if user is authenticated
+    retry: 2, // Reduce retries to fail faster
   });
 
   // Fetch visit history from the API
-  const { data: visitHistory = [], isLoading: historyLoading } = useQuery<Visit[]>({
+  const { data: visitHistory = [], isLoading: historyLoading, error: historyError } = useQuery<Visit[]>({
     queryKey: ['/api/family/visit-history'],
     enabled: !!user, // Only run query if user is authenticated
+    retry: 2, // Reduce retries to fail faster
   });
 
   // Format messages from API data
@@ -167,20 +170,24 @@ export default function FamilyCollaborationCenter() {
   })) || [];
 
   // Fetch shared favorites from the API
-  const { data: sharedFavorites = [], isLoading: favoritesLoading } = useQuery<SharedFavorite[]>({
+  const { data: sharedFavorites = [], isLoading: favoritesLoading, error: favoritesError } = useQuery<SharedFavorite[]>({
     queryKey: ['/api/family/shared-favorites'],
     enabled: !!user, // Only run query if user is authenticated
+    retry: 2, // Reduce retries to fail faster
   });
 
-  // Show loading state while checking authentication
-  if (authLoading) {
+  // Show loading state while checking authentication or fetching initial data
+  const isInitialLoading = authLoading || (user && (messagesLoading || toursLoading || historyLoading || favoritesLoading));
+  const hasAnyError = !!(messagesError || toursError || historyError || favoritesError);
+  
+  if (isInitialLoading && !hasAnyError) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
         <NavigationHeader />
         <div className="flex items-center justify-center h-[calc(100vh-64px)]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-lg text-gray-600">Loading...</p>
+            <p className="mt-4 text-lg text-gray-600">Loading your family collaboration tools...</p>
           </div>
         </div>
       </div>
