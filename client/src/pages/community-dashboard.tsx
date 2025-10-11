@@ -103,6 +103,9 @@ export default function CommunityDashboard() {
   const [selectedTimeRange, setSelectedTimeRange] = useState('30d');
   const [showAddResidentModal, setShowAddResidentModal] = useState(false);
   const [selectedResident, setSelectedResident] = useState(null);
+  const [showAddLeadModal, setShowAddLeadModal] = useState(false);
+  const [showLeadFilter, setShowLeadFilter] = useState(false);
+  const [leadFilter, setLeadFilter] = useState('all');
   const { toast } = useToast();
 
   // Fetch community data
@@ -368,19 +371,35 @@ export default function CommunityDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col gap-2"
+                    onClick={() => setActiveTab('residents')}
+                  >
                     <Plus className="h-5 w-5" />
                     Add Resident
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col gap-2"
+                    onClick={() => setActiveTab('tours')}
+                  >
                     <Calendar className="h-5 w-5" />
                     Schedule Tour
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col gap-2"
+                    onClick={() => setActiveTab('messages')}
+                  >
                     <Mail className="h-5 w-5" />
                     Send Newsletter
                   </Button>
-                  <Button variant="outline" className="h-20 flex flex-col gap-2">
+                  <Button 
+                    variant="outline" 
+                    className="h-20 flex flex-col gap-2"
+                    onClick={() => setActiveTab('analytics')}
+                  >
                     <BarChart3 className="h-5 w-5" />
                     View Reports
                   </Button>
@@ -1107,11 +1126,25 @@ export default function CommunityDashboard() {
                     <CardDescription>Track and manage your community leads</CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowLeadFilter(!showLeadFilter)}
+                    >
                       <Filter className="h-4 w-4 mr-2" />
                       Filter
                     </Button>
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    <Button 
+                      size="sm" 
+                      className="bg-purple-600 hover:bg-purple-700"
+                      onClick={() => {
+                        setShowAddLeadModal(true);
+                        toast({
+                          title: "Add Lead",
+                          description: "Lead form modal will be implemented",
+                        });
+                      }}
+                    >
                       <UserPlus className="h-4 w-4 mr-2" />
                       Add Lead
                     </Button>
