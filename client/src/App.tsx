@@ -439,6 +439,7 @@ function Router() {
       <Route path="/resident-dashboard" component={ResidentDashboard} />
       <Route path="/resident-payment-portal" component={ResidentPaymentPortal} />
       <Route path="/resident-billing/:residentId" component={ResidentBillingPortal} />
+      <Route path="/resident-billing-portal" component={ResidentBillingPortal} />
       <Route path="/operations" component={OperationsDashboard} />
       <Route path="/community-dashboard-phase5a" component={CommunityDashboardPhase5A} />
       <Route path="/multi-property-dashboard" component={MultiPropertyDashboard} />
