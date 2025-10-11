@@ -38,6 +38,13 @@ import { MoveInCostCalculator } from '@/components/MoveInCostCalculator';
 import { HealthcarePartnerships } from '@/components/HealthcarePartnerships';
 import { StripeConnectOnboarding } from '@/components/StripeConnectOnboarding';
 
+// Import all modal components
+import AddResidentModal from '@/components/modals/AddResidentModal';
+import AddLeadModal from '@/components/modals/AddLeadModal';
+import AddTourModal from '@/components/modals/AddTourModal';
+import AddUnitModal from '@/components/modals/AddUnitModal';
+import PaymentProcessingModal from '@/components/modals/PaymentProcessingModal';
+
 /**
  * Unified Community Dashboard
  * Single source of truth for all community management features
@@ -109,6 +116,7 @@ export default function CommunityDashboard() {
   const [showAddTourModal, setShowAddTourModal] = useState(false);
   const [showTourSettings, setShowTourSettings] = useState(false);
   const [showAddUnitModal, setShowAddUnitModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const { toast } = useToast();
 
   // Fetch community data
@@ -1142,10 +1150,6 @@ export default function CommunityDashboard() {
                       className="bg-purple-600 hover:bg-purple-700"
                       onClick={() => {
                         setShowAddLeadModal(true);
-                        toast({
-                          title: "Add Lead",
-                          description: "Lead form modal will be implemented",
-                        });
                       }}
                     >
                       <UserPlus className="h-4 w-4 mr-2" />
@@ -1342,10 +1346,6 @@ export default function CommunityDashboard() {
                       className="bg-indigo-600 hover:bg-indigo-700"
                       onClick={() => {
                         setShowAddTourModal(true);
-                        toast({
-                          title: "Add Virtual Tour",
-                          description: "Virtual tour form will be implemented",
-                        });
                       }}
                     >
                       <Plus className="h-4 w-4 mr-2" />
@@ -1466,10 +1466,6 @@ export default function CommunityDashboard() {
                       className="mt-4 bg-indigo-600 hover:bg-indigo-700"
                       onClick={() => {
                         setShowAddTourModal(true);
-                        toast({
-                          title: "Add Virtual Tour",
-                          description: "Virtual tour form will be implemented",
-                        });
                       }}
                     >
                       <Plus className="h-4 w-4 mr-2" />
@@ -1575,10 +1571,6 @@ export default function CommunityDashboard() {
                       className="bg-green-600 hover:bg-green-700"
                       onClick={() => {
                         setShowAddUnitModal(true);
-                        toast({
-                          title: "Add Unit",
-                          description: "Unit management form will be implemented",
-                        });
                       }}
                     >
                       <Plus className="h-4 w-4 mr-2" />
@@ -1806,10 +1798,7 @@ export default function CommunityDashboard() {
                           size="sm" 
                           className="bg-green-600 hover:bg-green-700"
                           onClick={() => {
-                            toast({
-                              title: "Process Payment",
-                              description: "Opening payment processing modal...",
-                            });
+                            setShowPaymentModal(true);
                           }}
                         >
                           <CreditCard className="h-4 w-4 mr-2" />
@@ -2544,76 +2533,36 @@ export default function CommunityDashboard() {
           </TabsContent>
         </Tabs>
 
-        {/* Add Resident Modal */}
-        <Dialog open={showAddResidentModal} onOpenChange={setShowAddResidentModal}>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Add New Resident</DialogTitle>
-              <DialogDescription>
-                Register a new resident for move-in to this community.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="Enter first name" />
-                </div>
-                <div>
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Enter last name" />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="unit">Unit Number</Label>
-                <Input id="unit" placeholder="e.g., 101A" />
-              </div>
-              <div>
-                <Label htmlFor="careLevel">Care Level</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select care level" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="independent">Independent Living</SelectItem>
-                    <SelectItem value="assisted">Assisted Living</SelectItem>
-                    <SelectItem value="memory">Memory Care</SelectItem>
-                    <SelectItem value="skilled">Skilled Nursing</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="moveInDate">Move-In Date</Label>
-                <Input id="moveInDate" type="date" />
-              </div>
-              <div>
-                <Label htmlFor="monthlyRate">Monthly Rate</Label>
-                <Input id="monthlyRate" type="number" placeholder="5000" />
-              </div>
-              <div className="flex gap-2 pt-4">
-                <Button 
-                  variant="outline" 
-                  className="flex-1"
-                  onClick={() => setShowAddResidentModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button 
-                  className="flex-1"
-                  onClick={async () => {
-                    toast({
-                      title: "Resident Added",
-                      description: "New resident has been successfully registered for move-in.",
-                    });
-                    setShowAddResidentModal(false);
-                  }}
-                >
-                  Add Resident
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Modal Components */}
+        <AddResidentModal 
+          open={showAddResidentModal} 
+          onOpenChange={setShowAddResidentModal}
+          communityId={communityId}
+        />
+        
+        <AddLeadModal
+          open={showAddLeadModal}
+          onOpenChange={setShowAddLeadModal}
+          communityId={communityId}
+        />
+        
+        <AddTourModal
+          open={showAddTourModal}
+          onOpenChange={setShowAddTourModal}
+          communityId={communityId}
+        />
+        
+        <AddUnitModal
+          open={showAddUnitModal}
+          onOpenChange={setShowAddUnitModal}
+          communityId={communityId}
+        />
+        
+        <PaymentProcessingModal
+          open={showPaymentModal}
+          onOpenChange={setShowPaymentModal}
+          communityId={communityId}
+        />
 
         {/* Resident Management Modal */}
         <Dialog open={!!selectedResident} onOpenChange={() => setSelectedResident(null)}>
