@@ -1,0 +1,133 @@
+Here’s a complete breakdown of all updated pricing tiers for MySeniorValet, incorporating everything discussed:
+
+
+---
+
+✅ Free – $0/month
+
+For unclaimed listings or entry-level visibility.
+
+Basic unverified listing
+
+Visible in public search
+
+AI-suggested photos (up to 10)
+
+Editable contact info and hours
+
+Access to TourTracker™ family requests
+
+Basic family tools (save, compare, share)
+
+Community invitation to claim listing
+
+Limited editing access
+
+Knowledge base support
+
+
+
+---
+
+🚀 Starter – $149/month
+
+_For small or independent communities ready to convert leads.
+
+Includes everything in Free, plus:
+
+Verified & claimed listing badge
+
+Full editing control of listing
+
+Payment processing (Stripe integration)
+
+Reservation management system
+
+Partner & deposit tracking tools
+
+Custom brochures (upload 1)
+
+Up to 20 AI-enhanced photos
+
+Background checks & rental insurance tracking
+
+Email support
+
+
+
+---
+
+📈 Growth – $249/month
+
+_For growing communities or small groups wanting automation.
+
+Includes everything in Starter, plus:
+
+Tour scheduling + auto-reminders
+
+Full messaging with families (in-app + SMS)
+
+Document upload center (up to 10)
+
+AI-generated lease + document automation
+
+Electronic signing tools
+
+Custom welcome packet builder
+
+Tour analytics + occupancy stats
+
+Integrations (Zapier, CRM sync)
+
+Priority support
+
+
+
+---
+
+💼 Premium – $399/month
+
+_For large or multi-site operators needing full-stack tools.
+
+Includes everything in Growth, plus:
+
+Advanced analytics dashboard
+
+Real-time pricing & occupancy data tools
+
+Custom branding + white-labeled experience
+
+Multi-property admin dashboard
+
+Unlimited document uploads & storage
+
+Bulk lead imports & outreach tools
+
+Internal notes, tags & activity logs
+
+Phone + email support
+
+
+
+---
+
+🏢 Enterprise – Coming Soon
+
+For enterprise groups, REITs, or large portfolios.
+
+Fully customized toolset
+
+API access & bulk data sync
+
+Dedicated onboarding
+
+SLA-backed support
+
+Real-time business intelligence suite
+
+Exclusive analytics & dashboards
+
+Custom partnerships & early feature access
+
+
+> 💬 Contact Sales for pricing & early access.
