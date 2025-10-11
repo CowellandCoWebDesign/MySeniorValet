@@ -91,10 +91,10 @@ export function registerCommunityStripeRoutes(app: Express) {
           .where(eq(communities.id, communityId));
       }
 
-      // Create Stripe checkout session
+      // Create Stripe checkout session with ACH and card support
       const session = await stripe.checkout.sessions.create({
         customer: stripeCustomerId,
-        payment_method_types: ['card'],
+        payment_method_types: ['card', 'us_bank_account'],
         line_items: [{
           price_data: {
             currency: 'usd',
@@ -111,6 +111,14 @@ export function registerCommunityStripeRoutes(app: Express) {
           quantity: 1,
         }],
         mode: 'subscription',
+        payment_method_options: {
+          us_bank_account: {
+            financial_connections: {
+              permissions: ['payment_method'], // Only request payment method permission, not balances
+            },
+            verification_method: 'instant', // Instant verification via Stripe Financial Connections
+          },
+        },
         success_url: `${req.protocol}://${req.get('host')}/community/${communityId}?session_id={CHECKOUT_SESSION_ID}&subscription=success`,
         cancel_url: `${req.protocol}://${req.get('host')}/community-portal-integrated`,
         metadata: {
@@ -141,13 +149,11 @@ export function registerCommunityStripeRoutes(app: Express) {
         return res.status(400).json({ message: "Invalid request" });
       }
 
-      // Retrieve session from Stripe
-      const session = await stripe.checkout.sessions.retrieve(session_id as string);
+      // Retrieve session from Stripe with expanded payment intent to get actual payment method
+      const session = await stripe.checkout.sessions.retrieve(session_id as string, {
+        expand: ['payment_intent', 'subscription.latest_invoice.payment_intent']
+      });
       
-      if (session.payment_status !== 'paid') {
-        return res.status(400).json({ message: "Payment not completed" });
-      }
-
       const communityId = parseInt(session.metadata?.communityId || '0');
       const tierKey = session.metadata?.tierKey;
 
@@ -155,15 +161,42 @@ export function registerCommunityStripeRoutes(app: Express) {
         return res.status(400).json({ message: "Invalid session metadata" });
       }
 
-      // Update community subscription
-      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+      // Update community subscription - webhooks will handle final activation
+      const subscription = await stripe.subscriptions.retrieve(session.subscription as string, {
+        expand: ['latest_invoice.payment_intent']
+      });
+
+      // Determine actual payment method used from the payment intent
+      let actualPaymentMethod: any = null;
+      let isAchPayment = false;
+      
+      if (subscription.latest_invoice && typeof subscription.latest_invoice === 'object') {
+        const invoice = subscription.latest_invoice as any;
+        if (invoice.payment_intent && typeof invoice.payment_intent === 'object') {
+          const paymentIntent = invoice.payment_intent;
+          if (paymentIntent.payment_method) {
+            actualPaymentMethod = await stripe.paymentMethods.retrieve(paymentIntent.payment_method as string);
+            isAchPayment = actualPaymentMethod.type === 'us_bank_account';
+          }
+        }
+      }
+
+      // Handle different payment statuses for ACH vs Card
+      const isPending = session.payment_status === 'unpaid' || session.payment_status === 'processing';
+      const isPaid = session.payment_status === 'paid';
+
+      if (!isPaid && !isPending) {
+        return res.status(400).json({ message: "Payment failed or was cancelled" });
+      }
+      
+      const billingStatus = isPaid ? 'active' : 'pending';
       
       await db.update(communities)
         .set({
           subscriptionTier: tierKey as any,
           stripeSubscriptionId: subscription.id,
           stripePriceId: subscription.items.data[0]?.price.id,
-          billingStatus: 'active',
+          billingStatus,
           subscriptionEndsAt: new Date(subscription.current_period_end * 1000),
           updatedAt: new Date(),
         })
@@ -173,7 +206,7 @@ export function registerCommunityStripeRoutes(app: Express) {
       await db.update(claimedCommunities)
         .set({
           subscriptionPlan: tierKey === 'verified' ? 'Free' : tierKey === 'standard' ? 'Basic' : tierKey === 'featured' ? 'Professional' : 'Enterprise',
-          subscriptionStatus: 'Active',
+          subscriptionStatus: isPaid ? 'Active' : 'Pending',
           subscriptionStarted: new Date(subscription.current_period_start * 1000),
           subscriptionExpires: new Date(subscription.current_period_end * 1000),
           updatedAt: new Date(),
@@ -182,8 +215,12 @@ export function registerCommunityStripeRoutes(app: Express) {
 
       res.json({ 
         success: true, 
-        message: "Subscription activated successfully",
-        tier: tierKey 
+        message: isAchPayment && isPending 
+          ? "Bank account authorization successful! Your subscription will be activated once the payment clears (1-3 business days)."
+          : "Subscription activated successfully",
+        tier: tierKey,
+        isPending,
+        paymentMethod: isAchPayment ? 'ach' : 'card'
       });
     } catch (error: any) {
       console.error('Checkout success error:', error);
