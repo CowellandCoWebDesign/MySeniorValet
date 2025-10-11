@@ -51,6 +51,7 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // Include cookies with request
         body: JSON.stringify({ firstName, lastName, email, password }),
       });
       

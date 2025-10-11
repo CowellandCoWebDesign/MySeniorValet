@@ -55,11 +55,13 @@ export function setupCustomAuth(app: Express) {
     store: sessionStore,
     resave: false,
     saveUninitialized: false,
+    rolling: true, // Reset cookie expiry on activity
     cookie: {
       httpOnly: true,
-      secure: 'auto', // Automatically detect secure connections
+      secure: false, // Allow cookies over HTTP in development
       sameSite: 'lax',
       maxAge: sessionTtl,
+      path: '/', // Ensure cookie is available on all paths
     },
   }));
   

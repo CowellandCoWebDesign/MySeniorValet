@@ -6,7 +6,9 @@ export function useAuth() {
     queryKey: ["/api/auth/status"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/auth/status");
+        const response = await fetch("/api/auth/status", {
+          credentials: "include", // Include cookies with request
+        });
         const data = await response.json();
         return data;
       } catch {
@@ -25,7 +27,9 @@ export function useAuth() {
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
-        const response = await fetch("/api/auth/user");
+        const response = await fetch("/api/auth/user", {
+          credentials: "include", // Include cookies with request
+        });
         if (!response.ok) return null;
         return await response.json();
       } catch {
