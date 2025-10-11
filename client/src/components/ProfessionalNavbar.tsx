@@ -285,8 +285,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
                 <span className="text-xl">🏡</span>
               </div>
-              <div className="hidden sm:flex flex-col">
-                <span className="text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              <div className="flex flex-col">
+                <span className="text-sm sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   MySeniorValet
                 </span>
               </div>
@@ -391,7 +391,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 <Bell className="h-5 w-5" />
                 {unreadCount && Number(unreadCount) > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500">
-                    {String(Number(unreadCount))}
+                    <span>{Number(unreadCount)}</span>
                   </Badge>
                 )}
               </Button>
@@ -450,25 +450,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <div className="flex items-center space-x-3">
-                <Link href="/login">
-                  <Button 
-                    variant="outline" 
-                    size="default" 
-                    className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 px-5 py-2.5 rounded-xl transition-all duration-200"
-                  >
-                    Sign In
-                  </Button>
-                </Link>
-                <Link href="/signup">
-                  <Button 
-                    size="default" 
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-5 py-2.5 rounded-xl transition-all duration-200"
-                  >
-                    Get Started
-                  </Button>
-                </Link>
-              </div>
+              <Link href="/signup">
+                <Button 
+                  size="default" 
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-5 py-2.5 rounded-xl transition-all duration-200"
+                >
+                  Get Started
+                </Button>
+              </Link>
             )}
 
             {/* Theme Toggle - Victorian Crystal Chandelier (Light) / Cinema Projector (Dark) */}
