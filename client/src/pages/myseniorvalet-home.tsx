@@ -758,77 +758,19 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         <div className="relative z-10 flex flex-col h-full min-h-screen">
         
-        {/* Hero Title - Enhanced with AI & Global Coverage */}
+        {/* Hero Title - Keep Original */}
         <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4">
-              <span className="inline-block animate-slide-in-left bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]">AI-Powered Senior Living</span>
-              <br className="sm:hidden" />
-              <span className="inline-block animate-slide-in-left text-white sm:ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Directory</span>
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4 whitespace-nowrap">
+              <span className="inline-block animate-slide-in-left bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]">One Platform.</span>
+              <span className="inline-block animate-slide-in-left text-white ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Every Step of the Journey.</span>
             </h1>
             
-            {/* Self-Healing Database Badge */}
-            <div className="bg-gradient-to-r from-emerald-600/80 to-teal-600/80 backdrop-blur-md rounded-full px-4 sm:px-6 py-1.5 sm:py-2 max-w-fit mx-auto mb-3 sm:mb-4 animate-fade-in border border-emerald-400/30">
-              <p className="text-xs sm:text-sm md:text-base font-semibold text-white flex items-center gap-2">
-                <span className="text-base sm:text-lg">✨</span>
-                Self-Healing Database with On-Demand Intelligence
-              </p>
-            </div>
-            
-            {/* Comprehensive Description */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-3 sm:py-4 max-w-4xl mx-auto animate-fade-in-delayed">
-              <p className="text-sm sm:text-base md:text-lg text-white/90 leading-relaxed mb-3">
-                Discover and compare <span className="font-bold text-blue-300">20+ types of senior housing worldwide</span>. 
-                Our AI-powered system finds HUD/Section 8/202/811 housing, senior apartments, disability centers, 55+ communities, 
-                mobile/RV parks, co-op housing, shared housing, adult day centers, foster care, personal care homes, 
-                assisted living, memory care, skilled nursing, hospice, CCRCs, and VA facilities.
-              </p>
-              
-              {/* Live Stats & Features Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-4">
-                {/* Dynamic Community Count */}
-                <div className="bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 border border-white/20">
-                  <div className="flex items-center gap-1 justify-center">
-                    <span className="text-xl sm:text-2xl">📈</span>
-                    <span className="text-lg sm:text-2xl font-bold text-emerald-400">
-                      {communityStats?.count ? communityStats.count : '33,837'}
-                    </span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-white/80 mt-1 text-center">Senior Living Communities</p>
-                </div>
-                
-                {/* AI Enrichment */}
-                <div className="bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 border border-white/20">
-                  <div className="flex items-center gap-1 justify-center">
-                    <span className="text-xl sm:text-2xl">🧠</span>
-                    <span className="text-xs sm:text-sm font-semibold text-blue-300">AI On-Demand</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-white/80 mt-1 text-center">Enrichment</p>
-                </div>
-                
-                {/* Worldwide Access */}
-                <div className="bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 border border-white/20">
-                  <div className="flex items-center gap-1 justify-center">
-                    <span className="text-xl sm:text-2xl">🌍</span>
-                    <span className="text-xs sm:text-sm font-semibold text-purple-300">Worldwide</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-white/80 mt-1 text-center">Access</p>
-                </div>
-                
-                {/* 100% Transparency */}
-                <div className="bg-white/10 backdrop-blur-md rounded-lg px-3 py-2 border border-white/20">
-                  <div className="flex items-center gap-1 justify-center">
-                    <span className="text-xl sm:text-2xl">✓</span>
-                    <span className="text-xs sm:text-sm font-semibold text-green-300">100%</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-white/80 mt-1 text-center">Transparency</p>
-                </div>
-              </div>
-              
-              {/* Authentic Reviews & Pricing Note */}
-              <p className="text-xs sm:text-sm text-white/70 mt-3 text-center">
-                Access transparent pricing and authentic reviews for <span className="text-blue-300 font-semibold">ALL senior housing options anywhere</span>
+            {/* Updated Subtitle */}
+            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 sm:py-3 max-w-4xl mx-auto animate-fade-in-delayed">
+              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white font-medium leading-relaxed">
+                Your comprehensive guide to senior living, services, healthcare, resources, and products
               </p>
             </div>
           </div>

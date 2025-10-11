@@ -41,7 +41,7 @@ export function MySeniorValetChatKit({
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
     role: 'assistant',
-    content: "👋 Hi! I'm your MySeniorValet assistant. I can answer questions about senior care and help you find communities from our database of 33,000+ verified options. What would you like to know?",
+    content: "👋 Hi! I'm your MySeniorValet AI assistant. I can search our database of 33,837+ communities worldwide, or activate Discovery Mode to find new housing options anywhere using AI web search. What would you like to find?",
     timestamp: new Date()
   }]);
   const [inputValue, setInputValue] = useState('');
@@ -512,7 +512,7 @@ export function MySeniorValetChatKit({
               }}
               placeholder={
                 sessionReady
-                  ? "Ask a question or search for communities..."
+                  ? "Ask about senior housing worldwide..."
                   : "Connecting..."
               }
               disabled={!sessionReady || isLoading}
