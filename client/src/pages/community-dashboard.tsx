@@ -592,6 +592,121 @@ export default function CommunityDashboard() {
               </Card>
             </div>
 
+            {/* Resident Payment Management - New Feature */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <DollarSign className="h-5 w-5 text-green-600" />
+                        Payment Configuration
+                      </CardTitle>
+                      <CardDescription>Configure resident payment settings</CardDescription>
+                    </div>
+                    <Badge className="bg-green-100 text-green-700">Active</Badge>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Base Monthly Rent</Label>
+                      <Input type="number" placeholder="Enter base rent amount" defaultValue="3200" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Payment Due Day</Label>
+                      <Select defaultValue="1">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select due day" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1st of month</SelectItem>
+                          <SelectItem value="5">5th of month</SelectItem>
+                          <SelectItem value="15">15th of month</SelectItem>
+                          <SelectItem value="last">Last day of month</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Late Fee</Label>
+                      <div className="flex gap-2">
+                        <Input type="number" placeholder="Amount" defaultValue="50" />
+                        <Select defaultValue="fixed">
+                          <SelectTrigger className="w-24">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="fixed">Fixed</SelectItem>
+                            <SelectItem value="percent">%</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch id="ach-enabled" defaultChecked />
+                      <Label htmlFor="ach-enabled">Enable ACH payments (0.8% fee vs 2.9% for cards)</Label>
+                    </div>
+                    <Button className="w-full">
+                      <Save className="h-4 w-4 mr-2" />
+                      Save Payment Settings
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <CreditCard className="h-5 w-5 text-blue-600" />
+                        Payment Analytics
+                      </CardTitle>
+                      <CardDescription>This month's payment overview</CardDescription>
+                    </div>
+                    <Link href={`/community-dashboard/${communityId}?tab=billing`}>
+                      <Button variant="outline" size="sm">
+                        View Details
+                      </Button>
+                    </Link>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div>
+                        <p className="font-medium">Collected</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">This month</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-green-600">$328,400</p>
+                        <p className="text-sm text-gray-600">78 of 102 residents</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>Pending Payments</span>
+                        <Badge variant="outline" className="text-orange-600">24 residents • $100,800</Badge>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Processing (ACH)</span>
+                        <Badge variant="outline" className="text-blue-600">5 residents • $21,000</Badge>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Failed Payments</span>
+                        <Badge variant="outline" className="text-red-600">2 residents • $8,400</Badge>
+                      </div>
+                    </div>
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <p className="text-sm font-medium mb-1">ACH Savings This Month</p>
+                      <p className="text-xl font-bold text-blue-600">$1,845</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">71% of payments via ACH</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Enhanced Resident Management System - Professional Tier Feature */}
             <Card>
               <CardHeader>
@@ -601,7 +716,7 @@ export default function CommunityDashboard() {
                       <Users className="h-5 w-5 text-purple-600" />
                       Resident Management System
                     </CardTitle>
-                    <CardDescription>Complete resident lifecycle management</CardDescription>
+                    <CardDescription>Complete resident lifecycle and payment management</CardDescription>
                   </div>
                   <Badge className="bg-purple-100 text-purple-700">Pro Feature</Badge>
                 </div>
@@ -615,8 +730,8 @@ export default function CommunityDashboard() {
                     Export
                   </Button>
                   <Button variant="outline" size="sm">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Import
+                    <Mail className="mr-2 h-4 w-4" />
+                    Invite Residents
                   </Button>
                   <Button size="sm" onClick={() => setShowAddResidentModal(true)}>
                     <Plus className="mr-2 h-4 w-4" />
@@ -647,12 +762,34 @@ export default function CommunityDashboard() {
                           <p className="text-sm text-gray-600 dark:text-gray-400">
                             Unit {resident.unit} • {resident.care}
                           </p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <Badge 
+                              variant="outline" 
+                              className={
+                                resident.paymentStatus === 'current' ? 'text-green-600 border-green-600' : 
+                                resident.paymentStatus === 'late' ? 'text-red-600 border-red-600' : 
+                                'text-orange-600 border-orange-600'
+                              }
+                            >
+                              <DollarSign className="h-3 w-3 mr-1" />
+                              {resident.paymentStatus === 'current' ? 'Current' : 
+                               resident.paymentStatus === 'late' ? 'Past Due' : 'Pending'}
+                            </Badge>
+                            {resident.monthlyRent && (
+                              <span className="text-xs text-gray-500">${resident.monthlyRent}/month</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                           {resident.status}
                         </Badge>
+                        <Link href={`/resident-billing-portal?residentId=${resident.id}`}>
+                          <Button variant="ghost" size="sm" title="View Payment Portal">
+                            <CreditCard className="h-4 w-4" />
+                          </Button>
+                        </Link>
                         <Button variant="ghost" size="sm" onClick={() => setSelectedResident(resident)}>
                           <Settings className="h-4 w-4" />
                         </Button>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   CreditCard, 
   DollarSign, 
@@ -18,87 +19,249 @@ import {
   Clock,
   Receipt,
   PiggyBank,
-  ArrowUpRight,
-  ArrowDownRight,
   Shield,
   Phone,
-  Mail
+  Mail,
+  Building,
+  Plus,
+  Trash2,
+  Loader2
 } from 'lucide-react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiRequest, queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/utils';
+import { loadStripe } from '@stripe/stripe-js';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements
+} from '@stripe/react-stripe-js';
+import { useLocation } from 'wouter';
 
-export default function ResidentBillingPortal() {
-  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [paymentAmount, setPaymentAmount] = useState('');
+// Initialize Stripe
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY || 'pk_test_51OOvQXINMRXRhRxqG8DJUW0GOkrXUmMJzp5eQJgOkXSNOdGl0XYigjJx7nOPn5gJDd2a18BQHrJOzQxJHuxjHCdj00FiMw6Eok');
+
+// Payment Form Component
+function PaymentForm({ residentId, amount, onSuccess, onCancel }: { 
+  residentId: number; 
+  amount: number; 
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Fetch billing data
-  const { data: billingData, isLoading } = useQuery({
-    queryKey: ['/api/billing/resident-summary'],
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!stripe || !elements) {
+      return;
+    }
+
+    setIsProcessing(true);
+    setError(null);
+
+    const { error: submitError } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/resident-billing-portal?residentId=${residentId}&payment=success`,
+      },
+      redirect: 'if_required',
+    });
+
+    if (submitError) {
+      setError(submitError.message || 'Payment failed');
+      setIsProcessing(false);
+    } else {
+      toast({
+        title: "Payment Successful",
+        description: `Your payment of ${formatCurrency(amount)} has been processed`,
+      });
+      onSuccess();
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <PaymentElement />
+      
+      {error && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex gap-3">
+        <Button
+          type="submit"
+          disabled={!stripe || !elements || isProcessing}
+          className="flex-1"
+        >
+          {isProcessing ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Pay ${(amount / 100).toFixed(2)}
+            </>
+          )}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isProcessing}
+        >
+          Cancel
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export default function ResidentBillingPortal() {
+  const [location] = useLocation();
+  const params = new URLSearchParams(location.split('?')[1] || '');
+  const residentId = params.get('residentId') || '1';
+  const [selectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [paymentAmount, setPaymentAmount] = useState('');
+  const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Fetch resident information
+  const { data: residentData, isLoading: residentLoading } = useQuery({
+    queryKey: [`/api/resident/${residentId}`],
     queryFn: async () => {
-      // Mock data for demo - would connect to real API
+      return apiRequest('GET', `/api/resident/${residentId}`);
+    },
+    enabled: !!residentId
+  });
+
+  // Fetch billing summary - using resident data for now
+  const { data: billingData, isLoading: billingLoading } = useQuery({
+    queryKey: [`/api/resident/${residentId}/billing`],
+    queryFn: async () => {
+      // Construct billing summary from resident data
+      const resident = await apiRequest('GET', `/api/resident/${residentId}`);
       return {
-        currentBalance: 3500,
-        monthlyRate: 4200,
-        nextDueDate: '2025-10-01',
-        lastPaymentDate: '2025-08-15',
-        lastPaymentAmount: 4200,
-        accountStatus: 'current',
-        autopayEnabled: true,
-        paymentHistory: [
-          { date: '2025-08-15', amount: 4200, method: 'Auto-pay', status: 'completed' },
-          { date: '2025-07-15', amount: 4200, method: 'Auto-pay', status: 'completed' },
-          { date: '2025-06-15', amount: 4200, method: 'Credit Card', status: 'completed' },
-          { date: '2025-05-15', amount: 4200, method: 'Auto-pay', status: 'completed' },
-        ],
-        invoices: [
-          { id: 'INV-2025-09', date: '2025-09-01', amount: 4200, status: 'pending', dueDate: '2025-10-01' },
-          { id: 'INV-2025-08', date: '2025-08-01', amount: 4200, status: 'paid', paidDate: '2025-08-15' },
-          { id: 'INV-2025-07', date: '2025-07-01', amount: 4200, status: 'paid', paidDate: '2025-07-15' },
-        ],
-        charges: {
-          baseRent: 3200,
-          careServices: 800,
-          meals: 200,
-          utilities: 0,
-          activities: 0,
-          other: 0
-        },
-        credits: [],
-        budgetPlan: {
-          monthlyBudget: 4500,
-          currentSpend: 4200,
-          variance: 300,
-          yearToDate: 33600,
-          projectedAnnual: 50400
-        }
+        currentBalance: resident.outstandingBalance || 0,
+        monthlyRent: resident.monthlyRent || 0,
+        nextDueDate: resident.nextDueDate || new Date().toISOString(),
+        lastPaymentDate: resident.lastPaymentDate,
+        lastPaymentAmount: resident.lastPaymentAmount || 0,
+        accountStatus: resident.paymentStatus === 'current' ? 'current' : 'past-due'
       };
+    },
+    enabled: !!residentId
+  });
+
+  // Fetch payment methods
+  const { data: paymentMethods, isLoading: methodsLoading } = useQuery({
+    queryKey: [`/api/resident/${residentId}/payment-methods`],
+    queryFn: async () => {
+      return apiRequest('GET', `/api/resident/${residentId}/payment-methods`);
+    },
+    enabled: !!residentId
+  });
+
+  // Fetch payment history
+  const { data: paymentHistory, isLoading: historyLoading } = useQuery({
+    queryKey: [`/api/resident/${residentId}/payments`],
+    queryFn: async () => {
+      return apiRequest('GET', `/api/resident/${residentId}/payments`);
+    },
+    enabled: !!residentId
+  });
+
+  // Create payment intent
+  const createPaymentMutation = useMutation({
+    mutationFn: async (data: { amount: number; type: string }) => {
+      return apiRequest('POST', '/api/resident/payment/create-intent', {
+        residentId: parseInt(residentId),
+        amount: data.amount,
+        type: data.type,
+        description: `${data.type} payment for ${residentData?.name || 'Resident'}`
+      });
+    },
+    onSuccess: (data) => {
+      if (data.clientSecret) {
+        setClientSecret(data.clientSecret);
+        setShowPaymentForm(true);
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Payment Error",
+        description: error.message || "Failed to initialize payment",
+        variant: "destructive"
+      });
     }
   });
 
-  // Make payment mutation
-  const makePaymentMutation = useMutation({
-    mutationFn: async (data: { amount: number; method: string }) => {
-      return apiRequest('POST', '/api/billing/make-payment', data);
+  // Delete payment method
+  const deleteMethodMutation = useMutation({
+    mutationFn: async (methodId: number) => {
+      return apiRequest('DELETE', `/api/resident-payments/payment-methods/${methodId}`, {
+        residentId: parseInt(residentId)
+      });
     },
     onSuccess: () => {
       toast({
-        title: "Payment Successful",
-        description: `Your payment of $${paymentAmount} has been processed`,
+        title: "Success",
+        description: "Payment method removed successfully",
       });
-      setPaymentAmount('');
-      queryClient.invalidateQueries({ queryKey: ['/api/billing/resident-summary'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/resident/${residentId}/payment-methods`] });
     }
   });
 
-  const handleMakePayment = () => {
-    const amount = parseFloat(paymentAmount);
+  const handleMakePayment = (type: string = 'rent') => {
+    const amount = parseFloat(paymentAmount || billingData?.currentBalance?.toString() || '0');
     if (amount > 0) {
-      makePaymentMutation.mutate({ amount, method: 'Credit Card' });
+      createPaymentMutation.mutate({ 
+        amount: Math.round(amount * 100), // Convert to cents
+        type 
+      });
+    } else {
+      toast({
+        title: "Invalid Amount",
+        description: "Please enter a valid payment amount",
+        variant: "destructive"
+      });
     }
   };
+
+  const handleDownloadReceipt = async (paymentId: number) => {
+    try {
+      const response = await fetch(`/api/resident-payments/receipts/${paymentId}?residentId=${residentId}`);
+      if (!response.ok) throw new Error('Failed to download receipt');
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `receipt-${paymentId}.html`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      toast({
+        title: "Download Failed",
+        description: "Unable to download receipt",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const isLoading = residentLoading || billingLoading || methodsLoading || historyLoading;
 
   if (isLoading) {
     return (
@@ -107,6 +270,26 @@ export default function ResidentBillingPortal() {
       </div>
     );
   }
+
+  // Default data structure if API returns null
+  const billing = billingData || {
+    currentBalance: 0,
+    monthlyRent: 0,
+    nextDueDate: new Date().toISOString(),
+    lastPaymentDate: null,
+    lastPaymentAmount: 0,
+    accountStatus: 'current'
+  };
+
+  const resident = residentData || {
+    name: 'Resident',
+    unit: 'N/A',
+    communityId: null,
+    community: { name: 'Community' }
+  };
+
+  const methods = paymentMethods || [];
+  const history = paymentHistory || [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 md:p-8">
@@ -117,7 +300,7 @@ export default function ResidentBillingPortal() {
             Billing & Payment Portal
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Manage your account, view statements, and make payments
+            Welcome, {resident.name} • Unit {resident.unit} • {resident.community?.name}
           </p>
         </div>
 
@@ -129,7 +312,7 @@ export default function ResidentBillingPortal() {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Current Balance</p>
                   <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    ${billingData?.currentBalance.toLocaleString()}
+                    {formatCurrency(billing.currentBalance)}
                   </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-blue-600 dark:text-blue-400 opacity-20" />
@@ -141,9 +324,9 @@ export default function ResidentBillingPortal() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Rate</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">Monthly Rent</p>
                   <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                    ${billingData?.monthlyRate.toLocaleString()}
+                    {formatCurrency(billing.monthlyRent)}
                   </p>
                 </div>
                 <Receipt className="h-8 w-8 text-green-600 dark:text-green-400 opacity-20" />
@@ -157,7 +340,7 @@ export default function ResidentBillingPortal() {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Next Due</p>
                   <p className="text-lg font-bold text-purple-600 dark:text-purple-400">
-                    {new Date(billingData?.nextDueDate).toLocaleDateString()}
+                    {new Date(billing.nextDueDate).toLocaleDateString()}
                   </p>
                 </div>
                 <Calendar className="h-8 w-8 text-purple-600 dark:text-purple-400 opacity-20" />
@@ -171,13 +354,13 @@ export default function ResidentBillingPortal() {
                 <div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">Account Status</p>
                   <Badge 
-                    variant={billingData?.accountStatus === 'current' ? 'default' : 'destructive'}
+                    variant={billing.accountStatus === 'current' ? 'default' : 'destructive'}
                     className="mt-1"
                   >
-                    {billingData?.accountStatus === 'current' ? 'Current' : 'Past Due'}
+                    {billing.accountStatus === 'current' ? 'Current' : 'Past Due'}
                   </Badge>
                 </div>
-                {billingData?.accountStatus === 'current' ? (
+                {billing.accountStatus === 'current' ? (
                   <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400 opacity-20" />
                 ) : (
                   <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400 opacity-20" />
@@ -187,165 +370,251 @@ export default function ResidentBillingPortal() {
           </Card>
         </div>
 
-        {/* Main Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="payments">Payments</TabsTrigger>
+        {/* Main Content */}
+        <Tabs defaultValue="payment" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="payment">Make Payment</TabsTrigger>
+            <TabsTrigger value="methods">Payment Methods</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="invoices">Invoices</TabsTrigger>
-            <TabsTrigger value="budget">Budget</TabsTrigger>
-            <TabsTrigger value="autopay">Auto-Pay</TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Quick Payment */}
+          {/* Make Payment Tab */}
+          <TabsContent value="payment" className="space-y-6">
+            {!showPaymentForm ? (
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CreditCard className="mr-2 h-5 w-5" />
-                    Quick Payment
+                    Make a Payment
                   </CardTitle>
+                  <CardDescription>
+                    Pay your rent, utilities, or other charges. A $1.99 convenience fee applies.
+                  </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <Label htmlFor="amount">Payment Amount</Label>
-                    <div className="flex gap-2 mt-1">
-                      <Input
-                        id="amount"
-                        type="number"
-                        placeholder="Enter amount"
-                        value={paymentAmount}
-                        onChange={(e) => setPaymentAmount(e.target.value)}
-                      />
-                      <Button onClick={() => setPaymentAmount(billingData?.currentBalance.toString() || '')}>
-                        Pay Balance
-                      </Button>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="amount">Payment Amount</Label>
+                        <div className="flex gap-2 mt-1">
+                          <Input
+                            id="amount"
+                            type="number"
+                            step="0.01"
+                            placeholder="Enter amount"
+                            value={paymentAmount}
+                            onChange={(e) => setPaymentAmount(e.target.value)}
+                          />
+                          <Button 
+                            variant="outline"
+                            onClick={() => setPaymentAmount(billing.currentBalance.toString())}
+                          >
+                            Pay Balance
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label>Payment Type</Label>
+                        <Select defaultValue="rent">
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select payment type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="rent">Rent Payment</SelectItem>
+                            <SelectItem value="deposit">Security Deposit</SelectItem>
+                            <SelectItem value="utilities">Utilities</SelectItem>
+                            <SelectItem value="other">Other Charges</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg space-y-2">
+                      <h4 className="font-semibold mb-3">Payment Summary</h4>
+                      <div className="flex justify-between text-sm">
+                        <span>Amount:</span>
+                        <span className="font-medium">
+                          {formatCurrency(parseFloat(paymentAmount || '0'))}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Convenience Fee:</span>
+                        <span className="font-medium">$1.99</span>
+                      </div>
+                      <div className="flex justify-between text-sm pt-2 border-t">
+                        <span className="font-semibold">Total:</span>
+                        <span className="font-bold text-blue-600 dark:text-blue-400">
+                          {formatCurrency(parseFloat(paymentAmount || '0') + 1.99)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button 
-                      className="w-full"
-                      onClick={handleMakePayment}
-                      disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
-                    >
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      Pay Now
-                    </Button>
-                    <Button variant="outline" className="w-full">
-                      <Phone className="mr-2 h-4 w-4" />
-                      Pay by Phone
-                    </Button>
-                  </div>
 
-                  {billingData?.autopayEnabled && (
-                    <Alert>
-                      <Shield className="h-4 w-4" />
-                      <AlertDescription>
-                        Auto-pay is enabled. Your next payment of ${billingData?.monthlyRate} will be processed on {new Date(billingData?.nextDueDate).toLocaleDateString()}
-                      </AlertDescription>
-                    </Alert>
+                  <Alert>
+                    <Shield className="h-4 w-4" />
+                    <AlertDescription>
+                      Your payment is secured by Stripe. We never store your card details.
+                    </AlertDescription>
+                  </Alert>
+
+                  <Button 
+                    className="w-full"
+                    size="lg"
+                    onClick={() => handleMakePayment('rent')}
+                    disabled={!paymentAmount || parseFloat(paymentAmount) <= 0}
+                  >
+                    <CreditCard className="mr-2 h-5 w-5" />
+                    Continue to Payment
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Complete Payment</CardTitle>
+                  <CardDescription>
+                    Enter your payment information below
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {clientSecret && (
+                    <Elements stripe={stripePromise} options={{ clientSecret }}>
+                      <PaymentForm
+                        residentId={parseInt(residentId)}
+                        amount={Math.round((parseFloat(paymentAmount || '0') + 1.99) * 100)}
+                        onSuccess={() => {
+                          setShowPaymentForm(false);
+                          setClientSecret(null);
+                          setPaymentAmount('');
+                          queryClient.invalidateQueries({ 
+                            queryKey: [`/api/resident/${residentId}/billing`] 
+                          });
+                          queryClient.invalidateQueries({ 
+                            queryKey: [`/api/resident/${residentId}/payments`] 
+                          });
+                        }}
+                        onCancel={() => {
+                          setShowPaymentForm(false);
+                          setClientSecret(null);
+                        }}
+                      />
+                    </Elements>
                   )}
                 </CardContent>
               </Card>
+            )}
+          </TabsContent>
 
-              {/* Current Charges Breakdown */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Current Month Charges</CardTitle>
-                  <CardDescription>Breakdown for {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center pb-2 border-b">
-                      <span className="text-sm font-medium">Base Rent</span>
-                      <span className="font-semibold">${billingData?.charges.baseRent.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center pb-2 border-b">
-                      <span className="text-sm font-medium">Care Services</span>
-                      <span className="font-semibold">${billingData?.charges.careServices.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center pb-2 border-b">
-                      <span className="text-sm font-medium">Meal Plan</span>
-                      <span className="font-semibold">${billingData?.charges.meals.toLocaleString()}</span>
-                    </div>
-                    <div className="flex justify-between items-center pt-2">
-                      <span className="font-semibold">Total Monthly</span>
-                      <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-                        ${billingData?.monthlyRate.toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Payment History */}
+          {/* Payment Methods Tab */}
+          <TabsContent value="methods">
             <Card>
               <CardHeader>
-                <CardTitle>Recent Payments</CardTitle>
+                <CardTitle>Payment Methods</CardTitle>
+                <CardDescription>
+                  Manage your saved payment methods for faster checkout
+                </CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {billingData?.paymentHistory.map((payment, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <CardContent className="space-y-4">
+                {methods.length > 0 ? (
+                  methods.map((method: any) => (
+                    <div key={method.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                          <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-                        </div>
+                        {method.type === 'us_bank_account' ? (
+                          <Building className="h-5 w-5 text-gray-600" />
+                        ) : (
+                          <CreditCard className="h-5 w-5 text-gray-600" />
+                        )}
                         <div>
-                          <p className="font-medium">${payment.amount.toLocaleString()}</p>
+                          <p className="font-medium">
+                            {method.type === 'us_bank_account' ? 'Bank Account' : method.cardBrand || 'Card'}
+                          </p>
                           <p className="text-sm text-gray-600 dark:text-gray-400">
-                            {payment.method} • {new Date(payment.date).toLocaleDateString()}
+                            {method.type === 'us_bank_account' 
+                              ? `****${method.accountLast4}` 
+                              : `****${method.cardLast4}`}
+                            {method.isDefault && (
+                              <Badge variant="secondary" className="ml-2">Default</Badge>
+                            )}
                           </p>
                         </div>
                       </div>
-                      <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                        {payment.status}
-                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => deleteMethodMutation.mutate(method.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  ))}
-                </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <CreditCard className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No payment methods saved</p>
+                    <p className="text-sm mt-1">Add a payment method when making your next payment</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Payments Tab */}
-          <TabsContent value="payments">
+          {/* Payment History Tab */}
+          <TabsContent value="history">
             <Card>
               <CardHeader>
                 <CardTitle>Payment History</CardTitle>
-                <CardDescription>View all your past payments and transactions</CardDescription>
+                <CardDescription>View all your past payments and download receipts</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {billingData?.paymentHistory.map((payment, idx) => (
-                    <div key={idx} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-semibold">${payment.amount.toLocaleString()}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                            Payment Date: {new Date(payment.date).toLocaleDateString()}
-                          </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Method: {payment.method}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <Badge variant={payment.status === 'completed' ? 'default' : 'secondary'}>
-                            {payment.status}
-                          </Badge>
-                          <Button variant="ghost" size="sm" className="mt-2">
-                            <Download className="h-4 w-4 mr-1" />
-                            Receipt
-                          </Button>
+                {history.length > 0 ? (
+                  <div className="space-y-3">
+                    {history.map((payment: any) => (
+                      <div key={payment.id} className="border rounded-lg p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold">{formatCurrency(payment.amount / 100)}</p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                              {payment.type} • {new Date(payment.createdAt).toLocaleDateString()}
+                            </p>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                              Transaction ID: {payment.stripePaymentIntentId || 'N/A'}
+                            </p>
+                          </div>
+                          <div className="text-right space-y-2">
+                            <Badge 
+                              variant={
+                                payment.status === 'succeeded' ? 'default' : 
+                                payment.status === 'processing' ? 'secondary' : 
+                                'destructive'
+                              }
+                            >
+                              {payment.status}
+                            </Badge>
+                            {payment.receiptUrl && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDownloadReceipt(payment.id)}
+                                className="block w-full"
+                              >
+                                <Download className="h-4 w-4 mr-1" />
+                                Receipt
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <Receipt className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <p>No payment history available</p>
+                    <p className="text-sm mt-1">Your payment history will appear here</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -355,154 +624,15 @@ export default function ResidentBillingPortal() {
             <Card>
               <CardHeader>
                 <CardTitle>Invoices & Statements</CardTitle>
-                <CardDescription>Download your monthly statements and invoices</CardDescription>
+                <CardDescription>Download your monthly statements</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {billingData?.invoices.map((invoice) => (
-                    <div key={invoice.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-semibold">{invoice.id}</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Invoice Date: {new Date(invoice.date).toLocaleDateString()}
-                          </p>
-                          <p className="text-sm font-medium mt-1">
-                            Amount: ${invoice.amount.toLocaleString()}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant={invoice.status === 'paid' ? 'default' : 'secondary'}>
-                            {invoice.status}
-                          </Badge>
-                          <Button variant="outline" size="sm">
-                            <FileText className="h-4 w-4 mr-1" />
-                            View
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Download className="h-4 w-4 mr-1" />
-                            Download
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Budget Tab */}
-          <TabsContent value="budget">
-            <Card>
-              <CardHeader>
-                <CardTitle>Budget Planning</CardTitle>
-                <CardDescription>Track your spending against your budget</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">Monthly Budget</span>
-                        <span className="font-semibold">${billingData?.budgetPlan.monthlyBudget.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm font-medium">Current Spend</span>
-                        <span className="font-semibold">${billingData?.budgetPlan.currentSpend.toLocaleString()}</span>
-                      </div>
-                      <div className="flex justify-between items-center pt-2 border-t">
-                        <span className="text-sm font-medium">Variance</span>
-                        <span className={`font-semibold ${billingData?.budgetPlan.variance > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          ${Math.abs(billingData?.budgetPlan.variance).toLocaleString()}
-                          {billingData?.budgetPlan.variance > 0 ? ' under' : ' over'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <h4 className="font-semibold mb-2">Year-to-Date</h4>
-                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                        ${billingData?.budgetPlan.yearToDate.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                        Projected Annual: ${billingData?.budgetPlan.projectedAnnual.toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="font-semibold mb-3">Spending Trends</h4>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">3% under budget this month</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <PiggyBank className="h-4 w-4 text-blue-600" />
-                        <span className="text-sm">$1,200 saved year-to-date</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Auto-Pay Tab */}
-          <TabsContent value="autopay">
-            <Card>
-              <CardHeader>
-                <CardTitle>Auto-Pay Settings</CardTitle>
-                <CardDescription>Manage your automatic payment preferences</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <Alert className={billingData?.autopayEnabled ? 'border-green-200 bg-green-50 dark:bg-green-900/20' : ''}>
-                    <Shield className="h-4 w-4" />
-                    <AlertDescription>
-                      {billingData?.autopayEnabled 
-                        ? 'Auto-pay is currently enabled. Your payments are automatically processed each month.'
-                        : 'Auto-pay is disabled. You need to manually make payments each month.'}
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <p className="font-medium">Auto-Pay Status</p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          Automatically pay your monthly bill
-                        </p>
-                      </div>
-                      <Button variant={billingData?.autopayEnabled ? 'destructive' : 'default'}>
-                        {billingData?.autopayEnabled ? 'Disable Auto-Pay' : 'Enable Auto-Pay'}
-                      </Button>
-                    </div>
-
-                    {billingData?.autopayEnabled && (
-                      <>
-                        <div className="p-4 border rounded-lg">
-                          <p className="font-medium mb-2">Payment Method</p>
-                          <div className="flex items-center gap-3">
-                            <CreditCard className="h-5 w-5 text-gray-600" />
-                            <span>Visa ending in 4242</span>
-                            <Button variant="outline" size="sm" className="ml-auto">
-                              Change
-                            </Button>
-                          </div>
-                        </div>
-
-                        <div className="p-4 border rounded-lg">
-                          <p className="font-medium mb-2">Payment Schedule</p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Payments are processed on the 1st of each month
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+                <Alert>
+                  <FileText className="h-4 w-4" />
+                  <AlertDescription>
+                    Monthly statements are generated on the 1st of each month and will be available here for download.
+                  </AlertDescription>
+                </Alert>
               </CardContent>
             </Card>
           </TabsContent>
@@ -521,7 +651,7 @@ export default function ResidentBillingPortal() {
               <div className="flex gap-3">
                 <Button variant="outline">
                   <Phone className="mr-2 h-4 w-4" />
-                  Call Billing
+                  Call Support
                 </Button>
                 <Button variant="outline">
                   <Mail className="mr-2 h-4 w-4" />
