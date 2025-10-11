@@ -36,6 +36,7 @@ import { queryClient, apiRequest } from '@/lib/queryClient';
 import { AIIntelligenceDashboard } from '@/components/AIIntelligenceDashboard';
 import { MoveInCostCalculator } from '@/components/MoveInCostCalculator';
 import { HealthcarePartnerships } from '@/components/HealthcarePartnerships';
+import { StripeConnectOnboarding } from '@/components/StripeConnectOnboarding';
 
 /**
  * Unified Community Dashboard
@@ -594,65 +595,10 @@ export default function CommunityDashboard() {
 
             {/* Resident Payment Management - New Feature */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <DollarSign className="h-5 w-5 text-green-600" />
-                        Payment Configuration
-                      </CardTitle>
-                      <CardDescription>Configure resident payment settings</CardDescription>
-                    </div>
-                    <Badge className="bg-green-100 text-green-700">Active</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label>Base Monthly Rent</Label>
-                      <Input type="number" placeholder="Enter base rent amount" defaultValue="3200" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Payment Due Day</Label>
-                      <Select defaultValue="1">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select due day" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">1st of month</SelectItem>
-                          <SelectItem value="5">5th of month</SelectItem>
-                          <SelectItem value="15">15th of month</SelectItem>
-                          <SelectItem value="last">Last day of month</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Late Fee</Label>
-                      <div className="flex gap-2">
-                        <Input type="number" placeholder="Amount" defaultValue="50" />
-                        <Select defaultValue="fixed">
-                          <SelectTrigger className="w-24">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="fixed">Fixed</SelectItem>
-                            <SelectItem value="percent">%</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Switch id="ach-enabled" defaultChecked />
-                      <Label htmlFor="ach-enabled">Enable ACH payments (0.8% fee vs 2.9% for cards)</Label>
-                    </div>
-                    <Button className="w-full">
-                      <Save className="h-4 w-4 mr-2" />
-                      Save Payment Settings
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <StripeConnectOnboarding 
+                communityId={parseInt(communityId)} 
+                subscriptionTier={community?.subscriptionTier}
+              />
 
               <Card>
                 <CardHeader>
