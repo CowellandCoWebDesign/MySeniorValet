@@ -1603,11 +1603,12 @@ export default function CommunityDashboard() {
 
             {/* Payment Management Tabs */}
             <Tabs defaultValue="transactions" className="space-y-4">
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="transactions">Transactions</TabsTrigger>
                 <TabsTrigger value="deposits">Deposits</TabsTrigger>
                 <TabsTrigger value="refunds">Refunds</TabsTrigger>
                 <TabsTrigger value="recurring">Recurring</TabsTrigger>
+                <TabsTrigger value="resident-payments">Resident Payments</TabsTrigger>
                 <TabsTrigger value="reports">Reports</TabsTrigger>
               </TabsList>
               
@@ -1768,6 +1769,240 @@ export default function CommunityDashboard() {
                           </div>
                         ))}
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+              
+              {/* Resident Payments Tab */}
+              <TabsContent value="resident-payments">
+                <Card>
+                  <CardHeader>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <CardTitle>Resident Payment Management</CardTitle>
+                        <CardDescription>Track rent, deposits, and utilities with $1.99 convenience fee</CardDescription>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          <Download className="h-4 w-4 mr-2" />
+                          Export CSV
+                        </Button>
+                        <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+                          <UserPlus className="h-4 w-4 mr-2" />
+                          Add Resident
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {/* Payment Summary Stats */}
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">Collected This Month</p>
+                              <p className="text-2xl font-bold text-green-600">$145,680</p>
+                              <p className="text-xs text-gray-500">From 32 residents</p>
+                            </div>
+                            <CheckCircle className="h-8 w-8 text-green-500 opacity-50" />
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">Pending Payments</p>
+                              <p className="text-2xl font-bold text-yellow-600">$12,450</p>
+                              <p className="text-xs text-gray-500">3 residents overdue</p>
+                            </div>
+                            <Clock className="h-8 w-8 text-yellow-500 opacity-50" />
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">ACH Payments</p>
+                              <p className="text-2xl font-bold text-blue-600">71%</p>
+                              <p className="text-xs text-gray-500">Lower fees (0.8%)</p>
+                            </div>
+                            <Shield className="h-8 w-8 text-blue-500 opacity-50" />
+                          </div>
+                        </div>
+                        
+                        <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">Processing Fees</p>
+                              <p className="text-2xl font-bold text-purple-600">$287.82</p>
+                              <p className="text-xs text-gray-500">Revenue from $1.99 fee</p>
+                            </div>
+                            <DollarSign className="h-8 w-8 text-purple-500 opacity-50" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Resident Payment List */}
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold">Recent Resident Payments</h3>
+                          <Select defaultValue="all">
+                            <SelectTrigger className="w-[180px]">
+                              <SelectValue placeholder="Filter payments" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">All Payments</SelectItem>
+                              <SelectItem value="rent">Rent</SelectItem>
+                              <SelectItem value="deposit">Deposits</SelectItem>
+                              <SelectItem value="utilities">Utilities</SelectItem>
+                              <SelectItem value="late">Late Fees</SelectItem>
+                              <SelectItem value="pet">Pet Fees</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Payment Records */}
+                        {[
+                          { 
+                            resident: 'Margaret Thompson', 
+                            unit: 'Unit 204', 
+                            type: 'rent', 
+                            amount: 4500, 
+                            convenienceFee: 1.99,
+                            method: 'ACH', 
+                            status: 'completed', 
+                            date: '2024-10-11',
+                            receiptNumber: 'RCP-1760206525-1'
+                          },
+                          { 
+                            resident: 'James Wilson', 
+                            unit: 'Unit 312', 
+                            type: 'rent', 
+                            amount: 3800, 
+                            convenienceFee: 1.99,
+                            method: 'Card', 
+                            status: 'completed', 
+                            date: '2024-10-10',
+                            receiptNumber: 'RCP-1760206526-2'
+                          },
+                          { 
+                            resident: 'Dorothy Anderson', 
+                            unit: 'Unit 108', 
+                            type: 'utilities', 
+                            amount: 150, 
+                            convenienceFee: 1.99,
+                            method: 'ACH', 
+                            status: 'processing', 
+                            date: '2024-10-10',
+                            receiptNumber: 'RCP-1760206527-3'
+                          },
+                          { 
+                            resident: 'Robert Martinez', 
+                            unit: 'Unit 415', 
+                            type: 'late_fee', 
+                            amount: 75, 
+                            convenienceFee: 1.99,
+                            method: 'Card', 
+                            status: 'completed', 
+                            date: '2024-10-09',
+                            receiptNumber: 'RCP-1760206528-4'
+                          },
+                        ].map((payment, idx) => (
+                          <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className={`w-2 h-2 rounded-full ${
+                                payment.status === 'completed' ? 'bg-green-500' : 
+                                payment.status === 'processing' ? 'bg-yellow-500' : 'bg-red-500'
+                              }`} />
+                              <div>
+                                <p className="font-medium">{payment.resident}</p>
+                                <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                  <span>{payment.unit}</span>
+                                  <span>•</span>
+                                  <span>{payment.receiptNumber}</span>
+                                  <span>•</span>
+                                  <span>{payment.date}</span>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center gap-4">
+                              <Badge variant={
+                                payment.type === 'rent' ? 'default' :
+                                payment.type === 'deposit' ? 'secondary' :
+                                payment.type === 'utilities' ? 'outline' :
+                                'destructive'
+                              }>
+                                {payment.type === 'late_fee' ? 'Late Fee' : payment.type.charAt(0).toUpperCase() + payment.type.slice(1)}
+                              </Badge>
+                              
+                              <Badge variant={payment.method === 'ACH' ? 'secondary' : 'outline'}>
+                                {payment.method}
+                              </Badge>
+                              
+                              <div className="text-right min-w-[120px]">
+                                <p className="font-semibold">${(payment.amount + payment.convenienceFee).toFixed(2)}</p>
+                                <p className="text-xs text-gray-500">
+                                  ${payment.amount.toFixed(2)} + ${payment.convenienceFee} fee
+                                </p>
+                              </div>
+                              
+                              <div className="flex gap-1">
+                                <Button variant="ghost" size="sm" title="View Details">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="sm" title="Download Receipt">
+                                  <FileText className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Payment Method Distribution */}
+                      <Card className="bg-gray-50 dark:bg-gray-800/50">
+                        <CardHeader>
+                          <CardTitle className="text-base">Payment Method Insights</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-4">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                                <span className="text-sm">ACH Bank Transfer</span>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <span className="text-sm font-medium">71% of payments</span>
+                                <Badge variant="secondary" className="bg-green-100 dark:bg-green-900/50">
+                                  0.8% fee • Saves $1,845/mo
+                                </Badge>
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                                <span className="text-sm">Credit/Debit Card</span>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <span className="text-sm font-medium">29% of payments</span>
+                                <Badge variant="outline">
+                                  2.9% + $0.30 fee
+                                </Badge>
+                              </div>
+                            </div>
+
+                            <div className="pt-2 border-t">
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                <strong>💡 Tip:</strong> Encouraging ACH payments saves your community an average of <strong className="text-green-600">$1,845/month</strong> in processing fees compared to credit cards.
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
                   </CardContent>
                 </Card>

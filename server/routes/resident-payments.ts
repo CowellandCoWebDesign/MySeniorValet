@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import Stripe from "stripe";
 import { db } from "../db";
 import { eq, and, desc } from "drizzle-orm";
-import { residents, paymentMethods, residentPayments, communities } from "@shared/schema";
+import { residents, paymentMethods, residentPayments, communities, paymentReceipts } from "@shared/schema";
 import { isAuthenticated } from "../auth-middleware";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -14,6 +14,97 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 const CONVENIENCE_FEE = 1.99; // $1.99 processing fee
+
+// Helper function to generate receipt HTML
+function generateReceiptHtml(data: {
+  receiptNumber: string;
+  residentName: string;
+  communityName: string;
+  paymentType: string;
+  amount: number;
+  convenienceFee: number;
+  totalAmount: number;
+  paymentDate: string;
+  paymentMethod: string;
+  lastFour: string;
+}) {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>Payment Receipt - ${data.receiptNumber}</title>
+      <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .logo { font-size: 24px; font-weight: bold; color: #2563eb; }
+        .receipt-title { font-size: 20px; margin-top: 10px; }
+        .receipt-number { color: #666; margin-top: 5px; }
+        .section { margin: 20px 0; padding: 15px; background: #f9fafb; border-radius: 8px; }
+        .row { display: flex; justify-content: space-between; margin: 8px 0; }
+        .label { color: #666; }
+        .value { font-weight: bold; }
+        .total { border-top: 2px solid #2563eb; padding-top: 10px; margin-top: 10px; }
+        .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+        @media print { body { padding: 0; } }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <div class="logo">MySeniorValet</div>
+        <div class="receipt-title">Payment Receipt</div>
+        <div class="receipt-number">${data.receiptNumber}</div>
+      </div>
+      
+      <div class="section">
+        <h3>Payment Information</h3>
+        <div class="row">
+          <span class="label">Date:</span>
+          <span class="value">${data.paymentDate}</span>
+        </div>
+        <div class="row">
+          <span class="label">Resident:</span>
+          <span class="value">${data.residentName}</span>
+        </div>
+        <div class="row">
+          <span class="label">Community:</span>
+          <span class="value">${data.communityName}</span>
+        </div>
+        <div class="row">
+          <span class="label">Payment Type:</span>
+          <span class="value">${data.paymentType.charAt(0).toUpperCase() + data.paymentType.slice(1)}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <h3>Payment Details</h3>
+        <div class="row">
+          <span class="label">Payment Method:</span>
+          <span class="value">${data.paymentMethod} ending in ${data.lastFour}</span>
+        </div>
+        <div class="row">
+          <span class="label">Amount:</span>
+          <span class="value">$${data.amount.toFixed(2)}</span>
+        </div>
+        <div class="row">
+          <span class="label">Processing Fee:</span>
+          <span class="value">$${data.convenienceFee.toFixed(2)}</span>
+        </div>
+        <div class="row total">
+          <span class="label"><strong>Total Paid:</strong></span>
+          <span class="value"><strong>$${data.totalAmount.toFixed(2)}</strong></span>
+        </div>
+      </div>
+      
+      <div class="footer">
+        <p>Thank you for your payment!</p>
+        <p>This receipt serves as confirmation of your payment.</p>
+        <p>MySeniorValet - Trusted Senior Living Platform</p>
+      </div>
+    </body>
+    </html>
+  `;
+}
 
 export function registerResidentPaymentRoutes(app: Express) {
   // Get resident profile
@@ -169,6 +260,33 @@ export function registerResidentPaymentRoutes(app: Express) {
           notes: description,
         })
         .returning();
+
+      // Generate receipt if payment succeeded
+      if (paymentIntent.status === 'succeeded') {
+        const receiptHtml = generateReceiptHtml({
+          receiptNumber,
+          residentName: `${resident.firstName} ${resident.lastName}`,
+          communityName: `Community #${resident.communityId}`, // Will be updated when we fetch community name
+          paymentType: paymentType || 'rent',
+          amount: baseAmount,
+          convenienceFee: CONVENIENCE_FEE,
+          totalAmount,
+          paymentDate: new Date().toLocaleDateString(),
+          paymentMethod: paymentMethodRecord.type === 'us_bank_account' ? 'ACH Bank Transfer' : 'Credit/Debit Card',
+          lastFour: paymentMethodRecord.cardLast4 || paymentMethodRecord.accountLast4 || '****',
+        });
+
+        await db.insert(paymentReceipts)
+          .values({
+            paymentId: payment.id,
+            residentId,
+            communityId: resident.communityId,
+            receiptNumber,
+            receiptHtml,
+            emailedTo: resident.email,
+            emailedAt: new Date(),
+          });
+      }
 
       res.json({
         success: true,
@@ -327,6 +445,136 @@ export function registerResidentPaymentRoutes(app: Express) {
     } catch (error: any) {
       console.error('Error fetching community payments:', error);
       res.status(500).json({ message: "Error fetching payments", error: error.message });
+    }
+  });
+
+  // Get receipt for a payment
+  app.get("/api/resident/payment/:paymentId/receipt", isAuthenticated, async (req, res) => {
+    try {
+      const paymentId = parseInt(req.params.paymentId);
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get the payment and verify ownership
+      const [payment] = await db.select()
+        .from(residentPayments)
+        .where(eq(residentPayments.id, paymentId))
+        .limit(1);
+
+      if (!payment) {
+        return res.status(404).json({ message: "Payment not found" });
+      }
+
+      // Verify the payment belongs to a resident owned by the user
+      const [resident] = await db.select()
+        .from(residents)
+        .where(eq(residents.id, payment.residentId))
+        .limit(1);
+
+      if (!resident || !resident.userId || resident.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Get the receipt
+      const [receipt] = await db.select()
+        .from(paymentReceipts)
+        .where(eq(paymentReceipts.paymentId, paymentId))
+        .limit(1);
+
+      if (!receipt) {
+        return res.status(404).json({ message: "Receipt not found" });
+      }
+
+      res.json(receipt);
+    } catch (error: any) {
+      console.error('Error fetching receipt:', error);
+      res.status(500).json({ message: "Error fetching receipt", error: error.message });
+    }
+  });
+
+  // Download receipt as HTML
+  app.get("/api/resident/payment/:paymentId/receipt/download", isAuthenticated, async (req, res) => {
+    try {
+      const paymentId = parseInt(req.params.paymentId);
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get the payment and verify ownership
+      const [payment] = await db.select()
+        .from(residentPayments)
+        .where(eq(residentPayments.id, paymentId))
+        .limit(1);
+
+      if (!payment) {
+        return res.status(404).json({ message: "Payment not found" });
+      }
+
+      // Verify the payment belongs to a resident owned by the user
+      const [resident] = await db.select()
+        .from(residents)
+        .where(eq(residents.id, payment.residentId))
+        .limit(1);
+
+      if (!resident || !resident.userId || resident.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      // Get the receipt
+      const [receipt] = await db.select()
+        .from(paymentReceipts)
+        .where(eq(paymentReceipts.paymentId, paymentId))
+        .limit(1);
+
+      if (!receipt) {
+        return res.status(404).json({ message: "Receipt not found" });
+      }
+
+      // Set headers for HTML download
+      res.setHeader('Content-Type', 'text/html');
+      res.setHeader('Content-Disposition', `attachment; filename="receipt-${receipt.receiptNumber}.html"`);
+      res.send(receipt.receiptHtml);
+    } catch (error: any) {
+      console.error('Error downloading receipt:', error);
+      res.status(500).json({ message: "Error downloading receipt", error: error.message });
+    }
+  });
+
+  // Get all receipts for a resident
+  app.get("/api/resident/:residentId/receipts", isAuthenticated, async (req, res) => {
+    try {
+      const residentId = parseInt(req.params.residentId);
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Verify resident ownership
+      const [resident] = await db.select()
+        .from(residents)
+        .where(eq(residents.id, residentId))
+        .limit(1);
+
+      if (!resident || !resident.userId || resident.userId.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      const receipts = await db.select()
+        .from(paymentReceipts)
+        .where(eq(paymentReceipts.residentId, residentId))
+        .orderBy(desc(paymentReceipts.createdAt))
+        .limit(100);
+
+      res.json(receipts);
+    } catch (error: any) {
+      console.error('Error fetching receipts:', error);
+      res.status(500).json({ message: "Error fetching receipts", error: error.message });
     }
   });
 

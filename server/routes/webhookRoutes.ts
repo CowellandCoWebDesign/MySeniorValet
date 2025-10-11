@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { Request, Response } from 'express';
 import Stripe from 'stripe';
 import { db } from '../db';
-import { subscriptions, communities, auditLogs } from '@shared/schema';
+import { subscriptions, communities, auditLogs, residentPayments, achVerificationEvents } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { paymentNotificationService } from '../services/payment-notification-service';
 import { sendCommunityWelcomeEmail, sendVendorWelcomeEmail } from '../services/tier-welcome-service';
@@ -63,6 +63,32 @@ router.post('/webhook', async (req: Request, res: Response) => {
 
       case 'customer.subscription.deleted':
         await handleSubscriptionCancelled(event.data.object as Stripe.Subscription);
+        break;
+
+      // ACH payment events
+      case 'payment_intent.succeeded':
+        await handlePaymentIntentSucceeded(event.data.object as Stripe.PaymentIntent);
+        break;
+
+      case 'payment_intent.payment_failed':
+        await handlePaymentIntentFailed(event.data.object as Stripe.PaymentIntent);
+        break;
+
+      case 'payment_intent.processing':
+        await handlePaymentIntentProcessing(event.data.object as Stripe.PaymentIntent);
+        break;
+
+      // ACH verification events
+      case 'financial_connections.account.created':
+        await handleFinancialConnectionCreated(event.data.object);
+        break;
+
+      case 'charge.succeeded':
+        await handleChargeSucceeded(event.data.object as Stripe.Charge);
+        break;
+
+      case 'charge.failed':
+        await handleChargeFailed(event.data.object as Stripe.Charge);
         break;
 
       default:
@@ -273,6 +299,144 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
       // TODO: Send cancellation email to community admin
       // TODO: Schedule feature deactivation (grace period)
     }
+  }
+}
+
+// Handle payment intent succeeded (for resident payments and ACH)
+async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
+  console.log('✅ Payment Intent succeeded:', paymentIntent.id);
+  
+  // Check if this is a resident payment
+  if (paymentIntent.metadata?.residentId) {
+    const residentId = parseInt(paymentIntent.metadata.residentId);
+    
+    // Update resident payment status to succeeded
+    await db
+      .update(residentPayments)
+      .set({ 
+        status: 'succeeded',
+        updatedAt: new Date()
+      })
+      .where(eq(residentPayments.stripePaymentIntentId, paymentIntent.id));
+    
+    console.log(`✅ Resident payment confirmed for resident ${residentId}`);
+    
+    // TODO: Send payment confirmation email to resident
+  }
+  
+  // Handle ACH payment confirmation
+  if (paymentIntent.payment_method_types.includes('us_bank_account')) {
+    console.log('🏦 ACH payment confirmed');
+    
+    // Log ACH verification event
+    await db.insert(achVerificationEvents).values({
+      communityId: paymentIntent.metadata?.communityId ? parseInt(paymentIntent.metadata.communityId) : 0,
+      stripePaymentIntentId: paymentIntent.id,
+      verificationStatus: 'verified',
+      verificationMethod: 'financial_connections',
+      createdAt: new Date()
+    });
+  }
+}
+
+// Handle payment intent failed
+async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
+  console.log('❌ Payment Intent failed:', paymentIntent.id);
+  
+  // Check if this is a resident payment
+  if (paymentIntent.metadata?.residentId) {
+    const residentId = parseInt(paymentIntent.metadata.residentId);
+    
+    // Update resident payment status to failed
+    await db
+      .update(residentPayments)
+      .set({ 
+        status: 'failed',
+        updatedAt: new Date()
+      })
+      .where(eq(residentPayments.stripePaymentIntentId, paymentIntent.id));
+    
+    console.log(`❌ Resident payment failed for resident ${residentId}`);
+    
+    // TODO: Send payment failure notification to resident and community admin
+  }
+}
+
+// Handle payment intent processing (ACH payments in progress)
+async function handlePaymentIntentProcessing(paymentIntent: Stripe.PaymentIntent) {
+  console.log('⏳ Payment Intent processing:', paymentIntent.id);
+  
+  // Check if this is a resident payment
+  if (paymentIntent.metadata?.residentId) {
+    const residentId = parseInt(paymentIntent.metadata.residentId);
+    
+    // Update resident payment status to processing
+    await db
+      .update(residentPayments)
+      .set({ 
+        status: 'processing',
+        updatedAt: new Date()
+      })
+      .where(eq(residentPayments.stripePaymentIntentId, paymentIntent.id));
+    
+    console.log(`⏳ Resident payment processing for resident ${residentId} (ACH transfer in progress)`);
+  }
+}
+
+// Handle financial connections account created (ACH verification)
+async function handleFinancialConnectionCreated(account: any) {
+  console.log('🏦 Financial connection created:', account.id);
+  
+  // Log successful ACH verification
+  const metadata = account.metadata || {};
+  if (metadata.community_id) {
+    await db.insert(achVerificationEvents).values({
+      communityId: parseInt(metadata.community_id),
+      stripePaymentIntentId: metadata.payment_intent_id || null,
+      verificationStatus: 'verified',
+      verificationMethod: 'financial_connections',
+      createdAt: new Date()
+    });
+    
+    console.log(`🏦 ACH account verified for community ${metadata.community_id}`);
+  }
+}
+
+// Handle charge succeeded (for resident payments)
+async function handleChargeSucceeded(charge: Stripe.Charge) {
+  console.log('💳 Charge succeeded:', charge.id);
+  
+  // Update resident payment with charge ID if applicable
+  if (charge.metadata?.residentId && charge.payment_intent) {
+    await db
+      .update(residentPayments)
+      .set({ 
+        stripeChargeId: charge.id,
+        status: 'succeeded',
+        updatedAt: new Date()
+      })
+      .where(eq(residentPayments.stripePaymentIntentId, charge.payment_intent as string));
+    
+    console.log(`💳 Charge confirmed for resident ${charge.metadata.residentId}`);
+  }
+}
+
+// Handle charge failed
+async function handleChargeFailed(charge: Stripe.Charge) {
+  console.log('❌ Charge failed:', charge.id);
+  
+  // Update resident payment status if applicable
+  if (charge.metadata?.residentId && charge.payment_intent) {
+    await db
+      .update(residentPayments)
+      .set({ 
+        stripeChargeId: charge.id,
+        status: 'failed',
+        updatedAt: new Date()
+      })
+      .where(eq(residentPayments.stripePaymentIntentId, charge.payment_intent as string));
+    
+    console.log(`❌ Charge failed for resident ${charge.metadata.residentId}`);
   }
 }
 
