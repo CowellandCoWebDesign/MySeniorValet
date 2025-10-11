@@ -15,6 +15,222 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 export function registerCommunityStripeRoutes(app: Express) {
+  // Create or retrieve a Stripe Connect account for a community
+  app.post("/api/community-stripe/create-connect-account", isAuthenticated, async (req, res) => {
+    try {
+      const { communityId } = req.body;
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Verify community ownership
+      const [claimedCommunity] = await db.select()
+        .from(claimedCommunities)
+        .where(eq(claimedCommunities.communityId, communityId))
+        .limit(1);
+
+      if (!claimedCommunity || claimedCommunity.ownerId !== userId) {
+        return res.status(403).json({ message: "You must claim this community first" });
+      }
+
+      // Get community details
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      // Check if subscription tier supports payment processing
+      const paymentTiers = ['starter', 'growth', 'premium', 'enterprise'];
+      if (!community.subscriptionTier || !paymentTiers.includes(community.subscriptionTier)) {
+        return res.status(400).json({ 
+          message: "Payment processing requires Starter tier or higher subscription",
+          currentTier: community.subscriptionTier || 'free'
+        });
+      }
+
+      // Check if account already exists
+      if (community.stripeConnectedAccountId) {
+        // Retrieve existing account
+        const account = await stripe.accounts.retrieve(community.stripeConnectedAccountId);
+        
+        return res.json({
+          accountId: account.id,
+          onboardingCompleted: community.stripeOnboardingCompleted,
+          chargesEnabled: account.charges_enabled,
+          payoutsEnabled: account.payouts_enabled,
+          detailsSubmitted: account.details_submitted,
+        });
+      }
+
+      // Create new Express account (simpler onboarding)
+      const account = await stripe.accounts.create({
+        type: 'express',
+        country: 'US',
+        email: community.email || `community${communityId}@myseniorvalet.com`,
+        business_type: 'company',
+        company: {
+          name: community.name,
+          phone: community.phone || undefined,
+          address: {
+            line1: community.address,
+            city: community.city,
+            state: community.state,
+            postal_code: community.zipCode,
+            country: 'US',
+          },
+        },
+        business_profile: {
+          name: community.name,
+          product_description: 'Senior living community providing residential care and services',
+          mcc: '8062', // MCC code for hospitals and medical services
+        },
+        capabilities: {
+          card_payments: { requested: true },
+          us_bank_account_ach_payments: { requested: true },
+          transfers: { requested: true },
+        },
+        metadata: {
+          communityId: communityId.toString(),
+          platform: 'MySeniorValet',
+        },
+      });
+
+      // Save account ID to database
+      await db.update(communities)
+        .set({
+          stripeConnectedAccountId: account.id,
+          stripeAccountType: 'express',
+          updatedAt: new Date(),
+        })
+        .where(eq(communities.id, communityId));
+
+      res.json({
+        accountId: account.id,
+        onboardingCompleted: false,
+        chargesEnabled: false,
+        payoutsEnabled: false,
+      });
+    } catch (error: any) {
+      console.error('Error creating Stripe Connect account:', error);
+      res.status(500).json({ 
+        message: "Failed to create payment account", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Generate account link for onboarding
+  app.post("/api/community-stripe/create-account-link", isAuthenticated, async (req, res) => {
+    try {
+      const { communityId, returnUrl, refreshUrl } = req.body;
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get community with connected account
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community || !community.stripeConnectedAccountId) {
+        return res.status(400).json({ message: "Payment account not found. Please create one first." });
+      }
+
+      // Create account link for onboarding
+      const accountLink = await stripe.accountLinks.create({
+        account: community.stripeConnectedAccountId,
+        refresh_url: refreshUrl || `${req.protocol}://${req.get('host')}/community-dashboard?tab=payments&refresh=true`,
+        return_url: returnUrl || `${req.protocol}://${req.get('host')}/community-dashboard?tab=payments&success=true`,
+        type: 'account_onboarding',
+      });
+
+      res.json({
+        url: accountLink.url,
+        expiresAt: accountLink.expires_at,
+      });
+    } catch (error: any) {
+      console.error('Error creating account link:', error);
+      res.status(500).json({ 
+        message: "Failed to create onboarding link", 
+        error: error.message 
+      });
+    }
+  });
+
+  // Check account status
+  app.get("/api/community-stripe/account-status/:communityId", isAuthenticated, async (req, res) => {
+    try {
+      const { communityId } = req.params;
+      const userId = (req.user as any)?.claims?.sub;
+
+      if (!userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+
+      // Get community with connected account
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, parseInt(communityId)))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      if (!community.stripeConnectedAccountId) {
+        return res.json({
+          hasAccount: false,
+          onboardingCompleted: false,
+          chargesEnabled: false,
+          payoutsEnabled: false,
+        });
+      }
+
+      // Get account details from Stripe
+      const account = await stripe.accounts.retrieve(community.stripeConnectedAccountId);
+
+      // Update database if status changed
+      if (account.charges_enabled !== community.stripeChargesEnabled ||
+          account.payouts_enabled !== community.stripePayoutsEnabled ||
+          account.details_submitted !== community.stripeOnboardingCompleted) {
+        
+        await db.update(communities)
+          .set({
+            stripeOnboardingCompleted: account.details_submitted,
+            stripeChargesEnabled: account.charges_enabled,
+            stripePayoutsEnabled: account.payouts_enabled,
+            updatedAt: new Date(),
+          })
+          .where(eq(communities.id, parseInt(communityId)));
+      }
+
+      res.json({
+        hasAccount: true,
+        accountId: account.id,
+        onboardingCompleted: account.details_submitted,
+        chargesEnabled: account.charges_enabled,
+        payoutsEnabled: account.payouts_enabled,
+        requirements: account.requirements,
+        accountType: account.type,
+      });
+    } catch (error: any) {
+      console.error('Error checking account status:', error);
+      res.status(500).json({ 
+        message: "Failed to check account status", 
+        error: error.message 
+      });
+    }
+  });
+
   // Create a checkout session for community subscription
   app.post("/api/community-subscription/create-checkout-session", isAuthenticated, async (req, res) => {
     try {

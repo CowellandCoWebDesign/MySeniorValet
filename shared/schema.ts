@@ -1282,6 +1282,16 @@ export const communities = pgTable("communities", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   stripePriceId: text("stripe_price_id"),
+  
+  // Stripe Connect fields for receiving payments
+  stripeConnectedAccountId: text("stripe_connected_account_id"), // Stripe Connect account ID
+  stripeOnboardingCompleted: boolean("stripe_onboarding_completed").default(false),
+  stripeAccountType: text("stripe_account_type", {
+    enum: ["express", "standard", "custom"]
+  }), // Type of Stripe Connect account
+  stripePayoutsEnabled: boolean("stripe_payouts_enabled").default(false),
+  stripeChargesEnabled: boolean("stripe_charges_enabled").default(false),
+  
   billingStatus: text("billing_status", {
     enum: ["active", "past_due", "canceled", "trialing", "incomplete"]
   }).default("active"),

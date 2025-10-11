@@ -220,8 +220,18 @@ export function registerResidentPaymentRoutes(app: Express) {
 
       const stripePaymentMethodId = paymentMethodRecord.stripePaymentMethodId;
 
-      // Create Payment Intent
-      const paymentIntent = await stripe.paymentIntents.create({
+      // Get community's Stripe Connect account
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, resident.communityId))
+        .limit(1);
+      
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      // Check if community has Stripe Connect account set up
+      let paymentIntentOptions: any = {
         amount: Math.round(totalAmount * 100), // Convert to cents
         currency: 'usd',
         payment_method: stripePaymentMethodId,
@@ -238,7 +248,31 @@ export function registerResidentPaymentRoutes(app: Express) {
           convenienceFee: CONVENIENCE_FEE.toString(),
         },
         description: description || `${paymentType || 'Rent'} payment for ${resident.firstName} ${resident.lastName}`,
-      });
+      };
+
+      // If community has Stripe Connect, route payment to them
+      if (community.stripeConnectedAccountId && community.stripeOnboardingCompleted) {
+        // Platform fee: MySeniorValet takes 2% of base amount
+        const platformFee = Math.round(baseAmount * 0.02 * 100); // 2% platform fee in cents
+        
+        paymentIntentOptions = {
+          ...paymentIntentOptions,
+          // Route payment to community's connected account
+          transfer_data: {
+            destination: community.stripeConnectedAccountId,
+            // Community receives base amount minus platform fee
+            amount: Math.round((baseAmount - (baseAmount * 0.02)) * 100),
+          },
+          // Platform fee goes to MySeniorValet
+          application_fee_amount: platformFee,
+          // Connected account appears on customer's statement
+          on_behalf_of: community.stripeConnectedAccountId,
+          statement_descriptor_suffix: community.name.substring(0, 22), // Max 22 chars
+        };
+      }
+
+      // Create Payment Intent
+      const paymentIntent = await stripe.paymentIntents.create(paymentIntentOptions);
 
       // Create payment record
       const receiptNumber = `RCP-${Date.now()}-${residentId}`;
