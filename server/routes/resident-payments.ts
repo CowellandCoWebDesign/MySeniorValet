@@ -2,7 +2,7 @@ import express, { type Express } from "express";
 import Stripe from "stripe";
 import { db } from "../db";
 import { eq, and, desc } from "drizzle-orm";
-import { residents, paymentMethods, residentPayments } from "@shared/schema";
+import { residents, paymentMethods, residentPayments, communities } from "@shared/schema";
 import { isAuthenticated } from "../auth-middleware";
 
 if (!process.env.STRIPE_SECRET_KEY) {
@@ -10,7 +10,7 @@ if (!process.env.STRIPE_SECRET_KEY) {
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: "2025-07-30.basil",
+  apiVersion: "2025-08-27.basil",
 });
 
 const CONVENIENCE_FEE = 1.99; // $1.99 processing fee
@@ -302,7 +302,20 @@ export function registerResidentPaymentRoutes(app: Express) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      // TODO: Add community ownership verification
+      // Verify community ownership
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ message: "Community not found" });
+      }
+
+      // Only allow access if user owns/manages this community
+      if (!community.claimedBy || community.claimedBy.toString() !== userId.toString()) {
+        return res.status(403).json({ message: "Forbidden: You do not manage this community" });
+      }
       
       const payments = await db.select()
         .from(residentPayments)
