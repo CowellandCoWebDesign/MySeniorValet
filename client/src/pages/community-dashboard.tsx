@@ -108,6 +108,7 @@ export default function CommunityDashboard() {
   const [leadFilter, setLeadFilter] = useState('all');
   const [showAddTourModal, setShowAddTourModal] = useState(false);
   const [showTourSettings, setShowTourSettings] = useState(false);
+  const [showAddUnitModal, setShowAddUnitModal] = useState(false);
   const { toast } = useToast();
 
   // Fetch community data
@@ -1556,11 +1557,30 @@ export default function CommunityDashboard() {
                     <CardDescription>Track and manage your available units</CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        toast({
+                          title: "Export Units",
+                          description: "Exporting unit availability data...",
+                        });
+                      }}
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Export
                     </Button>
-                    <Button size="sm" className="bg-green-600 hover:bg-green-700">
+                    <Button 
+                      size="sm" 
+                      className="bg-green-600 hover:bg-green-700"
+                      onClick={() => {
+                        setShowAddUnitModal(true);
+                        toast({
+                          title: "Add Unit",
+                          description: "Unit management form will be implemented",
+                        });
+                      }}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Unit
                     </Button>
