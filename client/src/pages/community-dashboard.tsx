@@ -106,6 +106,8 @@ export default function CommunityDashboard() {
   const [showAddLeadModal, setShowAddLeadModal] = useState(false);
   const [showLeadFilter, setShowLeadFilter] = useState(false);
   const [leadFilter, setLeadFilter] = useState('all');
+  const [showAddTourModal, setShowAddTourModal] = useState(false);
+  const [showTourSettings, setShowTourSettings] = useState(false);
   const { toast } = useToast();
 
   // Fetch community data
@@ -1320,11 +1322,31 @@ export default function CommunityDashboard() {
                     <CardDescription>Manage your 3D tours and virtual experiences</CardDescription>
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        setShowTourSettings(true);
+                        toast({
+                          title: "Tour Settings",
+                          description: "Tour settings will be implemented",
+                        });
+                      }}
+                    >
                       <Settings className="h-4 w-4 mr-2" />
                       Settings
                     </Button>
-                    <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
+                    <Button 
+                      size="sm" 
+                      className="bg-indigo-600 hover:bg-indigo-700"
+                      onClick={() => {
+                        setShowAddTourModal(true);
+                        toast({
+                          title: "Add Virtual Tour",
+                          description: "Virtual tour form will be implemented",
+                        });
+                      }}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Tour
                     </Button>
@@ -1439,7 +1461,16 @@ export default function CommunityDashboard() {
                     <Video className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                     <p className="mb-4">No virtual tours yet</p>
                     <p className="text-sm">Add immersive 3D tours to showcase your community and increase engagement.</p>
-                    <Button className="mt-4 bg-indigo-600 hover:bg-indigo-700">
+                    <Button 
+                      className="mt-4 bg-indigo-600 hover:bg-indigo-700"
+                      onClick={() => {
+                        setShowAddTourModal(true);
+                        toast({
+                          title: "Add Virtual Tour",
+                          description: "Virtual tour form will be implemented",
+                        });
+                      }}
+                    >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Tour
                     </Button>
