@@ -279,11 +279,11 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
             {/* Logo - Clean Professional Design */}
             <Link href="/" className="flex items-center space-x-2 cursor-pointer group">
-              <div className="p-2 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
+              <div className="p-1 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg shadow-md group-hover:shadow-lg transition-all duration-300 flex items-center justify-center">
                 <span className="text-xl">🏡</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-sm sm:text-lg lg:text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                <span className="text-lg sm:text-xl lg:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
                   MySeniorValet
                 </span>
               </div>
@@ -449,8 +449,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
             ) : (
               <Link href="/signup">
                 <Button 
-                  size="default" 
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-md hover:shadow-lg px-3 sm:px-5 py-2 sm:py-2.5 rounded-xl transition-all duration-200 text-sm sm:text-base"
+                  size="sm" 
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg px-3 py-2 rounded-lg transition-all duration-200 text-sm"
                 >
                   Get Started
                 </Button>
