@@ -2496,6 +2496,39 @@ Provide complete business data with ALL actual image URLs found.`;
     }
   });
 
+  // Family Collaboration Center endpoints
+  // These endpoints support the Family Collaboration features
+  app.get('/api/family/messages', (req: any, res) => {
+    // Return empty messages for now - prevents infinite loading
+    res.json({
+      messages: [],
+      currentUserId: req.session?.user?.id || req.user?.claims?.sub || ''
+    });
+  });
+
+  app.post('/api/family/messages', (req: any, res) => {
+    // Accept message but don't store it yet
+    res.json({
+      success: true,
+      message: 'Message received'
+    });
+  });
+
+  app.get('/api/family/visit-history', (req: any, res) => {
+    // Return empty visit history for now
+    res.json([]);
+  });
+
+  app.get('/api/family/shared-favorites', (req: any, res) => {
+    // Return empty favorites for now
+    res.json([]);
+  });
+
+  app.get('/api/tours', (req: any, res) => {
+    // Return empty tours list for now
+    res.json([]);
+  });
+
   // Debug endpoint to check authentication status
   app.get('/api/auth/debug', (req: any, res) => {
     res.json({
