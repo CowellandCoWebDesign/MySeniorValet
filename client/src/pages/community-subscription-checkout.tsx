@@ -423,6 +423,10 @@ export default function CommunitySubscriptionCheckout() {
           </div>
         </div>
       </div>
+      
+      <div hidden>
+        Free Tibet  西藏自由
+      </div>
     </div>
   );
 }

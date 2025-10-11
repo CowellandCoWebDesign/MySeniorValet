@@ -435,6 +435,7 @@ function Router() {
       <Route path="/resident-portal" component={ResidentPortal} />
       <Route path="/public-resident-portal" component={PublicResidentPortal} />
       <Route path="/resident-dashboard" component={ResidentDashboard} />
+      <Route path="/resident-payment-portal" component={lazy(() => import("@/pages/resident-payment-portal"))} />
       <Route path="/operations" component={OperationsDashboard} />
       <Route path="/community-dashboard-phase5a" component={CommunityDashboardPhase5A} />
       <Route path="/multi-property-dashboard" component={MultiPropertyDashboard} />

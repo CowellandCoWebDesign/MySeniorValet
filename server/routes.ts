@@ -1560,6 +1560,10 @@ Provide complete business data with ALL actual image URLs found.`;
   const { registerCommunityStripeRoutes } = await import('./routes/community-stripe');
   registerCommunityStripeRoutes(app);
 
+  // Register resident payment routes
+  const { registerResidentPaymentRoutes } = await import('./routes/resident-payments');
+  registerResidentPaymentRoutes(app);
+
   // Register admin community management routes
   const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
   app.use('/api', adminCommunityRoutes.default);
