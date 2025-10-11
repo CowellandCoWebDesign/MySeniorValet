@@ -406,22 +406,18 @@ router.put('/shifts/:id', async (req: Request, res: Response) => {
       });
     }
     
-    // Validate and sanitize input to prevent prototype pollution
-    const updates: any = {};
+    const currentShift = staffData.shifts[shiftIndex];
     
-    // Safe property extraction without bracket notation
-    if (req.body.date !== undefined) updates.date = req.body.date;
-    if (req.body.startTime !== undefined) updates.startTime = req.body.startTime;
-    if (req.body.endTime !== undefined) updates.endTime = req.body.endTime;
-    if (req.body.assignedTo !== undefined) updates.assignedTo = req.body.assignedTo;
-    if (req.body.department !== undefined) updates.department = req.body.department;
-    if (req.body.type !== undefined) updates.type = req.body.type;
-    if (req.body.notes !== undefined) updates.notes = req.body.notes;
+    const updatedShift = { ...currentShift };
+    if (req.body.date !== undefined) updatedShift.date = req.body.date;
+    if (req.body.startTime !== undefined) updatedShift.startTime = req.body.startTime;
+    if (req.body.endTime !== undefined) updatedShift.endTime = req.body.endTime;
+    if (req.body.staffId !== undefined) updatedShift.staffId = req.body.staffId;
+    if (req.body.staffName !== undefined) updatedShift.staffName = req.body.staffName;
+    if (req.body.department !== undefined) updatedShift.department = req.body.department;
+    if (req.body.status !== undefined) updatedShift.status = req.body.status;
     
-    staffData.shifts[shiftIndex] = {
-      ...staffData.shifts[shiftIndex],
-      ...updates
-    };
+    staffData.shifts[shiftIndex] = updatedShift;
     
     res.json({
       success: true,
