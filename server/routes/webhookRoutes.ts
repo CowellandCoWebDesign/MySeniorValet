@@ -91,6 +91,19 @@ router.post('/webhook', async (req: Request, res: Response) => {
         await handleChargeFailed(event.data.object as Stripe.Charge);
         break;
 
+      // Stripe Connect account events
+      case 'account.updated':
+        await handleConnectAccountUpdated(event.data.object as Stripe.Account);
+        break;
+
+      case 'account.application.authorized':
+        await handleConnectAccountAuthorized(event.data.object);
+        break;
+
+      case 'account.application.deauthorized':
+        await handleConnectAccountDeauthorized(event.data.object);
+        break;
+
       default:
         console.log(`📬 Unhandled event type: ${event.type}`);
     }
@@ -432,6 +445,90 @@ async function handleChargeFailed(charge: Stripe.Charge) {
     
     console.log(`❌ Charge failed for resident ${charge.metadata.residentId}`);
   }
+}
+
+// Handle Stripe Connect account updated
+async function handleConnectAccountUpdated(account: Stripe.Account) {
+  console.log('🔄 Connect account updated:', account.id);
+  
+  // Find community by connected account ID
+  const [community] = await db
+    .select()
+    .from(communities)
+    .where(eq(communities.stripeConnectedAccountId, account.id))
+    .limit(1);
+    
+  if (community) {
+    // Update account status
+    await db
+      .update(communities)
+      .set({
+        stripeOnboardingCompleted: account.details_submitted,
+        stripeChargesEnabled: account.charges_enabled,
+        stripePayoutsEnabled: account.payouts_enabled,
+        updatedAt: new Date()
+      })
+      .where(eq(communities.id, community.id));
+      
+    console.log(`✅ Updated Connect account status for community ${community.id}`);
+  }
+}
+
+// Handle Stripe Connect account authorized
+async function handleConnectAccountAuthorized(event: any) {
+  console.log('✅ Connect account authorized:', event.account);
+  
+  // Log the authorization event
+  await db.insert(auditLogs).values({
+    action: 'connect_account_authorized',
+    entityType: 'stripe_connect',
+    entityId: event.account,
+    metadata: { 
+      authorized_at: new Date().toISOString(),
+      stripe_user_id: event.stripe_user_id
+    },
+    ipAddress: 'stripe_webhook',
+    userAgent: 'stripe_webhook'
+  });
+}
+
+// Handle Stripe Connect account deauthorized
+async function handleConnectAccountDeauthorized(event: any) {
+  console.log('⚠️ Connect account deauthorized:', event.account);
+  
+  // Find and disable the community's payment processing
+  const [community] = await db
+    .select()
+    .from(communities)
+    .where(eq(communities.stripeConnectedAccountId, event.account))
+    .limit(1);
+    
+  if (community) {
+    await db
+      .update(communities)
+      .set({
+        stripeOnboardingCompleted: false,
+        stripeChargesEnabled: false,
+        stripePayoutsEnabled: false,
+        updatedAt: new Date()
+      })
+      .where(eq(communities.id, community.id));
+      
+    console.log(`⚠️ Disabled payment processing for community ${community.id}`);
+  }
+  
+  // Log the deauthorization
+  await db.insert(auditLogs).values({
+    action: 'connect_account_deauthorized',
+    entityType: 'stripe_connect',
+    entityId: event.account,
+    metadata: { 
+      deauthorized_at: new Date().toISOString(),
+      stripe_user_id: event.stripe_user_id
+    },
+    ipAddress: 'stripe_webhook',
+    userAgent: 'stripe_webhook'
+  });
 }
 
 // Development endpoint to test webhook functionality
