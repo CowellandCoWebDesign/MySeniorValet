@@ -3109,11 +3109,11 @@ export default function CommunityDetail() {
                       </Badge>
                     )}
                     
-                    {/* Search for Market Data Button */}
+                    {/* Refresh Market Data Button */}
                     <div className="mt-4">
                       <Button
                         onClick={() => {
-                          console.log('🔍 User clicked Search for Market Data for:', community.name);
+                          console.log('🔄 User clicked Refresh Market Data for:', community.name);
                           handleManualVerification();
                         }}
                         disabled={isVerifying}
@@ -3124,17 +3124,17 @@ export default function CommunityDetail() {
                         {isVerifying ? (
                           <>
                             <RefreshCw className="w-4 h-4 animate-spin" />
-                            Searching...
+                            Refreshing...
                           </>
                         ) : (
                           <>
-                            <Search className="w-4 h-4" />
-                            Search for Market Data & Photos
+                            <RefreshCw className="w-4 h-4" />
+                            Refresh Market Data & Photos
                           </>
                         )}
                       </Button>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
-                        Updates pricing, availability, and photos from official sources
+                        Get the latest pricing, availability, and photos from official sources
                       </p>
                     </div>
                   </CardHeader>
