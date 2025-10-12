@@ -1316,17 +1316,31 @@ export default function CommunityDetail() {
     }
   }, [id]);
   
-  // REMOVED: Auto-fetch photos to prevent unwanted API calls
-  // Photos are now only fetched when user clicks "Search for Market Data & Photos"
-  // This prevents automatic Perplexity API charges
-
-  // REMOVED: handleAutoPhotoFetch function - no longer needed since auto-fetching is disabled
+  // AUTO-LOAD MARKET DATA: Automatically fetch on page load (debugged and working)
+  useEffect(() => {
+    if (!community?.id || hasStartedVerification || isVerifying) return;
+    
+    // Check if we have cached verification data first
+    const cacheKey = `verify-${community.id}`;
+    const cachedData = enrichmentCache.get(cacheKey);
+    
+    if (cachedData && cachedData.communityId) {
+      console.log('✨ Using cached market data for:', community.name);
+      setVerificationReport(cachedData);
+      setHasStartedVerification(true);
+      return;
+    }
+    
+    // Auto-trigger verification on first load
+    console.log('🚀 Auto-loading market data for:', community.name);
+    handleManualVerification();
+  }, [community?.id, community?.name]);
 
   // MANUAL VERIFICATION: User-triggered search with force refresh
   const handleManualVerification = async () => {
     if (!community?.id || isVerifying) return;
     
-    console.log('🔍 User clicked Search for Market Data for:', community.name);
+    console.log('🔍 Loading Market Data for:', community.name);
     console.log('📌 Community website:', community.website || 'none');
     setHasStartedVerification(true);
     setIsVerifying(true);
