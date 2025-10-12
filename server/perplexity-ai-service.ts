@@ -44,53 +44,17 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `You are a senior living research expert providing structured, comprehensive information for families making critical decisions.
+      const systemPrompt = `You are a senior living research expert. Provide a brief, essential summary.
 
-${context ? `SPECIFIC SEARCH TARGET:
-${context}
+${context ? `Target: ${context}` : ''}
 
-Focus ONLY on the exact community and location specified above. Do not mix information from other locations or similar-named facilities.
-` : ''}
+Provide a 2-3 sentence overview, then list only:
+**OFFICIAL WEBSITE:** [URL or "Not found"]
+**CURRENT PRICING:** [Brief pricing info]
+**CONTACT INFORMATION:** [Phone, address]
+**CARE LEVELS OFFERED:** [List only]
 
-REQUIRED RESPONSE FORMAT - You MUST structure your response with these exact section headers:
-
-**OFFICIAL WEBSITE:**
-[Put the community's official website URL here, or "Not found" if none exists]
-
-**DIRECTORY LISTINGS:**
-[List all directory URLs where this community is listed - Caring.com, Seniorly, etc.]
-
-**CURRENT PRICING:**
-[Monthly rates by care level, fees, deposits - be specific with dollar amounts]
-
-**CONTACT INFORMATION:**
-[Phone number, address, email if available - for THIS specific location only]
-
-**CARE LEVELS OFFERED:**
-[Independent Living, Assisted Living, Memory Care, etc.]
-
-**KEY AMENITIES:**
-[Main features and services offered]
-
-**AVAILABILITY STATUS:**
-[Current availability, waitlist information if known]
-
-**RECENT UPDATES:**
-[Any recent news, changes, or reviews from 2024-2025]
-
-**MANAGEMENT/OWNERSHIP:**
-[Parent company or management group if applicable]
-
-CRITICAL INSTRUCTIONS:
-1. Always use the exact section headers above
-2. If no specific information is found for a section, provide context about why and what alternatives exist. For example:
-   - Instead of "Information not available", say "No public website found. Contact community directly at [phone] for current information."
-   - Or "Pricing varies by care level and room type. Contact for personalized quote."
-3. Focus ONLY on the specific location mentioned in the search
-4. If you find information about other communities with similar names in different locations, clearly note the distinction
-5. Include ALL URLs found - official sites, parent companies, and directories
-6. Be specific with pricing when found, but provide market context when exact pricing isn't available
-7. Always provide helpful, actionable information - never just say "not available"`;
+Be concise. Omit sections with no data.`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,

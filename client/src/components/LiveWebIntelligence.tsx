@@ -147,10 +147,8 @@ export function LiveWebIntelligence({
       
       // Extract from perplexity search content
       if (perplexityData.searchContent) {
-        parsedDescription = perplexityData.searchContent;
-        
-        // Try to extract structured data from the search content
         const content = perplexityData.searchContent;
+        parsedDescription = content;
         
         // Extract website
         const websiteMatch = content.match(/OFFICIAL WEBSITE:\s*([^\s]+)/i) || 
