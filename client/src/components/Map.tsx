@@ -452,6 +452,7 @@ interface MapProps {
 const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
   const map = useMap();
   const [heatmapData, setHeatmapData] = useState<any[]>([]);
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Fetch heatmap data based on current map bounds
   useEffect(() => {
@@ -477,11 +478,25 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
       }
     };
     
-    // Fetch on mount and when map moves
+    // Debounced fetch function
+    const debouncedFetch = () => {
+      // Clear any pending fetch
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
+      
+      // Schedule new fetch with 1 second debounce
+      fetchTimeoutRef.current = setTimeout(() => {
+        fetchHeatmapData();
+      }, 1000);
+    };
+    
+    // Fetch on mount
     fetchHeatmapData();
     
+    // Use debounced fetch for map movement
     const handleMoveEnd = () => {
-      fetchHeatmapData();
+      debouncedFetch();
     };
     
     map.on('moveend', handleMoveEnd);
@@ -490,6 +505,10 @@ const HeatmapOverlay: React.FC<{ opacity: number }> = ({ opacity }) => {
     return () => {
       map.off('moveend', handleMoveEnd);
       map.off('zoomend', handleMoveEnd);
+      // Clear any pending fetch on unmount
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
+      }
     };
   }, [map]);
   
@@ -579,7 +598,7 @@ function MapBoundsHandler({
           } catch (innerError) {
             console.warn('Error in bounds timeout:', innerError);
           }
-        }, 150); // Faster response for enterprise UX
+        }, 500); // Increased debounce to prevent excessive updates and crashes
       }
     } catch (error) {
       console.warn('Error getting map bounds:', error);
@@ -609,36 +628,22 @@ function MapBoundsHandler({
         handleZoomChange();
         handleBoundsChange(); // Also trigger bounds update on zoom
       });
-      map.on('dragend', handleBoundsChange); // Update after drag completes
-      map.on('drag', handleBoundsChange); // Also update during drag for immediate response
+      // REMOVED dragend and drag handlers - moveend is sufficient and prevents excessive updates
 
-      // Force initial bounds and zoom with multiple attempts
-      const attemptInitialBounds = (attempts = 0) => {
-        if (attempts > 5) {
-          console.warn('Failed to set initial bounds after 5 attempts');
-          return;
-        }
-
+      // Force initial bounds and zoom with single attempt
+      const attemptInitialBounds = () => {
+        // Only try once after a delay to ensure map is ready
         setTimeout(() => {
           try {
             if (map && map.getBounds) {
-              console.log(`Setting initial bounds and zoom (attempt ${attempts + 1})`);
+              console.log('Setting initial bounds and zoom');
               handleBoundsChange();
-              handleZoomChange(map.getZoom());
-
-              // Verify bounds were set
-              const bounds = map.getBounds();
-              if (!bounds) {
-                attemptInitialBounds(attempts + 1);
-              }
-            } else {
-              attemptInitialBounds(attempts + 1);
+              handleZoomChange();
             }
           } catch (error) {
             console.warn('Error setting initial bounds:', error);
-            attemptInitialBounds(attempts + 1);
           }
-        }, 100 * (attempts + 1)); // Increase delay with each attempt
+        }, 500); // Single delay to ensure map is ready
       };
 
       attemptInitialBounds();
@@ -650,8 +655,7 @@ function MapBoundsHandler({
       if (map) {
         map.off('moveend', handleBoundsChange);
         map.off('zoomend');
-        map.off('dragend', handleBoundsChange);
-        map.off('drag', handleBoundsChange);
+        // Removed dragend and drag cleanup since we don't attach them anymore
         clearTimeout(window.mapBoundsTimeout);
       }
     };
