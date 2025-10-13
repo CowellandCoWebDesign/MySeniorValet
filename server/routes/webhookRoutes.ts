@@ -205,11 +205,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   console.log('💰 Invoice paid:', invoice.id);
   
-  if (invoice.subscription) {
+  const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+  
+  if (subscriptionId) {
     const subscription = await db
       .select()
       .from(subscriptions)
-      .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string))
+      .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1);
 
     if (subscription.length > 0) {
@@ -220,9 +222,9 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
           status: 'active',
           updatedAt: new Date()
         })
-        .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+        .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
 
-      console.log(`✅ Subscription ${invoice.subscription} marked as active`);
+      console.log(`✅ Subscription ${subscriptionId} marked as active`);
     }
   }
 }
@@ -231,11 +233,13 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   console.log('🚫 Payment failed:', invoice.id);
   
-  if (invoice.subscription) {
+  const subscriptionId = typeof invoice.subscription === 'string' ? invoice.subscription : invoice.subscription?.id;
+  
+  if (subscriptionId) {
     const subscription = await db
       .select()
       .from(subscriptions)
-      .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string))
+      .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
       .limit(1);
 
     if (subscription.length > 0) {
@@ -246,9 +250,9 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
           status: 'past_due',
           updatedAt: new Date()
         })
-        .where(eq(subscriptions.stripeSubscriptionId, invoice.subscription as string));
+        .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
 
-      console.log(`⚠️ Subscription ${invoice.subscription} marked as past_due`);
+      console.log(`⚠️ Subscription ${subscriptionId} marked as past_due`);
       
       // TODO: Send email notification to community admin
       // TODO: Disable premium features if payment remains failed
@@ -272,8 +276,8 @@ async function handleSubscriptionUpdated(subscription: Stripe.Subscription) {
     .update(subscriptions)
     .set({ 
       status: subscription.status as any,
-      currentPeriodStart: new Date(subscription.current_period_start * 1000),
-      currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
       updatedAt: new Date()
     })
     .where(eq(subscriptions.stripeSubscriptionId, subscription.id));
