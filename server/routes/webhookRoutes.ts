@@ -231,6 +231,24 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
         .where(eq(subscriptions.stripeSubscriptionId, subscriptionId));
 
       console.log(`✅ Subscription ${subscriptionId} marked as active`);
+      
+      // Get community details for email
+      const community = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, subscription[0].communityId))
+        .limit(1);
+      
+      if (community.length > 0 && community[0].contactEmail) {
+        // Send payment success email to community admin
+        await sendPaymentSucceededEmail({
+          email: community[0].contactEmail,
+          name: community[0].name,
+          amount: (invoice as any).amount_paid || 0,
+          receiptUrl: (invoice as any).hosted_invoice_url,
+          subscriptionId: subscriptionId
+        });
+      }
     }
   }
 }
