@@ -17,63 +17,48 @@ externalPort = 80
 
 [[ports]]
 localPort = 34011
-externalPort = 8008
 
 [[ports]]
 localPort = 34331
-externalPort = 4200
 
 [[ports]]
 localPort = 34803
-externalPort = 5173
 
 [[ports]]
 localPort = 36261
-externalPort = 8081
 
 [[ports]]
 localPort = 37575
-externalPort = 8000
 
 [[ports]]
 localPort = 38789
-externalPort = 3001
 
 [[ports]]
 localPort = 38883
-externalPort = 6800
 
 [[ports]]
 localPort = 39437
-externalPort = 6000
 
 [[ports]]
 localPort = 39517
-externalPort = 9000
 
 [[ports]]
 localPort = 40087
-externalPort = 8099
 
 [[ports]]
 localPort = 41003
-externalPort = 8080
 
 [[ports]]
 localPort = 41197
-externalPort = 3003
 
 [[ports]]
 localPort = 43003
-externalPort = 5000
 
 [[ports]]
 localPort = 45901
-externalPort = 3000
 
 [[ports]]
 localPort = 46519
-externalPort = 3002
 
 [workflows]
 runButton = "Project"
