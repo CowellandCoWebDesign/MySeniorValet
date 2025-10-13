@@ -61,14 +61,21 @@ export default function CommunityPortal() {
   const [existingCommunityData, setExistingCommunityData] = useState<any>(null);
   
   // Check if user owns any communities and redirect to dashboard if they do
-  const { data: ownedCommunitiesData } = useQuery({
+  const { data: ownedCommunitiesData } = useQuery<{
+    communities: Array<{
+      id: number;
+      communityId: number;
+      communityName: string;
+      subscriptionTier?: string;
+    }>;
+  }>({
     queryKey: ['/api/my-communities'],
     enabled: true,
   });
 
   useEffect(() => {
     // If user owns communities and isn't in an upgrade flow, redirect to their dashboard
-    if (ownedCommunitiesData?.communities?.length > 0 && !sessionStorage.getItem('communityUpgradeData')) {
+    if (ownedCommunitiesData?.communities?.length && ownedCommunitiesData.communities.length > 0 && !sessionStorage.getItem('communityUpgradeData')) {
       const firstCommunity = ownedCommunitiesData.communities[0];
       setLocation(`/community-dashboard/${firstCommunity.communityId}`);
     }
