@@ -285,26 +285,32 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
         .where(eq(communities.id, subscription[0].communityId))
         .limit(1);
       
+      // Determine customer email and name for notifications
+      const customerEmail = community.length > 0 && community[0].contactEmail 
+        ? community[0].contactEmail 
+        : 'no-contact-email@unknown.com';
+      const communityName = community.length > 0 ? community[0].name : 'Unknown Community';
+      
+      // Send payment failed email to community admin (only if valid contact email exists)
       if (community.length > 0 && community[0].contactEmail) {
-        // Send payment failed email to community admin
         await sendPaymentFailedEmail({
           email: community[0].contactEmail,
-          name: community[0].name,
+          name: communityName,
           amount: (invoice as any).amount_due || 0,
           invoiceUrl: (invoice as any).hosted_invoice_url,
           reason: (invoice as any).failure_message || 'Payment method declined',
           subscriptionId: subscriptionId
         });
-        
-        // Send admin alert
-        await sendAdminPaymentAlert({
-          type: 'failed',
-          customerEmail: community[0].contactEmail,
-          amount: (invoice as any).amount_due || 0,
-          subscriptionId: subscriptionId,
-          reason: (invoice as any).failure_message || 'Payment method declined'
-        });
       }
+      
+      // ALWAYS send admin alert (even if community is missing or has no contact email)
+      await sendAdminPaymentAlert({
+        type: 'failed',
+        customerEmail: customerEmail,
+        amount: (invoice as any).amount_due || 0,
+        subscriptionId: subscriptionId,
+        reason: (invoice as any).failure_message || 'Payment method declined'
+      });
     }
   }
 }
