@@ -637,6 +637,21 @@ export function setupCustomAuth(app: Express) {
     }
   });
   
+  // Add authentication helper middleware - MUST come before routes
+  app.use((req: any, res: any, next: any) => {
+    // Add isAuthenticated method to request object (Passport.js compatibility)
+    req.isAuthenticated = () => {
+      return !!(req.session?.userId && req.session?.user);
+    };
+    
+    // Add user to request object if authenticated
+    if (req.session?.user) {
+      req.user = req.session.user;
+    }
+    
+    next();
+  });
+  
   app.use(router);
   
   console.log('✅ Custom authentication system initialized (no Replit account required)');
