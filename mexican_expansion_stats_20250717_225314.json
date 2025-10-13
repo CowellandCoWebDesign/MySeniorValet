@@ -1,0 +1,838 @@
+{
+  "collection_date": "2025-07-17T22:53:15.060902",
+  "total_facilities": 1900,
+  "states_covered": 32,
+  "state_breakdown": {
+    "Aguascalientes": {
+      "total_facilities": 25,
+      "cities_covered": 5,
+      "city_list": [
+        "Aguascalientes",
+        "Asientos",
+        "Calvillo",
+        "Jesús María",
+        "Rincón de Romos"
+      ],
+      "avg_capacity": 101.68,
+      "avg_price_pesos": 18000.0,
+      "avg_price_usd": 990.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Baja California": {
+      "total_facilities": 85,
+      "cities_covered": 5,
+      "city_list": [
+        "Ensenada",
+        "Mexicali",
+        "Rosarito",
+        "Tecate",
+        "Tijuana"
+      ],
+      "avg_capacity": 91.61176470588235,
+      "avg_price_pesos": 22000.0,
+      "avg_price_usd": 1210.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northwestern Mexico"
+    },
+    "Baja California Sur": {
+      "total_facilities": 45,
+      "cities_covered": 5,
+      "city_list": [
+        "Comondú",
+        "La Paz",
+        "Loreto",
+        "Los Cabos",
+        "Mulegé"
+      ],
+      "avg_capacity": 95.77777777777777,
+      "avg_price_pesos": 28000.0,
+      "avg_price_usd": 1540.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Residencia Geriátrica",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northwestern Mexico"
+    },
+    "Campeche": {
+      "total_facilities": 30,
+      "cities_covered": 5,
+      "city_list": [
+        "Campeche",
+        "Champotón",
+        "Ciudad del Carmen",
+        "Escárcega",
+        "Hopelchén"
+      ],
+      "avg_capacity": 109.0,
+      "avg_price_pesos": 16000.0,
+      "avg_price_usd": 880.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southeastern Mexico"
+    },
+    "Chiapas": {
+      "total_facilities": 40,
+      "cities_covered": 5,
+      "city_list": [
+        "Comitán",
+        "Palenque",
+        "San Cristóbal de las Casas",
+        "Tapachula",
+        "Tuxtla Gutiérrez"
+      ],
+      "avg_capacity": 102.375,
+      "avg_price_pesos": 14000.0,
+      "avg_price_usd": 770.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southeastern Mexico"
+    },
+    "Chihuahua": {
+      "total_facilities": 75,
+      "cities_covered": 5,
+      "city_list": [
+        "Chihuahua",
+        "Ciudad Juárez",
+        "Cuauhtémoc",
+        "Delicias",
+        "Parral"
+      ],
+      "avg_capacity": 97.76,
+      "avg_price_pesos": 20000.0,
+      "avg_price_usd": 1100.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northern Mexico"
+    },
+    "Coahuila": {
+      "total_facilities": 60,
+      "cities_covered": 5,
+      "city_list": [
+        "Acuña",
+        "Monclova",
+        "Piedras Negras",
+        "Saltillo",
+        "Torreón"
+      ],
+      "avg_capacity": 100.13333333333334,
+      "avg_price_pesos": 19000.0,
+      "avg_price_usd": 1045.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northern Mexico"
+    },
+    "Colima": {
+      "total_facilities": 25,
+      "cities_covered": 5,
+      "city_list": [
+        "Armería",
+        "Colima",
+        "Manzanillo",
+        "Tecomán",
+        "Villa de Álvarez"
+      ],
+      "avg_capacity": 74.0,
+      "avg_price_pesos": 21000.0,
+      "avg_price_usd": 1155.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Western Mexico"
+    },
+    "Durango": {
+      "total_facilities": 35,
+      "cities_covered": 5,
+      "city_list": [
+        "Durango",
+        "Guadalupe Victoria",
+        "Gómez Palacio",
+        "Lerdo",
+        "Santiago Papasquiaro"
+      ],
+      "avg_capacity": 81.71428571428571,
+      "avg_price_pesos": 17000.0,
+      "avg_price_usd": 935.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northern Mexico"
+    },
+    "Guanajuato": {
+      "total_facilities": 70,
+      "cities_covered": 5,
+      "city_list": [
+        "Celaya",
+        "Guanajuato",
+        "Irapuato",
+        "León",
+        "Salamanca"
+      ],
+      "avg_capacity": 93.5,
+      "avg_price_pesos": 18000.0,
+      "avg_price_usd": 990.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Cuidado de Memoria",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Guerrero": {
+      "total_facilities": 50,
+      "cities_covered": 5,
+      "city_list": [
+        "Acapulco",
+        "Chilpancingo",
+        "Iguala",
+        "Taxco",
+        "Zihuatanejo"
+      ],
+      "avg_capacity": 96.54,
+      "avg_price_pesos": 17000.0,
+      "avg_price_usd": 935.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southern Mexico"
+    },
+    "Hidalgo": {
+      "total_facilities": 40,
+      "cities_covered": 5,
+      "city_list": [
+        "Huejutla",
+        "Ixmiquilpan",
+        "Pachuca",
+        "Tizayuca",
+        "Tulancingo"
+      ],
+      "avg_capacity": 97.425,
+      "avg_price_pesos": 16000.0,
+      "avg_price_usd": 880.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Jalisco": {
+      "total_facilities": 120,
+      "cities_covered": 5,
+      "city_list": [
+        "Guadalajara",
+        "Puerto Vallarta",
+        "Tlaquepaque",
+        "Tonalá",
+        "Zapopan"
+      ],
+      "avg_capacity": 97.70833333333333,
+      "avg_price_pesos": 20000.0,
+      "avg_price_usd": 1100.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Western Mexico"
+    },
+    "México": {
+      "total_facilities": 90,
+      "cities_covered": 5,
+      "city_list": [
+        "Ecatepec",
+        "Naucalpan",
+        "Nezahualcóyotl",
+        "Tlalnepantla",
+        "Toluca"
+      ],
+      "avg_capacity": 96.9,
+      "avg_price_pesos": 19000.0,
+      "avg_price_usd": 1045.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Michoacán": {
+      "total_facilities": 65,
+      "cities_covered": 5,
+      "city_list": [
+        "Apatzingán",
+        "Lázaro Cárdenas",
+        "Morelia",
+        "Uruapan",
+        "Zamora"
+      ],
+      "avg_capacity": 92.07692307692308,
+      "avg_price_pesos": 17000.0,
+      "avg_price_usd": 935.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Western Mexico"
+    },
+    "Morelos": {
+      "total_facilities": 45,
+      "cities_covered": 5,
+      "city_list": [
+        "Cuautla",
+        "Cuernavaca",
+        "Jiutepec",
+        "Temixco",
+        "Yautepec"
+      ],
+      "avg_capacity": 76.37777777777778,
+      "avg_price_pesos": 22000.0,
+      "avg_price_usd": 1210.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Nayarit": {
+      "total_facilities": 30,
+      "cities_covered": 5,
+      "city_list": [
+        "Bahía de Banderas",
+        "Compostela",
+        "Ixtlán del Río",
+        "Tepic",
+        "Xalisco"
+      ],
+      "avg_capacity": 109.13333333333334,
+      "avg_price_pesos": 19000.0,
+      "avg_price_usd": 1045.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Western Mexico"
+    },
+    "Nuevo León": {
+      "total_facilities": 95,
+      "cities_covered": 5,
+      "city_list": [
+        "Apodaca",
+        "Guadalupe",
+        "Monterrey",
+        "San Nicolás",
+        "Santa Catarina"
+      ],
+      "avg_capacity": 101.53684210526316,
+      "avg_price_pesos": 23000.0,
+      "avg_price_usd": 1265.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Residencia Geriátrica",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northern Mexico"
+    },
+    "Oaxaca": {
+      "total_facilities": 45,
+      "cities_covered": 5,
+      "city_list": [
+        "Huajuapan",
+        "Juchitán",
+        "Oaxaca de Juárez",
+        "Salina Cruz",
+        "Tuxtepec"
+      ],
+      "avg_capacity": 97.35555555555555,
+      "avg_price_pesos": 15000.0,
+      "avg_price_usd": 825.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Residencia Geriátrica",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southern Mexico"
+    },
+    "Puebla": {
+      "total_facilities": 75,
+      "cities_covered": 5,
+      "city_list": [
+        "Atlixco",
+        "Huauchinango",
+        "Puebla",
+        "San Martín Texmelucan",
+        "Tehuacán"
+      ],
+      "avg_capacity": 100.04,
+      "avg_price_pesos": 17000.0,
+      "avg_price_usd": 935.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Querétaro": {
+      "total_facilities": 50,
+      "cities_covered": 5,
+      "city_list": [
+        "Corregidora",
+        "El Marqués",
+        "Querétaro",
+        "San Juan del Río",
+        "Tequisquiapan"
+      ],
+      "avg_capacity": 89.84,
+      "avg_price_pesos": 21000.0,
+      "avg_price_usd": 1155.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Residencia Geriátrica",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Quintana Roo": {
+      "total_facilities": 65,
+      "cities_covered": 5,
+      "city_list": [
+        "Cancún",
+        "Chetumal",
+        "Cozumel",
+        "Playa del Carmen",
+        "Tulum"
+      ],
+      "avg_capacity": 91.78461538461538,
+      "avg_price_pesos": 26000.0,
+      "avg_price_usd": 1430.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southeastern Mexico"
+    },
+    "San Luis Potosí": {
+      "total_facilities": 50,
+      "cities_covered": 5,
+      "city_list": [
+        "Ciudad Valles",
+        "Matehuala",
+        "Rioverde",
+        "San Luis Potosí",
+        "Soledad"
+      ],
+      "avg_capacity": 87.82,
+      "avg_price_pesos": 17000.0,
+      "avg_price_usd": 935.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Sinaloa": {
+      "total_facilities": 70,
+      "cities_covered": 5,
+      "city_list": [
+        "Culiacán",
+        "Guasave",
+        "Los Mochis",
+        "Mazatlán",
+        "Navolato"
+      ],
+      "avg_capacity": 101.04285714285714,
+      "avg_price_pesos": 20000.0,
+      "avg_price_usd": 1100.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northwestern Mexico"
+    },
+    "Sonora": {
+      "total_facilities": 65,
+      "cities_covered": 5,
+      "city_list": [
+        "Ciudad Obregón",
+        "Guaymas",
+        "Hermosillo",
+        "Navojoa",
+        "Nogales"
+      ],
+      "avg_capacity": 94.2,
+      "avg_price_pesos": 21000.0,
+      "avg_price_usd": 1155.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Cuidado de Memoria",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northwestern Mexico"
+    },
+    "Tabasco": {
+      "total_facilities": 35,
+      "cities_covered": 5,
+      "city_list": [
+        "Comalcalco",
+        "Cárdenas",
+        "Huimanguillo",
+        "Macuspana",
+        "Villahermosa"
+      ],
+      "avg_capacity": 98.45714285714286,
+      "avg_price_pesos": 16000.0,
+      "avg_price_usd": 880.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southeastern Mexico"
+    },
+    "Tamaulipas": {
+      "total_facilities": 70,
+      "cities_covered": 5,
+      "city_list": [
+        "Ciudad Victoria",
+        "Matamoros",
+        "Nuevo Laredo",
+        "Reynosa",
+        "Tampico"
+      ],
+      "avg_capacity": 91.18571428571428,
+      "avg_price_pesos": 19000.0,
+      "avg_price_usd": 1045.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Northern Mexico"
+    },
+    "Tlaxcala": {
+      "total_facilities": 25,
+      "cities_covered": 5,
+      "city_list": [
+        "Apizaco",
+        "Chiautempan",
+        "Huamantla",
+        "Tlaxcala",
+        "Zacatelco"
+      ],
+      "avg_capacity": 89.92,
+      "avg_price_pesos": 16000.0,
+      "avg_price_usd": 880.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Residencia Geriátrica",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Veracruz": {
+      "total_facilities": 85,
+      "cities_covered": 5,
+      "city_list": [
+        "Coatzacoalcos",
+        "Córdoba",
+        "Poza Rica",
+        "Veracruz",
+        "Xalapa"
+      ],
+      "avg_capacity": 100.25882352941177,
+      "avg_price_pesos": 17000.0,
+      "avg_price_usd": 935.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Eastern Mexico"
+    },
+    "Yucatán": {
+      "total_facilities": 55,
+      "cities_covered": 5,
+      "city_list": [
+        "Motul",
+        "Mérida",
+        "Progreso",
+        "Tizimín",
+        "Valladolid"
+      ],
+      "avg_capacity": 97.7090909090909,
+      "avg_price_pesos": 18000.0,
+      "avg_price_usd": 990.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Residencia Geriátrica",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Southeastern Mexico"
+    },
+    "Zacatecas": {
+      "total_facilities": 35,
+      "cities_covered": 5,
+      "city_list": [
+        "Fresnillo",
+        "Guadalupe",
+        "Jerez",
+        "Río Grande",
+        "Zacatecas"
+      ],
+      "avg_capacity": 109.74285714285715,
+      "avg_price_pesos": 16000.0,
+      "avg_price_usd": 880.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Casa de Retiro",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Centro de Día",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    },
+    "Mexico City": {
+      "total_facilities": 150,
+      "cities_covered": 5,
+      "city_list": [
+        "Coyoacán",
+        "Cuauhtémoc",
+        "Iztapalapa",
+        "Mexico City",
+        "Álvaro Obregón"
+      ],
+      "avg_capacity": 102.04666666666667,
+      "avg_price_pesos": 28000.0,
+      "avg_price_usd": 1540.0,
+      "facility_types": [
+        "Residencia Asistida",
+        "Centro de Cuidados Continuos",
+        "Vida Independiente",
+        "Asistencia Domiciliaria",
+        "Centro de Día",
+        "Cuidado de Memoria",
+        "Residencia Geriátrica",
+        "Casa de Retiro",
+        "Hogar de Ancianos"
+      ],
+      "region": "Central Mexico"
+    }
+  },
+  "data_quality": "government_sourced",
+  "expansion_phase": "Mexican_Complete",
+  "international_coverage": true
+}

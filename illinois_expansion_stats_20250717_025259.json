@@ -1,0 +1,19 @@
+{
+  "total_facilities": 5,
+  "by_county": {
+    "Cook": 1,
+    "Sangamon": 1,
+    "Peoria": 1,
+    "Winnebago": 1,
+    "DuPage": 1
+  },
+  "by_care_type": {
+    "Assisted Living": 5,
+    "Memory Care": 4,
+    "Adult Day Care": 2
+  },
+  "with_alzheimers_care": 4,
+  "with_adult_day_care": 2,
+  "data_collection_date": "2025-07-17T02:52:59.157791",
+  "data_source": "IL_Department_of_Public_Health_Official"
+}

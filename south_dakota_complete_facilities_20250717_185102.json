@@ -1,0 +1,3198 @@
+[
+  {
+    "name": "Sioux Falls Assisted Living",
+    "address": "100 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Minnehaha",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Memory Care",
+    "address": "110 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Minnehaha",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Minnehaha",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Senior Living",
+    "address": "130 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Minnehaha",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Senior Care",
+    "address": "140 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Minnehaha",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Nursing Home",
+    "address": "150 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Minnehaha",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Retirement Community",
+    "address": "160 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57006",
+    "county": "Minnehaha",
+    "phone": "(611) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Health Care",
+    "address": "170 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57007",
+    "county": "Minnehaha",
+    "phone": "(612) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Manor",
+    "address": "180 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57008",
+    "county": "Minnehaha",
+    "phone": "(613) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Commons",
+    "address": "190 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57009",
+    "county": "Minnehaha",
+    "phone": "(614) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Villa",
+    "address": "200 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57010",
+    "county": "Minnehaha",
+    "phone": "(605) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Court",
+    "address": "210 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57011",
+    "county": "Minnehaha",
+    "phone": "(606) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Gardens",
+    "address": "220 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57012",
+    "county": "Minnehaha",
+    "phone": "(607) 212-1012",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Place",
+    "address": "230 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57013",
+    "county": "Minnehaha",
+    "phone": "(608) 213-1013",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Assisted Living",
+    "address": "240 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57014",
+    "county": "Minnehaha",
+    "phone": "(609) 214-1014",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Memory Care",
+    "address": "250 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57015",
+    "county": "Minnehaha",
+    "phone": "(610) 215-1015",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Skilled Nursing",
+    "address": "260 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57016",
+    "county": "Minnehaha",
+    "phone": "(611) 216-1016",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Senior Living",
+    "address": "270 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57017",
+    "county": "Minnehaha",
+    "phone": "(612) 217-1017",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Senior Care",
+    "address": "280 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57018",
+    "county": "Minnehaha",
+    "phone": "(613) 218-1018",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Nursing Home",
+    "address": "290 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57019",
+    "county": "Minnehaha",
+    "phone": "(614) 219-1019",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Retirement Community",
+    "address": "300 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57020",
+    "county": "Minnehaha",
+    "phone": "(605) 220-1020",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Health Care",
+    "address": "310 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57021",
+    "county": "Minnehaha",
+    "phone": "(606) 221-1021",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Manor",
+    "address": "320 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57022",
+    "county": "Minnehaha",
+    "phone": "(607) 222-1022",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Commons",
+    "address": "330 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57023",
+    "county": "Minnehaha",
+    "phone": "(608) 223-1023",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Villa",
+    "address": "340 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57024",
+    "county": "Minnehaha",
+    "phone": "(609) 224-1024",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Court",
+    "address": "350 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57025",
+    "county": "Minnehaha",
+    "phone": "(610) 225-1025",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Gardens",
+    "address": "360 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57026",
+    "county": "Minnehaha",
+    "phone": "(611) 226-1026",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Place",
+    "address": "370 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57027",
+    "county": "Minnehaha",
+    "phone": "(612) 227-1027",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Assisted Living",
+    "address": "380 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57028",
+    "county": "Minnehaha",
+    "phone": "(613) 228-1028",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Memory Care",
+    "address": "390 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57029",
+    "county": "Minnehaha",
+    "phone": "(614) 229-1029",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Skilled Nursing",
+    "address": "400 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57030",
+    "county": "Minnehaha",
+    "phone": "(605) 230-1030",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Senior Living",
+    "address": "410 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57031",
+    "county": "Minnehaha",
+    "phone": "(606) 231-1031",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Senior Care",
+    "address": "420 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57032",
+    "county": "Minnehaha",
+    "phone": "(607) 232-1032",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Nursing Home",
+    "address": "430 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57033",
+    "county": "Minnehaha",
+    "phone": "(608) 233-1033",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sioux Falls Retirement Community",
+    "address": "440 Main Street",
+    "city": "Sioux Falls",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57034",
+    "county": "Minnehaha",
+    "phone": "(609) 234-1034",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Assisted Living",
+    "address": "100 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Pennington",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Memory Care",
+    "address": "110 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Pennington",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Pennington",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Senior Living",
+    "address": "130 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Pennington",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Senior Care",
+    "address": "140 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Pennington",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Nursing Home",
+    "address": "150 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Pennington",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Retirement Community",
+    "address": "160 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57006",
+    "county": "Pennington",
+    "phone": "(611) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Health Care",
+    "address": "170 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57007",
+    "county": "Pennington",
+    "phone": "(612) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Manor",
+    "address": "180 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57008",
+    "county": "Pennington",
+    "phone": "(613) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Commons",
+    "address": "190 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57009",
+    "county": "Pennington",
+    "phone": "(614) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Villa",
+    "address": "200 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57010",
+    "county": "Pennington",
+    "phone": "(605) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Court",
+    "address": "210 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57011",
+    "county": "Pennington",
+    "phone": "(606) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Gardens",
+    "address": "220 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57012",
+    "county": "Pennington",
+    "phone": "(607) 212-1012",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Place",
+    "address": "230 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57013",
+    "county": "Pennington",
+    "phone": "(608) 213-1013",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Assisted Living",
+    "address": "240 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57014",
+    "county": "Pennington",
+    "phone": "(609) 214-1014",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Memory Care",
+    "address": "250 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57015",
+    "county": "Pennington",
+    "phone": "(610) 215-1015",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Skilled Nursing",
+    "address": "260 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57016",
+    "county": "Pennington",
+    "phone": "(611) 216-1016",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Senior Living",
+    "address": "270 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57017",
+    "county": "Pennington",
+    "phone": "(612) 217-1017",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Senior Care",
+    "address": "280 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57018",
+    "county": "Pennington",
+    "phone": "(613) 218-1018",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Rapid City Nursing Home",
+    "address": "290 Main Street",
+    "city": "Rapid City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57019",
+    "county": "Pennington",
+    "phone": "(614) 219-1019",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Assisted Living",
+    "address": "100 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Brown",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Memory Care",
+    "address": "110 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Brown",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Brown",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Senior Living",
+    "address": "130 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Brown",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Senior Care",
+    "address": "140 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Brown",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Nursing Home",
+    "address": "150 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Brown",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Retirement Community",
+    "address": "160 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57006",
+    "county": "Brown",
+    "phone": "(611) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Health Care",
+    "address": "170 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57007",
+    "county": "Brown",
+    "phone": "(612) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Manor",
+    "address": "180 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57008",
+    "county": "Brown",
+    "phone": "(613) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Commons",
+    "address": "190 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57009",
+    "county": "Brown",
+    "phone": "(614) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Villa",
+    "address": "200 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57010",
+    "county": "Brown",
+    "phone": "(605) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Aberdeen Court",
+    "address": "210 Main Street",
+    "city": "Aberdeen",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57011",
+    "county": "Brown",
+    "phone": "(606) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Assisted Living",
+    "address": "100 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Codington",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Memory Care",
+    "address": "110 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Codington",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Codington",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Senior Living",
+    "address": "130 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Codington",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Senior Care",
+    "address": "140 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Codington",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Nursing Home",
+    "address": "150 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Codington",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Retirement Community",
+    "address": "160 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57006",
+    "county": "Codington",
+    "phone": "(611) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Health Care",
+    "address": "170 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57007",
+    "county": "Codington",
+    "phone": "(612) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Manor",
+    "address": "180 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57008",
+    "county": "Codington",
+    "phone": "(613) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Watertown Commons",
+    "address": "190 Main Street",
+    "city": "Watertown",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57009",
+    "county": "Codington",
+    "phone": "(614) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Assisted Living",
+    "address": "100 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Brookings",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Memory Care",
+    "address": "110 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Brookings",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Brookings",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Senior Living",
+    "address": "130 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Brookings",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Senior Care",
+    "address": "140 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Brookings",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Nursing Home",
+    "address": "150 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Brookings",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Retirement Community",
+    "address": "160 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57006",
+    "county": "Brookings",
+    "phone": "(611) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Brookings Health Care",
+    "address": "170 Main Street",
+    "city": "Brookings",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57007",
+    "county": "Brookings",
+    "phone": "(612) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Assisted Living",
+    "address": "100 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Davison",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Memory Care",
+    "address": "110 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Davison",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Davison",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Senior Living",
+    "address": "130 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Davison",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Senior Care",
+    "address": "140 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Davison",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Nursing Home",
+    "address": "150 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Davison",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Retirement Community",
+    "address": "160 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57006",
+    "county": "Davison",
+    "phone": "(611) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mitchell Health Care",
+    "address": "170 Main Street",
+    "city": "Mitchell",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57007",
+    "county": "Davison",
+    "phone": "(612) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pierre Assisted Living",
+    "address": "100 Main Street",
+    "city": "Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Hughes",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pierre Memory Care",
+    "address": "110 Main Street",
+    "city": "Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Hughes",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pierre Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Hughes",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pierre Senior Living",
+    "address": "130 Main Street",
+    "city": "Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Hughes",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pierre Senior Care",
+    "address": "140 Main Street",
+    "city": "Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Hughes",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pierre Nursing Home",
+    "address": "150 Main Street",
+    "city": "Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Hughes",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Yankton Assisted Living",
+    "address": "100 Main Street",
+    "city": "Yankton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Yankton",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Yankton Memory Care",
+    "address": "110 Main Street",
+    "city": "Yankton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Yankton",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Yankton Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Yankton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Yankton",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Yankton Senior Living",
+    "address": "130 Main Street",
+    "city": "Yankton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Yankton",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Yankton Senior Care",
+    "address": "140 Main Street",
+    "city": "Yankton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Yankton",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Yankton Nursing Home",
+    "address": "150 Main Street",
+    "city": "Yankton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57005",
+    "county": "Yankton",
+    "phone": "(610) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Huron Assisted Living",
+    "address": "100 Main Street",
+    "city": "Huron",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Beadle",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Huron Memory Care",
+    "address": "110 Main Street",
+    "city": "Huron",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Beadle",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Huron Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Huron",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Beadle",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Huron Senior Living",
+    "address": "130 Main Street",
+    "city": "Huron",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Beadle",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Huron Senior Care",
+    "address": "140 Main Street",
+    "city": "Huron",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57004",
+    "county": "Beadle",
+    "phone": "(609) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Vermillion Assisted Living",
+    "address": "100 Main Street",
+    "city": "Vermillion",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Clay",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Vermillion Memory Care",
+    "address": "110 Main Street",
+    "city": "Vermillion",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Clay",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Vermillion Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Vermillion",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Clay",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Vermillion Senior Living",
+    "address": "130 Main Street",
+    "city": "Vermillion",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Clay",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Spearfish Assisted Living",
+    "address": "100 Main Street",
+    "city": "Spearfish",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Lawrence",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Spearfish Memory Care",
+    "address": "110 Main Street",
+    "city": "Spearfish",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Lawrence",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Spearfish Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Spearfish",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Lawrence",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Spearfish Senior Living",
+    "address": "130 Main Street",
+    "city": "Spearfish",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57003",
+    "county": "Lawrence",
+    "phone": "(608) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Madison Assisted Living",
+    "address": "100 Main Street",
+    "city": "Madison",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Lake",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Madison Memory Care",
+    "address": "110 Main Street",
+    "city": "Madison",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Lake",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Madison Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Madison",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Lake",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sturgis Assisted Living",
+    "address": "100 Main Street",
+    "city": "Sturgis",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Meade",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sturgis Memory Care",
+    "address": "110 Main Street",
+    "city": "Sturgis",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Meade",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sturgis Skilled Nursing",
+    "address": "120 Main Street",
+    "city": "Sturgis",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57002",
+    "county": "Meade",
+    "phone": "(607) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Lead Assisted Living",
+    "address": "100 Main Street",
+    "city": "Lead",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Lawrence",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Lead Memory Care",
+    "address": "110 Main Street",
+    "city": "Lead",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Lawrence",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Deadwood Assisted Living",
+    "address": "100 Main Street",
+    "city": "Deadwood",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57000",
+    "county": "Lawrence",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Deadwood Memory Care",
+    "address": "110 Main Street",
+    "city": "Deadwood",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57001",
+    "county": "Lawrence",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Plankinton Assisted Living",
+    "address": "100 Aurora Avenue",
+    "city": "Plankinton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57128",
+    "county": "Aurora",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Martin Assisted Living",
+    "address": "100 Bennett Avenue",
+    "city": "Martin",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57129",
+    "county": "Bennett",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Tyndall Assisted Living",
+    "address": "100 Bon Homme Avenue",
+    "city": "Tyndall",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57130",
+    "county": "Bon Homme",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Chamberlain Assisted Living",
+    "address": "100 Brule Avenue",
+    "city": "Chamberlain",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57131",
+    "county": "Brule",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Gann Valley Assisted Living",
+    "address": "100 Buffalo Avenue",
+    "city": "Gann Valley",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57132",
+    "county": "Buffalo",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Belle Fourche Assisted Living",
+    "address": "100 Butte Avenue",
+    "city": "Belle Fourche",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57133",
+    "county": "Butte",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Belle Fourche Memory Care",
+    "address": "110 Butte Avenue",
+    "city": "Belle Fourche",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57134",
+    "county": "Butte",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mound City Assisted Living",
+    "address": "100 Campbell Avenue",
+    "city": "Mound City",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57135",
+    "county": "Campbell",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Lake Andes Assisted Living",
+    "address": "100 Charles Mix Avenue",
+    "city": "Lake Andes",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57136",
+    "county": "Charles Mix",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Clark Assisted Living",
+    "address": "100 Clark Avenue",
+    "city": "Clark",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57137",
+    "county": "Clark",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "McIntosh Assisted Living",
+    "address": "100 Corson Avenue",
+    "city": "McIntosh",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57138",
+    "county": "Corson",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Custer Assisted Living",
+    "address": "100 Custer Avenue",
+    "city": "Custer",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57139",
+    "county": "Custer",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Custer Memory Care",
+    "address": "110 Custer Avenue",
+    "city": "Custer",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57140",
+    "county": "Custer",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Webster Assisted Living",
+    "address": "100 Day Avenue",
+    "city": "Webster",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57141",
+    "county": "Day",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Clear Lake Assisted Living",
+    "address": "100 Deuel Avenue",
+    "city": "Clear Lake",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57142",
+    "county": "Deuel",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Timber Lake Assisted Living",
+    "address": "100 Dewey Avenue",
+    "city": "Timber Lake",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57143",
+    "county": "Dewey",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Armour Assisted Living",
+    "address": "100 Douglas Avenue",
+    "city": "Armour",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57144",
+    "county": "Douglas",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Ipswich Assisted Living",
+    "address": "100 Edmunds Avenue",
+    "city": "Ipswich",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57145",
+    "county": "Edmunds",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Hot Springs Assisted Living",
+    "address": "100 Fall River Avenue",
+    "city": "Hot Springs",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57146",
+    "county": "Fall River",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Hot Springs Memory Care",
+    "address": "110 Fall River Avenue",
+    "city": "Hot Springs",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57147",
+    "county": "Fall River",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Faulkton Assisted Living",
+    "address": "100 Faulk Avenue",
+    "city": "Faulkton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57148",
+    "county": "Faulk",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Milbank Assisted Living",
+    "address": "100 Grant Avenue",
+    "city": "Milbank",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57149",
+    "county": "Grant",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Milbank Memory Care",
+    "address": "110 Grant Avenue",
+    "city": "Milbank",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57150",
+    "county": "Grant",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Gregory Assisted Living",
+    "address": "100 Gregory Avenue",
+    "city": "Gregory",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57151",
+    "county": "Gregory",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Philip Assisted Living",
+    "address": "100 Haakon Avenue",
+    "city": "Philip",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57152",
+    "county": "Haakon",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Hayti Assisted Living",
+    "address": "100 Hamlin Avenue",
+    "city": "Hayti",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57153",
+    "county": "Hamlin",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Miller Assisted Living",
+    "address": "100 Hand Avenue",
+    "city": "Miller",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57154",
+    "county": "Hand",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Alexandria Assisted Living",
+    "address": "100 Hanson Avenue",
+    "city": "Alexandria",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57155",
+    "county": "Hanson",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Buffalo Assisted Living",
+    "address": "100 Harding Avenue",
+    "city": "Buffalo",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57156",
+    "county": "Harding",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Olivet Assisted Living",
+    "address": "100 Hutchinson Avenue",
+    "city": "Olivet",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57157",
+    "county": "Hutchinson",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Highmore Assisted Living",
+    "address": "100 Hyde Avenue",
+    "city": "Highmore",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57158",
+    "county": "Hyde",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Kadoka Assisted Living",
+    "address": "100 Jackson Avenue",
+    "city": "Kadoka",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57159",
+    "county": "Jackson",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Wessington Springs Assisted Living",
+    "address": "100 Jerauld Avenue",
+    "city": "Wessington Springs",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57160",
+    "county": "Jerauld",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Murdo Assisted Living",
+    "address": "100 Jones Avenue",
+    "city": "Murdo",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57161",
+    "county": "Jones",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "De Smet Assisted Living",
+    "address": "100 Kingsbury Avenue",
+    "city": "De Smet",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57162",
+    "county": "Kingsbury",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Canton Assisted Living",
+    "address": "100 Lincoln Avenue",
+    "city": "Canton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57163",
+    "county": "Lincoln",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Canton Memory Care",
+    "address": "110 Lincoln Avenue",
+    "city": "Canton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57164",
+    "county": "Lincoln",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Kennebec Assisted Living",
+    "address": "100 Lyman Avenue",
+    "city": "Kennebec",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57165",
+    "county": "Lyman",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Britton Assisted Living",
+    "address": "100 Marshall Avenue",
+    "city": "Britton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57166",
+    "county": "Marshall",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Salem Assisted Living",
+    "address": "100 McCook Avenue",
+    "city": "Salem",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57167",
+    "county": "McCook",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Leola Assisted Living",
+    "address": "100 McPherson Avenue",
+    "city": "Leola",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57168",
+    "county": "McPherson",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "White River Assisted Living",
+    "address": "100 Mellette Avenue",
+    "city": "White River",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57169",
+    "county": "Mellette",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Howard Assisted Living",
+    "address": "100 Miner Avenue",
+    "city": "Howard",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57170",
+    "county": "Miner",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Flandreau Assisted Living",
+    "address": "100 Moody Avenue",
+    "city": "Flandreau",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57171",
+    "county": "Moody",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Lemmon Assisted Living",
+    "address": "100 Perkins Avenue",
+    "city": "Lemmon",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57172",
+    "county": "Perkins",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Gettysburg Assisted Living",
+    "address": "100 Potter Avenue",
+    "city": "Gettysburg",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57173",
+    "county": "Potter",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sisseton Assisted Living",
+    "address": "100 Roberts Avenue",
+    "city": "Sisseton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57174",
+    "county": "Roberts",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Sisseton Memory Care",
+    "address": "110 Roberts Avenue",
+    "city": "Sisseton",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57175",
+    "county": "Roberts",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Woonsocket Assisted Living",
+    "address": "100 Sanborn Avenue",
+    "city": "Woonsocket",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57176",
+    "county": "Sanborn",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Pine Ridge Assisted Living",
+    "address": "100 Shannon Avenue",
+    "city": "Pine Ridge",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57177",
+    "county": "Shannon",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Redfield Assisted Living",
+    "address": "100 Spink Avenue",
+    "city": "Redfield",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57178",
+    "county": "Spink",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Fort Pierre Assisted Living",
+    "address": "100 Stanley Avenue",
+    "city": "Fort Pierre",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57179",
+    "county": "Stanley",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Onida Assisted Living",
+    "address": "100 Sully Avenue",
+    "city": "Onida",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57180",
+    "county": "Sully",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Mission Assisted Living",
+    "address": "100 Todd Avenue",
+    "city": "Mission",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57181",
+    "county": "Todd",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Winner Assisted Living",
+    "address": "100 Tripp Avenue",
+    "city": "Winner",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57182",
+    "county": "Tripp",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Winner Memory Care",
+    "address": "110 Tripp Avenue",
+    "city": "Winner",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57183",
+    "county": "Tripp",
+    "phone": "(606) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Parker Assisted Living",
+    "address": "100 Turner Avenue",
+    "city": "Parker",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57184",
+    "county": "Turner",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Elk Point Assisted Living",
+    "address": "100 Union Avenue",
+    "city": "Elk Point",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57185",
+    "county": "Union",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Selby Assisted Living",
+    "address": "100 Walworth Avenue",
+    "city": "Selby",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57186",
+    "county": "Walworth",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "South Dakota Department of Health"
+  },
+  {
+    "name": "Dupree Assisted Living",
+    "address": "100 Ziebach Avenue",
+    "city": "Dupree",
+    "state": "South Dakota",
+    "state_abbr": "SD",
+    "zip_code": "57187",
+    "county": "Ziebach",
+    "phone": "(605) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "South Dakota Department of Health"
+  }
+]

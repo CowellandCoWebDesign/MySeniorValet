@@ -1,0 +1,46 @@
+{
+  "total_facilities": 48,
+  "counties_covered": 23,
+  "cities_covered": 23,
+  "regions_covered": 5,
+  "care_types_distribution": {
+    "Memory Care": 20,
+    "Adult Day Care": 18,
+    "Assisted Living": 19,
+    "Skilled Nursing": 17,
+    "Independent Living": 18
+  },
+  "facilities_by_county": {
+    "Laramie": 4,
+    "Albany": 3,
+    "Carbon": 1,
+    "Platte": 1,
+    "Goshen": 2,
+    "Niobrara": 2,
+    "Sweetwater": 3,
+    "Uinta": 2,
+    "Lincoln": 2,
+    "Sublette": 2,
+    "Teton": 2,
+    "Natrona": 3,
+    "Converse": 1,
+    "Fremont": 3,
+    "Hot Springs": 1,
+    "Campbell": 3,
+    "Johnson": 2,
+    "Sheridan": 2,
+    "Weston": 1,
+    "Crook": 2,
+    "Park": 2,
+    "Big Horn": 2,
+    "Washakie": 2
+  },
+  "facilities_by_region": {
+    "Southeast Wyoming": 13,
+    "Southwest Wyoming": 11,
+    "Central Wyoming": 8,
+    "Northeast Wyoming": 10,
+    "Northwest Wyoming": 6
+  },
+  "timestamp": "2025-07-10T18:38:44.885533"
+}

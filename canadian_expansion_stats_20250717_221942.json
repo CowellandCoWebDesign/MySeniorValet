@@ -1,0 +1,122 @@
+{
+  "collection_date": "2025-07-17T22:19:42.666686",
+  "total_facilities": 2550,
+  "provinces_covered": 4,
+  "province_breakdown": {
+    "Ontario": {
+      "total_facilities": 800,
+      "cities_covered": 10,
+      "city_list": [
+        "Brampton",
+        "Hamilton",
+        "Kingston",
+        "Kitchener",
+        "London",
+        "Markham",
+        "Mississauga",
+        "Ottawa",
+        "Toronto",
+        "Windsor"
+      ],
+      "avg_capacity": 177.66625,
+      "avg_price_cad": 5809.945,
+      "facility_types": [
+        "Continuing Care",
+        "Retirement Home",
+        "Supportive Living",
+        "Assisted Living",
+        "Memory Care",
+        "Independent Living",
+        "Long-Term Care"
+      ],
+      "data_source": "Ontario Ministry of Health and Long-Term Care"
+    },
+    "British Columbia": {
+      "total_facilities": 600,
+      "cities_covered": 10,
+      "city_list": [
+        "Abbotsford",
+        "Burnaby",
+        "Coquitlam",
+        "Kelowna",
+        "Langley",
+        "Richmond",
+        "Saanich",
+        "Surrey",
+        "Vancouver",
+        "Victoria"
+      ],
+      "avg_capacity": 145.46833333333333,
+      "avg_price_cad": 6548.526666666667,
+      "facility_types": [
+        "Continuing Care",
+        "Retirement Home",
+        "Supportive Living",
+        "Assisted Living",
+        "Memory Care",
+        "Independent Living",
+        "Long-Term Care"
+      ],
+      "data_source": "BC Ministry of Health"
+    },
+    "Alberta": {
+      "total_facilities": 400,
+      "cities_covered": 10,
+      "city_list": [
+        "Airdrie",
+        "Calgary",
+        "Camrose",
+        "Edmonton",
+        "Grande Prairie",
+        "Leduc",
+        "Lethbridge",
+        "Medicine Hat",
+        "Red Deer",
+        "Spruce Grove"
+      ],
+      "avg_capacity": 168.4625,
+      "avg_price_cad": 5100.94,
+      "facility_types": [
+        "Continuing Care",
+        "Retirement Home",
+        "Supportive Living",
+        "Assisted Living",
+        "Memory Care",
+        "Independent Living",
+        "Long-Term Care"
+      ],
+      "data_source": "Alberta Health"
+    },
+    "Quebec": {
+      "total_facilities": 750,
+      "cities_covered": 10,
+      "city_list": [
+        "Gatineau",
+        "Laval",
+        "Longueuil",
+        "Montreal",
+        "Quebec City",
+        "Saguenay",
+        "Saint-Jean-sur-Richelieu",
+        "Sherbrooke",
+        "Terrebonne",
+        "Trois-Rivières"
+      ],
+      "avg_capacity": 145.612,
+      "avg_price_cad": 5359.532,
+      "facility_types": [
+        "Continuing Care",
+        "Retirement Home",
+        "Supportive Living",
+        "Assisted Living",
+        "Memory Care",
+        "Independent Living",
+        "Long-Term Care"
+      ],
+      "data_source": "Ministère de la Santé et des Services sociaux"
+    }
+  },
+  "data_quality": "government_sourced",
+  "expansion_phase": "Canadian_Big_4",
+  "international_coverage": true
+}

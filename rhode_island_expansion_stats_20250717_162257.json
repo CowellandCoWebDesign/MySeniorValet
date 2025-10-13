@@ -1,0 +1,26 @@
+{
+  "total_facilities": 80,
+  "counties_covered": 5,
+  "cities_covered": 30,
+  "counties_list": [
+    "Bristol",
+    "Kent",
+    "Newport",
+    "Providence",
+    "Washington"
+  ],
+  "major_metros": {
+    "Providence": 5,
+    "Warwick": 3,
+    "Cranston": 5,
+    "Pawtucket": 5,
+    "Newport": 2,
+    "Westerly": 2,
+    "Woonsocket": 4,
+    "Middletown": 2,
+    "Bristol": 3,
+    "Coventry": 3
+  },
+  "collection_date": "2025-07-17T16:22:57.342461",
+  "data_source": "Rhode Island Department of Health"
+}

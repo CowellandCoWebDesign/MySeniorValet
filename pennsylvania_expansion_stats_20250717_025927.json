@@ -1,0 +1,21 @@
+{
+  "total_facilities": 10,
+  "by_county": {
+    "Montgomery": 1,
+    "Allegheny": 1,
+    "Philadelphia": 1,
+    "Lehigh": 1,
+    "Dauphin": 1,
+    "Lackawanna": 1,
+    "Berks": 1,
+    "Erie": 1,
+    "York": 1,
+    "Westmoreland": 1
+  },
+  "by_care_type": {
+    "Assisted Living": 10,
+    "Senior Living": 10
+  },
+  "data_collection_date": "2025-07-17T02:59:27.853073",
+  "data_source": "PA_Department_of_Aging_Demo"
+}

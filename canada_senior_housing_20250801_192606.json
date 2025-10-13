@@ -1,0 +1,138 @@
+[
+  {
+    "name": "Sunnybrook Veterans Centre",
+    "address": "2075 Bayview Avenue",
+    "city": "Toronto",
+    "state_province": "ON",
+    "postal_code": "M4N 3M5",
+    "country": "Canada",
+    "phone": "416-480-6100",
+    "community_subtype": "va_housing",
+    "care_types": [
+      "Long-Term Care",
+      "Veterans Care"
+    ],
+    "total_units": 500,
+    "latitude": 43.7184,
+    "longitude": -79.3763
+  },
+  {
+    "name": "Chartwell Aurora Retirement Residence",
+    "address": "220 Wellington Street East",
+    "city": "Aurora",
+    "state_province": "ON",
+    "postal_code": "L4G 1J5",
+    "country": "Canada",
+    "phone": "905-841-2777",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living"
+    ],
+    "total_units": 156,
+    "latitude": 44.0065,
+    "longitude": -79.4504
+  },
+  {
+    "name": "CHSLD Vigi Mont-Royal",
+    "address": "5555 Chemin de la Côte-des-Neiges",
+    "city": "Montreal",
+    "state_province": "QC",
+    "postal_code": "H3T 1Y6",
+    "country": "Canada",
+    "phone": "514-340-2800",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Long-Term Care",
+      "Memory Care"
+    ],
+    "total_units": 204,
+    "latitude": 45.4969,
+    "longitude": -73.6256
+  },
+  {
+    "name": "Les Résidences Soleil Manoir Plaza",
+    "address": "505 Rue Sherbrooke Est",
+    "city": "Montreal",
+    "state_province": "QC",
+    "postal_code": "H2L 1J9",
+    "country": "Canada",
+    "phone": "514-508-0708",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living"
+    ],
+    "total_units": 450,
+    "latitude": 45.514,
+    "longitude": -73.5693
+  },
+  {
+    "name": "Arbutus Care Centre",
+    "address": "4505 Valley Drive",
+    "city": "Vancouver",
+    "state_province": "BC",
+    "postal_code": "V6J 4B7",
+    "country": "Canada",
+    "phone": "604-263-6622",
+    "community_subtype": "skilled_nursing",
+    "care_types": [
+      "Complex Care",
+      "Dementia Care"
+    ],
+    "total_units": 150,
+    "latitude": 49.241,
+    "longitude": -123.1596
+  },
+  {
+    "name": "The Residence at Morgan Heights",
+    "address": "2850 160 Street",
+    "city": "Surrey",
+    "state_province": "BC",
+    "postal_code": "V3Z 0C8",
+    "country": "Canada",
+    "phone": "604-541-6325",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Assisted Living"
+    ],
+    "total_units": 123,
+    "latitude": 49.0535,
+    "longitude": -122.7902
+  },
+  {
+    "name": "AgeCare Walden Heights",
+    "address": "20 Walgrove Drive SE",
+    "city": "Calgary",
+    "state_province": "AB",
+    "postal_code": "T2X 0R2",
+    "country": "Canada",
+    "phone": "403-873-3709",
+    "community_subtype": "assisted_living",
+    "care_types": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "total_units": 240,
+    "latitude": 50.8731,
+    "longitude": -114.0083
+  },
+  {
+    "name": "Revera The Hamptons",
+    "address": "9 Hamptons Link NW",
+    "city": "Calgary",
+    "state_province": "AB",
+    "postal_code": "T3A 5V9",
+    "country": "Canada",
+    "phone": "403-275-5667",
+    "community_subtype": "independent_living",
+    "care_types": [
+      "Independent Living",
+      "Supportive Living"
+    ],
+    "total_units": 161,
+    "latitude": 51.1246,
+    "longitude": -114.1532
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "total_facilities": 95,
+  "counties_covered": 3,
+  "cities_covered": 30,
+  "counties_list": [
+    "Kent",
+    "New Castle",
+    "Sussex"
+  ],
+  "major_metros": {
+    "Wilmington": 5,
+    "Newark": 5,
+    "Dover": 2,
+    "Middletown": 5,
+    "Seaford": 3,
+    "Georgetown": 3,
+    "Rehoboth Beach": 3,
+    "Lewes": 3,
+    "Smyrna": 2,
+    "Milford": 2
+  },
+  "collection_date": "2025-07-17T16:16:11.360562",
+  "data_source": "Delaware Department of Health and Social Services"
+}

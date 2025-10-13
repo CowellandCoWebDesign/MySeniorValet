@@ -1,0 +1,2331 @@
+[
+  {
+    "name": "San Juan Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "San Juan",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "San Juan",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "San Juan",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "San Juan",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Centro de Vida",
+    "address": "Calle 104 #14",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00604",
+    "municipality": "San Juan",
+    "phone": "(787) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Hogar Senior",
+    "address": "Calle 105 #15",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00605",
+    "municipality": "San Juan",
+    "phone": "(788) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Residencia Asistida",
+    "address": "Calle 106 #16",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00606",
+    "municipality": "San Juan",
+    "phone": "(787) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Centro de Salud",
+    "address": "Calle 107 #17",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00607",
+    "municipality": "San Juan",
+    "phone": "(788) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Villa Dorada",
+    "address": "Calle 108 #18",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00608",
+    "municipality": "San Juan",
+    "phone": "(787) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Jardín Senior",
+    "address": "Calle 109 #19",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00609",
+    "municipality": "San Juan",
+    "phone": "(788) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Casa de Retiro",
+    "address": "Calle 110 #20",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00610",
+    "municipality": "San Juan",
+    "phone": "(787) 210-1010",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Centro de Bienestar",
+    "address": "Calle 111 #21",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00611",
+    "municipality": "San Juan",
+    "phone": "(788) 211-1011",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Hogar de Ancianos",
+    "address": "Calle 112 #22",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00612",
+    "municipality": "San Juan",
+    "phone": "(787) 212-1012",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Centro de Cuidado",
+    "address": "Calle 113 #23",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00613",
+    "municipality": "San Juan",
+    "phone": "(788) 213-1013",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Juan Residencia Geriátrica",
+    "address": "Calle 114 #24",
+    "city": "San Juan",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00614",
+    "municipality": "San Juan",
+    "phone": "(787) 214-1014",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Bayamón",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Bayamón",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Bayamón",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Bayamón",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Centro de Vida",
+    "address": "Calle 104 #14",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00604",
+    "municipality": "Bayamón",
+    "phone": "(787) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Hogar Senior",
+    "address": "Calle 105 #15",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00605",
+    "municipality": "Bayamón",
+    "phone": "(788) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Residencia Asistida",
+    "address": "Calle 106 #16",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00606",
+    "municipality": "Bayamón",
+    "phone": "(787) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Centro de Salud",
+    "address": "Calle 107 #17",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00607",
+    "municipality": "Bayamón",
+    "phone": "(788) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Villa Dorada",
+    "address": "Calle 108 #18",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00608",
+    "municipality": "Bayamón",
+    "phone": "(787) 208-1008",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Bayamón Jardín Senior",
+    "address": "Calle 109 #19",
+    "city": "Bayamón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00609",
+    "municipality": "Bayamón",
+    "phone": "(788) 209-1009",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2600,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Carolina",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Carolina",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Carolina",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Carolina",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Centro de Vida",
+    "address": "Calle 104 #14",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00604",
+    "municipality": "Carolina",
+    "phone": "(787) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Hogar Senior",
+    "address": "Calle 105 #15",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00605",
+    "municipality": "Carolina",
+    "phone": "(788) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Residencia Asistida",
+    "address": "Calle 106 #16",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00606",
+    "municipality": "Carolina",
+    "phone": "(787) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Carolina Centro de Salud",
+    "address": "Calle 107 #17",
+    "city": "Carolina",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00607",
+    "municipality": "Carolina",
+    "phone": "(788) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2700,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Ponce",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Ponce",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Ponce",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Ponce",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Centro de Vida",
+    "address": "Calle 104 #14",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00604",
+    "municipality": "Ponce",
+    "phone": "(787) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Hogar Senior",
+    "address": "Calle 105 #15",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00605",
+    "municipality": "Ponce",
+    "phone": "(788) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Residencia Asistida",
+    "address": "Calle 106 #16",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00606",
+    "municipality": "Ponce",
+    "phone": "(787) 206-1006",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Ponce Centro de Salud",
+    "address": "Calle 107 #17",
+    "city": "Ponce",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00607",
+    "municipality": "Ponce",
+    "phone": "(788) 207-1007",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Caguas Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Caguas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Caguas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Caguas Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Caguas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Caguas",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Caguas Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Caguas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Caguas",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Caguas Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Caguas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Caguas",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Caguas Centro de Vida",
+    "address": "Calle 104 #14",
+    "city": "Caguas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00604",
+    "municipality": "Caguas",
+    "phone": "(787) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Caguas Hogar Senior",
+    "address": "Calle 105 #15",
+    "city": "Caguas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00605",
+    "municipality": "Caguas",
+    "phone": "(788) 205-1005",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guaynabo Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Guaynabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Guaynabo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guaynabo Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Guaynabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Guaynabo",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guaynabo Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Guaynabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Guaynabo",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guaynabo Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Guaynabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Guaynabo",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guaynabo Centro de Vida",
+    "address": "Calle 104 #14",
+    "city": "Guaynabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00604",
+    "municipality": "Guaynabo",
+    "phone": "(787) 204-1004",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 3000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Arecibo Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Arecibo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Arecibo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Arecibo Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Arecibo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Arecibo",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Arecibo Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Arecibo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Arecibo",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Arecibo Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Arecibo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Arecibo",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Mayagüez Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Mayagüez",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Mayagüez",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Mayagüez Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Mayagüez",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Mayagüez",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Mayagüez Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Mayagüez",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Mayagüez",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Mayagüez Villa para Adultos",
+    "address": "Calle 103 #13",
+    "city": "Mayagüez",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00603",
+    "municipality": "Mayagüez",
+    "phone": "(788) 203-1003",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Trujillo Alto Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Trujillo Alto",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Trujillo Alto",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Trujillo Alto Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Trujillo Alto",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Trujillo Alto",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Trujillo Alto Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Trujillo Alto",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Trujillo Alto",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2800,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Toa Baja Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Toa Baja",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Toa Baja",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Toa Baja Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Toa Baja",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Toa Baja",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Toa Baja Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Toa Baja",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Toa Baja",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2500,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Aguadilla Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Aguadilla",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Aguadilla",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Aguadilla Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Aguadilla",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Aguadilla",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Aguadilla Residencia Geriátrica",
+    "address": "Calle 102 #12",
+    "city": "Aguadilla",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00602",
+    "municipality": "Aguadilla",
+    "phone": "(787) 202-1002",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Humacao Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Humacao",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Humacao",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Humacao Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Humacao",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Humacao",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2400,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Vega Baja Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Vega Baja",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Vega Baja",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Vega Baja Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Vega Baja",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Vega Baja",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Manatí Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Manatí",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Manatí",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Manatí Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Manatí",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Manatí",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Dorado Hogar de Ancianos",
+    "address": "Calle 100 #10",
+    "city": "Dorado",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00600",
+    "municipality": "Dorado",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Dorado Centro de Cuidado",
+    "address": "Calle 101 #11",
+    "city": "Dorado",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00601",
+    "municipality": "Dorado",
+    "phone": "(788) 201-1001",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2900,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Adjuntas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Adjuntas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00677",
+    "municipality": "Adjuntas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Aguada Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Aguada",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00678",
+    "municipality": "Aguada",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Aguas Buenas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Aguas Buenas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00679",
+    "municipality": "Aguas Buenas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Aibonito Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Aibonito",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00680",
+    "municipality": "Aibonito",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Arroyo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Arroyo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00681",
+    "municipality": "Arroyo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Barceloneta Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Barceloneta",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00682",
+    "municipality": "Barceloneta",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Barranquitas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Barranquitas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00683",
+    "municipality": "Barranquitas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Cabo Rojo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Cabo Rojo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00684",
+    "municipality": "Cabo Rojo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Camuy Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Camuy",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00685",
+    "municipality": "Camuy",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Canóvanas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Canóvanas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00686",
+    "municipality": "Canóvanas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Cataño Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Cataño",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00687",
+    "municipality": "Cataño",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2300,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Cayey Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Cayey",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00688",
+    "municipality": "Cayey",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Cidra Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Cidra",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00689",
+    "municipality": "Cidra",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Coamo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Coamo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00690",
+    "municipality": "Coamo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Comerío Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Comerío",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00691",
+    "municipality": "Comerío",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Corozal Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Corozal",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00692",
+    "municipality": "Corozal",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Culebra Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Culebra",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00693",
+    "municipality": "Culebra",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Fajardo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Fajardo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00694",
+    "municipality": "Fajardo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Florida Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Florida",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00695",
+    "municipality": "Florida",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guánica Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Guánica",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00696",
+    "municipality": "Guánica",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guayama Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Guayama",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00697",
+    "municipality": "Guayama",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Guayanilla Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Guayanilla",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00698",
+    "municipality": "Guayanilla",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Gurabo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Gurabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00699",
+    "municipality": "Gurabo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Hatillo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Hatillo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00700",
+    "municipality": "Hatillo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Hormigueros Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Hormigueros",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00701",
+    "municipality": "Hormigueros",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Isabela Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Isabela",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00702",
+    "municipality": "Isabela",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Jayuya Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Jayuya",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00703",
+    "municipality": "Jayuya",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Juana Díaz Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Juana Díaz",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00704",
+    "municipality": "Juana Díaz",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Juncos Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Juncos",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00705",
+    "municipality": "Juncos",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Lajas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Lajas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00706",
+    "municipality": "Lajas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Lares Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Lares",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00707",
+    "municipality": "Lares",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Las Marías Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Las Marías",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00708",
+    "municipality": "Las Marías",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Las Piedras Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Las Piedras",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00709",
+    "municipality": "Las Piedras",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Loíza Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Loíza",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00710",
+    "municipality": "Loíza",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Luquillo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Luquillo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00711",
+    "municipality": "Luquillo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Maricao Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Maricao",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00712",
+    "municipality": "Maricao",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Maunabo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Maunabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00713",
+    "municipality": "Maunabo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Moca Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Moca",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00714",
+    "municipality": "Moca",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Morovis Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Morovis",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00715",
+    "municipality": "Morovis",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Naguabo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Naguabo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00716",
+    "municipality": "Naguabo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Naranjito Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Naranjito",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00717",
+    "municipality": "Naranjito",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Orocovis Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Orocovis",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00718",
+    "municipality": "Orocovis",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Patillas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Patillas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00719",
+    "municipality": "Patillas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Peñuelas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Peñuelas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00720",
+    "municipality": "Peñuelas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Quebradillas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Quebradillas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00721",
+    "municipality": "Quebradillas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Rincón Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Rincón",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00722",
+    "municipality": "Rincón",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Río Grande Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Río Grande",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00723",
+    "municipality": "Río Grande",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Sabana Grande Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Sabana Grande",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00724",
+    "municipality": "Sabana Grande",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Salinas Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Salinas",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00725",
+    "municipality": "Salinas",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Germán Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "San Germán",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00726",
+    "municipality": "San Germán",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Lorenzo Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "San Lorenzo",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00727",
+    "municipality": "San Lorenzo",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "San Sebastián Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "San Sebastián",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00728",
+    "municipality": "San Sebastián",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Santa Isabel Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Santa Isabel",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00729",
+    "municipality": "Santa Isabel",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Toa Alta Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Toa Alta",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00730",
+    "municipality": "Toa Alta",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2200,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Utuado Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Utuado",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00731",
+    "municipality": "Utuado",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Vega Alta Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Vega Alta",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00732",
+    "municipality": "Vega Alta",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Vieques Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Vieques",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00733",
+    "municipality": "Vieques",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2100,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Villalba Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Villalba",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00734",
+    "municipality": "Villalba",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Yabucoa Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Yabucoa",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00735",
+    "municipality": "Yabucoa",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  },
+  {
+    "name": "Yauco Hogar de Ancianos",
+    "address": "Calle Principal #100",
+    "city": "Yauco",
+    "state": "Puerto Rico",
+    "state_abbr": "PR",
+    "zip_code": "00736",
+    "municipality": "Yauco",
+    "phone": "(787) 200-1000",
+    "facility_type": "Senior Living",
+    "care_types": [
+      "Assisted Living",
+      "Independent Living"
+    ],
+    "base_price": 2000,
+    "data_source": "Puerto Rico Department of Health"
+  }
+]

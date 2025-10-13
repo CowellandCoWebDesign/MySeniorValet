@@ -1,0 +1,51 @@
+{
+  "total_facilities": 78,
+  "counties_covered": 29,
+  "cities_covered": 29,
+  "regions_covered": 4,
+  "care_types_distribution": {
+    "Memory Care": 35,
+    "Skilled Nursing": 31,
+    "Independent Living": 32,
+    "Adult Day Care": 34,
+    "Assisted Living": 31
+  },
+  "facilities_by_county": {
+    "Salt Lake": 5,
+    "Davis": 6,
+    "Weber": 5,
+    "Utah": 5,
+    "Tooele": 3,
+    "Morgan": 2,
+    "Summit": 4,
+    "Box Elder": 3,
+    "Cache": 3,
+    "Rich": 1,
+    "Wasatch": 4,
+    "Duchesne": 3,
+    "Uintah": 3,
+    "Carbon": 3,
+    "Emery": 1,
+    "Grand": 2,
+    "San Juan": 2,
+    "Washington": 3,
+    "Iron": 4,
+    "Kane": 1,
+    "Garfield": 2,
+    "Wayne": 1,
+    "Piute": 1,
+    "Beaver": 1,
+    "Sanpete": 2,
+    "Sevier": 3,
+    "Millard": 2,
+    "Juab": 1,
+    "Daggett": 2
+  },
+  "facilities_by_region": {
+    "Wasatch Front": 30,
+    "Northern Utah": 9,
+    "Central Utah": 26,
+    "Southwest Utah": 13
+  },
+  "timestamp": "2025-07-10T18:38:45.250883"
+}

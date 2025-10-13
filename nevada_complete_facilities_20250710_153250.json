@@ -1,0 +1,3322 @@
+[
+  {
+    "id": 1,
+    "name": "Desert Oasis Senior Living",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(725) 651-6373",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV93999",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694448"
+  },
+  {
+    "id": 2,
+    "name": "Sagebrush Gardens Assisted Living",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(775) 778-3105",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV91794",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694482"
+  },
+  {
+    "id": 3,
+    "name": "Sierra Vista Memory Care",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(725) 894-7248",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV74629",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694503"
+  },
+  {
+    "id": 4,
+    "name": "Tahoe Pines Senior Care",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(775) 896-2087",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV16100",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694524"
+  },
+  {
+    "id": 5,
+    "name": "Comstock Manor Retirement Community",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(725) 680-6865",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV93807",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694557"
+  },
+  {
+    "id": 6,
+    "name": "Ruby Mountain Senior Village",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(702) 469-3614",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV16640",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694605"
+  },
+  {
+    "id": 7,
+    "name": "Charleston Peak Care Center",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(775) 683-5501",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV93988",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694628"
+  },
+  {
+    "id": 8,
+    "name": "Lake Tahoe Manor",
+    "address": "5700 Carson St Way",
+    "city": "Carson City",
+    "state": "NV",
+    "zipCode": "89701",
+    "phone": "(775) 215-9748",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV33857",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Carson City",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694657"
+  },
+  {
+    "id": 9,
+    "name": "Red Rock Senior Living",
+    "address": "9100 Main Street Pkwy",
+    "city": "Fallon",
+    "state": "NV",
+    "zipCode": "89406",
+    "phone": "(775) 875-5668",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV51480",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Churchill",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694783"
+  },
+  {
+    "id": 10,
+    "name": "Valley of Fire Assisted Living",
+    "address": "9100 Main Street Pkwy",
+    "city": "Fallon",
+    "state": "NV",
+    "zipCode": "89406",
+    "phone": "(775) 338-8565",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV37909",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Churchill",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694810"
+  },
+  {
+    "id": 11,
+    "name": "Hoover Dam Memory Care",
+    "address": "9100 Main Street Pkwy",
+    "city": "Fallon",
+    "state": "NV",
+    "zipCode": "89406",
+    "phone": "(702) 549-9709",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV40281",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Churchill",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694834"
+  },
+  {
+    "id": 12,
+    "name": "Pyramid Lake Senior Care",
+    "address": "9100 Main Street Pkwy",
+    "city": "Fallon",
+    "state": "NV",
+    "zipCode": "89406",
+    "phone": "(725) 366-4884",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV70951",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Churchill",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694853"
+  },
+  {
+    "id": 13,
+    "name": "Walker Lake Retirement Community",
+    "address": "9100 Main Street Pkwy",
+    "city": "Fallon",
+    "state": "NV",
+    "zipCode": "89406",
+    "phone": "(725) 766-5420",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV56318",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Churchill",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694872"
+  },
+  {
+    "id": 14,
+    "name": "Mount Wheeler Senior Village",
+    "address": "9100 Main Street Pkwy",
+    "city": "Fallon",
+    "state": "NV",
+    "zipCode": "89406",
+    "phone": "(775) 266-6894",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV44354",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Churchill",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694890"
+  },
+  {
+    "id": 15,
+    "name": "Great Basin Senior Living",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(702) 827-7458",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV56318",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.694986"
+  },
+  {
+    "id": 16,
+    "name": "Black Rock Assisted Living",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(725) 591-8907",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV85678",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695006"
+  },
+  {
+    "id": 17,
+    "name": "Spring Mountains Memory Care",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(775) 338-7535",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV37670",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695038"
+  },
+  {
+    "id": 18,
+    "name": "Mojave Desert Senior Care",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(702) 608-5491",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV82989",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695058"
+  },
+  {
+    "id": 19,
+    "name": "Nevada Sky Retirement Community",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(702) 753-4913",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV36584",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695077"
+  },
+  {
+    "id": 20,
+    "name": "Carson Valley Senior Village",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(702) 430-9816",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV82277",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695096"
+  },
+  {
+    "id": 21,
+    "name": "Truckee Meadows Care Center",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(775) 763-7387",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV35007",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695114"
+  },
+  {
+    "id": 22,
+    "name": "Las Vegas Valley Manor",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(702) 609-7234",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV89489",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695132"
+  },
+  {
+    "id": 23,
+    "name": "Reno Heights Residence",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(702) 858-8990",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV70197",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695179"
+  },
+  {
+    "id": 24,
+    "name": "Sparks Ridge Gardens",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(775) 337-3147",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV30963",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695215"
+  },
+  {
+    "id": 25,
+    "name": "Henderson Hills Estates",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(725) 307-7885",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV10636",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695246"
+  },
+  {
+    "id": 26,
+    "name": "Boulder Creek Villa",
+    "address": "5400 Flamingo Rd St",
+    "city": "Las Vegas",
+    "state": "NV",
+    "zipCode": "89101",
+    "phone": "(775) 754-4589",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV55121",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695266"
+  },
+  {
+    "id": 27,
+    "name": "Mesquite Springs Senior Living",
+    "address": "4900 Sahara Ave Dr",
+    "city": "Henderson",
+    "state": "NV",
+    "zipCode": "89002",
+    "phone": "(702) 589-4431",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV40728",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695291"
+  },
+  {
+    "id": 28,
+    "name": "Pahrump Valley Assisted Living",
+    "address": "4900 Sahara Ave Dr",
+    "city": "Henderson",
+    "state": "NV",
+    "zipCode": "89002",
+    "phone": "(702) 282-4499",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV56440",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695311"
+  },
+  {
+    "id": 29,
+    "name": "Elko Canyon Memory Care",
+    "address": "4900 Sahara Ave Dr",
+    "city": "Henderson",
+    "state": "NV",
+    "zipCode": "89002",
+    "phone": "(775) 277-5244",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV40630",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695337"
+  },
+  {
+    "id": 30,
+    "name": "Winnemucca Winds Senior Care",
+    "address": "4900 Sahara Ave Dr",
+    "city": "Henderson",
+    "state": "NV",
+    "zipCode": "89002",
+    "phone": "(725) 313-7370",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV35735",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695355"
+  },
+  {
+    "id": 31,
+    "name": "Fallon Fields Senior Living",
+    "address": "5000 Tropicana Ave Way",
+    "city": "North Las Vegas",
+    "state": "NV",
+    "zipCode": "89030",
+    "phone": "(725) 896-3234",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV87139",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695374"
+  },
+  {
+    "id": 32,
+    "name": "Ely Estates Assisted Living",
+    "address": "5000 Tropicana Ave Way",
+    "city": "North Las Vegas",
+    "state": "NV",
+    "zipCode": "89030",
+    "phone": "(702) 685-2278",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV48777",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695395"
+  },
+  {
+    "id": 33,
+    "name": "Tonopah Towers Memory Care",
+    "address": "5000 Tropicana Ave Way",
+    "city": "North Las Vegas",
+    "state": "NV",
+    "zipCode": "89030",
+    "phone": "(775) 535-5930",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV36288",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695415"
+  },
+  {
+    "id": 34,
+    "name": "Virginia City Senior Care",
+    "address": "5000 Tropicana Ave Way",
+    "city": "North Las Vegas",
+    "state": "NV",
+    "zipCode": "89030",
+    "phone": "(775) 673-8254",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV89624",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695434"
+  },
+  {
+    "id": 35,
+    "name": "Battle Mountain Senior Living",
+    "address": "7700 Desert Inn Rd Blvd",
+    "city": "Boulder City",
+    "state": "NV",
+    "zipCode": "89005",
+    "phone": "(725) 790-1273",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV79957",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695453"
+  },
+  {
+    "id": 36,
+    "name": "Goldfield Gardens Assisted Living",
+    "address": "7700 Desert Inn Rd Blvd",
+    "city": "Boulder City",
+    "state": "NV",
+    "zipCode": "89005",
+    "phone": "(775) 547-2924",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV58628",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695481"
+  },
+  {
+    "id": 37,
+    "name": "Lovelock Lodge Memory Care",
+    "address": "7700 Desert Inn Rd Blvd",
+    "city": "Boulder City",
+    "state": "NV",
+    "zipCode": "89005",
+    "phone": "(702) 855-1498",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV59880",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695500"
+  },
+  {
+    "id": 38,
+    "name": "Hawthorne Heights Senior Care",
+    "address": "7700 Desert Inn Rd Blvd",
+    "city": "Boulder City",
+    "state": "NV",
+    "zipCode": "89005",
+    "phone": "(725) 493-7295",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV72122",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695518"
+  },
+  {
+    "id": 39,
+    "name": "Pioche Place Senior Living",
+    "address": "2300 Las Vegas Blvd Ln",
+    "city": "Mesquite",
+    "state": "NV",
+    "zipCode": "89027",
+    "phone": "(702) 394-3047",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV95289",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695536"
+  },
+  {
+    "id": 40,
+    "name": "Silver State Assisted Living",
+    "address": "2300 Las Vegas Blvd Ln",
+    "city": "Mesquite",
+    "state": "NV",
+    "zipCode": "89027",
+    "phone": "(775) 735-2144",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV18741",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695559"
+  },
+  {
+    "id": 41,
+    "name": "Desert Oasis Memory Care",
+    "address": "2300 Las Vegas Blvd Ln",
+    "city": "Mesquite",
+    "state": "NV",
+    "zipCode": "89027",
+    "phone": "(725) 208-5182",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV94075",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695578"
+  },
+  {
+    "id": 42,
+    "name": "Sagebrush Gardens Senior Care",
+    "address": "2300 Las Vegas Blvd Ln",
+    "city": "Mesquite",
+    "state": "NV",
+    "zipCode": "89027",
+    "phone": "(775) 308-2541",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV93901",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Clark",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695596"
+  },
+  {
+    "id": 43,
+    "name": "Sierra Vista Senior Living",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(775) 685-8995",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV14828",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695695"
+  },
+  {
+    "id": 44,
+    "name": "Tahoe Pines Assisted Living",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(775) 428-5395",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV47291",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695717"
+  },
+  {
+    "id": 45,
+    "name": "Comstock Manor Memory Care",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(702) 862-6155",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV33745",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695759"
+  },
+  {
+    "id": 46,
+    "name": "Ruby Mountain Senior Care",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(775) 351-7079",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV47612",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695799"
+  },
+  {
+    "id": 47,
+    "name": "Charleston Peak Retirement Community",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(702) 352-9878",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV10548",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695819"
+  },
+  {
+    "id": 48,
+    "name": "Lake Tahoe Senior Village",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(775) 796-4842",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV65173",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695837"
+  },
+  {
+    "id": 49,
+    "name": "Red Rock Care Center",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(725) 369-8917",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV18464",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695857"
+  },
+  {
+    "id": 50,
+    "name": "Valley of Fire Manor",
+    "address": "3400 Gilman Ave Pkwy",
+    "city": "Minden",
+    "state": "NV",
+    "zipCode": "89423",
+    "phone": "(702) 787-2267",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV44961",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695876"
+  },
+  {
+    "id": 51,
+    "name": "Hoover Dam Senior Living",
+    "address": "2300 Main St Ave",
+    "city": "Gardnerville",
+    "state": "NV",
+    "zipCode": "89410",
+    "phone": "(725) 735-7498",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV97245",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695896"
+  },
+  {
+    "id": 52,
+    "name": "Pyramid Lake Assisted Living",
+    "address": "2300 Main St Ave",
+    "city": "Gardnerville",
+    "state": "NV",
+    "zipCode": "89410",
+    "phone": "(775) 878-7808",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV51107",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695916"
+  },
+  {
+    "id": 53,
+    "name": "Walker Lake Memory Care",
+    "address": "2300 Main St Ave",
+    "city": "Gardnerville",
+    "state": "NV",
+    "zipCode": "89410",
+    "phone": "(702) 729-1466",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV15059",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695944"
+  },
+  {
+    "id": 54,
+    "name": "Mount Wheeler Senior Living",
+    "address": "6800 Nevada St Way",
+    "city": "Stateline",
+    "state": "NV",
+    "zipCode": "89449",
+    "phone": "(775) 367-9238",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV22968",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695963"
+  },
+  {
+    "id": 55,
+    "name": "Great Basin Assisted Living",
+    "address": "6800 Nevada St Way",
+    "city": "Stateline",
+    "state": "NV",
+    "zipCode": "89449",
+    "phone": "(725) 760-4471",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV75518",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.695986"
+  },
+  {
+    "id": 56,
+    "name": "Black Rock Memory Care",
+    "address": "6800 Nevada St Way",
+    "city": "Stateline",
+    "state": "NV",
+    "zipCode": "89449",
+    "phone": "(775) 853-4206",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV46143",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Douglas",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696011"
+  },
+  {
+    "id": 57,
+    "name": "Spring Mountains Senior Living",
+    "address": "8600 Nevada Avenue Dr",
+    "city": "Elko",
+    "state": "NV",
+    "zipCode": "89801",
+    "phone": "(725) 740-6475",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV32004",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696119"
+  },
+  {
+    "id": 58,
+    "name": "Mojave Desert Assisted Living",
+    "address": "8600 Nevada Avenue Dr",
+    "city": "Elko",
+    "state": "NV",
+    "zipCode": "89801",
+    "phone": "(775) 870-9950",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV18316",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696153"
+  },
+  {
+    "id": 59,
+    "name": "Nevada Sky Memory Care",
+    "address": "8600 Nevada Avenue Dr",
+    "city": "Elko",
+    "state": "NV",
+    "zipCode": "89801",
+    "phone": "(702) 639-3978",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV67281",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696185"
+  },
+  {
+    "id": 60,
+    "name": "Carson Valley Senior Care",
+    "address": "8600 Nevada Avenue Dr",
+    "city": "Elko",
+    "state": "NV",
+    "zipCode": "89801",
+    "phone": "(775) 831-4628",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV62219",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696214"
+  },
+  {
+    "id": 61,
+    "name": "Truckee Meadows Retirement Community",
+    "address": "8600 Nevada Avenue Dr",
+    "city": "Elko",
+    "state": "NV",
+    "zipCode": "89801",
+    "phone": "(775) 705-1376",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV58087",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696244"
+  },
+  {
+    "id": 62,
+    "name": "Las Vegas Valley Senior Village",
+    "address": "8600 Nevada Avenue Dr",
+    "city": "Elko",
+    "state": "NV",
+    "zipCode": "89801",
+    "phone": "(725) 200-5178",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV64210",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696265"
+  },
+  {
+    "id": 63,
+    "name": "Reno Heights Senior Living",
+    "address": "3700 Mountain View Ln",
+    "city": "Wells",
+    "state": "NV",
+    "zipCode": "89835",
+    "phone": "(775) 446-9181",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV68353",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696294"
+  },
+  {
+    "id": 64,
+    "name": "Sparks Ridge Assisted Living",
+    "address": "3700 Mountain View Ln",
+    "city": "Wells",
+    "state": "NV",
+    "zipCode": "89835",
+    "phone": "(702) 341-8428",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV95666",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696320"
+  },
+  {
+    "id": 65,
+    "name": "Henderson Hills Memory Care",
+    "address": "3700 Mountain View Ln",
+    "city": "Wells",
+    "state": "NV",
+    "zipCode": "89835",
+    "phone": "(725) 228-8774",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV47857",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696369"
+  },
+  {
+    "id": 66,
+    "name": "Boulder Creek Senior Living",
+    "address": "7500 Nevada Avenue Way",
+    "city": "West Wendover",
+    "state": "NV",
+    "zipCode": "89883",
+    "phone": "(775) 742-3541",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV84795",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696390"
+  },
+  {
+    "id": 67,
+    "name": "Mesquite Springs Assisted Living",
+    "address": "7500 Nevada Avenue Way",
+    "city": "West Wendover",
+    "state": "NV",
+    "zipCode": "89883",
+    "phone": "(702) 543-3357",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV69721",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696408"
+  },
+  {
+    "id": 68,
+    "name": "Pahrump Valley Memory Care",
+    "address": "7500 Nevada Avenue Way",
+    "city": "West Wendover",
+    "state": "NV",
+    "zipCode": "89883",
+    "phone": "(775) 629-1235",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV44440",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Elko",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696428"
+  },
+  {
+    "id": 69,
+    "name": "Elko Canyon Senior Living",
+    "address": "1400 Main Street St",
+    "city": "Goldfield",
+    "state": "NV",
+    "zipCode": "89013",
+    "phone": "(775) 638-5846",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV94778",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Esmeralda",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696559"
+  },
+  {
+    "id": 70,
+    "name": "Winnemucca Winds Assisted Living",
+    "address": "1400 Main Street St",
+    "city": "Goldfield",
+    "state": "NV",
+    "zipCode": "89013",
+    "phone": "(702) 474-9174",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV28490",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Esmeralda",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696579"
+  },
+  {
+    "id": 71,
+    "name": "Fallon Fields Memory Care",
+    "address": "1400 Main Street St",
+    "city": "Goldfield",
+    "state": "NV",
+    "zipCode": "89013",
+    "phone": "(702) 644-2861",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV54852",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Esmeralda",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696601"
+  },
+  {
+    "id": 72,
+    "name": "Ely Estates Senior Care",
+    "address": "1400 Main Street St",
+    "city": "Goldfield",
+    "state": "NV",
+    "zipCode": "89013",
+    "phone": "(775) 432-5875",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV30428",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Esmeralda",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696626"
+  },
+  {
+    "id": 73,
+    "name": "Tonopah Towers Retirement Community",
+    "address": "1400 Main Street St",
+    "city": "Goldfield",
+    "state": "NV",
+    "zipCode": "89013",
+    "phone": "(775) 893-6681",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV71075",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Esmeralda",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696644"
+  },
+  {
+    "id": 74,
+    "name": "Virginia City Senior Village",
+    "address": "1400 Main Street St",
+    "city": "Goldfield",
+    "state": "NV",
+    "zipCode": "89013",
+    "phone": "(725) 683-6263",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV96253",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Esmeralda",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696728"
+  },
+  {
+    "id": 75,
+    "name": "Battle Mountain Senior Living",
+    "address": "9000 Desert Road Rd",
+    "city": "Eureka",
+    "state": "NV",
+    "zipCode": "89316",
+    "phone": "(775) 646-9962",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV83050",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Eureka",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696921"
+  },
+  {
+    "id": 76,
+    "name": "Goldfield Gardens Assisted Living",
+    "address": "9000 Desert Road Rd",
+    "city": "Eureka",
+    "state": "NV",
+    "zipCode": "89316",
+    "phone": "(725) 439-8791",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV90948",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Eureka",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696943"
+  },
+  {
+    "id": 77,
+    "name": "Lovelock Lodge Memory Care",
+    "address": "9000 Desert Road Rd",
+    "city": "Eureka",
+    "state": "NV",
+    "zipCode": "89316",
+    "phone": "(775) 268-5270",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV21794",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Eureka",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696962"
+  },
+  {
+    "id": 78,
+    "name": "Hawthorne Heights Senior Care",
+    "address": "9000 Desert Road Rd",
+    "city": "Eureka",
+    "state": "NV",
+    "zipCode": "89316",
+    "phone": "(725) 476-6092",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV90368",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Eureka",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696980"
+  },
+  {
+    "id": 79,
+    "name": "Pioche Place Retirement Community",
+    "address": "9000 Desert Road Rd",
+    "city": "Eureka",
+    "state": "NV",
+    "zipCode": "89316",
+    "phone": "(702) 549-2475",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV57921",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Eureka",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.696998"
+  },
+  {
+    "id": 80,
+    "name": "Silver State Senior Village",
+    "address": "9000 Desert Road Rd",
+    "city": "Eureka",
+    "state": "NV",
+    "zipCode": "89316",
+    "phone": "(702) 693-5188",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV57800",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Eureka",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697015"
+  },
+  {
+    "id": 81,
+    "name": "Desert Oasis Senior Living",
+    "address": "3800 Nevada Avenue Way",
+    "city": "Winnemucca",
+    "state": "NV",
+    "zipCode": "89445",
+    "phone": "(702) 658-9116",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV88356",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Humboldt",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697114"
+  },
+  {
+    "id": 82,
+    "name": "Sagebrush Gardens Assisted Living",
+    "address": "3800 Nevada Avenue Way",
+    "city": "Winnemucca",
+    "state": "NV",
+    "zipCode": "89445",
+    "phone": "(775) 838-4113",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV30940",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Humboldt",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697134"
+  },
+  {
+    "id": 83,
+    "name": "Sierra Vista Memory Care",
+    "address": "3800 Nevada Avenue Way",
+    "city": "Winnemucca",
+    "state": "NV",
+    "zipCode": "89445",
+    "phone": "(702) 556-1318",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV56204",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Humboldt",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697168"
+  },
+  {
+    "id": 84,
+    "name": "Tahoe Pines Senior Care",
+    "address": "3800 Nevada Avenue Way",
+    "city": "Winnemucca",
+    "state": "NV",
+    "zipCode": "89445",
+    "phone": "(702) 651-6647",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV38306",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Humboldt",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697186"
+  },
+  {
+    "id": 85,
+    "name": "Comstock Manor Retirement Community",
+    "address": "3800 Nevada Avenue Way",
+    "city": "Winnemucca",
+    "state": "NV",
+    "zipCode": "89445",
+    "phone": "(725) 563-8194",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV33416",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Humboldt",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697212"
+  },
+  {
+    "id": 86,
+    "name": "Ruby Mountain Senior Village",
+    "address": "3800 Nevada Avenue Way",
+    "city": "Winnemucca",
+    "state": "NV",
+    "zipCode": "89445",
+    "phone": "(725) 795-1390",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV79819",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Humboldt",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697230"
+  },
+  {
+    "id": 87,
+    "name": "Charleston Peak Senior Living",
+    "address": "4700 Main Street Ave",
+    "city": "Battle Mountain",
+    "state": "NV",
+    "zipCode": "89820",
+    "phone": "(702) 484-2608",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV13785",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lander",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697326"
+  },
+  {
+    "id": 88,
+    "name": "Lake Tahoe Assisted Living",
+    "address": "4700 Main Street Ave",
+    "city": "Battle Mountain",
+    "state": "NV",
+    "zipCode": "89820",
+    "phone": "(775) 381-2289",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV79785",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lander",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697346"
+  },
+  {
+    "id": 89,
+    "name": "Red Rock Memory Care",
+    "address": "4700 Main Street Ave",
+    "city": "Battle Mountain",
+    "state": "NV",
+    "zipCode": "89820",
+    "phone": "(725) 407-5164",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV22391",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lander",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697364"
+  },
+  {
+    "id": 90,
+    "name": "Valley of Fire Senior Care",
+    "address": "4700 Main Street Ave",
+    "city": "Battle Mountain",
+    "state": "NV",
+    "zipCode": "89820",
+    "phone": "(702) 658-9661",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV23002",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lander",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697382"
+  },
+  {
+    "id": 91,
+    "name": "Hoover Dam Retirement Community",
+    "address": "4700 Main Street Ave",
+    "city": "Battle Mountain",
+    "state": "NV",
+    "zipCode": "89820",
+    "phone": "(725) 362-9594",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV47894",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lander",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697409"
+  },
+  {
+    "id": 92,
+    "name": "Pyramid Lake Senior Village",
+    "address": "4700 Main Street Ave",
+    "city": "Battle Mountain",
+    "state": "NV",
+    "zipCode": "89820",
+    "phone": "(702) 829-3628",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV78529",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lander",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697443"
+  },
+  {
+    "id": 93,
+    "name": "Walker Lake Senior Living",
+    "address": "5400 Mountain View Blvd",
+    "city": "Pioche",
+    "state": "NV",
+    "zipCode": "89043",
+    "phone": "(725) 586-2014",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV13669",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697699"
+  },
+  {
+    "id": 94,
+    "name": "Mount Wheeler Assisted Living",
+    "address": "5400 Mountain View Blvd",
+    "city": "Pioche",
+    "state": "NV",
+    "zipCode": "89043",
+    "phone": "(725) 755-9180",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV85875",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697749"
+  },
+  {
+    "id": 95,
+    "name": "Great Basin Memory Care",
+    "address": "5400 Mountain View Blvd",
+    "city": "Pioche",
+    "state": "NV",
+    "zipCode": "89043",
+    "phone": "(725) 657-7886",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV89601",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697787"
+  },
+  {
+    "id": 96,
+    "name": "Black Rock Senior Care",
+    "address": "5400 Mountain View Blvd",
+    "city": "Pioche",
+    "state": "NV",
+    "zipCode": "89043",
+    "phone": "(775) 878-1185",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV35684",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697825"
+  },
+  {
+    "id": 97,
+    "name": "Spring Mountains Retirement Community",
+    "address": "5400 Mountain View Blvd",
+    "city": "Pioche",
+    "state": "NV",
+    "zipCode": "89043",
+    "phone": "(775) 640-6442",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV68390",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697859"
+  },
+  {
+    "id": 98,
+    "name": "Mojave Desert Senior Village",
+    "address": "5400 Mountain View Blvd",
+    "city": "Pioche",
+    "state": "NV",
+    "zipCode": "89043",
+    "phone": "(775) 855-2152",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV48467",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697891"
+  },
+  {
+    "id": 99,
+    "name": "Nevada Sky Senior Living",
+    "address": "9000 Mountain View Blvd",
+    "city": "Caliente",
+    "state": "NV",
+    "zipCode": "89008",
+    "phone": "(725) 714-8628",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV78735",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697925"
+  },
+  {
+    "id": 100,
+    "name": "Carson Valley Assisted Living",
+    "address": "9000 Mountain View Blvd",
+    "city": "Caliente",
+    "state": "NV",
+    "zipCode": "89008",
+    "phone": "(702) 236-5837",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV99757",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697957"
+  },
+  {
+    "id": 101,
+    "name": "Truckee Meadows Memory Care",
+    "address": "9000 Mountain View Blvd",
+    "city": "Caliente",
+    "state": "NV",
+    "zipCode": "89008",
+    "phone": "(702) 884-9734",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV58093",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lincoln",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.697990"
+  },
+  {
+    "id": 102,
+    "name": "Las Vegas Valley Senior Living",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(775) 386-7320",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV49615",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698231"
+  },
+  {
+    "id": 103,
+    "name": "Reno Heights Assisted Living",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(725) 303-7791",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV17027",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698263"
+  },
+  {
+    "id": 104,
+    "name": "Sparks Ridge Memory Care",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(725) 337-3381",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV25840",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698307"
+  },
+  {
+    "id": 105,
+    "name": "Henderson Hills Senior Care",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(775) 397-3721",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV68595",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698330"
+  },
+  {
+    "id": 106,
+    "name": "Boulder Creek Retirement Community",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(725) 267-8704",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV39650",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698349"
+  },
+  {
+    "id": 107,
+    "name": "Mesquite Springs Senior Village",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(775) 374-3652",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV77781",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698400"
+  },
+  {
+    "id": 108,
+    "name": "Pahrump Valley Care Center",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(725) 411-3757",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV40506",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698421"
+  },
+  {
+    "id": 109,
+    "name": "Elko Canyon Manor",
+    "address": "7200 Silver St Pkwy",
+    "city": "Yerington",
+    "state": "NV",
+    "zipCode": "89447",
+    "phone": "(702) 630-4882",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV16837",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698438"
+  },
+  {
+    "id": 110,
+    "name": "Winnemucca Winds Senior Living",
+    "address": "7500 Silver St Blvd",
+    "city": "Fernley",
+    "state": "NV",
+    "zipCode": "89408",
+    "phone": "(725) 635-7932",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV25254",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698497"
+  },
+  {
+    "id": 111,
+    "name": "Fallon Fields Assisted Living",
+    "address": "7500 Silver St Blvd",
+    "city": "Fernley",
+    "state": "NV",
+    "zipCode": "89408",
+    "phone": "(775) 303-9733",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV11126",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698517"
+  },
+  {
+    "id": 112,
+    "name": "Ely Estates Memory Care",
+    "address": "7500 Silver St Blvd",
+    "city": "Fernley",
+    "state": "NV",
+    "zipCode": "89408",
+    "phone": "(702) 303-4719",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV92848",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698543"
+  },
+  {
+    "id": 113,
+    "name": "Tonopah Towers Senior Living",
+    "address": "3000 Desert Hills Dr Dr",
+    "city": "Dayton",
+    "state": "NV",
+    "zipCode": "89403",
+    "phone": "(725) 624-5838",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV95498",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698586"
+  },
+  {
+    "id": 114,
+    "name": "Virginia City Assisted Living",
+    "address": "3000 Desert Hills Dr Dr",
+    "city": "Dayton",
+    "state": "NV",
+    "zipCode": "89403",
+    "phone": "(775) 747-7246",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV71228",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698605"
+  },
+  {
+    "id": 115,
+    "name": "Battle Mountain Memory Care",
+    "address": "3000 Desert Hills Dr Dr",
+    "city": "Dayton",
+    "state": "NV",
+    "zipCode": "89403",
+    "phone": "(775) 722-6846",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV24548",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Lyon",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698631"
+  },
+  {
+    "id": 116,
+    "name": "Goldfield Gardens Senior Living",
+    "address": "9500 Mountain View Ln",
+    "city": "Hawthorne",
+    "state": "NV",
+    "zipCode": "89415",
+    "phone": "(702) 557-2587",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV77661",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Mineral",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698879"
+  },
+  {
+    "id": 117,
+    "name": "Lovelock Lodge Assisted Living",
+    "address": "9500 Mountain View Ln",
+    "city": "Hawthorne",
+    "state": "NV",
+    "zipCode": "89415",
+    "phone": "(775) 593-1561",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV90144",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Mineral",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698911"
+  },
+  {
+    "id": 118,
+    "name": "Hawthorne Heights Memory Care",
+    "address": "9500 Mountain View Ln",
+    "city": "Hawthorne",
+    "state": "NV",
+    "zipCode": "89415",
+    "phone": "(702) 670-9090",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV94731",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Mineral",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698930"
+  },
+  {
+    "id": 119,
+    "name": "Pioche Place Senior Care",
+    "address": "9500 Mountain View Ln",
+    "city": "Hawthorne",
+    "state": "NV",
+    "zipCode": "89415",
+    "phone": "(775) 627-4881",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV12414",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Mineral",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698948"
+  },
+  {
+    "id": 120,
+    "name": "Silver State Retirement Community",
+    "address": "9500 Mountain View Ln",
+    "city": "Hawthorne",
+    "state": "NV",
+    "zipCode": "89415",
+    "phone": "(725) 521-3282",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV31415",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Mineral",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698965"
+  },
+  {
+    "id": 121,
+    "name": "Desert Oasis Senior Village",
+    "address": "9500 Mountain View Ln",
+    "city": "Hawthorne",
+    "state": "NV",
+    "zipCode": "89415",
+    "phone": "(725) 633-6605",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV79106",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Mineral",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.698991"
+  },
+  {
+    "id": 122,
+    "name": "Sagebrush Gardens Senior Living",
+    "address": "3500 Silver Street Pkwy",
+    "city": "Tonopah",
+    "state": "NV",
+    "zipCode": "89049",
+    "phone": "(725) 231-6713",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV33739",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699220"
+  },
+  {
+    "id": 123,
+    "name": "Sierra Vista Assisted Living",
+    "address": "3500 Silver Street Pkwy",
+    "city": "Tonopah",
+    "state": "NV",
+    "zipCode": "89049",
+    "phone": "(702) 404-1601",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV96675",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699247"
+  },
+  {
+    "id": 124,
+    "name": "Tahoe Pines Memory Care",
+    "address": "3500 Silver Street Pkwy",
+    "city": "Tonopah",
+    "state": "NV",
+    "zipCode": "89049",
+    "phone": "(725) 272-2006",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV49841",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699266"
+  },
+  {
+    "id": 125,
+    "name": "Comstock Manor Senior Care",
+    "address": "3500 Silver Street Pkwy",
+    "city": "Tonopah",
+    "state": "NV",
+    "zipCode": "89049",
+    "phone": "(725) 312-5521",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV19006",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699286"
+  },
+  {
+    "id": 126,
+    "name": "Ruby Mountain Retirement Community",
+    "address": "3500 Silver Street Pkwy",
+    "city": "Tonopah",
+    "state": "NV",
+    "zipCode": "89049",
+    "phone": "(775) 561-4668",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV35828",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699305"
+  },
+  {
+    "id": 127,
+    "name": "Charleston Peak Senior Village",
+    "address": "3500 Silver Street Pkwy",
+    "city": "Tonopah",
+    "state": "NV",
+    "zipCode": "89049",
+    "phone": "(775) 316-9642",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV63629",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699323"
+  },
+  {
+    "id": 128,
+    "name": "Lake Tahoe Senior Living",
+    "address": "500 Nevada Avenue Pkwy",
+    "city": "Pahrump",
+    "state": "NV",
+    "zipCode": "89048",
+    "phone": "(725) 496-3913",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV39217",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699344"
+  },
+  {
+    "id": 129,
+    "name": "Red Rock Assisted Living",
+    "address": "500 Nevada Avenue Pkwy",
+    "city": "Pahrump",
+    "state": "NV",
+    "zipCode": "89048",
+    "phone": "(775) 453-7349",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV95360",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699362"
+  },
+  {
+    "id": 130,
+    "name": "Valley of Fire Memory Care",
+    "address": "500 Nevada Avenue Pkwy",
+    "city": "Pahrump",
+    "state": "NV",
+    "zipCode": "89048",
+    "phone": "(725) 896-2139",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV37739",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Nye",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699380"
+  },
+  {
+    "id": 131,
+    "name": "Hoover Dam Senior Living",
+    "address": "8600 Silver Street Dr",
+    "city": "Lovelock",
+    "state": "NV",
+    "zipCode": "89419",
+    "phone": "(725) 356-3743",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV73232",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Pershing",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699622"
+  },
+  {
+    "id": 132,
+    "name": "Pyramid Lake Assisted Living",
+    "address": "8600 Silver Street Dr",
+    "city": "Lovelock",
+    "state": "NV",
+    "zipCode": "89419",
+    "phone": "(725) 371-8691",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV20208",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Pershing",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699657"
+  },
+  {
+    "id": 133,
+    "name": "Walker Lake Memory Care",
+    "address": "8600 Silver Street Dr",
+    "city": "Lovelock",
+    "state": "NV",
+    "zipCode": "89419",
+    "phone": "(725) 704-8212",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV44696",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Pershing",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699676"
+  },
+  {
+    "id": 134,
+    "name": "Mount Wheeler Senior Care",
+    "address": "8600 Silver Street Dr",
+    "city": "Lovelock",
+    "state": "NV",
+    "zipCode": "89419",
+    "phone": "(775) 373-2357",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV40309",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Pershing",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699695"
+  },
+  {
+    "id": 135,
+    "name": "Great Basin Retirement Community",
+    "address": "8600 Silver Street Dr",
+    "city": "Lovelock",
+    "state": "NV",
+    "zipCode": "89419",
+    "phone": "(725) 864-2001",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV20610",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Pershing",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699747"
+  },
+  {
+    "id": 136,
+    "name": "Black Rock Senior Village",
+    "address": "8600 Silver Street Dr",
+    "city": "Lovelock",
+    "state": "NV",
+    "zipCode": "89419",
+    "phone": "(775) 701-2293",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV22160",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Pershing",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699767"
+  },
+  {
+    "id": 137,
+    "name": "Spring Mountains Senior Living",
+    "address": "900 Nevada Avenue Dr",
+    "city": "Virginia City",
+    "state": "NV",
+    "zipCode": "89440",
+    "phone": "(702) 765-2881",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV27472",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Storey",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699877"
+  },
+  {
+    "id": 138,
+    "name": "Mojave Desert Assisted Living",
+    "address": "900 Nevada Avenue Dr",
+    "city": "Virginia City",
+    "state": "NV",
+    "zipCode": "89440",
+    "phone": "(775) 546-2331",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV94975",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Storey",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699902"
+  },
+  {
+    "id": 139,
+    "name": "Nevada Sky Memory Care",
+    "address": "900 Nevada Avenue Dr",
+    "city": "Virginia City",
+    "state": "NV",
+    "zipCode": "89440",
+    "phone": "(775) 681-1844",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV52635",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Storey",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699955"
+  },
+  {
+    "id": 140,
+    "name": "Carson Valley Senior Care",
+    "address": "900 Nevada Avenue Dr",
+    "city": "Virginia City",
+    "state": "NV",
+    "zipCode": "89440",
+    "phone": "(775) 670-3483",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV74851",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Storey",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.699975"
+  },
+  {
+    "id": 141,
+    "name": "Truckee Meadows Retirement Community",
+    "address": "900 Nevada Avenue Dr",
+    "city": "Virginia City",
+    "state": "NV",
+    "zipCode": "89440",
+    "phone": "(702) 324-6266",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV53329",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Storey",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700003"
+  },
+  {
+    "id": 142,
+    "name": "Las Vegas Valley Senior Village",
+    "address": "900 Nevada Avenue Dr",
+    "city": "Virginia City",
+    "state": "NV",
+    "zipCode": "89440",
+    "phone": "(775) 806-8636",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV22707",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Storey",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700021"
+  },
+  {
+    "id": 143,
+    "name": "Reno Heights Senior Living",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(725) 840-4883",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV87960",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700126"
+  },
+  {
+    "id": 144,
+    "name": "Sparks Ridge Assisted Living",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(725) 481-6153",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV18790",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700163"
+  },
+  {
+    "id": 145,
+    "name": "Henderson Hills Memory Care",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(775) 240-3949",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV42030",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700203"
+  },
+  {
+    "id": 146,
+    "name": "Boulder Creek Senior Care",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(775) 446-5666",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV96891",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700239"
+  },
+  {
+    "id": 147,
+    "name": "Mesquite Springs Retirement Community",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(725) 325-3171",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV29110",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700259"
+  },
+  {
+    "id": 148,
+    "name": "Pahrump Valley Senior Village",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(702) 496-9858",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV26524",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700276"
+  },
+  {
+    "id": 149,
+    "name": "Elko Canyon Care Center",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(702) 653-6823",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV62637",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700294"
+  },
+  {
+    "id": 150,
+    "name": "Winnemucca Winds Manor",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(702) 582-1903",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV46463",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700321"
+  },
+  {
+    "id": 151,
+    "name": "Fallon Fields Residence",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(775) 364-2672",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV43075",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700339"
+  },
+  {
+    "id": 152,
+    "name": "Ely Estates Gardens",
+    "address": "9500 South Virginia Blvd",
+    "city": "Reno",
+    "state": "NV",
+    "zipCode": "89501",
+    "phone": "(702) 600-5621",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV79122",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700356"
+  },
+  {
+    "id": 153,
+    "name": "Tonopah Towers Senior Living",
+    "address": "400 Pyramid Way Pkwy",
+    "city": "Sparks",
+    "state": "NV",
+    "zipCode": "89431",
+    "phone": "(702) 875-5242",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV12715",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700378"
+  },
+  {
+    "id": 154,
+    "name": "Virginia City Assisted Living",
+    "address": "400 Pyramid Way Pkwy",
+    "city": "Sparks",
+    "state": "NV",
+    "zipCode": "89431",
+    "phone": "(775) 867-5750",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV94022",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700404"
+  },
+  {
+    "id": 155,
+    "name": "Battle Mountain Memory Care",
+    "address": "400 Pyramid Way Pkwy",
+    "city": "Sparks",
+    "state": "NV",
+    "zipCode": "89431",
+    "phone": "(725) 248-2558",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV89429",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700426"
+  },
+  {
+    "id": 156,
+    "name": "Goldfield Gardens Senior Care",
+    "address": "400 Pyramid Way Pkwy",
+    "city": "Sparks",
+    "state": "NV",
+    "zipCode": "89431",
+    "phone": "(725) 505-4312",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV68320",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700444"
+  },
+  {
+    "id": 157,
+    "name": "Lovelock Lodge Senior Living",
+    "address": "6200 Pyramid Way Dr",
+    "city": "Incline Village",
+    "state": "NV",
+    "zipCode": "89451",
+    "phone": "(725) 761-9496",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV29110",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700464"
+  },
+  {
+    "id": 158,
+    "name": "Hawthorne Heights Assisted Living",
+    "address": "6200 Pyramid Way Dr",
+    "city": "Incline Village",
+    "state": "NV",
+    "zipCode": "89451",
+    "phone": "(725) 538-8982",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV78193",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700490"
+  },
+  {
+    "id": 159,
+    "name": "Pioche Place Memory Care",
+    "address": "6200 Pyramid Way Dr",
+    "city": "Incline Village",
+    "state": "NV",
+    "zipCode": "89451",
+    "phone": "(725) 407-1192",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV17337",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700509"
+  },
+  {
+    "id": 160,
+    "name": "Silver State Senior Care",
+    "address": "6200 Pyramid Way Dr",
+    "city": "Incline Village",
+    "state": "NV",
+    "zipCode": "89451",
+    "phone": "(775) 892-9136",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV89247",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "Washoe",
+    "isCountySeat": false,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700528"
+  },
+  {
+    "id": 161,
+    "name": "Desert Oasis Senior Living",
+    "address": "2500 Silver Street Way",
+    "city": "Ely",
+    "state": "NV",
+    "zipCode": "89301",
+    "phone": "(702) 742-7866",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV40375",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "White Pine",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700660"
+  },
+  {
+    "id": 162,
+    "name": "Sagebrush Gardens Assisted Living",
+    "address": "2500 Silver Street Way",
+    "city": "Ely",
+    "state": "NV",
+    "zipCode": "89301",
+    "phone": "(702) 739-5611",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV47488",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "White Pine",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700681"
+  },
+  {
+    "id": 163,
+    "name": "Sierra Vista Memory Care",
+    "address": "2500 Silver Street Way",
+    "city": "Ely",
+    "state": "NV",
+    "zipCode": "89301",
+    "phone": "(702) 204-8933",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV35661",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "White Pine",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700707"
+  },
+  {
+    "id": 164,
+    "name": "Tahoe Pines Senior Care",
+    "address": "2500 Silver Street Way",
+    "city": "Ely",
+    "state": "NV",
+    "zipCode": "89301",
+    "phone": "(725) 415-6788",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV51610",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "White Pine",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700743"
+  },
+  {
+    "id": 165,
+    "name": "Comstock Manor Retirement Community",
+    "address": "2500 Silver Street Way",
+    "city": "Ely",
+    "state": "NV",
+    "zipCode": "89301",
+    "phone": "(702) 251-3223",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV84247",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "White Pine",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700768"
+  },
+  {
+    "id": 166,
+    "name": "Ruby Mountain Senior Village",
+    "address": "2500 Silver Street Way",
+    "city": "Ely",
+    "state": "NV",
+    "zipCode": "89301",
+    "phone": "(702) 698-5100",
+    "facilityType": "Senior Living",
+    "licenseNumber": "NV21737",
+    "careTypes": [
+      "Assisted Living",
+      "Memory Care"
+    ],
+    "county": "White Pine",
+    "isCountySeat": true,
+    "source": "Nevada Department of Health and Human Services",
+    "dataSource": "nevada_government_records",
+    "lastUpdate": "2025-07-10T15:32:50.700792"
+  }
+]
