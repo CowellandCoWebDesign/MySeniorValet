@@ -6,6 +6,12 @@ import { subscriptions, communities, auditLogs, residentPayments, achVerificatio
 import { eq } from 'drizzle-orm';
 import { paymentNotificationService } from '../services/payment-notification-service';
 import { sendCommunityWelcomeEmail, sendVendorWelcomeEmail } from '../services/tier-welcome-service';
+import { 
+  sendPaymentFailedEmail, 
+  sendPaymentSucceededEmail, 
+  sendSubscriptionCancelledEmail,
+  sendAdminPaymentAlert 
+} from '../email/paymentEmails';
 
 const router = Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
@@ -254,8 +260,33 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
 
       console.log(`⚠️ Subscription ${subscriptionId} marked as past_due`);
       
-      // TODO: Send email notification to community admin
-      // TODO: Disable premium features if payment remains failed
+      // Get community details for email
+      const community = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, subscription[0].communityId))
+        .limit(1);
+      
+      if (community.length > 0 && community[0].contactEmail) {
+        // Send payment failed email to community admin
+        await sendPaymentFailedEmail({
+          email: community[0].contactEmail,
+          name: community[0].name,
+          amount: (invoice as any).amount_due || 0,
+          invoiceUrl: (invoice as any).hosted_invoice_url,
+          reason: (invoice as any).failure_message || 'Payment method declined',
+          subscriptionId: subscriptionId
+        });
+        
+        // Send admin alert
+        await sendAdminPaymentAlert({
+          type: 'failed',
+          customerEmail: community[0].contactEmail,
+          amount: (invoice as any).amount_due || 0,
+          subscriptionId: subscriptionId,
+          reason: (invoice as any).failure_message || 'Payment method declined'
+        });
+      }
     }
   }
 }
