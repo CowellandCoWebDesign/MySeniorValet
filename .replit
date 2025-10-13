@@ -7,10 +7,11 @@ channel = "stable-24_05"
 packages = ["chromium", "geckodriver", "gitFull", "glibcLocales", "jq", "libxcrypt", "playwright", "playwright-driver", "xcodebuild", "zlib"]
 
 [deployment]
-deploymentTarget = "autoscale"
+deploymentTarget = "static"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 ignoredPaths = [".pythonlibs", ".git"]
+publicDir = "dist"
 
 [[ports]]
 localPort = 5000
