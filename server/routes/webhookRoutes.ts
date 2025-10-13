@@ -356,8 +356,27 @@ async function handleSubscriptionCancelled(subscription: Stripe.Subscription) {
 
       console.log(`❌ Subscription ${subscription.id} marked as canceled`);
       
-      // TODO: Send cancellation email to community admin
-      // TODO: Schedule feature deactivation (grace period)
+      // Get community details for email
+      const community = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, subscriptionRecord[0].communityId))
+        .limit(1);
+      
+      if (community.length > 0 && community[0].contactEmail) {
+        // Send subscription cancelled email to community admin
+        const endDate = (subscription as any).current_period_end 
+          ? new Date((subscription as any).current_period_end * 1000)
+          : new Date();
+          
+        await sendSubscriptionCancelledEmail({
+          email: community[0].contactEmail,
+          name: community[0].name,
+          planName: subscriptionRecord[0].plan || 'Premium',
+          endDate: endDate,
+          reason: (subscription as any).cancellation_details?.reason || 'Voluntary cancellation'
+        });
+      }
     }
   }
 }
