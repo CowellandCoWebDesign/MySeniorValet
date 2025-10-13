@@ -1228,6 +1228,46 @@ Provide complete business data with ALL actual image URLs found.`;
   //   }
   // });
 
+  // Get user's owned communities endpoint
+  app.get('/api/my-communities', async (req: any, res) => {
+    try {
+      if (!req.isAuthenticated?.()) {
+        return res.status(401).json({ message: 'Not authenticated' });
+      }
+
+      const userId = req.user?.id;
+      if (!userId) {
+        return res.status(401).json({ message: 'User ID not found' });
+      }
+
+      // Get all claimed communities for this user
+      const ownedCommunities = await db
+        .select({
+          id: schema.claimedCommunities.id,
+          communityId: schema.claimedCommunities.communityId,
+          subscriptionTier: schema.claimedCommunities.subscriptionTier,
+          subscriptionStatus: schema.claimedCommunities.subscriptionStatus,
+          isVerified: schema.claimedCommunities.isVerified,
+          claimedAt: schema.claimedCommunities.claimedAt,
+          communityName: schema.communities.name,
+          communityAddress: schema.communities.address,
+          communityCity: schema.communities.city,
+          communityState: schema.communities.state,
+        })
+        .from(schema.claimedCommunities)
+        .innerJoin(
+          schema.communities,
+          eq(schema.claimedCommunities.communityId, schema.communities.id)
+        )
+        .where(eq(schema.claimedCommunities.ownerId, userId));
+
+      return res.json({ communities: ownedCommunities });
+    } catch (error) {
+      console.error('Error fetching owned communities:', error);
+      res.status(500).json({ message: 'Failed to fetch owned communities' });
+    }
+  });
+
   // Get community by ID endpoint
   app.get('/api/communities/:id', async (req, res) => {
     try {
