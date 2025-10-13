@@ -10,6 +10,7 @@ packages = ["chromium", "geckodriver", "gitFull", "glibcLocales", "jq", "libxcry
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
+ignoredPaths = [".pythonlibs", ".git"]
 
 [[ports]]
 localPort = 5000
