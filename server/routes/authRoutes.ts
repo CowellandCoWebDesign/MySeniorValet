@@ -8,6 +8,8 @@ import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { z } from "zod";
 import { authLimiter, createRateLimitMiddleware } from "../infrastructure/rateLimiter";
 import { internalNotifications } from "../services/internal-notifications";
+import { EmailService } from "../services/email";
+import { passwordResetEmail } from "../templates/emailTemplates";
 
 export function registerAuthRoutes(app: Express) {
   // Auth limiter is already imported from infrastructure/rateLimiter
@@ -301,8 +303,25 @@ export function registerAuthRoutes(app: Express) {
       // Generate reset token
       const resetToken = await authService.generatePasswordResetToken(user.id);
       
-      // TODO: Send reset email with token
-      console.log(`Password reset token for ${email}: ${resetToken}`);
+      // Generate reset link
+      const resetLink = `${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://myseniorvalet.com'}/reset-password?token=${resetToken}`;
+      
+      // Send password reset email
+      try {
+        await EmailService.sendEmail({
+          to: email,
+          subject: passwordResetEmail.subject,
+          html: passwordResetEmail.html({
+            name: user.firstName || 'there',
+            resetLink
+          }),
+          isTransactional: true // Password reset is transactional, no unsubscribe needed
+        });
+        console.log(`Password reset email sent to ${email}`);
+      } catch (emailError) {
+        console.error('Error sending password reset email:', emailError);
+        // Don't fail the request if email fails, but log it
+      }
 
       res.json({ message: "If an account exists, a password reset link will be sent" });
     } catch (error) {
