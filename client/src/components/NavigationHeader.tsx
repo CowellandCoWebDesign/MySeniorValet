@@ -41,7 +41,7 @@ export function NavigationHeader({
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   // Query for unread messages count
-  const { data: unreadCount } = useQuery({
+  const { data: unreadCount } = useQuery<{ count: number }>({
     queryKey: ['/api/messages/unread-count'],
     enabled: !!isAuthenticated,
   });
@@ -134,36 +134,6 @@ export function NavigationHeader({
                         checked={preferences.emergencyButton}
                         onCheckedChange={() => togglePreference('emergencyButton')}
                         className="data-[state=checked]:bg-red-500"
-                      />
-                    </div>
-                  </div>
-                  
-                  {/* Voice Guidance Toggle */}
-                  <div className="group p-4 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all">
-                    <div className="flex items-center justify-between">
-                      <div className="space-y-1">
-                        <Label htmlFor="voice-toggle" className="text-base font-semibold flex items-center">
-                          <div className="p-1.5 bg-blue-500 rounded-lg mr-3">
-                            <Volume2 className="w-4 h-4 text-white" />
-                          </div>
-                          Voice Guidance
-                        </Label>
-                        <p className="text-sm text-gray-600 dark:text-gray-400 ml-10">
-                          Screen reader and voice commands
-                        </p>
-                      </div>
-                      <Switch
-                        id="voice-toggle"
-                        checked={preferences.voiceGuidance}
-                        onCheckedChange={() => {
-                          togglePreference('voiceGuidance');
-                          // Toggle the voice guidance context if available
-                          const voiceButton = document.querySelector('[aria-label*="voice guidance"]');
-                          if (voiceButton && voiceButton instanceof HTMLElement) {
-                            voiceButton.click();
-                          }
-                        }}
-                        className="data-[state=checked]:bg-blue-500"
                       />
                     </div>
                   </div>
@@ -328,12 +298,12 @@ export function NavigationHeader({
                   className="relative hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
                 >
                   <Bell className="w-5 h-5" />
-                  {unreadCount && typeof unreadCount === 'object' && 'count' in unreadCount && (unreadCount as any).count > 0 && (
+                  {unreadCount && unreadCount.count > 0 && (
                     <Badge 
                       variant="destructive" 
                       className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 text-xs"
                     >
-                      {(unreadCount as any).count}
+                      {unreadCount.count}
                     </Badge>
                   )}
                 </Button>
