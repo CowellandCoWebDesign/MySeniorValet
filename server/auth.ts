@@ -128,6 +128,89 @@ export class AuthService {
   async logout(sessionId: string): Promise<void> {
     await this.destroySession(sessionId);
   }
+
+  async validateSession(sessionId: string): Promise<number | null> {
+    const [session] = await db
+      .select()
+      .from(userSessions)
+      .where(eq(userSessions.id, sessionId));
+
+    if (!session || session.expiresAt < new Date()) {
+      if (session) {
+        await db.delete(userSessions).where(eq(userSessions.id, sessionId));
+      }
+      return null;
+    }
+
+    return session.userId;
+  }
+
+  async generatePasswordResetToken(userId: number): Promise<string> {
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    // Get users table from shared schema
+    const { users } = await import('@shared/schema');
+    
+    await db
+      .update(users)
+      .set({
+        passwordResetToken: token,
+        passwordResetExpires: expiresAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+
+    return token;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+    const { users } = await import('@shared/schema');
+    
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.passwordResetToken, token));
+
+    if (!user || !user.passwordResetExpires || user.passwordResetExpires < new Date()) {
+      return false;
+    }
+
+    const hashedPassword = await this.hashPassword(newPassword);
+
+    // Update password and clear reset token
+    await db
+      .update(users)
+      .set({
+        password: hashedPassword,
+        passwordResetToken: null,
+        passwordResetExpires: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, user.id));
+
+    // SECURITY: Invalidate all existing sessions to prevent stolen session cookies from remaining valid
+    await db
+      .delete(userSessions)
+      .where(eq(userSessions.userId, user.id));
+
+    return true;
+  }
+
+  async generateEmailVerificationToken(userId: number): Promise<string> {
+    const token = crypto.randomBytes(32).toString('hex');
+    const { users } = await import('@shared/schema');
+    
+    await db
+      .update(users)
+      .set({
+        emailVerificationToken: token,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, userId));
+
+    return token;
+  }
 }
 
 export const authService = new AuthService();
