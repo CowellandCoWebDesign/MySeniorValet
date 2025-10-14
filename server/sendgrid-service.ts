@@ -56,6 +56,44 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
   }
 }
 
+// Password reset email
+export async function sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
+  try {
+    const { passwordResetEmail } = await import('./templates/emailTemplates');
+    
+    // Build reset link - use appropriate domain based on environment
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://myseniorvalet.com'
+      : `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`;
+    
+    const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
+    
+    const msg = {
+      to: email,
+      from: 'hello@myseniorvalet.com',
+      subject: passwordResetEmail.subject,
+      html: passwordResetEmail.html({ name: email.split('@')[0], resetLink }),
+      // IMPORTANT: Disable click tracking to avoid SSL issues with custom domain
+      trackingSettings: {
+        clickTracking: {
+          enable: false
+        }
+      }
+    };
+
+    const [response] = await sgMail.send(msg);
+    console.log(`Password reset email sent to ${email}. Status: ${response.statusCode}`);
+    return response.statusCode >= 200 && response.statusCode < 300;
+
+  } catch (error: any) {
+    console.error('Password reset email error:', error);
+    if (error.response && error.response.body) {
+      console.error('SendGrid error details:', error.response.body);
+    }
+    return false;
+  }
+}
+
 // Super admin notification specifically
 export async function notifySuperAdmin(title: string, message: string, data?: any) {
   // Send to admin@myseniorvalet.com with BCC to hello
