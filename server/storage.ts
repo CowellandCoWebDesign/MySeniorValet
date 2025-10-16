@@ -49,7 +49,6 @@ export interface IStorage {
   // Community methods
   getCommunity(id: number): Promise<Community | undefined>;
   getAllCommunities(): Promise<Community[]>;
-  getAllCommunitiesForClustering(): Promise<Community[]>;
   getTrendingCommunities(limit?: number): Promise<Community[]>;
   searchCommunities(params: SearchCommunity): Promise<Community[]>;
   searchCommunitiesByName(name: string): Promise<Community[]>;
@@ -577,9 +576,6 @@ export class MemStorage implements IStorage {
   }
 
   // Implement all missing IStorage methods to fix compilation errors
-  async getAllCommunitiesForClustering(): Promise<Community[]> {
-    return Array.from(this.communities.values()).filter(c => c.latitude && c.longitude);
-  }
 
   async createListingFlag(flag: InsertListingFlag): Promise<ListingFlag> {
     return { ...flag, id: Date.now(), createdAt: new Date(), updatedAt: new Date() } as ListingFlag;
@@ -984,37 +980,6 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(communities);
   }
 
-  async getAllCommunitiesForClustering(): Promise<Community[]> {
-    try {
-      // Create timeout promise (8 seconds for large dataset query)
-      const timeoutPromise = new Promise<any[]>((_, reject) => {
-        setTimeout(() => reject(new Error('Database query timeout')), 8000);
-      });
-
-      // Get all communities with coordinates using simpler query
-      const queryPromise = db.select()
-        .from(communities)
-        .where(sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`);
-      
-      const result = await Promise.race([queryPromise, timeoutPromise]);
-      
-      return result.map(row => ({
-        ...row,
-        // Ensure numeric fields are properly typed
-        rating: row.rating || 0,
-        reviewCount: row.reviewCount || 0,
-        careTypes: row.careTypes || [],
-        photos: row.photos || [],
-        priceRange: row.priceRange || { min: 0, max: 0 },
-        availabilityStatus: row.availabilityStatus || 'Contact for Availability',
-        description: row.description || ''
-      })) as Community[];
-    } catch (error: any) {
-      console.error('Failed to get communities for clustering:', error.message);
-      // Return empty array on timeout to prevent crash
-      return [];
-    }
-  }
 
   async searchCommunitiesByName(name: string): Promise<Community[]> {
     const searchTerm = name.toLowerCase().trim();
