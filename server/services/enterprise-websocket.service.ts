@@ -306,11 +306,26 @@ export class EnterpriseWebSocketService extends EventEmitter {
     try {
       const fiveSecondsAgo = new Date(Date.now() - 5000);
 
-      // Check for new analytics events
-      const newAnalytics = await db.select()
-        .from(analyticsEvents)
-        .where(gte(analyticsEvents.timestamp, fiveSecondsAgo))
-        .limit(10);
+      // Create timeout promise (2 seconds max for event checking)
+      const timeoutPromise = new Promise<any[]>((_, reject) => {
+        setTimeout(() => reject(new Error('Event query timeout')), 2000);
+      });
+
+      // Check for new analytics events with timeout protection
+      let newAnalytics: any[] = [];
+      try {
+        newAnalytics = await Promise.race([
+          db.select()
+            .from(analyticsEvents)
+            .where(gte(analyticsEvents.timestamp, fiveSecondsAgo))
+            .limit(10),
+          timeoutPromise
+        ]);
+      } catch (error: any) {
+        // Log but don't crash - this is a background check
+        console.error('Error checking for new events:', error.message);
+        return;
+      }
 
       if (newAnalytics.length > 0) {
         this.broadcastToSubscribers('analytics', {
@@ -321,11 +336,21 @@ export class EnterpriseWebSocketService extends EventEmitter {
         });
       }
 
-      // Check for new financial transactions
-      const newTransactions = await db.select()
-        .from(financialTransactions)
-        .where(gte(financialTransactions.createdAt, fiveSecondsAgo))
-        .limit(10);
+      // Check for new financial transactions with timeout protection
+      let newTransactions: any[] = [];
+      try {
+        newTransactions = await Promise.race([
+          db.select()
+            .from(financialTransactions)
+            .where(gte(financialTransactions.createdAt, fiveSecondsAgo))
+            .limit(10),
+          timeoutPromise
+        ]);
+      } catch (error: any) {
+        // Log but don't crash - this is a background check
+        console.error('Error checking for financial transactions:', error.message);
+        return;
+      }
 
       if (newTransactions.length > 0) {
         this.broadcastToSubscribers('financial', {
@@ -335,8 +360,8 @@ export class EnterpriseWebSocketService extends EventEmitter {
           timestamp: new Date()
         });
       }
-    } catch (error) {
-      console.error('Error checking for new events:', error);
+    } catch (error: any) {
+      console.error('Error checking for new events:', error.message || error);
     }
   }
 

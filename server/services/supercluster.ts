@@ -113,9 +113,43 @@ class SuperclusterService {
         return;
       }
 
-      // Get all communities from database with optimized query
-      const communities = await storage.getAllCommunitiesForClustering();
+      // Create timeout promise (10 seconds for large dataset)
+      const timeoutPromise = new Promise<any>((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout - using empty clustering')), 10000);
+      });
+
+      // Get all communities from database with timeout protection
+      let communities: any[] = [];
+      try {
+        communities = await Promise.race([
+          storage.getAllCommunitiesForClustering(),
+          timeoutPromise
+        ]);
+      } catch (error: any) {
+        console.error('Failed to load communities for clustering:', error.message);
+        // Initialize with empty features to prevent crash
+        this.featuresCache = [];
+        if (this.index) {
+          this.index.load([]);
+        }
+        this.isInitialized = true;
+        this.lastInitTime = Date.now();
+        console.log('Supercluster initialized with empty dataset due to timeout');
+        return;
+      }
       
+      // Check if we got results
+      if (!communities || communities.length === 0) {
+        console.log('No communities returned from database - initializing empty cluster');
+        this.featuresCache = [];
+        if (this.index) {
+          this.index.load([]);
+        }
+        this.isInitialized = true;
+        this.lastInitTime = Date.now();
+        return;
+      }
+
       // Convert communities to GeoJSON features
       const features: GeoJSONFeature[] = communities
         .filter(community => community.latitude && community.longitude)
@@ -159,10 +193,17 @@ class SuperclusterService {
       this.lastInitTime = Date.now();
       
       console.log(`Supercluster initialized with ${features.length} communities`);
-    } catch (error) {
-      console.error('Failed to initialize Supercluster:', error);
+    } catch (error: any) {
+      console.error('Failed to initialize Supercluster:', error.message || error);
+      // Initialize with empty features to prevent crash
+      this.featuresCache = [];
+      if (this.index) {
+        this.index.load([]);
+      }
+      this.isInitialized = true;
+      this.lastInitTime = Date.now();
       this.initializationPromise = null;
-      throw error;
+      console.log('Supercluster initialized with fallback empty dataset');
     } finally {
       this.initializationPromise = null;
     }

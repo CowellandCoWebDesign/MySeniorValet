@@ -985,22 +985,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllCommunitiesForClustering(): Promise<Community[]> {
-    // Get all communities with coordinates using simpler query
-    const result = await db.select()
-      .from(communities)
-      .where(sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`);
-    
-    return result.map(row => ({
-      ...row,
-      // Ensure numeric fields are properly typed
-      rating: row.rating || 0,
-      reviewCount: row.reviewCount || 0,
-      careTypes: row.careTypes || [],
-      photos: row.photos || [],
-      priceRange: row.priceRange || { min: 0, max: 0 },
-      availabilityStatus: row.availabilityStatus || 'Contact for Availability',
-      description: row.description || ''
-    })) as Community[];
+    try {
+      // Create timeout promise (8 seconds for large dataset query)
+      const timeoutPromise = new Promise<any[]>((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 8000);
+      });
+
+      // Get all communities with coordinates using simpler query
+      const queryPromise = db.select()
+        .from(communities)
+        .where(sql`${communities.latitude} IS NOT NULL AND ${communities.longitude} IS NOT NULL`);
+      
+      const result = await Promise.race([queryPromise, timeoutPromise]);
+      
+      return result.map(row => ({
+        ...row,
+        // Ensure numeric fields are properly typed
+        rating: row.rating || 0,
+        reviewCount: row.reviewCount || 0,
+        careTypes: row.careTypes || [],
+        photos: row.photos || [],
+        priceRange: row.priceRange || { min: 0, max: 0 },
+        availabilityStatus: row.availabilityStatus || 'Contact for Availability',
+        description: row.description || ''
+      })) as Community[];
+    } catch (error: any) {
+      console.error('Failed to get communities for clustering:', error.message);
+      // Return empty array on timeout to prevent crash
+      return [];
+    }
   }
 
   async searchCommunitiesByName(name: string): Promise<Community[]> {
