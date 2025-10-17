@@ -1762,13 +1762,29 @@ export default function CommunityDetail() {
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="container-responsive">
-          <BreadcrumbNavigation 
-            items={[
-              { label: 'Home', href: '/' },
-              { label: 'Communities', href: '/map-search' },
-              { label: community?.name || 'Community Details' }
-            ]}
-          />
+          <div className="flex items-center justify-between">
+            <BreadcrumbNavigation 
+              items={[
+                { label: 'Home', href: '/' },
+                { label: 'Communities', href: '/map-search' },
+                { label: community?.name || 'Community Details' }
+              ]}
+            />
+            {/* Return to Search Button - preserves map state */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // Navigate back to map search - session storage will restore state
+                window.location.href = '/map-search';
+              }}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Return to Map Search</span>
+              <span className="sm:hidden">Back</span>
+            </Button>
+          </div>
         </div>
       </div>
 
