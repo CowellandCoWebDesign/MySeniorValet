@@ -29,6 +29,7 @@ import { queryClient } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useSEO, SEOTemplates } from '@/hooks/useSEO';
 import { fuzzySearch, parseSearchQuery } from '@/lib/fuzzySearch';
+import { useMapSessionStorage, useDebounceMapSave } from '@/hooks/useMapSessionStorage';
 
 interface Community {
   id: number;
@@ -135,25 +136,38 @@ export default function MapSearch() {
     }
   };
 
-  const [searchQuery, setSearchQuery] = useState(communityParam || initialQuery);
-  const [viewMode, setViewMode] = useState<'map' | 'list'>(viewParam === 'map' ? 'map' : 'map');
+  // Load saved state from session storage
+  const { loadState, saveState } = useMapSessionStorage();
+  const savedState = loadState();
+  
+  // Initialize state with saved values or defaults
+  const [searchQuery, setSearchQuery] = useState(communityParam || savedState?.searchQuery || initialQuery);
+  const [viewMode, setViewMode] = useState<'map' | 'list'>(
+    viewParam === 'map' ? 'map' : savedState?.viewMode || 'map'
+  );
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
   const [hasSearched, setHasSearched] = useState(false);
-  const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>('all');
-  const [filters, setFilters] = useState<SearchFilters>({
-    careType: careTypesParam || 'All Types',
-    selectedCareTypes: [], // New field for multiple care type selection
-    minRating: 0,
-    amenities: [],
-    budget: getBudgetFilter(budgetParam),
-    availability: 'All Status'
-  });
-  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]); // San Francisco - city center
-  const [mapZoom, setMapZoom] = useState(12); // City-level zoom (12-14 shows individual locations)
+  const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>(
+    savedState?.resultType || 'all'
+  );
+  const [filters, setFilters] = useState<SearchFilters>(
+    savedState?.filters || {
+      careType: careTypesParam || 'All Types',
+      selectedCareTypes: [], // New field for multiple care type selection
+      minRating: 0,
+      amenities: [],
+      budget: getBudgetFilter(budgetParam),
+      availability: 'All Status'
+    }
+  );
+  const [mapCenter, setMapCenter] = useState<[number, number]>(
+    savedState?.center || [37.7749, -122.4194] // Use saved center or default to SF
+  );
+  const [mapZoom, setMapZoom] = useState(savedState?.zoom || 12); // Use saved zoom or default
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [mapBounds, setMapBounds] = useState<any>(null);
-  const [showBottomPanel, setShowBottomPanel] = useState(false);
-  const [panelHeight, setPanelHeight] = useState(90); // Percentage of screen height - goes just under navbar
+  const [mapBounds, setMapBounds] = useState<any>(savedState?.bounds || null);
+  const [showBottomPanel, setShowBottomPanel] = useState(savedState?.showBottomPanel || false);
+  const [panelHeight, setPanelHeight] = useState(savedState?.panelHeight || 90);
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
@@ -175,6 +189,22 @@ export default function MapSearch() {
   const [pullDownStart, setPullDownStart] = useState<number | null>(null);
   
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  
+  // Save state to session storage whenever it changes
+  useDebounceMapSave({
+    center: mapCenter,
+    zoom: mapZoom,
+    bounds: mapBounds ? {
+      sw: mapBounds.getSouthWest ? mapBounds.getSouthWest() : mapBounds.sw,
+      ne: mapBounds.getNorthEast ? mapBounds.getNorthEast() : mapBounds.ne
+    } : undefined,
+    filters,
+    searchQuery,
+    viewMode,
+    resultType,
+    showBottomPanel,
+    panelHeight
+  }, 500);
 
   // Tutorial disabled - keeping localStorage check for compatibility
   useEffect(() => {
