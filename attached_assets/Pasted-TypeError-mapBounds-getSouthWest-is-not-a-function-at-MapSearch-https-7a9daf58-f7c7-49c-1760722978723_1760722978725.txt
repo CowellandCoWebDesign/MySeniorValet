@@ -1,0 +1,20 @@
+TypeError: mapBounds.getSouthWest is not a function
+
+
+    at MapSearch (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/pages/map-search.tsx:41:27)
+    at Route (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5b57baac:205:16)
+    at Switch (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/wouter.js?v=5b57baac:261:17)
+    at Router (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/App.tsx:197:22)
+    at MascotProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/components/mascot/MascotProvider.tsx:29:34)
+    at Provider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/chunk-N3S2QW5M.js?v=5b57baac:37:15)
+    at TooltipProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@radix-ui_react-tooltip.js?v=5b57baac:65:5)
+    at VoiceGuidanceProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/components/VoiceGuidanceProvider.tsx:21:41)
+    at OnboardingProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/contexts/OnboardingContext.tsx:20:38)
+    at LanguageProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/contexts/LanguageContext.tsx:266:36)
+    at ThemeProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/components/theme-provider.tsx:29:33)
+    at ResponsiveProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/contexts/ResponsiveContext.tsx:21:38)
+    at AppContent (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/App.tsx:1283:20)
+    at QueryClientProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/@fs/home/runner/workspace/node_modules/.vite/deps/@tanstack_react-query.js?v=5b57baac:2873:3)
+    at NostalgicErrorBoundary (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/components/NostalgicErrorBoundary.tsx:11:5)
+    at App (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev/src/App.tsx:1336:3)
+    at _HelmetProvider (https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.jane
