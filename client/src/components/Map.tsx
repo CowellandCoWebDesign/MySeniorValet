@@ -415,7 +415,7 @@ interface Community {
   reviewCount: number;
   phone: string;
   website: string;
-  priceRange: string;
+  priceRange: string | { min: number; max: number } | null;
   availability: string;
   photos: string[];
   description: string;
@@ -1334,9 +1334,23 @@ export default function Map({
     };
   }, [mapInstance]); // Re-run when map instance changes
 
-  const formatPrice = (priceRange: string) => {
+  const formatPrice = (priceRange: string | { min: number; max: number } | null | undefined) => {
     if (!priceRange) return 'Contact for pricing';
-    return priceRange;
+    
+    // Handle object format with min/max
+    if (typeof priceRange === 'object' && 'min' in priceRange && 'max' in priceRange) {
+      if (priceRange.min && priceRange.max) {
+        return `$${priceRange.min.toLocaleString()} - $${priceRange.max.toLocaleString()}`;
+      }
+      return 'Contact for pricing';
+    }
+    
+    // Handle string format
+    if (typeof priceRange === 'string') {
+      return priceRange;
+    }
+    
+    return 'Contact for pricing';
   };
 
   console.log('Map render - isLoading:', isLoading, 'error:', error, 'markerData:', !!markerData);
@@ -1699,10 +1713,27 @@ export default function Map({
                   <PrioritizedCommunityCard
                     community={{
                       ...community,
-                      // Transform priceRange string to object format
-                      priceRange: typeof community.priceRange === 'string' 
-                        ? { min: 0, max: 10000 } 
-                        : community.priceRange,
+                      // Transform priceRange to object format if needed
+                      priceRange: (function() {
+                        if (!community.priceRange) {
+                          return { min: 0, max: 0 };
+                        }
+                        if (typeof community.priceRange === 'object' && 'min' in community.priceRange && 'max' in community.priceRange) {
+                          return community.priceRange;
+                        }
+                        if (typeof community.priceRange === 'string') {
+                          // Try to parse string format like "$3000 - $5000"
+                          const match = community.priceRange.match(/\$?(\d+(?:,\d+)?)\s*[-–]\s*\$?(\d+(?:,\d+)?)/);
+                          if (match) {
+                            return {
+                              min: parseInt(match[1].replace(',', '')),
+                              max: parseInt(match[2].replace(',', ''))
+                            };
+                          }
+                          return { min: 0, max: 0 };
+                        }
+                        return { min: 0, max: 0 };
+                      })(),
                       // Add enriched occupancy data
                       occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
                       totalUnits: community.totalUnits || community.totalUnitsHud || 100,
