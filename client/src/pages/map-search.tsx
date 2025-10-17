@@ -190,14 +190,48 @@ export default function MapSearch() {
   
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
   
+  // Helper function to safely extract bounds from either Leaflet objects or plain objects
+  const getBoundsValues = (bounds: any) => {
+    if (!bounds) return null;
+    
+    // Check if it's a Leaflet bounds object (has getSouthWest method)
+    if (typeof bounds.getSouthWest === 'function') {
+      const sw = bounds.getSouthWest();
+      const ne = bounds.getNorthEast();
+      return {
+        sw: { lat: sw.lat, lng: sw.lng },
+        ne: { lat: ne.lat, lng: ne.lng }
+      };
+    }
+    
+    // Otherwise, assume it's a plain object from session storage
+    if (bounds.sw && bounds.ne) {
+      return {
+        sw: bounds.sw,
+        ne: bounds.ne
+      };
+    }
+    
+    return null;
+  };
+
+  // Helper to get center from bounds
+  const getBoundsCenter = (bounds: any) => {
+    const boundsValues = getBoundsValues(bounds);
+    if (!boundsValues) return null;
+    
+    const { sw, ne } = boundsValues;
+    return {
+      lat: (sw.lat + ne.lat) / 2,
+      lng: (sw.lng + ne.lng) / 2
+    };
+  };
+  
   // Save state to session storage whenever it changes
   useDebounceMapSave({
     center: mapCenter,
     zoom: mapZoom,
-    bounds: mapBounds ? {
-      sw: mapBounds.getSouthWest ? mapBounds.getSouthWest() : mapBounds.sw,
-      ne: mapBounds.getNorthEast ? mapBounds.getNorthEast() : mapBounds.ne
-    } : undefined,
+    bounds: getBoundsValues(mapBounds) || undefined,
     filters,
     searchQuery,
     viewMode,
@@ -396,10 +430,10 @@ export default function MapSearch() {
   useEffect(() => {
     console.log('MapBounds updated:', mapBounds ? 'bounds set' : 'bounds null');
     if (mapBounds) {
-      console.log('MapBounds details:', {
-        sw: mapBounds.getSouthWest(),
-        ne: mapBounds.getNorthEast()
-      });
+      const boundsValues = getBoundsValues(mapBounds);
+      if (boundsValues) {
+        console.log('MapBounds details:', boundsValues);
+      }
     }
   }, [mapBounds]);
 
@@ -510,11 +544,10 @@ export default function MapSearch() {
   // Fetch communities within map bounds for list view
   // Create a stable bounds key for query caching - use higher precision for better accuracy
   const boundsKey = useMemo(() => {
-    if (!mapBounds) return 'no-bounds';
+    const boundsValues = getBoundsValues(mapBounds);
+    if (!boundsValues) return 'no-bounds';
 
-    const sw = mapBounds.getSouthWest();
-    const ne = mapBounds.getNorthEast();
-
+    const { sw, ne } = boundsValues;
     // Use 6 decimal places for precise bounds tracking
     return `${sw.lng.toFixed(6)},${sw.lat.toFixed(6)},${ne.lng.toFixed(6)},${ne.lat.toFixed(6)}`;
   }, [mapBounds]);
@@ -569,8 +602,10 @@ export default function MapSearch() {
           mapBounds: mapBounds ? 'present' : 'missing' 
         });
 
-        const sw = mapBounds.getSouthWest();
-        const ne = mapBounds.getNorthEast();
+        const boundsValues = getBoundsValues(mapBounds);
+        if (!boundsValues) return [];
+        
+        const { sw, ne } = boundsValues;
 
         // Check if search includes radius filtering (e.g., "within 25 miles")
         const radiusMatch = searchQuery.match(/within\s+(\d+)\s+miles?/i);
@@ -579,7 +614,8 @@ export default function MapSearch() {
         
         if (radiusMatch) {
           // Radius search mode - use center point and radius
-          const center = mapBounds.getCenter();
+          const center = getBoundsCenter(mapBounds);
+          if (!center) return [];
           params = new URLSearchParams({
             radius: radiusMatch[1],
             centerLat: center.lat.toString(),
@@ -700,8 +736,10 @@ export default function MapSearch() {
     queryFn: async () => {
       if (!mapBounds || resultType === 'communities' || resultType === 'healthcare' || resultType === 'resources') return [];
       
-      const sw = mapBounds.getSouthWest();
-      const ne = mapBounds.getNorthEast();
+      const boundsValues = getBoundsValues(mapBounds);
+      if (!boundsValues) return [];
+      
+      const { sw, ne } = boundsValues;
       
       const params = new URLSearchParams({
         swLat: sw.lat.toString(),
@@ -739,18 +777,22 @@ export default function MapSearch() {
         params.append('radius', radiusMatch[1]);
         // For radius searches, include center point if available
         if (mapBounds) {
-          const center = mapBounds.getCenter();
-          params.append('centerLat', center.lat.toString());
-          params.append('centerLng', center.lng.toString());
+          const center = getBoundsCenter(mapBounds);
+          if (center) {
+            params.append('centerLat', center.lat.toString());
+            params.append('centerLng', center.lng.toString());
+          }
         }
       } else if (mapBounds) {
         // Default behavior: use map bounds for filtering (pan/zoom)
-        const sw = mapBounds.getSouthWest();
-        const ne = mapBounds.getNorthEast();
-        params.append('swLat', sw.lat.toString());
-        params.append('swLng', sw.lng.toString());
-        params.append('neLat', ne.lat.toString());
-        params.append('neLng', ne.lng.toString());
+        const boundsValues = getBoundsValues(mapBounds);
+        if (boundsValues) {
+          const { sw, ne } = boundsValues;
+          params.append('swLat', sw.lat.toString());
+          params.append('swLng', sw.lng.toString());
+          params.append('neLat', ne.lat.toString());
+          params.append('neLng', ne.lng.toString());
+        }
       }
       
       const response = await fetch(`/api/healthcare/search?${params}`);
@@ -766,8 +808,9 @@ export default function MapSearch() {
   });
   
   // Fetch resources with enhanced location-based search
+  const centerForQuery = useMemo(() => getBoundsCenter(mapBounds), [mapBounds]);
   const { data: resources = [], isLoading: isLoadingResources } = useQuery({
-    queryKey: ['resources', searchQuery, mapBounds?.getCenter()?.lat, mapBounds?.getCenter()?.lng],
+    queryKey: ['resources', searchQuery, centerForQuery?.lat, centerForQuery?.lng],
     queryFn: async () => {
       if (resultType === 'communities' || resultType === 'vendors' || resultType === 'healthcare') return [];
       
@@ -780,16 +823,19 @@ export default function MapSearch() {
       
       // Add location-based parameters if map bounds are available
       if (mapBounds) {
-        const center = mapBounds.getCenter();
-        params.append('lat', center.lat.toString());
-        params.append('lng', center.lng.toString());
-        params.append('radius', '50'); // 50 mile radius for local resources
-        
-        // Also include the bounds in the search for better local results
-        params.append('swLat', mapBounds.getSouthWest().lat.toString());
-        params.append('swLng', mapBounds.getSouthWest().lng.toString());
-        params.append('neLat', mapBounds.getNorthEast().lat.toString());
-        params.append('neLng', mapBounds.getNorthEast().lng.toString());
+        const center = getBoundsCenter(mapBounds);
+        const boundsValues = getBoundsValues(mapBounds);
+        if (center && boundsValues) {
+          params.append('lat', center.lat.toString());
+          params.append('lng', center.lng.toString());
+          params.append('radius', '50'); // 50 mile radius for local resources
+          
+          // Also include the bounds in the search for better local results
+          params.append('swLat', boundsValues.sw.lat.toString());
+          params.append('swLng', boundsValues.sw.lng.toString());
+          params.append('neLat', boundsValues.ne.lat.toString());
+          params.append('neLng', boundsValues.ne.lng.toString());
+        }
       }
       
       params.append('limit', '30'); // Increased limit for better local coverage
@@ -801,7 +847,6 @@ export default function MapSearch() {
       
       // Sort by relevance to current location if available
       if (mapBounds && data.length > 0) {
-        const center = mapBounds.getCenter();
         return data.sort((a: any, b: any) => {
           // Prioritize local resources
           const aIsLocal = a.state === searchQuery || a.city === searchQuery;
@@ -867,7 +912,8 @@ export default function MapSearch() {
 
       try {
         // Get center of current map view
-        const center = mapBounds.getCenter();
+        const center = getBoundsCenter(mapBounds);
+        if (!center) return [];
         const centerLat = center.lat;
         const centerLng = center.lng;
 
@@ -1301,13 +1347,14 @@ export default function MapSearch() {
 
   // Handle map bounds change with enhanced debugging and forced refresh
   const handleMapBoundsChange = useCallback((bounds: any) => {
+    const boundsStr = (b: any) => {
+      const bv = getBoundsValues(b);
+      return bv ? `${bv.sw.lng},${bv.sw.lat},${bv.ne.lng},${bv.ne.lat}` : 'null';
+    };
+    
     console.log('🗺️ MAP BOUNDS CHANGE DETECTED:', {
-      bounds: bounds ? 
-        bounds.getSouthWest().lng + ',' + bounds.getSouthWest().lat + ',' + bounds.getNorthEast().lng + ',' + bounds.getNorthEast().lat : 
-        'null',
-      previousBounds: mapBounds ? 
-        mapBounds.getSouthWest().lng + ',' + mapBounds.getSouthWest().lat + ',' + mapBounds.getNorthEast().lng + ',' + mapBounds.getNorthEast().lat : 
-        'null',
+      bounds: boundsStr(bounds),
+      previousBounds: boundsStr(mapBounds),
       showBottomPanel,
       currentCommunities: mapCommunities.length,
       timestamp: Date.now()
@@ -1344,15 +1391,18 @@ export default function MapSearch() {
   // Force query when panel opens with existing bounds
   useEffect(() => {
     if (showBottomPanel && mapBounds && mapCommunities.length === 0) {
+      const boundsValues = getBoundsValues(mapBounds);
+      const boundsStr = boundsValues ? 
+        `${boundsValues.sw.lng},${boundsValues.sw.lat},${boundsValues.ne.lng},${boundsValues.ne.lat}` : 
+        'null';
+      
       console.log('🔄 PANEL OPENED WITH BOUNDS - FORCING QUERY:', {
-        mapBounds: mapBounds ? 
-          mapBounds.getSouthWest().lng + ',' + mapBounds.getSouthWest().lat + ',' + mapBounds.getNorthEast().lng + ',' + mapBounds.getNorthEast().lat : 
-          'null',
+        mapBounds: boundsStr,
         timestamp: Date.now()
       });
       queryClient.invalidateQueries({ queryKey: ['communities-map-bounds'] });
     }
-  }, [showBottomPanel, mapBounds, mapCommunities.length, queryClient]);
+  }, [showBottomPanel, mapBounds, mapCommunities.length, queryClient, getBoundsValues]);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
@@ -2135,10 +2185,12 @@ export default function MapSearch() {
                 .sort((a: Community, b: Community) => {
                   // Sort by distance from map center if bounds available
                   if (mapBounds) {
-                    const center = mapBounds.getCenter();
-                    const distA = Math.sqrt(Math.pow(a.latitude - center.lat, 2) + Math.pow(a.longitude - center.lng, 2));
-                    const distB = Math.sqrt(Math.pow(b.latitude - center.lat, 2) + Math.pow(b.longitude - center.lng, 2));
-                    return distA - distB;
+                    const center = getBoundsCenter(mapBounds);
+                    if (center) {
+                      const distA = Math.sqrt(Math.pow(a.latitude - center.lat, 2) + Math.pow(a.longitude - center.lng, 2));
+                      const distB = Math.sqrt(Math.pow(b.latitude - center.lat, 2) + Math.pow(b.longitude - center.lng, 2));
+                      return distA - distB;
+                    }
                   }
                   // Fallback to alphabetical by name
                   return a.name.localeCompare(b.name);
