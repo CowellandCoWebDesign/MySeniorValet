@@ -206,6 +206,7 @@ const SEARCH_PLACEHOLDERS = {
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [classicSearchValue, setClassicSearchValue] = useState(''); // Separate state for classic search input
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -218,6 +219,24 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
   const [searchPlaceholder, setSearchPlaceholder] = useState('');
+  
+  // New state for search mode toggle (AI Assistant vs Classic Search)
+  const [searchMode, setSearchMode] = useState<'ai' | 'classic'>(() => {
+    // Load from localStorage or default to 'ai'
+    // Check if we're in the browser to prevent SSR errors
+    if (typeof window !== 'undefined') {
+      const savedMode = localStorage.getItem('searchMode');
+      return (savedMode === 'classic' || savedMode === 'ai') ? savedMode : 'ai';
+    }
+    return 'ai';
+  });
+  
+  // Save search mode to localStorage whenever it changes
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('searchMode', searchMode);
+    }
+  }, [searchMode]);
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {
@@ -779,12 +798,116 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         {/* Content Container - Search First, Then Value Props */}
         <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
         
-        {/* MySeniorValet AI Assistant */}
+        {/* Search Mode Toggle Button */}
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-3">
+          <div className="flex justify-center">
+            <button
+              onClick={() => setSearchMode(searchMode === 'ai' ? 'classic' : 'ai')}
+              className="group flex items-center gap-3 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-300"
+            >
+              {/* AI Assistant Icon & Label */}
+              <div className={`flex items-center gap-1.5 transition-all duration-300 ${searchMode === 'ai' ? 'opacity-100 font-semibold' : 'opacity-60'}`}>
+                <span className="text-lg">🤖</span>
+                <span className="text-sm text-white">AI Assistant</span>
+              </div>
+              
+              {/* Toggle Switch */}
+              <div className="relative w-14 h-7 bg-black/30 rounded-full border border-white/20">
+                <div 
+                  className={`absolute top-0.5 h-6 w-6 rounded-full transition-all duration-300 ${
+                    searchMode === 'ai' 
+                      ? 'left-0.5 bg-gradient-to-r from-blue-400 to-purple-400 shadow-blue-500/50' 
+                      : 'left-[28px] bg-gradient-to-r from-green-400 to-teal-400 shadow-green-500/50'
+                  } shadow-lg`}
+                />
+              </div>
+              
+              {/* Classic Search Icon & Label */}
+              <div className={`flex items-center gap-1.5 transition-all duration-300 ${searchMode === 'classic' ? 'opacity-100 font-semibold' : 'opacity-60'}`}>
+                <span className="text-sm text-white">Classic Search</span>
+                <span className="text-lg">🔍</span>
+              </div>
+            </button>
+          </div>
+        </div>
+        
+        {/* Conditional Rendering: AI Assistant or Classic Search */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
-          <MySeniorValetChatKit 
-            category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
-            onCategoryChange={(cat) => onTabChange(cat)}
-          />
+          <AnimatePresence mode="wait">
+            {searchMode === 'ai' ? (
+              <motion.div
+                key="ai-assistant"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+              >
+                <MySeniorValetChatKit 
+                  category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
+                  onCategoryChange={(cat) => onTabChange(cat)}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="classic-search"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4"
+              >
+                {/* Classic Search Bar with View Mode Buttons */}
+                <div className="flex flex-col gap-3">
+                  {/* View Mode Buttons */}
+                  <div className="flex justify-center gap-2">
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        viewMode === 'list'
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
+                          : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      📋 Database Search
+                    </button>
+                    <button
+                      onClick={() => setViewMode('map')}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        viewMode === 'map'
+                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
+                          : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      🗺️ Map View
+                    </button>
+                    <button
+                      onClick={() => setViewMode('discover')}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        viewMode === 'discover'
+                          ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg'
+                          : 'bg-white/10 text-white/80 hover:bg-white/20'
+                      }`}
+                    >
+                      🌍 Discovery Mode
+                    </button>
+                  </div>
+                  
+                  {/* Search Input with Autocomplete */}
+                  <AutocompleteSearch
+                    value={classicSearchValue}
+                    onChange={setClassicSearchValue}
+                    onSubmit={(query) => {
+                      setSearchQuery(query);
+                      handleAutoExpandingSearch(query);
+                    }}
+                    placeholder={searchPlaceholder}
+                    isLoading={isLoading}
+                    forceClearSuggestions={forceClearAutocomplete}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
         
         {/* Quick Action Buttons - Moved from Community Directory Section */}
