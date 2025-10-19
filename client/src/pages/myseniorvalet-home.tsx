@@ -814,11 +814,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               {/* Toggle Switch */}
               <div className="relative w-14 h-7 bg-black/30 rounded-full border border-white/20">
                 <div 
-                  className={`absolute top-0.5 h-6 w-6 rounded-full transition-all duration-300 ${
+                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full shadow-lg transition-all duration-300 ease-in-out ${
                     searchMode === 'ai' 
-                      ? 'left-0.5 bg-gradient-to-r from-blue-400 to-purple-400 shadow-blue-500/50' 
-                      : 'left-[28px] bg-gradient-to-r from-green-400 to-teal-400 shadow-green-500/50'
-                  } shadow-lg`}
+                      ? 'translate-x-0 bg-gradient-to-r from-blue-400 to-purple-400 shadow-blue-500/50' 
+                      : 'translate-x-7 bg-gradient-to-r from-green-400 to-teal-400 shadow-green-500/50'
+                  }`}
                 />
               </div>
               
