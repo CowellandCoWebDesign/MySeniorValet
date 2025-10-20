@@ -117,15 +117,15 @@ Include specific details, prices, and numbers whenever available.`;
               content: query
             }
           ],
-          max_tokens: 2000,  // Full responses for complete transparency
+          max_tokens: 3000,  // Increased for more complete responses
           temperature: 0.2,
           top_p: 0.9,
           return_images: true,  // Include images from search results
           return_related_questions: false,
           search_domain_filter: [],  // Search all domains for maximum photo coverage
-          search_recency_filter: undefined,  // No time restriction - get all available data for transparency
+          search_recency_filter: "month",  // Prioritize recent data from last month for accuracy
           web_search_options: {
-            search_context_size: "low"  // Low context for cost reduction while keeping sonar-pro quality
+            search_context_size: "medium"  // Increased from low to medium for better search depth
           },
           stream: false
         },
