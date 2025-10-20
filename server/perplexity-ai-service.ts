@@ -123,9 +123,9 @@ Include specific details, prices, and numbers whenever available.`;
           return_images: true,  // Include images from search results
           return_related_questions: false,
           search_domain_filter: [],  // Search all domains for maximum photo coverage
-          search_recency_filter: "month",  // Prioritize recent data from last month for accuracy
+          search_recency_filter: undefined,  // No time restriction - search all available data from last 2+ years
           web_search_options: {
-            search_context_size: "medium"  // Increased from low to medium for better search depth
+            search_context_size: "medium"  // Medium context for balanced cost and quality
           },
           stream: false
         },
