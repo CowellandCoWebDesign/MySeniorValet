@@ -44,17 +44,64 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `You are a senior living research expert. Provide a brief, essential summary.
+      const systemPrompt = `You are a senior living research expert. Provide comprehensive community information.
 
 ${context ? `Target: ${context}` : ''}
 
-Provide a 2-3 sentence overview, then list only:
-**OFFICIAL WEBSITE:** [URL or "Not found"]
-**CURRENT PRICING:** [Brief pricing info]
-**CONTACT INFORMATION:** [Phone, address]
-**CARE LEVELS OFFERED:** [List only]
+Provide a detailed overview, then include ALL the following sections (use "Not found" if unavailable):
 
-Be concise. Omit sections with no data.`;
+**OFFICIAL WEBSITE:** [URL or "Not found"]
+
+**PRICING & RATES:**
+- Monthly rates by care level (Independent, Assisted, Memory Care)
+- Entry fees or deposits
+- Additional service fees
+- Financial assistance programs accepted
+
+**FLOOR PLANS & ROOM OPTIONS:**
+- Available room types (studio, 1BR, 2BR, suites)
+- Square footage ranges
+- Private vs shared rooms
+- Special features (kitchenettes, balconies)
+
+**CONTACT INFORMATION:**
+- Phone number
+- Full address
+- Email if available
+- Tours/admissions contact
+
+**CARE LEVELS & SERVICES:**
+- All care types offered
+- Specialized programs (dementia, Parkinson's, diabetes)
+- Medical services on-site
+- Therapy services (PT, OT, Speech)
+- Hospice/palliative care
+
+**AMENITIES & FEATURES:**
+- Dining (number of meals, restaurant-style, special diets)
+- Activities & social programs
+- Transportation services
+- Pet policies
+- Beauty salon/barber
+- Fitness facilities
+- Outdoor spaces
+
+**STAFFING & CARE:**
+- Staff-to-resident ratios
+- 24/7 nursing availability
+- Staff qualifications
+- Languages spoken
+
+**ADDITIONAL DETAILS:**
+- Visiting hours
+- Religious services
+- Insurance accepted (Medicare, Medicaid, private)
+- Respite care availability
+- Year established
+- Number of residents/capacity
+- Recent awards or certifications
+
+Include specific details, prices, and numbers whenever available.`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
@@ -102,7 +149,7 @@ Be concise. Omit sections with no data.`;
         // Fallback to extracting from response text
         // Normalize response.data.images to ensure they're strings
         const normalizedImages = response.data.images ? 
-          response.data.images.map(img => {
+          response.data.images.map((img: any) => {
             // Handle various image formats from Perplexity API
             if (typeof img === 'string') return img;
             if (img?.imageUrl) return img.imageUrl;
@@ -134,13 +181,17 @@ Be concise. Omit sections with no data.`;
     recentReviews?: string;
     availability?: string;
     marketComparison?: string;
+    floorPlans?: string;
+    amenities?: string;
+    careServices?: string;
+    staffing?: string;
   }> {
     if (!this.isConfigured()) {
       return {};
     }
 
     try {
-      const query = `Current pricing and availability for ${communityName} senior living community in ${location}. Include recent reviews and market comparison data from 2024-2025.`;
+      const query = `Comprehensive information for ${communityName} senior living community in ${location}. Include all pricing tiers, floor plans, amenities, services, staffing, and recent data from 2024-2025.`;
       
       const result = await this.searchRealTime(query);
       
@@ -149,7 +200,11 @@ Be concise. Omit sections with no data.`;
         currentPricing: this.extractPricing(result.summary),
         recentReviews: this.extractReviews(result.summary),
         availability: this.extractAvailability(result.summary),
-        marketComparison: this.extractMarketData(result.summary)
+        marketComparison: this.extractMarketData(result.summary),
+        floorPlans: this.extractFloorPlans(result.summary),
+        amenities: this.extractAmenities(result.summary),
+        careServices: this.extractCareServices(result.summary),
+        staffing: this.extractStaffing(result.summary)
       };
     } catch (error) {
       console.error(`Failed to enhance data for ${communityName}:`, error);
@@ -231,6 +286,58 @@ Be concise. Omit sections with no data.`;
     const marketRegex = /(compared to|average|market|typical)[^.]*[.]/gi;
     const matches = text.match(marketRegex);
     return matches ? matches[0] : undefined;
+  }
+
+  private extractFloorPlans(text: string): string | undefined {
+    // Extract floor plan information
+    const floorPlanSection = text.match(/\*\*FLOOR PLANS[^*]*\*\*[\s\S]*?(?=\*\*[A-Z]|\n\n|$)/i);
+    if (floorPlanSection) {
+      return floorPlanSection[0].replace(/\*\*/g, '').trim();
+    }
+    
+    // Fallback: look for room type mentions
+    const roomRegex = /(studio|one.bedroom|two.bedroom|suite|apartment|floor.plan|square.feet|sq\.?ft)[^.]*[.]/gi;
+    const matches = text.match(roomRegex);
+    return matches ? matches.join(' ') : undefined;
+  }
+
+  private extractAmenities(text: string): string | undefined {
+    // Extract amenities section
+    const amenitiesSection = text.match(/\*\*AMENITIES[^*]*\*\*[\s\S]*?(?=\*\*[A-Z]|\n\n|$)/i);
+    if (amenitiesSection) {
+      return amenitiesSection[0].replace(/\*\*/g, '').trim();
+    }
+    
+    // Fallback: look for amenity mentions
+    const amenityRegex = /(dining|restaurant|salon|fitness|pool|garden|activity|transportation|pet)[^.]*[.]/gi;
+    const matches = text.match(amenityRegex);
+    return matches ? matches.join(' ') : undefined;
+  }
+
+  private extractCareServices(text: string): string | undefined {
+    // Extract care services section
+    const careSection = text.match(/\*\*CARE LEVELS[^*]*\*\*[\s\S]*?(?=\*\*[A-Z]|\n\n|$)/i);
+    if (careSection) {
+      return careSection[0].replace(/\*\*/g, '').trim();
+    }
+    
+    // Fallback: look for care service mentions
+    const careRegex = /(assisted.living|memory.care|skilled.nursing|independent.living|therapy|medical|hospice)[^.]*[.]/gi;
+    const matches = text.match(careRegex);
+    return matches ? matches.join(' ') : undefined;
+  }
+
+  private extractStaffing(text: string): string | undefined {
+    // Extract staffing section
+    const staffSection = text.match(/\*\*STAFFING[^*]*\*\*[\s\S]*?(?=\*\*[A-Z]|\n\n|$)/i);
+    if (staffSection) {
+      return staffSection[0].replace(/\*\*/g, '').trim();
+    }
+    
+    // Fallback: look for staffing mentions
+    const staffRegex = /(staff|nurse|caregiver|ratio|qualified|certified|24.7|24\/7)[^.]*[.]/gi;
+    const matches = text.match(staffRegex);
+    return matches ? matches.join(' ') : undefined;
   }
 
   private extractImagesFromResponse(text: string, perplexityImages?: string[]): string[] {
