@@ -1970,37 +1970,37 @@ export default function CommunityDetail() {
               <div className="sm:hidden mb-3 text-center text-sm text-gray-600 dark:text-gray-400 font-medium">
                 ← Swipe to see all tabs →
               </div>
-              <TabsList className="flex sm:grid w-full overflow-x-auto sm:overflow-visible sm:grid-cols-5 bg-white dark:bg-gray-900 p-4 sm:p-1.5 rounded-2xl shadow-2xl border-2 border-blue-200 dark:border-blue-800 gap-4 sm:gap-1.5">
+              <TabsList className="flex sm:grid w-full overflow-x-auto sm:overflow-visible sm:grid-cols-5 bg-white dark:bg-gray-900 p-3 sm:p-1.5 rounded-2xl shadow-2xl border-2 border-blue-200 dark:border-blue-800 gap-3 sm:gap-1.5">
                 <TabsTrigger 
                   value="community-info" 
-                  className="relative flex items-center justify-center gap-2 py-5 px-6 sm:py-3.5 sm:px-4 sm:flex-col sm:gap-1 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-blue-500 dark:hover:border-blue-400 text-gray-800 dark:text-gray-200 font-bold text-lg sm:text-sm sm:font-medium hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-blue-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[140px] sm:min-w-0"
+                  className="relative flex flex-col items-center justify-center gap-2 sm:gap-1 py-8 px-6 sm:py-3.5 sm:px-4 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-blue-500 dark:hover:border-blue-400 text-gray-800 dark:text-gray-200 font-bold hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-blue-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[120px] sm:min-w-0"
                 >
-                  <span className="text-2xl sm:text-xl">🏘️</span>
-                  <span className="text-lg sm:text-sm font-bold hidden sm:inline">Community Info</span>
-                  <span className="text-lg sm:text-sm font-bold sm:hidden">Info</span>
+                  <span className="text-3xl sm:text-xl">🏘️</span>
+                  <span className="text-base sm:text-sm font-bold hidden sm:inline">Community Info</span>
+                  <span className="text-base sm:text-sm font-bold sm:hidden">Community</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tours" 
-                  className="relative flex items-center justify-center gap-2 py-5 px-6 sm:py-3.5 sm:px-4 sm:flex-col sm:gap-1 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-teal-500 dark:hover:border-teal-400 text-gray-800 dark:text-gray-200 font-bold text-lg sm:text-sm sm:font-medium hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-teal-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[140px] sm:min-w-0"
+                  className="relative flex flex-col items-center justify-center gap-2 sm:gap-1 py-8 px-6 sm:py-3.5 sm:px-4 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-teal-500 dark:hover:border-teal-400 text-gray-800 dark:text-gray-200 font-bold hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-teal-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[120px] sm:min-w-0"
                 >
-                  <span className="text-2xl sm:text-xl">🗓️</span>
-                  <span className="text-lg sm:text-sm font-bold">Tours</span>
+                  <span className="text-3xl sm:text-xl">🗓️</span>
+                  <span className="text-base sm:text-sm font-bold">Tours</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="relative flex items-center justify-center gap-2 py-5 px-6 sm:py-3.5 sm:px-4 sm:flex-col sm:gap-1 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-green-500 dark:hover:border-green-400 text-gray-800 dark:text-gray-200 font-bold text-lg sm:text-sm sm:font-medium hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-green-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[140px] sm:min-w-0"
+                  className="relative flex flex-col items-center justify-center gap-2 sm:gap-1 py-8 px-6 sm:py-3.5 sm:px-4 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-green-500 dark:hover:border-green-400 text-gray-800 dark:text-gray-200 font-bold hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-green-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[120px] sm:min-w-0"
                 >
-                  <span className="text-2xl sm:text-xl">🏠</span>
-                  <span className="text-lg sm:text-sm font-bold">Availability</span>
+                  <span className="text-3xl sm:text-xl">🏠</span>
+                  <span className="text-base sm:text-sm font-bold">Availability</span>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className={`relative flex items-center justify-center gap-2 py-5 px-6 sm:py-3.5 sm:px-4 sm:flex-col sm:gap-1 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-purple-500 dark:hover:border-purple-400 text-gray-800 dark:text-gray-200 font-bold text-lg sm:text-sm sm:font-medium hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-purple-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[140px] sm:min-w-0 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
+                  className={`relative flex flex-col items-center justify-center gap-2 sm:gap-1 py-8 px-6 sm:py-3.5 sm:px-4 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-purple-500 dark:hover:border-purple-400 text-gray-800 dark:text-gray-200 font-bold hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-purple-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[120px] sm:min-w-0 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
                 >
-                  <span className="text-2xl sm:text-xl">📊</span>
-                  <span className="text-lg sm:text-sm font-bold hidden sm:inline">Market Data</span>
-                  <span className="text-lg sm:text-sm font-bold sm:hidden">Market</span>
+                  <span className="text-3xl sm:text-xl">📊</span>
+                  <span className="text-base sm:text-sm font-bold hidden sm:inline">Market Data</span>
+                  <span className="text-base sm:text-sm font-bold sm:hidden">Market</span>
                     {liveIntelligenceLoading && !liveIntelligenceReady && (
                       <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
                     )}
@@ -2015,10 +2015,10 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
-                  className="relative flex items-center justify-center gap-2 py-5 px-6 sm:py-3.5 sm:px-4 sm:flex-col sm:gap-1 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-orange-500 dark:hover:border-orange-400 text-gray-800 dark:text-gray-200 font-bold text-lg sm:text-sm sm:font-medium hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-orange-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[140px] sm:min-w-0"
+                  className="relative flex flex-col items-center justify-center gap-2 sm:gap-1 py-8 px-6 sm:py-3.5 sm:px-4 rounded-xl transition-all duration-300 bg-gray-50 dark:bg-gray-800 border-2 border-gray-400 dark:border-gray-600 sm:border-transparent hover:border-orange-500 dark:hover:border-orange-400 text-gray-800 dark:text-gray-200 font-bold hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:border-orange-600 data-[state=active]:font-bold data-[state=active]:z-10 flex-shrink-0 min-w-[120px] sm:min-w-0"
                 >
-                  <span className="text-2xl sm:text-xl">⭐</span>
-                  <span className="text-lg sm:text-sm font-bold">Reviews</span>
+                  <span className="text-3xl sm:text-xl">⭐</span>
+                  <span className="text-base sm:text-sm font-bold">Reviews</span>
                     {(community.googleRating || community.yelpRating || (community as any).compositeRating) && (
                       <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse ml-1"></div>
                     )}
