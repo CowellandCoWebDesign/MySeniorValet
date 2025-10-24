@@ -3,6 +3,156 @@ import { db } from './db';
 import { communities } from '../shared/schema';
 import { sql } from 'drizzle-orm';
 
+const SITEMAP_LIMIT = 50000;
+const BASE_URL = process.env.SITE_URL || 'https://www.myseniorvalet.com';
+
+function escapeXml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
+
+export async function generateSitemapIndex(req: Request, res: Response) {
+  try {
+    // Get total community count
+    const countResult = await db
+      .select({ count: sql<number>`COUNT(*)` })
+      .from(communities);
+    
+    const totalCommunities = Number(countResult[0]?.count || 0);
+    const totalPages = Math.ceil(totalCommunities / SITEMAP_LIMIT);
+    const today = new Date().toISOString().split('T')[0];
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    // Add static pages sitemap
+    xml += '  <sitemap>\n';
+    xml += `    <loc>${BASE_URL}/api/sitemap-static.xml</loc>\n`;
+    xml += `    <lastmod>${today}</lastmod>\n`;
+    xml += '  </sitemap>\n';
+    
+    // Add community sitemaps
+    for (let i = 1; i <= totalPages; i++) {
+      xml += '  <sitemap>\n';
+      xml += `    <loc>${BASE_URL}/api/sitemap-communities-${i}.xml</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += '  </sitemap>\n';
+    }
+    
+    xml += '</sitemapindex>';
+    
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.send(xml);
+    
+    console.log(`✅ Generated sitemap index with ${totalPages} community sitemaps`);
+  } catch (error) {
+    console.error('Error generating sitemap index:', error);
+    res.status(500).send('Error generating sitemap index');
+  }
+}
+
+export async function generateStaticSitemap(req: Request, res: Response) {
+  try {
+    const today = new Date().toISOString().split('T')[0];
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    // Core pages
+    const staticPages = [
+      { url: '/', priority: 1.0, changefreq: 'daily' },
+      { url: '/map-search', priority: 0.9, changefreq: 'daily' },
+      { url: '/about', priority: 0.8, changefreq: 'weekly' },
+      { url: '/contact', priority: 0.7, changefreq: 'monthly' },
+      { url: '/pricing', priority: 0.8, changefreq: 'weekly' },
+      { url: '/tourmate', priority: 0.7, changefreq: 'weekly' },
+      { url: '/vendors', priority: 0.7, changefreq: 'weekly' },
+      { url: '/emergency-contact', priority: 0.6, changefreq: 'monthly' },
+      { url: '/senior-news', priority: 0.8, changefreq: 'daily' },
+      { url: '/privacy', priority: 0.5, changefreq: 'monthly' },
+      { url: '/terms', priority: 0.5, changefreq: 'monthly' },
+      { url: '/accessibility', priority: 0.5, changefreq: 'monthly' },
+    ];
+    
+    for (const page of staticPages) {
+      xml += '  <url>\n';
+      xml += `    <loc>${BASE_URL}${page.url}</loc>\n`;
+      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
+      xml += `    <priority>${page.priority}</priority>\n`;
+      xml += '  </url>\n';
+    }
+    
+    xml += '</urlset>';
+    
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Cache-Control', 'public, max-age=604800'); // Cache for 7 days
+    res.send(xml);
+    
+  } catch (error) {
+    console.error('Error generating static sitemap:', error);
+    res.status(500).send('Error generating static sitemap');
+  }
+}
+
+export async function generateCommunitiesSitemap(req: Request, res: Response) {
+  try {
+    const page = parseInt(req.params.page) || 1;
+    const offset = (page - 1) * SITEMAP_LIMIT;
+    
+    // Fetch communities with pagination
+    const communitiesData = await db
+      .select({
+        id: communities.id,
+        name: communities.name,
+        slug: communities.slug,
+        updatedAt: communities.updatedAt,
+      })
+      .from(communities)
+      .limit(SITEMAP_LIMIT)
+      .offset(offset)
+      .orderBy(communities.id);
+    
+    if (communitiesData.length === 0) {
+      return res.status(404).send('No communities found for this page');
+    }
+    
+    let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+    
+    for (const community of communitiesData) {
+      // Generate URL-safe slug if not present
+      const slug = community.slug || 
+        community.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+      
+      xml += '  <url>\n';
+      xml += `    <loc>${BASE_URL}/community/${community.id}/${escapeXml(slug)}</loc>\n`;
+      xml += `    <lastmod>${community.updatedAt ? new Date(community.updatedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}</lastmod>\n`;
+      xml += '    <changefreq>weekly</changefreq>\n';
+      xml += '    <priority>0.6</priority>\n';
+      xml += '  </url>\n';
+    }
+    
+    xml += '</urlset>';
+    
+    res.setHeader('Content-Type', 'application/xml');
+    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.send(xml);
+    
+  } catch (error) {
+    console.error('Error generating communities sitemap:', error);
+    res.status(500).send('Error generating communities sitemap');
+  }
+}
+
 export async function generateSitemap(req: Request, res: Response) {
   // Generate comprehensive WORLDWIDE sitemap for MySeniorValet
   // Includes: USA (50 states), Canada (13 provinces/territories), Australia (7 states/territories),

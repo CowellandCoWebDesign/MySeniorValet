@@ -1416,7 +1416,10 @@ Provide complete business data with ALL actual image URLs found.`;
 
   // Register sitemap generation for SEO
   const sitemapGenerator = await import('./sitemap-generator');
-  app.get('/sitemap.xml', sitemapGenerator.generateSitemap);
+  app.get('/sitemap.xml', sitemapGenerator.generateSitemap); // Legacy route
+  app.get('/api/sitemap-index.xml', sitemapGenerator.generateSitemapIndex);
+  app.get('/api/sitemap-static.xml', sitemapGenerator.generateStaticSitemap);
+  app.get('/api/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
 
   // Register admin subscription management routes
   const adminSubscriptionRoutes = await import('./routes/admin-subscription-routes');
