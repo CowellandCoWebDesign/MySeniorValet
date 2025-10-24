@@ -1,0 +1,65 @@
+# MySeniorValet Robots.txt
+# Last Updated: October 2025
+
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow private/admin areas
+Disallow: /admin
+Disallow: /admin-mega-dashboard
+Disallow: /api/
+Disallow: /private/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /account/
+Disallow: /login
+Disallow: /register
+Disallow: /reset-password
+Disallow: /messages/
+Disallow: /profile/edit
+
+# Disallow search result pages with parameters
+Disallow: /*?*search=
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
+
+# Allow specific API endpoints for structured data
+Allow: /api/sitemap
+Allow: /api/sitemap-index
+
+# Crawl delay for politeness
+Crawl-delay: 1
+
+# Sitemaps
+Sitemap: https://www.myseniorvalet.com/api/sitemap-index.xml
+Sitemap: https://www.myseniorvalet.com/api/sitemap-static.xml
+Sitemap: https://www.myseniorvalet.com/api/sitemap-communities-1.xml
+Sitemap: https://www.myseniorvalet.com/api/sitemap-communities-2.xml
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 1
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
