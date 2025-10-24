@@ -110,7 +110,6 @@ export async function generateCommunitiesSitemap(req: Request, res: Response) {
       .select({
         id: communities.id,
         name: communities.name,
-        slug: communities.slug,
         updatedAt: communities.updatedAt,
       })
       .from(communities)
@@ -126,12 +125,11 @@ export async function generateCommunitiesSitemap(req: Request, res: Response) {
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
     
     for (const community of communitiesData) {
-      // Generate URL-safe slug if not present
-      const slug = community.slug || 
-        community.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-+|-+$/g, '');
+      // Generate URL-safe slug from name
+      const slug = community.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
       
       xml += '  <url>\n';
       xml += `    <loc>${BASE_URL}/community/${community.id}/${escapeXml(slug)}</loc>\n`;
