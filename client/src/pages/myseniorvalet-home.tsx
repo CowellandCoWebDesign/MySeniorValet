@@ -51,6 +51,7 @@ import { GlobalDiscoveryModal } from '@/components/GlobalDiscoveryModal';
 import { DynamicSearchSEO } from '@/components/DynamicSearchSEO';
 import { MySeniorValetChatKit } from '@/components/MySeniorValetChatKit';
 import StructuredData, { organizationSchema, searchActionSchema, createBreadcrumbSchema } from '@/components/StructuredData';
+import { SEOMetaTags } from '@/components/SEOMetaTags';
 // Image paths from public directory
 const heroBackgroundImage = '/starry-night-hero.png';
 import thinkerSpaceImage from '@assets/generated_images/Thinker_statue_in_cosmic_space_86227ae1.png';
@@ -1981,6 +1982,15 @@ export default function MySeniorValetHome() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      {/* SEO Meta Tags for Social Sharing */}
+      <SEOMetaTags
+        title="MySeniorValet - Find Trusted Senior Living Communities Worldwide"
+        description="Search 33,837+ verified senior living communities across USA, Canada, Australia, Japan & more. Compare real pricing, amenities, and care levels. Trusted by thousands of families."
+        url="/"
+        type="website"
+        image="/og-image.png"
+      />
+      
       {/* JSON-LD Structured Data for SEO */}
       <StructuredData 
         data={[

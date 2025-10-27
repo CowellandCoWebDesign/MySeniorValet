@@ -1517,12 +1517,16 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     // Ping search engines about new community (non-blocking)
+    // Defer import to avoid circular dependencies and type issues
     if (community?.id) {
-      import('./utils/sitemap-pinger').then(pinger => {
-        pinger.onCommunityAdded(community.id).catch(err => 
-          console.error('[SEO] Failed to ping for new community:', err)
-        );
-      });
+      setTimeout(async () => {
+        try {
+          const { onCommunityAdded } = await import('./utils/sitemap-pinger');
+          await onCommunityAdded(community.id);
+        } catch (err) {
+          console.error('[SEO] Failed to ping for new community:', err);
+        }
+      }, 1000); // Slight delay to ensure DB transaction completes
     }
     
     return community;
@@ -1536,12 +1540,16 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     // Ping search engines about updated community (non-blocking)
+    // Defer import to avoid circular dependencies and type issues
     if (community?.id) {
-      import('./utils/sitemap-pinger').then(pinger => {
-        pinger.onCommunityUpdated(community.id).catch(err => 
-          console.error('[SEO] Failed to ping for updated community:', err)
-        );
-      });
+      setTimeout(async () => {
+        try {
+          const { onCommunityUpdated } = await import('./utils/sitemap-pinger');
+          await onCommunityUpdated(community.id);
+        } catch (err) {
+          console.error('[SEO] Failed to ping for updated community:', err);
+        }
+      }, 1000); // Slight delay to ensure DB transaction completes
     }
     
     return community || undefined;
