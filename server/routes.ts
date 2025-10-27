@@ -1416,10 +1416,17 @@ Provide complete business data with ALL actual image URLs found.`;
 
   // Register sitemap generation for SEO
   const sitemapGenerator = await import('./sitemap-generator');
-  app.get('/sitemap.xml', sitemapGenerator.generateSitemap); // Legacy route
-  app.get('/api/sitemap-index.xml', sitemapGenerator.generateSitemapIndex);
-  app.get('/api/sitemap-static.xml', sitemapGenerator.generateStaticSitemap);
-  app.get('/api/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
+  app.get('/sitemap.xml', sitemapGenerator.generateSitemapIndex); // Main sitemap index
+  app.get('/sitemap-index.xml', sitemapGenerator.generateSitemapIndex); // Alias
+  app.get('/sitemap-static.xml', sitemapGenerator.generateStaticSitemap);
+  app.get('/sitemap-locations.xml', sitemapGenerator.generateLocationsSitemap); 
+  app.get('/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
+  
+  // Legacy redirects for backwards compatibility
+  app.get('/api/sitemap-index.xml', (req, res) => res.redirect(301, '/sitemap-index.xml'));
+  app.get('/api/sitemap-static.xml', (req, res) => res.redirect(301, '/sitemap-static.xml'));
+  app.get('/api/sitemap-communities-:page.xml', (req, res) => 
+    res.redirect(301, `/sitemap-communities-${req.params.page}.xml`));
 
   // Register admin subscription management routes
   const adminSubscriptionRoutes = await import('./routes/admin-subscription-routes');

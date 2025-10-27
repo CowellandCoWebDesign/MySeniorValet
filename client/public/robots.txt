@@ -12,8 +12,9 @@ Disallow: /settings/
 Disallow: /checkout/
 Disallow: /payment/
 
-# Sitemap location
+# Sitemap location (dynamic sitemap index)
 Sitemap: https://www.myseniorvalet.com/sitemap.xml
+Sitemap: https://www.myseniorvalet.com/sitemap-index.xml
 
 # Crawl delay to be respectful
 Crawl-delay: 1
