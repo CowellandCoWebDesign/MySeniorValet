@@ -177,14 +177,14 @@ export function SEOMetaTags({
       <meta name="format-detection" content="telephone=no" />
       
       {/* Verification Tags (add your actual verification codes) */}
-      {process.env.VITE_GOOGLE_SITE_VERIFICATION && (
-        <meta name="google-site-verification" content={process.env.VITE_GOOGLE_SITE_VERIFICATION} />
+      {import.meta.env.VITE_GOOGLE_SITE_VERIFICATION && (
+        <meta name="google-site-verification" content={import.meta.env.VITE_GOOGLE_SITE_VERIFICATION} />
       )}
-      {process.env.VITE_BING_SITE_VERIFICATION && (
-        <meta name="msvalidate.01" content={process.env.VITE_BING_SITE_VERIFICATION} />
+      {import.meta.env.VITE_BING_SITE_VERIFICATION && (
+        <meta name="msvalidate.01" content={import.meta.env.VITE_BING_SITE_VERIFICATION} />
       )}
-      {process.env.VITE_PINTEREST_SITE_VERIFICATION && (
-        <meta name="p:domain_verify" content={process.env.VITE_PINTEREST_SITE_VERIFICATION} />
+      {import.meta.env.VITE_PINTEREST_SITE_VERIFICATION && (
+        <meta name="p:domain_verify" content={import.meta.env.VITE_PINTEREST_SITE_VERIFICATION} />
       )}
       
       {/* Rich Snippets for Search Results */}
