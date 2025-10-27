@@ -105,8 +105,8 @@ async function searchCommunities(args: any) {
       };
     }
     
-    // Check if results are too few (less than 5) - suggest Discovery Mode for more options
-    const shouldSuggestMore = results.length < 5;
+    // Only trigger Discovery Mode if ZERO results (not just few results) to control costs
+    // User can explicitly ask for Discovery Mode if they want more options
     
     return {
       communities: results.map(c => ({
@@ -121,10 +121,8 @@ async function searchCommunities(args: any) {
         pricing: c.lotRent || c.hoaFee || null,
         photos: []
       })),
-      shouldTriggerDiscovery: shouldSuggestMore,
-      discoveryMessage: shouldSuggestMore 
-        ? `Found only ${results.length} communities in our database. Discovery Mode can search the entire internet to find more options.`
-        : undefined
+      shouldTriggerDiscovery: false, // Never auto-trigger when we have results
+      discoveryMessage: undefined // Let users explicitly ask for Discovery Mode
     };
   } catch (error) {
     console.error('Error searching communities:', error);
