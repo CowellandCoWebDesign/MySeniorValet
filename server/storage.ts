@@ -1515,6 +1515,16 @@ export class DatabaseStorage implements IStorage {
       .insert(communities)
       .values(insertCommunity)
       .returning();
+    
+    // Ping search engines about new community (non-blocking)
+    if (community?.id) {
+      import('./utils/sitemap-pinger').then(pinger => {
+        pinger.onCommunityAdded(community.id).catch(err => 
+          console.error('[SEO] Failed to ping for new community:', err)
+        );
+      });
+    }
+    
     return community;
   }
 
@@ -1524,6 +1534,16 @@ export class DatabaseStorage implements IStorage {
       .set(updates)
       .where(eq(communities.id, id))
       .returning();
+    
+    // Ping search engines about updated community (non-blocking)
+    if (community?.id) {
+      import('./utils/sitemap-pinger').then(pinger => {
+        pinger.onCommunityUpdated(community.id).catch(err => 
+          console.error('[SEO] Failed to ping for updated community:', err)
+        );
+      });
+    }
+    
     return community || undefined;
   }
 
