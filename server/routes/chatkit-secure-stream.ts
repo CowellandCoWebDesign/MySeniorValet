@@ -2,8 +2,9 @@ import express from 'express';
 import OpenAI from 'openai';
 import { activeSessions } from './chatkit-create-session';
 import { db } from '../db';
-import { communities } from '../../shared/schema';
-import { sql } from 'drizzle-orm';
+import { communities, vendors, services, supportResources } from '../../shared/schema';
+import { sql, eq, and, or, like } from 'drizzle-orm';
+import { MYSENIORVALET_SYSTEM_KNOWLEDGE, CHATKIT_TOOL_FUNCTIONS } from './chatkit-knowledge-base';
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || '',
 });
 
-// Helper function to search communities in database
+// Helper function to search communities in database with smart Discovery Mode trigger
 async function searchCommunities(args: any) {
   const { location, careType, maxPrice } = args;
   
@@ -44,15 +45,16 @@ async function searchCommunities(args: any) {
     }
     
     // Add care type filter if specified
-    if (careType) {
+    if (careType && careType !== 'all') {
       const careTypeMap: Record<string, string> = {
-        'assisted living': 'Assisted Living',
-        'memory care': 'Memory Care', 
-        'independent living': 'Independent Living',
-        'nursing home': 'Nursing Home',
-        'skilled nursing': 'Skilled Nursing',
+        'assisted_living': 'Assisted Living',
+        'memory_care': 'Memory Care', 
+        'independent_living': 'Independent Living',
+        'nursing_home': 'Nursing Home',
+        'skilled_nursing': 'Skilled Nursing',
         'ccrc': 'CCRC',
-        'senior apartments': 'Senior Apartments'
+        'senior_apartments': 'Senior Apartments',
+        '55_plus': '55+'
       };
       
       const mappedCareType = careTypeMap[careType.toLowerCase()] || careType;
@@ -62,33 +64,49 @@ async function searchCommunities(args: any) {
     // Execute query with limit
     const results = await query.limit(20);
     
-    console.log(`✅ Found ${results.length} communities`);
+    console.log(`✅ Found ${results.length} communities in database`);
     
-    if (results.length === 0 && city) {
-      // Try broader search
-      console.log(`🔄 Strategy 2: Broader search for city: ${city}`);
-      const broaderResults = await db.select()
-        .from(communities)
-        .where(sql`LOWER(${communities.city}) LIKE LOWER(${`%${city}%`})`)
-        .limit(20);
-      
-      if (broaderResults.length > 0) {
-        console.log(`✅ Found ${broaderResults.length} communities with broader city search`);
-        return {
-          communities: broaderResults.map(c => ({
-            id: c.id,
-            name: c.name,
-            city: c.city,
-            state: c.state,
-            address: c.address,
-            phone: c.phone,
-            website: c.website,
-            careTypes: c.careTypes,
-            pricing: c.lotRent || c.hoaFee || null
-          }))
-        };
+    // If no results found, try broader search strategies
+    if (results.length === 0) {
+      // Try broader city search
+      if (city) {
+        console.log(`🔄 Strategy 2: Broader search for city: ${city}`);
+        const broaderResults = await db.select()
+          .from(communities)
+          .where(sql`LOWER(${communities.city}) LIKE LOWER(${`%${city}%`})`)
+          .limit(20);
+        
+        if (broaderResults.length > 0) {
+          console.log(`✅ Found ${broaderResults.length} communities with broader city search`);
+          return {
+            communities: broaderResults.map(c => ({
+              id: c.id,
+              name: c.name,
+              city: c.city,
+              state: c.state,
+              address: c.address,
+              phone: c.phone,
+              website: c.website,
+              careTypes: c.careTypes,
+              pricing: c.lotRent || c.hoaFee || null,
+              photos: []
+            })),
+            shouldTriggerDiscovery: false
+          };
+        }
       }
+      
+      // No results even with broader search - suggest Discovery Mode
+      console.log(`⚠️ No results found in database for ${location} - suggesting Discovery Mode`);
+      return {
+        communities: [],
+        shouldTriggerDiscovery: true,
+        discoveryMessage: `No communities found in our database for "${location}". Would you like me to search the entire internet using Discovery Mode to find ALL available options?`
+      };
     }
+    
+    // Check if results are too few (less than 5) - suggest Discovery Mode for more options
+    const shouldSuggestMore = results.length < 5;
     
     return {
       communities: results.map(c => ({
@@ -100,14 +118,20 @@ async function searchCommunities(args: any) {
         phone: c.phone,
         website: c.website,
         careTypes: c.careTypes,
-        pricing: c.lotRent || c.hoaFee || null
-      }))
+        pricing: c.lotRent || c.hoaFee || null,
+        photos: []
+      })),
+      shouldTriggerDiscovery: shouldSuggestMore,
+      discoveryMessage: shouldSuggestMore 
+        ? `Found only ${results.length} communities in our database. Discovery Mode can search the entire internet to find more options.`
+        : undefined
     };
   } catch (error) {
     console.error('Error searching communities:', error);
     return { 
       communities: [],
-      error: 'Failed to search communities'
+      error: 'Failed to search communities',
+      shouldTriggerDiscovery: true
     };
   }
 }
@@ -147,9 +171,10 @@ async function enableDiscoveryMode(args: any) {
           phone: c.phone,
           website: c.website,
           careTypes: c.care_types || c.careTypes || [],
-          pricing: c.pricing
+          pricing: c.pricing,
+          photos: c.photos || []
         })),
-        newlyInserted: communities.length
+        newlyInserted: data.metadata?.discoveredCount || 0
       };
     }
   } catch (error) {
@@ -162,6 +187,137 @@ async function enableDiscoveryMode(args: any) {
     communities: [],
     newlyInserted: 0
   };
+}
+
+// Helper function to search vendors
+async function searchVendors(args: any) {
+  const { category, location } = args;
+  console.log(`🛍️ Searching vendors: category="${category}", location="${location}"`);
+  
+  try {
+    let query = db.select().from(vendors);
+    const conditions = [];
+    
+    if (category) {
+      conditions.push(
+        or(
+          sql`LOWER(${vendors.businessType}) LIKE ${`%${category.toLowerCase()}%`}`,
+          sql`LOWER(${vendors.businessName}) LIKE ${`%${category.toLowerCase()}%`}`,
+          sql`LOWER(${vendors.businessDescription}) LIKE ${`%${category.toLowerCase()}%`}`
+        )
+      );
+    }
+    
+    if (location) {
+      conditions.push(
+        sql`LOWER(${vendors.serviceAreas}) LIKE ${`%${location.toLowerCase()}%`}`
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as any;
+    }
+    
+    const results = await query.limit(20);
+    
+    return {
+      vendors: results.map(v => ({
+        id: v.id,
+        name: v.businessName,
+        category: v.businessType,
+        description: v.businessDescription || '',
+        serviceArea: v.serviceAreas || '',
+        phone: v.primaryContactPhone,
+        email: v.primaryContactEmail,
+        website: v.website || ''
+      })),
+      totalFound: results.length
+    };
+  } catch (error) {
+    console.error('Error searching vendors:', error);
+    return { vendors: [], totalFound: 0 };
+  }
+}
+
+// Helper function to search healthcare providers (using services table)
+async function searchHealthcareProviders(args: any) {
+  const { specialty, location } = args;
+  console.log(`🏥 Searching healthcare providers: specialty="${specialty}", location="${location}"`);
+  
+  try {
+    // Search in services table for healthcare providers
+    let query = db.select().from(services);
+    const conditions = [];
+    
+    if (specialty) {
+      conditions.push(
+        or(
+          sql`LOWER(${services.name}) LIKE ${`%${specialty.toLowerCase()}%`}`,
+          sql`LOWER(${services.description}) LIKE ${`%${specialty.toLowerCase()}%`}`,
+          sql`LOWER(${services.shortDescription}) LIKE ${`%${specialty.toLowerCase()}%`}`
+        )
+      );
+    }
+    
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions)) as any;
+    }
+    
+    const results = await query.limit(20);
+    
+    return {
+      providers: results.map(s => ({
+        id: s.id,
+        name: s.name,
+        specialty: s.shortDescription || 'Healthcare Service',
+        description: s.description || '',
+        location: 'Multiple locations', // Services don't have specific locations
+        phone: (s.metadata as any)?.phone || '',
+        website: (s.metadata as any)?.website || ''
+      })),
+      totalFound: results.length
+    };
+  } catch (error) {
+    console.error('Error searching healthcare providers:', error);
+    return { providers: [], totalFound: 0 };
+  }
+}
+
+// Helper function to get support resources
+async function getSupportResources(args: any) {
+  const { topic } = args;
+  console.log(`📚 Getting support resources for: "${topic}"`);
+  
+  try {
+    let query = db.select().from(supportResources);
+    
+    if (topic) {
+      query = query.where(
+        or(
+          sql`LOWER(${supportResources.title}) LIKE ${`%${topic.toLowerCase()}%`}`,
+          sql`LOWER(${supportResources.description}) LIKE ${`%${topic.toLowerCase()}%`}`,
+          sql`LOWER(${supportResources.content}) LIKE ${`%${topic.toLowerCase()}%`}`
+        )
+      ) as any;
+    }
+    
+    const results = await query.limit(10);
+    
+    return {
+      resources: results.map(r => ({
+        id: r.id,
+        title: r.title,
+        description: r.description,
+        category: r.categoryId,
+        helpfulCount: r.helpfulCount,
+        viewCount: r.viewCount
+      })),
+      totalFound: results.length
+    };
+  } catch (error) {
+    console.error('Error getting support resources:', error);
+    return { resources: [], totalFound: 0 };
+  }
 }
 
 // Middleware to validate ChatKit session
@@ -317,6 +473,88 @@ router.post('/api/chatkit/stream', validateSession, async (req, res) => {
                     : `Discovery complete`
                 })}\n\n`);
                 if (res.flush) res.flush();
+                
+              } else if (functionName === 'search_vendors') {
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_start',
+                  tool: 'search_vendors',
+                  message: `🛍️ Searching for ${args.category} vendors...`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+                output = await searchVendors(args);
+                
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_result',
+                  tool: 'search_vendors',
+                  result: output,
+                  message: output.vendors?.length > 0
+                    ? `✅ Found ${output.vendors.length} vendors`
+                    : `No vendors found`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+              } else if (functionName === 'search_healthcare_providers') {
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_start',
+                  tool: 'search_healthcare_providers',
+                  message: `🏥 Searching for ${args.specialty} providers...`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+                output = await searchHealthcareProviders(args);
+                
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_result',
+                  tool: 'search_healthcare_providers',
+                  result: output,
+                  message: output.providers?.length > 0
+                    ? `✅ Found ${output.providers.length} healthcare providers`
+                    : `No providers found`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+              } else if (functionName === 'get_support_resources') {
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_start',
+                  tool: 'get_support_resources',
+                  message: `📚 Getting support resources for "${args.topic}"...`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+                output = await getSupportResources(args);
+                
+                res.write(`event: tool\n`);
+                res.write(`data: ${JSON.stringify({ 
+                  type: 'tool_result',
+                  tool: 'get_support_resources',
+                  result: output,
+                  message: output.resources?.length > 0
+                    ? `✅ Found ${output.resources.length} support resources`
+                    : `No resources found`
+                })}\n\n`);
+                if (res.flush) res.flush();
+                
+              } else if (functionName === 'show_on_map') {
+                // Just return the community IDs for the frontend to handle
+                output = {
+                  message: 'Preparing map view...',
+                  communityIds: args.communityIds
+                };
+                
+              } else if (functionName === 'schedule_tour') {
+                // Return tour scheduling information
+                output = {
+                  message: `Tour scheduling for community ${args.communityId}`,
+                  communityId: args.communityId,
+                  preferredDate: args.preferredDate,
+                  tourType: args.tourType || 'in-person'
+                };
               }
               
               return {

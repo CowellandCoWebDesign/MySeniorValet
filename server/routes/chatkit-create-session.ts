@@ -63,6 +63,7 @@ router.post('/create-session', async (req: Request, res: Response) => {
       try {
         // Create a real OpenAI thread for the fallback session
         const OpenAI = (await import('openai')).default;
+        const { MYSENIORVALET_SYSTEM_KNOWLEDGE, CHATKIT_TOOL_FUNCTIONS } = await import('./chatkit-knowledge-base');
         const openai = new OpenAI({
           apiKey: openaiApiKey,
         });
@@ -76,6 +77,25 @@ router.post('/create-session', async (req: Request, res: Response) => {
           console.log('[ChatKit] Created real OpenAI thread for fallback:', threadId);
         }
         
+        // Check if we have a configured assistant ID or need to create one
+        let assistantId = process.env.OPENAI_ASSISTANT_ID || 'asst_WKYShD9dPx7wYOmkC0OFiBJl';
+        
+        // Try to update the existing assistant with our knowledge base
+        try {
+          await openai.beta.assistants.update(assistantId, {
+            name: "MySeniorValet AI Assistant",
+            instructions: MYSENIORVALET_SYSTEM_KNOWLEDGE,
+            tools: CHATKIT_TOOL_FUNCTIONS.map(fn => ({
+              type: 'function' as const,
+              function: fn
+            })),
+            model: "gpt-4-turbo-preview"
+          });
+          console.log('[ChatKit] Updated assistant with MySeniorValet knowledge');
+        } catch (updateError) {
+          console.log('[ChatKit] Could not update assistant, using existing configuration');
+        }
+        
         // Generate a fallback token
         const fallbackToken = `ck_fallback_${crypto.randomBytes(32).toString('hex')}`;
         
@@ -85,7 +105,7 @@ router.post('/create-session', async (req: Request, res: Response) => {
           threadId,
           expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
           workflowId: undefined,
-          assistantId: process.env.OPENAI_ASSISTANT_ID || 'asst_WKYShD9dPx7wYOmkC0OFiBJl'
+          assistantId
         } as any);
         
         // Return a fallback session with a token
