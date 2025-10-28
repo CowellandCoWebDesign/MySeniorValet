@@ -566,29 +566,17 @@ export function CommunityDetailsHeader({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
                 onClick={() => {
-                  // If callback provided, trigger reservation dialog directly
+                  // If callback provided, trigger info request dialog directly
                   if (onReserveClick) {
                     onReserveClick();
-                  } else {
-                    // Fallback to tab navigation
-                    const availabilityTab = document.querySelector('[value="availability"]') as HTMLElement;
-                    if (availabilityTab) {
-                      availabilityTab.click();
-                      setTimeout(() => {
-                        const tabsSection = availabilityTab.closest('[role="tablist"]')?.parentElement;
-                        if (tabsSection) {
-                          tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                      }, 50);
-                    }
                   }
                 }}
-                className="w-full py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
               >
                 <div className="flex flex-col items-center justify-center gap-1">
-                  <span className="font-bold text-lg">🏠 Reserve Now</span>
+                  <span className="font-bold text-lg">📋 Request More Information</span>
                   <span className="text-xs opacity-90 font-medium">
-                    📊 See Vacancies/Rates
+                    Get Pricing, Availability & Details
                   </span>
                 </div>
               </button>

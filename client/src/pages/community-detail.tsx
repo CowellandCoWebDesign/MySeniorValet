@@ -54,6 +54,7 @@ import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
+import { RequestInfoDialog } from '@/components/RequestInfoDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
 
 // Default photos for communities without images
@@ -1212,6 +1213,7 @@ export default function CommunityDetail() {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
   const [showReservationDialog, setShowReservationDialog] = useState(false);
+  const [showInfoRequestDialog, setShowInfoRequestDialog] = useState(false);
   const [activeTab, setActiveTab] = useState('market-data');
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
@@ -1809,8 +1811,8 @@ export default function CommunityDetail() {
                 handleManualVerification();
               }}
               onReserveClick={() => {
-                // Open reservation dialog directly
-                setShowReservationDialog(true);
+                // Open info request dialog directly
+                setShowInfoRequestDialog(true);
               }}
               onTourClick={() => {
                 // Find the tours tab using the most specific selector
@@ -3908,6 +3910,15 @@ export default function CommunityDetail() {
         <ReservationDialog 
           open={showReservationDialog}
           onOpenChange={setShowReservationDialog}
+          community={community}
+        />
+      )}
+      
+      {/* Request Info Dialog */}
+      {community && (
+        <RequestInfoDialog 
+          open={showInfoRequestDialog}
+          onOpenChange={setShowInfoRequestDialog}
           community={community}
         />
       )}

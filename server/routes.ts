@@ -13,6 +13,7 @@ import { registerRoutes as registerModularRoutes } from "./routes/index";
 import { setupAuth } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import reservationRoutes from "./routes/reservationRoutes";
+import infoRequestRoutes from "./routes/infoRequestRoutes";
 import { quizRouter } from "./routes/quiz";
 import subscriptionRoutes from "./routes/subscriptionRoutes";
 import autocompleteRoutes from "./routes/autocompleteRoutes";
@@ -1504,6 +1505,7 @@ Provide complete business data with ALL actual image URLs found.`;
   app.use('/api', autocompleteRoutes);
   app.use('/api/subscriptions', subscriptionRoutes);
   app.use('/api/reservations', reservationRoutes);
+  app.use('/api/communities', infoRequestRoutes);
   app.use('/api/quiz', quizRouter);
   app.use('/api/provincial', provincialRoutes);
 
