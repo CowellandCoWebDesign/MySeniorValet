@@ -1912,10 +1912,10 @@ export default function CommunityDetail() {
             {/* Tabbed Content Section - Mobile Responsive */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4 sm:mt-6">
               <div className="w-full overflow-x-auto scrollbar-hide rounded-2xl">
-                <TabsList className="flex justify-start sm:justify-center flex-nowrap min-w-fit bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-1 sm:p-1.5 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-600 gap-1 sm:gap-1.5" style={{ display: 'flex' }}>
+                <TabsList className="flex justify-start sm:justify-center flex-nowrap min-w-fit h-auto min-h-[80px] sm:min-h-[100px] items-stretch bg-gradient-to-r from-white to-gray-50 dark:from-gray-800 dark:to-gray-700 p-2 sm:p-2.5 rounded-2xl shadow-xl border-2 border-gray-200 dark:border-gray-600 gap-1 sm:gap-1.5" style={{ display: 'flex' }}>
                 <TabsTrigger 
                   value="community-info" 
-                  className="relative shrink-0 flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-500 text-gray-600 dark:text-gray-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-blue-400 data-[state=active]:font-bold data-[state=active]:z-10"
+                  className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-500 text-gray-600 dark:text-gray-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-blue-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">🏘️</span>
@@ -1929,7 +1929,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tours" 
-                  className="relative shrink-0 flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-teal-300 dark:hover:border-teal-500 text-gray-600 dark:text-gray-400 font-medium hover:text-teal-600 dark:hover:text-teal-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-teal-400 data-[state=active]:font-bold data-[state=active]:z-10"
+                  className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-teal-300 dark:hover:border-teal-500 text-gray-600 dark:text-gray-400 font-medium hover:text-teal-600 dark:hover:text-teal-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-teal-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">🗓️</span>
@@ -1942,7 +1942,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
-                  className="relative shrink-0 flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-green-300 dark:hover:border-green-500 text-gray-600 dark:text-gray-400 font-medium hover:text-green-600 dark:hover:text-green-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-green-400 data-[state=active]:font-bold data-[state=active]:z-10"
+                  className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-green-300 dark:hover:border-green-500 text-gray-600 dark:text-gray-400 font-medium hover:text-green-600 dark:hover:text-green-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-green-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">🏠</span>
@@ -1956,7 +1956,7 @@ export default function CommunityDetail() {
                 <TabsTrigger 
                   value="market-data" 
                   data-tab="market-data"
-                  className={`relative shrink-0 flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
+                  className={`relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">📊</span>
@@ -1992,7 +1992,7 @@ export default function CommunityDetail() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
-                  className="relative shrink-0 flex flex-col items-center gap-0.5 sm:gap-1 py-2.5 sm:py-3.5 px-3 sm:px-4 rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-500 text-gray-600 dark:text-gray-400 font-medium hover:text-orange-600 dark:hover:text-orange-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-orange-400 data-[state=active]:font-bold data-[state=active]:z-10"
+                  className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-orange-300 dark:hover:border-orange-500 text-gray-600 dark:text-gray-400 font-medium hover:text-orange-600 dark:hover:text-orange-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:to-amber-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-orange-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">⭐</span>
