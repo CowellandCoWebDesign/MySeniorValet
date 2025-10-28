@@ -1,4 +1,4 @@
-import { PerplexityService } from './perplexity.service';
+import { PerplexityAIService } from '../perplexity-ai-service';
 
 // Comprehensive list of virtual tour platforms and their patterns
 const VIRTUAL_TOUR_PATTERNS = {
@@ -157,12 +157,12 @@ export interface VirtualTourResult {
 }
 
 export class VirtualTourDetectorService {
-  private perplexityService: PerplexityService;
+  private perplexityService: PerplexityAIService;
   private cache: Map<number, VirtualTourResult> = new Map();
   private cacheTimeout = 3600000; // 1 hour cache
 
   constructor() {
-    this.perplexityService = new PerplexityService();
+    this.perplexityService = new PerplexityAIService();
   }
 
   /**
@@ -184,39 +184,13 @@ export class VirtualTourDetectorService {
     }
 
     try {
-      // Method 1: Ask Perplexity directly about virtual tours
+      // Method 1: Ask Perplexity directly about virtual tours (this is usually the most comprehensive)
       const perplexityResult = await this.searchWithPerplexity(communityName);
-      if (perplexityResult.found) {
-        this.cache.set(communityId, perplexityResult);
-        return perplexityResult;
-      }
-
-      // Method 2: Scan the community website if available
-      if (website) {
-        const websiteResult = await this.scanWebsite(website, communityName);
-        if (websiteResult.found) {
-          this.cache.set(communityId, websiteResult);
-          return websiteResult;
-        }
-      }
-
-      // Method 3: Search for virtual tour links
-      const searchResult = await this.searchForTourLinks(communityName);
-      if (searchResult.found) {
-        this.cache.set(communityId, searchResult);
-        return searchResult;
-      }
-
-      // No virtual tour found
-      const notFoundResult: VirtualTourResult = {
-        found: false,
-        confidence: 'high',
-        source: 'perplexity',
-        lastChecked: new Date()
-      };
       
-      this.cache.set(communityId, notFoundResult);
-      return notFoundResult;
+      // Cache and return the result regardless of whether tour was found
+      // (No need to check website or do additional searches if Perplexity already checked)
+      this.cache.set(communityId, perplexityResult);
+      return perplexityResult;
 
     } catch (error) {
       console.error(`Error detecting virtual tour for ${communityName}:`, error);
@@ -236,12 +210,9 @@ export class VirtualTourDetectorService {
     try {
       const query = `Does "${communityName}" senior living community have a virtual tour, 3D tour, Matterport tour, or online walkthrough? If yes, what is the direct URL to view it?`;
       
-      const response = await this.perplexityService.searchCommunityInfo(query, {
-        focus: 'web',
-        recency: 'month'
-      });
+      const response = await this.perplexityService.searchCommunityInfo(query);
 
-      if (!response.answer) {
+      if (!response.data) {
         return {
           found: false,
           confidence: 'medium',
@@ -251,7 +222,7 @@ export class VirtualTourDetectorService {
       }
 
       // Parse response for tour URLs
-      const tourUrl = this.extractTourUrl(response.answer);
+      const tourUrl = this.extractTourUrl(response.data);
       
       if (tourUrl) {
         const platform = this.identifyPlatform(tourUrl);
@@ -269,10 +240,10 @@ export class VirtualTourDetectorService {
 
       // Check if response indicates a tour exists but no URL found
       const hasTourKeywords = VIRTUAL_TOUR_KEYWORDS.some(keyword => 
-        response.answer.toLowerCase().includes(keyword.toLowerCase())
+        response.data.toLowerCase().includes(keyword.toLowerCase())
       );
 
-      if (hasTourKeywords && response.answer.toLowerCase().includes('yes')) {
+      if (hasTourKeywords && response.data.toLowerCase().includes('yes')) {
         return {
           found: true,
           confidence: 'low',
@@ -308,12 +279,9 @@ export class VirtualTourDetectorService {
       // Use Perplexity to scan the website
       const query = `Scan the website ${websiteUrl} for any virtual tours, 3D tours, Matterport tours, or 360 tours. Look for tour links in navigation menus, galleries, amenities pages, or footer. Return the direct tour URL if found.`;
       
-      const response = await this.perplexityService.searchCommunityInfo(query, {
-        focus: 'web',
-        recency: 'month'
-      });
+      const response = await this.perplexityService.searchCommunityInfo(query);
 
-      if (!response.answer) {
+      if (!response.data) {
         return {
           found: false,
           confidence: 'low',
@@ -322,7 +290,7 @@ export class VirtualTourDetectorService {
         };
       }
 
-      const tourUrl = this.extractTourUrl(response.answer);
+      const tourUrl = this.extractTourUrl(response.data);
       
       if (tourUrl) {
         const platform = this.identifyPlatform(tourUrl);
@@ -372,13 +340,10 @@ export class VirtualTourDetectorService {
       ];
 
       for (const searchQuery of platformSearches) {
-        const response = await this.perplexityService.searchCommunityInfo(searchQuery, {
-          focus: 'web',
-          recency: 'year'
-        });
+        const response = await this.perplexityService.searchCommunityInfo(searchQuery);
 
-        if (response.answer) {
-          const tourUrl = this.extractTourUrl(response.answer);
+        if (response.data) {
+          const tourUrl = this.extractTourUrl(response.data);
           
           if (tourUrl) {
             const platform = this.identifyPlatform(tourUrl);
@@ -418,6 +383,11 @@ export class VirtualTourDetectorService {
    * Extract tour URL from text
    */
   private extractTourUrl(text: string): string | null {
+    // Check if text is provided
+    if (!text) {
+      return null;
+    }
+    
     // Look for URLs in the text
     const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
     const urls = text.match(urlRegex) || [];
