@@ -1815,65 +1815,8 @@ export default function CommunityDetail() {
                 setShowInfoRequestDialog(true);
               }}
               onTourClick={() => {
-                // Find the tours tab using the most specific selector
-                let toursTab = document.querySelector('button[role="tab"][value="tours"]') as HTMLElement;
-                
-                // If not found, try finding in the tabs list specifically
-                if (!toursTab) {
-                  const tabsList = document.querySelector('[role="tablist"]');
-                  if (tabsList) {
-                    // Find all buttons and check each one
-                    const buttons = tabsList.querySelectorAll('button');
-                    buttons.forEach(btn => {
-                      // Check both the value attribute and the text content
-                      if (btn.getAttribute('value') === 'tours' || 
-                          (btn.textContent && btn.textContent.includes('🗓️') && btn.textContent.includes('Tours'))) {
-                        toursTab = btn as HTMLElement;
-                      }
-                    });
-                  }
-                }
-                
-                if (toursTab) {
-                  // Click the tours tab to switch to it
-                  toursTab.click();
-                  
-                  // Wait a moment for the tab content to render
-                  setTimeout(() => {
-                    // Scroll to the tabs section first
-                    const tabsContainer = document.querySelector('[role="tablist"]')?.parentElement;
-                    if (tabsContainer) {
-                      tabsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                    
-                    // Then try to open the tour scheduler dialog
-                    setTimeout(() => {
-                      // Find the Schedule In-Person Tour button
-                      const schedulerButtons = document.querySelectorAll('.tour-scheduler-form button');
-                      let targetButton: HTMLElement | null = null;
-                      
-                      schedulerButtons.forEach(btn => {
-                        if (btn.textContent?.includes('Schedule In-Person Tour')) {
-                          targetButton = btn as HTMLElement;
-                        }
-                      });
-                      
-                      // Click the button if found
-                      if (targetButton) {
-                        (targetButton as HTMLButtonElement).click();
-                      } else if (schedulerButtons.length > 0) {
-                        // Fallback: click the first button in the scheduler form
-                        (schedulerButtons[0] as HTMLElement).click();
-                      }
-                    }, 500); // Give time for smooth scroll
-                  }, 200); // Give time for tab content to render
-                } else {
-                  // If we still can't find the tab, just scroll to the tabs section
-                  const tabsSection = document.querySelector('[role="tablist"]');
-                  if (tabsSection && tabsSection.parentElement) {
-                    tabsSection.parentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  }
-                }
+                // Open tour scheduler dialog directly
+                setIsScheduleTourOpen(true);
               }}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
@@ -3920,6 +3863,27 @@ export default function CommunityDetail() {
           open={showInfoRequestDialog}
           onOpenChange={setShowInfoRequestDialog}
           community={community}
+        />
+      )}
+      
+      {/* Tour Scheduler Dialog - Controlled Externally */}
+      {community && (
+        <TourScheduler
+          communityId={community.id}
+          communityName={community.name}
+          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zipCode || ''}`.trim() : `${community.city}, ${community.state}`}
+          communityPhone={community.phone || ''}
+          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
+          open={isScheduleTourOpen}
+          onOpenChange={setIsScheduleTourOpen}
+          hideButton={true}
+          onSuccess={() => {
+            toast({
+              title: "Tour Scheduled Successfully!",
+              description: `Your tour at ${community.name} has been confirmed.`,
+            });
+            setIsScheduleTourOpen(false);
+          }}
         />
       )}
       </div>

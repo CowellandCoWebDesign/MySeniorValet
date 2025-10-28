@@ -22,6 +22,9 @@ interface TourSchedulerProps {
   buttonVariant?: "default" | "secondary" | "outline" | "ghost";
   onSuccess?: () => void;
   hasEmail?: boolean;
+  open?: boolean; // External control for dialog
+  onOpenChange?: (open: boolean) => void; // External control callback
+  hideButton?: boolean; // Hide the button when externally controlled
 }
 
 export function TourScheduler({
@@ -32,9 +35,22 @@ export function TourScheduler({
   buttonText = "Schedule Tour",
   buttonVariant = "default",
   onSuccess,
-  hasEmail = true
+  hasEmail = true,
+  open,
+  onOpenChange,
+  hideButton = false
 }: TourSchedulerProps) {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [internalDialogOpen, setInternalDialogOpen] = useState(false);
+  
+  // Use external control if provided, otherwise use internal state
+  const dialogOpen = open !== undefined ? open : internalDialogOpen;
+  const setDialogOpen = (value: boolean) => {
+    if (onOpenChange) {
+      onOpenChange(value);
+    } else {
+      setInternalDialogOpen(value);
+    }
+  };
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [confirmationCode, setConfirmationCode] = useState("");
   const { toast } = useToast();
@@ -134,14 +150,16 @@ export function TourScheduler({
 
   return (
     <>
-      <Button 
-        variant={buttonVariant}
-        onClick={() => setDialogOpen(true)}
-        className="gap-2"
-      >
-        <Calendar className="h-4 w-4" />
-        {buttonText}
-      </Button>
+      {!hideButton && (
+        <Button 
+          variant={buttonVariant}
+          onClick={() => setDialogOpen(true)}
+          className="gap-2"
+        >
+          <Calendar className="h-4 w-4" />
+          {buttonText}
+        </Button>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
