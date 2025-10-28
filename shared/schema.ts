@@ -953,6 +953,8 @@ export const communities = pgTable("communities", {
   photos: text("photos").array().default([]), // Array of photo URLs
   photoAttributions: text("photo_attributions").array().default([]), // Google Photos API attributions
   virtualTourUrl: text("virtual_tour_url"),
+  virtualTourPlatform: text("virtual_tour_platform"),
+  virtualTourLastChecked: timestamp("virtual_tour_last_checked"),
   
   // 3D Tour & Matterport Integration (Featured tier and above) - TEMPORARILY DISABLED
   // matterportTourId: text("matterport_tour_id"), // Matterport unique tour ID

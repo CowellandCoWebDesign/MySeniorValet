@@ -1440,6 +1440,10 @@ Provide complete business data with ALL actual image URLs found.`;
   // Register image proxy for CORS handling
   app.use(imageProxyRoutes);
   app.use(serviceIntelligenceRoutes);
+  
+  // Virtual Tour Detection Routes
+  const { default: virtualTourRoutes } = await import('./routes/virtualTourRoutes');
+  app.use(virtualTourRoutes);
 
   // Register photo validation routes
   const photoValidationRoutes = await import('./routes/photoValidationRoutes');
