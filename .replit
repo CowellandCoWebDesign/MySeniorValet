@@ -33,11 +33,11 @@ localPort = 34331
 localPort = 34803
 
 [[ports]]
-localPort = 36261
+localPort = 36027
+externalPort = 8000
 
 [[ports]]
-localPort = 36301
-externalPort = 8000
+localPort = 36261
 
 [[ports]]
 localPort = 37575
