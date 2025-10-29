@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { 
   Star, ExternalLink, Shield, CheckCircle, PlusCircle, Loader2,
-  Globe
+  Globe, FileSearch, Phone, AlertTriangle
 } from 'lucide-react';
 import { SiGoogle, SiYelp, SiFacebook } from 'react-icons/si';
 import { useForm } from 'react-hook-form';
@@ -97,15 +97,30 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
   const reviewDirectories = useMemo(() => {
     const directories: ReviewDirectory[] = [];
 
-    // Google Reviews
-    if ((community as any).googleRating || (community as any).googleReviewCount) {
-      const googleUrl = (community as any).googleMapsUrl || 
-        `https://www.google.com/search?q=${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state + ' reviews')}`;
+    // Google Reviews - Check multiple sources
+    const hasGoogleData = (community as any).googleRating || 
+                          (community as any).googleReviewCount || 
+                          (community as any).googlePlaceId ||
+                          (community as any).googleMapsUrl ||
+                          (community as any).googlePlaceReviews;
+    
+    if (hasGoogleData) {
+      // Use direct Google Maps URL if available, otherwise construct from Place ID
+      let googleUrl = (community as any).googleMapsUrl;
+      
+      if (!googleUrl && (community as any).googlePlaceId) {
+        googleUrl = `https://www.google.com/maps/place/?q=place_id:${(community as any).googlePlaceId}`;
+      }
+      
+      if (!googleUrl) {
+        // Fallback to search if no direct link
+        googleUrl = `https://www.google.com/maps/search/${encodeURIComponent(community.name + ' ' + community.city + ' ' + community.state)}`;
+      }
       
       directories.push({
         platform: 'Google',
         icon: SiGoogle,
-        rating: (community as any).googleRating || 0,
+        rating: parseFloat((community as any).googleRating) || 0,
         reviewCount: (community as any).googleReviewCount || 0,
         url: googleUrl,
         color: 'text-blue-600',
@@ -113,82 +128,93 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
       });
     }
 
-    // Yelp Reviews
-    if ((community as any).yelpRating || (community as any).yelpReviewCount || (community as any).yelpReviews) {
-      const yelpData = (community as any).yelpReviews;
-      const yelpUrl = Array.isArray(yelpData) && yelpData[0]?.url || 
-        (community as any).yelpUrl ||
-        `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`;
+    // Yelp Reviews - Use direct Yelp URL
+    const hasYelpData = (community as any).yelpRating || 
+                        (community as any).yelpReviewCount || 
+                        (community as any).yelpUrl ||
+                        (community as any).yelpId;
+    
+    if (hasYelpData) {
+      let yelpUrl = (community as any).yelpUrl;
+      
+      if (!yelpUrl && (community as any).yelpId) {
+        yelpUrl = `https://www.yelp.com/biz/${(community as any).yelpId}`;
+      }
+      
+      if (!yelpUrl) {
+        // Fallback to search
+        yelpUrl = `https://www.yelp.com/search?find_desc=${encodeURIComponent(community.name)}&find_loc=${encodeURIComponent(community.city + ', ' + community.state)}`;
+      }
       
       directories.push({
         platform: 'Yelp',
         icon: SiYelp,
-        rating: (community as any).yelpRating || (yelpData?.[0]?.rating) || 0,
-        reviewCount: (community as any).yelpReviewCount || (yelpData?.length) || 0,
+        rating: (community as any).yelpRating || 0,
+        reviewCount: (community as any).yelpReviewCount || 0,
         url: yelpUrl,
         color: 'text-red-600',
         verified: true
       });
     }
 
-    // Facebook Reviews
-    if ((community as any).facebookRating || (community as any).facebookUrl) {
+    // Facebook Reviews - Use direct Facebook URL
+    if ((community as any).facebookUrl) {
       directories.push({
         platform: 'Facebook',
         icon: SiFacebook,
         rating: (community as any).facebookRating || 0,
         reviewCount: (community as any).facebookReviewCount || 0,
-        url: (community as any).facebookUrl || `https://www.facebook.com/search/top?q=${encodeURIComponent(community.name)}`,
+        url: (community as any).facebookUrl,
         color: 'text-blue-700',
         verified: true
       });
     }
 
-    // Care.com / Caring.com Reviews
-    if ((community as any).careComReviews || (community as any).careComRating) {
+    // Care.com / Caring.com Reviews - Extract direct URL from review data
+    if ((community as any).careComReviews) {
       const careData = (community as any).careComReviews;
-      const careUrl = Array.isArray(careData) && careData[0]?.url || 
-        `https://www.caring.com/senior-living/search?q=${encodeURIComponent(community.name + ' ' + community.city)}`;
+      const careUrl = (Array.isArray(careData) && careData[0]?.url) || 
+        `https://www.caring.com/local/${community.state?.toLowerCase()}/${community.city?.toLowerCase().replace(/\s+/g, '-')}`;
       
       directories.push({
         platform: 'Caring.com',
         icon: Globe,
-        rating: (community as any).careComRating || (careData?.[0]?.rating) || 0,
-        reviewCount: (careData?.length) || (community as any).careComReviewCount || 0,
+        rating: (community as any).careComRating || (Array.isArray(careData) && careData[0]?.rating) || 0,
+        reviewCount: Array.isArray(careData) ? careData.length : 0,
         url: careUrl,
         color: 'text-purple-600',
         verified: true
       });
     }
 
-    // SeniorAdvisor Reviews
-    if ((community as any).seniorAdvisorReviews || (community as any).seniorAdvisorRating) {
+    // SeniorAdvisor Reviews - Extract direct URL from review data
+    if ((community as any).seniorAdvisorReviews) {
       const seniorData = (community as any).seniorAdvisorReviews;
-      const seniorUrl = Array.isArray(seniorData) && seniorData[0]?.url || 
-        `https://www.senioradvisor.com/search?q=${encodeURIComponent(community.name + ' ' + community.city)}`;
+      const seniorUrl = (Array.isArray(seniorData) && seniorData[0]?.url) || 
+        `https://www.senioradvisor.com/${community.state?.toLowerCase()}/${community.city?.toLowerCase().replace(/\s+/g, '-')}`;
       
       directories.push({
         platform: 'SeniorAdvisor',
         icon: Globe,
-        rating: (community as any).seniorAdvisorRating || (seniorData?.[0]?.overall_rating) || 0,
-        reviewCount: (seniorData?.length) || (community as any).seniorAdvisorReviewCount || 0,
+        rating: (community as any).seniorAdvisorRating || (Array.isArray(seniorData) && seniorData[0]?.overall_rating) || 0,
+        reviewCount: Array.isArray(seniorData) ? seniorData.length : 0,
         url: seniorUrl,
         color: 'text-teal-600',
         verified: true
       });
     }
 
-    // A Place for Mom Reviews
-    if ((community as any).aplaceformomReviews || (community as any).aplaceformomRating) {
+    // A Place for Mom Reviews - Extract direct URL from review data
+    if ((community as any).aplaceformomReviews) {
       const apfmData = (community as any).aplaceformomReviews;
-      const apfmUrl = Array.isArray(apfmData) && apfmData[0]?.url || 
-        `https://www.aplaceformom.com/search?q=${encodeURIComponent(community.name + ' ' + community.city)}`;
+      const apfmUrl = (Array.isArray(apfmData) && apfmData[0]?.url) || 
+        `https://www.aplaceformom.com/senior-living/${community.state?.toLowerCase()}/${community.city?.toLowerCase().replace(/\s+/g, '-')}`;
       
       directories.push({
         platform: 'A Place for Mom',
         icon: Globe,
-        rating: (community as any).aplaceformomRating || (apfmData?.[0]?.rating) || 0,
-        reviewCount: (apfmData?.length) || (community as any).aplaceformomReviewCount || 0,
+        rating: (community as any).aplaceformomRating || (Array.isArray(apfmData) && apfmData[0]?.rating) || 0,
+        reviewCount: Array.isArray(apfmData) ? apfmData.length : 0,
         url: apfmUrl,
         color: 'text-green-600',
         verified: true
@@ -482,17 +508,87 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
         )}
       </div>
 
-      {/* SEO Benefits Note */}
-      <Card className="bg-muted/50">
+      {/* Inspection & Violations Research Guide */}
+      <Card className="border-orange-200 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <FileSearch className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+            <span>How to Research Inspection Reports & Violations</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Inspection reports and violation records are public information that can help you make informed decisions. 
+              Here's how to access official government records:
+            </p>
+            
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                <Shield className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">State Licensing Agency</p>
+                  <p className="text-xs text-muted-foreground">
+                    Contact your state's Department of Health or Social Services to request inspection reports. 
+                    Most states maintain online databases with facility inspection histories.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                <Globe className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">Medicare.gov (for Nursing Homes)</p>
+                  <p className="text-xs text-muted-foreground">
+                    Visit Medicare.gov's Nursing Home Compare tool to view health and fire safety inspection reports, 
+                    deficiency citations, and quality ratings.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                <Phone className="w-5 h-5 text-purple-600 mt-0.5 flex-shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">Long-Term Care Ombudsman</p>
+                  <p className="text-xs text-muted-foreground">
+                    Your state's ombudsman can help you access facility records and answer questions about past violations. 
+                    This is a free advocacy service for residents and families.
+                  </p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-3 p-3 bg-white dark:bg-gray-900 rounded-lg border">
+                <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-medium text-sm">What to Look For</p>
+                  <p className="text-xs text-muted-foreground">
+                    Review patterns over time, not just isolated incidents. Look for repeat violations, 
+                    how quickly issues were corrected, and the facility's overall compliance record.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t">
+            <p className="text-xs text-muted-foreground italic">
+              Remember: All senior living communities are subject to inspections. What matters most is how facilities 
+              respond to and correct any issues found. Don't hesitate to ask communities directly about their inspection history during tours.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Trusted Reviews Note */}
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border-blue-200 dark:border-blue-800">
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
-            <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+            <CheckCircle className="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
             <div className="space-y-2 text-sm">
-              <p className="font-medium">Why We Show Review Links</p>
+              <p className="font-medium">Verified Review Sources</p>
               <p className="text-muted-foreground">
-                We provide direct links to authoritative review platforms instead of displaying copied content. 
-                This approach ensures you're reading the most up-to-date reviews, reduces liability concerns, 
-                and helps improve our SEO with trusted outbound links to established platforms.
+                We connect you directly to trusted review platforms so you can read authentic, up-to-date feedback from families 
+                just like yours. Each platform verifies reviewers differently, giving you multiple perspectives to make the best decision.
               </p>
             </div>
           </div>
