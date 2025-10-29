@@ -171,8 +171,10 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
     }
 
     // Care.com / Caring.com Reviews - Extract direct URL from review data
-    if ((community as any).careComReviews) {
-      const careData = (community as any).careComReviews;
+    const careData = (community as any).careComReviews;
+    const hasCareData = (Array.isArray(careData) && careData.length > 0) || (community as any).careComRating;
+    
+    if (hasCareData) {
       const careUrl = (Array.isArray(careData) && careData[0]?.url) || 
         `https://www.caring.com/local/${community.state?.toLowerCase()}/${community.city?.toLowerCase().replace(/\s+/g, '-')}`;
       
@@ -188,8 +190,10 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
     }
 
     // SeniorAdvisor Reviews - Extract direct URL from review data
-    if ((community as any).seniorAdvisorReviews) {
-      const seniorData = (community as any).seniorAdvisorReviews;
+    const seniorData = (community as any).seniorAdvisorReviews;
+    const hasSeniorData = (Array.isArray(seniorData) && seniorData.length > 0) || (community as any).seniorAdvisorRating;
+    
+    if (hasSeniorData) {
       const seniorUrl = (Array.isArray(seniorData) && seniorData[0]?.url) || 
         `https://www.senioradvisor.com/${community.state?.toLowerCase()}/${community.city?.toLowerCase().replace(/\s+/g, '-')}`;
       
@@ -205,8 +209,10 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
     }
 
     // A Place for Mom Reviews - Extract direct URL from review data
-    if ((community as any).aplaceformomReviews) {
-      const apfmData = (community as any).aplaceformomReviews;
+    const apfmData = (community as any).aplaceformomReviews;
+    const hasApfmData = (Array.isArray(apfmData) && apfmData.length > 0) || (community as any).aplaceformomRating;
+    
+    if (hasApfmData) {
       const apfmUrl = (Array.isArray(apfmData) && apfmData[0]?.url) || 
         `https://www.aplaceformom.com/senior-living/${community.state?.toLowerCase()}/${community.city?.toLowerCase().replace(/\s+/g, '-')}`;
       
