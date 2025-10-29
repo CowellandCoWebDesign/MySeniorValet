@@ -356,8 +356,25 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
   // Get pricing prediction from verification report instead of making separate API call
   const prediction = verificationReport?.pricingPrediction || null;
   
-  // Don't show if we have verified pricing or no prediction data
-  if (!prediction?.prediction || community?.livePricing || community?.rentPerMonth) {
+  // GOLDEN DATA RULE: Validate pricing data
+  const isValidPricing = (min: number, max: number) => {
+    // Suspicious pricing checks:
+    // 1. Too low (< $500/month likely HUD subsidized rent being misread)
+    // 2. Too high (> $50000/month likely error)
+    // 3. Invalid range (min > max)
+    // 4. Too wide (max > min * 10 likely contains multiple care levels)
+    if (min < 500 || max > 50000 || min > max || max > min * 10) {
+      console.warn(`⚠️ Suspicious pricing detected: $${min}-$${max}`);
+      return false;
+    }
+    return true;
+  };
+  
+  // Don't show if we have verified pricing, no prediction data, or invalid pricing
+  if (!prediction?.prediction || 
+      community?.livePricing || 
+      community?.rentPerMonth ||
+      !isValidPricing(prediction.prediction.min, prediction.prediction.max)) {
     return null;
   }
   
@@ -366,33 +383,33 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
       <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
         <CardTitle className="text-xl font-bold flex items-center">
           <Brain className="w-6 h-6 mr-2 text-purple-600" />
-          AI Pricing Intelligence
+          AI Market Intelligence
         </CardTitle>
         <CardDescription className="text-sm">
-          Market-based prediction using AI analysis
+          Estimated range based on regional market analysis - not verified community pricing
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-6">
         <div className="space-y-4">
             {/* Predicted Price Range */}
-            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg">
+            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border-2 border-purple-200 dark:border-purple-700">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Predicted Monthly Range
+                  Estimated Regional Range
                 </span>
                 <Badge className={`${
-                  prediction.prediction.confidence === 'high' ? 'bg-green-600' :
-                  prediction.prediction.confidence === 'medium' ? 'bg-yellow-600' :
-                  'bg-orange-600'
+                  prediction.prediction.confidence === 'high' ? 'bg-yellow-600' :
+                  prediction.prediction.confidence === 'medium' ? 'bg-orange-600' :
+                  'bg-red-600'
                 } text-white`}>
-                  {prediction.prediction.confidence} confidence
+                  Estimate Only
                 </Badge>
               </div>
               <p className="text-2xl font-bold text-purple-900 dark:text-purple-100">
                 ${prediction.prediction.min.toLocaleString()} - ${prediction.prediction.max.toLocaleString()}
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                Per month (estimated)
+                Per month (market estimate, not verified)
               </p>
             </div>
             
@@ -526,32 +543,55 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         {(
         <div className="space-y-6 mt-6">
           {/* Current Availability & Pricing - Enhanced with Web Intelligence Data */}
-          {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (
+          {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (() => {
+            // GOLDEN DATA RULE: Validate pricing before displaying
+            const isValidPricingText = (pricingText: string): boolean => {
+              // Extract numeric values from pricing text
+              const numbers = pricingText.match(/\$?[\d,]+(?:\.\d{2})?/g);
+              if (!numbers) return true; // If no numbers, might be descriptive text - allow it
+              
+              const values = numbers.map(n => parseInt(n.replace(/[$,]/g, '')));
+              // Check if any value is suspiciously low (< $500 for senior living)
+              const hasSuspiciousPrice = values.some(v => v > 0 && v < 500);
+              if (hasSuspiciousPrice) {
+                console.warn(`⚠️ Suspicious pricing in text: ${pricingText}`);
+                return false;
+              }
+              return true;
+            };
+            
+            let validPricing = realTimeData?.currentPricing;
+            if (validPricing) {
+              try {
+                if (typeof validPricing === 'string' && validPricing.includes('{') && validPricing.includes('}')) {
+                  const parsed = JSON.parse(validPricing);
+                  validPricing = parsed.price || parsed.amount || parsed.text || JSON.stringify(parsed);
+                }
+              } catch (e) {
+                // If it's not valid JSON, use as-is
+              }
+              if (!isValidPricingText(validPricing)) {
+                validPricing = null; // Filter out suspicious pricing
+              }
+            }
+            
+            return (
             <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
               <h4 className="font-semibold text-lg mb-3 flex items-center">
                 <Activity className="w-5 h-5 mr-2 text-green-600" />
-                Current Availability & Pricing
+                Current Availability {validPricing ? '& Pricing' : ''}
               </h4>
               <div className="space-y-2">
                 {/* Pricing is now shown in LiveWebIntelligence component above */}
-                {realTimeData?.currentPricing && (
+                {validPricing && (
                   <div className="flex items-start">
                     <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
                     <div>
-                      <p className="font-medium text-green-800 dark:text-green-200">Live Pricing Found:</p>
-                      {(() => {
-                        // Check if it's JSON string and parse it
-                        let pricingText = realTimeData.currentPricing;
-                        try {
-                          if (typeof pricingText === 'string' && pricingText.includes('{') && pricingText.includes('}')) {
-                            const parsed = JSON.parse(pricingText);
-                            pricingText = parsed.price || parsed.amount || parsed.text || JSON.stringify(parsed);
-                          }
-                        } catch (e) {
-                          // If it's not valid JSON, use as-is
-                        }
-                        return <p className="text-lg font-bold text-green-900 dark:text-green-100">{pricingText}</p>;
-                      })()}
+                      <p className="font-medium text-green-800 dark:text-green-200">Pricing Information Found:</p>
+                      <p className="text-lg font-bold text-green-900 dark:text-green-100">{validPricing}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        Contact community to verify current pricing
+                      </p>
                     </div>
                   </div>
                 )}
@@ -597,7 +637,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 )}
               </div>
             </div>
-          )}
+            );
+          })()}
 
           {/* Community Highlights */}
           {realTimeData?.communityHighlights && realTimeData?.communityHighlights.length > 0 && (
@@ -2346,19 +2387,21 @@ export default function CommunityDetail() {
                       {/* Main Action Buttons - Mobile Responsive */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                         <Button
+                          data-testid="button-schedule-tour"
                           className="py-3 sm:py-4 text-responsive-base font-semibold bg-teal-600 hover:bg-teal-700 text-white touch-target"
-                          onClick={() => {
-                            // Switch to Tours tab
-                            const toursTab = document.querySelector('[value="tours"]') as HTMLElement;
-                            if (toursTab) {
-                              toursTab.click();
-                              setTimeout(() => {
-                                const toursSection = document.querySelector('[data-state="active"][value="tours"]')?.parentElement?.parentElement;
-                                if (toursSection) {
-                                  toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                }
-                              }, 100);
-                            }
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('📅 Schedule Tour button clicked');
+                            // Switch to Tours tab using setActiveTab
+                            setActiveTab('tours');
+                            setTimeout(() => {
+                              // Scroll to tours section
+                              const toursSection = document.querySelector('[value="tours"]');
+                              if (toursSection) {
+                                toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              }
+                            }, 100);
                           }}
                         >
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
@@ -2366,11 +2409,15 @@ export default function CommunityDetail() {
                         </Button>
                         
                         <Button 
+                          data-testid="button-call-now"
                           variant="outline" 
                           className="py-3 sm:py-4 text-responsive-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 touch-target"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('📞 Call Now button clicked, phone:', community.phone);
                             if (community.phone) {
-                              window.open(`tel:${community.phone}`, '_self');
+                              window.location.href = `tel:${community.phone}`;
                             } else {
                               alert('Phone number not available. Please visit the website or check back later for updated contact information.');
                             }
