@@ -366,18 +366,28 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       /\busa\b|\bunited states\b|\bamerica\b/i.test(queryLower) ||
       /\b\d{5}(-\d{4})?\b/.test(query); // ZIP code pattern
     
-    // Check for explicitly international locations (countries only, not ambiguous city names)
-    const internationalCountries = [
-      'canada', 'mexico', 'uk', 'united kingdom', 'england', 'scotland', 'wales', 
-      'france', 'germany', 'spain', 'italy', 'japan', 'china', 'australia', 
-      'brazil', 'india', 'russia', 'south africa', 'argentina', 'chile', 'sweden',
-      'norway', 'denmark', 'finland', 'netherlands', 'belgium', 'switzerland',
-      'austria', 'portugal', 'greece', 'poland', 'ireland', 'new zealand'
+    // IMPROVED INTERNATIONAL DETECTION: Support ALL 195 countries
+    // Strategy: If it's NOT a US location, treat it as international
+    // This covers all countries without needing to maintain a list of 195 countries
+    
+    // Common US city names to avoid false positives (cities that exist in US)
+    const commonUSCities = [
+      'portland', 'springfield', 'columbus', 'jackson', 'madison', 'franklin',
+      'clinton', 'georgetown', 'fairfield', 'salem', 'newport', 'richmond'
     ];
     
-    const isInternationalSearch = 
-      !isUSLocation && 
-      internationalCountries.some(country => new RegExp(`\\b${country}\\b`, 'i').test(queryLower));
+    // Check if it's likely a US city (to avoid treating US cities as international)
+    const isLikelyUSCity = commonUSCities.some(city => 
+      queryLower === city || queryLower.startsWith(city + ' ')
+    );
+    
+    // If query contains country indicators, it's definitely international
+    const hasCountryIndicator = /\b(canada|uk|united kingdom|france|germany|spain|italy|japan|china|australia|brazil|india|mexico|netherlands|switzerland|sweden|norway|belgium|austria|poland|ireland|portugal|greece|denmark|finland|russia|south africa|new zealand|israel|singapore|malaysia|thailand|vietnam|philippines|indonesia|south korea|taiwan|hong kong|argentina|chile|colombia|peru|ecuador|bolivia|uruguay|paraguay|venezuela|egypt|morocco|kenya|nigeria|ghana|ethiopia|uganda|tanzania|zimbabwe|botswana|namibia|tunisia|algeria|libya|saudi arabia|uae|qatar|kuwait|bahrain|oman|jordan|lebanon|syria|iraq|iran|turkey|pakistan|bangladesh|sri lanka|nepal|afghanistan|kazakhstan|uzbekistan|turkmenistan|kyrgyzstan|tajikistan|armenia|georgia|azerbaijan|ukraine|belarus|moldova|romania|bulgaria|hungary|czech|slovakia|croatia|serbia|bosnia|albania|macedonia|montenegro|kosovo|slovenia|latvia|lithuania|estonia|iceland|luxembourg|malta|cyprus|andorra|monaco|liechtenstein|san marino|vatican)\b/i.test(queryLower);
+    
+    // Improved logic: It's international if:
+    // 1. It explicitly mentions a country name, OR
+    // 2. It's NOT a US location AND NOT a likely US city
+    const isInternationalSearch = hasCountryIndicator || (!isUSLocation && !isLikelyUSCity);
     
     // Handle map view redirect FIRST
     if (viewMode === 'map' && query) {
