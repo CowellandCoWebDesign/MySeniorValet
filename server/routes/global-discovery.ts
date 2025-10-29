@@ -251,7 +251,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Log first result for debugging
         if (serviceResults.length > 0) {
           const firstResult = serviceResults[0];
-          const resultLocation = firstResult.metadata?.location || {};
+          const resultMetadata = firstResult.metadata as any || {};
+          const resultLocation = resultMetadata.location || {};
           console.log(`📍 First result location: City="${resultLocation.city}", State="${resultLocation.state}"`);
         }
         
@@ -989,7 +990,7 @@ Keep responses concise and focus on the most relevant results.`;
             if (existing.length === 0 && discovered.name) {
               // Save new discovered service to database
               const [newService] = await db.insert(services)
-                .values([{
+                .values({
                   name: discovered.name,
                   description: discovered.description || `Service discovered in ${discovered.city || query}`,
                   shortDescription: discovered.description ? discovered.description.substring(0, 200) : `Service in ${discovered.city || query}`,
@@ -1001,24 +1002,10 @@ Keep responses concise and focus on the most relevant results.`;
                   sortOrder: 0,
                   metadata: {
                     source: 'Perplexity Search API Discovery',
-                    discoveryQuery: query,
-                    discoveryDate: new Date().toISOString(),
-                    confidence: discovered.confidence || 85,
-                    photoSources: discovered.photoSources || [],
-                    // Store location info in metadata
-                    location: {
-                      address: discovered.address || discovered.location || '',
-                      city: discovered.city || query.split(',')[0]?.trim() || '',
-                      state: discovered.state || query.split(',')[1]?.trim() || '',
-                      zipCode: discovered.zipCode || '',
-                      phone: discovered.phone || null,
-                      email: discovered.email || null
-                    },
-                    // Mark as resource if it's an article/guide
-                    isResource: discovered.isResource || false,
-                    resourceType: discovered.resourceType || 'direct_business'
-                  }
-                }])
+                    lastUpdated: new Date().toISOString(),
+                    tags: ['discovered', 'perplexity', query.toLowerCase()]
+                  } as any
+                })
                 .returning();
               
               savedServices.push(newService);
@@ -1190,7 +1177,7 @@ Keep responses concise and focus on the most relevant results.`;
               }
 
               const [newCommunity] = await db.insert(communities)
-                .values([{
+                .values({
                   name: discovered.name,
                   address: discovered.address || discovered.location || 'Address pending verification',
                   city: discovered.city || query.split(',')[0] || 'Unknown',
@@ -1217,7 +1204,7 @@ Keep responses concise and focus on the most relevant results.`;
                     autoApproved: false
                   }] as any[], // Cast to any[] to match JSON type
                   isVerified: false
-                }])
+                })
                 .returning();
               
               console.log(`💾 Saved new discovered community: ${discovered.name} (ID: ${newCommunity.id})`);

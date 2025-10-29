@@ -379,48 +379,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       !isUSLocation && 
       internationalCountries.some(country => new RegExp(`\\b${country}\\b`, 'i').test(queryLower));
     
-    // Only auto-trigger Discovery Mode for international searches if viewMode is 'discover'
-    // For 'list' mode (Database Search), let it search the database normally
-    if (isInternationalSearch && viewMode === 'discover') {
-      console.log('🌍 International search auto-detected for:', query);
-      setIsLoading(true);
-      
-      try {
-        const response = await fetch('/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query, 
-            searchType: activeTab === 'services' ? 'services' : 'location',
-            limit: 50 
-          }),
-          signal: AbortSignal.timeout(120000) // 120 second timeout for international searches
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.results && data.results.length > 0) {
-            // Clear loading state first
-            setIsLoading(false);
-            setSearchResults({ results: [], metadata: null });
-            // Then set results and show modal
-            setGlobalDiscoveryResults({
-              query,
-              results: data.results,
-              metadata: data.metadata
-            });
-            setForceClearAutocomplete(true);
-            setShowGlobalDiscoveryModal(true);
-            return;
-          }
-        }
-      } catch (error) {
-        console.error('International discovery error:', error);
-      }
-      setIsLoading(false);
-    }
-
-    // Handle map view redirect
+    // Handle map view redirect FIRST
     if (viewMode === 'map' && query) {
       const categoryParam = activeTab !== 'communities' ? `&category=${activeTab}` : '';
       setLocation(`/map-search?q=${encodeURIComponent(query)}${categoryParam}`);
@@ -433,7 +392,13 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
 
     try {
       // Discovery mode for Communities - use global discovery to find facilities
+      // This handles BOTH international and regular discovery searches
       if (viewMode === 'discover' && activeTab === 'communities') {
+        // For international searches or explicit discovery mode, use Perplexity to search the web
+        const shouldUsePerplexity = isInternationalSearch || true; // Always use discovery in discover mode
+        
+        console.log('🌍 Discovery Mode search for:', query, 'International:', isInternationalSearch);
+        
         // Call global discovery endpoint to find actual facilities
         const response = await fetch('/api/global-discovery/search', {
           method: 'POST',
@@ -442,7 +407,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             query: query,
             searchType: 'location',
             limit: 20,
-            discoveryMode: true  // Explicitly set Discovery Mode flag
+            discoveryMode: shouldUsePerplexity  // Set based on international or discovery mode
           }),
           signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
         });
