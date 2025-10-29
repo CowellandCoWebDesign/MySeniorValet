@@ -312,14 +312,59 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
               ))}
             </div>
             
-            {/* Sources */}
-            {analysis.sources && analysis.sources.length > 0 && (
+            {/* Sources - ENHANCED DISPLAY */}
+            {(analysis.sources && analysis.sources.length > 0) || analysis.dataAttribution ? (
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Data from: {analysis.sources.join(', ')}
-                </p>
+                <div className="mb-2">
+                  <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center">
+                    <ExternalLink className="w-4 h-4 mr-2 text-blue-500" />
+                    Data Sources {analysis.sources?.length > 0 && `(${analysis.sources.length} verified sources)`}
+                  </p>
+                  {analysis.dataAttribution?.international && (
+                    <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200 mt-1">
+                      🌍 International Market Intelligence via Perplexity AI
+                    </Badge>
+                  )}
+                </div>
+                {analysis.sources && analysis.sources.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {analysis.sources.map((source: string, idx: number) => {
+                      // Extract domain name from URL for better display
+                      let displayName = 'Source';
+                      let domain = source;
+                      try {
+                        const url = new URL(source);
+                        domain = url.hostname.replace('www.', '');
+                        displayName = domain.split('.')[0];
+                        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                      } catch (e) {
+                        displayName = `Source ${idx + 1}`;
+                      }
+                      
+                      return (
+                        <a
+                          key={idx}
+                          href={source}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors flex items-center"
+                          title={source}
+                        >
+                          <Globe className="w-3 h-3 mr-1" />
+                          {displayName}
+                        </a>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-2">
+                    {analysis.dataAttribution?.international 
+                      ? 'Web sources from Perplexity AI search' 
+                      : 'Sources will appear here when data is refreshed'}
+                  </p>
+                )}
               </div>
-            )}
+            ) : null}
           </div>
         </CardContent>
       </Card>
