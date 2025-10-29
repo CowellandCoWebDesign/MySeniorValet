@@ -1,4 +1,5 @@
 import { PerplexityAIService } from '../perplexity-ai-service';
+import { communityWebsiteCrawler } from './community-website-crawler';
 
 // Comprehensive list of virtual tour platforms and their patterns
 const VIRTUAL_TOUR_PATTERNS = {
@@ -159,8 +160,13 @@ export interface VirtualTourResult {
   tourUrl?: string;
   embedUrl?: string;
   confidence: 'high' | 'medium' | 'low';
-  source: 'perplexity' | 'website' | 'cached';
+  source: 'perplexity' | 'website' | 'website_crawler' | 'cached' | 'error';
   detectionMethod?: string;
+  metadata?: {
+    foundElements?: string[];
+    galleryUrls?: string[];
+    videoUrls?: string[];
+  };
   lastChecked: Date;
 }
 
@@ -192,11 +198,62 @@ export class VirtualTourDetectorService {
     }
 
     try {
-      // Method 1: Ask Perplexity directly about virtual tours (this is usually the most comprehensive)
+      // Method 1: If we have a website, use Playwright to crawl it directly
+      if (website && website !== '-' && website !== '') {
+        console.log(`🔍 Using Playwright to crawl ${website} for virtual tours...`);
+        
+        const crawlResult = await communityWebsiteCrawler.crawlForVirtualTour(website, communityName);
+        
+        if (crawlResult.virtualTourUrl) {
+          const platform = this.identifyPlatform(crawlResult.virtualTourUrl);
+          const result: VirtualTourResult = {
+            found: true,
+            platform: platform || 'Unknown',
+            tourUrl: crawlResult.virtualTourUrl,
+            embedUrl: this.convertToEmbedUrl(crawlResult.virtualTourUrl, platform),
+            confidence: crawlResult.confidence,
+            source: 'website_crawler',
+            detectionMethod: 'playwright_crawl',
+            metadata: {
+              foundElements: crawlResult.foundElements,
+              galleryUrls: crawlResult.galleryUrls,
+              videoUrls: crawlResult.videoUrls
+            },
+            lastChecked: new Date()
+          };
+          
+          this.cache.set(communityId, result);
+          console.log(`✅ Playwright found virtual tour: ${crawlResult.virtualTourUrl}`);
+          return result;
+        }
+        
+        // If crawler found galleries or videos but no direct tour, include them in metadata
+        // but don't mark as found unless we actually found a tour
+        if ((crawlResult.galleryUrls && crawlResult.galleryUrls.length > 0) || 
+            (crawlResult.videoUrls && crawlResult.videoUrls.length > 0)) {
+          const result: VirtualTourResult = {
+            found: false, // No actual tour found, just galleries/videos
+            confidence: 'low',
+            source: 'website_crawler',
+            detectionMethod: 'galleries_checked_no_tour',
+            metadata: {
+              foundElements: crawlResult.foundElements,
+              galleryUrls: crawlResult.galleryUrls,
+              videoUrls: crawlResult.videoUrls
+            },
+            lastChecked: new Date()
+          };
+          
+          this.cache.set(communityId, result);
+          console.log(`📸 Found galleries/videos but no virtual tour on ${website}`);
+          // Continue to check Perplexity as fallback
+        }
+      }
+
+      // Method 2: Ask Perplexity about virtual tours as fallback or if no website
       const perplexityResult = await this.searchWithPerplexity(communityName);
       
-      // Cache and return the result regardless of whether tour was found
-      // (No need to check website or do additional searches if Perplexity already checked)
+      // Cache and return the result
       this.cache.set(communityId, perplexityResult);
       return perplexityResult;
 
@@ -205,7 +262,7 @@ export class VirtualTourDetectorService {
       return {
         found: false,
         confidence: 'low',
-        source: 'perplexity',
+        source: 'error',
         lastChecked: new Date()
       };
     }
