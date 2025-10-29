@@ -41,30 +41,29 @@ router.post('/api/competitive-analysis', async (req, res) => {
           
           try {
             // Use Perplexity Discovery Mode for international searches
-            const marketQuery = `"${community.name}" senior living "${community.city}" ${community.country || community.state || ''} pricing photos website phone amenities reviews`;
+            const marketLocation = `${community.city}${community.state ? ', ' + community.state : ''}${community.country ? ', ' + community.country : ''}`;
             
-            console.log(`🔍 Searching for international market data: ${marketQuery}`);
-            const searchResults = await simplifiedPerplexityService.searchWeb(marketQuery, {
-              focusAreas: ['pricing', 'contact', 'amenities', 'reviews', 'photos'],
-              limit: 20,
-              searchType: 'comprehensive'
-            });
+            console.log(`🔍 Searching for international market data: ${community.name} in ${marketLocation}`);
+            const searchResults = await simplifiedPerplexityService.getCommunityIntelligence(
+              community.name,
+              marketLocation
+            );
             
             // Transform Perplexity results to match expected structure
             comprehensiveData = {
               marketData: {
-                website: searchResults.extractedCommunities?.[0]?.website || community.website,
-                phone: searchResults.extractedCommunities?.[0]?.phone || community.phone,
-                email: searchResults.extractedCommunities?.[0]?.email,
-                pricing: searchResults.extractedCommunities?.[0]?.pricing || 'Contact for pricing',
-                description: searchResults.detailedSummary || '',
-                managementCompany: searchResults.extractedCommunities?.[0]?.managementCompany
+                website: searchResults.found ? searchResults.officialWebsite : community.website,
+                phone: searchResults.found ? searchResults.phone : community.phone,
+                email: searchResults.found ? searchResults.email : null,
+                pricing: searchResults.found && searchResults.pricing ? searchResults.pricing : 'Contact for pricing',
+                description: searchResults.found ? searchResults.description || '' : '',
+                managementCompany: searchResults.found ? searchResults.managementCompany : null
               },
-              photos: searchResults.extractedCommunities?.[0]?.photos || [],
+              photos: searchResults.found ? searchResults.photos || [] : [],
               sources: searchResults.sources || [],
-              reviews: searchResults.extractedCommunities?.[0]?.reviews,
-              inspections: searchResults.extractedCommunities?.[0]?.inspections,
-              rawPerplexityContent: searchResults.content || searchResults.aiResponse || ''
+              reviews: searchResults.found ? searchResults.reviews : null,
+              inspections: searchResults.found ? searchResults.inspections : null,
+              rawPerplexityContent: searchResults.notes || ''
             };
             
             console.log(`✅ International market data retrieved for ${community.name}`);
@@ -190,15 +189,15 @@ router.post('/api/competitive-analysis', async (req, res) => {
         } else {
           // For international communities, use discovered communities from Perplexity
           console.log(`🌍 Using Perplexity-discovered communities for international market analysis...`);
-          if (comprehensiveData?.extractedCommunities) {
-            competitiveCommunities = comprehensiveData.extractedCommunities.map((c: any, idx: number) => ({
+          if (intelligence?.nearbyOptions) {
+            competitiveCommunities = intelligence.nearbyOptions.map((c: any, idx: number) => ({
               id: -1000 - idx, // Temporary IDs for international communities
               name: c.name,
               address: c.address || '',
-              rentPerMonth: c.pricing?.min || null,
-              photos: c.photos || [],
-              careServices: c.careTypes || [],
-              amenities: c.amenities || []
+              rentPerMonth: c.pricing ? parseInt(c.pricing.replace(/[^0-9]/g, '')) : null,
+              photos: [],
+              careServices: [],
+              amenities: []
             }));
           }
         }
