@@ -1,22 +1,15 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import {
   Play,
-  Pause,
-  Maximize,
   Eye,
   ExternalLink,
   Share,
   Clock,
-  Home,
-  AlertCircle,
-  Loader2,
-  Volume2,
-  VolumeX
+  Home
 } from "lucide-react";
 
 interface MatterportEmbedProps {
@@ -45,13 +38,6 @@ export function MatterportEmbed({
   communityName = "Community"
 }: MatterportEmbedProps) {
   const { toast } = useToast();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(autoplay);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [loadError, setLoadError] = useState(false);
-  const [viewCount, setViewCount] = useState(0);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Track tour view when component mounts
@@ -71,27 +57,15 @@ export function MatterportEmbed({
   };
 
   const handlePlay = () => {
-    setIsPlaying(true);
-    setIsLoaded(true);
-  };
-
-  const handleFullscreen = async () => {
-    if (!document.fullscreenElement && containerRef.current) {
-      try {
-        await containerRef.current.requestFullscreen();
-        setIsFullscreen(true);
-      } catch (error) {
-        console.error('Failed to enter fullscreen:', error);
-      }
-    } else if (document.fullscreenElement) {
-      try {
-        await document.exitFullscreen();
-        setIsFullscreen(false);
-      } catch (error) {
-        console.error('Failed to exit fullscreen:', error);
-      }
+    // Instead of playing inline, open the tour in a new tab
+    window.open(tourUrl, '_blank', 'noopener,noreferrer');
+    
+    // Track the view
+    if (tourId) {
+      trackTourView(tourId);
     }
   };
+
 
   const handleShare = async () => {
     try {
@@ -117,174 +91,100 @@ export function MatterportEmbed({
     window.open(tourUrl, '_blank', 'noopener,noreferrer');
   };
 
-  // Listen for fullscreen changes
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
-  }, []);
-
-  const embedUrl = tourUrl.includes('my.matterport.com') 
-    ? tourUrl.replace('/show/', '/embed/') + '&play=1&qs=1&applicationKey=your-key'
-    : tourUrl;
 
   return (
     <Card className="overflow-hidden">
       <CardContent className="p-0">
         <div 
           ref={containerRef}
-          className={`relative bg-black ${isFullscreen ? 'h-screen' : 'aspect-video'}`}
+          className="relative bg-black aspect-video"
         >
-          {!isPlaying ? (
-            /* Tour Preview */
-            <div className="relative w-full h-full">
-              {previewImage ? (
-                <img 
-                  src={previewImage} 
-                  alt={`Virtual tour of ${communityName}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <Home className="w-16 h-16 mx-auto mb-4 opacity-80" />
-                    <h3 className="text-xl font-semibold mb-2">Virtual Tour</h3>
-                    <p className="opacity-90">Experience {communityName} in 3D</p>
-                  </div>
+          {/* Tour Preview - Always show this, clicking opens in new tab */}
+          <div className="relative w-full h-full">
+            {previewImage ? (
+              <img 
+                src={previewImage} 
+                alt={`Virtual tour of ${communityName}`}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <Home className="w-16 h-16 mx-auto mb-4 opacity-80" />
+                  <h3 className="text-xl font-semibold mb-2">Virtual Tour</h3>
+                  <p className="opacity-90">Experience {communityName} in 3D</p>
                 </div>
-              )}
-              
-              {/* Play Button Overlay */}
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <Button
-                  size="lg"
-                  onClick={handlePlay}
-                  className="bg-white/20 hover:bg-white/30 text-white border-2 border-white/50 backdrop-blur-sm px-8 py-6 text-lg"
-                >
-                  <Play className="w-8 h-8 mr-3" />
-                  Start Virtual Tour
-                </Button>
               </div>
+            )}
+            
+            {/* Play Button Overlay */}
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <Button
+                size="lg"
+                onClick={handlePlay}
+                className="bg-white/20 hover:bg-white/30 text-white border-2 border-white/50 backdrop-blur-sm px-8 py-6 text-lg group"
+              >
+                <Play className="w-8 h-8 mr-3 group-hover:scale-110 transition-transform" />
+                Start Virtual Tour
+              </Button>
+            </div>
 
-              {/* Tour Info Overlay */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="bg-black/60 backdrop-blur-sm rounded-lg p-4 text-white">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-semibold">{communityName} - Virtual Tour</h4>
-                    <Badge variant="secondary" className="bg-purple-600 text-white">
-                      3D Tour
-                    </Badge>
-                  </div>
-                  
-                  {metadata && (
-                    <div className="flex items-center gap-4 text-sm opacity-90">
-                      {metadata.duration && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-4 h-4" />
-                          {metadata.duration} min tour
-                        </div>
-                      )}
-                      {metadata.roomCount && (
-                        <div className="flex items-center gap-1">
-                          <Home className="w-4 h-4" />
-                          {metadata.roomCount} spaces
-                        </div>
-                      )}
+            {/* Tour Info Overlay */}
+            <div className="absolute bottom-4 left-4 right-4">
+              <div className="bg-black/60 backdrop-blur-sm rounded-lg p-4 text-white">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-semibold">{communityName} - Virtual Tour</h4>
+                  <Badge variant="secondary" className="bg-purple-600 text-white">
+                    3D Tour
+                  </Badge>
+                </div>
+                
+                {metadata && (
+                  <div className="flex items-center gap-4 text-sm opacity-90">
+                    {metadata.duration && (
                       <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        Interactive
+                        <Clock className="w-4 h-4" />
+                        {metadata.duration} min tour
                       </div>
+                    )}
+                    {metadata.roomCount && (
+                      <div className="flex items-center gap-1">
+                        <Home className="w-4 h-4" />
+                        {metadata.roomCount} spaces
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-4 h-4" />
+                      Interactive
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* Active Tour Embed */
-            <div className="relative w-full h-full">
-              {!isLoaded && (
-                <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                  <div className="text-center text-white">
-                    <Loader2 className="w-8 h-8 mx-auto mb-4 animate-spin" />
-                    <p>Loading virtual tour...</p>
                   </div>
-                </div>
-              )}
-
-              {loadError ? (
-                <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                  <Alert className="max-w-md">
-                    <AlertCircle className="w-4 h-4" />
-                    <AlertDescription>
-                      Unable to load the virtual tour. 
-                      <Button 
-                        variant="link" 
-                        onClick={handleExternalOpen}
-                        className="ml-2"
-                      >
-                        View in new tab
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                </div>
-              ) : (
-                <iframe
-                  ref={iframeRef}
-                  src={embedUrl}
-                  className="w-full h-full border-0"
-                  allow="fullscreen; xr-spatial-tracking"
-                  allowFullScreen
-                  onLoad={() => setIsLoaded(true)}
-                  onError={() => setLoadError(true)}
-                  title={`Virtual tour of ${communityName}`}
-                />
-              )}
-
-              {/* Tour Controls */}
-              {showControls && isLoaded && !loadError && (
-                <div className="absolute top-4 right-4 flex items-center gap-2">
+                )}
+                
+                {/* Additional controls */}
+                <div className="flex items-center gap-2 mt-3">
                   <Button
                     size="sm"
-                    variant="secondary"
-                    onClick={() => setIsMuted(!isMuted)}
-                    className="bg-black/60 text-white border-0 backdrop-blur-sm"
+                    variant="ghost"
+                    onClick={handleShare}
+                    className="bg-white/10 hover:bg-white/20 text-white border-0 h-8"
                   >
-                    {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+                    <Share className="w-4 h-4 mr-2" />
+                    Share
                   </Button>
                   
                   <Button
                     size="sm"
-                    variant="secondary"
-                    onClick={handleShare}
-                    className="bg-black/60 text-white border-0 backdrop-blur-sm"
-                  >
-                    <Share className="w-4 h-4" />
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="secondary"
+                    variant="ghost"
                     onClick={handleExternalOpen}
-                    className="bg-black/60 text-white border-0 backdrop-blur-sm"
+                    className="bg-white/10 hover:bg-white/20 text-white border-0 h-8"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                  </Button>
-
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={handleFullscreen}
-                    className="bg-black/60 text-white border-0 backdrop-blur-sm"
-                  >
-                    <Maximize className="w-4 h-4" />
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Open in New Tab
                   </Button>
                 </div>
-              )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
 
         {/* Tour Description */}
@@ -337,32 +237,18 @@ export function MatterportTourPreview({
   communityName: string;
   tourId: string;
 }) {
-  const [showEmbed, setShowEmbed] = useState(false);
-
-  if (showEmbed) {
-    return (
-      <div className="relative">
-        <MatterportEmbed
-          tourId={tourId}
-          tourUrl={tourUrl}
-          previewImage={previewImage}
-          communityName={communityName}
-          showControls={true}
-        />
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => setShowEmbed(false)}
-          className="absolute top-2 left-2"
-        >
-          Close Tour
-        </Button>
-      </div>
-    );
-  }
+  const handleClick = () => {
+    // Open tour in new tab
+    window.open(tourUrl, '_blank', 'noopener,noreferrer');
+    
+    // Track the view
+    if (tourId) {
+      fetch(`/api/tours/${tourId}/view`, { method: 'POST' }).catch(console.error);
+    }
+  };
 
   return (
-    <div className="relative group cursor-pointer" onClick={() => setShowEmbed(true)}>
+    <div className="relative group cursor-pointer" onClick={handleClick}>
       {previewImage ? (
         <img 
           src={previewImage} 
@@ -385,8 +271,7 @@ export function MatterportTourPreview({
       </div>
       
       <Badge 
-        className="absolute top-2 right-2 bg-purple-600 text-white" 
-        size="sm"
+        className="absolute top-2 right-2 bg-purple-600 text-white"
       >
         3D Tour
       </Badge>

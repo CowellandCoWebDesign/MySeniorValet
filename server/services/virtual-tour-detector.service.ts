@@ -425,7 +425,12 @@ export class VirtualTourDetectorService {
       /3d[\s-]?tour/i,
       /interactive[\s-]?tour/i,
       /view[\s-]?online/i,
-      /take[\s-]?a[\s-]?tour/i
+      /take[\s-]?a[\s-]?tour/i,
+      /video[\s-]?tour/i,
+      /online[\s-]?tour/i,
+      /gallery/i,
+      /photo[\s-]?gallery/i,
+      /video[\s-]?gallery/i
     ];
     
     for (const url of urls) {
@@ -438,6 +443,28 @@ export class VirtualTourDetectorService {
       if (tourKeywordPatterns.some(pattern => pattern.test(context))) {
         // This URL is likely a tour link based on context
         return url;
+      }
+    }
+
+    // Third pass: If text mentions a tour exists but we can't find a direct URL,
+    // look for the community's main website URL
+    const textLower = text.toLowerCase();
+    if (textLower.includes('virtual tour') || 
+        textLower.includes('360 tour') ||
+        textLower.includes('video tour') ||
+        textLower.includes('interactive tour') ||
+        textLower.includes('online tour')) {
+      
+      // Return the first website URL we find - the tour is likely on their site
+      for (const url of urls) {
+        // Skip social media and common non-tour sites
+        if (!url.includes('facebook.com') && 
+            !url.includes('twitter.com') && 
+            !url.includes('instagram.com') &&
+            !url.includes('youtube.com') &&
+            !url.includes('linkedin.com')) {
+          return url;
+        }
       }
     }
 
