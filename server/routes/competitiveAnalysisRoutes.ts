@@ -41,37 +41,33 @@ router.post('/api/competitive-analysis', async (req, res) => {
           
           try {
             // Use Perplexity Discovery Mode for international searches
-            const locationStr = `${community.city}, ${community.country || community.state || ''}`;
+            const marketQuery = `"${community.name}" senior living "${community.city}" ${community.country || community.state || ''} pricing photos website phone amenities reviews`;
             
-            console.log(`🔍 Searching for international market data: ${community.name} in ${locationStr}`);
-            const searchResults = await simplifiedPerplexityService.getCommunityIntelligence(
-              community.name,
-              locationStr
-            );
+            console.log(`🔍 Searching for international market data: ${marketQuery}`);
+            const searchResults = await simplifiedPerplexityService.searchWeb(marketQuery, {
+              focusAreas: ['pricing', 'contact', 'amenities', 'reviews', 'photos'],
+              limit: 20,
+              searchType: 'comprehensive'
+            });
             
             // Transform Perplexity results to match expected structure
             comprehensiveData = {
               marketData: {
-                website: searchResults.officialWebsite || community.website,
-                phone: searchResults.phone || community.phone,
-                email: searchResults.email,
-                pricing: searchResults.pricing || 'Contact for pricing',
-                description: searchResults.description || '',
-                managementCompany: searchResults.managementCompany
+                website: searchResults.extractedCommunities?.[0]?.website || community.website,
+                phone: searchResults.extractedCommunities?.[0]?.phone || community.phone,
+                email: searchResults.extractedCommunities?.[0]?.email,
+                pricing: searchResults.extractedCommunities?.[0]?.pricing || 'Contact for pricing',
+                description: searchResults.detailedSummary || '',
+                managementCompany: searchResults.extractedCommunities?.[0]?.managementCompany
               },
-              photos: searchResults.photos || [],
-              sources: searchResults.sources || [], // CRITICAL: Include Perplexity sources
-              reviews: searchResults.reviews,
-              inspections: searchResults.inspections,
-              rawPerplexityContent: searchResults.searchContent || '',
-              extractedCommunities: searchResults.nearbyOptions || []
+              photos: searchResults.extractedCommunities?.[0]?.photos || [],
+              sources: searchResults.sources || [],
+              reviews: searchResults.extractedCommunities?.[0]?.reviews,
+              inspections: searchResults.extractedCommunities?.[0]?.inspections,
+              rawPerplexityContent: searchResults.content || searchResults.aiResponse || ''
             };
             
             console.log(`✅ International market data retrieved for ${community.name}`);
-            console.log(`📚 Sources found: ${searchResults.sources?.length || 0}`);
-            if (searchResults.sources && searchResults.sources.length > 0) {
-              console.log(`📍 Data sources:`, searchResults.sources.slice(0, 3));
-            }
             
           } catch (error) {
             console.error('International search error:', error);
@@ -330,22 +326,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
             searchContent: comprehensiveData.rawPerplexityContent || intelligence.searchContent
           },
           
-          // Add sources - CRITICAL: Include sources from Perplexity for transparency
-          sources: (isInternational && comprehensiveData?.sources) ? 
-            comprehensiveData.sources : 
-            (intelligence.sources || []),
-          
-          // Add data attribution for transparency
-          dataAttribution: {
-            source: isInternational ? 'Perplexity AI Web Search' : 'Database & Cache',
-            international: isInternational,
-            sourcesCount: (isInternational && comprehensiveData?.sources) ? 
-              comprehensiveData.sources.length : 
-              (intelligence.sources?.length || 0),
-            searchQuery: isInternational ? 
-              `"${community.name}" senior living "${community.city}" ${community.country || community.state || ''}` : 
-              null
-          },
+          // Add sources
+          sources: intelligence.sources || [],
           
           timestamp: new Date().toISOString()
         };
