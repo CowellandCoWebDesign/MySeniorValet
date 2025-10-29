@@ -1253,11 +1253,14 @@ export function registerCommunityRoutes(app: Express) {
             sql`${communities.data_source} LIKE 'AI Discovery%'`,
             sql`${communities.data_source} LIKE 'ai_discovered_%'`,
             eq(communities.data_source, 'discovered_community'),
-            eq(communities.data_source, 'global_discovery')
+            eq(communities.data_source, 'global_discovery'),
+            eq(communities.data_source, 'ai_discovered_global_search')
           )
         )
         .orderBy(desc(communities.id))
         .limit(limit);
+      
+      console.log(`🌍 Recently discovered communities query returned ${recentCommunities.length} results`);
       
       res.json(recentCommunities);
     } catch (error) {
