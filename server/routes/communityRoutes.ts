@@ -1262,6 +1262,18 @@ export function registerCommunityRoutes(app: Express) {
       
       console.log(`🌍 Recently discovered communities query returned ${recentCommunities.length} results`);
       
+      // Log sample of discovered communities for debugging
+      if (recentCommunities.length > 0) {
+        console.log(`📋 Sample of recently discovered communities:`, 
+          recentCommunities.slice(0, 3).map(c => ({
+            id: c.id,
+            name: c.name,
+            country: c.country,
+            data_source: c.data_source
+          }))
+        );
+      }
+      
       res.json(recentCommunities);
     } catch (error) {
       console.error('Error fetching recently discovered communities:', error);

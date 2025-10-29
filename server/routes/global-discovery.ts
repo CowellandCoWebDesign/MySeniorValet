@@ -1207,11 +1207,20 @@ Keep responses concise and focus on the most relevant results.`;
                 })
                 .returning();
               
-              console.log(`💾 Saved new discovered community: ${discovered.name} (ID: ${newCommunity.id})`);
+              console.log(`✅ SUCCESSFULLY SAVED discovered community: ${discovered.name} (ID: ${newCommunity.id}, Country: ${discovered.country || defaultCountry}, Data Source: AI Discovery (Perplexity Global Search))`);
               newlyInsertedIds.add(newCommunity.id); // Track as TRULY NEW
               savedCommunities.push(newCommunity);
             } catch (insertError) {
-              console.error(`⚠️ Error inserting community ${discovered.name}:`, insertError);
+              console.error(`❌ FAILED TO SAVE community ${discovered.name}:`, {
+                error: insertError,
+                attemptedData: {
+                  name: discovered.name,
+                  city: discovered.city || query.split(',')[0] || 'Unknown',
+                  state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                  country: discovered.country || defaultCountry,
+                  data_source: 'AI Discovery (Perplexity Global Search)'
+                }
+              });
               // Create a fallback object if insert fails
               const fallbackCommunity = {
                 id: 0, // Invalid ID to indicate error
