@@ -26,24 +26,86 @@ router.post('/api/competitive-analysis', async (req, res) => {
         .limit(1);
       
       if (community) {
+        // Check if this is an international location (non-US)
+        const usStates = ['AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA', 'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD', 'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ', 'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC', 'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY'];
+        const isInternational = !community.state || 
+          !usStates.includes(community.state.toUpperCase()) ||
+          (community.country && community.country !== 'USA' && community.country !== 'United States');
+        
         let intelligence: any;
+        let comprehensiveData: any;
         
-        // CRITICAL FIX: Use unified cache instead of separate API calls
-        // This prevents the cost spike from $0.015 to $0.19
-        console.log(`🔍 Using unified cache for ${community.name} to prevent cost spike...`);
-        
-        try {
-          // CRITICAL: Never force refresh to prevent automatic API calls
-          // Only use existing cached data, return empty if no cache
-          const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
-            communityId.toString(),
-            community.name,
-            `${community.city}, ${community.state}`,
-            false,  // not featured
-            false   // NEVER force refresh - prevents all API calls
-          );
+        // For international communities, ALWAYS use Perplexity Discovery Mode
+        if (isInternational) {
+          console.log(`🌍 International community detected: ${community.name} in ${community.city}, ${community.country || community.state}`);
           
-          // Transform unified cache data to competitive analysis format
+          try {
+            // Use Perplexity Discovery Mode for international searches
+            const marketQuery = `"${community.name}" senior living "${community.city}" ${community.country || community.state || ''} pricing photos website phone amenities reviews`;
+            
+            console.log(`🔍 Searching for international market data: ${marketQuery}`);
+            const searchResults = await simplifiedPerplexityService.searchWeb(marketQuery, {
+              focusAreas: ['pricing', 'contact', 'amenities', 'reviews', 'photos'],
+              limit: 20,
+              searchType: 'comprehensive'
+            });
+            
+            // Transform Perplexity results to match expected structure
+            comprehensiveData = {
+              marketData: {
+                website: searchResults.extractedCommunities?.[0]?.website || community.website,
+                phone: searchResults.extractedCommunities?.[0]?.phone || community.phone,
+                email: searchResults.extractedCommunities?.[0]?.email,
+                pricing: searchResults.extractedCommunities?.[0]?.pricing || 'Contact for pricing',
+                description: searchResults.detailedSummary || '',
+                managementCompany: searchResults.extractedCommunities?.[0]?.managementCompany
+              },
+              photos: searchResults.extractedCommunities?.[0]?.photos || [],
+              sources: searchResults.sources || [],
+              reviews: searchResults.extractedCommunities?.[0]?.reviews,
+              inspections: searchResults.extractedCommunities?.[0]?.inspections,
+              rawPerplexityContent: searchResults.content || searchResults.aiResponse || ''
+            };
+            
+            console.log(`✅ International market data retrieved for ${community.name}`);
+            
+          } catch (error) {
+            console.error('International search error:', error);
+            // Fallback to basic data
+            comprehensiveData = {
+              marketData: {
+                website: community.website,
+                phone: community.phone,
+                pricing: 'Contact for pricing',
+                description: `Senior living community in ${community.city}, ${community.country || community.state}`
+              },
+              photos: [],
+              sources: [],
+              rawPerplexityContent: ''
+            };
+          }
+        } else {
+          // US communities - use unified cache as before
+          console.log(`🔍 Using unified cache for ${community.name} to prevent cost spike...`);
+          
+          try {
+            // CRITICAL: Never force refresh to prevent automatic API calls
+            // Only use existing cached data, return empty if no cache
+            comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+              communityId.toString(),
+              community.name,
+              `${community.city}, ${community.state}`,
+              false,  // not featured
+              false   // NEVER force refresh - prevents all API calls
+            );
+          } catch (error) {
+            console.error(`⚠️ Unified cache error:`, error);
+            comprehensiveData = null;
+          }
+        }
+        
+        // Transform data to competitive analysis format
+        if (comprehensiveData) {
           intelligence = {
             found: true,
             communityName: community.name,
@@ -61,7 +123,7 @@ router.post('/api/competitive-analysis', async (req, res) => {
             inspections: comprehensiveData.inspections
           };
           
-          console.log(`✅ Using unified cache data for ${community.name} (single API call @ $0.015)`);
+          console.log(`✅ Using ${isInternational ? 'international discovery' : 'unified cache'} data for ${community.name}`);
           
           // Save to enrichmentData for backward compatibility
           const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
@@ -75,10 +137,8 @@ router.post('/api/competitive-analysis', async (req, res) => {
               enrichmentCompleted: true
             })
             .where(eq(communities.id, communityId));
-            
-        } catch (error) {
-          console.error(`⚠️ Unified cache error, using database cache:`, error);
-          // Use database cached data if available
+        } else {
+          // No comprehensive data available
           if (community.enrichmentData) {
             intelligence = community.enrichmentData as any;
             console.log(`📦 Using database cached data (expires: ${community.enrichmentDataExpiry})`);
@@ -105,24 +165,43 @@ router.post('/api/competitive-analysis', async (req, res) => {
           hasPhone: !!intelligence.phone,
           hasPhotos: intelligence.photos?.length || 0,
           sourcesCount: intelligence.sources?.length || 0,
-          fromCache: !needsFetch
+          isInternational
         });
         
         // Get actual competitive communities from the database in the same city
-        console.log(`🔍 Finding other communities in ${community.city}, ${community.state} for market analysis...`);
-        const competitiveCommunities = await db
-          .select({
-            id: communities.id,
-            name: communities.name,
-            address: communities.address,
-            rentPerMonth: communities.rentPerMonth,
-            photos: communities.photos,
-            careServices: communities.careServices,
-            amenities: communities.amenities
-          })
-          .from(communities)
-          .where(eq(communities.city, community.city))
-          .limit(10);
+        let competitiveCommunities = [];
+        
+        if (!isInternational) {
+          // For US communities, query local database
+          console.log(`🔍 Finding other communities in ${community.city}, ${community.state} for market analysis...`);
+          competitiveCommunities = await db
+            .select({
+              id: communities.id,
+              name: communities.name,
+              address: communities.address,
+              rentPerMonth: communities.rentPerMonth,
+              photos: communities.photos,
+              careServices: communities.careServices,
+              amenities: communities.amenities
+            })
+            .from(communities)
+            .where(eq(communities.city, community.city))
+            .limit(10);
+        } else {
+          // For international communities, use discovered communities from Perplexity
+          console.log(`🌍 Using Perplexity-discovered communities for international market analysis...`);
+          if (comprehensiveData?.extractedCommunities) {
+            competitiveCommunities = comprehensiveData.extractedCommunities.map((c: any, idx: number) => ({
+              id: -1000 - idx, // Temporary IDs for international communities
+              name: c.name,
+              address: c.address || '',
+              rentPerMonth: c.pricing?.min || null,
+              photos: c.photos || [],
+              careServices: c.careTypes || [],
+              amenities: c.amenities || []
+            }));
+          }
+        }
 
         // Filter out the current community and prepare competitive analysis
         const comparableCommunities = competitiveCommunities
