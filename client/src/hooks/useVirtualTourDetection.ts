@@ -177,10 +177,13 @@ export function useVirtualTourBatchDetection(communityIds: number[], enabled = f
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['virtual-tours-batch', communityIds],
     queryFn: async () => {
-      const response = await apiRequest('/api/communities/virtual-tours/batch', {
+      const response = await fetch('/api/communities/virtual-tours/batch', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ communityIds, forceRefresh: false })
-      });
+      }).then(res => res.json());
       
       if (response.results) {
         const resultsMap: Record<number, VirtualTourResult> = {};

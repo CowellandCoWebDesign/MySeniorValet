@@ -56,6 +56,7 @@ import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
 import { RequestInfoDialog } from '@/components/RequestInfoDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
+import { useVirtualTourDetection } from '@/hooks/useVirtualTourDetection';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -1292,6 +1293,14 @@ export default function CommunityDetail() {
     gcTime: 7 * 24 * 60 * 60 * 1000, // TanStack Query v5 uses gcTime instead of cacheTime
   });
 
+  // Detect virtual tour using our enhanced detection service
+  const { virtualTour, isLoading: isDetectingTour, refreshDetection } = useVirtualTourDetection({
+    communityId: Number(id),
+    communityName: community?.name || '',
+    website: community?.website || undefined,
+    enabled: !!community && !!id && id !== '-1'
+  });
+
   // Reset all state when community ID changes (but don't return early)
   React.useEffect(() => {
     // Only reset state if we have a valid ID
@@ -2047,15 +2056,51 @@ export default function CommunityDetail() {
                           // Check multiple sources for virtual tour URLs
                           const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
                           const virtualTourFromPerplexity = comprehensiveData?.marketData?.virtualTourUrl;
-                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour || virtualTourFromPerplexity;
+                          // Add our enhanced virtual tour detection results
+                          const hasDetectedTour = virtualTour?.found && virtualTour?.tourUrl;
+                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour || virtualTourFromPerplexity || hasDetectedTour;
+                          
+                          // Show loading state while detecting tours
+                          if (isDetectingTour) {
+                            return (
+                              <>
+                                <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
+                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                  <span>Searching for virtual tours...</span>
+                                </div>
+                              </>
+                            );
+                          }
                           
                           if (hasVirtualOptions) {
                             return (
                               <>
                                 <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
                                 
-                                {/* 3D Tour from Perplexity (Matterport, YouVisit, etc.) */}
-                                {virtualTourFromPerplexity && (
+                                {/* 3D Tour from enhanced detection (highest priority) */}
+                                {hasDetectedTour && virtualTour?.tourUrl && (
+                                  <div className="space-y-3">
+                                    <MatterportEmbed
+                                      tourId={`tour-${community.id}`}
+                                      tourUrl={virtualTour.embedUrl || virtualTour.tourUrl}
+                                      communityName={community.name}
+                                      showControls={true}
+                                      metadata={{
+                                        tourDescription: `Experience ${community.name} with an interactive ${virtualTour.platform || '3D'} virtual tour`,
+                                        features: community.amenities?.slice(0, 6)
+                                      }}
+                                    />
+                                    {virtualTour.confidence === 'low' && (
+                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                        Note: Virtual tour may require navigation on the community's website
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* 3D Tour from Perplexity (fallback if no detected tour) */}
+                                {!hasDetectedTour && virtualTourFromPerplexity && (
                                   <div className="space-y-3">
                                     <MatterportEmbed
                                       tourId={`tour-${community.id}`}

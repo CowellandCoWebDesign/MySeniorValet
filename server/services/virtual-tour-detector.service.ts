@@ -130,19 +130,27 @@ const VIRTUAL_TOUR_PATTERNS = {
   }
 };
 
-// Keywords to search for virtual tours
+// Keywords to search for virtual tours - expanded with more variations
 const VIRTUAL_TOUR_KEYWORDS = [
   'virtual tour',
   '3D tour',
+  '3d tour',
   '360 tour',
+  '360° tour',
+  '360-degree tour',
+  '360 degree tour',
+  'three sixty tour',
   'matterport',
   'interactive tour',
   'walkthrough',
+  'virtual walkthrough',
   'panoramic tour',
   'immersive tour',
   'online tour',
   'digital tour',
-  'view online'
+  'view online',
+  'vr tour',
+  'virtual reality tour'
 ];
 
 export interface VirtualTourResult {
@@ -208,7 +216,7 @@ export class VirtualTourDetectorService {
    */
   private async searchWithPerplexity(communityName: string): Promise<VirtualTourResult> {
     try {
-      const query = `Does "${communityName}" senior living community have a virtual tour, 3D tour, Matterport tour, or online walkthrough? If yes, what is the direct URL to view it?`;
+      const query = `Does "${communityName}" senior living community have a virtual tour, 360 tour, 360° tour, 3D tour, Matterport tour, interactive tour, or online walkthrough? Look for any buttons or links labeled "360 tour", "virtual tour", "view online", or "take a tour". If yes, what is the direct URL to view it? Check if the tour redirects to Matterport.com or any other virtual tour platform.`;
       
       const response = await this.perplexityService.searchCommunityInfo(query);
 
@@ -277,7 +285,7 @@ export class VirtualTourDetectorService {
   private async scanWebsite(websiteUrl: string, communityName: string): Promise<VirtualTourResult> {
     try {
       // Use Perplexity to scan the website
-      const query = `Scan the website ${websiteUrl} for any virtual tours, 3D tours, Matterport tours, or 360 tours. Look for tour links in navigation menus, galleries, amenities pages, or footer. Return the direct tour URL if found.`;
+      const query = `Scan the website ${websiteUrl} for any virtual tours, 360 tours, 360° tours, 3D tours, Matterport tours, or interactive tours. Look for buttons or links labeled "360 tour", "virtual tour", "view online", "take a tour" in navigation menus, galleries, amenities pages, hero sections, or footer. Follow any redirect links to find the actual tour URL. Return the direct tour URL if found.`;
       
       const response = await this.perplexityService.searchCommunityInfo(query);
 
@@ -392,6 +400,7 @@ export class VirtualTourDetectorService {
     const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
     const urls = text.match(urlRegex) || [];
 
+    // First pass: look for direct tour platform URLs
     for (const url of urls) {
       // Check if URL matches any known platform
       for (const platform of Object.values(VIRTUAL_TOUR_PATTERNS)) {
@@ -405,6 +414,30 @@ export class VirtualTourDetectorService {
             return url;
           }
         }
+      }
+    }
+
+    // Second pass: look for any URL near tour keywords
+    // This catches cases where the tour link might not be on a known platform
+    const tourKeywordPatterns = [
+      /360[\s-]?tour/i,
+      /virtual[\s-]?tour/i,
+      /3d[\s-]?tour/i,
+      /interactive[\s-]?tour/i,
+      /view[\s-]?online/i,
+      /take[\s-]?a[\s-]?tour/i
+    ];
+    
+    for (const url of urls) {
+      // Check if the URL text or surrounding text contains tour keywords
+      const urlIndex = text.indexOf(url);
+      const contextStart = Math.max(0, urlIndex - 100);
+      const contextEnd = Math.min(text.length, urlIndex + url.length + 100);
+      const context = text.slice(contextStart, contextEnd).toLowerCase();
+      
+      if (tourKeywordPatterns.some(pattern => pattern.test(context))) {
+        // This URL is likely a tour link based on context
+        return url;
       }
     }
 
