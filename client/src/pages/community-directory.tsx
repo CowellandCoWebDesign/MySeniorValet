@@ -1820,59 +1820,34 @@ export default function CommunityDirectory() {
             </p>
           </div>
 
-          {/* Hawaii Market Insights Box */}
+          {/* Hawaii Insider Savings Tips */}
           <div className="mb-10 bg-gradient-to-br from-blue-900/90 to-cyan-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
                 <Info className="w-6 h-6 text-cyan-300" />
               </div>
-              <h3 className="text-xl font-bold text-white">Hawaii Market Intelligence & Negotiation Guide</h3>
+              <h3 className="text-xl font-bold text-white">Hawaii Insider Savings Tips</h3>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-cyan-300 mb-3">Market Overview</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-400 mt-1">•</span>
-                    <span>Average cost: $5,500-$9,000/month (highest in nation)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-400 mt-1">•</span>
-                    <span>Limited availability due to geographic constraints</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-400 mt-1">•</span>
-                    <span>Year-round perfect climate reduces seasonal pricing</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-cyan-400 mt-1">•</span>
-                    <span>Strong multi-generational family presence common</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-cyan-300 mb-3">Insider Negotiation Tips</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💡</span>
-                    <span><strong>Kama'aina Discount:</strong> Ask about local resident discounts (10-15% off)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💡</span>
-                    <span><strong>Off-Peak Move:</strong> June-August moves can save $500-1000/month</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💡</span>
-                    <span><strong>Outer Island Advantage:</strong> Big Island/Kauai 20-30% less than Oahu</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💡</span>
-                    <span><strong>Ohana Plans:</strong> Multi-family member discounts available</span>
-                  </li>
-                </ul>
-              </div>
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Kama'aina Discount:</strong> Ask about local resident discounts (10-15% off)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Off-Peak Move:</strong> June-August moves can save $500-1000/month</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Outer Island Advantage:</strong> Big Island/Kauai 20-30% less than Oahu</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Ohana Plans:</strong> Multi-family member discounts available</span>
+                </li>
+              </ul>
             </div>
             
             <div className="mt-4 p-3 bg-cyan-800/30 rounded-lg border border-cyan-600/30">
