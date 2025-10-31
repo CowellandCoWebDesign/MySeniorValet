@@ -2329,59 +2329,34 @@ export default function CommunityDirectory() {
             </p>
           </div>
 
-          {/* New York Market Insights Box */}
+          {/* NYC Strategic Savings Tips */}
           <div className="mb-10 bg-gradient-to-br from-purple-900/90 to-indigo-900/90 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center">
                 <Info className="w-6 h-6 text-purple-300" />
               </div>
-              <h3 className="text-xl font-bold text-white">NYC Metro Market Intelligence & Strategic Negotiation</h3>
+              <h3 className="text-xl font-bold text-white">NYC Strategic Savings Tips</h3>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-purple-300 mb-3">Market Overview</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Average cost: $4,500-$8,000/month (NYC metro premium)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Upstate NY 40-60% less than NYC/Westchester</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>World-class healthcare access (NYC hospitals)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-purple-400 mt-1">•</span>
-                    <span>Cultural amenities and metropolitan lifestyle</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-purple-300 mb-3">Manhattan Money-Saving Tactics</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💰</span>
-                    <span><strong>Outer Borough Bargain:</strong> Brooklyn/Queens 25% less than Manhattan</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💰</span>
-                    <span><strong>Winter Move Special:</strong> January-March saves $1000-2000/month</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💰</span>
-                    <span><strong>Hudson Valley Alternative:</strong> 1-hour north, 50% savings</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💰</span>
-                    <span><strong>Rent Control Awareness:</strong> Ask about stabilized units</span>
-                  </li>
-                </ul>
-              </div>
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🗽</span>
+                  <span><strong>Outer Borough Bargain:</strong> Brooklyn/Queens 25% less than Manhattan</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🗽</span>
+                  <span><strong>Winter Move Special:</strong> January-March saves $1000-2000/month</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🗽</span>
+                  <span><strong>Hudson Valley Alternative:</strong> 1-hour north, 50% savings</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🗽</span>
+                  <span><strong>Rent Control Awareness:</strong> Ask about stabilized units</span>
+                </li>
+              </ul>
             </div>
             
             <div className="mt-4 p-3 bg-purple-800/30 rounded-lg border border-purple-600/30">
