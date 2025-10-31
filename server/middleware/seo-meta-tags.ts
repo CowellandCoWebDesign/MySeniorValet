@@ -78,8 +78,9 @@ async function getPageMetadata(url: string): Promise<{
   
   // Community Directory page
   if (section === 'community-directory') {
-    // Check for location hash in URL (e.g., #oakmont, #puerto-rico)
-    const hash = url.includes('#') ? url.split('#')[1] : null;
+    // Check for location query parameter in URL (e.g., ?location=oakmont, ?location=puerto-rico)
+    const queryParams = url.includes('?') ? new URLSearchParams(url.split('?')[1]) : null;
+    const location = queryParams?.get('location') || null;
     
     // Location-specific metadata
     const locationMeta: Record<string, { title: string; description: string; keywords: string }> = {
@@ -155,13 +156,13 @@ async function getPageMetadata(url: string): Promise<{
       }
     };
     
-    if (hash && locationMeta[hash]) {
+    if (location && locationMeta[location]) {
       return {
-        title: locationMeta[hash].title,
-        description: locationMeta[hash].description,
+        title: locationMeta[location].title,
+        description: locationMeta[location].description,
         image: defaultImage,
         type: 'website',
-        keywords: locationMeta[hash].keywords
+        keywords: locationMeta[location].keywords
       };
     }
     

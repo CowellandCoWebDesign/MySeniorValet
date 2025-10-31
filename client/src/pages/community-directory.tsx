@@ -58,10 +58,43 @@ const stateNames: Record<string, string> = {
 export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState("");
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
+  
+  // Check for location query parameter and scroll to section
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const locationParam = urlParams.get('location');
+    
+    if (locationParam) {
+      // Map location parameter to section refs
+      const locationToRef: Record<string, React.RefObject<HTMLElement>> = {
+        'hawaii': hawaiiSectionRef,
+        'fort-worth': texasSectionRef,
+        'new-york': newYorkSectionRef,
+        'canada': canadianSectionRef,
+        'puerto-rico': puertoRicoSectionRef,
+        'peru': peruSectionRef,
+        'cuba': cubaSectionRef,
+        'costa-rica': costaRicaSectionRef,
+        'panama': panamaSectionRef,
+        'oakmont': oakmontSectionRef,
+        'japan': japanSectionRef,
+        'singapore': singaporeSectionRef,
+        'scotland': scotlandSectionRef,
+        'australia': australiaSectionRef
+      };
+      
+      const targetRef = locationToRef[locationParam];
+      if (targetRef?.current) {
+        setTimeout(() => {
+          targetRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 500);
+      }
+    }
+  }, []);
   
   // Recently Discovered Communities carousel
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -312,6 +345,16 @@ export default function CommunityDirectory() {
   const texasSectionRef = useRef<HTMLElement>(null);
   const newYorkSectionRef = useRef<HTMLElement>(null);
   const canadianSectionRef = useRef<HTMLElement>(null);
+  const puertoRicoSectionRef = useRef<HTMLElement>(null);
+  const peruSectionRef = useRef<HTMLElement>(null);
+  const cubaSectionRef = useRef<HTMLElement>(null);
+  const costaRicaSectionRef = useRef<HTMLElement>(null);
+  const panamaSectionRef = useRef<HTMLElement>(null);
+  const oakmontSectionRef = useRef<HTMLElement>(null);
+  const japanSectionRef = useRef<HTMLElement>(null);
+  const singaporeSectionRef = useRef<HTMLElement>(null);
+  const scotlandSectionRef = useRef<HTMLElement>(null);
+  const australiaSectionRef = useRef<HTMLElement>(null);
   
   // Slider container refs for navigation
   const hawaiiSliderRef = useRef<HTMLDivElement>(null);
