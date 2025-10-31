@@ -2617,6 +2617,44 @@ export default function CommunityDirectory() {
             </div>
           </div>
           
+          {/* Puerto Rico Insider Savings Tips */}
+          <div className="mb-8 bg-gradient-to-br from-cyan-900/90 to-teal-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-cyan-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Puerto Rico Insider Savings Tips</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Act 60 Tax Benefits:</strong> Retirees pay 0% federal tax on retirement income</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Medicare Advantage:</strong> Full Medicare coverage unlike other Caribbean islands</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Mountain vs Coast:</strong> Central mountain towns 40% less than San Juan</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏝️</span>
+                  <span><strong>Hurricane Season Deals:</strong> September-November moves save 20-30%</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="mt-4 p-3 bg-cyan-800/30 rounded-lg border border-cyan-600/30">
+              <p className="text-sm text-cyan-200">
+                <span className="font-semibold text-cyan-300">Pro Tip:</span> As a U.S. territory, Puerto Rico offers unique benefits - no passport needed, 
+                use of U.S. dollar, and access to familiar brands while enjoying Caribbean living at 50% less than Hawaii.
+              </p>
+            </div>
+          </div>
+          
           {/* Puerto Rico Communities Slider */}
           {puertoRicoLoading ? (
             <div className="flex items-center justify-center h-40">
