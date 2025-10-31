@@ -2730,6 +2730,44 @@ export default function CommunityDirectory() {
             </div>
           </div>
           
+          {/* Peru Insider Savings Tips */}
+          <div className="mb-8 bg-gradient-to-br from-red-900/90 to-yellow-900/90 backdrop-blur-lg rounded-2xl border border-red-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-red-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Peru Expat Insider Savings Tips</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏔️</span>
+                  <span><strong>Healthcare Bargain:</strong> Private hospitals 70-80% less than US costs</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏔️</span>
+                  <span><strong>Lima vs Provinces:</strong> Arequipa and Cusco 40% cheaper than Lima</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏔️</span>
+                  <span><strong>Rentista Visa:</strong> Show $1,000/month income for residency benefits</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🏔️</span>
+                  <span><strong>Sacred Valley Secret:</strong> Best climate year-round, 50% less than Cusco city</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="mt-4 p-3 bg-red-800/30 rounded-lg border border-red-600/30">
+              <p className="text-sm text-red-200">
+                <span className="font-semibold text-red-300">Pro Tip:</span> Peru's affordable healthcare system attracts many expat retirees. 
+                Join local expat groups in Lima or Arequipa for insider housing deals and trusted healthcare provider recommendations.
+              </p>
+            </div>
+          </div>
+          
           {/* Peru Communities Display */}
           {peruLoading ? (
             <div className="flex items-center justify-center h-40">
