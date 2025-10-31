@@ -2758,59 +2758,34 @@ export default function CommunityDirectory() {
             </p>
           </div>
 
-          {/* Cuba Market Insights Box */}
+          {/* Cuba Insider Living Tips */}
           <div className="mb-10 bg-gradient-to-br from-blue-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6 shadow-2xl">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
                 <Info className="w-6 h-6 text-blue-300" />
               </div>
-              <h3 className="text-xl font-bold text-white">Cuba Expat Intelligence & Caribbean Living Guide</h3>
+              <h3 className="text-xl font-bold text-white">Cuba Insider Living Tips</h3>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-blue-300 mb-3">Market Overview</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>Average cost: $800-$2,000/month (most affordable Caribbean)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>Rich cultural heritage and vibrant communities</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>Year-round tropical climate (75-85°F)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-blue-400 mt-1">•</span>
-                    <span>Growing expat communities in Havana & Varadero</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-blue-300 mb-3">Caribbean Living Strategies</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">🌴</span>
-                    <span><strong>Casa Particular:</strong> Private homes 40% less than hotels</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">🌴</span>
-                    <span><strong>Havana vs Beach:</strong> Beach towns 30% more affordable</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">🌴</span>
-                    <span><strong>Long-term Stays:</strong> 6+ months saves 20-25%</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">🌴</span>
-                    <span><strong>Community Living:</strong> Shared amenities reduce costs</span>
-                  </li>
-                </ul>
-              </div>
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🌴</span>
+                  <span><strong>Casa Particular:</strong> Private homes 40% less than hotels</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🌴</span>
+                  <span><strong>Havana vs Beach:</strong> Beach towns 30% more affordable</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🌴</span>
+                  <span><strong>Long-term Stays:</strong> 6+ months saves 20-25%</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🌴</span>
+                  <span><strong>Community Living:</strong> Shared amenities reduce costs</span>
+                </li>
+              </ul>
             </div>
             
             <div className="mt-4 p-3 bg-blue-800/30 rounded-lg border border-blue-600/30">
