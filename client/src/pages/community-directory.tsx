@@ -1618,253 +1618,29 @@ export default function CommunityDirectory() {
       {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
       <section className="px-4 py-20">
         {/* Header Section with Premium Resort Background */}
-        <div className="relative overflow-hidden rounded-3xl mb-12">
-          {/* Premium Resort Courtyard Garden Background - Only for header */}
+        <div className="relative overflow-hidden rounded-3xl">
+          {/* Premium Resort Courtyard Garden Background */}
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{
               backgroundImage: `url(${resortGardenImage})`,
-              minHeight: '500px'
+              minHeight: '600px'
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-amber-950/70 via-amber-900/60 to-orange-950/80" />
           
-          <div className="relative z-10 px-8 py-16">
-            {/* Ultra-Premium Header with Crown */}
-            <div className="text-center">
-              <div className="flex justify-center mb-4">
-                <div className="relative">
-                  <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
-                  <span className="relative text-6xl">👑</span>
-                </div>
-              </div>
-              
-              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-                <Star className="h-5 w-5 mr-2" />
-                THE GOLD STANDARD IN SENIOR LIVING
-                <Star className="h-5 w-5 ml-2" />
-              </Badge>
-              
-              <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-                <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                  Oakmont Senior Living
-                </span>
-              </div>
-              
-              <p className="text-2xl text-amber-100 mb-4 font-semibold">
-                Excellence Redefined Across 106 Premier Communities
-              </p>
-              
-              <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-                For over 25 years, Oakmont has set the industry standard with resort-style amenities, 
-                award-winning memory care, and unmatched dedication to resident wellness
-              </p>
-            
-              <div className="flex flex-wrap gap-4 justify-center">
-                <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
-                  <Building className="h-4 w-4 mr-2" />
-                  106 Luxury Communities
-              </Badge>
-              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
-                <MapPin className="h-4 w-4 mr-2" />
-                California • Nevada • Hawaii
-              </Badge>
-              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
-                <Award className="h-4 w-4 mr-2" />
-                Industry Leader Since 1997
-              </Badge>
-              <Badge className="bg-gradient-to-r from-amber-600/20 to-orange-600/20 backdrop-blur-lg text-amber-200 border-2 border-amber-400/50 px-4 py-2">
-                <Star className="h-4 w-4 mr-2" />
-                4.8 Average Rating
+          <div className="relative z-10 px-8 py-12">
+            {/* Gold Standard Title and Communities */}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
+              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
+                106 Communities
               </Badge>
             </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Main Content Section */}
-      <div className="max-w-7xl mx-auto">
-        {/* Why Oakmont is The Gold Standard - NEW SECTION */}
-        <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <Award className="w-6 h-6 text-amber-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Why Oakmont is The Gold Standard</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6 mb-4">
-              <div>
-                <h4 className="font-semibold text-amber-300 mb-3">🏆 Award-Winning Excellence</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">★</span>
-                    <span><strong>Best of Senior Living 2025 Winner</strong> - Top 1-2% nationwide</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">★</span>
-                    <span><strong>#12 Largest U.S. Operator</strong> - 8,000+ residents served</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">★</span>
-                    <span><strong>4.3/5 Average Rating</strong> - From 3,244+ family reviews</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">★</span>
-                    <span><strong>Forbes Yass Prize Finalist</strong> - $11M innovation award</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-amber-300 mb-3">🎯 Signature Programs</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span><strong>Executive Chefs</strong> from top culinary schools & fine dining</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span><strong>Virtual Reality Therapy</strong> - Leading-edge Alzheimer's care</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span><strong>Traditions Memory Care</strong> - Specialized dementia neighborhoods</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span><strong>"Whole Living" Philosophy</strong> - Complete person care approach</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="bg-amber-800/30 rounded-lg p-3 border border-amber-600/30">
-              <p className="text-amber-200 text-sm font-semibold text-center">
-                🌟 Oakmont Advantage: Resort-style communities with private movie theaters, spa services, concierge physicians, 
-                and $344M investment in new luxury communities (2024)
-              </p>
-            </div>
-          </div>
-          
-          {/* Industry Leadership Context */}
-          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-amber-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Oakmont vs. The Competition</h3>
-            </div>
-            
-            <div className="space-y-3 mb-4">
-              <div className="bg-amber-800/20 rounded-lg p-3">
-                <p className="text-amber-300 font-semibold mb-2">🥇 Top-Tier Luxury Leaders (2025)</p>
-                <div className="grid md:grid-cols-2 gap-3 text-sm text-gray-200">
-                  <div>
-                    <strong className="text-amber-200">Atria Senior Living</strong> (#5 Largest)
-                    <br />• 25,045 units • Focus on hospitality
-                    <br />• Average: $6,000-8,000/month
-                  </div>
-                  <div>
-                    <strong className="text-amber-200">Oakmont Senior Living</strong> (#12 Largest)
-                    <br />• 8,000+ residents • Resort-style luxury
-                    <br />• Average: $7,548/month • Culinary excellence
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-amber-800/20 rounded-lg p-3">
-                <p className="text-amber-300 font-semibold mb-2">💎 What Sets Oakmont Apart</p>
-                <ul className="text-sm text-gray-200 space-y-1">
-                  <li>✓ <strong>West Coast Dominance:</strong> 106 premier locations in CA, NV, HI</li>
-                  <li>✓ <strong>Culinary Leadership:</strong> Only brand with executive chefs from top culinary schools</li>
-                  <li>✓ <strong>Tech Innovation:</strong> First to implement VR therapy for memory care</li>
-                  <li>✓ <strong>Resort Amenities:</strong> Private movie theaters, spa services standard</li>
-                  <li>✓ <strong>Financial Strength:</strong> $750M annual revenue, $344M recent expansion</li>
-                </ul>
-              </div>
-              
-              <div className="bg-gradient-to-r from-amber-600/30 to-orange-600/30 rounded-lg p-3 border border-amber-500/50">
-                <p className="text-amber-100 text-xs text-center">
-                  <strong>Industry Context:</strong> While Brookdale (#1) is the largest with 50,000+ units and Discovery (#2) has 33,692 units, 
-                  Oakmont leads in luxury West Coast markets with unmatched resort-style amenities and culinary programs.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Oakmont Market Insights Box */}
-          <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <Info className="w-6 h-6 text-amber-300" />
-              </div>
-              <h3 className="text-xl font-bold text-white">Oakmont Insider Intelligence & California Savings Guide</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-amber-300 mb-3">Market Overview</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>Average cost: $3,500-$6,000/month (California standard)</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>106 locations across CA, NV, and HI</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>Award-winning memory care programs</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-amber-400 mt-1">•</span>
-                    <span>Luxury resort-style amenities standard</span>
-                  </li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold text-amber-300 mb-3">Oakmont Negotiation Strategies</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span><strong>Multi-Community:</strong> Compare 3+ Oakmont locations for best rates</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span><strong>Off-Season Special:</strong> October-December moves save 10-15%</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span><strong>Veterans Discount:</strong> 5-10% off monthly fees</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span><strong>Respite-to-Resident:</strong> Try 2-week stay, get move-in credit</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="mt-4 p-3 bg-amber-800/30 rounded-lg border border-amber-600/30">
-              <p className="text-sm text-amber-200">
-                <span className="font-semibold text-amber-300">Oakmont Pro Tip:</span> Ask about the "California Care Package" - 
-                includes waived community fee ($2,500 value) plus first month's activity package free when touring 3+ locations.
-              </p>
-            </div>
-          </div>
 
           {/* Oakmont Communities Signature Slider */}
           {oakmontQuery.data?.communities?.length > 0 && (
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
-                  {oakmontQuery.data.communities.length} Communities
-                </Badge>
-              </div>
               <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
                 {oakmontQuery.data.communities.map((community: any, index: number) => (
                   <div key={community.id} className="flex-shrink-0">
@@ -1891,12 +1667,6 @@ export default function CommunityDirectory() {
           {/* Keep Static Examples if no API data */}
           {(!oakmontQuery.data || oakmontQuery.data.communities?.length === 0) && (
             <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
-                  106 Communities
-                </Badge>
-              </div>
               <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
                 <div className="flex-shrink-0">
                   <div className="relative group">
@@ -1970,16 +1740,18 @@ export default function CommunityDirectory() {
             </div>
           )}
             
-        <div className="text-center mt-8">
-          <Link to="/search?brand=Oakmont">
-            <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
-              Explore All 106 Oakmont Communities
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+            {/* Explore All Communities Button */}
+            <div className="text-center mt-8">
+              <Link to="/search?brand=Oakmont">
+                <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
+                  Explore All 106 Oakmont Communities
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
       
       {/* Hawaii Paradise Excellence - Premium Tropical Living */}
       <section ref={hawaiiSectionRef} className="relative px-4 py-16 overflow-hidden">
