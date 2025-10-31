@@ -2969,6 +2969,44 @@ export default function CommunityDirectory() {
             </div>
           </div>
           
+          {/* Costa Rica Insider Savings Tips */}
+          <div className="mb-8 bg-gradient-to-br from-green-900/90 to-blue-900/90 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-green-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Costa Rica Pensionado Insider Tips</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🦜</span>
+                  <span><strong>Pensionado Program:</strong> Show $1,000/month pension for discounts on everything</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🦜</span>
+                  <span><strong>Central Valley Advantage:</strong> Perfect climate, 30% less than coastal areas</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🦜</span>
+                  <span><strong>CAJA Healthcare:</strong> Join public system for $75-150/month full coverage</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">🦜</span>
+                  <span><strong>Rainy Season Deals:</strong> May-November moves save 20-40% on everything</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="mt-4 p-3 bg-green-800/30 rounded-lg border border-green-600/30">
+              <p className="text-sm text-green-200">
+                <span className="font-semibold text-green-300">Pro Tip:</span> Costa Rica's Pensionado visa offers automatic discounts - 50% off entertainment, 
+                25% off airlines, 20% off medical bills. Many expat communities in Atenas and Grecia offer built-in social networks.
+              </p>
+            </div>
+          </div>
+          
           {/* Costa Rica Communities Display */}
           {costaRicaLoading ? (
             <div className="flex items-center justify-center h-40">
