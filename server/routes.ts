@@ -1423,6 +1423,48 @@ Provide complete business data with ALL actual image URLs found.`;
   app.get('/sitemap-locations.xml', sitemapGenerator.generateLocationsSitemap); 
   app.get('/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
   
+  // Robots.txt for search engine crawlers
+  app.get('/robots.txt', (req, res) => {
+    const robots = `User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+Disallow: /admin-mega-dashboard
+Disallow: /login
+Disallow: /register
+Disallow: /onboarding
+Disallow: /family-groups
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://www.myseniorvalet.com/sitemap.xml
+
+# Special rules for major search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /`;
+
+    res.header('Content-Type', 'text/plain');
+    res.header('Cache-Control', 'public, max-age=86400'); // Cache for 24 hours
+    res.send(robots);
+  });
+  
   // Legacy redirects for backwards compatibility
   app.get('/api/sitemap-index.xml', (req, res) => res.redirect(301, '/sitemap-index.xml'));
   app.get('/api/sitemap-static.xml', (req, res) => res.redirect(301, '/sitemap-static.xml'));
