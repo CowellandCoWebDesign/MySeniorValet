@@ -1648,59 +1648,34 @@ export default function CommunityDirectory() {
               </p>
             </div>
 
-            {/* Oakmont Excellence & Market Intelligence */}
+            {/* Oakmont Insider Savings Tips */}
             <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
                   <Info className="w-6 h-6 text-amber-300" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Oakmont Gold Standard Excellence</h3>
+                <h3 className="text-xl font-bold text-white">Oakmont Insider Savings Tips</h3>
               </div>
               
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <h4 className="font-semibold text-amber-300 mb-3">Market Overview</h4>
-                  <ul className="space-y-2 text-gray-200 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 mt-1">•</span>
-                      <span>Average cost: $7,500+/month for luxury amenities</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 mt-1">•</span>
-                      <span>Executive chefs from top culinary schools</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 mt-1">•</span>
-                      <span>Private movie theaters & spa services standard</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-amber-400 mt-1">•</span>
-                      <span>Award-winning Traditions Memory Care program</span>
-                    </li>
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-semibold text-amber-300 mb-3">Insider Savings Tips</h4>
-                  <ul className="space-y-2 text-gray-200 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 mt-1">💎</span>
-                      <span>Tour 3+ locations for best negotiation leverage</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 mt-1">💎</span>
-                      <span>Ask about "California Care Package" - $2,500 value</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 mt-1">💎</span>
-                      <span>Veterans receive 5-10% monthly discount</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-green-400 mt-1">💎</span>
-                      <span>October-December moves save 10-15%</span>
-                    </li>
-                  </ul>
-                </div>
+              <div className="space-y-2">
+                <ul className="space-y-2 text-gray-200 text-sm">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span>Tour 3+ locations for best negotiation leverage</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span>Ask about "California Care Package" - $2,500 value</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span>Veterans receive 5-10% monthly discount</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-400 mt-1">💎</span>
+                    <span>October-December moves save 10-15%</span>
+                  </li>
+                </ul>
               </div>
             </div>
 
