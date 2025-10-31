@@ -236,6 +236,7 @@ function Router() {
       <Route path="/senior-living/:state/:city?" component={LocationLanding} />
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
+      <Route path="/search" component={SimplifiedSearch} />
       <Route path="/simplified-search" component={SimplifiedSearch} />
       <Route path="/enhanced-search-demo">
         {() => {
