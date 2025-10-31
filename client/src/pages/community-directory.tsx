@@ -1629,13 +1629,79 @@ export default function CommunityDirectory() {
           />
           <div className="absolute inset-0 bg-gradient-to-b from-amber-950/70 via-amber-900/60 to-orange-950/80" />
           
-          <div className="relative z-10 px-8 py-12">
-            {/* Gold Standard Title and Communities */}
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-amber-300">👑 Gold Standard Oakmont Communities</h3>
-              <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
-                106 Communities
+          <div className="relative z-10 px-8 py-16">
+            {/* Premium Header */}
+            <div className="text-center mb-10">
+              <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
+                <span className="text-5xl">👑</span>
+                <span className="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
+                  Oakmont Senior Living
+                </span>
+              </div>
+              
+              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-6 py-2 mb-6 text-base font-bold">
+                THE GOLD STANDARD IN SENIOR LIVING
               </Badge>
+              
+              <p className="text-xl text-gray-200 mb-8">
+                Resort-style luxury living across 106 premier communities in California, Nevada & Hawaii
+              </p>
+            </div>
+
+            {/* Oakmont Excellence & Market Intelligence */}
+            <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <Info className="w-6 h-6 text-amber-300" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Oakmont Gold Standard Excellence</h3>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="font-semibold text-amber-300 mb-3">Market Overview</h4>
+                  <ul className="space-y-2 text-gray-200 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 mt-1">•</span>
+                      <span>Average cost: $7,500+/month for luxury amenities</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 mt-1">•</span>
+                      <span>Executive chefs from top culinary schools</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 mt-1">•</span>
+                      <span>Private movie theaters & spa services standard</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-amber-400 mt-1">•</span>
+                      <span>Award-winning Traditions Memory Care program</span>
+                    </li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-amber-300 mb-3">Insider Savings Tips</h4>
+                  <ul className="space-y-2 text-gray-200 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 mt-1">💎</span>
+                      <span>Tour 3+ locations for best negotiation leverage</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 mt-1">💎</span>
+                      <span>Ask about "California Care Package" - $2,500 value</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 mt-1">💎</span>
+                      <span>Veterans receive 5-10% monthly discount</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-green-400 mt-1">💎</span>
+                      <span>October-December moves save 10-15%</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
 
           {/* Oakmont Communities Signature Slider */}
