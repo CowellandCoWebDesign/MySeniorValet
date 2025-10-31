@@ -265,6 +265,15 @@ app.use((req, res, next) => {
     return messages[status] || 'An error occurred';
   }
 
+  // SEO Meta Tags Middleware for Social Media Crawlers
+  // Must be added before static file serving to intercept HTML requests
+  import('./middleware/seo-meta-tags').then(({ createSEOMiddleware }) => {
+    app.use(createSEOMiddleware());
+    console.log('🔍 SEO Meta Tags middleware activated for social media previews');
+  }).catch(error => {
+    console.error('Failed to initialize SEO middleware:', error);
+  });
+  
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

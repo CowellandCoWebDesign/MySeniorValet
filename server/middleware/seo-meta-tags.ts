@@ -54,16 +54,18 @@ async function getPageMetadata(url: string): Promise<{
           .limit(1);
         
         if (community) {
-          const priceText = community.monthlyRent 
-            ? `Starting at $${community.monthlyRent}/mo` 
+          const priceText = community.rentPerMonth 
+            ? `Starting at $${community.rentPerMonth}/mo` 
+            : community.priceRange 
+            ? `$${(community.priceRange as any).min}-$${(community.priceRange as any).max}/mo`
             : 'Contact for pricing';
             
-          const careTypes = community.careLevel?.join(', ') || 'Senior Living';
+          const careTypes = community.careTypes?.join(', ') || 'Senior Living';
           
           return {
             title: `${community.name} - ${community.city}, ${community.state} | MySeniorValet`,
             description: `${community.name} offers ${careTypes} in ${community.city}, ${community.state}. ${priceText}. ${community.description || 'View photos, amenities, reviews and verified pricing on MySeniorValet.'}`,
-            image: community.photos?.[0]?.url || defaultImage,
+            image: community.photos?.[0] || defaultImage,
             type: 'article',
             keywords: `${community.name}, ${community.city} senior living, ${community.state} ${careTypes.toLowerCase()}, ${community.zipCode}`
           };
