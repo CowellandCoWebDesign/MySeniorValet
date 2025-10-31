@@ -3075,6 +3075,44 @@ export default function CommunityDirectory() {
             </div>
           </div>
           
+          {/* Panama Insider Savings Tips */}
+          <div className="mb-8 bg-gradient-to-br from-blue-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-blue-500/30 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center">
+                <Info className="w-6 h-6 text-blue-300" />
+              </div>
+              <h3 className="text-xl font-bold text-white">Panama Dollar Economy Savings Tips</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <ul className="space-y-2 text-gray-200 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">💵</span>
+                  <span><strong>US Dollar Advantage:</strong> No currency exchange fees or fluctuation risks</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">💵</span>
+                  <span><strong>Boquete vs City:</strong> Mountain towns 40% cheaper than Panama City</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">💵</span>
+                  <span><strong>Pensionado Perks:</strong> 50% off hotels, 30% off restaurants, 25% off utilities</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-400 mt-1">💵</span>
+                  <span><strong>Friendly Nations Visa:</strong> Fast-track residency for US & Canadian citizens</span>
+                </li>
+              </ul>
+            </div>
+            
+            <div className="mt-4 p-3 bg-blue-800/30 rounded-lg border border-blue-600/30">
+              <p className="text-sm text-blue-200">
+                <span className="font-semibold text-blue-300">Pro Tip:</span> Panama's territorial tax system means foreign-sourced income is tax-free. 
+                Combined with Pensionado discounts and US dollar stability, retirees can stretch their dollars 30-50% further than in the US.
+              </p>
+            </div>
+          </div>
+          
           {/* Panama Communities Display */}
           {panamaLoading ? (
             <div className="flex items-center justify-center h-40">
