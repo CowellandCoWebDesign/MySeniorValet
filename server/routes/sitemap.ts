@@ -38,22 +38,22 @@ export async function generateSitemap(req: Request, res: Response) {
       { url: '/terms', priority: '0.4', changefreq: 'yearly' },
     ];
     
-    // Location-specific directory pages
+    // Location-specific directory pages (SEO-friendly dedicated routes)
     const locationPages = [
-      { url: '/community-directory?location=oakmont', priority: '0.8', changefreq: 'weekly' },
-      { url: '/community-directory?location=puerto-rico', priority: '0.7', changefreq: 'weekly' },
-      { url: '/community-directory?location=peru', priority: '0.7', changefreq: 'weekly' },
-      { url: '/community-directory?location=hawaii', priority: '0.8', changefreq: 'weekly' },
-      { url: '/community-directory?location=fort-worth', priority: '0.8', changefreq: 'weekly' },
-      { url: '/community-directory?location=new-york', priority: '0.8', changefreq: 'weekly' },
-      { url: '/community-directory?location=cuba', priority: '0.6', changefreq: 'weekly' },
-      { url: '/community-directory?location=costa-rica', priority: '0.7', changefreq: 'weekly' },
-      { url: '/community-directory?location=panama', priority: '0.7', changefreq: 'weekly' },
-      { url: '/community-directory?location=japan', priority: '0.6', changefreq: 'weekly' },
-      { url: '/community-directory?location=singapore', priority: '0.6', changefreq: 'weekly' },
-      { url: '/community-directory?location=scotland', priority: '0.6', changefreq: 'weekly' },
-      { url: '/community-directory?location=canada', priority: '0.8', changefreq: 'weekly' },
-      { url: '/community-directory?location=australia', priority: '0.7', changefreq: 'weekly' },
+      { url: '/directory/oakmont', priority: '0.8', changefreq: 'weekly' },
+      { url: '/directory/puerto-rico', priority: '0.7', changefreq: 'weekly' },
+      { url: '/directory/peru', priority: '0.7', changefreq: 'weekly' },
+      { url: '/directory/hawaii', priority: '0.8', changefreq: 'weekly' },
+      { url: '/directory/fort-worth', priority: '0.8', changefreq: 'weekly' },
+      { url: '/directory/new-york', priority: '0.8', changefreq: 'weekly' },
+      { url: '/directory/cuba', priority: '0.6', changefreq: 'weekly' },
+      { url: '/directory/costa-rica', priority: '0.7', changefreq: 'weekly' },
+      { url: '/directory/panama', priority: '0.7', changefreq: 'weekly' },
+      { url: '/directory/japan', priority: '0.6', changefreq: 'weekly' },
+      { url: '/directory/singapore', priority: '0.6', changefreq: 'weekly' },
+      { url: '/directory/scotland', priority: '0.6', changefreq: 'weekly' },
+      { url: '/directory/canada', priority: '0.8', changefreq: 'weekly' },
+      { url: '/directory/australia', priority: '0.7', changefreq: 'weekly' },
     ];
     
     // Get total count of communities for pagination
