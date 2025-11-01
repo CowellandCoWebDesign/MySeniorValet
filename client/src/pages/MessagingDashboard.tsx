@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -27,17 +29,20 @@ export default function MessagingDashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<"all" | "unread" | "starred" | "archived">("all");
   
-  // Get current user ID (in real app, this would come from auth context)
-  const userId = "1";
+  // Get authenticated user
+  const { user, isLoading: authLoading } = useAuth();
+  const userId = user?.id?.toString();
   
   // Fetch conversations
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ["/api/messaging/conversations", userId],
     queryFn: async () => {
+      if (!userId) return [];
       const response = await fetch(`/api/messaging/conversations?userId=${userId}`);
       if (!response.ok) throw new Error("Failed to fetch conversations");
       return response.json();
-    }
+    },
+    enabled: !!userId,
   });
   
   // Calculate statistics
@@ -105,6 +110,24 @@ export default function MessagingDashboard() {
     }
     return format(messageDate, "MMM d, yyyy");
   };
+  
+  // Show login prompt if not authenticated
+  if (!user && !authLoading) {
+    return (
+      <div className="container mx-auto p-6">
+        <Card>
+          <CardContent className="text-center py-12">
+            <MessageSquare className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+            <h2 className="text-xl font-semibold mb-2">Sign in to view messages</h2>
+            <p className="text-muted-foreground mb-4">Access your conversations with senior living communities</p>
+            <Link href="/login">
+              <Button>Sign In</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   
   return (
     <div className="container mx-auto p-6 space-y-6">
