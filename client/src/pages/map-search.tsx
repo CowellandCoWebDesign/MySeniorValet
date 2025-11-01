@@ -2668,7 +2668,7 @@ export default function MapSearch() {
 
       {/* Enhanced Floating Action Button with Toggle Functionality */}
       {viewMode === 'map' && (
-        <div className="fixed bottom-6 right-6 z-[1000]">
+        <div className="fixed bottom-20 right-6 z-[45] md:bottom-6 md:z-[1000]">
           {!showBottomPanel && (
             <>
               {/* Pulse rings for attention when panel is closed */}
