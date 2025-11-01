@@ -4,7 +4,7 @@ import path from 'path';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
-import { generateStructuredData, generateBreadcrumbSchema, generateLocationSchema } from '../seo/structured-data-generator';
+import { generateStructuredData, generateBreadcrumbSchema, generateLocationSchema, generateDirectorySchema } from '../seo/structured-data-generator';
 
 // Detect if the request is from a social media crawler
 export function isSocialMediaCrawler(userAgent: string | undefined): boolean {

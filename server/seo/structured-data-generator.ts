@@ -170,7 +170,7 @@ function determineSeniorHousingType(careTypes: string[] | null): string {
 }
 
 // Schema for directory/listing pages
-function generateDirectorySchema(baseUrl: string): any {
+export function generateDirectorySchema(baseUrl: string): any {
   return {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
