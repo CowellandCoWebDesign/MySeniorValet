@@ -1423,6 +1423,10 @@ Provide complete business data with ALL actual image URLs found.`;
   app.get('/sitemap-locations.xml', sitemapGenerator.generateLocationsSitemap); 
   app.get('/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
   
+  // SEO Test endpoint for validating all SEO improvements
+  const { runSEOTests } = await import('./routes/seo-test');
+  app.get('/api/seo/test', runSEOTests);
+  
   // Robots.txt for search engine crawlers
   app.get('/robots.txt', (req, res) => {
     const robots = `User-agent: *
