@@ -244,55 +244,63 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       'TAS': 0.84, 'ACT': 0.84, 'WA': 0.83,
     };
     
-    // Add country-level and major region search pages
-    const countrySearchPages = [
-      // Canadian provinces
-      { location: 'Canada', priority: 0.92 },
-      { location: 'Ontario', priority: 0.9 },
-      { location: 'Quebec', priority: 0.9 },
-      { location: 'British Columbia', priority: 0.89 },
-      { location: 'Alberta', priority: 0.88 },
-      { location: 'Nova Scotia', priority: 0.87 },
-      { location: 'Saskatchewan', priority: 0.87 },
-      { location: 'Manitoba', priority: 0.86 },
-      { location: 'New Brunswick', priority: 0.86 },
-      // Australian states
-      { location: 'Australia', priority: 0.92 },
-      { location: 'New South Wales', priority: 0.89 },
-      { location: 'Queensland', priority: 0.89 },
-      { location: 'Victoria Australia', priority: 0.88 },
-      { location: 'South Australia', priority: 0.87 },
-      { location: 'Tasmania', priority: 0.86 },
+    // Add directory pages with SEO-friendly URLs (matches /directory/:location route)
+    const directoryPages = [
+      // US locations
+      { location: 'oakmont', priority: 0.85 },
+      { location: 'fort-worth', priority: 0.85 },
+      { location: 'new-york', priority: 0.92 },
+      { location: 'california', priority: 0.92 },
+      { location: 'florida', priority: 0.91 },
+      { location: 'texas', priority: 0.91 },
+      { location: 'hawaii', priority: 0.88 },
+      // Canadian locations
+      { location: 'canada', priority: 0.92 },
+      { location: 'ontario', priority: 0.9 },
+      { location: 'quebec', priority: 0.9 },
+      { location: 'british-columbia', priority: 0.89 },
+      { location: 'alberta', priority: 0.88 },
+      { location: 'nova-scotia', priority: 0.87 },
+      { location: 'saskatchewan', priority: 0.87 },
+      { location: 'manitoba', priority: 0.86 },
+      { location: 'new-brunswick', priority: 0.86 },
+      // Australian locations
+      { location: 'australia', priority: 0.92 },
+      { location: 'new-south-wales', priority: 0.89 },
+      { location: 'queensland', priority: 0.89 },
+      { location: 'victoria', priority: 0.88 },
+      { location: 'south-australia', priority: 0.87 },
+      { location: 'tasmania', priority: 0.86 },
       // Asia Pacific
-      { location: 'Japan', priority: 0.88 },
-      { location: 'Tokyo Japan', priority: 0.87 },
-      { location: 'Singapore', priority: 0.88 },
+      { location: 'japan', priority: 0.88 },
+      { location: 'tokyo', priority: 0.87 },
+      { location: 'singapore', priority: 0.88 },
       // Europe
-      { location: 'Scotland', priority: 0.87 },
-      { location: 'United Kingdom', priority: 0.85 },
-      { location: 'Italy', priority: 0.85 },
-      { location: 'France', priority: 0.85 },
-      { location: 'Spain', priority: 0.84 },
-      { location: 'Germany', priority: 0.84 },
+      { location: 'scotland', priority: 0.87 },
+      { location: 'united-kingdom', priority: 0.85 },
+      { location: 'italy', priority: 0.85 },
+      { location: 'france', priority: 0.85 },
+      { location: 'spain', priority: 0.84 },
+      { location: 'germany', priority: 0.84 },
       // Latin America
-      { location: 'Mexico', priority: 0.86 },
-      { location: 'Peru', priority: 0.85 },
-      { location: 'Cuba', priority: 0.84 },
-      { location: 'Costa Rica', priority: 0.84 },
-      { location: 'Panama', priority: 0.84 },
-      { location: 'Puerto Rico', priority: 0.85 },
+      { location: 'mexico', priority: 0.86 },
+      { location: 'peru', priority: 0.85 },
+      { location: 'cuba', priority: 0.84 },
+      { location: 'costa-rica', priority: 0.84 },
+      { location: 'panama', priority: 0.84 },
+      { location: 'puerto-rico', priority: 0.85 },
     ];
     
-    for (const { location, priority } of countrySearchPages) {
+    for (const { location, priority } of directoryPages) {
       xml += '  <url>\n';
-      xml += '    <loc>' + BASE_URL + '/search?location=' + encodeURIComponent(location) + '</loc>\n';
+      xml += '    <loc>' + BASE_URL + '/directory/' + location + '</loc>\n';
       xml += '    <lastmod>' + today + '</lastmod>\n';
       xml += '    <changefreq>weekly</changefreq>\n';
       xml += '    <priority>' + priority + '</priority>\n';
       xml += '  </url>\n';
     }
     
-    // Add all states/provinces from database
+    // Add all states/provinces from database as directory pages
     const states = await db
       .selectDistinct({ state: communities.state })
       .from(communities)
@@ -301,10 +309,10 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
     for (const { state } of states) {
       if (state) {
         const priority = internationalPriorities[state] || 0.8;
-        const stateSlug = state.toLowerCase().replace(/ /g, '-');
+        const stateSlug = state.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         
         xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/senior-living/' + stateSlug + '</loc>\n';
+        xml += '    <loc>' + BASE_URL + '/directory/' + stateSlug + '</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>' + priority + '</priority>\n';
@@ -312,7 +320,7 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       }
     }
     
-    // Add top cities (limit to 500 for this sitemap)
+    // Add top cities as directory pages (limit to 500 for this sitemap)
     const cities = await db
       .select({ 
         city: communities.city,
@@ -327,13 +335,12 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
     
     for (const { city, state } of cities) {
       if (city && state) {
-        const stateSlug = state.toLowerCase().replace(/ /g, '-');
-        const citySlug = city.toLowerCase().replace(/ /g, '-');
+        const citySlug = city.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/senior-living/' + stateSlug + '/' + citySlug + '</loc>\n';
+        xml += '    <loc>' + BASE_URL + '/directory/' + citySlug + '</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
         xml += '    <changefreq>weekly</changefreq>\n';
-        xml += '    <priority>0.7</priority>\n';
+        xml += '    <priority>0.75</priority>\n';
         xml += '  </url>\n';
       }
     }
@@ -398,14 +405,8 @@ export async function generateCommunitiesSitemap(req: Request, res: Response) {
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
     
     for (const community of communitiesData) {
-      // Generate URL-safe slug from name
-      const slug = community.name
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
-      
       xml += '  <url>\n';
-      xml += '    <loc>' + BASE_URL + '/community/' + community.id + '/' + escapeXml(slug) + '</loc>\n';
+      xml += '    <loc>' + BASE_URL + '/community/' + community.id + '</loc>\n';
       xml += '    <lastmod>' + (community.updatedAt ? 
         new Date(community.updatedAt).toISOString().split('T')[0] : 
         new Date().toISOString().split('T')[0]) + '</lastmod>\n';
