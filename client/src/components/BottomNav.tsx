@@ -77,7 +77,7 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className, onPane
   return (
     <nav
       className={cn(
-        'fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-lg',
+        'fixed bottom-0 left-0 right-0 z-[60] bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-lg',
         'md:hidden', // Only show on mobile
         className
       )}
