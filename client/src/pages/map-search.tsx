@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles, AlertTriangle } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
@@ -105,6 +105,91 @@ interface SearchFilters {
   availability: string;
 }
 
+type NormalizedBounds = {
+  sw: { lat: number; lng: number };
+  ne: { lat: number; lng: number };
+};
+
+const parseCoordinate = (value: unknown): number | null => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : null;
+  }
+
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : null;
+  }
+
+  return null;
+};
+
+const normalizeStoredBounds = (bounds: any): NormalizedBounds | null => {
+  if (!bounds) return null;
+
+  const toNormalizedBounds = (swCandidate: any, neCandidate: any): NormalizedBounds | null => {
+    const swLat = parseCoordinate(swCandidate?.lat);
+    const swLng = parseCoordinate(swCandidate?.lng);
+    const neLat = parseCoordinate(neCandidate?.lat);
+    const neLng = parseCoordinate(neCandidate?.lng);
+
+    if (
+      swLat === null ||
+      swLng === null ||
+      neLat === null ||
+      neLng === null ||
+      swLat === undefined ||
+      swLng === undefined ||
+      neLat === undefined ||
+      neLng === undefined
+    ) {
+      return null;
+    }
+
+    return {
+      sw: { lat: swLat, lng: swLng },
+      ne: { lat: neLat, lng: neLng }
+    };
+  };
+
+  if (typeof bounds.getSouthWest === 'function' && typeof bounds.getNorthEast === 'function') {
+    const sw = bounds.getSouthWest();
+    const ne = bounds.getNorthEast();
+    return toNormalizedBounds(sw, ne);
+  }
+
+  if (bounds.sw && bounds.ne) {
+    return toNormalizedBounds(bounds.sw, bounds.ne);
+  }
+
+  if (
+    bounds.south !== undefined &&
+    bounds.west !== undefined &&
+    bounds.north !== undefined &&
+    bounds.east !== undefined
+  ) {
+    const south = parseCoordinate(bounds.south);
+    const west = parseCoordinate(bounds.west);
+    const north = parseCoordinate(bounds.north);
+    const east = parseCoordinate(bounds.east);
+
+    if (south === null || west === null || north === null || east === null) {
+      return null;
+    }
+
+    return {
+      sw: { lat: south, lng: west },
+      ne: { lat: north, lng: east }
+    };
+  }
+
+  return null;
+};
+
+const cloneBounds = (bounds: NormalizedBounds): NormalizedBounds => ({
+  sw: { lat: bounds.sw.lat, lng: bounds.sw.lng },
+  ne: { lat: bounds.ne.lat, lng: bounds.ne.lng }
+});
+
 export default function MapSearch() {
   const [, setLocation] = useLocation();
 
@@ -137,8 +222,9 @@ export default function MapSearch() {
   };
 
   // Load saved state from session storage
-  const { loadState, saveState } = useMapSessionStorage();
+  const { loadState } = useMapSessionStorage();
   const savedState = loadState();
+  const normalizedSavedBounds = normalizeStoredBounds(savedState?.bounds);
   
   // Initialize state with saved values or defaults
   const [searchQuery, setSearchQuery] = useState(communityParam || savedState?.searchQuery || initialQuery);
@@ -165,15 +251,17 @@ export default function MapSearch() {
   );
   const [mapZoom, setMapZoom] = useState(savedState?.zoom || 12); // Use saved zoom or default
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
-  const [mapBounds, setMapBounds] = useState<any>(savedState?.bounds || null);
+  const [mapBounds, setMapBounds] = useState<any>(normalizedSavedBounds || null);
   const [showBottomPanel, setShowBottomPanel] = useState(savedState?.showBottomPanel || false);
   const [panelHeight, setPanelHeight] = useState(savedState?.panelHeight || 90);
   const [showTutorial, setShowTutorial] = useState(false);
   const [hasSeenTutorial, setHasSeenTutorial] = useState(false);
   const [showLegend, setShowLegend] = useState(false);
-  
+  const [searchError, setSearchError] = useState<string | null>(null);
+
   // Track last processed communities to avoid re-processing
   const lastProcessedCommunitiesRef = useRef<string | null>(null);
+  const lastValidBoundsRef = useRef<NormalizedBounds | null>(normalizedSavedBounds ? cloneBounds(normalizedSavedBounds) : null);
   
   // Heatmap layer state
   const [showHeatmapLayer, setShowHeatmapLayer] = useState(false);
@@ -219,13 +307,20 @@ export default function MapSearch() {
   const getBoundsCenter = (bounds: any) => {
     const boundsValues = getBoundsValues(bounds);
     if (!boundsValues) return null;
-    
+
     const { sw, ne } = boundsValues;
     return {
       lat: (sw.lat + ne.lat) / 2,
       lng: (sw.lng + ne.lng) / 2
     };
   };
+
+  useEffect(() => {
+    const normalizedBounds = getBoundsValues(mapBounds);
+    if (normalizedBounds) {
+      lastValidBoundsRef.current = cloneBounds(normalizedBounds);
+    }
+  }, [mapBounds]);
   
   // Save state to session storage whenever it changes
   useDebounceMapSave({
@@ -942,8 +1037,10 @@ export default function MapSearch() {
 
     setHasSearched(true);
     console.log('🔍 Searching for location:', location);
-    
+    setSearchError(null);
+
     // Clear any existing map bounds to force a fresh search
+    const previousBoundsSnapshot = lastValidBoundsRef.current ? cloneBounds(lastValidBoundsRef.current) : null;
     setMapBounds(null);
     setShowBottomPanel(false); // Hide panel during search
 
@@ -952,18 +1049,19 @@ export default function MapSearch() {
       console.log('📍 Attempting to geocode location:', location);
       const geocodeResponse = await fetch(`/api/geocode?location=${encodeURIComponent(location.toLowerCase())}`);
       const geocodeData = await geocodeResponse.json();
-      
+
       if (geocodeData.success && geocodeData.lat && geocodeData.lng) {
-        console.log('✅ Geocoding successful! Centering map on:', geocodeData.location, 
+        console.log('✅ Geocoding successful! Centering map on:', geocodeData.location,
                    'at coordinates:', geocodeData.lat, geocodeData.lng);
         setMapCenter([geocodeData.lat, geocodeData.lng]);
         setMapZoom(12); // City-level zoom for geocoded locations
-        
+
         // Delay showing panel to allow map to update first
         setTimeout(() => {
           setPanelHeight(90);
           setShowBottomPanel(true);
         }, 500);
+        setSearchError(null);
         return;
       }
     } catch (error) {
@@ -975,7 +1073,7 @@ export default function MapSearch() {
       // First try the enhanced API with filters if we have them
       const careTypeFilter = filters.careType !== 'All Types' ? `&careType=${encodeURIComponent(filters.careType)}` : '';
       const budgetFilter = filters.budget !== 'Any Budget' ? `&budget=${encodeURIComponent(filters.budget)}` : '';
-      
+
       const response = await fetch(`/api/communities/search/enhanced?location=${encodeURIComponent(location)}&limit=50${careTypeFilter}${budgetFilter}`);
       console.log('Enhanced API response status:', response.status, 'for location:', location);
 
@@ -987,13 +1085,14 @@ export default function MapSearch() {
         if (data.searchMetadata?.coordinates) {
           console.log('✅ Using searchMetadata coordinates:', data.searchMetadata.coordinates);
           setMapCenter([data.searchMetadata.coordinates.lat, data.searchMetadata.coordinates.lng]);
-          setMapZoom(data.searchMetadata.searchType === 'state' ? 7 : 
+          setMapZoom(data.searchMetadata.searchType === 'state' ? 7 :
                     data.searchMetadata.searchType === 'city' ? 12 : 10);
           // Delay showing panel to allow map to update first
           setTimeout(() => {
             setPanelHeight(90); // Set to 90% height - goes just under navbar
             setShowBottomPanel(true); // Show results
           }, 500);
+          setSearchError(null);
           return;
         }
 
@@ -1009,6 +1108,7 @@ export default function MapSearch() {
               setPanelHeight(90); // Set to 90% height - goes just under navbar
               setShowBottomPanel(true); // Show results
             }, 500);
+            setSearchError(null);
             return;
           }
         }
@@ -1299,6 +1399,17 @@ export default function MapSearch() {
       }
       setPanelHeight(90); // Set to 90% height - goes just under navbar
       setShowBottomPanel(true); // Show results panel when using fallback location
+      setSearchError(null);
+      return;
+    }
+
+    console.warn('⚠️ Unable to resolve location after all fallbacks:', location);
+    setSearchError(`We couldn't find "${location}". Try searching for a nearby city, state, or ZIP code instead.`);
+    setPanelHeight((prev) => (prev < 60 ? 60 : prev));
+    setShowBottomPanel(true);
+
+    if (previousBoundsSnapshot) {
+      setMapBounds(cloneBounds(previousBoundsSnapshot));
     }
   };
 
@@ -2099,9 +2210,9 @@ export default function MapSearch() {
         </div>
 
         {/* Enhanced Panel Content - Beautiful List View */}
-        <div 
+        <div
           ref={listContentRef}
-          className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900" 
+          className="overflow-y-auto p-4 bg-gradient-to-b from-blue-50/30 to-white dark:from-blue-900/10 dark:to-gray-900"
           style={{ height: 'calc(' + panelHeight + 'vh - 140px)' }}
           onTouchStart={(e) => {
             // Check if we're at the top of the scroll
@@ -2140,6 +2251,17 @@ export default function MapSearch() {
             }
           }}
         >
+          {searchError && (
+            <div className="mb-4 mx-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-left text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 flex-shrink-0 text-red-500 dark:text-red-300" />
+                <div>
+                  <p className="text-sm font-semibold">We couldn't locate that area</p>
+                  <p className="mt-1 text-xs leading-relaxed text-red-600 dark:text-red-300">{searchError}</p>
+                </div>
+              </div>
+            </div>
+          )}
           {!mapBounds ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 mx-4">
