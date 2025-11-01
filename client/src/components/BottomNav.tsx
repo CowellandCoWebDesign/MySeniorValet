@@ -7,9 +7,11 @@ interface BottomNavProps {
   savedCount?: number;
   messagesCount?: number;
   className?: string;
+  onPanelChange?: (panel: 'messages' | 'tours' | 'compare' | 'none') => void;
+  activePanel?: 'messages' | 'tours' | 'compare' | 'none';
 }
 
-export function BottomNav({ savedCount = 0, messagesCount = 0, className }: BottomNavProps) {
+export function BottomNav({ savedCount = 0, messagesCount = 0, className, onPanelChange, activePanel = 'none' }: BottomNavProps) {
   const [location, setLocation] = useLocation();
 
   const navItems = [
@@ -19,6 +21,7 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className }: Bott
       icon: Search,
       path: '/map-search',
       badge: null,
+      isPanel: false,
     },
     {
       id: 'saved',
@@ -26,6 +29,7 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className }: Bott
       icon: Heart,
       path: '/family-dashboard',
       badge: savedCount > 0 ? savedCount : null,
+      isPanel: false,
     },
     {
       id: 'tourmate',
@@ -33,6 +37,8 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className }: Bott
       icon: Calendar,
       path: '/tours',
       badge: null,
+      isPanel: true,
+      panelName: 'tours' as const,
     },
     {
       id: 'compare',
@@ -40,6 +46,8 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className }: Bott
       icon: GitCompare,
       path: '/ai-search-comparison',
       badge: null,
+      isPanel: true,
+      panelName: 'compare' as const,
     },
     {
       id: 'messages',
@@ -47,11 +55,23 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className }: Bott
       icon: MessageSquare,
       path: '/messages',
       badge: messagesCount > 0 ? messagesCount : null,
+      isPanel: true,
+      panelName: 'messages' as const,
     },
   ];
 
-  const handleNavigation = (path: string) => {
-    setLocation(path);
+  const handleNavigation = (item: typeof navItems[0]) => {
+    // If on map-search page and item is a panel, trigger panel instead of routing
+    if (location === '/map-search' && item.isPanel && onPanelChange && item.panelName) {
+      // Toggle panel - close if already open, open if closed
+      onPanelChange(activePanel === item.panelName ? 'none' : item.panelName);
+    } else if (!item.isPanel) {
+      // For non-panel items, route normally
+      setLocation(item.path);
+    } else {
+      // If not on map-search, route to the page
+      setLocation(item.path);
+    }
   };
 
   return (
@@ -65,12 +85,12 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className }: Bott
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = location === item.path;
+          const isActive = location === item.path || (item.isPanel && item.panelName === activePanel);
 
           return (
             <button
               key={item.id}
-              onClick={() => handleNavigation(item.path)}
+              onClick={() => handleNavigation(item)}
               className={cn(
                 'flex flex-col items-center justify-center flex-1 h-full relative transition-all duration-200',
                 'hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg',
