@@ -195,6 +195,7 @@ import VendorsMarketplace from "@/pages/vendors-marketplace";
 import SeniorHealthcareDirectory from "@/pages/senior-healthcare-directory";
 import SeniorResourcesCenter from "@/pages/senior-resources-center";
 import CommunityDirectory from "@/pages/community-directory";
+import LocationDirectory from "@/pages/LocationDirectory";
 import MayoClinicPage from "@/pages/providers/mayo-clinic";
 import ClevelandClinicPage from "@/pages/providers/cleveland-clinic";
 import WalgreensPage from "@/pages/vendors/walgreens";
@@ -371,6 +372,7 @@ function Router() {
       <Route path="/vendors/cvs-pharmacy" component={CVSPharmacyPage} />
       <Route path="/resources/medicare-guide" component={MedicareGuidePage} />
       <Route path="/community-directory" component={CommunityDirectory} />
+      <Route path="/directory/:location" component={LocationDirectory} />
       <Route path="/vendors-marketplace" component={VendorsMarketplace} />
       <Route path="/vendor-marketplace" component={VendorMarketplace} />
       <Route path="/vendor-marketplace-tiers" component={VendorMarketplaceTiers} />
