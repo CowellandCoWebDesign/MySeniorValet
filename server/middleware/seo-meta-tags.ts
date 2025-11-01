@@ -4,6 +4,7 @@ import path from 'path';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
+import { generateStructuredData, generateBreadcrumbSchema, generateLocationSchema } from '../seo/structured-data-generator';
 
 // Detect if the request is from a social media crawler
 export function isSocialMediaCrawler(userAgent: string | undefined): boolean {
@@ -36,6 +37,11 @@ async function getPageMetadata(url: string): Promise<{
   image: string;
   type: string;
   keywords?: string;
+  structuredData?: any;
+  breadcrumbs?: any;
+  canonicalUrl?: string;
+  robots?: string;
+  hreflang?: Array<{ lang: string; url: string }>;
 }> {
   const defaultImage = 'https://www.myseniorvalet.com/og-image.jpg';
   const baseUrl = 'https://www.myseniorvalet.com';
@@ -62,12 +68,31 @@ async function getPageMetadata(url: string): Promise<{
             
           const careTypes = community.careTypes?.join(', ') || 'Senior Living';
           
+          // Generate structured data for this community
+          const structuredData = generateStructuredData(community, 'community');
+          const breadcrumbs = generateBreadcrumbSchema([
+            { name: 'Home', url: '/' },
+            { name: 'Senior Housing Directory', url: '/community-directory' },
+            { name: community.state, url: `/search?location=${community.state}` },
+            { name: community.city, url: `/search?location=${community.city},${community.state}` },
+            { name: community.name, url: `/community/${community.id}` }
+          ], baseUrl);
+          
           return {
             title: `${community.name} - ${community.city}, ${community.state} | MySeniorValet`,
             description: `${community.name} offers ${careTypes} in ${community.city}, ${community.state}. ${priceText}. ${community.description || 'View photos, amenities, reviews and verified pricing on MySeniorValet.'}`,
             image: community.photos?.[0] || defaultImage,
             type: 'article',
-            keywords: `${community.name}, ${community.city} senior living, ${community.state} ${careTypes.toLowerCase()}, ${community.zipCode}`
+            keywords: `${community.name}, ${community.city} senior living, ${community.state} ${careTypes.toLowerCase()}, ${community.zipCode}`,
+            structuredData,
+            breadcrumbs,
+            canonicalUrl: `${baseUrl}/community/${community.id}`,
+            robots: 'index, follow',
+            hreflang: [
+              { lang: 'en', url: `${baseUrl}/community/${community.id}` },
+              { lang: 'es', url: `${baseUrl}/es/community/${community.id}` },
+              { lang: 'fr', url: `${baseUrl}/fr/community/${community.id}` }
+            ]
           };
         }
       }
@@ -157,22 +182,46 @@ async function getPageMetadata(url: string): Promise<{
     };
     
     if (location && locationMeta[location]) {
+      const breadcrumbs = generateBreadcrumbSchema([
+        { name: 'Home', url: '/' },
+        { name: 'Senior Housing Directory', url: '/community-directory' },
+        { name: locationMeta[location].title.split(' | ')[0], url: `/community-directory?location=${location}` }
+      ], baseUrl);
+      
       return {
         title: locationMeta[location].title,
         description: locationMeta[location].description,
         image: defaultImage,
         type: 'website',
-        keywords: locationMeta[location].keywords
+        keywords: locationMeta[location].keywords,
+        structuredData: generateDirectorySchema(baseUrl),
+        breadcrumbs,
+        canonicalUrl: `/directory/${location}`, // Future canonical URL
+        robots: 'index, follow',
+        hreflang: [
+          { lang: 'en', url: `${baseUrl}/community-directory?location=${location}` },
+          { lang: 'es', url: `${baseUrl}/es/community-directory?location=${location}` },
+          { lang: 'fr', url: `${baseUrl}/fr/community-directory?location=${location}` }
+        ]
       };
     }
     
     // Default Community Directory metadata
+    const breadcrumbs = generateBreadcrumbSchema([
+      { name: 'Home', url: '/' },
+      { name: 'Senior Housing Directory', url: '/community-directory' }
+    ], baseUrl);
+    
     return {
-      title: 'Senior Living Directory 2025 | 33,500+ Communities Worldwide | MySeniorValet',
-      description: 'Browse 33,500+ senior living communities across USA, Canada, Australia, Japan, and more. Compare Brookdale, Atria, Provincial communities with verified pricing, real reviews, and transparent data.',
+      title: 'Senior Housing Directory 2025 | 33,500+ Communities Worldwide | MySeniorValet',
+      description: 'Browse 33,500+ senior housing options across USA, Canada, Australia, Japan, and more. All types: facilities, HUD housing, RV parks, memory care, CCRCs. Compare with verified pricing and real reviews.',
       image: defaultImage,
       type: 'website',
-      keywords: 'senior living directory, worldwide retirement homes, Canada senior care, Australia aged care, USA assisted living, global elderly care'
+      keywords: 'senior housing directory, senior living facilities, HUD senior housing, retirement homes, assisted living, memory care, RV senior parks, 55+ communities',
+      structuredData: generateDirectorySchema(baseUrl),
+      breadcrumbs,
+      canonicalUrl: `${baseUrl}/community-directory`,
+      robots: 'index, follow'
     };
   }
   
@@ -310,15 +359,40 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
     const host = req.get('host') || 'www.myseniorvalet.com';
     const fullUrl = `${protocol}://${host}${req.originalUrl}`;
     
+    // Build canonical URL
+    const canonicalUrl = metadata.canonicalUrl || fullUrl;
+    
+    // Build hreflang tags
+    const hreflangTags = metadata.hreflang 
+      ? metadata.hreflang.map(({ lang, url }) => 
+          `<link rel="alternate" hreflang="${lang}" href="${url}" />`
+        ).join('\n    ')
+      : '';
+    
+    // Build structured data
+    const structuredDataScript = metadata.structuredData 
+      ? `<script type="application/ld+json">
+${JSON.stringify(metadata.structuredData, null, 2)}
+</script>`
+      : '';
+    
+    // Build breadcrumb structured data
+    const breadcrumbScript = metadata.breadcrumbs
+      ? `<script type="application/ld+json">
+${JSON.stringify(metadata.breadcrumbs, null, 2)}
+</script>`
+      : '';
+    
     // Replace or inject meta tags
     const metaTagsToInject = `
     <title>${metadata.title}</title>
     <meta name="description" content="${metadata.description}" />
     ${metadata.keywords ? `<meta name="keywords" content="${metadata.keywords}" />` : ''}
+    ${metadata.robots ? `<meta name="robots" content="${metadata.robots}" />` : '<meta name="robots" content="index, follow" />'}
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="${metadata.type}" />
-    <meta property="og:url" content="${fullUrl}" />
+    <meta property="og:url" content="${canonicalUrl}" />
     <meta property="og:title" content="${metadata.title}" />
     <meta property="og:description" content="${metadata.description}" />
     <meta property="og:image" content="${metadata.image}" />
@@ -329,14 +403,19 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
     
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="${fullUrl}" />
+    <meta property="twitter:url" content="${canonicalUrl}" />
     <meta property="twitter:title" content="${metadata.title}" />
     <meta property="twitter:description" content="${metadata.description}" />
     <meta property="twitter:image" content="${metadata.image}" />
     <meta property="twitter:site" content="@MySeniorValet" />
     
-    <!-- Additional SEO -->
-    <link rel="canonical" href="${fullUrl}" />`;
+    <!-- Canonical and Language Alternates -->
+    <link rel="canonical" href="${canonicalUrl}" />
+    ${hreflangTags}
+    
+    <!-- Structured Data for Search Engines -->
+    ${structuredDataScript}
+    ${breadcrumbScript}`;
     
     // Replace existing meta tags with new ones
     // First, remove old meta tags to avoid duplicates
