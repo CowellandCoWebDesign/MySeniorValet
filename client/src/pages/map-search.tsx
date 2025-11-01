@@ -1556,7 +1556,7 @@ export default function MapSearch() {
   ).length;
 
   return (
-    <div className="h-screen overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800">
+    <div className="h-screen overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800 pb-16 md:pb-0">
       {/* Header */}
       <div className={"shadow-sm border-b flex-shrink-0 " + (isDarkMode ? 'bg-gray-900 border-gray-700' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700')}>
         <div className="px-4 py-3">
