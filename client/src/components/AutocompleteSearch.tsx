@@ -14,7 +14,7 @@ import { Link, useLocation } from 'wouter';
 interface AutocompleteSuggestion {
   label: string;
   value: string;
-  type: 'city' | 'state' | 'county' | 'community' | 'care_type' | 'vendor' | 'healthcare';
+  type: 'city' | 'state' | 'county' | 'community' | 'care_type' | 'vendor' | 'healthcare' | 'location';
   count?: number;
   id?: number;
   description?: string;
@@ -356,8 +356,67 @@ export function AutocompleteSearch({
               <Loader2 className="h-5 w-5 animate-spin mx-auto text-gray-400" />
             </div>
           ) : (
-            <div className="py-2 space-y-2">
-              {suggestions.map((suggestion, index) => {
+            <div className="py-2">
+              {/* Group suggestions by type */}
+              {(() => {
+                const cities = suggestions.filter(s => s.type === 'city' || s.type === 'location');
+                const communities = suggestions.filter(s => s.type === 'community');
+                const others = suggestions.filter(s => s.type !== 'city' && s.type !== 'location' && s.type !== 'community');
+                
+                let currentIndex = 0;
+                const allSuggestions: any[] = [];
+                
+                // Add cities first with a header
+                if (cities.length > 0) {
+                  allSuggestions.push(
+                    <div key="cities-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                      <MapPin className="inline h-3 w-3 mr-1" />
+                      LOCATIONS
+                    </div>
+                  );
+                  cities.forEach(city => {
+                    allSuggestions.push({ ...city, index: currentIndex++ });
+                  });
+                }
+                
+                // Add communities with a header
+                if (communities.length > 0) {
+                  if (cities.length > 0) {
+                    allSuggestions.push(
+                      <div key="communities-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 border-t">
+                        <Home className="inline h-3 w-3 mr-1" />
+                        COMMUNITIES
+                      </div>
+                    );
+                  }
+                  communities.forEach(community => {
+                    allSuggestions.push({ ...community, index: currentIndex++ });
+                  });
+                }
+                
+                // Add other suggestions if any
+                if (others.length > 0) {
+                  if (cities.length > 0 || communities.length > 0) {
+                    allSuggestions.push(
+                      <div key="others-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 border-t">
+                        <Search className="inline h-3 w-3 mr-1" />
+                        OTHER RESULTS
+                      </div>
+                    );
+                  }
+                  others.forEach(other => {
+                    allSuggestions.push({ ...other, index: currentIndex++ });
+                  });
+                }
+                
+                return allSuggestions.map((item, idx) => {
+                  // If it's a header, return it as-is
+                  if (typeof item === 'object' && !item.type) {
+                    return item;
+                  }
+                  
+                  const suggestion = item;
+                  const index = item.index;
                 // Render rich card for community suggestions
                 if (suggestion.type === 'community') {
                   const careTypeBadge = getCareTypeBadge(suggestion.communitySubtype);
@@ -490,7 +549,8 @@ export function AutocompleteSearch({
                     </Badge>
                   </button>
                 );
-              })}
+                });
+              })()}
             </div>
           )}
         </Card>
