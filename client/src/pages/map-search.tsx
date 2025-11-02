@@ -153,7 +153,8 @@ export default function MapSearch() {
     viewParam === 'map' ? 'map' : savedState?.viewMode || 'map'
   );
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
-  const [hasSearched, setHasSearched] = useState(!!initialQuery || !!communitiesParam || !!(latParam && lngParam)); // True if arriving with search params
+  const [hasSearched, setHasSearched] = useState(false);
+  const [suppressDropdown, setSuppressDropdown] = useState(!!initialQuery || !!communitiesParam || !!(latParam && lngParam)); // Suppress dropdown if arriving with params
   const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>(
     savedState?.resultType || 'all'
   );
@@ -1550,17 +1551,18 @@ export default function MapSearch() {
                 value={searchQuery}
                 onChange={(value) => {
                   setSearchQuery(value);
-                  // Reset hasSearched when user starts typing to allow new suggestions
-                  if (hasSearched && value !== searchQuery) {
-                    setHasSearched(false);
+                  // Reset suppressDropdown when user starts typing to allow new suggestions
+                  if (suppressDropdown && value !== searchQuery) {
+                    setSuppressDropdown(false);
                   }
                 }}
                 onSubmit={(value) => {
                   handleLocationSearch(value);
+                  setSuppressDropdown(true); // Suppress dropdown after search
                 }}
                 placeholder="Search city, state, ZIP code or community name"
                 hideSearchButton={true}
-                forceClearSuggestions={hasSearched} // Clear dropdown when search has been executed
+                forceClearSuggestions={suppressDropdown} // Clear dropdown when arriving with query or after search
                 inputClassName={"w-full pl-10 pr-6 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent " + (isDarkMode 
                   ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                   : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500'
