@@ -99,6 +99,11 @@ export function AutocompleteSearch({
       return;
     }
     
+    // Skip fetching if forceClearSuggestions is true
+    if (forceClearSuggestions) {
+      return;
+    }
+    
     if (debouncedValue && debouncedValue.length >= 2) {
       setLoadingSuggestions(true);
       apiRequest('GET', `/api/autocomplete/suggestions?query=${encodeURIComponent(debouncedValue)}&limit=20`)
@@ -131,7 +136,7 @@ export function AutocompleteSearch({
       setSuggestions([]);
       setShowSuggestions(false);
     }
-  }, [debouncedValue]);
+  }, [debouncedValue, forceClearSuggestions]);
 
   // Close suggestions on click outside
   useEffect(() => {

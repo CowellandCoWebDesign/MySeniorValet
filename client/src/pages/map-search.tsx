@@ -153,7 +153,7 @@ export default function MapSearch() {
     viewParam === 'map' ? 'map' : savedState?.viewMode || 'map'
   );
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode for eye comfort
-  const [hasSearched, setHasSearched] = useState(false);
+  const [hasSearched, setHasSearched] = useState(!!initialQuery || !!communitiesParam || !!(latParam && lngParam)); // True if arriving with search params
   const [resultType, setResultType] = useState<'all' | 'communities' | 'vendors' | 'healthcare' | 'resources'>(
     savedState?.resultType || 'all'
   );
