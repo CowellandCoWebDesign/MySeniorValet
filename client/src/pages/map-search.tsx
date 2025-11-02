@@ -1960,28 +1960,6 @@ export default function MapSearch() {
             </PopoverContent>
           </Popover>
 
-          {/* List View Toggle Button */}
-          <Button
-            onClick={() => {
-              setShowBottomPanel(!showBottomPanel);
-              if (!showBottomPanel) {
-                setPanelHeight(90); // Set default height when opening
-              }
-            }}
-            size="sm"
-            variant={showBottomPanel ? 'default' : 'outline'}
-            className={`flex items-center gap-1 ${isDarkMode 
-              ? (showBottomPanel ? 'bg-blue-600 text-white' : 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600') 
-              : (showBottomPanel ? 'bg-blue-600 text-white' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50')
-            }`}
-          >
-            <List className="w-4 h-4" />
-            <span className="text-xs">List View</span>
-            {mapCommunities.length > 0 && (
-              <Badge className="ml-1 bg-white/20 text-xs">{mapCommunities.length}</Badge>
-            )}
-          </Button>
-
           {/* Legend Button */}
           <Button
             onClick={() => setShowLegend(!showLegend)}
