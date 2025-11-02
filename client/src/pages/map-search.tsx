@@ -347,12 +347,11 @@ export default function MapSearch() {
               setMapZoom(zoom);
               setHasSearched(true);
               
-              // Don't automatically show the bottom panel - let users open it manually
-              // This prevents the panel from covering the map view
-              // setTimeout(() => {
-              //   setShowBottomPanel(true);
-              //   setPanelHeight(90);
-              // }, 500);
+              // Show the bottom panel with these communities
+              setTimeout(() => {
+                setShowBottomPanel(true);
+                setPanelHeight(90);
+              }, 500);
             } else {
               console.error('❌ No valid coordinates found in communities');
               // Don't set hasSearched so other handlers can run
@@ -374,12 +373,11 @@ export default function MapSearch() {
       setSearchQuery(initialQuery);
       setHasSearched(true);
       
-      // Don't automatically open the bottom panel - let users open it manually if needed
-      // This prevents the panel from covering the map when arriving from a search
-      // if (!showBottomPanel && initialQuery.length > 0 && viewParam !== 'map') {
-      //   setPanelHeight(90);
-      //   setShowBottomPanel(true);
-      // }
+      // Only open the bottom panel if not explicitly coming from View in a map
+      if (!showBottomPanel && initialQuery.length > 0 && viewParam !== 'map') {
+        setPanelHeight(90);
+        setShowBottomPanel(true);
+      }
       
       // First, try to geocode the location to get coordinates
       console.log('📍 Attempting to geocode location:', initialQuery);
