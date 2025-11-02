@@ -347,11 +347,12 @@ export default function MapSearch() {
               setMapZoom(zoom);
               setHasSearched(true);
               
-              // Show the bottom panel with these communities
-              setTimeout(() => {
-                setShowBottomPanel(true);
-                setPanelHeight(90);
-              }, 500);
+              // Don't automatically show the bottom panel - let users open it manually
+              // This prevents the panel from covering the map view
+              // setTimeout(() => {
+              //   setShowBottomPanel(true);
+              //   setPanelHeight(90);
+              // }, 500);
             } else {
               console.error('❌ No valid coordinates found in communities');
               // Don't set hasSearched so other handlers can run
@@ -373,11 +374,12 @@ export default function MapSearch() {
       setSearchQuery(initialQuery);
       setHasSearched(true);
       
-      // Only open the bottom panel if not explicitly coming from View in a map
-      if (!showBottomPanel && initialQuery.length > 0 && viewParam !== 'map') {
-        setPanelHeight(90);
-        setShowBottomPanel(true);
-      }
+      // Don't automatically open the bottom panel - let users open it manually if needed
+      // This prevents the panel from covering the map when arriving from a search
+      // if (!showBottomPanel && initialQuery.length > 0 && viewParam !== 'map') {
+      //   setPanelHeight(90);
+      //   setShowBottomPanel(true);
+      // }
       
       // First, try to geocode the location to get coordinates
       console.log('📍 Attempting to geocode location:', initialQuery);
@@ -403,7 +405,7 @@ export default function MapSearch() {
               .then(data => {
                 if (data.communities && data.communities.length > 0) {
                   // Group communities by city/state to find the most common location
-                  const locationCounts: Map<string, {count: number, lat: number, lng: number}> = new Map();
+                  const locationCounts = new Map<string, {count: number, lat: number, lng: number}>();
                   data.communities.forEach((comm: Community) => {
                     const key = `${comm.city}, ${comm.state}`;
                     const current = locationCounts.get(key) || { count: 0, lat: comm.latitude, lng: comm.longitude };
@@ -1959,6 +1961,28 @@ export default function MapSearch() {
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* List View Toggle Button */}
+          <Button
+            onClick={() => {
+              setShowBottomPanel(!showBottomPanel);
+              if (!showBottomPanel) {
+                setPanelHeight(90); // Set default height when opening
+              }
+            }}
+            size="sm"
+            variant={showBottomPanel ? 'default' : 'outline'}
+            className={`flex items-center gap-1 ${isDarkMode 
+              ? (showBottomPanel ? 'bg-blue-600 text-white' : 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600') 
+              : (showBottomPanel ? 'bg-blue-600 text-white' : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50')
+            }`}
+          >
+            <List className="w-4 h-4" />
+            <span className="text-xs">List View</span>
+            {mapCommunities.length > 0 && (
+              <Badge className="ml-1 bg-white/20 text-xs">{mapCommunities.length}</Badge>
+            )}
+          </Button>
 
           {/* Legend Button */}
           <Button
