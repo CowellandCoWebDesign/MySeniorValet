@@ -50,12 +50,13 @@ interface Community {
   reviewCount: number;
   phone: string;
   website: string;
-  priceRange?: { min: number; max: number };
+  priceRange: string | { min: number; max: number } | null;
   availability: string;
   photos: string[];
   description: string;
   hudPropertyId?: string;
   rentPerMonth?: number;
+  dataSource?: string;
 }
 
 interface Vendor {
@@ -402,7 +403,7 @@ export default function MapSearch() {
               .then(data => {
                 if (data.communities && data.communities.length > 0) {
                   // Group communities by city/state to find the most common location
-                  const locationCounts = new Map<string, {count: number, lat: number, lng: number}>();
+                  const locationCounts: Map<string, {count: number, lat: number, lng: number}> = new Map();
                   data.communities.forEach((comm: Community) => {
                     const key = `${comm.city}, ${comm.state}`;
                     const current = locationCounts.get(key) || { count: 0, lat: comm.latitude, lng: comm.longitude };
