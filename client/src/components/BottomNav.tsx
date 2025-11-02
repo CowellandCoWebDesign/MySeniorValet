@@ -78,12 +78,10 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className, onPane
     <nav
       className={cn(
         'fixed bottom-0 left-0 right-0 z-[60] bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 shadow-lg',
-        // Responsive design: full width on mobile, centered with max width on desktop
-        'md:left-1/2 md:-translate-x-1/2 md:max-w-2xl md:rounded-t-2xl md:border-x',
         className
       )}
     >
-      <div className="flex items-center justify-around h-16 px-2 md:px-4">
+      <div className="flex items-center justify-around h-16 px-2 md:px-6 lg:px-8 max-w-7xl mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.path || (item.isPanel && item.panelName === activePanel);
