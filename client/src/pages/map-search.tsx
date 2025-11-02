@@ -1581,12 +1581,19 @@ export default function MapSearch() {
             <div className="relative flex-1">
               <AutocompleteSearch
                 value={searchQuery}
-                onChange={setSearchQuery}
+                onChange={(value) => {
+                  setSearchQuery(value);
+                  // Reset hasSearched when user starts typing to allow new suggestions
+                  if (hasSearched && value !== searchQuery) {
+                    setHasSearched(false);
+                  }
+                }}
                 onSubmit={(value) => {
                   handleLocationSearch(value);
                 }}
                 placeholder="Search city, state, ZIP code or community name"
                 hideSearchButton={true}
+                forceClearSuggestions={hasSearched} // Clear dropdown when search has been executed
                 inputClassName={"w-full pl-10 pr-6 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent " + (isDarkMode 
                   ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                   : 'bg-white dark:bg-gray-800 border-gray-300 text-gray-900 dark:text-white placeholder-gray-500'
