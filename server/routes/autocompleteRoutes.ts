@@ -27,7 +27,43 @@ router.get('/autocomplete/suggestions', async (req, res) => {
     // Track timing for performance monitoring
     const startTime = Date.now();
     
-    // PRIORITY 1: COMPREHENSIVE community search - this is what users need most!
+    // PRIORITY 1: Search for matching cities FIRST (for better location-based searching)
+    const cityResults = await db
+      .selectDistinct({
+        city: communities.city,
+        state: communities.state,
+        count: sql<number>`COUNT(*)::int`.as('count')
+      })
+      .from(communities)
+      .where(
+        or(
+          ilike(communities.city, `${searchTerm}%`),  // Exact city match (highest priority)
+          ilike(communities.city, `%${searchTerm}%`), // Contains
+          sql`CONCAT(${communities.city}, ', ', ${communities.state}) ILIKE ${searchTerm + '%'}` // Combined city+state
+        )
+      )
+      .groupBy(communities.city, communities.state)
+      .limit(10); // Top 10 matching cities
+    
+    // Add city suggestions FIRST with highest priority
+    cityResults.forEach(c => {
+      const isExactMatch = c.city.toLowerCase() === searchTerm;
+      const startsWithMatch = c.city.toLowerCase().startsWith(searchTerm);
+      
+      suggestions.push({
+        label: `${c.city}, ${c.state}`,
+        value: `${c.city}, ${c.state}`,
+        type: 'city',
+        id: null,
+        description: `${c.count} communities`,
+        priority: isExactMatch ? 0 : startsWithMatch ? 1 : 2, // Cities get top priority
+        city: c.city,
+        state: c.state,
+        count: c.count
+      });
+    });
+    
+    // PRIORITY 2: Then search for individual communities
     if (!category || category === 'all' || category === 'communities') {
       const communityNameResults = await db
         .select({
@@ -59,7 +95,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         )
         .limit(200); // FULL COVERAGE: 200+ communities for major cities like LA (207 communities)
       
-      // Add community name matches with priority and ALL needed data
+      // Add community name matches with lower priority than cities
       communityNameResults.forEach(c => {
         suggestions.push({
           label: c.name,
@@ -67,7 +103,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           type: 'community',
           id: c.id,
           description: `${c.city}, ${c.state}${c.communitySubtype ? ` - ${c.communitySubtype.replace(/_/g, ' ')}` : ''}`,
-          priority: c.name.toLowerCase().startsWith(searchTerm) ? 1 : 2,
+          priority: c.name.toLowerCase().startsWith(searchTerm) ? 3 : 4, // Communities come after cities
           city: c.city,
           state: c.state,
           address: c.address,
@@ -83,40 +119,6 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         });
       });
     }
-    
-    // PRIORITY 2: Search cities (database first for speed)
-    const quickCityResults = await db
-      .selectDistinct({
-        city: communities.city,
-        state: communities.state,
-        count: sql<number>`COUNT(*)::int`.as('count')
-      })
-      .from(communities)
-      .where(
-        or(
-          ilike(communities.city, `${searchTerm}%`),  // Starts with
-          ilike(communities.city, `%${searchTerm}%`),  // Contains
-          ilike(communities.state, `${searchTerm}%`), // State search (North Carolina, etc)
-          sql`CONCAT(${communities.city}, ' ', ${communities.state}) ILIKE ${searchTerm + '%'}` // Combined city+state
-        )
-      )
-      .groupBy(communities.city, communities.state)
-      .limit(50); // EXPANDED: 50 cities for complete coverage
-    
-    // Add city suggestions with improved data
-    quickCityResults.forEach(c => {
-      suggestions.push({
-        label: `${c.city}, ${c.state}`,
-        value: c.city,
-        type: 'location',
-        id: null,
-        description: `City - ${c.count} communities`,
-        priority: c.city.toLowerCase().startsWith(searchTerm) ? 3 : 4,
-        city: c.city,
-        state: c.state,
-        count: c.count
-      });
-    });
     
     // Parse location queries (e.g., "Kingston Ontario" or "San Francisco CA")
     let citySearch = searchTerm;
@@ -327,7 +329,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       cityWhereCondition = ilike(communities.city, `%${searchTerm}%`);
     }
     
-    const cityResults = await db
+    const additionalCityResults = await db
       .selectDistinct({
         city: communities.city,
         state: communities.state,
@@ -339,7 +341,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
       .orderBy(sql`COUNT(*) DESC`)
       .limit(3);
 
-    cityResults.forEach(c => {
+    additionalCityResults.forEach(c => {
       suggestions.push({
         label: `${c.city}, ${c.state}`,
         value: `${c.city}, ${c.state}`,
