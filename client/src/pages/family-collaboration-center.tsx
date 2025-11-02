@@ -80,15 +80,11 @@ interface MessagesResponse {
 interface Tour {
   id: string;
   communityName: string;
-  community?: string;
   date: string;
   time: string;
   contactPerson: string;
-  contact?: string;
   phone: string;
   status?: string;
-  address?: string;
-  notes?: string;
 }
 
 interface Visit {
@@ -101,7 +97,6 @@ interface Visit {
   notes?: string;
   pros: string[];
   cons: string[];
-  wouldRecommend?: boolean;
 }
 
 interface SharedFavorite {
@@ -111,13 +106,8 @@ interface SharedFavorite {
   city: string;
   state: string;
   priceRange: string;
-  price?: string;
-  location?: string;
   careType: string;
   rating: number;
-  familyRating?: number;
-  notes?: string;
-  addedBy?: string;
 }
 
 export default function FamilyCollaborationCenter() {
@@ -322,7 +312,7 @@ export default function FamilyCollaborationCenter() {
   }
 
   // Check if user has no data yet (first time user)
-  const isNewUser = user && (!sharedFavorites || sharedFavorites.length === 0) && (!familyMessages || familyMessages.length === 0);
+  const isNewUser = user && (!favorites || favorites.length === 0) && (!familyMessages || familyMessages.length === 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
@@ -949,9 +939,9 @@ export default function FamilyCollaborationCenter() {
                       <div className="text-center text-muted-foreground py-8">
                         Loading messages...
                       </div>
-                    ) : messagesData?.messages?.length ?? 0 > 0 ? (
-                      messagesData?.messages?.map((msg: any) => {
-                        const isCurrentUser = msg.senderId === messagesData?.currentUserId;
+                    ) : messagesData?.messages?.length > 0 ? (
+                      messagesData.messages.map((msg: any) => {
+                        const isCurrentUser = msg.senderId === messagesData.currentUserId;
                         const isSystemMessage = msg.messageType === 'system';
                         
                         return (

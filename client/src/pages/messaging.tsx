@@ -101,8 +101,8 @@ export function Messaging() {
           </Button>
         </Link>
         <h1 className="text-3xl font-bold">Messages</h1>
-        {(unreadData?.unreadCount ?? 0) > 0 && (
-          <Badge variant="destructive">{unreadData?.unreadCount} unread</Badge>
+        {unreadData?.unreadCount > 0 && (
+          <Badge variant="destructive">{unreadData.unreadCount} unread</Badge>
         )}
       </div>
 
