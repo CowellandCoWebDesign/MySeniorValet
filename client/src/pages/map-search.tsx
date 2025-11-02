@@ -1325,41 +1325,8 @@ export default function MapSearch() {
     }
   };
 
-  // Handle initial search query from URL and onboarding data
-  useEffect(() => {
-    if (initialQuery && !hasSearched) {
-      console.log('Performing initial search with onboarding data:', {
-        location: initialQuery,
-        budget: budgetParam,
-        careTypes: careTypesParam
-      });
-      
-      // Apply filters and then search
-      let newFilters = { ...filters };
-      
-      // Apply budget filter from onboarding
-      if (budgetParam) {
-        newFilters.budget = getBudgetFilter(budgetParam);
-      }
-      
-      // Apply care type filter from onboarding
-      if (careTypesParam) {
-        // The careTypes param might be a comma-separated list
-        const firstCareType = careTypesParam.split(',')[0];
-        if (firstCareType) {
-          newFilters.careType = firstCareType;
-        }
-      }
-      
-      // Set filters and perform search
-      setFilters(newFilters);
-      
-      // Small delay to ensure filters are set
-      setTimeout(() => {
-        handleLocationSearch(initialQuery);
-      }, 100);
-    }
-  }, []); // Only run once on mount
+  // NOTE: Initial search query handling moved to main useEffect above (lines 273-450)
+  // to avoid duplicate searches and dropdown persistence issues
 
 
 
