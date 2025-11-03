@@ -2616,10 +2616,10 @@ Disallow: /`;
   // Family Collaboration Center endpoints
   // These endpoints support the Family Collaboration features
   app.get('/api/family/messages', (req: any, res) => {
-    const userId = req.session?.user?.id || req.user?.id || req.user?.claims?.sub || '1';
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub || '1';
     
-    // Return sample messages for authenticated users
-    const sampleMessages = req.user || req.session?.user ? [
+    // Always return sample messages if we have a userId
+    const sampleMessages = userId ? [
       {
         id: '1',
         senderId: userId,
@@ -2666,8 +2666,9 @@ Disallow: /`;
   });
 
   app.get('/api/family/visit-history', (req: any, res) => {
-    // Return sample visit history for authenticated users
-    const visitHistory = req.user || req.session?.user ? [
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || '1';
+    // Return sample visit history for users with a valid userId
+    const visitHistory = userId ? [
       {
         id: '1',
         community: 'Belmont Village Senior Living',
@@ -2698,8 +2699,9 @@ Disallow: /`;
   });
 
   app.get('/api/family/shared-favorites', (req: any, res) => {
-    // Return sample favorites for authenticated users
-    const favorites = req.user || req.session?.user ? [
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || '1';
+    // Return sample favorites for users with a valid userId
+    const favorites = userId ? [
       {
         id: 1,
         name: 'Sunrise Senior Living',
@@ -2732,8 +2734,9 @@ Disallow: /`;
   });
 
   app.get('/api/tours', (req: any, res) => {
-    // Return sample tours for authenticated users
-    const tours = req.user || req.session?.user ? [
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || '1';
+    // Return sample tours for users with a valid userId
+    const tours = userId ? [
       {
         id: '1',
         communityName: 'Sunrise Senior Living',
