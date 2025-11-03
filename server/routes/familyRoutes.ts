@@ -19,8 +19,14 @@ import { randomBytes } from 'crypto';
 const router = Router();
 
 // Helper to get user ID from request
-const getUserId = (req: Request): number => {
-  return (req as any).user?.id || 1; // Default to 1 for development
+const getUserId = (req: Request): number | null => {
+  const sessionUserId = (req as any).session?.user?.id || (req as any).session?.userId;
+  const authUserId = (req as any).user?.id || (req as any).user?.claims?.sub;
+  
+  const userId = sessionUserId || authUserId;
+  
+  // Return null if no valid user ID found (unauthenticated)
+  return userId ? parseInt(userId) : null;
 };
 
 // Create a new family group
@@ -143,8 +149,40 @@ router.get("/groups/:groupId", async (req: Request, res: Response) => {
 router.get("/messages", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
+    const isAuthenticated = userId !== null;
     
-    // Find the user's family group
+    // For unauthenticated users, show demo data
+    if (!isAuthenticated) {
+      return res.json({
+        messages: [
+          {
+            id: '1',
+            senderId: 'demo-user-1',
+            senderName: 'John',
+            content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
+            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+          },
+          {
+            id: '2',
+            senderId: 'demo-user-2',
+            senderName: 'Sarah',
+            content: 'That sounds great! Did you get a chance to see the dining facilities?',
+            createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
+          },
+          {
+            id: '3',
+            senderId: 'demo-user-1',
+            senderName: 'John',
+            content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
+            createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+          }
+        ],
+        currentUserId: 'demo',
+        groupName: 'Sample Family Group'
+      });
+    }
+    
+    // For authenticated users, find their real family group
     const allGroups = await db.select()
       .from(familyGroups);
     
@@ -930,6 +968,37 @@ router.get("/decisions/:groupId", async (req: Request, res: Response) => {
 router.get("/visit-history", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
+    const isAuthenticated = userId !== null;
+    
+    // For unauthenticated users, show demo data
+    if (!isAuthenticated) {
+      return res.json([
+        {
+          id: '1',
+          community: 'Belmont Village Senior Living',
+          date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+          rating: 4,
+          familyMember: 'John',
+          impressions: 'Beautiful facility with excellent staff',
+          notes: 'Great memory care program, spacious rooms',
+          pros: ['Excellent staff', 'Beautiful gardens', 'Good location'],
+          cons: ['Higher pricing', 'Limited parking'],
+          wouldRecommend: true
+        },
+        {
+          id: '2',
+          community: 'Atria Senior Living',
+          date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+          rating: 3,
+          familyMember: 'Sarah',
+          impressions: 'Nice but felt understaffed',
+          notes: 'Modern facilities but concerns about staffing',
+          pros: ['Modern amenities', 'Good activities'],
+          cons: ['Seemed understaffed', 'Food quality concerns'],
+          wouldRecommend: false
+        }
+      ]);
+    }
     
     // Get completed tours for the user
     const completedTours = await db.select({
@@ -963,6 +1032,39 @@ router.get("/visit-history", async (req: Request, res: Response) => {
 router.get("/shared-favorites", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
+    const isAuthenticated = userId !== null;
+    
+    // For unauthenticated users, show demo data
+    if (!isAuthenticated) {
+      return res.json([
+        {
+          id: 1,
+          name: 'Sunrise Senior Living',
+          address: '123 Main St',
+          city: 'San Francisco',
+          state: 'CA',
+          priceRange: '$4,500 - $7,000',
+          careType: 'Assisted Living & Memory Care',
+          rating: 4.5,
+          familyRating: 4,
+          notes: 'Great memory care program',
+          addedBy: 'John'
+        },
+        {
+          id: 2,
+          name: 'Golden Years Community',
+          address: '456 Oak Ave',
+          city: 'Los Angeles',
+          state: 'CA',
+          priceRange: '$3,800 - $5,500',
+          careType: 'Independent Living',
+          rating: 4.2,
+          familyRating: 5,
+          notes: 'Mom loved the activities!',
+          addedBy: 'Sarah'
+        }
+      ]);
+    }
     
     // Get user's favorites with community details
     const userFavorites = await db.select({

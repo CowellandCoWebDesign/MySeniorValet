@@ -2616,36 +2616,38 @@ Disallow: /`;
   // Family Collaboration Center endpoints
   // These endpoints support the Family Collaboration features
   app.get('/api/family/messages', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub || '1';
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
+    const isAuthenticated = !!userId;
     
-    // Always return sample messages if we have a userId
-    const sampleMessages = userId ? [
+    // Show demo data for unauthenticated users, empty for authenticated users
+    const messages = !isAuthenticated ? [
       {
         id: '1',
-        senderId: userId,
-        senderName: req.user?.name || req.session?.user?.name || 'You',
+        senderId: 'demo-user-1',
+        senderName: 'John',
         content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
         createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
       },
       {
         id: '2',
-        senderId: 'family-member-1',
+        senderId: 'demo-user-2',
         senderName: 'Sarah',
         content: 'That sounds great! Did you get a chance to see the dining facilities?',
         createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
       },
       {
         id: '3',
-        senderId: userId,
-        senderName: req.user?.name || req.session?.user?.name || 'You',
+        senderId: 'demo-user-1',
+        senderName: 'John',
         content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
         createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
       }
     ] : [];
     
     res.json({
-      messages: sampleMessages,
-      currentUserId: userId
+      messages,
+      currentUserId: userId || 'demo',
+      groupName: !isAuthenticated ? 'Sample Family Group' : null
     });
   });
 
@@ -2666,15 +2668,17 @@ Disallow: /`;
   });
 
   app.get('/api/family/visit-history', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || '1';
-    // Return sample visit history for users with a valid userId
-    const visitHistory = userId ? [
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id;
+    const isAuthenticated = !!userId;
+    
+    // Show demo data for unauthenticated users, empty for authenticated users
+    const visitHistory = !isAuthenticated ? [
       {
         id: '1',
         community: 'Belmont Village Senior Living',
         date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
         rating: 4,
-        familyMember: req.user?.name || req.session?.user?.name || 'You',
+        familyMember: 'John',
         impressions: 'Beautiful facility with excellent staff',
         notes: 'Great memory care program, spacious rooms',
         pros: ['Excellent staff', 'Beautiful gardens', 'Good location'],
@@ -2686,7 +2690,7 @@ Disallow: /`;
         community: 'Atria Senior Living',
         date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
         rating: 3,
-        familyMember: 'Family Member',
+        familyMember: 'Sarah',
         impressions: 'Nice but felt understaffed',
         notes: 'Modern facilities but concerns about staffing',
         pros: ['Modern amenities', 'Good activities'],
@@ -2699,9 +2703,11 @@ Disallow: /`;
   });
 
   app.get('/api/family/shared-favorites', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || '1';
-    // Return sample favorites for users with a valid userId
-    const favorites = userId ? [
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id;
+    const isAuthenticated = !!userId;
+    
+    // Show demo data for unauthenticated users, empty for authenticated users
+    const favorites = !isAuthenticated ? [
       {
         id: 1,
         name: 'Sunrise Senior Living',
@@ -2713,7 +2719,7 @@ Disallow: /`;
         rating: 4.5,
         familyRating: 4,
         notes: 'Great memory care program',
-        addedBy: req.user?.name || req.session?.user?.name || 'You'
+        addedBy: 'John'
       },
       {
         id: 2,
@@ -2726,7 +2732,7 @@ Disallow: /`;
         rating: 4.2,
         familyRating: 5,
         notes: 'Mom loved the activities!',
-        addedBy: 'Family Member'
+        addedBy: 'Sarah'
       }
     ] : [];
     
@@ -2734,9 +2740,11 @@ Disallow: /`;
   });
 
   app.get('/api/tours', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || '1';
-    // Return sample tours for users with a valid userId
-    const tours = userId ? [
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id;
+    const isAuthenticated = !!userId;
+    
+    // Show demo data for unauthenticated users, empty for authenticated users
+    const tours = !isAuthenticated ? [
       {
         id: '1',
         communityName: 'Sunrise Senior Living',
