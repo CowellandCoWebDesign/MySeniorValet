@@ -204,6 +204,106 @@ export default function FamilyCollaborationCenter() {
     );
   }
 
+  // Demo data for unauthenticated users
+  const demoSearches = [
+    { id: '1', query: 'Memory care in San Francisco', date: 'Today, 10:30 AM', results: 47 },
+    { id: '2', query: 'Assisted living near Los Angeles under $5000', date: 'Yesterday, 3:45 PM', results: 23 },
+    { id: '3', query: 'HUD senior housing California', date: '2 days ago', results: 156 },
+    { id: '4', query: 'Pet-friendly communities in Sacramento', date: '3 days ago', results: 18 }
+  ];
+
+  const demoSavedCommunities = [
+    {
+      id: '1',
+      name: 'Sunrise Senior Living of San Francisco',
+      address: '1234 Market St',
+      city: 'San Francisco',
+      state: 'CA',
+      priceRange: '$4,500 - $7,000',
+      careType: 'Assisted Living & Memory Care',
+      rating: 4.5,
+      familyRating: 4,
+      notes: 'Beautiful facility, great memory care program',
+      addedBy: 'Sarah Johnson'
+    },
+    {
+      id: '2',
+      name: 'Golden Years Community',
+      address: '5678 Oak Ave',
+      city: 'Los Angeles',
+      state: 'CA',
+      priceRange: '$3,800 - $5,500',
+      careType: 'Independent Living',
+      rating: 4.2,
+      familyRating: 5,
+      notes: 'Mom loved the activities program!',
+      addedBy: 'Michael Johnson'
+    },
+    {
+      id: '3',
+      name: 'Harmony Senior Care',
+      address: '910 Pine St',
+      city: 'Sacramento',
+      state: 'CA',
+      priceRange: '$3,200 - $4,800',
+      careType: 'Assisted Living',
+      rating: 4.7,
+      familyRating: 4,
+      notes: 'Very clean, excellent staff-to-resident ratio',
+      addedBy: 'Emily Johnson'
+    }
+  ];
+
+  const demoTours = [
+    {
+      id: '1',
+      communityName: 'Sunrise Senior Living',
+      date: 'Tomorrow',
+      time: '2:00 PM',
+      contactPerson: 'Jennifer Smith',
+      phone: '(415) 555-0123',
+      status: 'confirmed',
+      address: '1234 Market St, San Francisco, CA',
+      notes: 'Bring Mom\'s medication list and questions about memory care'
+    },
+    {
+      id: '2',
+      communityName: 'Golden Years Community',
+      date: 'Friday, Dec 15',
+      time: '10:00 AM',
+      contactPerson: 'Robert Chen',
+      phone: '(310) 555-0456',
+      status: 'pending',
+      address: '5678 Oak Ave, Los Angeles, CA',
+      notes: 'Virtual tour option available if needed'
+    }
+  ];
+
+  const demoVisitHistory = [
+    {
+      id: '1',
+      community: 'Belmont Village Senior Living',
+      date: 'Last Monday',
+      rating: 4,
+      familyMember: 'Sarah & Mom',
+      impressions: 'Very welcoming staff, beautiful dining area',
+      pros: ['Excellent memory care program', 'Beautiful garden', 'Close to family'],
+      cons: ['Higher price point', 'Limited parking'],
+      wouldRecommend: true
+    },
+    {
+      id: '2',
+      community: 'Atria Senior Living',
+      date: 'Last Thursday',
+      rating: 3,
+      familyMember: 'Michael',
+      impressions: 'Nice facilities but felt understaffed',
+      pros: ['Modern amenities', 'Good location'],
+      cons: ['Staff seemed overwhelmed', 'Dining options limited'],
+      wouldRecommend: false
+    }
+  ];
+
   // Show demo version if not authenticated
   if (!user) {
     return (
@@ -216,7 +316,7 @@ export default function FamilyCollaborationCenter() {
             <div className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
               <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
-                Demo Mode: Sign in to access your real family collaboration tools
+                Demo Mode: Exploring with sample data - Sign in to save your real searches
               </span>
             </div>
             <div className="flex gap-2">
@@ -236,76 +336,339 @@ export default function FamilyCollaborationCenter() {
             <h1 className="text-3xl font-bold mb-4">Family Collaboration Center</h1>
             <p className="text-lg text-muted-foreground">Experience how families work together to find the perfect senior care</p>
           </div>
+
+          {/* Recent Searches */}
+          <Card className="mb-6 border-2 border-orange-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Search className="w-5 h-5 text-orange-600" />
+                  Recent Searches
+                </span>
+                <Badge variant="secondary">DEMO DATA</Badge>
+              </CardTitle>
+              <CardDescription>Your recent search history helps you track your research</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {demoSearches.map((search) => (
+                  <div key={search.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div className="flex-1">
+                      <p className="font-medium text-sm">{search.query}</p>
+                      <p className="text-xs text-muted-foreground">{search.date}</p>
+                    </div>
+                    <Badge variant="outline">{search.results} results</Badge>
+                  </div>
+                ))}
+              </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                <AlertCircle className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>Sign in to save your searches</strong> and access them from any device
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          {/* Saved Communities */}
+          <Card className="mb-6 border-2 border-rose-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Heart className="w-5 h-5 text-rose-600" />
+                  Saved Communities
+                </span>
+                <Badge variant="secondary">DEMO DATA</Badge>
+              </CardTitle>
+              <CardDescription>Communities your family is considering</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                {demoSavedCommunities.map((community) => (
+                  <div key={community.id} className="p-4 border rounded-lg hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-semibold">{community.name}</h4>
+                        <p className="text-sm text-muted-foreground">{community.address}, {community.city}, {community.state}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="text-sm font-medium">{community.rating}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mb-2">
+                      <Badge variant="outline">{community.careType}</Badge>
+                      <Badge variant="outline" className="text-green-600">{community.priceRange}/mo</Badge>
+                    </div>
+                    {community.notes && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 italic">"{community.notes}"</p>
+                    )}
+                    <p className="text-xs text-muted-foreground mt-2">Added by {community.addedBy}</p>
+                  </div>
+                ))}
+              </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                <Heart className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>Sign in to save communities</strong> and share them with your family
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          {/* Scheduled Tours */}
+          <Card className="mb-6 border-2 border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-purple-600" />
+                  Scheduled Tours
+                </span>
+                <Badge variant="secondary">DEMO DATA</Badge>
+              </CardTitle>
+              <CardDescription>Upcoming community visits with TourMate™</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {demoTours.map((tour) => (
+                  <div key={tour.id} className="p-4 border rounded-lg bg-purple-50/50 dark:bg-purple-950/10">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-semibold">{tour.communityName}</h4>
+                        <p className="text-sm text-muted-foreground">{tour.address}</p>
+                      </div>
+                      <Badge className={tour.status === 'confirmed' ? 'bg-green-500' : 'bg-yellow-500'}>
+                        {tour.status}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-4 h-4 text-gray-500" />
+                        <span>{tour.date} at {tour.time}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gray-500" />
+                        <span>{tour.contactPerson}</span>
+                      </div>
+                    </div>
+                    {tour.notes && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 p-2 bg-white dark:bg-gray-800 rounded">
+                        📝 {tour.notes}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                <Calendar className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>Sign in to schedule tours</strong> with our TourMate™ scheduling system
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
+
+          {/* Visit History */}
+          <Card className="mb-6 border-2 border-blue-500/20">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  Visit History & Notes
+                </span>
+                <Badge variant="secondary">DEMO DATA</Badge>
+              </CardTitle>
+              <CardDescription>Track your impressions from community visits</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {demoVisitHistory.map((visit) => (
+                  <div key={visit.id} className="p-4 border rounded-lg">
+                    <div className="flex justify-between items-start mb-2">
+                      <div>
+                        <h4 className="font-semibold">{visit.community}</h4>
+                        <p className="text-sm text-muted-foreground">Visited {visit.date} by {visit.familyMember}</p>
+                      </div>
+                      <div className="flex gap-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`w-4 h-4 ${
+                              i < visit.rating
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-sm mb-2">{visit.impressions}</p>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-medium text-green-600 mb-1">Pros:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {visit.pros.map((pro, i) => (
+                            <li key={i} className="text-gray-600 dark:text-gray-400">{pro}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="font-medium text-red-600 mb-1">Cons:</p>
+                        <ul className="list-disc list-inside space-y-1">
+                          {visit.cons.map((con, i) => (
+                            <li key={i} className="text-gray-600 dark:text-gray-400">{con}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                <FileText className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>Sign in to save visit notes</strong> and share them with your family
+                </AlertDescription>
+              </Alert>
+            </CardContent>
+          </Card>
           
           {/* Example Family Members */}
           <Card className="mb-6 border-2 border-blue-500/20">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Example: Family Video Calls</span>
-                <Badge variant="secondary">DEMO</Badge>
+                <span className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-blue-600" />
+                  Family Team Members
+                </span>
+                <Badge variant="secondary">DEMO DATA</Badge>
               </CardTitle>
+              <CardDescription>Collaborate with family members in real-time</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { name: 'Sarah Johnson', role: 'Daughter', location: 'New York' },
-                  { name: 'Michael Johnson', role: 'Son', location: 'Chicago' },
-                  { name: 'Emily Johnson', role: 'Daughter', location: 'Los Angeles' },
-                  { name: 'Robert Johnson', role: 'Son', location: 'Boston' }
+                  { name: 'Sarah Johnson', role: 'Daughter', location: 'New York', lastActive: 'Active now' },
+                  { name: 'Michael Johnson', role: 'Son', location: 'Chicago', lastActive: '2 hours ago' },
+                  { name: 'Emily Johnson', role: 'Daughter', location: 'Los Angeles', lastActive: 'Yesterday' },
+                  { name: 'Robert Johnson', role: 'Son', location: 'Boston', lastActive: '3 days ago' }
                 ].map((member, i) => (
                   <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="relative">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        {i === 0 && (
+                          <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                        )}
                       </div>
                       <div>
-                        <p className="font-medium">{member.name}</p>
-                        <p className="text-xs text-muted-foreground">{member.role} • {member.location}</p>
+                        <p className="font-medium text-sm">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.role}</p>
                       </div>
                     </div>
-                    <Button className="w-full mt-3" variant="outline" size="sm" disabled>
-                      <Phone className="w-4 h-4 mr-2" />
-                      Call
-                    </Button>
+                    <p className="text-xs text-muted-foreground mb-2">📍 {member.location}</p>
+                    <p className="text-xs text-green-600 dark:text-green-400">{member.lastActive}</p>
                   </div>
                 ))}
               </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                <Users className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>Sign in to invite family members</strong> and collaborate in real-time
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
           
           {/* Example Messages */}
-          <Card className="mb-6 border-2 border-purple-500/20">
+          <Card className="mb-6 border-2 border-green-500/20">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
-                <span>Example: Family Messages</span>
-                <Badge variant="secondary">DEMO</Badge>
+                <span className="flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  Family Discussion
+                </span>
+                <Badge variant="secondary">DEMO DATA</Badge>
               </CardTitle>
+              <CardDescription>Private family conversations about care options</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <div className="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg">
-                  <p className="text-sm font-medium">Sarah: Has anyone looked at the Sunrise Senior Living community?</p>
-                  <p className="text-xs text-muted-foreground mt-1">Today, 2:45 PM</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-blue-500 text-white text-xs flex items-center justify-center">SJ</div>
+                    <span className="text-sm font-medium">Sarah</span>
+                    <span className="text-xs text-muted-foreground">Today, 2:45 PM</span>
+                  </div>
+                  <p className="text-sm">Has anyone looked at the Sunrise Senior Living community? They have great reviews.</p>
                 </div>
                 <div className="p-3 bg-purple-50 dark:bg-purple-950/30 rounded-lg">
-                  <p className="text-sm font-medium">Michael: Yes, I visited yesterday. The memory care unit was impressive!</p>
-                  <p className="text-xs text-muted-foreground mt-1">Today, 3:15 PM</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-purple-500 text-white text-xs flex items-center justify-center">MJ</div>
+                    <span className="text-sm font-medium">Michael</span>
+                    <span className="text-xs text-muted-foreground">Today, 3:15 PM</span>
+                  </div>
+                  <p className="text-sm">Yes! I visited yesterday. The memory care unit was impressive. Staff ratio is 1:6.</p>
                 </div>
                 <div className="p-3 bg-green-50 dark:bg-green-950/30 rounded-lg">
-                  <p className="text-sm font-medium">Emily: Great! Let's schedule a family call to discuss it.</p>
-                  <p className="text-xs text-muted-foreground mt-1">Today, 3:30 PM</p>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-green-500 text-white text-xs flex items-center justify-center">EJ</div>
+                    <span className="text-sm font-medium">Emily</span>
+                    <span className="text-xs text-muted-foreground">Today, 3:30 PM</span>
+                  </div>
+                  <p className="text-sm">Great! Let's schedule a family video call tonight at 8 PM to discuss.</p>
+                </div>
+                <div className="p-3 bg-orange-50 dark:bg-orange-950/30 rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center">RJ</div>
+                    <span className="text-sm font-medium">Robert</span>
+                    <span className="text-xs text-muted-foreground">Today, 3:45 PM</span>
+                  </div>
+                  <p className="text-sm">I can join! Also found their pricing: $4,500-$7,000/month depending on care level.</p>
                 </div>
               </div>
+              <Alert className="mt-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
+                <MessageCircle className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-sm">
+                  <strong>Sign in to message your family</strong> privately about care decisions
+                </AlertDescription>
+              </Alert>
             </CardContent>
           </Card>
           
           {/* CTA Card */}
           <Card className="border-2 border-green-500/20 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
             <CardContent className="p-8 text-center">
-              <h3 className="text-2xl font-bold mb-4">Ready to Collaborate with Your Family?</h3>
-              <p className="text-muted-foreground mb-6">
-                Sign in to access real-time messaging, video calls, shared favorites, and more.
+              <h3 className="text-2xl font-bold mb-4">Start Your Real Family Collaboration</h3>
+              <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                Everything you see here is demo data. Sign in to access your actual searches, saved communities, 
+                scheduled tours, and family conversations - all in one secure place.
               </p>
+              <div className="grid md:grid-cols-3 gap-4 mb-6 max-w-3xl mx-auto">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Shield className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <p className="text-sm font-medium">Secure & Private</p>
+                  <p className="text-xs text-muted-foreground">Your family data is encrypted</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Zap className="w-6 h-6 text-green-600" />
+                  </div>
+                  <p className="text-sm font-medium">Real-Time Sync</p>
+                  <p className="text-xs text-muted-foreground">Updates instantly for all family</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <DollarSign className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <p className="text-sm font-medium">Always Free</p>
+                  <p className="text-xs text-muted-foreground">No hidden fees for families</p>
+                </div>
+              </div>
               <div className="flex gap-4 justify-center">
                 <Button onClick={() => setLocation('/login')} size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600">
                   Sign In to Get Started
