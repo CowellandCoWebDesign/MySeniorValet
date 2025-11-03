@@ -73,7 +73,7 @@ export function registerAuthRoutes(app: Express) {
   });
 
   // User login
-  app.post("/api/auth/login", createRateLimitMiddleware(authLimiter), async (req, res) => {
+  app.post("/api/auth/login", createRateLimitMiddleware(authLimiter), async (req: any, res) => {
     try {
       const validatedData = loginSchema.parse(req.body);
       
@@ -84,6 +84,17 @@ export function registerAuthRoutes(app: Express) {
 
       const { user, sessionId } = result;
       
+      // Set session data for req.session
+      req.session.userId = user.id;
+      req.session.user = {
+        id: user.id,
+        email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim() || user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role
+      };
+      
       res.cookie('sessionId', sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -92,12 +103,14 @@ export function registerAuthRoutes(app: Express) {
       });
 
       res.json({
+        success: true,
         user: {
           id: user.id,
           email: user.email,
           firstName: user.firstName,
           lastName: user.lastName,
-          role: user.role
+          role: user.role,
+          twoFactorEnabled: false
         }
       });
     } catch (error) {
