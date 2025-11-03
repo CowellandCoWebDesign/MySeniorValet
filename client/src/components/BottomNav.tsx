@@ -27,7 +27,7 @@ export function BottomNav({ savedCount = 0, messagesCount = 0, className, onPane
       id: 'saved',
       label: 'Saved',
       icon: Heart,
-      path: '/family-dashboard',
+      path: '/family-collaboration-center',
       badge: savedCount > 0 ? savedCount : null,
       isPanel: false,
     },
