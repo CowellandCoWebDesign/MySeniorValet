@@ -244,61 +244,8 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       'TAS': 0.84, 'ACT': 0.84, 'WA': 0.83,
     };
     
-    // Add directory pages with SEO-friendly URLs (matches /directory/:location route)
-    const directoryPages = [
-      // US locations
-      { location: 'oakmont', priority: 0.85 },
-      { location: 'fort-worth', priority: 0.85 },
-      { location: 'new-york', priority: 0.92 },
-      { location: 'california', priority: 0.92 },
-      { location: 'florida', priority: 0.91 },
-      { location: 'texas', priority: 0.91 },
-      { location: 'hawaii', priority: 0.88 },
-      // Canadian locations
-      { location: 'canada', priority: 0.92 },
-      { location: 'ontario', priority: 0.9 },
-      { location: 'quebec', priority: 0.9 },
-      { location: 'british-columbia', priority: 0.89 },
-      { location: 'alberta', priority: 0.88 },
-      { location: 'nova-scotia', priority: 0.87 },
-      { location: 'saskatchewan', priority: 0.87 },
-      { location: 'manitoba', priority: 0.86 },
-      { location: 'new-brunswick', priority: 0.86 },
-      // Australian locations
-      { location: 'australia', priority: 0.92 },
-      { location: 'new-south-wales', priority: 0.89 },
-      { location: 'queensland', priority: 0.89 },
-      { location: 'victoria', priority: 0.88 },
-      { location: 'south-australia', priority: 0.87 },
-      { location: 'tasmania', priority: 0.86 },
-      // Asia Pacific
-      { location: 'japan', priority: 0.88 },
-      { location: 'tokyo', priority: 0.87 },
-      { location: 'singapore', priority: 0.88 },
-      // Europe
-      { location: 'scotland', priority: 0.87 },
-      { location: 'united-kingdom', priority: 0.85 },
-      { location: 'italy', priority: 0.85 },
-      { location: 'france', priority: 0.85 },
-      { location: 'spain', priority: 0.84 },
-      { location: 'germany', priority: 0.84 },
-      // Latin America
-      { location: 'mexico', priority: 0.86 },
-      { location: 'peru', priority: 0.85 },
-      { location: 'cuba', priority: 0.84 },
-      { location: 'costa-rica', priority: 0.84 },
-      { location: 'panama', priority: 0.84 },
-      { location: 'puerto-rico', priority: 0.85 },
-    ];
-    
-    for (const { location, priority } of directoryPages) {
-      xml += '  <url>\n';
-      xml += '    <loc>' + BASE_URL + '/directory/' + location + '</loc>\n';
-      xml += '    <lastmod>' + today + '</lastmod>\n';
-      xml += '    <changefreq>weekly</changefreq>\n';
-      xml += '    <priority>' + priority + '</priority>\n';
-      xml += '  </url>\n';
-    }
+    // REMOVED directoryPages array to eliminate duplicate /directory/ URLs
+    // All location pages now use canonical /senior-living/{state}/{city} URLs only
     
     // Add all states/provinces from database as SEO location pages
     const states = await db
@@ -311,26 +258,17 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       .groupBy(communities.state)
       .orderBy(sql`COUNT(*) DESC`);
     
-    // Add state-level SEO pages
+    // Add state-level SEO pages (canonical URLs only)
     for (const { state, count } of states) {
       if (state && count >= 5) { // Lowered from 10 to 5 to include more states/provinces globally
         const priority = internationalPriorities[state] || 0.8;
         
-        // Add new SEO location page URL
+        // Add ONLY the canonical SEO location page URL (removed duplicate /directory/ URLs)
         xml += '  <url>\n';
         xml += '    <loc>' + BASE_URL + '/senior-living/' + state.toLowerCase() + '</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>' + priority + '</priority>\n';
-        xml += '  </url>\n';
-        
-        // Keep directory page for backwards compatibility
-        const stateSlug = state.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
-        xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/directory/' + stateSlug + '</loc>\n';
-        xml += '    <lastmod>' + today + '</lastmod>\n';
-        xml += '    <changefreq>weekly</changefreq>\n';
-        xml += '    <priority>' + (priority - 0.1) + '</priority>\n';
         xml += '  </url>\n';
       }
     }
@@ -362,20 +300,12 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
         const citySlug = city.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         const stateSlug = state.toLowerCase();
         
-        // Add new SEO location page URL
+        // Add ONLY the canonical SEO location page URL (removed duplicate /directory/ URLs)
         xml += '  <url>\n';
         xml += '    <loc>' + BASE_URL + '/senior-living/' + stateSlug + '/' + citySlug + '</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>' + priority + '</priority>\n';
-        xml += '  </url>\n';
-        
-        // Keep old directory URL for backwards compatibility (lower priority)
-        xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/directory/' + citySlug + '</loc>\n';
-        xml += '    <lastmod>' + today + '</lastmod>\n';
-        xml += '    <changefreq>monthly</changefreq>\n';
-        xml += '    <priority>' + (priority - 0.15) + '</priority>\n';
         xml += '  </url>\n';
       }
     }
