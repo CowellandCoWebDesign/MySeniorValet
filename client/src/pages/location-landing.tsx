@@ -14,6 +14,20 @@ export default function LocationLanding() {
   const state = params?.state?.replace(/-/g, " ").toUpperCase();
   const city = params?.city?.replace(/-/g, " ");
   
+  // Detect country based on state/province code
+  const canadianProvinces = ['ON', 'QC', 'BC', 'AB', 'NS', 'SK', 'NB', 'MB', 'NL', 'PE', 'NT', 'NU', 'YT'];
+  const australianStates = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'];
+  const mexicanStates = ['CDMX', 'JAL', 'NL', 'BC', 'CHIH', 'QRO', 'YUC'];
+  
+  let country = 'US'; // Default to US
+  if (canadianProvinces.includes(state)) {
+    country = 'CA';
+  } else if (australianStates.includes(state)) {
+    country = 'AU';
+  } else if (mexicanStates.includes(state)) {
+    country = 'Mexico';
+  }
+  
   // Capitalize city name properly
   const cityName = city?.split(" ").map(word => 
     word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
@@ -26,28 +40,38 @@ export default function LocationLanding() {
     queryKey: ["/api/communities", { 
       state, 
       city: cityName,
-      limit: 20 
+      country,
+      limit: 50 
     }],
     queryFn: async () => {
-      // Use direct communities endpoint
+      // Use direct communities endpoint with country filter
       const queryParams = new URLSearchParams();
-      queryParams.append("limit", "50"); // Get more to ensure we have results after filtering
+      queryParams.append("limit", "200"); // Get more to ensure we have results after filtering
+      queryParams.append("country", country);
+      queryParams.append("state", state);
+      if (cityName) {
+        queryParams.append("city", cityName);
+      }
       
       const response = await fetch(`/api/communities?${queryParams}`);
       if (!response.ok) throw new Error("Failed to fetch communities");
       const data = await response.json();
       
-      // Filter results to match location
-      // Note: state from route is uppercase (PE) but API returns uppercase abbreviations too
+      // Filter results to match location and country
       let filtered = [];
       if (data && Array.isArray(data)) {
         filtered = data.filter((c: any) => {
+          // Match country first
+          if (c.country !== country && c.country !== (country === 'US' ? 'USA' : country)) {
+            return false;
+          }
+          
           if (cityName && state) {
-            // Match both state and city
+            // Match both state and city for this country
             return c.state === state && 
                    c.city?.toLowerCase() === cityName.toLowerCase();
           } else if (state) {
-            // Match just state
+            // Match just state for this country
             return c.state === state;
           }
           return true;
@@ -55,6 +79,11 @@ export default function LocationLanding() {
       } else if (data && data.results && Array.isArray(data.results)) {
         // API already returned { results: [...] } format
         filtered = data.results.filter((c: any) => {
+          // Match country first
+          if (c.country !== country && c.country !== (country === 'US' ? 'USA' : country)) {
+            return false;
+          }
+          
           if (cityName && state) {
             return c.state === state && 
                    c.city?.toLowerCase() === cityName.toLowerCase();
@@ -71,11 +100,12 @@ export default function LocationLanding() {
   
   // Fetch location stats
   const { data: stats } = useQuery({
-    queryKey: ["/api/locations/stats", { state, city: cityName }],
+    queryKey: ["/api/locations/stats", { state, city: cityName, country }],
     queryFn: async () => {
       const queryParams = new URLSearchParams();
       if (state) queryParams.append("state", state);
       if (cityName) queryParams.append("city", cityName);
+      if (country) queryParams.append("country", country);
       
       const response = await fetch(`/api/locations/stats?${queryParams}`);
       if (!response.ok) throw new Error("Failed to fetch stats");
@@ -159,9 +189,19 @@ export default function LocationLanding() {
             
             <h1 className="text-4xl md:text-5xl font-bold mb-4">
               Senior Living in {locationQuery}
+              {country !== 'US' && (
+                <span className="ml-3 text-2xl md:text-3xl">
+                  {country === 'CA' && ' 🇨🇦'}
+                  {country === 'AU' && ' 🇦🇺'}
+                  {country === 'Mexico' && ' 🇲🇽'}
+                </span>
+              )}
             </h1>
             <p className="text-xl mb-8 text-blue-100">
               {communities?.results?.length || 0} verified communities with transparent pricing
+              {country === 'CA' && ' across Canada'}
+              {country === 'AU' && ' across Australia'}
+              {country === 'Mexico' && ' across Mexico'}
             </p>
             
             {/* Quick Stats */}

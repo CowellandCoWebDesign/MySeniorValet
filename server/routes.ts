@@ -1229,6 +1229,70 @@ Provide complete business data with ALL actual image URLs found.`;
   //   }
   // });
 
+  // Get all communities with optional filtering
+  app.get('/api/communities', async (req, res) => {
+    try {
+      const { limit = '100', offset = '0', state, city, country, search } = req.query;
+      
+      // Build query conditions
+      const conditions = [];
+      
+      // Handle country filtering (support multiple formats)
+      if (country) {
+        const countryStr = String(country).toUpperCase();
+        // Support multiple country formats (US, USA, United States, etc)
+        if (countryStr === 'US' || countryStr === 'USA') {
+          conditions.push(sql`(${schema.communities.country} = 'US' OR ${schema.communities.country} = 'USA' OR ${schema.communities.country} = 'United States' OR ${schema.communities.country} IS NULL)`);
+        } else if (countryStr === 'CA' || countryStr === 'CANADA') {
+          conditions.push(sql`(${schema.communities.country} = 'CA' OR ${schema.communities.country} = 'Canada')`);
+        } else if (countryStr === 'AU' || countryStr === 'AUSTRALIA') {
+          conditions.push(sql`(${schema.communities.country} = 'AU' OR ${schema.communities.country} = 'Australia')`);
+        } else {
+          conditions.push(eq(schema.communities.country, countryStr));
+        }
+      }
+      
+      // State/Province filtering
+      if (state) {
+        conditions.push(eq(schema.communities.state, String(state).toUpperCase()));
+      }
+      
+      // City filtering
+      if (city) {
+        conditions.push(sql`LOWER(${schema.communities.city}) = LOWER(${String(city)})`);
+      }
+      
+      // Search filtering
+      if (search) {
+        const searchStr = String(search).toLowerCase();
+        conditions.push(sql`(
+          LOWER(${schema.communities.name}) LIKE ${'%' + searchStr + '%'} OR
+          LOWER(${schema.communities.city}) LIKE ${'%' + searchStr + '%'} OR
+          LOWER(${schema.communities.state}) LIKE ${'%' + searchStr + '%'}
+        )`);
+      }
+      
+      // Build the query
+      const query = db
+        .select()
+        .from(schema.communities)
+        .limit(parseInt(String(limit)))
+        .offset(parseInt(String(offset)));
+      
+      // Apply conditions if any
+      if (conditions.length > 0) {
+        query.where(and(...conditions));
+      }
+      
+      const communities = await query;
+      
+      res.json(communities);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+      res.status(500).json({ error: 'Failed to fetch communities' });
+    }
+  });
+
   // Get user's owned communities endpoint
   app.get('/api/my-communities', async (req: any, res) => {
     try {
