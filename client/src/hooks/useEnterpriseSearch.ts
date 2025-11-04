@@ -80,18 +80,27 @@ export function useEnterpriseSearch() {
       if (params.includeHudOnly) queryParams.append('hudOnly', 'true');
       if (params.hasPhotos) queryParams.append('hasPhotos', 'true');
 
-      // Try enterprise endpoint first
-      let endpoint = `/api/search/enterprise?${queryParams}`;
+      // Use unified search endpoint directly (enterprise endpoint doesn't exist)
+      let endpoint = `/api/search/unified?${queryParams}`;
       
-      console.log(`🚀 ENTERPRISE SEARCH: ${endpoint}`);
+      console.log(`🚀 UNIFIED SEARCH: ${endpoint}`);
       
       let response;
       try {
         response = await apiRequest('GET', endpoint);
-      } catch (err) {
-        // Fallback to unified search if enterprise fails
-        console.log('Enterprise search failed, trying unified search...');
-        endpoint = `/api/communities/search/unified?${queryParams}`;
+      } catch (err: any) {
+        // If unified search fails, try fallback to basic communities search
+        console.log('Unified search failed, trying basic search...', err);
+        
+        // Only try fallback if we have a query
+        if (!params.query) {
+          throw new Error('Query is required for search');
+        }
+        
+        const fallbackParams = new URLSearchParams();
+        fallbackParams.append('q', params.query);
+        fallbackParams.append('limit', '500');
+        endpoint = `/api/communities/search?${fallbackParams}`;
         response = await apiRequest('GET', endpoint);
       }
 

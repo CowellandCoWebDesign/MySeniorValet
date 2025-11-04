@@ -81,7 +81,7 @@ Provide recommendations in JSON format:
 Be thorough and helpful - families rely on your expertise to make life-changing decisions.`;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }],
         system: "You are a senior living placement expert with deep knowledge of care requirements, family dynamics, and community features."
@@ -132,7 +132,7 @@ Provide assessment in JSON format:
 Help families understand not just what care is needed, but why and when transitions might become necessary.`;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }],
         system: "You are a licensed geriatric care manager with expertise in care level assessment and family transition planning."
@@ -199,7 +199,7 @@ Create a thorough family report that includes:
 Make this report valuable, compassionate, and actionable - families are making one of life's most important decisions.`;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 3000,
         messages: [{ role: 'user', content: prompt }],
         system: "You are a senior living advisor helping families navigate important care decisions with compassion and expertise."
@@ -242,7 +242,7 @@ Provide analysis in JSON format:
 Help families understand not just what reviewers said, but what it means for their loved one's potential experience.`;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 1500,
         messages: [{ role: 'user', content: prompt }],
         system: "You are a senior care quality analyst specializing in community evaluation and family experience assessment."
@@ -295,7 +295,7 @@ Extract structured search parameters in JSON format:
 Understand context like "near my daughter in Sacramento", "pet-friendly", "under $4000", "memory care", etc.`;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 1000,
         messages: [{ role: 'user', content: prompt }],
         system: "You are a search query parser for senior living communities. Return only valid JSON."
@@ -320,7 +320,7 @@ Understand context like "near my daughter in Sacramento", "pet-friendly", "under
 Ensure cultural sensitivity and appropriate terminology for senior care discussions.`;
 
       const response = await anthropic.messages.create({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 2000,
         messages: [{ role: 'user', content: prompt }],
         system: "You are a professional translator specializing in senior care and healthcare content."

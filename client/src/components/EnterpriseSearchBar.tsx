@@ -65,7 +65,15 @@ export function EnterpriseSearchBar({
 
   // Trigger search on query or filter change
   useEffect(() => {
-    if (query || Object.values(activeFilters).some(v => v)) {
+    // Only search if there's a query or meaningful filters are set
+    const hasValidFilters = activeFilters.careType || 
+                           activeFilters.priceRange.min || 
+                           activeFilters.priceRange.max ||
+                           activeFilters.rating.min ||
+                           activeFilters.hasPhotos ||
+                           activeFilters.hudOnly;
+    
+    if (query || hasValidFilters) {
       performSearch();
     }
   }, [query, activeFilters, performSearch]);

@@ -99,7 +99,7 @@ class MultiAIOrchestrator {
         Format as JSON with insights and recommendations.`;
 
       const response = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022', // Using Claude 3.5 Sonnet
+        model: 'claude-sonnet-4-20250514', // Using Claude 3.5 Sonnet
         max_tokens: 1024,
         messages: [{ role: 'user', content: prompt }]
       });
@@ -259,7 +259,7 @@ class MultiAIOrchestrator {
 
     try {
       const response = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 500,
         messages: [{
           role: 'user',
@@ -419,7 +419,7 @@ class MultiAIOrchestrator {
 
     try {
       const response = await this.anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-20250514',
         max_tokens: 1000,
         messages: [{
           role: 'user',

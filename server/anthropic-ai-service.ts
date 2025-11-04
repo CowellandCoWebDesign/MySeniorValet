@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 
 /*
-The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022" nor "claude-3-sonnet-20240229". 
+The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-sonnet-4-20250514" nor "claude-3-sonnet-20240229". 
 If the user doesn't specify a model, always prefer using "claude-sonnet-4-20250514" as it is the latest model.
 */
 

@@ -23,20 +23,49 @@ export default function LocationLanding() {
   
   // Fetch communities for this location
   const { data: communities, isLoading } = useQuery({
-    queryKey: ["/api/communities/search", { 
+    queryKey: ["/api/communities", { 
       state, 
       city: cityName,
       limit: 20 
     }],
     queryFn: async () => {
+      // Use direct communities endpoint
       const queryParams = new URLSearchParams();
-      if (state) queryParams.append("state", state);
-      if (cityName) queryParams.append("city", cityName);
-      queryParams.append("limit", "20");
+      queryParams.append("limit", "50"); // Get more to ensure we have results after filtering
       
-      const response = await fetch(`/api/communities/search?${queryParams}`);
+      const response = await fetch(`/api/communities?${queryParams}`);
       if (!response.ok) throw new Error("Failed to fetch communities");
-      return response.json();
+      const data = await response.json();
+      
+      // Filter results to match location
+      // Note: state from route is uppercase (PE) but API returns uppercase abbreviations too
+      let filtered = [];
+      if (data && Array.isArray(data)) {
+        filtered = data.filter((c: any) => {
+          if (cityName && state) {
+            // Match both state and city
+            return c.state === state && 
+                   c.city?.toLowerCase() === cityName.toLowerCase();
+          } else if (state) {
+            // Match just state
+            return c.state === state;
+          }
+          return true;
+        });
+      } else if (data && data.results && Array.isArray(data.results)) {
+        // API already returned { results: [...] } format
+        filtered = data.results.filter((c: any) => {
+          if (cityName && state) {
+            return c.state === state && 
+                   c.city?.toLowerCase() === cityName.toLowerCase();
+          } else if (state) {
+            return c.state === state;
+          }
+          return true;
+        });
+      }
+      
+      return { results: filtered };
     },
   });
   
@@ -132,7 +161,7 @@ export default function LocationLanding() {
               Senior Living in {locationQuery}
             </h1>
             <p className="text-xl mb-8 text-blue-100">
-              {stats?.totalCommunities || "Browse"} verified communities with transparent pricing
+              {communities?.results?.length || 0} verified communities with transparent pricing
             </p>
             
             {/* Quick Stats */}
@@ -140,14 +169,16 @@ export default function LocationLanding() {
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Building2 className="h-5 w-5" />
-                  <span className="text-2xl font-bold">{stats?.totalCommunities || 0}</span>
+                  <span className="text-2xl font-bold">{communities?.results?.length || 0}</span>
                 </div>
                 <p className="text-sm text-blue-100">Communities</p>
               </div>
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSign className="h-5 w-5" />
-                  <span className="text-2xl font-bold">${stats?.avgPrice || "4,500"}</span>
+                  <span className="text-2xl font-bold">
+                    ${stats?.avgPrice ? Math.round(stats.avgPrice).toLocaleString() : "4,500"}
+                  </span>
                 </div>
                 <p className="text-sm text-blue-100">Avg Monthly</p>
               </div>
@@ -161,7 +192,9 @@ export default function LocationLanding() {
               <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <Star className="h-5 w-5" />
-                  <span className="text-2xl font-bold">{stats?.avgRating || "4.2"}</span>
+                  <span className="text-2xl font-bold">
+                    {stats?.avgRating ? (typeof stats.avgRating === 'number' ? stats.avgRating.toFixed(1) : stats.avgRating) : "4.2"}
+                  </span>
                 </div>
                 <p className="text-sm text-blue-100">Avg Rating</p>
               </div>
@@ -218,13 +251,21 @@ export default function LocationLanding() {
                             </p>
                           </div>
                           <div className="text-right">
-                            {community.priceRange ? (
+                            {community.priceMin && community.priceMax ? (
                               <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                                ${community.priceRange.min.toLocaleString()} - ${community.priceRange.max.toLocaleString()}
+                                ${Math.round(community.priceMin).toLocaleString()} - ${Math.round(community.priceMax).toLocaleString()}
+                              </p>
+                            ) : community.priceRange ? (
+                              <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                                ${Math.round(community.priceRange.min || community.priceRange).toLocaleString()} - ${Math.round(community.priceRange.max || 0).toLocaleString()}
                               </p>
                             ) : community.rentPerMonth ? (
                               <p className="text-lg font-bold text-green-600 dark:text-green-400">
-                                ${parseFloat(community.rentPerMonth).toLocaleString()}/mo
+                                ${Math.round(parseFloat(community.rentPerMonth)).toLocaleString()}/mo
+                              </p>
+                            ) : community.price ? (
+                              <p className="text-lg font-bold text-green-600 dark:text-green-400">
+                                ${Math.round(community.price).toLocaleString()}/mo
                               </p>
                             ) : (
                               <p className="text-sm text-gray-500">Contact for pricing</p>
@@ -249,7 +290,7 @@ export default function LocationLanding() {
                             {community.rating && (
                               <span className="flex items-center gap-1">
                                 <Star className="h-3 w-3 text-yellow-500" />
-                                {community.rating}
+                                {typeof community.rating === 'number' ? community.rating.toFixed(1) : community.rating}
                               </span>
                             )}
                           </div>
@@ -265,12 +306,29 @@ export default function LocationLanding() {
                     <Card>
                       <CardContent className="text-center py-12">
                         <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-                        <p className="text-gray-600 dark:text-gray-400">
-                          No communities found in {locationQuery}
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                          No Communities Available in {locationQuery}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">
+                          We're actively expanding our coverage to include {locationQuery}.
                         </p>
-                        <Link href="/map-search">
-                          <Button className="mt-4">Browse All Communities</Button>
-                        </Link>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                          In the meantime, explore our {stats?.totalWorldwide || "33,000+"} communities worldwide or search nearby US locations
+                        </p>
+                        <div className="flex gap-4 justify-center flex-wrap">
+                          <Link href={`/map-search?location=${encodeURIComponent(locationQuery)}&zoom=8`}>
+                            <Button>
+                              <MapPin className="h-4 w-4 mr-2" />
+                              View Area Map
+                            </Button>
+                          </Link>
+                          <Link href="/map-search">
+                            <Button variant="outline">Browse US Communities</Button>
+                          </Link>
+                          <Link href="/senior-living-worldwide">
+                            <Button variant="outline">Explore Worldwide</Button>
+                          </Link>
+                        </div>
                       </CardContent>
                     </Card>
                   )}
