@@ -209,7 +209,7 @@ export default function AISearchIntelligence() {
   });
 
   // Entire filter panel collapse state - open by default
-  const [filtersExpanded, setFiltersExpanded] = useState(true);
+  const [filtersExpanded, setFiltersExpanded] = useState(false);
 
   // Layout toggle state - 'vertical' (map above list) or 'horizontal' (map right, list left)
   const [layoutMode, setLayoutMode] = useState<'vertical' | 'horizontal'>('vertical');
