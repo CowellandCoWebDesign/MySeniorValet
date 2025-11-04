@@ -313,7 +313,7 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
     
     // Add state-level SEO pages
     for (const { state, count } of states) {
-      if (state && count >= 10) { // Only include states with at least 10 communities
+      if (state && count >= 5) { // Lowered from 10 to 5 to include more states/provinces globally
         const priority = internationalPriorities[state] || 0.8;
         
         // Add new SEO location page URL
@@ -335,27 +335,29 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       }
     }
     
-    // Add top cities as SEO location pages (limit to 500 for this sitemap)
+    // Add top cities as SEO location pages (expanded to 5000+ for competitive coverage)
     const cities = await db
       .select({ 
         city: communities.city,
         state: communities.state,
+        country: communities.country,
         count: sql<number>`COUNT(*)`,
       })
       .from(communities)
       .where(sql`${communities.city} IS NOT NULL AND ${communities.state} IS NOT NULL`)
-      .groupBy(communities.city, communities.state)
-      .having(sql`COUNT(*) >= 5`) // Only include cities with at least 5 communities
+      .groupBy(communities.city, communities.state, communities.country)
+      .having(sql`COUNT(*) >= 2`) // Lowered threshold to 2+ communities for better coverage
       .orderBy(sql`COUNT(*) DESC`)
-      .limit(500);
+      .limit(5000); // Increased from 500 to 5000 for competitive parity with major players
     
-    for (const { city, state, count } of cities) {
+    for (const { city, state, country, count } of cities) {
       if (city && state) {
         // Calculate priority based on community count
         let priority = 0.7;
         if (count >= 100) priority = 0.85;
         else if (count >= 50) priority = 0.8;
         else if (count >= 20) priority = 0.75;
+        else if (count >= 10) priority = 0.72;
         
         const citySlug = city.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         const stateSlug = state.toLowerCase();

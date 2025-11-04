@@ -296,6 +296,84 @@ export default function AISearchIntelligence() {
     setHasInitializedFromUrl(true);
   }, [hasInitializedFromUrl]);
 
+  // Auto-update map center when location changes (fix for search bar bug)
+  useEffect(() => {
+    if (!simplifiedFilters.location || simplifiedFilters.location.length < 3) return;
+    
+    const locationLower = simplifiedFilters.location.toLowerCase().trim();
+    
+    // Try to parse and geocode the location
+    const parseLocation = (loc: string) => {
+      // Match patterns like "City, State", "City State", "City, ST", etc.
+      const cityStateMatch = loc.match(/^(.+?)[,\s]+([a-z]{2}|[a-z\s]+)$/i);
+      if (cityStateMatch) {
+        const city = cityStateMatch[1].trim();
+        const state = cityStateMatch[2].trim();
+        return { city, state };
+      }
+      
+      // Just a state/province code
+      if (loc.match(/^[a-z]{2}$/i)) {
+        return { city: '', state: loc.toUpperCase() };
+      }
+      
+      // Just a city name - try to find it in our coordinates
+      return { city: loc, state: '' };
+    };
+    
+    const { city, state } = parseLocation(locationLower);
+    
+    // Provincial/state coordinates (expanded list)
+    const provinceCoords: { [key: string]: [number, number] } = {
+      'pe': [46.5107, -63.4168], 'prince edward island': [46.5107, -63.4168],
+      'on': [51.2538, -85.3232], 'ontario': [51.2538, -85.3232],
+      'qc': [52.9399, -73.5491], 'quebec': [52.9399, -73.5491],
+      'bc': [53.7267, -127.6476], 'british columbia': [53.7267, -127.6476],
+      'ab': [53.9333, -116.5765], 'alberta': [53.9333, -116.5765],
+      'ns': [44.6820, -63.7443], 'nova scotia': [44.6820, -63.7443],
+      'nb': [46.5653, -66.4619], 'new brunswick': [46.5653, -66.4619],
+      'mb': [53.7609, -98.8139], 'manitoba': [53.7609, -98.8139],
+      'sk': [52.9399, -106.4509], 'saskatchewan': [52.9399, -106.4509],
+      'nl': [53.1355, -57.6604], 'newfoundland': [53.1355, -57.6604],
+      'yt': [64.2823, -135.0000], 'yukon': [64.2823, -135.0000],
+      'nt': [64.8255, -124.8457], 'northwest territories': [64.8255, -124.8457],
+      'nu': [70.2998, -83.1076], 'nunavut': [70.2998, -83.1076],
+      'ny': [42.1657, -74.9481], 'new york': [42.1657, -74.9481],
+      'ca': [36.7783, -119.4179], 'california': [36.7783, -119.4179],
+      'tx': [31.9686, -99.9018], 'texas': [31.9686, -99.9018],
+      'fl': [27.6648, -81.5158], 'florida': [27.6648, -81.5158],
+      'az': [34.0489, -111.0937], 'arizona': [34.0489, -111.0937],
+      'wa': [47.7511, -120.7401], 'washington': [47.7511, -120.7401],
+      'or': [43.8041, -120.5542], 'oregon': [43.8041, -120.5542]
+    };
+    
+    // Try city coordinates first
+    if (city) {
+      const coords = getCityCoordinates(city, state);
+      if (coords) {
+        setMapCenter(coords);
+        setMapZoom(12);
+        console.log('🗺️ Auto-updated map to:', city, state);
+        return;
+      }
+    }
+    
+    // Try state/province coordinates
+    if (state && provinceCoords[state.toLowerCase()]) {
+      setMapCenter(provinceCoords[state.toLowerCase()]);
+      setMapZoom(city ? 12 : 7);
+      console.log('🗺️ Auto-updated map to state/province:', state);
+      return;
+    }
+    
+    // Try full location string match
+    if (provinceCoords[locationLower]) {
+      setMapCenter(provinceCoords[locationLower]);
+      setMapZoom(7);
+      console.log('🗺️ Auto-updated map to:', locationLower);
+    }
+  }, [simplifiedFilters.location]);
+
   // Debug map communities state
   useEffect(() => {
     console.log(`📊 Map communities state updated: ${mapCommunities.length} communities`);
