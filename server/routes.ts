@@ -1487,6 +1487,15 @@ Provide complete business data with ALL actual image URLs found.`;
   app.get('/sitemap-locations.xml', sitemapGenerator.generateLocationsSitemap); 
   app.get('/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
   
+  // SEO Location Pages (hybrid approach - real content for bots, redirect for users)
+  const seoLocationPages = await import('./routes/seo-location-pages');
+  app.get('/senior-living/:state/:city?', seoLocationPages.renderSEOLocationPage);
+  
+  // SEO Location Data APIs
+  const seoLocationApi = await import('./routes/seo-location-api');
+  app.get('/api/seo/top-locations', seoLocationApi.getTopSEOLocations);
+  app.get('/api/seo/recommendations', seoLocationApi.getSEORecommendations);
+  
   // SEO Test endpoint for validating all SEO improvements
   const { runSEOTests } = await import('./routes/seo-test');
   app.get('/api/seo/test', runSEOTests);

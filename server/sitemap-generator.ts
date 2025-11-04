@@ -300,27 +300,42 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       xml += '  </url>\n';
     }
     
-    // Add all states/provinces from database as directory pages
+    // Add all states/provinces from database as SEO location pages
     const states = await db
-      .selectDistinct({ state: communities.state })
+      .select({ 
+        state: communities.state,
+        count: sql<number>`COUNT(*)`
+      })
       .from(communities)
-      .where(sql`${communities.state} IS NOT NULL`);
+      .where(sql`${communities.state} IS NOT NULL`)
+      .groupBy(communities.state)
+      .orderBy(sql`COUNT(*) DESC`);
     
-    for (const { state } of states) {
-      if (state) {
+    // Add state-level SEO pages
+    for (const { state, count } of states) {
+      if (state && count >= 10) { // Only include states with at least 10 communities
         const priority = internationalPriorities[state] || 0.8;
-        const stateSlug = state.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         
+        // Add new SEO location page URL
         xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/directory/' + stateSlug + '</loc>\n';
+        xml += '    <loc>' + BASE_URL + '/senior-living/' + state.toLowerCase() + '</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>' + priority + '</priority>\n';
         xml += '  </url>\n';
+        
+        // Keep directory page for backwards compatibility
+        const stateSlug = state.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
+        xml += '  <url>\n';
+        xml += '    <loc>' + BASE_URL + '/directory/' + stateSlug + '</loc>\n';
+        xml += '    <lastmod>' + today + '</lastmod>\n';
+        xml += '    <changefreq>weekly</changefreq>\n';
+        xml += '    <priority>' + (priority - 0.1) + '</priority>\n';
+        xml += '  </url>\n';
       }
     }
     
-    // Add top cities as directory pages (limit to 500 for this sitemap)
+    // Add top cities as SEO location pages (limit to 500 for this sitemap)
     const cities = await db
       .select({ 
         city: communities.city,
@@ -330,17 +345,35 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       .from(communities)
       .where(sql`${communities.city} IS NOT NULL AND ${communities.state} IS NOT NULL`)
       .groupBy(communities.city, communities.state)
+      .having(sql`COUNT(*) >= 5`) // Only include cities with at least 5 communities
       .orderBy(sql`COUNT(*) DESC`)
       .limit(500);
     
-    for (const { city, state } of cities) {
+    for (const { city, state, count } of cities) {
       if (city && state) {
+        // Calculate priority based on community count
+        let priority = 0.7;
+        if (count >= 100) priority = 0.85;
+        else if (count >= 50) priority = 0.8;
+        else if (count >= 20) priority = 0.75;
+        
         const citySlug = city.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
+        const stateSlug = state.toLowerCase();
+        
+        // Add new SEO location page URL
+        xml += '  <url>\n';
+        xml += '    <loc>' + BASE_URL + '/senior-living/' + stateSlug + '/' + citySlug + '</loc>\n';
+        xml += '    <lastmod>' + today + '</lastmod>\n';
+        xml += '    <changefreq>weekly</changefreq>\n';
+        xml += '    <priority>' + priority + '</priority>\n';
+        xml += '  </url>\n';
+        
+        // Keep old directory URL for backwards compatibility (lower priority)
         xml += '  <url>\n';
         xml += '    <loc>' + BASE_URL + '/directory/' + citySlug + '</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
-        xml += '    <changefreq>weekly</changefreq>\n';
-        xml += '    <priority>0.75</priority>\n';
+        xml += '    <changefreq>monthly</changefreq>\n';
+        xml += '    <priority>' + (priority - 0.15) + '</priority>\n';
         xml += '  </url>\n';
       }
     }
