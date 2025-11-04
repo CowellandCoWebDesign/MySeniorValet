@@ -232,14 +232,69 @@ export default function AISearchIntelligence() {
     });
   };
 
-  // Check URL parameters to auto-switch to simplified search
+  // Check URL parameters to auto-switch to simplified search and set location
+  const [hasInitializedFromUrl, setHasInitializedFromUrl] = useState(false);
+  const [shouldAutoSearch, setShouldAutoSearch] = useState(false);
+  
   useEffect(() => {
+    if (hasInitializedFromUrl) return; // Only run once
+    
     const urlParams = new URLSearchParams(window.location.search);
     const mode = urlParams.get('mode');
+    const location = urlParams.get('location');
+    const city = urlParams.get('city');
+    const state = urlParams.get('state');
+    const country = urlParams.get('country');
+    
     if (mode === 'simplified') {
       setActiveTab('simplified');
     }
-  }, []);
+    
+    // Set location if provided
+    if (location) {
+      setSimplifiedFilters(prev => ({
+        ...prev,
+        location: location
+      }));
+      setSearchQuery(location);
+      
+      // Try to set map center based on location
+      if (city && state) {
+        const coords = getCityCoordinates(city, state);
+        if (coords) {
+          setMapCenter(coords);
+          setMapZoom(12);
+        }
+      } else if (state) {
+        // For Canadian provinces, use these coordinates
+        const provinceCoords: { [key: string]: [number, number] } = {
+          'PE': [46.5107, -63.4168], // Prince Edward Island
+          'ON': [51.2538, -85.3232], // Ontario
+          'QC': [52.9399, -73.5491], // Quebec
+          'BC': [53.7267, -127.6476], // British Columbia
+          'AB': [53.9333, -116.5765], // Alberta
+          'NS': [44.6820, -63.7443], // Nova Scotia
+          'NB': [46.5653, -66.4619], // New Brunswick
+          'MB': [53.7609, -98.8139], // Manitoba
+          'SK': [52.9399, -106.4509], // Saskatchewan
+          'NL': [53.1355, -57.6604], // Newfoundland and Labrador
+          'YT': [64.2823, -135.0000], // Yukon
+          'NT': [64.8255, -124.8457], // Northwest Territories
+          'NU': [70.2998, -83.1076], // Nunavut
+        };
+        
+        if (provinceCoords[state]) {
+          setMapCenter(provinceCoords[state]);
+          setMapZoom(city ? 12 : 7); // Zoom in more for cities
+        }
+      }
+      
+      // Set flag to trigger search after mutations are defined
+      setShouldAutoSearch(true);
+    }
+    
+    setHasInitializedFromUrl(true);
+  }, [hasInitializedFromUrl]);
 
   // Debug map communities state
   useEffect(() => {
@@ -505,6 +560,15 @@ export default function AISearchIntelligence() {
       }
     }
   });
+
+  // Trigger auto search once mutation is ready
+  useEffect(() => {
+    if (shouldAutoSearch && simplifiedSearchMutation) {
+      console.log('🚀 Auto-triggering search for location:', simplifiedFilters.location);
+      simplifiedSearchMutation.mutate(simplifiedFilters);
+      setShouldAutoSearch(false); // Only trigger once
+    }
+  }, [shouldAutoSearch, simplifiedSearchMutation, simplifiedFilters]);
 
   // Load initial communities on mount (after mutations are defined)
   useEffect(() => {
