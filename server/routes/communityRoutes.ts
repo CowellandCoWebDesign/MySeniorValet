@@ -926,19 +926,24 @@ export function registerCommunityRoutes(app: Express) {
       );
       
       // Create enrichmentResult from unified cache data
+      // Always include basic community data even if cache is empty
       const enrichmentResult = {
         communityId: communityId,
         communityName: community.name,
         lastUpdated: new Date().toISOString(),
         verificationStatus: 'verified' as const,
         confidence: 85,
-        officialWebsite: comprehensiveData.marketData?.website || community.website,
-        phoneNumber: comprehensiveData.marketData?.phone || community.phone,
-        pricing: comprehensiveData.marketData?.pricing,
+        officialWebsite: comprehensiveData.marketData?.website || community.website || '',
+        phoneNumber: comprehensiveData.marketData?.phone || community.phone || '',
+        pricing: comprehensiveData.marketData?.pricing || '',
         photos: comprehensiveData.photos || [],
         searchResults: {
           // CRITICAL FIX: Use the full raw Perplexity content, not just the description extract
-          summary: comprehensiveData.rawPerplexityContent || comprehensiveData.marketData?.description || '',
+          // But fallback to community description if no cache data
+          summary: comprehensiveData.rawPerplexityContent || 
+                   comprehensiveData.marketData?.description || 
+                   community.description || 
+                   '',
           sources: comprehensiveData.sources || []
         }
       };
