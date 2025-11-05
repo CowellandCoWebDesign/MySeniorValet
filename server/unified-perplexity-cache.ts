@@ -2,7 +2,7 @@ import { PerplexityAIService } from './perplexity-ai-service';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 import { db } from './db';
-import { perplexityCache } from '../shared/schema';
+import { perplexityCache, communities } from '../shared/schema';
 import { eq, lt, and } from 'drizzle-orm';
 
 interface CachedCommunityData {
@@ -124,6 +124,52 @@ class UnifiedPerplexityCache {
         });
       
       console.log(`💾 Saved to database cache: ${data.communityName} (expires: ${expiresAt.toISOString()})`);
+      
+      // CRITICAL: Also sync photos and description to communities table so they appear in directory!
+      // Extract numeric community ID from cacheKey (e.g., "community_12345" -> 12345)
+      const communityIdNum = parseInt(cacheKey.replace('community_', ''));
+      
+      if (!isNaN(communityIdNum) && (data.photos?.length > 0 || data.rawPerplexityContent)) {
+        try {
+          // Convert photo URLs from proxy format back to original URLs for storage
+          const originalPhotos = data.photos?.map(url => {
+            // If it's a proxied URL, extract the original
+            if (url.includes('/api/image-proxy?url=')) {
+              const encoded = url.replace('/api/image-proxy?url=', '');
+              return decodeURIComponent(encoded);
+            }
+            return url;
+          }) || [];
+          
+          const updates: any = {};
+          
+          // Update photos if we have them
+          if (originalPhotos.length > 0) {
+            updates.photos = originalPhotos;
+            console.log(`📸 Syncing ${originalPhotos.length} photos to communities.photos for ID ${communityIdNum}`);
+          }
+          
+          // Update description with Perplexity content if we have it
+          if (data.rawPerplexityContent && data.rawPerplexityContent.length > 100) {
+            // Take first 1000 chars of Perplexity content for description
+            updates.description = data.rawPerplexityContent.substring(0, 1000);
+            console.log(`📝 Syncing Perplexity content to communities.description for ID ${communityIdNum}`);
+          }
+          
+          if (Object.keys(updates).length > 0) {
+            updates.updatedAt = new Date();
+            
+            await db
+              .update(communities)
+              .set(updates)
+              .where(eq(communities.id, communityIdNum));
+              
+            console.log(`✅ Synced cached data to communities table for ${data.communityName}`);
+          }
+        } catch (syncError) {
+          console.error(`Failed to sync to communities table for ID ${communityIdNum}:`, syncError);
+        }
+      }
     } catch (error) {
       console.error('Failed to save to database cache:', error);
     }
