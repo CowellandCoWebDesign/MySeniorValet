@@ -39,7 +39,7 @@ interface CachedCommunityData {
   // CRITICAL: Store the full raw Perplexity response for display
   rawPerplexityContent?: string;
   // Track whether data came from cache or fresh fetch
-  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos';
+  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos' | 'pending-fetch';
 }
 
 class UnifiedPerplexityCache {
@@ -234,10 +234,26 @@ class UnifiedPerplexityCache {
         }
       }
       
-      // No cached data exists - AUTO-FETCH on first visit
-      console.log(`🚀 No cached data for ${communityName} - AUTO-FETCHING on first visit`);
-      // Fall through to fetch logic below (same as forceRefresh=true)
-      // This ensures first visit gets real data automatically
+      // No cached data exists - return basic data and trigger background fetch
+      console.log(`⏳ No cached data for ${communityName} - returning basic data and fetching in background`);
+      
+      // Start background fetch (non-blocking)
+      this.fetchInBackground(communityId, communityName, location, isFeatured, websiteUrl);
+      
+      // Return basic data immediately to prevent timeout
+      return {
+        marketData: {},
+        reviews: {},
+        inspections: {},
+        photos: [],
+        sources: [],
+        timestamp: Date.now(),
+        communityId,
+        communityName,
+        location,
+        rawPerplexityContent: 'Loading comprehensive data in background. Please refresh in a few moments for full information.',
+        source: 'pending-fetch' as any
+      };
     }
 
     // Reaches here if forceRefresh is true OR no cache exists (first visit)
@@ -349,6 +365,94 @@ Format all information clearly with section headers.
         location,
         source: 'fresh-fetch' // Still counts as a fresh fetch attempt, even if it failed
       };
+    }
+  }
+
+  // Background fetch method - runs asynchronously without blocking
+  private async fetchInBackground(
+    communityId: string,
+    communityName: string,
+    location: string,
+    isFeatured: boolean,
+    websiteUrl?: string
+  ): Promise<void> {
+    const cacheKey = `community_${communityId}`;
+    
+    try {
+      console.log(`🔄 Background fetch started for ${communityName}`);
+      
+      // Build comprehensive query
+      const comprehensiveQuery = `
+For the senior living community "${communityName}" located in ${location}, provide comprehensive information including:
+
+**PRICING & AVAILABILITY:**
+- Current monthly rates for all care levels
+- Entrance fees, deposits, and additional costs
+- Current availability and waitlist status
+
+**CONTACT INFORMATION:**
+- Direct facility phone number (not referral services)
+- Official website URL
+- Email address
+- Physical address
+
+**REVIEWS & RATINGS:**
+- Recent Google reviews with ratings
+- Yelp reviews if available
+- Caring.com feedback
+- Family satisfaction scores
+
+**HEALTH & SAFETY:**
+- Recent health inspection results
+- Any violations or citations
+- Compliance status
+- Safety ratings
+
+**PHOTOS & VIRTUAL TOURS:**
+- Links to facility photos
+- Virtual tour availability
+- Floor plans if available
+
+**MANAGEMENT & STAFF:**
+- Parent company or management group
+- Staff credentials and certifications
+- Staff-to-resident ratios
+
+Format all information clearly with section headers.
+`;
+
+      // Make API call in background
+      const response = await this.perplexityService.searchRealTime(
+        comprehensiveQuery,
+        `Background fetch for ${communityName}`
+      );
+
+      // Parse and structure the response
+      const structuredData = await this.parseComprehensiveResponse(
+        response,
+        communityId,
+        communityName,
+        location,
+        websiteUrl
+      );
+
+      // Check if response is complete
+      const isCompleteResponse = 
+        structuredData.rawPerplexityContent && 
+        structuredData.rawPerplexityContent.length > 100 &&
+        !structuredData.rawPerplexityContent.includes('temporarily unavailable') &&
+        !structuredData.rawPerplexityContent.toLowerCase().includes('no information found') &&
+        !structuredData.rawPerplexityContent.toLowerCase().includes('unable to find');
+      
+      if (isCompleteResponse) {
+        // Save to cache
+        await this.saveCacheToDatabase(cacheKey, structuredData, isFeatured);
+        console.log(`✅ Background fetch completed and cached for ${communityName}`);
+      } else {
+        console.log(`⚠️ Background fetch returned incomplete data for ${communityName}`);
+      }
+    } catch (error) {
+      console.error(`❌ Background fetch failed for ${communityName}:`, error);
     }
   }
 
