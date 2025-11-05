@@ -139,15 +139,20 @@ export function setupSeniorResourcesRoutes(app: Express) {
 
       // Filter by state and county if provided
       let results = [];
+      let dataAvailable = true;
       if (state && county) {
         const stateData = foodBanks[state.toString().toLowerCase()];
         if (stateData && stateData[county.toString()]) {
           results = stateData[county.toString()];
+        } else {
+          dataAvailable = false;
         }
       } else if (state) {
         const stateData = foodBanks[state.toString().toLowerCase()];
         if (stateData) {
           results = Object.values(stateData).flat();
+        } else {
+          dataAvailable = false;
         }
       } else {
         // Return all food banks
@@ -157,6 +162,8 @@ export function setupSeniorResourcesRoutes(app: Express) {
       res.json({
         foodBanks: results,
         totalCount: results.length,
+        dataAvailable,
+        message: !dataAvailable ? `Food bank data for ${county}, ${state} is being compiled. Check back soon or contact us for assistance.` : undefined,
         additionalResources: {
           nationalHotlines: [
             {
@@ -288,17 +295,22 @@ export function setupSeniorResourcesRoutes(app: Express) {
       };
 
       let results = {};
+      let dataAvailable = false;
       if (state && state.toString().toLowerCase() === 'california' && county) {
         const countyData = ihssResources.california[county.toString()];
         if (countyData) {
           results = { [county.toString()]: countyData };
+          dataAvailable = true;
         }
       } else if (state && state.toString().toLowerCase() === 'california') {
         results = ihssResources.california;
+        dataAvailable = true;
       }
 
       res.json({
         ihss: results,
+        dataAvailable,
+        message: !dataAvailable ? `IHSS is primarily a California program. For in-home support services in ${state}, contact your local Area Agency on Aging.` : undefined,
         programInfo: {
           fullName: "In-Home Supportive Services",
           description: "IHSS helps pay for services provided to eligible elderly, blind, and disabled individuals who cannot safely remain in their own homes without assistance",
@@ -398,15 +410,20 @@ export function setupSeniorResourcesRoutes(app: Express) {
       };
 
       let results = [];
+      let dataAvailable = true;
       if (state && county) {
         const stateData = slsResources[state.toString().toLowerCase()];
         if (stateData && stateData[county.toString()]) {
           results = stateData[county.toString()];
+        } else {
+          dataAvailable = false;
         }
       } else if (state) {
         const stateData = slsResources[state.toString().toLowerCase()];
         if (stateData) {
           results = Object.values(stateData).flat();
+        } else {
+          dataAvailable = false;
         }
       } else {
         results = Object.values(slsResources).flatMap(state => Object.values(state).flat());
@@ -415,6 +432,8 @@ export function setupSeniorResourcesRoutes(app: Express) {
       res.json({
         sls: results,
         totalCount: results.length,
+        dataAvailable,
+        message: !dataAvailable ? `SLS provider data for ${county}, ${state} is being compiled. Contact your local disability services agency for immediate assistance.` : undefined,
         programInfo: {
           fullName: "Supported Living Services",
           description: "SLS provides housing support and life skills training for adults with developmental disabilities to live independently",

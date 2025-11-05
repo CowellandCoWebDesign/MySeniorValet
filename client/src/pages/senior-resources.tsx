@@ -241,6 +241,18 @@ export default function SeniorResources() {
               <div className="text-center py-8">Loading food bank resources...</div>
             ) : (
               <>
+                {/* Message when no data available */}
+                {foodBanksData?.message && (
+                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
+                    <CardContent className="py-4">
+                      <p className="text-blue-800 dark:text-blue-200">{foodBanksData.message}</p>
+                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
+                        Call 211 for local resources or contact admin@myseniorvalet.com to help us add data for your area.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+                
                 {/* Food Banks List */}
                 <div className="grid gap-4">
                   {foodBanksData?.foodBanks?.map((foodBank: any) => (
@@ -386,6 +398,18 @@ export default function SeniorResources() {
               <div className="text-center py-8">Loading IHSS resources...</div>
             ) : (
               <>
+                {/* Message when no data available */}
+                {ihssData?.message && (
+                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
+                    <CardContent className="py-4">
+                      <p className="text-blue-800 dark:text-blue-200">{ihssData.message}</p>
+                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
+                        Contact your local Area Agency on Aging at 1-800-677-1116 for in-home support services in your area.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+                
                 {Object.entries(ihssData?.ihss || {}).map(([county, data]: [string, any]) => (
                   <Card key={county} className="hover:shadow-lg transition-shadow">
                     <CardHeader>
@@ -529,6 +553,18 @@ export default function SeniorResources() {
               <div className="text-center py-8">Loading SLS providers...</div>
             ) : (
               <>
+                {/* Message when no data available */}
+                {slsData?.message && (
+                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
+                    <CardContent className="py-4">
+                      <p className="text-blue-800 dark:text-blue-200">{slsData.message}</p>
+                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
+                        Contact your local disability services or Regional Center for supported living providers in your area.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+                
                 {/* SLS Providers List */}
                 <div className="grid gap-4">
                   {slsData?.sls?.map((provider: any) => (
