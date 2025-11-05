@@ -1399,6 +1399,10 @@ export default function CommunityDetail() {
     setHasStartedVerification(true);
     setIsVerifying(true);
     
+    // Create AbortController with 60 second timeout for Perplexity API calls
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout
+    
     try {
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
@@ -1406,8 +1410,11 @@ export default function CommunityDetail() {
         body: JSON.stringify({ 
           forceRefresh: true,  // TRUE = force fresh data
           websiteUrl: community.website  // Pass the website URL from database
-        })
+        }),
+        signal: controller.signal // Add abort signal for timeout
       });
+      
+      clearTimeout(timeoutId); // Clear timeout if request completes
       
       if (!response.ok) {
         throw new Error(`Verification failed: ${response.status}`);
@@ -1423,8 +1430,13 @@ export default function CommunityDetail() {
         // Trigger a refresh to update the UI
         queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
       }
-    } catch (error) {
-      console.error('❌ Verification error:', error);
+    } catch (error: any) {
+      clearTimeout(timeoutId); // Clear timeout on error
+      if (error.name === 'AbortError') {
+        console.error('❌ Request timed out after 60 seconds. The search is taking longer than expected.');
+      } else {
+        console.error('❌ Verification error:', error);
+      }
       setHasStartedVerification(false); // Allow retry on error
     } finally {
       setIsVerifying(false);
