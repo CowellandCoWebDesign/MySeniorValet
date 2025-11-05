@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,10 +15,103 @@ import {
 } from "@/components/ui/select";
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 
+// Location data structure - all states, provinces, and countries
+const counties: Record<string, string[]> = {
+  // United States - All 50 States
+  "Alabama": ["Jefferson", "Mobile", "Madison", "Montgomery"],
+    "Alaska": ["Anchorage", "Fairbanks North Star", "Matanuska-Susitna"],
+    "Arizona": ["Maricopa", "Pima", "Pinal", "Yavapai"],
+    "Arkansas": ["Pulaski", "Benton", "Washington", "Sebastian"],
+    "California": ["Los Angeles", "San Diego", "Orange", "Sacramento", "San Francisco", "Alameda", "Riverside", "San Bernardino", "Santa Clara"],
+    "Colorado": ["Denver", "El Paso", "Arapahoe", "Jefferson", "Adams"],
+    "Connecticut": ["Fairfield", "Hartford", "New Haven", "New London"],
+    "Delaware": ["New Castle", "Kent", "Sussex"],
+    "Florida": ["Miami-Dade", "Broward", "Palm Beach", "Hillsborough", "Orange", "Pinellas", "Duval"],
+    "Georgia": ["Fulton", "Gwinnett", "Cobb", "DeKalb", "Clayton"],
+    "Hawaii": ["Honolulu", "Hawaii", "Maui", "Kauai"],
+    "Idaho": ["Ada", "Canyon", "Kootenai", "Bonneville"],
+    "Illinois": ["Cook", "DuPage", "Lake", "Will", "Kane"],
+    "Indiana": ["Marion", "Lake", "Allen", "Hamilton", "St. Joseph"],
+    "Iowa": ["Polk", "Linn", "Scott", "Johnson", "Black Hawk"],
+    "Kansas": ["Johnson", "Sedgwick", "Shawnee", "Wyandotte"],
+    "Kentucky": ["Jefferson", "Fayette", "Kenton", "Boone"],
+    "Louisiana": ["East Baton Rouge", "Jefferson", "Orleans", "St. Tammany"],
+    "Maine": ["Cumberland", "York", "Penobscot", "Kennebec"],
+    "Maryland": ["Montgomery", "Prince George's", "Baltimore", "Anne Arundel"],
+    "Massachusetts": ["Middlesex", "Worcester", "Essex", "Suffolk", "Norfolk"],
+    "Michigan": ["Wayne", "Oakland", "Macomb", "Kent", "Genesee"],
+    "Minnesota": ["Hennepin", "Ramsey", "Dakota", "Anoka", "Washington"],
+    "Mississippi": ["Hinds", "Harrison", "DeSoto", "Jackson"],
+    "Missouri": ["St. Louis", "Jackson", "St. Charles", "Clay"],
+    "Montana": ["Yellowstone", "Missoula", "Gallatin", "Flathead"],
+    "Nebraska": ["Douglas", "Lancaster", "Sarpy", "Hall"],
+    "Nevada": ["Clark", "Washoe", "Carson City", "Lyon"],
+    "New Hampshire": ["Hillsborough", "Rockingham", "Merrimack", "Strafford"],
+    "New Jersey": ["Bergen", "Essex", "Middlesex", "Hudson", "Monmouth"],
+    "New Mexico": ["Bernalillo", "Doña Ana", "Santa Fe", "San Juan"],
+    "New York": ["Kings", "Queens", "New York", "Suffolk", "Bronx", "Nassau", "Westchester", "Erie"],
+    "North Carolina": ["Mecklenburg", "Wake", "Guilford", "Forsyth", "Cumberland"],
+    "North Dakota": ["Cass", "Burleigh", "Grand Forks", "Ward"],
+    "Ohio": ["Cuyahoga", "Franklin", "Hamilton", "Summit", "Montgomery"],
+    "Oklahoma": ["Oklahoma", "Tulsa", "Cleveland", "Canadian"],
+    "Oregon": ["Multnomah", "Washington", "Clackamas", "Lane", "Marion"],
+    "Pennsylvania": ["Philadelphia", "Allegheny", "Montgomery", "Bucks", "Delaware"],
+    "Rhode Island": ["Providence", "Kent", "Washington", "Newport"],
+    "South Carolina": ["Greenville", "Richland", "Charleston", "Horry"],
+    "South Dakota": ["Minnehaha", "Pennington", "Lincoln", "Brookings"],
+    "Tennessee": ["Shelby", "Davidson", "Knox", "Hamilton", "Rutherford"],
+    "Texas": ["Harris", "Dallas", "Tarrant", "Bexar", "Travis", "Collin", "Denton", "Fort Bend"],
+    "Utah": ["Salt Lake", "Utah", "Davis", "Weber"],
+    "Vermont": ["Chittenden", "Rutland", "Washington", "Windsor"],
+    "Virginia": ["Fairfax", "Virginia Beach", "Prince William", "Henrico"],
+    "Washington": ["King", "Pierce", "Snohomish", "Spokane", "Clark"],
+    "West Virginia": ["Kanawha", "Berkeley", "Cabell", "Wood"],
+    "Wisconsin": ["Milwaukee", "Dane", "Waukesha", "Brown", "Racine"],
+    "Wyoming": ["Laramie", "Natrona", "Campbell", "Sweetwater"],
+    
+    // Canada - Major Provinces
+    "Ontario": ["Toronto", "Ottawa", "Peel", "York", "Durham", "Halton", "Hamilton", "Waterloo"],
+    "Quebec": ["Montreal", "Quebec City", "Laval", "Gatineau", "Longueuil"],
+    "British Columbia": ["Vancouver", "Surrey", "Burnaby", "Richmond", "Victoria", "Kelowna"],
+    "Alberta": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "Medicine Hat"],
+    "Manitoba": ["Winnipeg", "Brandon", "Steinbach"],
+    "Saskatchewan": ["Saskatoon", "Regina", "Prince Albert"],
+    "Nova Scotia": ["Halifax", "Cape Breton", "Kings", "Colchester"],
+    "New Brunswick": ["Saint John", "Moncton", "Fredericton"],
+    
+    // Australia - Major States/Territories
+    "New South Wales": ["Sydney", "Newcastle", "Wollongong", "Central Coast", "Lake Macquarie"],
+    "Queensland": ["Brisbane", "Gold Coast", "Sunshine Coast", "Townsville", "Cairns"],
+    "Victoria": ["Melbourne", "Geelong", "Ballarat", "Bendigo"],
+    "South Australia": ["Adelaide", "Mount Gambier", "Whyalla"],
+    "Western Australia": ["Perth", "Mandurah", "Bunbury", "Albany"],
+    "Tasmania": ["Hobart", "Launceston", "Devonport"],
+    
+    // United Kingdom
+    "England": ["Greater London", "Greater Manchester", "West Midlands", "West Yorkshire", "Kent", "Essex", "Hampshire"],
+    "Scotland": ["Glasgow", "Edinburgh", "Aberdeen", "Dundee"],
+    "Wales": ["Cardiff", "Swansea", "Newport"],
+    "Northern Ireland": ["Belfast", "Derry", "Lisburn"],
+    
+    // International
+    "Tokyo": ["Shibuya", "Shinjuku", "Minato", "Setagaya"],
+    "Singapore": ["Central", "North", "East", "West"],
+    "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Tijuana"],
+    "New Zealand": ["Auckland", "Wellington", "Christchurch", "Hamilton"]
+};
+
 export default function SeniorResources() {
   const [selectedState, setSelectedState] = useState("California");
   const [selectedCounty, setSelectedCounty] = useState("Los Angeles");
   const [activeTab, setActiveTab] = useState<"food-banks" | "ihss" | "sls">("food-banks");
+  
+  // Reset county to first option when state changes
+  useEffect(() => {
+    const availableCounties = counties[selectedState];
+    if (availableCounties && availableCounties.length > 0) {
+      setSelectedCounty(availableCounties[0]);
+    }
+  }, [selectedState]);
 
   // Fetch food banks
   const { data: foodBanksData, isLoading: foodBanksLoading } = useQuery({
@@ -47,14 +140,6 @@ export default function SeniorResources() {
     }
   });
 
-  const counties = {
-    "California": ["Los Angeles", "Sacramento", "San Diego", "Orange", "San Francisco", "Alameda"],
-    "Florida": ["Miami-Dade", "Broward", "Palm Beach", "Hillsborough", "Orange"],
-    "Texas": ["Harris", "Dallas", "Tarrant", "Bexar", "Travis"],
-    "Arizona": ["Maricopa", "Pima", "Pinal"],
-    "Nevada": ["Clark", "Washoe"]
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Helmet>
@@ -82,7 +167,7 @@ export default function SeniorResources() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">State</label>
+                <label className="text-sm font-medium mb-2 block">State / Province / Country</label>
                 <Select value={selectedState} onValueChange={setSelectedState}>
                   <SelectTrigger>
                     <SelectValue />
@@ -95,7 +180,7 @@ export default function SeniorResources() {
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">County</label>
+                <label className="text-sm font-medium mb-2 block">County / City / Region</label>
                 <Select value={selectedCounty} onValueChange={setSelectedCounty}>
                   <SelectTrigger>
                     <SelectValue />
