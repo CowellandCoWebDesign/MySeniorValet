@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 
 export default function SeniorResources() {
   const [selectedState, setSelectedState] = useState("California");
@@ -56,16 +57,20 @@ export default function SeniorResources() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-white/90 dark:bg-gray-900/90 border-b border-gray-200 dark:border-gray-700">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold gradient-text">Senior Resources & Support</h1>
-          <ThemeToggle />
-        </div>
-      </header>
+      <Helmet>
+        <title>Senior Food Banks, In-Home Care & Support Resources | MySeniorValet</title>
+        <meta name="description" content="Find senior food banks, IHSS in-home support, assisted living resources & nutrition programs. Free nationwide directory of verified government programs for seniors across USA, Canada, Australia & UK." />
+        <meta name="keywords" content="senior food banks, senior nutrition programs, IHSS in-home support, senior resources, meals on wheels, food assistance for seniors, senior support services, assisted living resources, memory care resources, nursing home resources" />
+        <meta property="og:title" content="Senior Food Banks, In-Home Care & Support Resources | MySeniorValet" />
+        <meta property="og:description" content="Find senior food banks, IHSS in-home support, assisted living resources & nutrition programs. Free nationwide directory of verified government programs for seniors." />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://myseniorvalet.com/senior-resources" />
+      </Helmet>
+      
+      <ProfessionalNavbar />
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="container mx-auto px-4 py-8 max-w-7xl mt-20">
         {/* Location Selector */}
         <Card className="mb-8">
           <CardHeader>
