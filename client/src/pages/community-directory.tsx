@@ -613,13 +613,13 @@ export default function CommunityDirectory() {
   return (
     <div>
       <Helmet>
-        <title>Senior Living Directory 2025 | 33,500+ Communities Worldwide | Canada, Australia, USA | MySeniorValet</title>
-        <meta name="description" content="World's most comprehensive senior living directory with 33,500+ communities across 15+ countries. Canada (5,343 - Ontario, Quebec, BC), Australia (1,458 - NSW, Queensland, Victoria), USA (all 50 states), Japan (Tokyo), Singapore, Scotland, Mexico. Compare Brookdale (700+), Atria (237), Provincial (55), HUD housing (5,936). Free transparent pricing, no referral fees." />
+        <title>Assisted Living, Memory Care & Nursing Homes Directory - 33,500+ Communities</title>
+        <meta name="description" content="Search assisted living, memory care, independent living & nursing homes across 33,500+ communities worldwide. Verified pricing, real availability, 24/7 support. USA, Canada, Australia, Japan, Mexico." />
         <meta name="keywords" content="senior living Canada, retirement homes Ontario, senior care Quebec, assisted living BC, Alberta senior communities, senior living Australia, NSW retirement homes, Queensland aged care, Victoria nursing homes, senior living Japan, Tokyo retirement, Singapore elderly care, Scotland care homes, Mexico retirement communities, senior living USA, Brookdale Senior Living, Atria Senior Living, Provincial Senior Living, HUD senior housing, international senior care directory, worldwide retirement homes, global elderly care, Ontario nursing homes, Quebec CHSLD, British Columbia senior care, Australian aged care facilities, Japanese senior homes" />
         
         {/* Open Graph tags for social sharing */}
-        <meta property="og:title" content="Senior Living Community Directory 2025 - Compare 33,500+ Communities | MySeniorValet" />
-        <meta property="og:description" content="World's most comprehensive senior living directory. 5,343 Canadian communities, 1,458 Australian facilities, plus USA, Japan, Singapore, Scotland, Mexico. Compare 240+ brands with verified pricing." />
+        <meta property="og:title" content="Assisted Living, Memory Care & Nursing Homes Directory | MySeniorValet" />
+        <meta property="og:description" content="Search assisted living, memory care, independent living & nursing homes. 33,500+ communities with verified pricing across USA, Canada, Australia, Japan & Mexico. Compare care options 24/7." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://myseniorvalet.com/community-directory" />
         <meta property="og:image" content="https://myseniorvalet.com/images/community-directory-og.jpg" />
@@ -627,8 +627,8 @@ export default function CommunityDirectory() {
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Senior Living Directory 2025 - 33,500+ Communities | MySeniorValet" />
-        <meta name="twitter:description" content="33,500+ senior communities worldwide. Canada, Australia, USA, Japan, Singapore, Scotland. Free directory with verified pricing." />
+        <meta name="twitter:title" content="Assisted Living, Memory Care & Nursing Homes Directory" />
+        <meta name="twitter:description" content="Search 33,500+ assisted living, memory care, independent living & nursing homes. Verified pricing, real availability, 24/7 support across USA, Canada, Australia, Japan." />
         <meta name="twitter:image" content="https://myseniorvalet.com/images/community-directory-twitter.jpg" />
         
         {/* Additional SEO tags */}
