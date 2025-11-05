@@ -39,7 +39,7 @@ interface CachedCommunityData {
   // CRITICAL: Store the full raw Perplexity response for display
   rawPerplexityContent?: string;
   // Track whether data came from cache or fresh fetch
-  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos' | 'pending-fetch';
+  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos';
 }
 
 class UnifiedPerplexityCache {
