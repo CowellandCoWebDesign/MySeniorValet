@@ -3,6 +3,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { seoSSRMiddleware } from "./seo-ssr-middleware";
 import { seedDatabase } from "./seed";
 import { 
   securityHeaders, 
@@ -265,6 +266,10 @@ app.use((req, res, next) => {
     return messages[status] || 'An error occurred';
   }
 
+  // CRITICAL: SSR middleware must run BEFORE all route registration
+  // This ensures crawlers get pre-rendered HTML instead of the SPA
+  app.use(seoSSRMiddleware());
+  
   // SEO Meta Tags Middleware for Social Media Crawlers
   // Must be added before static file serving to intercept HTML requests
   import('./middleware/seo-meta-tags').then(({ createSEOMiddleware }) => {
@@ -273,7 +278,7 @@ app.use((req, res, next) => {
   }).catch(error => {
     console.error('Failed to initialize SEO middleware:', error);
   });
-  
+
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes

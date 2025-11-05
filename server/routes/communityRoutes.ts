@@ -1,6 +1,7 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities } from "@shared/schema";
+import { generateCommunitySlug } from "../utils/generate-slug";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { insertCommunitySchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
@@ -1386,6 +1387,82 @@ export function registerCommunityRoutes(app: Express) {
         message: error.message,
         communityId: req.params.id
       });
+    }
+  });
+
+  // Get community by SEO-friendly slug URL: /api/communities/by-slug/:state/:city/:slug
+  app.get("/api/communities/by-slug/:state/:city/:slug", async (req, res) => {
+    const { state, city, slug } = req.params;
+    
+    try {
+      // Convert URL params back to searchable format
+      const stateUpper = state.toUpperCase();
+      const cityName = city.split('-').map(w => 
+        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+      ).join(' ');
+      
+      // Find community by location and name (since we don't have slug column yet)
+      // Try exact match first
+      let [community] = await db
+        .select()
+        .from(communities)
+        .where(
+          and(
+            eq(communities.state, stateUpper),
+            eq(communities.city, cityName),
+            eq(communities.name, slug.split('-').map((w: string) => 
+              w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+            ).join(' '))
+          )
+        )
+        .limit(1);
+      
+      // If no exact match, try to find by partial match
+      if (!community) {
+        const results = await db
+          .select()
+          .from(communities)
+          .where(
+            and(
+              eq(communities.state, stateUpper),
+              eq(communities.city, cityName)
+            )
+          );
+        
+        // Find best match based on slug similarity
+        community = results.find(c => {
+          const communitySlug = generateCommunitySlug(c);
+          return communitySlug === slug;
+        }) || results[0]; // Fallback to first result if no perfect match
+      }
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Get existing enrichment data from cache (skip for now - table doesn't exist yet)
+      let enrichedData = null;
+
+      // Get reviews  
+      const communityReviews = await db
+        .select()
+        .from(reviews)
+        .where(eq(reviews.communityId, community.id))
+        .orderBy(desc(reviews.createdAt))
+        .limit(10);
+
+      // Return all data for server-side rendering
+      res.json({
+        ...community,
+        reviews: communityReviews,
+        competitiveAnalysis: enrichedData?.competitiveAnalysis || null,
+        webEnrichment: enrichedData?.webEnrichment || null,
+        realTimeData: enrichedData?.realTimeData || null,
+        isClaimed: false
+      });
+    } catch (error) {
+      console.error("Error fetching community by slug:", error);
+      res.status(500).json({ error: "Failed to fetch community" });
     }
   });
 

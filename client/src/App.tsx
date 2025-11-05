@@ -45,6 +45,7 @@ import FamilyDashboard from "@/pages/family-dashboard";
 import MessagingDashboard from "@/pages/MessagingDashboard";
 import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
+import CommunitySEO from "@/pages/community-seo";
 import ServiceDetail from "@/pages/service-detail";
 import CommunityContribute from "@/pages/community-contribute";
 import MapSearch from "@/pages/map-search";
@@ -246,6 +247,7 @@ function Router() {
         }}
       </Route>
       <Route path="/community/:id" component={CommunityDetail} />
+      <Route path="/senior-living/:state/:city/:slug" component={CommunitySEO} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
       <Route path="/services/:id" component={ServiceDetail} />
