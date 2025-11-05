@@ -925,6 +925,20 @@ export function registerCommunityRoutes(app: Express) {
         communityWebsite  // Pass website URL for better photo discovery
       );
       
+      // CRITICAL: If we got fresh data, ensure it's saved to cache
+      // This fixes the issue where data wasn't persisting after fetch
+      if (forceRefresh && comprehensiveData && comprehensiveData.source === 'fresh-fetch') {
+        console.log(`💾 Ensuring fresh data is saved to unified cache for ${community.name}`);
+        // Save the comprehensive data explicitly to ensure persistence
+        await unifiedPerplexityCache.saveComprehensiveData(
+          communityId.toString(),
+          community.name,
+          `${community.city}, ${community.state}`,
+          comprehensiveData,
+          isFeatured
+        );
+      }
+      
       // Create enrichmentResult from unified cache data
       // Always include basic community data even if cache is empty
       const enrichmentResult = {
