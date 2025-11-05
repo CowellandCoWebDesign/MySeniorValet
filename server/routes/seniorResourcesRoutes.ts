@@ -106,6 +106,126 @@ export function setupSeniorResourcesRoutes(app: Express) {
               latitude: 32.8853,
               longitude: -117.1753
             }
+          ],
+          "Shasta": [
+            {
+              id: 20,
+              name: "Shasta Senior Nutrition Program / Dignity Health Connected Living Food Bank",
+              type: "Senior Food Bank & Nutrition Program",
+              address: "100 Mercy Oaks Drive",
+              city: "Redding",
+              state: "CA",
+              zipCode: "96001",
+              phone: "530-226-3071",
+              email: "connectedliving@dignityhealth.org",
+              website: "https://www.ssnpweb.org",
+              services: ["Senior Box Program (60+)", "TEFAP Emergency Food", "Meals on Wheels", "Senior Dining Centers", "Monthly Commodity Distributions"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: true,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "1st & 3rd Friday 8:00-9:00 AM (emergency food); 4th Saturday 8:00-10:00 AM (monthly); Call for senior dining center hours",
+              eligibility: "Seniors 60+ with income guidelines for box program; All ages for emergency food",
+              languages: ["English", "Spanish"],
+              latitude: 40.5865,
+              longitude: -122.3917
+            },
+            {
+              id: 21,
+              name: "Anderson-Cottonwood Christian Assistance (ACCA)",
+              type: "Community Food Pantry",
+              address: "2979 East Center Street",
+              city: "Anderson",
+              state: "CA",
+              zipCode: "96007",
+              phone: "530-365-4220",
+              email: "accafoodshelf@gmail.com",
+              website: null,
+              services: ["Food Pantry", "Emergency Food Assistance"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Tuesday & Friday 10:00 AM - 1:45 PM",
+              eligibility: "Anderson, Cottonwood, Happy Valley, Shingletown residents - ID & proof of address required",
+              languages: ["English"],
+              latitude: 40.4482,
+              longitude: -122.2978
+            },
+            {
+              id: 22,
+              name: "Good News Rescue Mission",
+              type: "Mission & Meal Program",
+              address: "3075 Veda Street",
+              city: "Redding",
+              state: "CA",
+              zipCode: "96001",
+              phone: "530-241-5754",
+              website: null,
+              services: ["Free Meals (Daily Breakfast, Lunch, Dinner)", "Shelter", "Clothing", "Recovery Programs"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Breakfast 6:30 AM daily; Lunch 12:00 PM Mon-Sat (1:00 PM Sunday); Dinner 5:45 PM daily",
+              eligibility: "Open to all",
+              languages: ["English"],
+              latitude: 40.5643,
+              longitude: -122.3844
+            },
+            {
+              id: 23,
+              name: "The Salvation Army - Compassion Food Ministry",
+              type: "Food Ministry",
+              address: "2691 Larkspur Lane",
+              city: "Redding",
+              state: "CA",
+              zipCode: "96002",
+              phone: "530-222-2207",
+              website: null,
+              services: ["Monthly Food for Seniors & Families", "Weekly Perishables"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Monday, Wednesday, Thursday 9:00-11:30 AM (Closed Tuesday & Friday)",
+              eligibility: "Seniors & families with children - Photo ID & proof of residency required",
+              languages: ["English"],
+              latitude: 40.5538,
+              longitude: -122.3531
+            },
+            {
+              id: 24,
+              name: "Shingletown Emergency Food & Outreach Center",
+              type: "Emergency Food Program",
+              address: "Call for location",
+              city: "Shingletown",
+              state: "CA",
+              zipCode: "96088",
+              phone: "530-474-3390 ext. 343",
+              email: "info@shingletownmedcenter.org",
+              website: null,
+              services: ["Emergency Food", "Senior Delivery Available"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Wednesday by appointment (urgent needs accommodated)",
+              eligibility: "Shingletown, Manton, Viola residents",
+              languages: ["English"],
+              latitude: 40.4917,
+              longitude: -121.8889
+            }
           ]
         },
         florida: {
@@ -132,6 +252,363 @@ export function setupSeniorResourcesRoutes(app: Express) {
               languages: ["English", "Spanish", "Haitian Creole"],
               latitude: 25.9927,
               longitude: -80.2052
+            }
+          ],
+          "Orange": [
+            {
+              id: 25,
+              name: "Seniors First - Meals on Wheels Orlando",
+              type: "Senior Meal Delivery & Food Pantry",
+              address: "5395 L.B. McLeod Rd",
+              city: "Orlando",
+              state: "FL",
+              zipCode: "32811",
+              phone: "407-292-0177",
+              website: "https://seniorsfirstinc.org",
+              services: ["Meals on Wheels (Daily Hot Meals Mon-Fri)", "Food Pantry (2nd & 4th Thursday)", "Weekend Meal Options"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: true
+              },
+              hours: "Food Pantry: 2nd & 4th Thursday 9:00-11:00 AM; Meals on Wheels: Daily Mon-Fri",
+              eligibility: "Age 60+, homebound or difficulty grocery shopping/cooking",
+              languages: ["English", "Spanish"],
+              latitude: 28.4906,
+              longitude: -81.4287
+            },
+            {
+              id: 26,
+              name: "Second Harvest Food Bank of Central Florida",
+              type: "Regional Food Bank Network",
+              address: "411 Mercy Drive",
+              city: "Orlando",
+              state: "FL",
+              zipCode: "32805",
+              phone: "407-295-1066",
+              email: "info@feedhopenow.org",
+              website: "https://feedhopenow.org",
+              services: ["Network of 300+ Food Distribution Partners", "CalFresh Enrollment Assistance", "Senior Food Programs"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: true,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Call for partner pantry hours",
+              eligibility: "Serves Orange, Seminole, Osceola, Brevard, Lake, Marion, Volusia counties",
+              languages: ["English", "Spanish"],
+              latitude: 28.5519,
+              longitude: -81.3986
+            },
+            {
+              id: 27,
+              name: "Community Action Partnership of Orange County",
+              type: "Senior Food Box Program",
+              address: "Call for locations",
+              city: "Orlando",
+              state: "FL",
+              zipCode: "32801",
+              phone: "See website",
+              website: "https://capoc.org",
+              services: ["Monthly Senior Food Boxes (70 sites)", "CalFresh Healthy Living Nutrition Education", "Farm 2 Family Fresh Produce"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Varies by distribution site",
+              eligibility: "Seniors 60+ (23,000+ boxes distributed monthly)",
+              languages: ["English", "Spanish"],
+              latitude: 28.5383,
+              longitude: -81.3792
+            },
+            {
+              id: 28,
+              name: "Community Baptist Church Food Distribution",
+              type: "Community Food Pantry",
+              address: "651 Campanella Ave",
+              city: "Orlando",
+              state: "FL",
+              zipCode: "32805",
+              phone: "407-293-3100",
+              website: null,
+              services: ["Food Distribution", "Emergency Deliveries Available"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "2nd Saturday 8:00-10:00 AM; 4th Saturday 7:00-10:00 AM",
+              eligibility: "Open to all",
+              languages: ["English", "Spanish"],
+              latitude: 28.5537,
+              longitude: -81.4051
+            }
+          ]
+        },
+        illinois: {
+          "Cook": [
+            {
+              id: 29,
+              name: "Greater Chicago Food Depository",
+              type: "Regional Food Bank Network",
+              address: "4100 W Ann Lurie Place",
+              city: "Chicago",
+              state: "IL",
+              zipCode: "60632",
+              phone: "773-843-5416",
+              website: "https://www.chicagosfoodbank.org",
+              services: ["850+ Partner Sites", "SNAP/Medicaid Assistance", "Senior Programs", "Mobile Pantries"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: true,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Mon-Fri 8:30 AM - 5:00 PM (partner sites have varying hours)",
+              eligibility: "Seniors 60+, most sites open to all",
+              languages: ["English", "Spanish", "Polish"],
+              latitude: 41.8141,
+              longitude: -87.7298
+            },
+            {
+              id: 30,
+              name: "Meals on Wheels Chicago",
+              type: "Senior Meal Delivery & Food Pantry",
+              address: "Call for service area",
+              city: "Chicago",
+              state: "IL",
+              zipCode: "60601",
+              phone: "See website",
+              website: "https://mealsonwheelschicago.org",
+              services: ["Home-Delivered Meals", "Monthly Food Pantry"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: true
+              },
+              hours: "Meal delivery Mon-Fri",
+              eligibility: "Homebound seniors 60+",
+              languages: ["English", "Spanish"],
+              latitude: 41.8781,
+              longitude: -87.6298
+            },
+            {
+              id: 31,
+              name: "Community Nutrition Network & Senior Services Association (CNNSSA)",
+              type: "Senior Dining & Meals on Wheels",
+              address: "439 Bohland Avenue",
+              city: "Bellwood",
+              state: "IL",
+              zipCode: "60104",
+              phone: "See website",
+              website: "https://cnnssa.org",
+              services: ["Community Café Dining", "Meals on Wheels", "Bingo & Fitness Programs", "Nutrition Education"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Varies by location (8 Cook County sites)",
+              eligibility: "Seniors 60+",
+              languages: ["English"],
+              latitude: 41.8822,
+              longitude: -87.8773
+            },
+            {
+              id: 32,
+              name: "Catholic Charities Food Pantries - Cook County",
+              type: "Network of Food Pantries",
+              address: "Multiple locations",
+              city: "Chicago",
+              state: "IL",
+              zipCode: "60601",
+              phone: "312-655-7106",
+              website: "https://www.catholiccharities.net",
+              services: ["Food Pantries", "Emergency Food Assistance", "Senior Farmers Market Coupons"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Varies by location",
+              eligibility: "Cook & Lake Counties residents",
+              languages: ["English", "Spanish", "Polish"],
+              latitude: 41.8781,
+              longitude: -87.6298
+            },
+            {
+              id: 33,
+              name: "City of Chicago Golden Diners Program",
+              type: "Senior Congregate Dining",
+              address: "~50 community sites citywide",
+              city: "Chicago",
+              state: "IL",
+              zipCode: "60601",
+              phone: "312-744-4016",
+              website: "https://www.chicago.gov/seniors",
+              services: ["Daily Lunch at Senior Centers", "Social Activities", "Nutrition Education"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Daily 11:30 AM - 12:30 PM at various sites",
+              eligibility: "Seniors 60+ and spouses (any age)",
+              languages: ["English", "Spanish"],
+              latitude: 41.8781,
+              longitude: -87.6298
+            }
+          ]
+        },
+        washington: {
+          "King": [
+            {
+              id: 34,
+              name: "University District Food Bank",
+              type: "Community Food Bank",
+              address: "Northeast Seattle (near 50th & 12th Ave NE)",
+              city: "Seattle",
+              state: "WA",
+              zipCode: "98105",
+              phone: "206-523-7060",
+              email: "info@udistrictfoodbank.org",
+              website: "https://www.udistrictfoodbank.org",
+              services: ["Groceries", "Toiletries", "Baby Formula/Diapers", "Pet Food", "Weekly Visits Allowed"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Mon 9:00 AM-3:00 PM; Tue & Thu 11:00 AM-7:00 PM; Fri 11:00 AM-4:00 PM",
+              eligibility: "Zip codes 98102, 98103, 98105, 98112, 98115, 98125",
+              languages: ["English"],
+              latitude: 47.6653,
+              longitude: -122.3117
+            },
+            {
+              id: 35,
+              name: "Ballard Food Bank",
+              type: "Community Food Bank",
+              address: "Leary Ave NW near Ione Pl",
+              city: "Seattle",
+              state: "WA",
+              zipCode: "98117",
+              phone: "206-789-7800",
+              website: "https://www.ballardfoodbank.org",
+              services: ["Grocery-Style Shopping", "Home Delivery for Homebound", "No-Cook Bags", "Community Resource Hub"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Tue 1:00-2:00 PM (seniors/disabled only), 2:30-6:30 PM (all); Wed & Thu 11:00 AM-3:00 PM",
+              eligibility: "Zip codes 98107, 98117",
+              languages: ["English"],
+              latitude: 47.6654,
+              longitude: -122.3721
+            },
+            {
+              id: 36,
+              name: "West Seattle Food Bank",
+              type: "Community Food Bank",
+              address: "California Ave SW & SW Alaska, West Seattle Junction",
+              city: "Seattle",
+              state: "WA",
+              zipCode: "98126",
+              phone: "206-932-9023",
+              website: null,
+              services: ["Weekly Groceries", "Rent/Utilities Assistance", "Clothing", "Bus Tickets"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Tue & Thu & Fri 10:00 AM-2:00 PM; Wed 12:00 PM-7:00 PM",
+              eligibility: "Zip codes 98106, 98116, 98126, 98136 - Photo ID & proof of address required",
+              languages: ["English"],
+              latitude: 47.5643,
+              longitude: -122.3862
+            },
+            {
+              id: 37,
+              name: "White Center Food Bank",
+              type: "Community Food Bank & Mobile Services",
+              address: "White Center (Puget Sound to Highway 509 area)",
+              city: "White Center",
+              state: "WA",
+              zipCode: "98146",
+              phone: "See website",
+              website: "https://www.whitecenterfoodbank.org",
+              services: ["Home Delivery", "Mobile Food Banks", "Healthy Food Gift Certificates for Local Markets"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Mon, Wed, Fri 11:00 AM-1:00 PM; Thu 11:00 AM-1:00 PM (seniors 65+ only); 2nd & 4th Wed 6:00-8:00 PM; 3rd Sat 11:00 AM-1:00 PM",
+              eligibility: "Seniors 65+ special hours on Thursday",
+              languages: ["English", "Spanish"],
+              latitude: 47.5155,
+              longitude: -122.3541
+            },
+            {
+              id: 38,
+              name: "Pike Market Food Bank",
+              type: "Urban Food Bank",
+              address: "Pike Market Parking Garage, 5th level",
+              city: "Seattle",
+              state: "WA",
+              zipCode: "98101",
+              phone: "206-728-2773",
+              website: "https://www.pmsc-fb.org",
+              services: ["Express Bags", "Home Delivery for Downtown Homebound Residents"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Varies (call ahead); Closed federal holidays",
+              eligibility: "Downtown Seattle, home delivery for zip codes 98101, 98102, 98104, 98121, 98112, 98122",
+              languages: ["English"],
+              latitude: 47.6097,
+              longitude: -122.3421
+            },
+            {
+              id: 39,
+              name: "King County Senior Farmers Market Nutrition Program",
+              type: "Fresh Food Voucher Program",
+              address: "Community Living Connections",
+              city: "Seattle",
+              state: "WA",
+              zipCode: "98101",
+              phone: "206-962-8467 or 1-844-348-5464",
+              website: "https://sfmnp-seattleking.org",
+              services: ["$80 E-Benefit Card for Fresh Fruits/Vegetables at Farmers Markets"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Apply by May 9, 2025",
+              eligibility: "Age 60+ (or 55+ if American Indian/Alaska Native) with income guidelines",
+              languages: ["English"],
+              latitude: 47.6062,
+              longitude: -122.3321
             }
           ]
         }
