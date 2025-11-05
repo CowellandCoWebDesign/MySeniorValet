@@ -234,15 +234,25 @@ class UnifiedPerplexityCache {
         }
       }
       
-      // No cached data exists - AUTO-FETCH on first visit
-      console.log(`🚀 No cached data for ${communityName} - AUTO-FETCHING on first visit`);
-      // Fall through to fetch logic below (same as forceRefresh=true)
-      // This ensures first visit gets real data automatically
+      // No cached data and no website URL - return empty data
+      console.log(`⚠️ No cached data for ${communityName} - returning empty (manual fetch required)`);
+      return {
+        marketData: {},
+        reviews: {},
+        inspections: {},
+        photos: [],
+        sources: [],
+        timestamp: Date.now(),
+        communityId,
+        communityName,
+        location,
+        rawPerplexityContent: 'No cached data available. Click "Search for Market Data & Photos" to fetch fresh data.',
+        source: 'empty' as const
+      };
     }
 
-    // Reaches here if forceRefresh is true OR no cache exists (first visit)
-    const fetchReason = forceRefresh ? 'User-initiated refresh' : 'First visit auto-fetch';
-    console.log(`🔄 ${fetchReason} for ${communityName} in ${location}`);
+    // Only reaches here if forceRefresh is true (manual user action)
+    console.log(`👤 User-initiated refresh for ${communityName} in ${location}`);
     if (websiteUrl) {
       console.log(`📌 Using website URL for enhanced search: ${websiteUrl}`);
     }
