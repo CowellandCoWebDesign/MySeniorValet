@@ -22,7 +22,7 @@ const counties: Record<string, string[]> = {
     "Alaska": ["Anchorage", "Fairbanks North Star", "Matanuska-Susitna"],
     "Arizona": ["Maricopa", "Pima", "Pinal", "Yavapai"],
     "Arkansas": ["Pulaski", "Benton", "Washington", "Sebastian"],
-    "California": ["Los Angeles", "San Diego", "Orange", "Sacramento", "San Francisco", "Alameda", "Riverside", "San Bernardino", "Santa Clara"],
+    "California": ["Los Angeles", "San Diego", "Orange", "Sacramento", "San Francisco", "Alameda", "Riverside", "San Bernardino", "Santa Clara", "Shasta"],
     "Colorado": ["Denver", "El Paso", "Arapahoe", "Jefferson", "Adams"],
     "Connecticut": ["Fairfield", "Hartford", "New Haven", "New London"],
     "Delaware": ["New Castle", "Kent", "Sussex"],
