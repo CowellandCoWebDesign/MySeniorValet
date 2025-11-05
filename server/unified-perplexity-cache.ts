@@ -135,8 +135,11 @@ class UnifiedPerplexityCache {
           const originalPhotos = data.photos?.map(url => {
             // If it's a proxied URL, extract the original
             if (url.includes('/api/image-proxy?url=')) {
+              // Remove the proxy prefix
               const encoded = url.replace('/api/image-proxy?url=', '');
-              return decodeURIComponent(encoded);
+              // Decode the URL (handles %2F -> / and other encodings)
+              const decoded = decodeURIComponent(encoded);
+              return decoded;
             }
             return url;
           }) || [];
