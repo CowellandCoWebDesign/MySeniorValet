@@ -316,10 +316,13 @@ Format all information clearly with section headers.
         !structuredData.rawPerplexityContent.toLowerCase().includes('no information found') &&
         !structuredData.rawPerplexityContent.toLowerCase().includes('unable to find');
       
+      // Calculate cache duration and label
+      const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
+      const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
+      
       if (isCompleteResponse) {
         // Cache the comprehensive data with full duration
         await this.saveCacheToDatabase(cacheKey, structuredData, isFeatured);
-        const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
         console.log(`✅ Cached complete response for ${communityName} (cache: ${cacheLabel})`);
       } else {
         // Cache incomplete responses for only 5 minutes to allow retry
