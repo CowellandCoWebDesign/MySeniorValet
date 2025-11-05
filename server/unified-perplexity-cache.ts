@@ -129,6 +129,36 @@ class UnifiedPerplexityCache {
     }
   }
 
+  // Public method to save comprehensive data to cache
+  async saveComprehensiveData(
+    communityId: string,
+    communityName: string,
+    location: string,
+    data: Partial<CachedCommunityData>,
+    isFeatured: boolean = false
+  ) {
+    const cacheKey = `community_${communityId}`;
+    
+    const fullData: CachedCommunityData = {
+      marketData: data.marketData || {},
+      reviews: data.reviews || {},
+      inspections: data.inspections || {},
+      photos: data.photos || [],
+      sources: data.sources || [],
+      timestamp: Date.now(),
+      communityId,
+      communityName,
+      location,
+      rawPerplexityContent: data.rawPerplexityContent || '',
+      source: 'fresh-fetch'
+    };
+    
+    await this.saveCacheToDatabase(cacheKey, fullData, isFeatured);
+    console.log(`✅ Manually saved comprehensive data for ${communityName} to cache`);
+    
+    return fullData;
+  }
+
   async getComprehensiveCommunityData(
     communityId: string,
     communityName: string,

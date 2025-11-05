@@ -68,6 +68,18 @@ router.post('/api/competitive-analysis', async (req, res) => {
             
             console.log(`✅ International market data retrieved for ${community.name}`);
             
+            // CRITICAL FIX: Save the fetched data to unified cache
+            if (searchResults.found && comprehensiveData.photos && comprehensiveData.photos.length > 0) {
+              await unifiedPerplexityCache.saveComprehensiveData(
+                communityId.toString(),
+                community.name,
+                marketLocation,
+                comprehensiveData,
+                false // not featured
+              );
+              console.log(`💾 Saved international community data to unified cache: ${community.name} (${comprehensiveData.photos.length} photos)`);
+            }
+            
           } catch (error) {
             console.error('International search error:', error);
             // Fallback to basic data
@@ -85,20 +97,61 @@ router.post('/api/competitive-analysis', async (req, res) => {
           }
         } else {
           // US communities - use unified cache as before
-          console.log(`🔍 Using unified cache for ${community.name} to prevent cost spike...`);
+          console.log(`🔍 Checking unified cache for ${community.name}...`);
           
           try {
-            // CRITICAL: Never force refresh to prevent automatic API calls
-            // Only use existing cached data, return empty if no cache
+            // First check for existing cache
             comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
               communityId.toString(),
               community.name,
               `${community.city}, ${community.state}`,
               false,  // not featured
-              false   // NEVER force refresh - prevents all API calls
+              false   // don't force refresh yet
             );
+            
+            // If no cached data, fetch fresh data from Perplexity
+            if (!comprehensiveData || !comprehensiveData.photos || comprehensiveData.photos.length === 0) {
+              console.log(`📡 No cache found for ${community.name} - fetching fresh data from Perplexity...`);
+              
+              // Use simplified Perplexity service to get fresh data
+              const searchResults = await simplifiedPerplexityService.getCommunityIntelligence(
+                community.name,
+                `${community.city}, ${community.state}`
+              );
+              
+              // Transform and save the fresh data
+              if (searchResults.found) {
+                comprehensiveData = {
+                  marketData: {
+                    website: searchResults.officialWebsite || community.website,
+                    phone: searchResults.phone || community.phone,
+                    email: searchResults.email || null,
+                    pricing: searchResults.pricing ? JSON.stringify(searchResults.pricing) : 'Contact for pricing',
+                    description: searchResults.description || '',
+                    managementCompany: searchResults.managementCompany || null
+                  },
+                  photos: searchResults.photos || [],
+                  sources: searchResults.sources || [],
+                  reviews: searchResults.reviews || null,
+                  inspections: searchResults.inspections || null,
+                  rawPerplexityContent: searchResults.notes || ''
+                };
+                
+                // Save to unified cache
+                await unifiedPerplexityCache.saveComprehensiveData(
+                  communityId.toString(),
+                  community.name,
+                  `${community.city}, ${community.state}`,
+                  comprehensiveData,
+                  false // not featured
+                );
+                console.log(`💾 Saved US community data to unified cache: ${community.name} (${comprehensiveData.photos.length} photos)`);
+              }
+            } else {
+              console.log(`✅ Using cached data for ${community.name} (${comprehensiveData.photos?.length || 0} photos)`);
+            }
           } catch (error) {
-            console.error(`⚠️ Unified cache error:`, error);
+            console.error(`⚠️ Error fetching data for ${community.name}:`, error);
             comprehensiveData = null;
           }
         }
