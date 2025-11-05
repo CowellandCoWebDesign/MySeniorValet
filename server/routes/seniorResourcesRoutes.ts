@@ -540,6 +540,316 @@ export function setupSeniorResourcesRoutes(app: Express) {
               latitude: 37.9161,
               longitude: -122.0582
             }
+          ],
+          "Alameda": [
+            {
+              id: 53,
+              name: "Alameda County Community Food Bank",
+              type: "Regional Food Bank",
+              address: "7900 Edgewater Drive",
+              city: "Oakland",
+              state: "CA",
+              zipCode: "94621",
+              phone: "510-635-3663 or 800-870-3663",
+              email: "info@accfb.org",
+              website: "https://www.accfb.org",
+              services: ["400+ Partner Agencies", "Emergency Food", "Nutrition Education", "CalFresh Outreach", "300,000 meals/week"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 9:00 AM - 5:00 PM (office); Mon-Fri 9:00 AM - 4:00 PM (emergency hotline)",
+              eligibility: "Open to all; received $8.3M emergency funding Oct 2025",
+              languages: ["English", "Spanish", "Chinese", "Vietnamese"],
+              latitude: 37.7497,
+              longitude: -122.1948
+            },
+            {
+              id: 54,
+              name: "St. Mary's Center - Food for All Ages",
+              type: "Senior Nutrition Program",
+              address: "925 Brockhurst Street",
+              city: "Oakland",
+              state: "CA",
+              zipCode: "94608",
+              phone: "510-923-9600",
+              website: null,
+              services: ["Meals on Wheels", "Food Assistance", "Senior Support Programs"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Call for hours",
+              eligibility: "Seniors in Alameda County",
+              languages: ["English", "Spanish"],
+              latitude: 37.8044,
+              longitude: -122.2711
+            }
+          ],
+          "Riverside": [
+            {
+              id: 55,
+              name: "Riverside County Office on Aging",
+              type: "Senior Nutrition Program",
+              address: "3610 Central Avenue, Suite 102",
+              city: "Riverside",
+              state: "CA",
+              zipCode: "92506",
+              phone: "877-932-4100 or 800-510-2020",
+              website: "https://rcaging.org",
+              services: ["Home-Delivered Meals", "Congregate Meals at 20+ Centers", "Emergency Food Delivery (2-week supplies)", "Grab-and-Go Packages"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Call for hours; Interactive map available on website",
+              eligibility: "Seniors 60+, homebound for meal delivery",
+              languages: ["English", "Spanish"],
+              latitude: 33.9806,
+              longitude: -117.3756
+            },
+            {
+              id: 56,
+              name: "Feeding America Riverside | San Bernardino",
+              type: "Regional Food Bank",
+              address: "Multiple distribution sites",
+              city: "Riverside",
+              state: "CA",
+              zipCode: "92501",
+              phone: "211",
+              website: "https://feedingie.org",
+              services: ["3.1+ million pounds monthly", "250+ Partner Agencies", "Pantries, Senior Centers, Schools"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Call 211 for distribution sites",
+              eligibility: "Serves Riverside & San Bernardino Counties",
+              languages: ["English", "Spanish"],
+              latitude: 33.9806,
+              longitude: -117.3756
+            }
+          ],
+          "San Bernardino": [
+            {
+              id: 57,
+              name: "Community Action Partnership of San Bernardino County (CAPSBC)",
+              type: "Regional Food Bank",
+              address: "Multiple locations",
+              city: "San Bernardino",
+              state: "CA",
+              zipCode: "92401",
+              phone: "211",
+              website: "https://www.capsbc.org/food-bank",
+              services: ["273+ Partner Programs", "96 Community Pantries", "25 Soup Kitchens", "14 Senior Choice Programs"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Varies by location; call 211",
+              eligibility: "County residents",
+              languages: ["English", "Spanish"],
+              latitude: 34.1083,
+              longitude: -117.2898
+            },
+            {
+              id: 58,
+              name: "San Bernardino County Department of Aging and Adult Services",
+              type: "Senior Nutrition Program",
+              address: "Multiple senior centers",
+              city: "San Bernardino",
+              state: "CA",
+              zipCode: "92401",
+              phone: "909-891-3900",
+              website: "https://hss.sbcounty.gov/daas",
+              services: ["Congregate Meals (on-site/to-go)", "Home-Delivered Meals"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "High Desert: 760-256-9111; Mountain/Inland: 951-342-3057 (Mon-Fri 8:00 AM - 5:00 PM)",
+              eligibility: "Age 60+, homebound due to illness/disability for home delivery; $3.75 suggested donation",
+              languages: ["English", "Spanish"],
+              latitude: 34.1083,
+              longitude: -117.2898
+            },
+            {
+              id: 59,
+              name: "Fifth Street Senior Center",
+              type: "Senior Dining Site",
+              address: "600 W. Fifth St",
+              city: "San Bernardino",
+              state: "CA",
+              zipCode: "92410",
+              phone: "909-384-5434",
+              website: null,
+              services: ["Congregate Meals", "Social Activities"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Lunch Mon-Fri 11:30 AM - 12:30 PM; Dinner Tue-Thu 2:00-2:45 PM",
+              eligibility: "Seniors 60+",
+              languages: ["English", "Spanish"],
+              latitude: 34.1069,
+              longitude: -117.2982
+            }
+          ],
+          "Santa Clara": [
+            {
+              id: 60,
+              name: "Second Harvest of Silicon Valley",
+              type: "Regional Food Bank",
+              address: "4001 North 1st Street",
+              city: "San Jose",
+              state: "CA",
+              zipCode: "95134",
+              phone: "1-800-984-3663",
+              website: "https://www.shfb.org",
+              services: ["35+ Partner Distribution Sites", "Free Groceries", "Ready-to-Eat Meals", "Online Food Locator"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Varies by distribution site; use online Food Locator",
+              eligibility: "Serves Santa Clara & San Mateo counties; one of largest food banks in nation",
+              languages: ["English", "Spanish", "Vietnamese", "Chinese"],
+              latitude: 37.4020,
+              longitude: -121.9530
+            },
+            {
+              id: 61,
+              name: "Santa Clara County Senior Nutrition Program",
+              type: "Senior Nutrition Program",
+              address: "35+ meal sites throughout county",
+              city: "San Jose",
+              state: "CA",
+              zipCode: "95110",
+              phone: "408-755-7680",
+              website: "https://ssa.santaclaracounty.gov",
+              services: ["Congregate Meals at 35+ Sites", "Home-Delivered Meals (Meals on Wheels)", "Social Activities"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Call for registration and nearest location",
+              eligibility: "Age 60+; $3 suggested donation (no one denied)",
+              languages: ["English", "Spanish", "Vietnamese", "Chinese"],
+              latitude: 37.3382,
+              longitude: -121.8863
+            },
+            {
+              id: 62,
+              name: "Santa Maria Urban Ministry",
+              type: "Community Food Pantry",
+              address: "778 S Almaden Ave",
+              city: "San Jose",
+              state: "CA",
+              zipCode: "95110",
+              phone: "408-292-3314",
+              website: "https://santamariasj.org",
+              services: ["Food Pantry", "Neighborhood Resources"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 9:00 AM - 11:45 AM; 1st & 3rd Sat 9:00 AM - 11:45 AM",
+              eligibility: "Santa Clara County residents",
+              languages: ["English", "Spanish"],
+              latitude: 37.3250,
+              longitude: -121.8908
+            }
+          ],
+          "Sonoma": [
+            {
+              id: 63,
+              name: "Redwood Empire Food Bank",
+              type: "Regional Food Bank",
+              address: "3990 Brickway Blvd",
+              city: "Santa Rosa",
+              state: "CA",
+              zipCode: "95403",
+              phone: "707-523-7900 (main) or 707-523-7903 (food referrals)",
+              website: "https://refb.org",
+              services: ["Senior Basket Program (13,000+ seniors served)", "Monthly Fresh Food Distributions", "Mobile distributions"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Mon-Fri 8:00 AM - 4:30 PM; Text 'FOOD' to 707-353-3882 for sites",
+              eligibility: "Low-income seniors 60+ for Senior Basket program; serves 5 counties",
+              languages: ["English", "Spanish"],
+              latitude: 38.4404,
+              longitude: -122.7141
+            },
+            {
+              id: 64,
+              name: "Catholic Charities Emergency Food Pantry",
+              type: "Food Pantry",
+              address: "987 Airway Court, Suite 101",
+              city: "Santa Rosa",
+              state: "CA",
+              zipCode: "95403",
+              phone: "707-528-8712",
+              website: null,
+              services: ["Emergency Food Assistance"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 9:00 AM - 5:00 PM (appointment required)",
+              eligibility: "Sonoma County residents",
+              languages: ["English", "Spanish"],
+              latitude: 38.5071,
+              longitude: -122.7633
+            },
+            {
+              id: 65,
+              name: "Bethlehem Towers Senior Food Distribution",
+              type: "Senior Food Program",
+              address: "801 Tupper St",
+              city: "Santa Rosa",
+              state: "CA",
+              zipCode: "95401",
+              phone: "Call 211 for info",
+              website: null,
+              services: ["Monthly Food Distribution for Seniors"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: true
+              },
+              hours: "3rd Thursday of month, 9:00-10:00 AM",
+              eligibility: "Seniors 60+",
+              languages: ["English", "Spanish"],
+              latitude: 38.4404,
+              longitude: -122.7141
+            }
           ]
         },
         florida: {
