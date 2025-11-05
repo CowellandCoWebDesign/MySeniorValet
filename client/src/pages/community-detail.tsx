@@ -1380,16 +1380,72 @@ export default function CommunityDetail() {
       return;
     }
     
-    // Auto-trigger verification on first load
+    // Auto-trigger verification on first load - check backend cache first
     console.log('🚀 Auto-loading market data for:', community.name);
-    handleManualVerification();
+    handleInitialLoad();
   }, [community?.id, community?.name]);
+
+  // INITIAL LOAD: Check backend cache first, don't force refresh
+  const handleInitialLoad = async () => {
+    if (!community?.id || isVerifying) return;
+    
+    console.log('🔍 Checking for cached Market Data:', community.name);
+    console.log('📌 Community website:', community.website || 'none');
+    setHasStartedVerification(true);
+    setIsVerifying(true);
+    
+    try {
+      const response = await fetch(`/api/communities/${community.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          forceRefresh: false,  // FALSE = use backend cache if available
+          websiteUrl: community.website  // Pass the website URL from database
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Verification failed: ${response.status}`);
+      }
+      
+      const report = await response.json();
+      const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
+      console.log('✅ Cache check complete, photos found:', foundPhotos);
+      
+      // Check if we got real data or just empty cache
+      const hasPerplexityContent = report?.verificationResults?.perplexityData?.searchContent && 
+                                   report.verificationResults.perplexityData.searchContent.length > 100;
+      
+      if (hasPerplexityContent || foundPhotos > 0) {
+        console.log('✨ Found cached data from backend');
+        setVerificationReport(report);
+        
+        // Save to frontend cache too
+        const cacheKey = `verify-${community.id}`;
+        enrichmentCache.set(cacheKey, report);
+      } else {
+        console.log('⚠️ No backend cache found, will show empty state');
+        setVerificationReport(report);
+      }
+      
+      // Photos will be displayed from the verification report
+      if (foundPhotos > 0) {
+        // Trigger a refresh to update the UI
+        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+      }
+    } catch (error) {
+      console.error('❌ Verification error:', error);
+      setHasStartedVerification(false); // Allow retry on error
+    } finally {
+      setIsVerifying(false);
+    }
+  };
 
   // MANUAL VERIFICATION: User-triggered search with force refresh
   const handleManualVerification = async () => {
     if (!community?.id || isVerifying) return;
     
-    console.log('🔍 Loading Market Data for:', community.name);
+    console.log('🔍 Force refreshing Market Data for:', community.name);
     console.log('📌 Community website:', community.website || 'none');
     setHasStartedVerification(true);
     setIsVerifying(true);
@@ -1410,8 +1466,12 @@ export default function CommunityDetail() {
       
       const report = await response.json();
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
-      console.log('✅ Verification complete, photos found:', foundPhotos);
+      console.log('✅ Fresh data fetched, photos found:', foundPhotos);
       setVerificationReport(report);
+      
+      // Save to frontend cache
+      const cacheKey = `verify-${community.id}`;
+      enrichmentCache.set(cacheKey, report);
       
       // Photos will be displayed from the verification report
       if (foundPhotos > 0) {
