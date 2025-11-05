@@ -1840,6 +1840,35 @@ Provide specific, factual information with current pricing and availability.`;
         enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 15); // Limit to 15 photos
       }
       
+      // Check for cached comprehensive data from unified_perplexity_cache
+      let cachedComprehensiveData = null;
+      if (!fetchRealtime) {  // Only check cache if not doing real-time fetch
+        try {
+          const { UnifiedPerplexityCache } = await import('../unified-perplexity-cache');
+          const cacheService = new UnifiedPerplexityCache();
+          
+          // Get cached data without forcing a refresh
+          cachedComprehensiveData = await cacheService.getComprehensiveCommunityData(
+            String(communityId),
+            community.name,
+            `${community.city}, ${community.state}`,
+            false,  // isFeatured
+            false,  // forceRefresh
+            community.website
+          );
+          
+          // If we have cached photos, add them to the enriched community
+          if (cachedComprehensiveData && cachedComprehensiveData.photos && cachedComprehensiveData.photos.length > 0) {
+            console.log(`📸 Found ${cachedComprehensiveData.photos.length} cached photos for community ${communityId}`);
+            // Combine cached photos with existing photos (deduplicate)
+            const allPhotos = [...(enrichedCommunity.photos || []), ...cachedComprehensiveData.photos];
+            enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 30); // Allow more photos from cache
+          }
+        } catch (error) {
+          console.error(`Failed to retrieve cached data for community ${communityId}:`, error);
+        }
+      }
+      
       // Skip claimed community check for now - table doesn't exist
       
       res.json({
@@ -1847,7 +1876,8 @@ Provide specific, factual information with current pricing and availability.`;
         reviews: communityReviews,
         isClaimed: false,
         claimInfo: null,
-        realTimeData: realTimeData
+        realTimeData: realTimeData,
+        comprehensiveData: cachedComprehensiveData  // Include cached comprehensive data
       });
     } catch (error) {
       console.error("Error fetching community:", error);
