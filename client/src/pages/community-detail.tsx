@@ -1324,6 +1324,8 @@ export default function CommunityDetail() {
   const { data: community, isLoading, error } = useQuery<Community>({
     queryKey: [`/api/communities/${id}`],
     enabled: !!id && id !== '-1' && !isNaN(Number(id)),
+    staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
 
   // Fetch comprehensive data once for all tabs

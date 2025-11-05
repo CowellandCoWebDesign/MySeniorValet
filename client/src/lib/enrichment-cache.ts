@@ -19,6 +19,72 @@ class EnrichmentCache {
   private pendingRequests = new Map<string, PendingRequest>();
   private readonly CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
   private readonly REQUEST_TIMEOUT = 60 * 1000; // 60 seconds for pending requests
+  private readonly STORAGE_KEY = 'enrichment-cache-v1';
+  
+  constructor() {
+    // Load cache from localStorage on initialization
+    this.loadFromStorage();
+  }
+  
+  /**
+   * Load cache from localStorage
+   */
+  private loadFromStorage() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const stored = localStorage.getItem(this.STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          const now = Date.now();
+          // Restore only non-expired entries
+          Object.entries(parsed).forEach(([key, entry]: [string, any]) => {
+            if (entry.expiry > now) {
+              this.cache.set(key, entry);
+            }
+          });
+          console.log(`📦 Loaded ${this.cache.size} cached enrichment entries from storage`);
+        }
+      } catch (error) {
+        console.error('Failed to load enrichment cache from storage:', error);
+      }
+    }
+  }
+  
+  /**
+   * Save cache to localStorage
+   */
+  private saveToStorage() {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        const toStore: Record<string, CacheEntry> = {};
+        const now = Date.now();
+        
+        // Only save non-expired entries
+        this.cache.forEach((entry, key) => {
+          if (entry.expiry > now) {
+            toStore[key] = entry;
+          }
+        });
+        
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(toStore));
+      } catch (error) {
+        console.error('Failed to save enrichment cache to storage:', error);
+        // If localStorage is full, clear old entries
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+          this.cleanup();
+          try {
+            const toStore: Record<string, CacheEntry> = {};
+            this.cache.forEach((entry, key) => {
+              toStore[key] = entry;
+            });
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(toStore));
+          } catch (retryError) {
+            console.error('Failed to save after cleanup:', retryError);
+          }
+        }
+      }
+    }
+  }
 
   /**
    * Get cached data without fetching (returns undefined if not cached)
@@ -73,6 +139,9 @@ class EnrichmentCache {
           expiry: Date.now() + this.CACHE_DURATION
         });
         
+        // Save to localStorage
+        this.saveToStorage();
+        
         // Remove from pending requests
         this.pendingRequests.delete(cacheKey);
         
@@ -101,6 +170,7 @@ class EnrichmentCache {
     const cacheKey = `community-${communityId}`;
     this.cache.delete(cacheKey);
     this.pendingRequests.delete(cacheKey);
+    this.saveToStorage();
   }
 
   /**
@@ -109,6 +179,7 @@ class EnrichmentCache {
   clearAll() {
     this.cache.clear();
     this.pendingRequests.clear();
+    this.saveToStorage();
   }
 
   /**

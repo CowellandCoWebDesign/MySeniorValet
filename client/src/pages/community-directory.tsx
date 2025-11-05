@@ -143,7 +143,9 @@ export default function CommunityDirectory() {
       if (!response.ok) throw new Error('Failed to fetch Discovery communities');
       return await response.json();
     },
-    enabled: true
+    enabled: true,
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
   
   const lcsQuery = useQuery({
@@ -158,7 +160,9 @@ export default function CommunityDirectory() {
       if (!response.ok) throw new Error('Failed to fetch LCS communities');
       return await response.json();
     },
-    enabled: true
+    enabled: true,
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
   
   const atriaQuery = useQuery({
@@ -173,7 +177,9 @@ export default function CommunityDirectory() {
       if (!response.ok) throw new Error('Failed to fetch Atria communities');
       return await response.json();
     },
-    enabled: true
+    enabled: true,
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
   
   const brookdaleQuery = useQuery({
@@ -188,7 +194,9 @@ export default function CommunityDirectory() {
       if (!response.ok) throw new Error('Failed to fetch Brookdale communities');
       return await response.json();
     },
-    enabled: true
+    enabled: true,
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
   
   const provincialQuery = useQuery({
@@ -202,7 +210,9 @@ export default function CommunityDirectory() {
       if (!response.ok) throw new Error('Failed to fetch Provincial communities');
       return await response.json();
     },
-    enabled: true
+    enabled: true,
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
   
   // Recently discovered communities query
@@ -216,7 +226,8 @@ export default function CommunityDirectory() {
       // Ensure we always return an array
       return Array.isArray(data) ? data : [];
     },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
     retry: 1
   });
   

@@ -35,7 +35,8 @@ export default function CommunitySEO() {
   const { data: community, isLoading, error } = useQuery<Community>({
     queryKey: [`/api/communities/by-slug/${state}/${city}/${slug}`],
     retry: 1,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
 
   // Generate breadcrumb items
