@@ -723,7 +723,7 @@ Format all information clearly with section headers.
     
     // Use cost-effective MultiAIPhotoExtractor instead of expensive Perplexity calls
     console.log(`📸 Using MultiAIPhotoExtractor for ${communityName}...`);
-    const cleanedUrlForExtractor = websiteUrl ? this.cleanUrl(websiteUrl) : null;
+    const cleanedUrlForExtractor = websiteUrl ? this.cleanUrl(websiteUrl) : undefined;
     if (cleanedUrlForExtractor) {
       console.log(`📌 Using cleaned website URL for photo extraction: ${cleanedUrlForExtractor}`);
     }
@@ -823,21 +823,21 @@ Format all information clearly with section headers.
   // Clear cache for a specific community
   clearCommunityCache(communityId: string): void {
     const cacheKey = `community_${communityId}`;
-    this.cache.delete(cacheKey);
+    this.memoryCache.delete(cacheKey);
     console.log(`🗑️ Cleared cache for community ${communityId}`);
   }
 
   // Clear all cache
   clearAllCache(): void {
-    this.cache.clear();
+    this.memoryCache.clear();
     console.log('🗑️ Cleared all cached data');
   }
 
   // Get cache statistics
   getCacheStats(): { size: number; communities: string[] } {
-    const communities = Array.from(this.cache.keys()).map(key => key.replace('community_', ''));
+    const communities = Array.from(this.memoryCache.keys()).map((key: string) => key.replace('community_', ''));
     return {
-      size: this.cache.size,
+      size: this.memoryCache.size,
       communities
     };
   }
@@ -996,8 +996,12 @@ Note: If location is uncertain, search broadly and include any businesses with t
         rawPerplexityContent: response.summary
       };
 
-      // Cache the result
-      await this.saveCacheToDatabase(cacheKey, serviceData, false);
+      // Cache the result in memory only (ServiceEnrichmentCache doesn't persist to database)
+      this.memoryCache.set(cacheKey, {
+        data: serviceData,
+        timestamp: Date.now(),
+        expiresAt: Date.now() + this.CACHE_DURATION
+      });
       console.log(`✅ Cached enrichment data for ${serviceName} (7 days)`);
 
       return serviceData;
