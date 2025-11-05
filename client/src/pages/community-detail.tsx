@@ -1400,16 +1400,12 @@ export default function CommunityDetail() {
     setIsVerifying(true);
     
     try {
-      // Clean markdown formatting from website URL if present
-      // Converts [https://example.com](https://example.com)[3] to https://example.com
-      const cleanWebsiteUrl = community.website?.replace(/\[([^\]]+)\]\([^)]+\)(\[\d+\])?/g, '$1') || community.website;
-      
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           forceRefresh: true,  // TRUE = force fresh data
-          websiteUrl: cleanWebsiteUrl  // Pass cleaned website URL
+          websiteUrl: community.website  // Pass the website URL from database
         })
       });
       
