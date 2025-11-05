@@ -1890,18 +1890,6 @@ export default function CommunityDetail() {
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
             
-            {/* Live Web Intelligence - Automatically fetches photos and market data */}
-            {community && (
-              <LiveWebIntelligence
-                communityId={community.id}
-                communityName={community.name}
-                city={community.city}
-                state={community.state}
-                autoLoad={true}
-                comprehensiveData={comprehensiveData}
-                verificationReport={verificationReport}
-              />
-            )}
             
             {/* Loading state for verification */}
             {isVerifying && (
