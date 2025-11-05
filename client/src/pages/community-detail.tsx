@@ -1328,13 +1328,8 @@ export default function CommunityDetail() {
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
 
-  // Fetch comprehensive data once for all tabs
-  const { data: comprehensiveData } = useQuery<any>({
-    queryKey: [`/api/community/${id}/comprehensive-data`],
-    enabled: !!id && !!community && id !== '-1' && !isNaN(Number(id)),
-    staleTime: 7 * 24 * 60 * 60 * 1000, // Cache for 7 days
-    gcTime: 7 * 24 * 60 * 60 * 1000, // TanStack Query v5 uses gcTime instead of cacheTime
-  });
+  // Get comprehensive data from the community response (no longer a separate endpoint)
+  const comprehensiveData = (community as any)?.comprehensiveData || null;
 
   // Detect virtual tour using our enhanced detection service
   const { virtualTour, isLoading: isDetectingTour, refreshDetection } = useVirtualTourDetection({
@@ -1753,6 +1748,24 @@ export default function CommunityDetail() {
       photos.push(...community.photos);
     }
     
+    // Check for cached comprehensive data photos FIRST (most reliable source)
+    if (comprehensiveData?.photos && comprehensiveData.photos.length > 0) {
+      console.log('[getCombinedPhotos] Found cached comprehensive photos:', comprehensiveData.photos.length);
+      const cachedPhotos = comprehensiveData.photos.map((img: any) => {
+        // Handle both string URLs and object format
+        if (typeof img === 'string') {
+          return { image_url: img };
+        }
+        return {
+          image_url: img.image_url || img.url || img,
+          origin_url: img.origin_url,
+          width: img.width,
+          height: img.height
+        };
+      });
+      photos.push(...cachedPhotos);
+    }
+    
     // Add live web intelligence photos - check all possible paths
     let webImages = null;
     if (verificationReport?.webIntelligence?.images) {
@@ -1780,8 +1793,12 @@ export default function CommunityDetail() {
       photos.push(...webPhotos);
     }
     
-    // Return only real photos - no defaults/placeholders
-    return photos;
+    // Deduplicate photos by URL and return only real photos - no defaults/placeholders
+    const uniquePhotos = Array.from(new Map(photos.map(p => 
+      [typeof p === 'string' ? p : (p.image_url || p.url || p), p]
+    )).values());
+    
+    return uniquePhotos;
   };
   
   
