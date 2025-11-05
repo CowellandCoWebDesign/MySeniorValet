@@ -10,6 +10,32 @@ const geographyPoint = customType<{ data: { lat: number; lng: number } }>({
   },
 });
 
+// Perplexity Cache table for persisting API responses
+export const perplexityCache = pgTable("perplexity_cache", {
+  id: serial("id").primaryKey(),
+  communityId: text("community_id").notNull().unique(), // e.g., "community_12345"
+  communityName: text("community_name").notNull(),
+  location: text("location").notNull(),
+  marketData: jsonb("market_data").$type<Record<string, any>>().default({}),
+  reviews: jsonb("reviews").$type<Record<string, any>>().default({}),
+  inspections: jsonb("inspections").$type<Record<string, any>>().default({}),
+  photos: jsonb("photos").$type<any[]>().default([]),
+  sources: text("sources").array().default([]),
+  rawPerplexityContent: text("raw_perplexity_content"),
+  isFeatured: boolean("is_featured").default(false),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow()
+}, (table) => [
+  index("idx_perplexity_cache_community_id").on(table.communityId),
+  index("idx_perplexity_cache_expires").on(table.expiresAt)
+]);
+
+export const insertPerplexityCacheSchema = createInsertSchema(perplexityCache)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPerplexityCache = z.infer<typeof insertPerplexityCacheSchema>;
+export type SelectPerplexityCache = typeof perplexityCache.$inferSelect;
+
 // Non-Community Services table (meal delivery, home care, etc. that were incorrectly in communities)
 export const nonCommunityServices = pgTable("non_community_services", {
   id: serial("id").primaryKey(),

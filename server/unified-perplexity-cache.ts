@@ -1,6 +1,9 @@
 import { PerplexityAIService } from './perplexity-ai-service';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
+import { db } from './db';
+import { perplexityCache } from '../shared/schema';
+import { eq, lt, and } from 'drizzle-orm';
 
 interface CachedCommunityData {
   marketData: {
@@ -39,13 +42,16 @@ interface CachedCommunityData {
 
 class UnifiedPerplexityCache {
   private static instance: UnifiedPerplexityCache;
-  private cache = new Map<string, { data: CachedCommunityData; timestamp: number }>();
+  // Memory cache now stores expiration time to respect TTL
+  private memoryCache = new Map<string, { data: CachedCommunityData; timestamp: number; expiresAt: number }>(); 
   private CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days default
   private FEATURED_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours for featured communities
   private perplexityService: PerplexityAIService;
 
   constructor() {
     this.perplexityService = new PerplexityAIService();
+    // Clean up expired cache entries on startup
+    this.cleanupExpiredCache();
   }
 
   static getInstance(): UnifiedPerplexityCache {
@@ -53,6 +59,72 @@ class UnifiedPerplexityCache {
       UnifiedPerplexityCache.instance = new UnifiedPerplexityCache();
     }
     return UnifiedPerplexityCache.instance;
+  }
+
+  // Clean up expired cache entries from database
+  private async cleanupExpiredCache() {
+    try {
+      await db.delete(perplexityCache).where(lt(perplexityCache.expiresAt, new Date()));
+      console.log('✅ Cleaned up expired cache entries');
+    } catch (error) {
+      console.error('Failed to cleanup expired cache:', error);
+    }
+  }
+
+  // Save cache to both memory and database
+  private async saveCacheToDatabase(
+    cacheKey: string,
+    data: CachedCommunityData,
+    isFeatured: boolean = false
+  ) {
+    // Calculate expiration based on whether it's featured
+    const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
+    const expiresAt = new Date(Date.now() + cacheDuration);
+    
+    // Save to memory cache with expiration time
+    this.memoryCache.set(cacheKey, {
+      data,
+      timestamp: Date.now(),
+      expiresAt: expiresAt.getTime() // Store as milliseconds for easy comparison
+    });
+    
+    try {
+      // Upsert to database (update if exists, insert if not)
+      await db
+        .insert(perplexityCache)
+        .values({
+          communityId: cacheKey,
+          communityName: data.communityName,
+          location: data.location,
+          marketData: data.marketData || {},
+          reviews: data.reviews || {},
+          inspections: data.inspections || {},
+          photos: data.photos || [],
+          sources: data.sources || [],
+          rawPerplexityContent: data.rawPerplexityContent,
+          isFeatured,
+          expiresAt,
+          updatedAt: new Date()
+        })
+        .onConflictDoUpdate({
+          target: perplexityCache.communityId,
+          set: {
+            marketData: data.marketData || {},
+            reviews: data.reviews || {},
+            inspections: data.inspections || {},
+            photos: data.photos || [],
+            sources: data.sources || [],
+            rawPerplexityContent: data.rawPerplexityContent,
+            isFeatured,
+            expiresAt,
+            updatedAt: new Date()
+          }
+        });
+      
+      console.log(`💾 Saved to database cache: ${data.communityName} (expires: ${expiresAt.toISOString()})`);
+    } catch (error) {
+      console.error('Failed to save to database cache:', error);
+    }
   }
 
   async getComprehensiveCommunityData(
@@ -68,23 +140,64 @@ class UnifiedPerplexityCache {
     // If forceRefresh is requested, clear the cache entry first
     if (forceRefresh) {
       console.log(`🔄 Force refresh requested for ${communityName} - clearing cache`);
-      this.cache.delete(cacheKey);
+      // Clear from both memory and database
+      this.memoryCache.delete(cacheKey);
+      await db.delete(perplexityCache).where(eq(perplexityCache.communityId, cacheKey));
     }
     
-    const cached = this.cache.get(cacheKey);
+    // First check memory cache for speed (but validate expiration)
+    const memoryCached = this.memoryCache.get(cacheKey);
+    if (memoryCached && !forceRefresh) {
+      const now = Date.now();
+      if (memoryCached.expiresAt > now) {
+        console.log(`⚡ Returning memory-cached data for ${communityName} (expires in ${Math.round((memoryCached.expiresAt - now) / (1000 * 60 * 60))} hours)`);
+        return memoryCached.data;
+      } else {
+        // Memory cache expired, remove it
+        console.log(`🧹 Memory cache expired for ${communityName}, removing from memory`);
+        this.memoryCache.delete(cacheKey);
+      }
+    }
     
-    // Use shorter cache duration for featured communities (24 hours instead of 7 days)
-    const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
-    const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
-
-    // CRITICAL CHANGE: Never auto-refresh data to prevent automatic API calls
-    // Only fetch data when forceRefresh is true (manual user action)
+    // Check database cache
     if (!forceRefresh) {
-      // Check if we have ANY cached data (regardless of age)
-      if (cached) {
-        console.log(`📦 Returning cached data for ${communityName} (auto-refresh disabled)`);
-        return cached.data;
-      } else if (websiteUrl) {
+      try {
+        const [dbCached] = await db
+          .select()
+          .from(perplexityCache)
+          .where(eq(perplexityCache.communityId, cacheKey))
+          .limit(1);
+        
+        // Check if cache exists and is not expired
+        if (dbCached && new Date(dbCached.expiresAt) > new Date()) {
+          console.log(`📦 Returning database-cached data for ${communityName}`);
+          const cachedData: CachedCommunityData = {
+            marketData: dbCached.marketData as any || {},
+            reviews: dbCached.reviews as any || {},
+            inspections: dbCached.inspections as any || {},
+            photos: dbCached.photos as string[] || [],
+            sources: dbCached.sources || [],
+            timestamp: dbCached.createdAt?.getTime() || Date.now(),
+            communityId,
+            communityName,
+            location,
+            rawPerplexityContent: dbCached.rawPerplexityContent || ''
+          };
+          
+          // Store in memory cache for faster subsequent access with proper expiration
+          this.memoryCache.set(cacheKey, {
+            data: cachedData,
+            timestamp: Date.now(),
+            expiresAt: new Date(dbCached.expiresAt).getTime()
+          });
+          
+          return cachedData;
+        }
+      } catch (error) {
+        console.error(`Failed to read from database cache for ${communityName}:`, error);
+      }
+      
+      if (websiteUrl) {
         // Special case: No cached data but we have a website URL from discovery
         // Run lightweight photo extraction without expensive Perplexity calls
         console.log(`🔍 No cached data for ${communityName} but website URL available - extracting photos only`);
@@ -107,10 +220,7 @@ class UnifiedPerplexityCache {
           };
           
           // Cache the lightweight data with photos
-          this.cache.set(cacheKey, {
-            data: lightweightData,
-            timestamp: Date.now()
-          });
+          await this.saveCacheToDatabase(cacheKey, lightweightData, isFeatured);
           console.log(`📸 Cached ${photos.length} photos for ${communityName} from website`);
           
           return lightweightData;
@@ -208,18 +318,17 @@ Format all information clearly with section headers.
       
       if (isCompleteResponse) {
         // Cache the comprehensive data with full duration
-        this.cache.set(cacheKey, {
-          data: structuredData,
-          timestamp: Date.now()
-        });
+        await this.saveCacheToDatabase(cacheKey, structuredData, isFeatured);
         const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
         console.log(`✅ Cached complete response for ${communityName} (cache: ${cacheLabel})`);
       } else {
         // Cache incomplete responses for only 5 minutes to allow retry
         console.log(`⚠️ Response appears incomplete for ${communityName} - caching for 5 minutes only`);
-        this.cache.set(cacheKey, {
+        // For incomplete responses, only save to memory cache with short expiry
+        this.memoryCache.set(cacheKey, {
           data: structuredData,
-          timestamp: Date.now() - this.CACHE_DURATION + (5 * 60 * 1000) // Cache for 5 minutes
+          timestamp: Date.now(),
+          expiresAt: Date.now() + (5 * 60 * 1000) // Expires in 5 minutes
         });
       }
       const nextRefresh = Date.now() + cacheDuration;
@@ -889,7 +998,7 @@ Note: If location is uncertain, search broadly and include any businesses with t
       };
 
       // Cache the result
-      this.cache.set(cacheKey, { data: serviceData, timestamp: Date.now() });
+      await this.saveCacheToDatabase(cacheKey, serviceData, false);
       console.log(`✅ Cached enrichment data for ${serviceName} (7 days)`);
 
       return serviceData;

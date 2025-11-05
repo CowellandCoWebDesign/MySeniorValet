@@ -65,9 +65,13 @@ export function LiveWebIntelligence({
   // Use mutation for fetching WITH CACHE to prevent duplicate API calls
   const fetchIntelligence = useMutation({
     mutationFn: async () => {
+      // CRITICAL: Always use communityId for cache key when available
+      // This ensures consistent caching across different component uses
+      const cacheKey = communityId ? String(communityId) : `${communityName}-${city}-${state}`;
+      
       // Use enrichment cache to prevent duplicate API calls
       return enrichmentCache.getOrFetch(
-        communityId || `${communityName}-${city}-${state}`,
+        cacheKey,
         async () => {
           const response = await fetch('/api/competitive-analysis', {
             method: 'POST',
