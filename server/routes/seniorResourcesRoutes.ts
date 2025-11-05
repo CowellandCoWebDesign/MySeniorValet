@@ -226,6 +226,320 @@ export function setupSeniorResourcesRoutes(app: Express) {
               latitude: 40.4917,
               longitude: -121.8889
             }
+          ],
+          "Fresno": [
+            {
+              id: 40,
+              name: "Central California Food Bank",
+              type: "Regional Food Bank",
+              address: "Call for warehouse locations",
+              city: "Fresno",
+              state: "CA",
+              zipCode: "93701",
+              phone: "211 (24/7 multilingual support)",
+              website: "https://ccfoodbank.org",
+              services: ["Groceries2Go", "Neighborhood Market", "Mobile Pantry", "BackPack Program", "School Pantries", "CalFresh Outreach"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Call 211 for distribution sites and times",
+              eligibility: "Open to all in need; serves Fresno, Madera, Tulare, Kings, and Kern Counties",
+              languages: ["English", "Spanish", "Hmong"],
+              latitude: 36.7378,
+              longitude: -119.7871
+            },
+            {
+              id: 41,
+              name: "Fresno-Madera Area Agency on Aging",
+              type: "Senior Nutrition Program",
+              address: "Multiple locations",
+              city: "Fresno",
+              state: "CA",
+              zipCode: "93701",
+              phone: "559-214-0299 or 800-510-2020",
+              website: null,
+              services: ["Home-Delivered Meals (Meals on Wheels)", "Congregate Meal Sites", "Senior Nutrition Education"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 8:00 AM - 5:00 PM (office); Congregate meals Mon-Fri 11:00 AM - 12:00 PM",
+              eligibility: "Age 60+, homebound for Meals on Wheels; suggested donation $50/month",
+              languages: ["English", "Spanish", "Hmong"],
+              latitude: 36.7378,
+              longitude: -119.7871
+            },
+            {
+              id: 42,
+              name: "City Center Fresno - First Free Grocery Store",
+              type: "Free Grocery Store",
+              address: "2025 E Dakota Ave",
+              city: "Fresno",
+              state: "CA",
+              zipCode: "93726",
+              phone: "See website",
+              website: null,
+              services: ["Free Groceries", "Seasonal Produce", "Pantry Staples"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Wed, Fri, Sat 10:30 AM - 2:30 PM",
+              eligibility: "First-come, first-served; open to all",
+              languages: ["English", "Spanish"],
+              latitude: 36.7298,
+              longitude: -119.7544
+            }
+          ],
+          "Ventura": [
+            {
+              id: 43,
+              name: "Food Share of Ventura County",
+              type: "Regional Food Bank",
+              address: "2240 E. Gonzales Road",
+              city: "Oxnard",
+              state: "CA",
+              zipCode: "93036",
+              phone: "805-983-7100",
+              email: "seniorkits@foodshare.com",
+              website: "https://foodshare.com",
+              services: ["Senior Food Box Program", "Commodity Supplemental Food Program (CSFP)", "40 Distribution Sites"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Call for distribution schedule",
+              eligibility: "Low-income seniors 60+",
+              languages: ["English", "Spanish"],
+              latitude: 34.1975,
+              longitude: -119.1771
+            },
+            {
+              id: 44,
+              name: "Ventura County Area Agency on Aging",
+              type: "Senior Nutrition Program",
+              address: "4651 Telephone Rd",
+              city: "Ventura",
+              state: "CA",
+              zipCode: "93003",
+              phone: "805-477-7300",
+              email: "LOIS.VCAAA@venturacounty.gov",
+              website: "https://vcaaa.venturacounty.gov",
+              services: ["Congregate Meals at Dining Sites", "Home-Delivered Meals", "Nutrition Education"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 8:00 AM - 5:00 PM (office)",
+              eligibility: "Seniors 60+, not income-based",
+              languages: ["English", "Spanish"],
+              latitude: 34.2632,
+              longitude: -119.2293
+            }
+          ],
+          "Kern": [
+            {
+              id: 45,
+              name: "Community Action Partnership of Kern (CAPK) Food Bank",
+              type: "Regional Food Bank",
+              address: "1807 Feliz Drive",
+              city: "Bakersfield",
+              state: "CA",
+              zipCode: "93307",
+              phone: "661-336-5200 or 800-273-2275",
+              website: "https://www.capk.org",
+              services: ["Commodity Supplemental Food Program (30-lb box)", "Food2Door for seniors 65+", "Senior Farmers Market Nutrition", "150+ Partner Agencies"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: true,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Mon-Sat 8:00 AM - varies",
+              eligibility: "Low-income seniors 60+ for CSFP",
+              languages: ["English", "Spanish"],
+              latitude: 35.3951,
+              longitude: -119.0434
+            },
+            {
+              id: 46,
+              name: "Kern County Aging & Adult Services",
+              type: "Senior Nutrition Program",
+              address: "5357 Truxtun Ave",
+              city: "Bakersfield",
+              state: "CA",
+              zipCode: "93309",
+              phone: "661-868-1000 or 800-510-2020",
+              email: "nutritioninfo@kerncounty.com",
+              website: null,
+              services: ["Supplemental Food Assistance (2 bags twice/month)", "Meals on Wheels", "Senior Nutrition Sites"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: true,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Call for hours",
+              eligibility: "Seniors 60+, $2 one-time registration for food assistance",
+              languages: ["English", "Spanish"],
+              latitude: 35.3733,
+              longitude: -119.0187
+            },
+            {
+              id: 47,
+              name: "Richard Prado East Bakersfield Senior Center",
+              type: "Senior Dining Site",
+              address: "2101 Ridge Road",
+              city: "Bakersfield",
+              state: "CA",
+              zipCode: "93305",
+              phone: "661-342-8225",
+              website: null,
+              services: ["Congregate Meals", "Social Activities"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 8:00 AM - 2:00 PM; Lunch served 12:00 PM",
+              eligibility: "Seniors 60+",
+              languages: ["English", "Spanish"],
+              latitude: 35.3923,
+              longitude: -119.0018
+            }
+          ],
+          "San Joaquin": [
+            {
+              id: 48,
+              name: "Emergency Food Bank of Stockton/San Joaquin County",
+              type: "Regional Food Bank",
+              address: "7 West Scotts Avenue",
+              city: "Stockton",
+              state: "CA",
+              zipCode: "95203",
+              phone: "209-464-7369",
+              email: "info@stocktonfoodbank.org",
+              website: "https://www.stocktonfoodbank.org",
+              services: ["Emergency Food Boxes", "DoorDash Home Delivery (served 44,471)", "Mobile Farmer's Market (83 sites)", "Healthy Food Rx Program"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: true,
+                mobilePantry: true,
+                brownBagProgram: false
+              },
+              hours: "Mon-Fri 9:00 AM - 12:00 PM (pantry); Office 8:00 AM - 3:30 PM",
+              eligibility: "Open to all in need; DoorDash delivery for seniors and homebound",
+              languages: ["English", "Spanish", "Tagalog"],
+              latitude: 37.9577,
+              longitude: -121.2908
+            },
+            {
+              id: 49,
+              name: "San Joaquin County 'Food For You' Program",
+              type: "USDA Commodity Program",
+              address: "Multiple community centers",
+              city: "Stockton",
+              state: "CA",
+              zipCode: "95201",
+              phone: "209-953-FOOD (3663)",
+              email: "foodforyou@sjgov.org",
+              website: "https://www.sjcfoodforyou.org",
+              services: ["Free Monthly Food Distributions", "8 County Community Centers", "Emergency Food Boxes"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Most distributions 3rd Thursday of month",
+              eligibility: "Self-certification based on income",
+              languages: ["English", "Spanish", "Tagalog", "Hmong"],
+              latitude: 37.9577,
+              longitude: -121.2908
+            }
+          ],
+          "Contra Costa": [
+            {
+              id: 50,
+              name: "Food Bank of Contra Costa and Solano",
+              type: "Regional Food Bank",
+              address: "4010 Nelson Avenue",
+              city: "Concord",
+              state: "CA",
+              zipCode: "94520",
+              phone: "925-676-7543 or 855-309-FOOD",
+              website: "https://www.foodbankccs.org",
+              services: ["100+ Distribution Sites", "Emergency Food", "Produce Distributions", "CalFresh Enrollment"],
+              seniorPrograms: {
+                commodityProgram: true,
+                homeDelivery: false,
+                mobilePantry: true,
+                brownBagProgram: true
+              },
+              hours: "Varies by distribution site",
+              eligibility: "Low-income seniors 55+; FREE groceries twice/month",
+              languages: ["English", "Spanish"],
+              latitude: 37.9780,
+              longitude: -122.0311
+            },
+            {
+              id: 51,
+              name: "Loaves & Fishes of Contra Costa",
+              type: "Dining Room & Food Pantry",
+              address: "835 Ferry Street",
+              city: "Martinez",
+              state: "CA",
+              zipCode: "94553",
+              phone: "925-293-4792",
+              website: "https://loavesfishescc.org",
+              services: ["Free Meals 7 Days/Week", "Food Pantry Mon-Fri", "5 Dining Rooms Countywide"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Meals 11:00 AM - 12:45 PM daily",
+              eligibility: "Open to all",
+              languages: ["English", "Spanish"],
+              latitude: 38.0194,
+              longitude: -122.1341
+            },
+            {
+              id: 52,
+              name: "Café Costa - Senior Congregate Meals",
+              type: "Senior Dining Program",
+              address: "18 locations throughout county",
+              city: "Contra Costa County",
+              state: "CA",
+              zipCode: "94520",
+              phone: "925-825-1488 or 925-313-6310",
+              website: null,
+              services: ["Lunch Mon-Fri", "Social Activities", "Nutrition Education"],
+              seniorPrograms: {
+                commodityProgram: false,
+                homeDelivery: false,
+                mobilePantry: false,
+                brownBagProgram: false
+              },
+              hours: "Lunch 12:00 PM Mon-Fri; doors open 11:30 AM",
+              eligibility: "Age 60+ ($3 suggested donation); Under 60 ($6 mandatory fee)",
+              languages: ["English", "Spanish"],
+              latitude: 37.9161,
+              longitude: -122.0582
+            }
           ]
         },
         florida: {
