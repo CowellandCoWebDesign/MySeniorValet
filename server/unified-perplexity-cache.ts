@@ -464,14 +464,30 @@ Format all information clearly with section headers.
 
   private extractWebsite(content: string): string | undefined {
     const patterns = [
-      /(?:website|site|url):\s*(https?:\/\/[^\s]+)/i,
-      /\*\*OFFICIAL WEBSITE:\*\*\s*([^\s\n]+)/i,
-      /(https?:\/\/[^\s]+\.(?:com|org|net|edu)[^\s]*)/i
+      // Match markdown links with source references like [url](url)[number]
+      /\[?(https?:\/\/[^\s\]\)]+)\]?\([^\)]*\)?(?:\[\d+\])?/i,
+      /(?:website|site|url):\s*\[?(https?:\/\/[^\s\]\)]+)/i,
+      /\*\*OFFICIAL WEBSITE:\*\*\s*\[?(https?:\/\/[^\s\]\)]+)/i,
+      /(https?:\/\/[^\s\[\]]+\.(?:com|org|net|edu|gov|io|co)[^\s\[\]]*)/i
     ];
 
     for (const pattern of patterns) {
       const match = content.match(pattern);
-      if (match) return match[1];
+      if (match) {
+        // Extract URL from markdown format if needed
+        let url = match[1];
+        
+        // Clean up any remaining markdown or source references
+        url = url.replace(/[\[\]()]/g, '');
+        url = url.replace(/\[\d+\]\.?$/, ''); // Remove source references like [15]
+        url = url.split(']')[0]; // Remove anything after closing bracket
+        url = url.split(')')[0]; // Remove anything after closing parenthesis
+        
+        // Ensure URL is clean and valid
+        if (url.startsWith('http')) {
+          return url.trim();
+        }
+      }
     }
     return undefined;
   }
