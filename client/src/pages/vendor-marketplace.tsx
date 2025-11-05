@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
 import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, TrendingUp, Sparkles } from 'lucide-react';
+import { SEOMetaTags } from '@/components/SEOMetaTags';
 
 interface MarketplaceCategory {
   id: number;
@@ -76,6 +77,13 @@ export default function VendorMarketplace() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEOMetaTags
+        title="Senior Services & Products - Medical Supplies, Home Health, 24/7 Caregiving"
+        description="Find trusted senior services: medical supplies, mobility aids, 24/7 in-home caregiving, home health agencies, transportation, pharmacies & more. Verified vendors for assisted living support."
+        url="/vendor-marketplace"
+        type="website"
+      />
+      
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4">

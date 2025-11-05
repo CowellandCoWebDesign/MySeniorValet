@@ -17,6 +17,7 @@ import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
+import { SEOMetaTags } from '@/components/SEOMetaTags';
 import { 
   Brain, 
   MapPin, 
@@ -734,6 +735,13 @@ export default function AISearchIntelligence() {
 
   return (
     <div className="min-h-screen relative">
+      <SEOMetaTags
+        title="AI-Powered Senior Living Search - Find Assisted Living & Memory Care"
+        description="Search assisted living, memory care, nursing homes & independent living with AI intelligence. Get personalized recommendations, pricing insights, and availability across 33,000+ communities."
+        url="/ai-search-intelligence"
+        type="website"
+      />
+      
       {/* Cosmic background image - same as hero page */}
       <div 
         className="fixed inset-0 z-0"

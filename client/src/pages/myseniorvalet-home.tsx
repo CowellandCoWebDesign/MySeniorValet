@@ -1383,7 +1383,7 @@ export default function MySeniorValetHome() {
   useSEO({
     title: hasSearchParams 
       ? 'Search Results | MySeniorValet' 
-      : 'Senior Living Made Simple - Find Communities, Real Pricing, No Hidden Fees',
+      : 'Assisted Living, Memory Care, Nursing Homes - Find Senior Housing Near You',
     description: hasSearchParams
       ? 'Search results for senior living communities'
       : 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
@@ -1949,8 +1949,8 @@ export default function MySeniorValetHome() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* SEO Meta Tags for Social Sharing */}
       <SEOMetaTags
-        title="MySeniorValet - Find Trusted Senior Living Communities Worldwide"
-        description="Search 33,837+ verified senior living communities across USA, Canada, Australia, Japan & more. Compare real pricing, amenities, and care levels. Trusted by thousands of families."
+        title="MySeniorValet - Find Assisted Living, Memory Care & Senior Housing"
+        description="Compare assisted living, memory care, independent living, nursing homes & 24/7 caregiving options across 33,837+ communities. Verified pricing, real availability, no hidden fees."
         url="/"
         type="website"
         image="/og-image.png"

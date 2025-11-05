@@ -482,14 +482,35 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
   const { stats, sampleCommunities, nearbyCities, stateName, country } = locationData;
   const locationName = city ? `${locationData.city}, ${stateName}` : stateName;
   
-  // Generate title and meta description
-  const title = `Senior Living in ${locationName} | ${stats.totalCount} Communities | MySeniorValet`;
+  // Generate title with care type keywords for better SEO
+  const careTypes = [];
+  if (stats.assistedLiving > 0) careTypes.push('Assisted Living');
+  if (stats.memoryCare > 0) careTypes.push('Memory Care');
+  if (stats.independentLiving > 0) careTypes.push('Independent Living');
+  if (stats.nursingHome > 0) careTypes.push('Nursing Homes');
+  
+  const careTypesText = careTypes.length > 0 
+    ? careTypes.slice(0, 2).join(' & ') + ' in ' // Limit to 2 for title length
+    : 'Senior Living in ';
+  
+  const title = `${careTypesText}${locationName} | ${stats.totalCount} Communities | MySeniorValet`;
   
   const priceRange = stats.withPricing > 0 
     ? `Pricing from $${Math.round(stats.minPrice).toLocaleString()} to $${Math.round(stats.maxPrice).toLocaleString()}/month. `
     : '';
   
-  const description = `Find ${stats.totalCount} senior living communities in ${locationName}. ${priceRange}Compare ${stats.independentLiving > 0 ? 'independent living, ' : ''}${stats.assistedLiving > 0 ? 'assisted living, ' : ''}${stats.memoryCare > 0 ? 'memory care, ' : ''}and more. Get verified pricing and availability.`;
+  // Generate keyword-rich description with all care types mentioned
+  const careTypesList = [];
+  if (stats.assistedLiving > 0) careTypesList.push('assisted living');
+  if (stats.memoryCare > 0) careTypesList.push('memory care');
+  if (stats.independentLiving > 0) careTypesList.push('independent living');
+  if (stats.nursingHome > 0) careTypesList.push('nursing homes');
+  
+  const careTypesDescription = careTypesList.length > 0 
+    ? careTypesList.join(', ').replace(/, ([^,]*)$/, ' & $1')
+    : 'senior living options';
+  
+  const description = `Compare ${careTypesDescription} in ${locationName}. ${stats.totalCount} communities with verified pricing${priceRange ? ` ${priceRange.toLowerCase().trim()}` : ''}. Real availability, no hidden fees, 24/7 support.`;
   
   // Calculate REAL aggregate rating from actual community data
   // Only include if we have at least 5 communities with ratings to be statistically meaningful

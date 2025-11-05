@@ -8,6 +8,7 @@ import { FamilyShareButton } from '@/components/family-share-button';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { useAuth } from '@/hooks/useAuth';
 import { Link as RouterLink, useLocation } from 'wouter';
+import { SEOMetaTags } from '@/components/SEOMetaTags';
 
 // GOLDEN DATA RULE - Use real community data from database when available
 // This is a demo community structure - phone number removed per golden data rule
@@ -85,6 +86,13 @@ export default function FamilyCollaborationPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <SEOMetaTags
+        title="Family Collaboration Tools for Senior Living Search"
+        description="Share assisted living, memory care & nursing home options with family. Collaborate on senior housing decisions with instant sharing, email tools, and family comparison features."
+        url="/family-collaboration"
+        type="website"
+      />
+      
       <NavigationHeader 
         title="Family Collaboration" 
         subtitle="Share and collaborate on senior living decisions"
