@@ -38,6 +38,8 @@ interface CachedCommunityData {
   location: string;
   // CRITICAL: Store the full raw Perplexity response for display
   rawPerplexityContent?: string;
+  // Track whether data came from cache or fresh fetch
+  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos';
 }
 
 class UnifiedPerplexityCache {
@@ -151,7 +153,7 @@ class UnifiedPerplexityCache {
       const now = Date.now();
       if (memoryCached.expiresAt > now) {
         console.log(`⚡ Returning memory-cached data for ${communityName} (expires in ${Math.round((memoryCached.expiresAt - now) / (1000 * 60 * 60))} hours)`);
-        return memoryCached.data;
+        return { ...memoryCached.data, source: 'memory-cache' };
       } else {
         // Memory cache expired, remove it
         console.log(`🧹 Memory cache expired for ${communityName}, removing from memory`);
@@ -181,7 +183,8 @@ class UnifiedPerplexityCache {
             communityId,
             communityName,
             location,
-            rawPerplexityContent: dbCached.rawPerplexityContent || ''
+            rawPerplexityContent: dbCached.rawPerplexityContent || '',
+            source: 'database-cache'
           };
           
           // Store in memory cache for faster subsequent access with proper expiration
@@ -216,7 +219,8 @@ class UnifiedPerplexityCache {
             communityId,
             communityName,
             location,
-            rawPerplexityContent: 'Photos extracted from community website. Click "Search for Market Data & Photos" for comprehensive information.'
+            rawPerplexityContent: 'Photos extracted from community website. Click "Search for Market Data & Photos" for comprehensive information.',
+            source: 'website-photos' as const
           };
           
           // Cache the lightweight data with photos
@@ -230,24 +234,15 @@ class UnifiedPerplexityCache {
         }
       }
       
-      // No cached data and no website URL - return empty data
-      console.log(`⚠️ No cached data for ${communityName} - returning empty (auto-fetch disabled)`);
-      return {
-        marketData: {},
-        reviews: {},
-        inspections: {},
-        photos: [],
-        sources: [],
-        timestamp: Date.now(),
-        communityId,
-        communityName,
-        location,
-        rawPerplexityContent: 'No cached data available. Click "Search for Market Data & Photos" to fetch fresh data.'
-      };
+      // No cached data exists - AUTO-FETCH on first visit
+      console.log(`🚀 No cached data for ${communityName} - AUTO-FETCHING on first visit`);
+      // Fall through to fetch logic below (same as forceRefresh=true)
+      // This ensures first visit gets real data automatically
     }
 
-    // Only reaches here if forceRefresh is true (manual user action)
-    console.log(`👤 User-initiated fetch for ${communityName} in ${location}`);
+    // Reaches here if forceRefresh is true OR no cache exists (first visit)
+    const fetchReason = forceRefresh ? 'User-initiated refresh' : 'First visit auto-fetch';
+    console.log(`🔄 ${fetchReason} for ${communityName} in ${location}`);
     if (websiteUrl) {
       console.log(`📌 Using website URL for enhanced search: ${websiteUrl}`);
     }
@@ -337,7 +332,7 @@ Format all information clearly with section headers.
       const nextRefresh = Date.now() + cacheDuration;
       console.log(`✅ Cached comprehensive data for ${communityName} (${cacheLabel}) - Next refresh: ${new Date(nextRefresh).toLocaleString()}`);
 
-      return structuredData;
+      return { ...structuredData, source: 'fresh-fetch' };
     } catch (error) {
       console.error(`Failed to fetch comprehensive data for ${communityName}:`, error);
       
@@ -351,7 +346,8 @@ Format all information clearly with section headers.
         timestamp: Date.now(),
         communityId,
         communityName,
-        location
+        location,
+        source: 'fresh-fetch' // Still counts as a fresh fetch attempt, even if it failed
       };
     }
   }
