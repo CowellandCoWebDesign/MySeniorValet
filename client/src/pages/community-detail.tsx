@@ -1410,11 +1410,17 @@ export default function CommunityDetail() {
       
       const report = await response.json();
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
-      console.log('✅ Cache check complete, photos found:', foundPhotos);
+      const searchContent = report?.verificationResults?.perplexityData?.searchContent;
+      
+      console.log('✅ Cache check complete:', {
+        photosFound: foundPhotos,
+        contentLength: searchContent ? searchContent.length : 0,
+        hasContent: !!searchContent,
+        contentPreview: searchContent ? searchContent.substring(0, 100) : 'NO CONTENT'
+      });
       
       // Check if we got real data or just empty cache
-      const hasPerplexityContent = report?.verificationResults?.perplexityData?.searchContent && 
-                                   report.verificationResults.perplexityData.searchContent.length > 100;
+      const hasPerplexityContent = searchContent && searchContent.length > 100;
       
       if (hasPerplexityContent || foundPhotos > 0) {
         console.log('✨ Found cached data from backend');
@@ -1434,7 +1440,11 @@ export default function CommunityDetail() {
         queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
       }
     } catch (error) {
-      console.error('❌ Verification error:', error);
+      console.error('❌ Verification error details:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       setHasStartedVerification(false); // Allow retry on error
     } finally {
       setIsVerifying(false);
@@ -1479,7 +1489,11 @@ export default function CommunityDetail() {
         queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
       }
     } catch (error) {
-      console.error('❌ Verification error:', error);
+      console.error('❌ Verification error details:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      });
       setHasStartedVerification(false); // Allow retry on error
     } finally {
       setIsVerifying(false);

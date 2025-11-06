@@ -962,6 +962,15 @@ export function registerCommunityRoutes(app: Express) {
         }
       };
       
+      // Debug logging to trace the issue
+      console.log(`📝 Verify endpoint for ${community.name}:`, {
+        forceRefresh,
+        cacheSource: comprehensiveData.source,
+        hasRawContent: !!comprehensiveData.rawPerplexityContent,
+        rawContentLength: comprehensiveData.rawPerplexityContent ? comprehensiveData.rawPerplexityContent.length : 0,
+        photosCount: comprehensiveData.photos ? comprehensiveData.photos.length : 0
+      });
+      
       // Update database with discovered information
       if (enrichmentResult.searchResults?.summary) {
         const updates: any = {};
