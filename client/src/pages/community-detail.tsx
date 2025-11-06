@@ -1176,7 +1176,8 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
   if (verificationReport?.verificationResults?.perplexityData?.searchContent?.includes('$') ||
       verificationReport?.verificationResults?.chatgptData?.pricing ||
       (verificationReport?.verificationResults?.perplexityData && 
-       verificationReport.verificationResults.perplexityData.searchContent?.match(/\$\d+/))) {
+       (verificationReport.verificationResults.searchResults?.summary?.match(/\$\d+/) ||
+       verificationReport.verificationResults.perplexityData?.searchContent?.match(/\$\d+/)))) {
     return {
       show: true,
       icon: Globe,
@@ -1410,13 +1411,18 @@ export default function CommunityDetail() {
       
       const report = await response.json();
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
-      const searchContent = report?.verificationResults?.perplexityData?.searchContent;
+      
+      // CRITICAL FIX: The backend sends content as searchResults.summary, not perplexityData.searchContent
+      const searchContent = report?.verificationResults?.searchResults?.summary || 
+                           report?.verificationResults?.perplexityData?.searchContent || 
+                           '';
       
       console.log('✅ Cache check complete:', {
         photosFound: foundPhotos,
         contentLength: searchContent ? searchContent.length : 0,
         hasContent: !!searchContent,
-        contentPreview: searchContent ? searchContent.substring(0, 100) : 'NO CONTENT'
+        contentPreview: searchContent ? searchContent.substring(0, 100) : 'NO CONTENT',
+        fullReport: report?.verificationResults // Log the full structure to debug
       });
       
       // Check if we got real data or just empty cache

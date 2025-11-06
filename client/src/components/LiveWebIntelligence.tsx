@@ -141,6 +141,9 @@ export function LiveWebIntelligence({
                             verificationReport?.perplexityData ||
                             {};
       
+      // CRITICAL FIX: Check both searchResults.summary and perplexityData.searchContent
+      const searchResultsSummary = verificationReport?.verificationResults?.searchResults?.summary;
+      
       // Parse the perplexity response properly
       let parsedDescription = '';
       let parsedWebsite = '';
@@ -149,9 +152,10 @@ export function LiveWebIntelligence({
       let parsedAmenities: string[] = [];
       let parsedCareLevels: string[] = [];
       
-      // Extract from perplexity search content
-      if (perplexityData.searchContent) {
-        const content = perplexityData.searchContent;
+      // Extract from perplexity search content (check both locations)
+      const searchContent = searchResultsSummary || perplexityData.searchContent;
+      if (searchContent) {
+        const content = searchContent;
         parsedDescription = content;
         
         // Extract website
@@ -221,7 +225,7 @@ export function LiveWebIntelligence({
                   (webIntel.amenities || verificationReport?.amenities?.extracted),
         careLevels: parsedCareLevels.length > 0 ? parsedCareLevels : 
                    (webIntel.careLevels || verificationReport?.careLevels),
-        notes: perplexityData.searchContent ? 'Information from web search' : undefined
+        notes: searchContent ? 'Information from web search' : undefined
       };
       
       setIntelligence(mockIntelligence);
