@@ -279,41 +279,10 @@ class UnifiedPerplexityCache {
         console.error(`Failed to read from database cache for ${communityName}:`, error);
       }
       
-      if (websiteUrl) {
-        // Special case: No cached data but we have a website URL from discovery
-        // Run lightweight photo extraction without expensive Perplexity calls
-        console.log(`🔍 No cached data for ${communityName} but website URL available - extracting photos only`);
-        
-        try {
-          // Extract photos using the website URL without calling Perplexity
-          const photos = await this.extractPhotosFromWebsite(websiteUrl, communityName, location);
-          
-          const lightweightData = {
-            marketData: {},
-            reviews: {},
-            inspections: {},
-            photos: photos,
-            sources: [websiteUrl],
-            timestamp: Date.now(),
-            communityId,
-            communityName,
-            location,
-            rawPerplexityContent: 'Photos extracted from community website. Click "Search for Market Data & Photos" for comprehensive information.',
-            source: 'website-photos' as const
-          };
-          
-          // Cache the lightweight data with photos
-          await this.saveCacheToDatabase(cacheKey, lightweightData, isFeatured);
-          console.log(`📸 Cached ${photos.length} photos for ${communityName} from website`);
-          
-          return lightweightData;
-        } catch (error) {
-          console.error(`Failed to extract photos from website for ${communityName}:`, error);
-          // Fall through to return empty data if photo extraction fails
-        }
-      }
+      // CRITICAL FIX: Don't try to extract photos automatically to prevent enrichment cascade
+      // Only fetch data when user explicitly clicks "Search for Market Data & Photos" button
       
-      // No cached data and no website URL - return empty data
+      // No cached data - return empty data without triggering any fetches
       console.log(`⚠️ No cached data for ${communityName} - returning empty (manual fetch required)`);
       return {
         marketData: {},
@@ -325,7 +294,7 @@ class UnifiedPerplexityCache {
         communityId,
         communityName,
         location,
-        rawPerplexityContent: 'No cached data available. Click "Search for Market Data & Photos" to fetch fresh data.',
+        rawPerplexityContent: '', // Return empty string instead of placeholder text
         source: 'empty' as const
       };
     }

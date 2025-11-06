@@ -907,9 +907,24 @@ export function registerCommunityRoutes(app: Express) {
       const isFeatured = featuredRecord ? true : false;
       
       // Use the website URL from the request (from discovery) or fall back to community's stored website
-      const communityWebsite = websiteUrl || community.website;
+      // CRITICAL FIX: Filter out invalid website values like "No", "Not", "N/A", etc.
+      let communityWebsite = websiteUrl || community.website;
       if (communityWebsite) {
-        console.log(`📌 Using website URL for photo search: ${communityWebsite}`);
+        // Check if it's a valid URL (must start with http or https or www)
+        const isValidUrl = communityWebsite.startsWith('http://') || 
+                          communityWebsite.startsWith('https://') || 
+                          communityWebsite.startsWith('www.');
+        
+        // Also check for common invalid values
+        const invalidValues = ['no', 'not', 'n/a', 'none', 'null', 'undefined', ''];
+        const isInvalid = invalidValues.includes(communityWebsite.toLowerCase().trim());
+        
+        if (!isValidUrl || isInvalid) {
+          console.log(`⚠️ Invalid website URL detected: "${communityWebsite}" - ignoring`);
+          communityWebsite = undefined;
+        } else {
+          console.log(`📌 Using website URL for photo search: ${communityWebsite}`);
+        }
       }
       
       // CRITICAL FIX: Use unified cache instead of separate enrichment service
