@@ -55,7 +55,10 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
         const response = await fetch(`/api/communities/${community.id}/verify`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ forceRefresh: false })
+          body: JSON.stringify({ 
+            forceRefresh: false,
+            context: 'directory'  // Tell backend this is from directory (no auto-fetch)
+          })
         });
         
         if (!response.ok) {
