@@ -2629,7 +2629,7 @@ export default function CommunityDirectory() {
             ) : (
               ((canadianCommunities as any)?.communities || []).map((community: any, index: number) => (
                 <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <FeaturedExcellenceCard community={community} index={index} compact />
+                  <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
 
                 </Link>
               ))
@@ -3563,7 +3563,7 @@ export default function CommunityDirectory() {
             ) : (
               ((mexicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                 <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
-                  <FeaturedExcellenceCard community={community} index={index} compact />
+                  <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
 
                 </Link>
               ))
