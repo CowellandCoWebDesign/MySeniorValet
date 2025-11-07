@@ -1401,8 +1401,7 @@ export default function CommunityDetail() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           forceRefresh: false,  // FALSE = use backend cache if available
-          websiteUrl: community.website,  // Pass the website URL from database
-          context: 'detail'  // Tell backend this is a detail page (allow auto-fetch on first visit)
+          websiteUrl: community.website  // Pass the website URL from database
         })
       });
       
@@ -1473,8 +1472,7 @@ export default function CommunityDetail() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           forceRefresh: true,  // TRUE = force fresh data
-          websiteUrl: community.website,  // Pass the website URL from database
-          context: 'detail'  // Tell backend this is a detail page
+          websiteUrl: community.website  // Pass the website URL from database
         })
       });
       

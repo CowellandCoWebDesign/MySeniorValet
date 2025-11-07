@@ -877,7 +877,7 @@ export function registerCommunityRoutes(app: Express) {
   app.post("/api/communities/:id/verify", async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { forceRefresh, websiteUrl, context = 'directory' } = req.body;
+      const { forceRefresh, websiteUrl } = req.body;
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
@@ -930,20 +930,13 @@ export function registerCommunityRoutes(app: Express) {
       // CRITICAL FIX: Use unified cache instead of separate enrichment service
       // This prevents the $0.07 cost spike
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      
-      // Determine if we should auto-fetch on first visit
-      // Detail pages (context='detail') should auto-fetch on first visit if no cache exists
-      // Directory pages (context='directory') should never auto-fetch to prevent mass enrichment
-      const shouldAutoFetch = context === 'detail';
-      
       // Allow forceRefresh ONLY when user manually clicks "Search for Photos" button
-      // OR when it's a detail page that needs initial data
       const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
         communityId.toString(),
         community.name,
         `${community.city}, ${community.state}`,
         isFeatured,
-        forceRefresh || shouldAutoFetch,  // Allow auto-fetch for detail pages on first visit
+        forceRefresh,  // Pass through to allow manual photo search from button
         communityWebsite  // Pass website URL for better photo discovery
       );
       

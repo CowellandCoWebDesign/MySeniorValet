@@ -23,9 +23,6 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform designed to brin
 - **Map Interface Preferences**: Legend button positioned on map at top-right (not in header). Map Layers control positioned 60px below Legend button. Heatmap toggle removed from interface to prevent UI overlap issues.
 - **CRITICAL REMOVAL AUTHORIZATION RULE**: NO removal of functionality, features, or code sections without EXPLICIT user authorization. Any removal attempt must first be confirmed with user. This includes search results, UI components, data displays, or any existing functionality. Before proposing any removal, provide an IN-DEPTH explanation that includes: (1) What exactly will be removed, (2) Why the removal is being considered, (3) What impact the removal will have on functionality, (4) What alternative solutions exist, (5) Expected user experience changes after removal. Only proceed with removal after receiving explicit approval.
 
-## Recent Changes
-- **November 6, 2025**: Fixed community detail page auto-fetch behavior. Detail pages now properly auto-fetch data on first visit while directory pages remain optimized to prevent mass enrichment. Added context parameter ('detail' vs 'directory') to verify endpoint to distinguish page types. Removed automatic photo extraction to prevent enrichment cascades.
-
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement. It features Fortune 500-level executive intelligence through a competitive analysis page and executive summary dashboard, showcasing market position, data confidence, AI insights, and strategic recommendations. Perplexity AI is treated as an intelligent business analyst, with its responses displayed unfiltered and with source attribution. Web enrichment data from Perplexity API is cached for 7 days.
 
