@@ -3362,6 +3362,104 @@ export default function CommunityDetail() {
                   </CardHeader>
                 </Card>
 
+                {/* What We Found About - Full Perplexity Intelligence Report */}
+                {verificationReport && (
+                  <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800">
+                    <CardHeader>
+                      <CardTitle className="text-xl font-bold flex items-center justify-between">
+                        <div className="flex items-center">
+                          <Globe className="w-5 h-5 mr-2 text-indigo-600" />
+                          What We Found About {community?.name}
+                        </div>
+                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
+                          Live Web Intelligence
+                        </Badge>
+                      </CardTitle>
+                      <CardDescription>
+                        Comprehensive intelligence report from web search
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      {/* Show the full Perplexity content */}
+                      {(() => {
+                        const report = verificationReport;
+                        const perplexityContent = 
+                          report?.verificationResults?.perplexityData?.searchContent ||
+                          report?.perplexityData?.searchContent ||
+                          report?.searchContent ||
+                          report?.content;
+                        
+                        const perplexitySources = 
+                          report?.verificationResults?.perplexityData?.sources ||
+                          report?.perplexityData?.sources ||
+                          report?.sources;
+                        
+                        if (perplexityContent && perplexityContent.length > 0) {
+                          return (
+                            <div className="space-y-4">
+                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                                <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
+                                  {perplexityContent}
+                                </div>
+                              </div>
+                              
+                              {/* Sources if available */}
+                              {perplexitySources && perplexitySources.length > 0 && (
+                                <div className="border-t pt-3">
+                                  <p className="text-xs text-gray-500 mb-2 flex items-center">
+                                    <Info className="w-3 h-3 mr-1" />
+                                    Data Sources:
+                                  </p>
+                                  <div className="flex flex-wrap gap-2">
+                                    {perplexitySources.map((source: string, idx: number) => {
+                                      let displayName = source;
+                                      try {
+                                        const url = new URL(source);
+                                        displayName = url.hostname.replace('www.', '').split('.')[0];
+                                        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+                                      } catch (e) {
+                                        displayName = `Source ${idx + 1}`;
+                                      }
+                                      
+                                      return (
+                                        <a
+                                          key={idx}
+                                          href={source}
+                                          target="_blank"
+                                          rel="noopener noreferrer"
+                                          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-xs hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                        >
+                                          <ExternalLink className="w-3 h-3" />
+                                          {displayName}
+                                        </a>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        } else if (isVerifying) {
+                          return (
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Gathering intelligence about {community?.name}...
+                              </p>
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className="text-sm text-gray-600 dark:text-gray-400">
+                              <p>Click "Refresh Market Data & Photos" to gather the latest intelligence.</p>
+                            </div>
+                          );
+                        }
+                      })()}
+                    </CardContent>
+                  </Card>
+                )}
+
                 {/* Real-Time AI Insights - Uses shared comprehensive data */}
                 <RealTimeInsights 
                   key={`real-time-insights-${community.id}`}
