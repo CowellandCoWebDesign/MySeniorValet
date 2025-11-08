@@ -152,11 +152,11 @@ class UnifiedPerplexityCache {
             console.log(`📸 Syncing ${originalPhotos.length} photos to communities.photos for ID ${communityIdNum}`);
           }
           
-          // Update description with Perplexity content if we have it
+          // Update description with FULL Perplexity content
           if (data.rawPerplexityContent && data.rawPerplexityContent.length > 100) {
-            // Take first 1000 chars of Perplexity content for description
-            updates.description = data.rawPerplexityContent.substring(0, 1000);
-            console.log(`📝 Syncing Perplexity content to communities.description for ID ${communityIdNum}`);
+            // Save the COMPLETE Perplexity content for full SEO value
+            updates.description = data.rawPerplexityContent;
+            console.log(`📝 Syncing FULL Perplexity content (${data.rawPerplexityContent.length} chars) to communities.description for ID ${communityIdNum}`);
           }
           
           if (Object.keys(updates).length > 0) {
@@ -218,11 +218,12 @@ class UnifiedPerplexityCache {
   ): Promise<CachedCommunityData> {
     const cacheKey = `community_${communityId}`;
     
-    // If forceRefresh is requested, clear the cache entry first
+    // If forceRefresh is requested, clear ONLY the perplexity cache, not the communities photos
     if (forceRefresh) {
-      console.log(`🔄 Force refresh requested for ${communityName} - clearing cache`);
-      // Clear from both memory and database
+      console.log(`🔄 Force refresh requested for ${communityName} - clearing perplexity cache only`);
+      // Clear from memory cache
       this.memoryCache.delete(cacheKey);
+      // Clear perplexity cache but NOT the communities table photos
       await db.delete(perplexityCache).where(eq(perplexityCache.communityId, cacheKey));
     }
     
@@ -279,11 +280,45 @@ class UnifiedPerplexityCache {
         console.error(`Failed to read from database cache for ${communityName}:`, error);
       }
       
-      // CRITICAL FIX: Don't try to extract photos automatically to prevent enrichment cascade
-      // Only fetch data when user explicitly clicks "Search for Market Data & Photos" button
+      // CRITICAL FIX: Check the communities table for existing photos before returning empty
+      // This preserves already enriched data even if not in perplexity_cache
+      try {
+        const [community] = await db
+          .select({
+            photos: communities.photos,
+            pricing_info: communities.pricing_info,
+            average_rating: communities.average_rating
+          })
+          .from(communities)
+          .where(eq(communities.id, parseInt(communityId)))
+          .limit(1);
+
+        if (community && community.photos && community.photos.length > 0) {
+          console.log(`📸 Found ${community.photos.length} photos in communities table for ${communityName}`);
+          return {
+            marketData: {
+              pricing: community.pricing_info || {}
+            },
+            reviews: {
+              average_rating: community.average_rating || 0
+            },
+            inspections: {},
+            photos: community.photos,
+            sources: [],
+            timestamp: Date.now(),
+            communityId,
+            communityName,
+            location,
+            rawPerplexityContent: '',
+            source: 'database-photos' as const
+          };
+        }
+      } catch (error) {
+        console.error(`Failed to check communities table for ${communityName}:`, error);
+      }
       
-      // No cached data - return empty data without triggering any fetches
-      console.log(`⚠️ No cached data for ${communityName} - returning empty (manual fetch required)`);
+      // No cached data and no database photos - return empty
+      console.log(`⚠️ No cached data or photos for ${communityName} - manual fetch required`);
       return {
         marketData: {},
         reviews: {},
@@ -294,7 +329,7 @@ class UnifiedPerplexityCache {
         communityId,
         communityName,
         location,
-        rawPerplexityContent: '', // Return empty string instead of placeholder text
+        rawPerplexityContent: '',
         source: 'empty' as const
       };
     }

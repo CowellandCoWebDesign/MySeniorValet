@@ -522,7 +522,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          forceRefresh: false,  // Use cache if available
+          forceRefresh: false,  // false = check cache/database first, don't delete existing data!
           websiteUrl: community.website
         })
       });
