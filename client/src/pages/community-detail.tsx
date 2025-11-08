@@ -188,7 +188,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   };
   
-  // Automatically load analysis when component mounts or community changes - BUT CHECK CACHE FIRST
+  // Automatically load analysis when component mounts or community changes - ALWAYS CHECK CACHE FIRST
   useEffect(() => {
     // Reset state when community changes
     setAnalysis(null);
@@ -196,17 +196,33 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setDataIsFresh(false);
     setShowRefreshButton(false);
     
-    // CRITICAL: Only auto-load if explicitly enabled to prevent excessive API calls
-    if (!autoLoad) {
-      console.log('⏸️ Auto-enrichment disabled for competitive analysis to prevent API costs');
-      setShowRefreshButton(true); // Show manual refresh button
-      return;
-    }
+    // ALWAYS attempt to load data - from cache if available, or fresh if autoLoad is true
+    // This ensures cached data is displayed on subsequent visits
+    const loadData = async () => {
+      if (autoLoad) {
+        console.log('🔍 Auto-fetching competitive analysis for first-time visitor');
+        await fetchAnalysis(false); // false = check cache first before making API call
+      } else {
+        // Try to load from cache even when autoLoad is false
+        const cachedData = enrichmentCache.get(community.id);
+        if (cachedData) {
+          console.log('✨ Loading competitive analysis from cache');
+          setAnalysis(cachedData);
+          setIsExpanded(true);
+          setShowRefreshButton(true);
+          
+          // Pass cached data to parent
+          if (onAnalysisUpdate) {
+            onAnalysisUpdate(cachedData);
+          }
+        } else {
+          console.log('⏸️ No cached data and auto-fetch disabled, showing manual refresh button');
+          setShowRefreshButton(true);
+        }
+      }
+    };
     
-    // Only auto-fetch if autoLoad is true AND we don't have fresh cached data
-    if (autoLoad) {
-      fetchAnalysis(false); // Pass false to check cache first
-    }
+    loadData();
   }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
   
   // Don't render anything if there's no analysis and not loading
@@ -484,10 +500,62 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
           onPhotosUpdate(cachedData.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
         }
       } else {
-        console.log(`📭 No cached verification data for community ${community.id}, will fetch fresh`);
+        console.log(`📭 No cached verification data for community ${community.id}, will auto-fetch for first-time visitor`);
+        // AUTO-FETCH: Trigger automatic verification for first-time visitors
+        if (!hasStartedVerification) {
+          setHasStartedVerification(true);
+          handleAutoVerification();
+        }
       }
     }
   }, [community?.id]);
+  
+  // AUTO-VERIFICATION: Automatically verify community data on first visit
+  const handleAutoVerification = async () => {
+    if (!community?.id || isVerifying) return;
+    
+    console.log('🤖 Auto-fetching verification data for first-time visitor:', community.name);
+    setIsVerifying(true);
+    
+    try {
+      const response = await fetch(`/api/communities/${community.id}/verify`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          forceRefresh: false,  // Use cache if available
+          websiteUrl: community.website
+        })
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Verification failed: ${response.status}`);
+      }
+      
+      const report = await response.json();
+      
+      // Cache the verification report
+      const cacheKey = `verify-${community.id}`;
+      enrichmentCache.getOrFetch(cacheKey, async () => report, false);
+      
+      // Update state with verification results
+      setLocalVerificationReport(report);
+      setHasCachedData(true);
+      
+      // Update photos if found
+      if (report.verificationResults?.webIntelligence?.images) {
+        if (onPhotosUpdate) {
+          onPhotosUpdate(report.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
+        }
+      }
+      
+      console.log('✅ Auto-verification completed successfully');
+    } catch (error) {
+      console.error('❌ Auto-verification failed:', error);
+      setHasStartedVerification(false); // Allow retry on error
+    } finally {
+      setIsVerifying(false);
+    }
+  };
   
   // REMOVED: Duplicate verification call - RealTimeInsights now uses parent verification data only
   // The parent component handles all verification calls to prevent API duplication
@@ -3302,6 +3370,27 @@ export default function CommunityDetail() {
                   onVerificationReport={setVerificationReport}
                   onPhotosUpdate={undefined}
                   verificationReport={verificationReport}
+                />
+
+                {/* Competitive Analysis Component with Smart Auto-Loading */}
+                <CommunityCompetitiveAnalysis
+                  key={`competitive-analysis-${community.id}`}
+                  community={community}
+                  onAnalysisUpdate={setMarketAnalysisData}
+                  onVerificationReport={setVerificationReport}
+                  autoLoad={(() => {
+                    // Smart auto-load: Check if we already have cached competitive analysis data
+                    // The component internally uses `community-${id}` as the cache key
+                    const cachedAnalysis = enrichmentCache.get(community.id);
+                    
+                    if (cachedAnalysis) {
+                      console.log('📊 Competitive analysis already cached, skipping auto-fetch');
+                      return false; // Don't auto-load if we have cached data
+                    } else {
+                      console.log('🔍 No cached competitive analysis, will auto-fetch for first visitor');
+                      return true; // Auto-load for first-time visitors
+                    }
+                  })()}
                 />
 
                 {/* Intelligent Pricing Prediction - Now uses data from verification report */}
