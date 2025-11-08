@@ -944,7 +944,9 @@ export function registerCommunityRoutes(app: Express) {
       // AUTO-FETCH FIX: If cache is completely empty and this is an auto-fetch (forceRefresh=false),
       // automatically trigger a full Perplexity fetch for first-time visitors
       if (!forceRefresh && comprehensiveData.source === 'empty' && !comprehensiveData.rawPerplexityContent) {
-        console.log(`🚀 Auto-fetching Perplexity data for first-time visitor to ${community.name}`);
+        console.log(`🚀🚀🚀 AUTO-FETCH TRIGGERED for first-time visitor to ${community.name}`);
+        console.log(`  Cache status: source=${comprehensiveData.source}, content=${comprehensiveData.rawPerplexityContent?.length || 0} chars`);
+        console.log(`  Automatically fetching full Perplexity intelligence report...`);
         // Retry with forceRefresh=true to get full data
         comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
           communityId.toString(),
@@ -954,6 +956,15 @@ export function registerCommunityRoutes(app: Express) {
           true,  // Force refresh to get full Perplexity data
           communityWebsite
         );
+        console.log(`  ✅ Auto-fetch complete: ${comprehensiveData.rawPerplexityContent?.length || 0} chars of content retrieved`);
+      } else {
+        console.log(`📝 Verify endpoint for ${community.name}: {`);
+        console.log(`  forceRefresh: ${forceRefresh},`);
+        console.log(`  cacheSource: '${comprehensiveData.source}',`);
+        console.log(`  hasRawContent: ${!!comprehensiveData.rawPerplexityContent},`);
+        console.log(`  rawContentLength: ${comprehensiveData.rawPerplexityContent?.length || 0},`);
+        console.log(`  photosCount: ${comprehensiveData.photos?.length || 0}`);
+        console.log(`}`);
       }
       
       // CRITICAL: If we got fresh data, ensure it's saved to cache
