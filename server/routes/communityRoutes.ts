@@ -1882,8 +1882,8 @@ Provide specific, factual information with current pricing and availability.`;
       let cachedComprehensiveData = null;
       if (!fetchRealtime) {  // Only check cache if not doing real-time fetch
         try {
-          const { UnifiedPerplexityCache } = await import('../unified-perplexity-cache');
-          const cacheService = new UnifiedPerplexityCache();
+          const UnifiedPerplexityCache = (await import('../unified-perplexity-cache')).default;
+          const cacheService = UnifiedPerplexityCache.getInstance();
           
           // Get cached data without forcing a refresh
           cachedComprehensiveData = await cacheService.getComprehensiveCommunityData(
@@ -2421,6 +2421,7 @@ Provide specific, factual information with current pricing and availability.`;
       const location = city && state ? `${city}, ${state}` : city || state || 'Unknown Location';
       
       // Use the unified cache with the same logic as communities
+      const UnifiedPerplexityCache = (await import('../unified-perplexity-cache')).default;
       const unifiedCache = UnifiedPerplexityCache.getInstance();
       
       // Check if this is a manual refresh (user clicked button)
