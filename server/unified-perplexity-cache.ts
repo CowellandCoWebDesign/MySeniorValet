@@ -39,7 +39,7 @@ interface CachedCommunityData {
   // CRITICAL: Store the full raw Perplexity response for display
   rawPerplexityContent?: string;
   // Track whether data came from cache or fresh fetch
-  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos';
+  source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos' | 'database-content' | 'empty';
 }
 
 class UnifiedPerplexityCache {
@@ -280,37 +280,38 @@ class UnifiedPerplexityCache {
         console.error(`Failed to read from database cache for ${communityName}:`, error);
       }
       
-      // CRITICAL FIX: Check the communities table for existing photos before returning empty
+      // CRITICAL FIX: Check the communities table for existing photos and description before returning empty
       // This preserves already enriched data even if not in perplexity_cache
       try {
         const [community] = await db
           .select({
             photos: communities.photos,
             pricing_info: communities.pricing_info,
-            average_rating: communities.average_rating
+            average_rating: communities.average_rating,
+            description: communities.description
           })
           .from(communities)
           .where(eq(communities.id, parseInt(communityId)))
           .limit(1);
 
-        if (community && community.photos && community.photos.length > 0) {
-          console.log(`📸 Found ${community.photos.length} photos in communities table for ${communityName}`);
+        if (community && (community.photos?.length > 0 || community.description)) {
+          console.log(`📸 Found ${community.photos?.length || 0} photos and ${community.description?.length || 0} chars of content in communities table for ${communityName}`);
           return {
             marketData: {
-              pricing: community.pricing_info || {}
+              pricing: typeof community.pricing_info === 'object' ? community.pricing_info : {}
             },
             reviews: {
               average_rating: community.average_rating || 0
             },
             inspections: {},
-            photos: community.photos,
+            photos: community.photos || [],
             sources: [],
             timestamp: Date.now(),
             communityId,
             communityName,
             location,
-            rawPerplexityContent: '',
-            source: 'database-photos' as const
+            rawPerplexityContent: community.description || '',
+            source: 'database-content' as const
           };
         }
       } catch (error) {
