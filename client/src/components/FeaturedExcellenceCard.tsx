@@ -24,8 +24,6 @@ interface FeaturedExcellenceCardProps {
     totalUnits?: number;
     occupancyRate?: number;
     hudPropertyId?: string;
-    isDiscovered?: boolean; // New flag for discovered communities
-    discoveredAt?: string; // When it was discovered
   };
   index?: number;
   compact?: boolean; // For horizontal sliders
@@ -292,20 +290,10 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           </div>
         )}
         
-        {/* Discovery Badge for newly discovered communities */}
-        {community.isDiscovered && (
-          <div className="absolute top-2 right-2 flex items-center gap-1 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-2 py-0.5 rounded text-xs font-bold animate-pulse">
-            <span>🌍</span>
-            <span>NEWLY DISCOVERED</span>
-          </div>
-        )}
-        
-        {/* Premium Badge for existing communities */}
-        {!community.isDiscovered && (
-          <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold">
-            Premium Coastal Living
-          </div>
-        )}
+        {/* Premium/Excellence Badge */}
+        <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold">
+          Premium Coastal Living
+        </div>
         
         {/* Availability Badge */}
         <div className="absolute bottom-2 right-2">

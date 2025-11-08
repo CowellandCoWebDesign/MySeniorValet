@@ -390,130 +390,55 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
     setVisibleResults(10); // Reset to show first 10 results for new search
     setIsLoading(true);
 
-    // Track if we're running parallel searches
-    let databaseResults: any = null;
-    let discoveryResults: any = null;
-    let runDiscovery = false;
-    
     try {
-      // Determine if we should run Discovery Mode in parallel
-      // Run Discovery for: international searches, zero results, or explicit discover mode
-      runDiscovery = (viewMode === 'discover') || isInternationalSearch;
-      
-      // For communities tab, always try database first
-      if (activeTab === 'communities') {
-        // Start both searches in parallel when appropriate
-        const searchPromises: Promise<any>[] = [];
+      // Discovery mode for Communities - use global discovery to find facilities
+      // This handles BOTH international and regular discovery searches
+      if (viewMode === 'discover' && activeTab === 'communities') {
+        // For international searches or explicit discovery mode, use Perplexity to search the web
+        const shouldUsePerplexity = isInternationalSearch || true; // Always use discovery in discover mode
         
-        // Always search our database first
-        const databasePromise = fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`)
-          .then(async (response) => {
-            if (!response.ok) return { communities: [], total: 0 };
-            const data = await response.json();
-            return data;
-          })
-          .catch(error => {
-            console.error('Database search error:', error);
-            return { communities: [], total: 0 };
+        console.log('🌍 Discovery Mode search for:', query, 'International:', isInternationalSearch);
+        
+        // Call global discovery endpoint to find actual facilities
+        const response = await fetch('/api/global-discovery/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            query: query,
+            searchType: 'location',
+            limit: 20,
+            discoveryMode: shouldUsePerplexity  // Set based on international or discovery mode
+          }),
+          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
+        });
+
+        if (!response.ok) throw new Error('Discovery search failed');
+        
+        const data = await response.json();
+        
+        // Show discovered facilities in modal
+        if (data.results && data.results.length > 0) {
+          // Clear loading state first
+          setIsLoading(false);
+          setSearchResults({ results: [], metadata: null });
+          // Then set results and show modal
+          setGlobalDiscoveryResults({
+            query,
+            results: data.results,
+            metadata: {...data.metadata, discoveryType: 'communities'}
           });
-        searchPromises.push(databasePromise);
-        
-        // Run Discovery Mode in parallel if conditions met
-        if (runDiscovery) {
-          console.log('🌍 Running Discovery Mode in parallel for:', query);
-          
-          const discoveryPromise = fetch('/api/global-discovery/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              query: query,
-              searchType: 'location',
-              limit: 10,
-              discoveryMode: true
-            }),
-            signal: AbortSignal.timeout(30000) // 30 second timeout
-          })
-          .then(async (response) => {
-            if (!response.ok) return { results: [], metadata: null };
-            const data = await response.json();
-            return data;
-          })
-          .catch(error => {
-            console.error('Discovery search error:', error);
-            return { results: [], metadata: null };
-          });
-          searchPromises.push(discoveryPromise);
-        }
-        
-        // Wait for all searches to complete
-        const results = await Promise.all(searchPromises);
-        databaseResults = results[0];
-        if (runDiscovery) {
-          discoveryResults = results[1];
-        }
-        
-        // Check if database returned zero results and we haven't run discovery yet
-        if (databaseResults.communities?.length === 0 && !runDiscovery) {
-          console.log('🔍 Zero database results, triggering Discovery Mode');
-          runDiscovery = true;
-          
-          // Run discovery search now
-          try {
-            const response = await fetch('/api/global-discovery/search', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ 
-                query: query,
-                searchType: 'location',
-                limit: 10,
-                discoveryMode: true
-              }),
-              signal: AbortSignal.timeout(30000)
-            });
-            
-            if (response.ok) {
-              discoveryResults = await response.json();
+          setForceClearAutocomplete(true);
+          setShowGlobalDiscoveryModal(true);
+        } else {
+          // No facilities found, show message
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `No senior living facilities found in ${query} yet. Try a different city or check back later as we expand our coverage.`,
+              isResearchMode: false
             }
-          } catch (error) {
-            console.error('Discovery search error:', error);
-            discoveryResults = { results: [], metadata: null };
-          }
+          });
         }
-        
-        // Merge results: database results first, then discovered communities
-        const allCommunities = [...(databaseResults.communities || [])];
-        const discoveredCommunities = discoveryResults?.results || [];
-        
-        // Add discovered communities with special indicator
-        discoveredCommunities.forEach((discovered: any) => {
-          // Check if this community isn't already in database results
-          const isDuplicate = allCommunities.some(c => 
-            c.name?.toLowerCase() === discovered.name?.toLowerCase() && 
-            c.city?.toLowerCase() === discovered.city?.toLowerCase()
-          );
-          
-          if (!isDuplicate) {
-            allCommunities.push({
-              ...discovered,
-              isDiscovered: true, // Flag for UI to show special badge
-              discoveredAt: new Date().toISOString()
-            });
-          }
-        });
-        
-        // Set combined results
-        setSearchResults({
-          results: allCommunities,
-          metadata: {
-            total: allCommunities.length,
-            databaseCount: databaseResults.communities?.length || 0,
-            discoveredCount: discoveredCommunities.length,
-            searchMetadata: databaseResults.searchMetadata,
-            discoveryMetadata: discoveryResults?.metadata,
-            runDiscovery,
-            suggestions: [...(databaseResults.suggestions || []), ...(discoveryResults?.metadata?.suggestions || [])]
-          }
-        });
         
       } else if (viewMode === 'discover' && activeTab === 'services') {
         // For services, use NLP search which searches both services and vendors tables
