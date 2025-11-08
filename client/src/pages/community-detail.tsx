@@ -57,6 +57,8 @@ import { ReservationDialog } from '@/components/ReservationDialog';
 import { RequestInfoDialog } from '@/components/RequestInfoDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
 import { useVirtualTourDetection } from '@/hooks/useVirtualTourDetection';
+import { SEOMetaTags } from '@/components/SEOMetaTags';
+import { StructuredData, createCommunitySchema } from '@/components/StructuredData';
 
 // Default photos for communities without images
 const defaultPhotos = [
@@ -1968,6 +1970,106 @@ export default function CommunityDetail() {
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* SEO Meta Tags - Include full Perplexity content for search engine indexing */}
+      {community && (
+        <SEOMetaTags
+          title={community.name}
+          description={(() => {
+            // Use the full Perplexity content for SEO if available
+            const perplexityContent = 
+              verificationReport?.verificationResults?.perplexityData?.searchContent ||
+              verificationReport?.searchContent ||
+              community.description;
+            
+            // Ensure we have substantial content for SEO (at least 150 chars)
+            if (perplexityContent && perplexityContent.length > 150) {
+              // Use full content for meta description - search engines will truncate as needed
+              // This ensures the full intelligence report is indexed
+              return perplexityContent;
+            }
+            
+            // Fallback to constructed description
+            return `${community.name} - Senior Living in ${community.city}, ${community.state}. ${
+              community.description || 'Find verified pricing, amenities, photos, and care information.'
+            }`;
+          })()}
+          url={`/community/${community.id}`}
+          image={getCombinedPhotos()[0]?.image_url || getCombinedPhotos()[0] || '/default-community.jpg'}
+          type="product"
+          communityData={{
+            name: community.name,
+            city: community.city,
+            state: community.state,
+            priceRange: verificationReport?.pricing || undefined,
+            rating: community.rating ? parseFloat(community.rating) : undefined,
+            reviewCount: community.reviewCount || undefined
+          }}
+          price={undefined}
+          tags={[
+            'Senior Living',
+            community.state,
+            community.city,
+            'Assisted Living',
+            'Memory Care',
+            'Retirement Community'
+          ]}
+        />
+      )}
+      
+      {/* Structured Data for Rich Snippets - Include full Perplexity content */}
+      {community && (
+        <StructuredData 
+          data={(() => {
+            const baseSchema = createCommunitySchema(community);
+            
+            // Enhance with full Perplexity content
+            const perplexityContent = 
+              verificationReport?.verificationResults?.perplexityData?.searchContent ||
+              verificationReport?.searchContent ||
+              community.description;
+              
+            if (perplexityContent && perplexityContent.length > 150) {
+              // Use full content in structured data for maximum SEO value
+              baseSchema.description = perplexityContent;
+              baseSchema.disambiguatingDescription = perplexityContent;
+            }
+            
+            // Add additional SEO-rich properties
+            if (verificationReport?.pricing) {
+              baseSchema.priceRange = verificationReport.pricing;
+            }
+            
+            if (getCombinedPhotos().length > 0) {
+              baseSchema.image = getCombinedPhotos().map(p => 
+                typeof p === 'string' ? p : p.image_url || p.url
+              );
+            }
+            
+            // Add review/rating data if available
+            if (community.rating) {
+              baseSchema.aggregateRating = {
+                '@type': 'AggregateRating',
+                ratingValue: parseFloat(community.rating),
+                bestRating: '5',
+                worstRating: '1',
+                reviewCount: community.reviewCount || 1
+              };
+            }
+            
+            // Add amenity features
+            if (community.amenities && community.amenities.length > 0) {
+              baseSchema.amenityFeature = community.amenities.map((a: string) => ({
+                '@type': 'LocationFeatureSpecification',
+                name: a.trim ? a.trim() : a,
+                value: true
+              }));
+            }
+            
+            return baseSchema;
+          })()}
+        />
+      )}
+      
       {/* Navigation Header - Fixed at top */}
       <NavigationHeader 
         title={community?.name || "Community Details"} 
