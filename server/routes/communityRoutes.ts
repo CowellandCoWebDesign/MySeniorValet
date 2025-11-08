@@ -1009,13 +1009,13 @@ export function registerCommunityRoutes(app: Express) {
             console.log(`✅ Updating phone to: ${enrichmentResult.phoneNumber}`);
           }
           
-          // Update description if we have good content and current is lacking
+          // Update description with FULL content for SEO - no truncation
           if (enrichmentResult.searchResults?.summary && 
               enrichmentResult.searchResults.summary.length > 100 &&
               (!current.description || current.description.length < 50)) {
-            updates.description = enrichmentResult.searchResults.summary.substring(0, 1000);
+            updates.description = enrichmentResult.searchResults.summary; // Full content, no substring!
             hasUpdates = true;
-            console.log(`✅ Updating description with enriched content`);
+            console.log(`✅ Updating description with FULL enriched content (${enrichmentResult.searchResults.summary.length} chars)`);
           }
           
           // Apply updates if any

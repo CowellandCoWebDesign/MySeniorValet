@@ -926,19 +926,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                         Information found about this specific community:
                       </p>
                       
-                      {/* Show description from web intelligence if available - FILTER OUT CLAUDE AI LABELS */}
-                      {webIntelligenceDescription && 
-                       !webIntelligenceDescription.includes('Claude AI Analysis') && 
-                       !webIntelligenceDescription.includes('Note: Real-time data not available') && (
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                          <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                            {webIntelligenceDescription}
-                          </p>
-                        </div>
-                      )}
-                      
-                      {/* Show Perplexity search content if available - try multiple data paths */}
-                      {perplexityContent && !webIntelligenceDescription && (
+                      {/* ALWAYS show full Perplexity search content if available - this is the primary source */}
+                      {perplexityContent && (
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
                           {/* Full unfiltered response in a structured format */}
                           <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
