@@ -967,19 +967,8 @@ export function registerCommunityRoutes(app: Express) {
         console.log(`}`);
       }
       
-      // CRITICAL: If we got fresh data, ensure it's saved to cache
-      // This fixes the issue where data wasn't persisting after fetch
-      if ((forceRefresh || comprehensiveData.source === 'fresh-fetch') && comprehensiveData && comprehensiveData.source === 'fresh-fetch') {
-        console.log(`💾 Ensuring fresh data is saved to unified cache for ${community.name}`);
-        // Save the comprehensive data explicitly to ensure persistence
-        await unifiedPerplexityCache.saveComprehensiveData(
-          communityId.toString(),
-          community.name,
-          `${community.city}, ${community.state}`,
-          comprehensiveData,
-          isFeatured
-        );
-      }
+      // No need for additional save - getComprehensiveCommunityData already saves to both cache and communities table
+      // The saveCacheToDatabase function in unified-perplexity-cache.ts handles all persistence
       
       // Create enrichmentResult from unified cache data
       // Always include basic community data even if cache is empty
