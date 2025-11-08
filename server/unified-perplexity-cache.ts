@@ -161,13 +161,19 @@ class UnifiedPerplexityCache {
           
           if (Object.keys(updates).length > 0) {
             updates.updatedAt = new Date();
+            updates.lastSuccessfulEnrichment = new Date();
             
-            await db
+            const result = await db
               .update(communities)
               .set(updates)
               .where(eq(communities.id, communityIdNum));
               
-            console.log(`✅ Synced cached data to communities table for ${data.communityName}`);
+            console.log(`✅ Synced cached data to communities table for ${data.communityName}:`, {
+              communityId: communityIdNum,
+              photosUpdated: originalPhotos.length,
+              descriptionLength: data.rawPerplexityContent?.length || 0,
+              updateSuccess: !!result
+            });
           }
         } catch (syncError) {
           console.error(`Failed to sync to communities table for ID ${communityIdNum}:`, syncError);
