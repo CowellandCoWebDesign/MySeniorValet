@@ -930,8 +930,9 @@ export function registerCommunityRoutes(app: Express) {
       // CRITICAL FIX: Use unified cache instead of separate enrichment service
       // This prevents the $0.07 cost spike
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      // Allow forceRefresh ONLY when user manually clicks "Search for Photos" button
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+      
+      // First attempt: Try to get from cache with forceRefresh as requested
+      let comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
         communityId.toString(),
         community.name,
         `${community.city}, ${community.state}`,
@@ -940,9 +941,24 @@ export function registerCommunityRoutes(app: Express) {
         communityWebsite  // Pass website URL for better photo discovery
       );
       
+      // AUTO-FETCH FIX: If cache is completely empty and this is an auto-fetch (forceRefresh=false),
+      // automatically trigger a full Perplexity fetch for first-time visitors
+      if (!forceRefresh && comprehensiveData.source === 'empty' && !comprehensiveData.rawPerplexityContent) {
+        console.log(`🚀 Auto-fetching Perplexity data for first-time visitor to ${community.name}`);
+        // Retry with forceRefresh=true to get full data
+        comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+          communityId.toString(),
+          community.name,
+          `${community.city}, ${community.state}`,
+          isFeatured,
+          true,  // Force refresh to get full Perplexity data
+          communityWebsite
+        );
+      }
+      
       // CRITICAL: If we got fresh data, ensure it's saved to cache
       // This fixes the issue where data wasn't persisting after fetch
-      if (forceRefresh && comprehensiveData && comprehensiveData.source === 'fresh-fetch') {
+      if ((forceRefresh || comprehensiveData.source === 'fresh-fetch') && comprehensiveData && comprehensiveData.source === 'fresh-fetch') {
         console.log(`💾 Ensuring fresh data is saved to unified cache for ${community.name}`);
         // Save the comprehensive data explicitly to ensure persistence
         await unifiedPerplexityCache.saveComprehensiveData(
