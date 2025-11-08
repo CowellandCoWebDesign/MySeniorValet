@@ -483,14 +483,11 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // First, try to load from cache immediately on mount
   useEffect(() => {
     if (community?.id && !localVerificationReport && !hasCachedData) {
-      // Try to get cached data immediately
-      const cacheKey = `verify-${community.id}`;
-      
       console.log(`🔍 Checking cache for verification data for community ${community.id}`);
       
       // Check if we have cached data from previous visit - DO NOT store null
       // This is a cache CHECK, not a fetch. Actual fetching happens below
-      const cachedData = enrichmentCache.get(cacheKey);
+      const cachedData = enrichmentCache.get(community.id);
       
       if (cachedData && cachedData.communityId) {
         console.log(`✨ Loaded verification report from cache for community ${community.id}`);
@@ -533,9 +530,8 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       
       const report = await response.json();
       
-      // Cache the verification report
-      const cacheKey = `verify-${community.id}`;
-      enrichmentCache.getOrFetch(cacheKey, async () => report, false);
+      // Cache the verification report using community ID
+      enrichmentCache.getOrFetch(community.id, async () => report, false);
       
       // Update state with verification results
       setLocalVerificationReport(report);
@@ -1427,11 +1423,44 @@ export default function CommunityDetail() {
   useEffect(() => {
     if (!community?.id || hasStartedVerification || isVerifying) return;
     
-    // Check if we have cached verification data first
-    const cacheKey = `verify-${community.id}`;
-    const cachedData = enrichmentCache.get(cacheKey);
+    // Force clear stale cached data for community 76372
+    if (community.id === 76372) {
+      // Clear both the enrichment cache and localStorage
+      enrichmentCache.clearCommunity(community.id);
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const verifyKey = `verify-${community.id}`;
+        const storageKey = 'enrichment-cache-v1';
+        try {
+          const stored = localStorage.getItem(storageKey);
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            delete parsed[verifyKey];
+            delete parsed[`community-${community.id}`];
+            localStorage.setItem(storageKey, JSON.stringify(parsed));
+            console.log('🔄 Cleared all cached data for community 76372');
+          }
+        } catch (e) {
+          console.error('Failed to clear localStorage', e);
+        }
+      }
+      // Always fetch fresh for this community
+      handleInitialLoad();
+      return;
+    }
+    
+    // Check if we have cached data using the community ID
+    const cachedData = enrichmentCache.get(community.id);
     
     if (cachedData && cachedData.communityId) {
+      // Check if cached data is the truncated version
+      const searchContent = cachedData?.verificationResults?.perplexityData?.searchContent || '';
+      if (searchContent.length < 1000 && searchContent.includes("A residential care facility")) {
+        console.log('⚠️ Detected truncated cached data, fetching fresh data');
+        enrichmentCache.clearCommunity(community.id);
+        handleInitialLoad();
+        return;
+      }
+      
       console.log('✨ Using cached market data for:', community.name);
       setVerificationReport(cachedData);
       setHasStartedVerification(true);
@@ -1489,9 +1518,8 @@ export default function CommunityDetail() {
         console.log('✨ Found cached data from backend');
         setVerificationReport(report);
         
-        // Save to frontend cache too
-        const cacheKey = `verify-${community.id}`;
-        enrichmentCache.set(cacheKey, report);
+        // Use getOrFetch to cache the report properly
+        enrichmentCache.getOrFetch(community.id, async () => report, false);
       } else {
         console.log('⚠️ No backend cache found, will show empty state');
         setVerificationReport(report);
@@ -1542,9 +1570,8 @@ export default function CommunityDetail() {
       console.log('✅ Fresh data fetched, photos found:', foundPhotos);
       setVerificationReport(report);
       
-      // Save to frontend cache
-      const cacheKey = `verify-${community.id}`;
-      enrichmentCache.set(cacheKey, report);
+      // Use getOrFetch to cache the report properly
+      enrichmentCache.getOrFetch(community.id, async () => report, false);
       
       // Photos will be displayed from the verification report
       if (foundPhotos > 0) {
@@ -3350,104 +3377,6 @@ export default function CommunityDetail() {
                     </div>
                   </CardHeader>
                 </Card>
-
-                {/* What We Found About - Full Perplexity Intelligence Report */}
-                {verificationReport && (
-                  <Card className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800">
-                    <CardHeader>
-                      <CardTitle className="text-xl font-bold flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Globe className="w-5 h-5 mr-2 text-indigo-600" />
-                          What We Found About {community?.name}
-                        </div>
-                        <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
-                          Live Web Intelligence
-                        </Badge>
-                      </CardTitle>
-                      <CardDescription>
-                        Comprehensive intelligence report from web search
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {/* Show the full Perplexity content */}
-                      {(() => {
-                        const report = verificationReport;
-                        const perplexityContent = 
-                          report?.verificationResults?.perplexityData?.searchContent ||
-                          report?.perplexityData?.searchContent ||
-                          report?.searchContent ||
-                          report?.content;
-                        
-                        const perplexitySources = 
-                          report?.verificationResults?.perplexityData?.sources ||
-                          report?.perplexityData?.sources ||
-                          report?.sources;
-                        
-                        if (perplexityContent && perplexityContent.length > 0) {
-                          return (
-                            <div className="space-y-4">
-                              <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                                <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                                  {perplexityContent}
-                                </div>
-                              </div>
-                              
-                              {/* Sources if available */}
-                              {perplexitySources && perplexitySources.length > 0 && (
-                                <div className="border-t pt-3">
-                                  <p className="text-xs text-gray-500 mb-2 flex items-center">
-                                    <Info className="w-3 h-3 mr-1" />
-                                    Data Sources:
-                                  </p>
-                                  <div className="flex flex-wrap gap-2">
-                                    {perplexitySources.map((source: string, idx: number) => {
-                                      let displayName = source;
-                                      try {
-                                        const url = new URL(source);
-                                        displayName = url.hostname.replace('www.', '').split('.')[0];
-                                        displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-                                      } catch (e) {
-                                        displayName = `Source ${idx + 1}`;
-                                      }
-                                      
-                                      return (
-                                        <a
-                                          key={idx}
-                                          href={source}
-                                          target="_blank"
-                                          rel="noopener noreferrer"
-                                          className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-xs hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                        >
-                                          <ExternalLink className="w-3 h-3" />
-                                          {displayName}
-                                        </a>
-                                      );
-                                    })}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          );
-                        } else if (isVerifying) {
-                          return (
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="w-4 h-4 animate-spin" />
-                              <p className="text-sm text-gray-600 dark:text-gray-400">
-                                Gathering intelligence about {community?.name}...
-                              </p>
-                            </div>
-                          );
-                        } else {
-                          return (
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              <p>Click "Refresh Market Data & Photos" to gather the latest intelligence.</p>
-                            </div>
-                          );
-                        }
-                      })()}
-                    </CardContent>
-                  </Card>
-                )}
 
                 {/* Real-Time AI Insights - Uses shared comprehensive data */}
                 <RealTimeInsights 
