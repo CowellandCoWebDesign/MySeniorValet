@@ -1715,7 +1715,7 @@ export default function CommunityDetail() {
     // Vendor/Community verified pricing (must be claimed AND explicitly marked as live pricing)
     (community.claimedBy && (community as any).pricing_type === 'live' && (community as any).pricingLastVerified &&
      new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Verified within 30 days
-  ) : false;
+  );
 
   const getInitials = (name: string) => {
     return name.split(' ').map(word => word[0]).join('').toUpperCase();
