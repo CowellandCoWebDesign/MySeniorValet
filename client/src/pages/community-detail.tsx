@@ -1679,7 +1679,13 @@ export default function CommunityDetail() {
   // Crawlers were indexing the loading screen instead of actual content
   // Now render content immediately, even if still loading enrichment in background
   if (error) return <div className="text-red-500">Error loading community</div>;
-  if (!community) return <div>Community not found</div>;
+  
+  // Only show "not found" if we've finished loading and there's truly no community
+  // Don't show it during initial load (prevents flash of "not found" message)
+  if (!isLoading && !community) return <div>Community not found</div>;
+  
+  // If still loading and no community yet, render anyway - component has fallbacks
+  // This prevents blocking crawlers while still providing good UX
 
   // GOLDEN RULE ENFORCEMENT: Only show "Live Pricing" for government-verified or vendor-confirmed pricing
   const hasLiveData = !!(
