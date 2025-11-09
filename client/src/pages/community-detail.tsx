@@ -941,7 +941,10 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 {/* Community-specific insights from web search */}
                 {(() => {
                   // Check all possible data paths for Perplexity content
+                  // CRITICAL FIX: Backend returns content in searchResults.summary (primary source)
                   const perplexityContent = 
+                    localVerificationReport?.verificationResults?.searchResults?.summary ||
+                    localVerificationReport?.searchResults?.summary ||
                     localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
                     localVerificationReport?.perplexityData?.searchContent ||
                     localVerificationReport?.searchContent ||
@@ -2049,7 +2052,10 @@ export default function CommunityDetail() {
           title={community.name}
           description={(() => {
             // Use the full Perplexity content for SEO if available
+            // CRITICAL FIX: Backend returns content in searchResults.summary
             const perplexityContent = 
+              verificationReport?.verificationResults?.searchResults?.summary ||
+              verificationReport?.searchResults?.summary ||
               verificationReport?.verificationResults?.perplexityData?.searchContent ||
               verificationReport?.searchContent ||
               community.description;
@@ -2096,7 +2102,10 @@ export default function CommunityDetail() {
             const baseSchema = createCommunitySchema(community);
             
             // Enhance with full Perplexity content
+            // CRITICAL FIX: Backend returns content in searchResults.summary
             const perplexityContent = 
+              verificationReport?.verificationResults?.searchResults?.summary ||
+              verificationReport?.searchResults?.summary ||
               verificationReport?.verificationResults?.perplexityData?.searchContent ||
               verificationReport?.searchContent ||
               community.description;
