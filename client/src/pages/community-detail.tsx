@@ -1688,14 +1688,15 @@ export default function CommunityDetail() {
   // This prevents blocking crawlers while still providing good UX
 
   // GOLDEN RULE ENFORCEMENT: Only show "Live Pricing" for government-verified or vendor-confirmed pricing
-  const hasLiveData = !!(
+  // CRITICAL: Guard against undefined community during initial load
+  const hasLiveData = community ? !!(
     // Government verified sources with actual pricing data
     ((community as any).hudPropertyId && (community as any).rentPerMonth) || // HUD properties with actual rent
     ((community as any).governmentSourced && (community as any).priceRange?.min) || // Other gov sources with pricing
     // Vendor/Community verified pricing (must be claimed AND explicitly marked as live pricing)
     (community.claimedBy && (community as any).pricing_type === 'live' && (community as any).pricingLastVerified &&
      new Date((community as any).pricingLastVerified) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Verified within 30 days
-  );
+  ) : false;
 
   const getInitials = (name: string) => {
     return name.split(' ').map(word => word[0]).join('').toUpperCase();
