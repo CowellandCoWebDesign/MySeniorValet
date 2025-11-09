@@ -1684,12 +1684,31 @@ export default function CommunityDetail() {
   // Don't show it during initial load (prevents flash of "not found" message)
   if (!isLoading && !community) return <div>Community not found</div>;
   
-  // If still loading and no community yet, render anyway - component has fallbacks
-  // This prevents blocking crawlers while still providing good UX
+  // CRITICAL SEO FIX: If still loading, render minimal skeleton with SEO metadata
+  // This prevents TypeErrors while still allowing crawlers to index basic content
+  if (!community) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <SEOMetaTags
+          title={`Community ${id} - MySeniorValet`}
+          description="Loading community information..."
+          type="website"
+        />
+        <div className="container mx-auto px-4 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-muted rounded w-3/4"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
+  // At this point, community is guaranteed to be defined
+  // All helper functions can safely access community properties
+  
   // GOLDEN RULE ENFORCEMENT: Only show "Live Pricing" for government-verified or vendor-confirmed pricing
-  // CRITICAL: Guard against undefined community during initial load
-  const hasLiveData = community ? !!(
+  const hasLiveData = !!(
     // Government verified sources with actual pricing data
     ((community as any).hudPropertyId && (community as any).rentPerMonth) || // HUD properties with actual rent
     ((community as any).governmentSourced && (community as any).priceRange?.min) || // Other gov sources with pricing
