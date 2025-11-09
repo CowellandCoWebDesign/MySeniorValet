@@ -973,6 +973,7 @@ export function registerCommunityRoutes(app: Express) {
       // Create enrichmentResult from unified cache data
       // Always include basic community data even if cache is empty
       // CRITICAL FIX: Use actual database timestamp, not new Date()
+      // CRITICAL FIX: Merge photos and description from BOTH cache AND database
       const enrichmentResult = {
         communityId: communityId,
         communityName: community.name,
@@ -983,13 +984,13 @@ export function registerCommunityRoutes(app: Express) {
         officialWebsite: comprehensiveData.marketData?.website || community.website || '',
         phoneNumber: comprehensiveData.marketData?.phone || community.phone || '',
         pricing: comprehensiveData.marketData?.pricing || '',
-        photos: comprehensiveData.photos || [],
+        // CRITICAL: Prefer database photos first (most reliable), then cache
+        photos: (community.photos && community.photos.length > 0) ? community.photos : (comprehensiveData.photos || []),
         searchResults: {
-          // CRITICAL FIX: Use the full raw Perplexity content, not just the description extract
-          // But fallback to community description if no cache data
-          summary: comprehensiveData.rawPerplexityContent || 
+          // CRITICAL FIX: Use database description first (most reliable), then cache, then fallbacks
+          summary: community.description || 
+                   comprehensiveData.rawPerplexityContent || 
                    comprehensiveData.marketData?.description || 
-                   community.description || 
                    '',
           sources: comprehensiveData.sources || []
         }
