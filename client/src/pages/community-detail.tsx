@@ -1675,11 +1675,9 @@ export default function CommunityDetail() {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
   }
 
-  if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <CompetitiveAnalysisLoader location="Loading community details..." />
-    </div>
-  );
+  // CRITICAL SEO FIX: Don't block rendering with full-page loading screen
+  // Crawlers were indexing the loading screen instead of actual content
+  // Now render content immediately, even if still loading enrichment in background
   if (error) return <div className="text-red-500">Error loading community</div>;
   if (!community) return <div>Community not found</div>;
 
