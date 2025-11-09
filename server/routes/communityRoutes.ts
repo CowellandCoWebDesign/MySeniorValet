@@ -972,10 +972,12 @@ export function registerCommunityRoutes(app: Express) {
       
       // Create enrichmentResult from unified cache data
       // Always include basic community data even if cache is empty
+      // CRITICAL FIX: Use actual database timestamp, not new Date()
       const enrichmentResult = {
         communityId: communityId,
         communityName: community.name,
-        lastUpdated: new Date().toISOString(),
+        lastUpdated: community.lastSuccessfulEnrichment?.toISOString() || 
+                     (comprehensiveData.timestamp ? new Date(comprehensiveData.timestamp).toISOString() : null),
         verificationStatus: 'verified' as const,
         confidence: 85,
         officialWebsite: comprehensiveData.marketData?.website || community.website || '',
