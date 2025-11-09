@@ -6,6 +6,7 @@ import { perplexityCache, communities } from '../shared/schema';
 import { eq, lt, and } from 'drizzle-orm';
 
 interface CachedCommunityData {
+  communityPk?: number; // Numeric primary key from communities.id table
   marketData: {
     pricing?: string;
     website?: string;
@@ -126,10 +127,22 @@ class UnifiedPerplexityCache {
       console.log(`💾 Saved to database cache: ${data.communityName} (expires: ${expiresAt.toISOString()})`);
       
       // CRITICAL: Also sync photos and description to communities table so they appear in directory!
-      // Extract numeric community ID from cacheKey (e.g., "community_12345" -> 12345)
-      const communityIdNum = parseInt(cacheKey.replace('community_', ''));
+      // Safely resolve the numeric primary key - prefer communityPk if provided
+      const resolveCommunityPk = (data: CachedCommunityData): number | null => {
+        // First try to use the explicit communityPk if provided
+        if (data.communityPk !== undefined && Number.isInteger(data.communityPk)) {
+          return data.communityPk;
+        }
+        // Fall back to parsing communityId if it's numeric
+        const value = data.communityId;
+        if (typeof value === "number" && Number.isInteger(value)) return value;
+        if (typeof value === "string" && /^\d+$/.test(value)) return Number(value);
+        return null; // UUID or malformed
+      };
       
-      if (!isNaN(communityIdNum) && (data.photos?.length > 0 || data.rawPerplexityContent)) {
+      const communityPk = resolveCommunityPk(data);
+      
+      if (communityPk !== null && (data.photos?.length > 0 || data.rawPerplexityContent)) {
         try {
           // Convert photo URLs from proxy format back to original URLs for storage
           const originalPhotos = data.photos?.map(url => {
@@ -149,14 +162,14 @@ class UnifiedPerplexityCache {
           // Update photos if we have them
           if (originalPhotos.length > 0) {
             updates.photos = originalPhotos;
-            console.log(`📸 Syncing ${originalPhotos.length} photos to communities.photos for ID ${communityIdNum}`);
+            console.log(`📸 Syncing ${originalPhotos.length} photos to communities.photos for ID ${communityPk}`);
           }
           
           // Update description with FULL Perplexity content
           if (data.rawPerplexityContent && data.rawPerplexityContent.length > 100) {
             // Save the COMPLETE Perplexity content for full SEO value
             updates.description = data.rawPerplexityContent;
-            console.log(`📝 Syncing FULL Perplexity content (${data.rawPerplexityContent.length} chars) to communities.description for ID ${communityIdNum}`);
+            console.log(`📝 Syncing FULL Perplexity content (${data.rawPerplexityContent.length} chars) to communities.description for ID ${communityPk}`);
           }
           
           if (Object.keys(updates).length > 0) {
@@ -166,18 +179,23 @@ class UnifiedPerplexityCache {
             const result = await db
               .update(communities)
               .set(updates)
-              .where(eq(communities.id, communityIdNum));
+              .where(eq(communities.id, communityPk));
               
             console.log(`✅ Synced cached data to communities table for ${data.communityName}:`, {
-              communityId: communityIdNum,
+              communityId: communityPk,
               photosUpdated: originalPhotos.length,
               descriptionLength: data.rawPerplexityContent?.length || 0,
               updateSuccess: !!result
             });
           }
         } catch (syncError) {
-          console.error(`Failed to sync to communities table for ID ${communityIdNum}:`, syncError);
+          console.error(`Failed to sync to communities table for ID ${communityPk}:`, syncError);
         }
+      } else if (communityPk === null) {
+        console.warn(`⚠️ Skipping communities table sync: non-numeric ID`, { 
+          cacheKey, 
+          communityId: data.communityId 
+        });
       }
     } catch (error) {
       console.error('Failed to save to database cache:', error);
@@ -190,7 +208,8 @@ class UnifiedPerplexityCache {
     communityName: string,
     location: string,
     data: Partial<CachedCommunityData>,
-    isFeatured: boolean = false
+    isFeatured: boolean = false,
+    communityPk?: number  // Accept the numeric primary key directly from the route
   ) {
     const cacheKey = `community_${communityId}`;
     
@@ -205,7 +224,8 @@ class UnifiedPerplexityCache {
       communityName,
       location,
       rawPerplexityContent: data.rawPerplexityContent || '',
-      source: 'fresh-fetch'
+      source: 'fresh-fetch',
+      communityPk  // Store the numeric PK if provided
     };
     
     await this.saveCacheToDatabase(cacheKey, fullData, isFeatured);

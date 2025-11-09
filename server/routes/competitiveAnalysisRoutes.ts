@@ -68,14 +68,15 @@ router.post('/api/competitive-analysis', async (req, res) => {
             
             console.log(`✅ International market data retrieved for ${community.name}`);
             
-            // CRITICAL FIX: Save the fetched data to unified cache
+            // CRITICAL FIX: Save the fetched data to unified cache with numeric PK
             if (searchResults.found && comprehensiveData.photos && comprehensiveData.photos.length > 0) {
               await unifiedPerplexityCache.saveComprehensiveData(
                 communityId.toString(),
                 community.name,
                 marketLocation,
                 comprehensiveData,
-                false // not featured
+                false, // not featured
+                community.id // Pass the numeric primary key directly
               );
               console.log(`💾 Saved international community data to unified cache: ${community.name} (${comprehensiveData.photos.length} photos)`);
             }
@@ -137,13 +138,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
                   rawPerplexityContent: searchResults.notes || ''
                 };
                 
-                // Save to unified cache
+                // Save to unified cache with numeric PK
                 await unifiedPerplexityCache.saveComprehensiveData(
                   communityId.toString(),
                   community.name,
                   `${community.city}, ${community.state}`,
                   comprehensiveData,
-                  false // not featured
+                  false, // not featured
+                  community.id // Pass the numeric primary key directly
                 );
                 console.log(`💾 Saved US community data to unified cache: ${community.name} (${comprehensiveData.photos.length} photos)`);
               }

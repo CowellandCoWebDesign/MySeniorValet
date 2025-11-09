@@ -69,8 +69,8 @@ const defaultPhotos = [
 
 // Legacy reservation component removed - using comprehensive ReservationSection component now
 
-// Community Competitive Analysis Component - OPTIMIZED TO REDUCE API CALLS BY 90%+
-const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport, autoLoad = false }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void, autoLoad?: boolean }) => {
+// Community Competitive Analysis Component - Auto-enriches on community detail page load
+const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificationReport }: { community: any, onAnalysisUpdate?: (data: any) => void, onVerificationReport?: (data: any) => void }) => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
@@ -190,7 +190,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     }
   };
   
-  // Automatically load analysis when component mounts or community changes - ALWAYS CHECK CACHE FIRST
+  // Auto-enrich on community detail page load - check database first, then enrich if needed
   useEffect(() => {
     // Reset state when community changes
     setAnalysis(null);
@@ -198,34 +198,83 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setDataIsFresh(false);
     setShowRefreshButton(false);
     
-    // ALWAYS attempt to load data - from cache if available, or fresh if autoLoad is true
-    // This ensures cached data is displayed on subsequent visits
     const loadData = async () => {
-      if (autoLoad) {
-        console.log('🔍 Auto-fetching competitive analysis for first-time visitor');
-        await fetchAnalysis(false); // false = check cache first before making API call
-      } else {
-        // Try to load from cache even when autoLoad is false
-        const cachedData = enrichmentCache.get(community.id);
-        if (cachedData) {
-          console.log('✨ Loading competitive analysis from cache');
-          setAnalysis(cachedData);
-          setIsExpanded(true);
-          setShowRefreshButton(true);
+      if (!community?.id) return;
+      
+      try {
+        // STEP 1: Always check database first via comprehensive-data endpoint
+        console.log(`📊 Checking database for enriched data for community ${community.id}`);
+        const response = await fetch(`/api/community/${community.id}/comprehensive-data`);
+        
+        if (response.ok) {
+          const dbData = await response.json();
+          const lastEnriched = dbData.lastUpdated ? new Date(dbData.lastUpdated) : null;
+          const hasPhotos = dbData.photos && dbData.photos.length > 0;
+          const hasDescription = dbData.marketData?.description && dbData.marketData.description.length > 100;
+          const hasValidEnrichment = hasPhotos || hasDescription;
           
-          // Pass cached data to parent
-          if (onAnalysisUpdate) {
-            onAnalysisUpdate(cachedData);
+          // STEP 2: Check if enrichment is fresh (less than 7 days old)
+          const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+          const isFresh = lastEnriched && lastEnriched > sevenDaysAgo;
+          
+          if (hasValidEnrichment && isFresh) {
+            // Database has fresh enrichment - display it instantly, no API call needed
+            console.log(`✅ Database has fresh enrichment from ${lastEnriched?.toLocaleDateString()} - loading instantly`);
+            
+            // Transform database data into analysis format and display it
+            const analysisData = {
+              extractedCommunities: [{
+                name: dbData.name,
+                address: dbData.address,
+                city: dbData.city,
+                state: dbData.state,
+                phone: dbData.marketData?.phone,
+                website: dbData.marketData?.website,
+                pricing: dbData.marketData?.pricing,
+                description: dbData.marketData?.description,
+                photos: dbData.photos || []
+              }],
+              marketData: dbData.marketData,
+              analysis: dbData.analysis,
+              dataSource: 'Database - Fresh Cache'
+            };
+            
+            setAnalysis(analysisData);
+            setIsExpanded(true);
+            setShowRefreshButton(true);
+            
+            // Pass to parent components
+            if (onAnalysisUpdate) {
+              onAnalysisUpdate(analysisData);
+            }
+            
+            return; // Don't auto-fetch, data is fresh and displayed
+          } else {
+            // Database enrichment is stale or missing - trigger auto-fetch
+            const reason = !hasValidEnrichment ? 'no photos/description' : 'enrichment older than 7 days';
+            console.log(`🚀 Auto-enriching community ${community.id}: ${reason}`);
+            await fetchAnalysis(false); // Auto-fetch with cache check
           }
         } else {
-          console.log('⏸️ No cached data and auto-fetch disabled, showing manual refresh button');
-          setShowRefreshButton(true);
+          // Couldn't check database - try localStorage cache as fallback
+          const cachedData = enrichmentCache.get(community.id);
+          if (cachedData) {
+            console.log('✨ Loading from localStorage cache');
+            setAnalysis(cachedData);
+            setShowRefreshButton(true);
+          } else {
+            console.log('🔄 No database or cache data - auto-fetching');
+            await fetchAnalysis(false);
+          }
         }
+      } catch (error) {
+        console.error('Error loading enrichment data:', error);
+        setShowRefreshButton(true);
       }
     };
     
     loadData();
-  }, [community?.id, community?.name, community?.city, community?.state, autoLoad]);
+  }, [community?.id, community?.name, community?.city, community?.state]);
   
   // Don't render anything if there's no analysis and not loading
   // Always show refresh button if autoLoad is disabled or showRefreshButton is set
@@ -3490,25 +3539,12 @@ export default function CommunityDetail() {
                   verificationReport={verificationReport}
                 />
 
-                {/* Competitive Analysis Component with Smart Auto-Loading */}
+                {/* Competitive Analysis Component - Auto-enriches if database has no fresh data */}
                 <CommunityCompetitiveAnalysis
                   key={`competitive-analysis-${community.id}`}
                   community={community}
                   onAnalysisUpdate={setMarketAnalysisData}
                   onVerificationReport={setVerificationReport}
-                  autoLoad={(() => {
-                    // Smart auto-load: Check if we already have cached competitive analysis data
-                    // The component internally uses `community-${id}` as the cache key
-                    const cachedAnalysis = enrichmentCache.get(community.id);
-                    
-                    if (cachedAnalysis) {
-                      console.log('📊 Competitive analysis already cached, skipping auto-fetch');
-                      return false; // Don't auto-load if we have cached data
-                    } else {
-                      console.log('🔍 No cached competitive analysis, will auto-fetch for first visitor');
-                      return true; // Auto-load for first-time visitors
-                    }
-                  })()}
                 />
 
                 {/* Intelligent Pricing Prediction - Now uses data from verification report */}
