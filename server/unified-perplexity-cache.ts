@@ -253,16 +253,23 @@ class UnifiedPerplexityCache {
       await db.delete(perplexityCache).where(eq(perplexityCache.communityId, cacheKey));
     }
     
-    // First check memory cache for speed (but validate expiration)
+    // First check memory cache for speed (but validate expiration AND quality)
     const memoryCached = this.memoryCache.get(cacheKey);
     if (memoryCached && !forceRefresh) {
       const now = Date.now();
-      if (memoryCached.expiresAt > now) {
+      // Check if data has quality content
+      const hasQualityData = memoryCached.data?.rawPerplexityContent && 
+        memoryCached.data.rawPerplexityContent.length > 500 &&
+        !memoryCached.data.rawPerplexityContent.toLowerCase().includes('not found') &&
+        !memoryCached.data.rawPerplexityContent.toLowerCase().includes('no direct search results');
+      
+      if (memoryCached.expiresAt > now && hasQualityData) {
         console.log(`⚡ Returning memory-cached data for ${communityName} (expires in ${Math.round((memoryCached.expiresAt - now) / (1000 * 60 * 60))} hours)`);
         return { ...memoryCached.data, source: 'memory-cache' };
       } else {
-        // Memory cache expired, remove it
-        console.log(`🧹 Memory cache expired for ${communityName}, removing from memory`);
+        // Memory cache expired or low quality, remove it
+        const reason = memoryCached.expiresAt <= now ? 'expired' : 'low quality data';
+        console.log(`🧹 Memory cache ${reason} for ${communityName}, removing from memory`);
         this.memoryCache.delete(cacheKey);
       }
     }
@@ -276,9 +283,15 @@ class UnifiedPerplexityCache {
           .where(eq(perplexityCache.communityId, cacheKey))
           .limit(1);
         
-        // Check if cache exists and is not expired
-        if (dbCached && new Date(dbCached.expiresAt) > new Date()) {
-          console.log(`📦 Returning database-cached data for ${communityName}`);
+        // Check if cache exists, is not expired, AND contains quality enriched data
+        // Reject old cache entries that don't have comprehensive data
+        const hasQualityData = dbCached?.rawPerplexityContent && 
+          dbCached.rawPerplexityContent.length > 500 &&
+          !dbCached.rawPerplexityContent.toLowerCase().includes('not found') &&
+          !dbCached.rawPerplexityContent.toLowerCase().includes('no direct search results');
+        
+        if (dbCached && new Date(dbCached.expiresAt) > new Date() && hasQualityData) {
+          console.log(`📦 Returning database-cached data for ${communityName} (${dbCached.rawPerplexityContent?.length || 0} chars)`);
           const cachedData: CachedCommunityData = {
             marketData: dbCached.marketData as any || {},
             reviews: dbCached.reviews as any || {},
