@@ -250,10 +250,12 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
             
             return; // Don't auto-fetch, data is fresh and displayed
           } else {
-            // Database enrichment is stale or missing - trigger auto-fetch
+            // Database enrichment is stale or missing - DON'T use competitive analysis
+            // Instead, rely on the handleInitialLoad from parent which calls verify endpoint
             const reason = !hasValidEnrichment ? 'no photos/description' : 'enrichment older than 7 days';
-            console.log(`🚀 Auto-enriching community ${community.id}: ${reason}`);
-            await fetchAnalysis(false); // Auto-fetch with cache check
+            console.log(`⚠️ Database enrichment ${reason} - waiting for verify endpoint to populate`);
+            // Don't call fetchAnalysis here - it uses stale cache
+            // The verify endpoint will be called by handleInitialLoad and will fetch fresh data
           }
         } else {
           // Couldn't check database - try localStorage cache as fallback
