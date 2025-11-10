@@ -470,18 +470,20 @@ Format all information clearly with section headers.
       );
 
       // Check if response is complete before caching
-      // Reject responses with "Not found", ambiguous results, or insufficient data
+      // Only reject if the COMMUNITY itself wasn't found, not if individual fields are missing
       const lowerContent = structuredData.rawPerplexityContent?.toLowerCase() || '';
-      const isCompleteResponse = 
+      const hasComprehensiveData = 
         structuredData.rawPerplexityContent && 
-        structuredData.rawPerplexityContent.length > 100 &&
-        !structuredData.rawPerplexityContent.includes('temporarily unavailable') &&
-        !lowerContent.includes('no information found') &&
-        !lowerContent.includes('unable to find') &&
-        !lowerContent.includes('not found') &&
-        !lowerContent.includes('no direct search results') &&
-        !lowerContent.includes('no direct evidence') &&
-        !lowerContent.includes('unable to verify');
+        structuredData.rawPerplexityContent.length > 500; // At least 500 chars of content
+      
+      // Only reject if Perplexity couldn't find the community at all
+      const communityNotFound = 
+        lowerContent.includes('no direct search results specifically confirm') ||
+        lowerContent.includes('no direct evidence of a') ||
+        lowerContent.includes('unable to find this community') ||
+        lowerContent.includes('does not appear to exist');
+      
+      const isCompleteResponse = hasComprehensiveData && !communityNotFound;
       
       // Calculate cache duration and label
       const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
