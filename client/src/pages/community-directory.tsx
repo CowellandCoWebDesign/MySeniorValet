@@ -397,7 +397,6 @@ export default function CommunityDirectory() {
     }
   };
   
-  const [isLoading, setIsLoading] = useState(true);
   const [language, setLanguage] = useState('en');
   
   
@@ -607,19 +606,6 @@ export default function CommunityDirectory() {
   const { data: hudProperties } = useQuery({
     queryKey: ['/api/communities/hud-properties', 10]
   });
-  
-  // Simulate loading for mascot display
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
-  
-  // Show mascot loading display while loading
-  if (isLoading) {
-    return <MascotLoadingDisplay />;
-  }
   
   return (
     <div>
