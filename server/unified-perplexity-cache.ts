@@ -367,11 +367,44 @@ class UnifiedPerplexityCache {
       console.log(`📌 Using website URL for enhanced search: ${websiteUrl}`);
     }
 
+    // Fetch additional community metadata for better query disambiguation
+    let communityAddress = '';
+    let communityPhone = '';
+    try {
+      const [community] = await db
+        .select({
+          address: communities.address,
+          phone: communities.phone,
+          website: communities.website
+        })
+        .from(communities)
+        .where(eq(communities.id, parseInt(communityId)))
+        .limit(1);
+      
+      if (community) {
+        communityAddress = community.address || '';
+        communityPhone = community.phone || '';
+        // Use database website if not provided
+        if (!websiteUrl && community.website) {
+          websiteUrl = community.website;
+        }
+      }
+    } catch (error) {
+      console.log(`ℹ️ Could not fetch additional metadata for query enhancement:`, error);
+    }
+
+    // Build enhanced query with all available metadata for precise disambiguation
+    const metadataContext = [
+      communityAddress ? `Full Address: ${communityAddress}` : null,
+      communityPhone ? `Direct Phone: ${communityPhone}` : null,
+      websiteUrl ? `Official Website: ${websiteUrl}` : null
+    ].filter(Boolean).join('\n');
+
     // ONE comprehensive query that gets EVERYTHING
     const comprehensiveQuery = `
 For the senior living community "${communityName}" located in ${location}, provide comprehensive information including:
 
-**PRICING & AVAILABILITY:**
+${metadataContext ? `**KNOWN VERIFIED DETAILS:**\n${metadataContext}\n\n**Please use the above verified details to locate the correct facility.**\n\n` : ''}**PRICING & AVAILABILITY:**
 - Current monthly rates for all care levels
 - Entrance fees, deposits, and additional costs
 - Current availability and waitlist status
@@ -424,12 +457,18 @@ Format all information clearly with section headers.
       );
 
       // Check if response is complete before caching
+      // Reject responses with "Not found", ambiguous results, or insufficient data
+      const lowerContent = structuredData.rawPerplexityContent?.toLowerCase() || '';
       const isCompleteResponse = 
         structuredData.rawPerplexityContent && 
         structuredData.rawPerplexityContent.length > 100 &&
         !structuredData.rawPerplexityContent.includes('temporarily unavailable') &&
-        !structuredData.rawPerplexityContent.toLowerCase().includes('no information found') &&
-        !structuredData.rawPerplexityContent.toLowerCase().includes('unable to find');
+        !lowerContent.includes('no information found') &&
+        !lowerContent.includes('unable to find') &&
+        !lowerContent.includes('not found') &&
+        !lowerContent.includes('no direct search results') &&
+        !lowerContent.includes('no direct evidence') &&
+        !lowerContent.includes('unable to verify');
       
       // Calculate cache duration and label
       const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
