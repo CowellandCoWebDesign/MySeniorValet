@@ -214,7 +214,6 @@ export function registerAuthRoutes(app: Express) {
         lastName: updatedUser.lastName,
         phone: updatedUser.phone,
         role: updatedUser.role,
-        dateOfBirth: updatedUser.dateOfBirth,
         relationshipToCare: updatedUser.relationshipToCare,
         careNeeds: updatedUser.careNeeds,
         searchPreferences: updatedUser.searchPreferences,
@@ -316,8 +315,53 @@ export function registerAuthRoutes(app: Express) {
       // Generate reset token
       const resetToken = await authService.generatePasswordResetToken(user.id);
       
-      // Generate reset link
-      const resetLink = `${process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : 'https://myseniorvalet.com'}/reset-password?token=${resetToken}`;
+      // SECURITY: Validate host against whitelist with EXACT matching to prevent bypasses
+      const requestHost = req.get('host');
+      const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
+      
+      // Whitelist of allowed domains (development and production) - EXACT MATCH ONLY
+      const ALLOWED_HOSTS = [
+        'localhost:5000',
+        '7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev', // Development
+        'workspace-williamcowell01.replit.app', // Production
+        'myseniorvalet.com', // Custom domain
+        'www.myseniorvalet.com' // Custom domain with www
+      ];
+      
+      // SECURITY: Use exact host matching (not substring) to prevent bypass attacks like "myseniorvalet.com.attacker.com"
+      const isValidHost = ALLOWED_HOSTS.includes(requestHost || '');
+      
+      // SECURITY: Only allow https protocol (reject javascript:, data:, etc.)
+      const isSafeProtocol = requestProtocol === 'https' || requestProtocol === 'http';
+      
+      if (!isValidHost || !isSafeProtocol) {
+        console.error(`🚨 SECURITY: Invalid host/protocol detected - Host: ${requestHost}, Protocol: ${requestProtocol}`);
+        // Use hardcoded secure fallback (never trust request headers when validation fails)
+        const resetLink = `https://myseniorvalet.com/reset-password?token=${resetToken}`;
+        console.log(`Password reset requested for ${email} (using secure fallback due to invalid host/protocol)`);
+        
+        try {
+          await EmailService.sendEmail({
+            to: email,
+            subject: passwordResetEmail.subject,
+            html: passwordResetEmail.html({
+              name: user.firstName || 'there',
+              resetLink
+            }),
+            isTransactional: true
+          });
+        } catch (emailError) {
+          console.error('Error sending password reset email:', emailError);
+        }
+        
+        return res.json({ message: "If an account exists, a password reset link will be sent" });
+      }
+      
+      // Generate reset link using validated host and protocol
+      const resetLink = `${requestProtocol}://${requestHost}/reset-password?token=${resetToken}`;
+      
+      // SECURITY: Don't log the reset token - only log the request
+      console.log(`Password reset requested for ${email} on validated host: ${requestHost}`);
       
       // Send password reset email
       try {

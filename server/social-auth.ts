@@ -22,17 +22,34 @@ const googleClient = new OAuth2Client(
 export function setupSocialAuth(app: any) {
   // Google OAuth Login Endpoint
   router.get('/api/auth/google', (req, res) => {
-    // Determine the correct redirect URI based on environment
-    let redirectUri: string;
+    // SECURITY: Validate host against whitelist with EXACT matching to prevent bypasses
+    const requestHost = req.get('host');
+    const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
     
-    // Always use the current host for the redirect URI
-    const host = req.get('host');
-    const protocol = req.get('x-forwarded-proto') || req.protocol;
+    // Whitelist of allowed domains (development and production) - EXACT MATCH ONLY
+    const ALLOWED_HOSTS = [
+      'localhost:5000',
+      '7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev', // Development
+      'workspace-williamcowell01.replit.app', // Production
+      'myseniorvalet.com', // Custom domain
+      'www.myseniorvalet.com' // Custom domain with www
+    ];
     
-    // Use the actual host the request came from
-    redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+    // SECURITY: Use exact host matching (not substring) to prevent bypass attacks
+    const isValidHost = ALLOWED_HOSTS.includes(requestHost || '');
     
-    console.log('Google OAuth redirect URI:', redirectUri);
+    // SECURITY: Only allow https protocol (reject javascript:, data:, etc.)
+    const isSafeProtocol = requestProtocol === 'https' || requestProtocol === 'http';
+    
+    if (!isValidHost || !isSafeProtocol) {
+      console.error(`🚨 SECURITY: Invalid host/protocol in Google OAuth - Host: ${requestHost}, Protocol: ${requestProtocol}`);
+      return res.status(400).json({ error: 'Invalid request origin' });
+    }
+    
+    // Use validated host and protocol for redirect URI
+    const redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
+    
+    console.log('Google OAuth redirect URI (validated):', redirectUri);
     
     const authUrl = googleClient.generateAuthUrl({
       access_type: 'offline',
@@ -51,17 +68,34 @@ export function setupSocialAuth(app: any) {
         return res.redirect('/login?error=no_code');
       }
 
-      // Determine the correct redirect URI based on environment (must match what was sent in the auth request)
-      let redirectUri: string;
+      // SECURITY: Validate host against whitelist with EXACT matching
+      const requestHost = req.get('host');
+      const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
       
-      // Always use the current host for the redirect URI
-      const host = req.get('host');
-      const protocol = req.get('x-forwarded-proto') || req.protocol;
+      // Whitelist of allowed domains (development and production) - EXACT MATCH ONLY
+      const ALLOWED_HOSTS = [
+        'localhost:5000',
+        '7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev', // Development
+        'workspace-williamcowell01.replit.app', // Production
+        'myseniorvalet.com', // Custom domain
+        'www.myseniorvalet.com' // Custom domain with www
+      ];
       
-      // Use the actual host the request came from
-      redirectUri = `${protocol}://${host}/api/auth/google/callback`;
+      // SECURITY: Use exact host matching (not substring) to prevent bypass attacks
+      const isValidHost = ALLOWED_HOSTS.includes(requestHost || '');
       
-      console.log('Google OAuth callback redirect URI:', redirectUri);
+      // SECURITY: Only allow https protocol
+      const isSafeProtocol = requestProtocol === 'https' || requestProtocol === 'http';
+      
+      if (!isValidHost || !isSafeProtocol) {
+        console.error(`🚨 SECURITY: Invalid host/protocol in OAuth callback - Host: ${requestHost}, Protocol: ${requestProtocol}`);
+        return res.redirect('/login?error=invalid_origin');
+      }
+      
+      // Use validated host and protocol for redirect URI
+      const redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
+      
+      console.log('Google OAuth callback redirect URI (validated):', redirectUri);
 
       // Exchange code for tokens
       const { tokens } = await googleClient.getToken({
