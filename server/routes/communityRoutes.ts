@@ -987,10 +987,12 @@ export function registerCommunityRoutes(app: Express) {
         // CRITICAL: Prefer database photos first (most reliable), then cache
         photos: (community.photos && community.photos.length > 0) ? community.photos : (comprehensiveData.photos || []),
         searchResults: {
-          // CRITICAL FIX: Use database description first (most reliable), then cache, then fallbacks
-          summary: community.description || 
-                   comprehensiveData.rawPerplexityContent || 
-                   comprehensiveData.marketData?.description || 
+          // CRITICAL FIX: Prioritize fresh cached data over stale database description
+          // Use rawPerplexityContent FIRST (most current, comprehensive data)
+          // Only fall back to database description if cache is truly empty
+          summary: comprehensiveData.rawPerplexityContent || 
+                   comprehensiveData.marketData?.description ||
+                   community.description || 
                    '',
           sources: comprehensiveData.sources || []
         }
